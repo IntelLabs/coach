@@ -2,7 +2,7 @@
 
 ## Motivation
 
-Enable easy design and training of state-of-the-art reinforcement learning algorithms with multiple environments
+Train and evaluate reinforcement learning agents by harnessing the power of multi-core CPU processing to achieve state-of-the-art results. Provide a sandbox for easing the development process of new algorithms through a modular design and an elegant set of APIs. 
 
 ## Solution
 

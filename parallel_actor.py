@@ -29,14 +29,6 @@ import shutil
 
 start_time = time.time()
 
-
-# Disables write_meta_graph argument, which freezes entire process and is mostly useless.
-class FastSaver(tf.train.Saver):
-    def save(self, sess, save_path, global_step=None, latest_filename=None,
-             meta_graph_suffix="meta", write_meta_graph=True):
-        super(FastSaver, self).save(sess, save_path, global_step, latest_filename,
-                                    meta_graph_suffix, False)
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--ps_hosts',

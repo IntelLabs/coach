@@ -1,5 +1,5 @@
 site_name: Reinforcement Learning Coach Documentation
-theme: material
+theme: readthedocs
 site_description: 'Reinforcement Learning Coach Documentation by Intel Nervana.'
 markdown_extensions: 
 - mdx_math:
