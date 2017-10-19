@@ -1,6 +1,8 @@
-> Action space: Discrete
+# Bootstrapped DQN
 
-[Paper](https://arxiv.org/abs/1602.04621)
+**Actions space:** Discrete
+
+**References:** [Deep Exploration via Bootstrapped DQN](https://arxiv.org/abs/1602.04621)
 
 ## Network Structure
 

@@ -1,8 +1,8 @@
 # Mixed Monte Carlo
 
-> Action space: Discrete
+**Actions space:** Discrete
 
-[Paper](https://arxiv.org/abs/1703.01310)
+**References:** [Count-Based Exploration with Neural Density Models](https://arxiv.org/abs/1703.01310)
 
 ## Network Structure
 

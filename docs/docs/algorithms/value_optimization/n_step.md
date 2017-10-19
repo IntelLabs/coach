@@ -1,6 +1,8 @@
-> Action space: Discrete
+# N-Step Q Learning
 
-[Paper](https://arxiv.org/abs/1602.01783)
+**Actions space:** Discrete
+
+**References:** [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/abs/1602.01783)
 
 ## Network Structure
 

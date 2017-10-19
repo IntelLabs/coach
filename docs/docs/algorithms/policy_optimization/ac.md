@@ -1,6 +1,8 @@
-> Action space: Discrete|Continuous
+# Actor-Critic
 
-[Paper](https://arxiv.org/abs/1602.01783)
+**Actions space:** Discrete|Continuous
+
+**References:** [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/abs/1602.01783)
 
 ## Network Structure 
 <p style="text-align: center;">

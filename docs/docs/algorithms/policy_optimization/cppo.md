@@ -1,6 +1,8 @@
-> Action Space: Discrete|Continuous
+# Clipped Proximal Policy Optimization
 
-[Paper](https://arxiv.org/pdf/1707.06347.pdf)
+**Actions space:** Discrete|Continuous
+
+**References:** [Proximal Policy Optimization Algorithms](https://arxiv.org/pdf/1707.06347.pdf)
 
 ## Network Structure
 

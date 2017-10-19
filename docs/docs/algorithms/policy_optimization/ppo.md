@@ -1,6 +1,8 @@
-> Actions space: Discrete|Continuous
+# Proximal Policy Optimization
 
-[Paper](https://arxiv.org/pdf/1707.02286.pdf)
+**Actions space:** Discrete|Continuous
+
+**References:** [Emergence of Locomotion Behaviours in Rich Environments](https://arxiv.org/pdf/1707.02286.pdf)
 
 ## Network Structure
 

@@ -1,6 +1,8 @@
-> Action space: Discrete
+# Persistent Advantage Learning
 
-[Paper](https://arxiv.org/abs/1512.04860)
+**Actions space:** Discrete
+
+**References:** [Increasing the Action Gap: New Operators for Reinforcement Learning](https://arxiv.org/abs/1512.04860)
 
 ## Network Structure
 

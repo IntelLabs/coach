@@ -6,6 +6,7 @@ markdown_extensions:
     enable_dollar_delimiter: True #for use of inline $..$
 
 extra_javascript: ['https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML']
+extra_css: [extra.css]
 
 pages:
 - Home : index.md

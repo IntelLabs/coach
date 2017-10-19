@@ -1,6 +1,8 @@
-> Action space: Discrete
+# Neural Episodic Control
 
-[Paper](https://arxiv.org/abs/1703.01988)
+**Actions space:** Discrete
+
+**References:** [Neural Episodic Control](https://arxiv.org/abs/1703.01988)
 
 ## Network Structure
 

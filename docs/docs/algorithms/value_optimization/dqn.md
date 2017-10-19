@@ -1,6 +1,8 @@
-> Action space: Discrete
+# Deep Q Networks
 
-[Paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
+**Actions space:** Discrete
+
+**References:** [Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
 
 ## Network Structure
 

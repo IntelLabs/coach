@@ -1,8 +1,8 @@
 # Double DQN
-> Action space: Discrete
 
- [Paper](https://arxiv.org/pdf/1509.06461.pdf) 
+**Actions space:** Discrete
 
+**References:** [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461.pdf)
 
 ## Network Structure
 

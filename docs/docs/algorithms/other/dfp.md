@@ -1,6 +1,8 @@
-> Actions space: Discrete
+# Direct Future Prediction
 
-[Paper](https://arxiv.org/abs/1611.01779)
+**Actions space:** Discrete
+
+**References:** [Learning to Act by Predicting the Future](https://arxiv.org/abs/1611.01779)
 
 ## Network Structure
 

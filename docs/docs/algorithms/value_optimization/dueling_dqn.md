@@ -1,6 +1,8 @@
-> Action space: Discrete
+# Dueling DQN
 
-[Paper](https://arxiv.org/abs/1511.06581)
+**Actions space:** Discrete
+
+**References:** [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)
 
 ## Network Structure
 

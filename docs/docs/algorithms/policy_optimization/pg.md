@@ -1,6 +1,8 @@
-> Action Space: Discrete|Continuous
+# Policy Gradient
 
-[Paper](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)
+**Actions space:** Discrete|Continuous
+
+**References:** [Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf)
 
 ## Network Structure
 

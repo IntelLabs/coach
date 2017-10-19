@@ -1,6 +1,8 @@
-> Actions space: Continuous
+# Deep Deterministic Policy Gradient
 
-[Paper](https://arxiv.org/abs/1509.02971)
+**Actions space:** Continuous
+
+**References:** [Continuous control with deep reinforcement learning](https://arxiv.org/abs/1509.02971)
 
 ## Network Structure
 

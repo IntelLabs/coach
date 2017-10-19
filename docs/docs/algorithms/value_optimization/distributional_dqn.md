@@ -1,6 +1,8 @@
-> Action space: Discrete
+# Distributional DQN
 
-[Paper](https://arxiv.org/abs/1707.06887)
+**Actions space:** Discrete
+
+**References:** [A Distributional Perspective on Reinforcement Learning](https://arxiv.org/abs/1707.06887)
 
 ## Network Structure
 

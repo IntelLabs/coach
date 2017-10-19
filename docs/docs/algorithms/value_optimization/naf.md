@@ -1,6 +1,8 @@
-> Action space: Continuous
+# Normalized Advantage Functions
 
-[Paper](https://arxiv.org/abs/1603.00748.pdf)
+**Actions space:** Continuous
+
+**References:** [Continuous Deep Q-Learning with Model-based Acceleration](https://arxiv.org/abs/1603.00748.pdf)
 
 ## Network Structure
 
