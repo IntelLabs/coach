@@ -1,0 +1,16 @@
+.idea
+experiments
+*.pyc
+checkpoints
+_vizdoom.ini
+*.*~
+MUJOCO_LOG.TXT
+test_log.txt
+.test
+tf_logs
+bullet3
+roboschool
+*.csv
+*.doc
+*.orig
+docs/site

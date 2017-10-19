@@ -1,0 +1,35 @@
+site_name: Reinforcement Learning Coach Documentation
+theme: material
+site_description: 'Reinforcement Learning Coach Documentation by Intel Nervana.'
+markdown_extensions: 
+- mdx_math:
+    enable_dollar_delimiter: True #for use of inline $..$
+
+extra_javascript: ['https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML']
+
+pages:
+- Home : index.md
+- Design: design.md
+- Algorithms:
+        - 'DQN' : algorithms/value_optimization/dqn.md
+        - 'Double DQN' : algorithms/value_optimization/double_dqn.md
+        - 'Dueling DQN' : algorithms/value_optimization/dueling_dqn.md
+        - 'Distributional DQN' : algorithms/value_optimization/distributional_dqn.md
+        - 'Mixed Monte Carlo' : algorithms/value_optimization/mmc.md
+        - 'Persistent Advantage Learning' : algorithms/value_optimization/pal.md
+        - 'Neural Episodic Control' : algorithms/value_optimization/nec.md
+        - 'Bootstrapped DQN' : algorithms/value_optimization/bs_dqn.md
+        - 'N-Step Q Learning' : algorithms/value_optimization/n_step.md
+        - 'Normalized Advantage Functions' : algorithms/value_optimization/naf.md
+        - 'Policy Gradient' : algorithms/policy_optimization/pg.md
+        - 'Actor-Critic' : algorithms/policy_optimization/ac.md
+        - 'Deep Determinstic Policy Gradients' : algorithms/policy_optimization/ddpg.md
+        - 'Proximal Policy Optimization' : algorithms/policy_optimization/ppo.md
+        - 'Clipped Proximal Policy Optimization' : algorithms/policy_optimization/cppo.md
+        - 'Direct Future Prediction' : algorithms/other/dfp.md
+        
+- Coach Dashboard : 'dashboard.md'
+- Contributing : 
+    - Adding a New Agent : 'contributing/add_agent.md'
+    - Adding a New Environment : 'contributing/add_env.md' 
+ 
