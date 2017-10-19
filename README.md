@@ -41,7 +41,7 @@ In addition to OpenAI Gym, several other environments were tested and are suppor
 
 ### GPU Support
 
-####TensorFlow
+#### TensorFlow
 
 Coach's installer installs [Intel-Optimized TensorFlow](https://software.intel.com/en-us/articles/intel-optimized-tensorflow-wheel-now-available), which does not support GPU, by default. In order to have Coach running with GPU, a GPU supported TensorFlow version must be installed. This can be done by overriding the TensorFlow version: 
 
