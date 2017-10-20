@@ -119,6 +119,10 @@ python dashboard.py
 <img src="img/dashboard.png" alt="Coach Design" style="width: 800px;"/>
 
 
+## Documentation
+
+Framework documentation, algoritmic description and instructions on how to contribute a new agent/environment can be found [here](http://coach.nervanasys.com).
+
 
 ## Parallelizing an Algorithm
 
