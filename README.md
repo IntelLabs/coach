@@ -191,7 +191,7 @@ python coach.py -p Hopper_A3C -n 16
 * [Deep Q Network (DQN](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
 * [Double Deep Q Network (DDQN)](https://arxiv.org/pdf/1509.06461.pdf)
 * [Dueling Q Network](https://arxiv.org/abs/1511.06581)
-* [Mixed Monte Carlo (MMC)](https://arxiv.org/abs/1707.06887)
+* [Mixed Monte Carlo (MMC)](https://arxiv.org/abs/1703.01310)
 * [Persistent Advantage Learning (PAL)](https://arxiv.org/abs/1512.04860)
 * [Distributional Deep Q Network ](https://arxiv.org/abs/1707.06887)
 * [Bootstrapped Deep Q Network](https://arxiv.org/abs/1602.04621)
