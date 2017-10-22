@@ -14,6 +14,9 @@ Coach Dashboard exposes a convenient user interface for visualizing the training
 
 </p>
 
+* Holding the CTRL key, while selecting signals, will allow visualizing more than one signal. 
+* Signals can be visualized, using either of the Y-axes, in order to visualize signals with different scales. To move a signal to the second Y-axis, select it and press the 'Toggle Second Axis' button.
+
 
 ### Tracking Statistics
 

@@ -11,6 +11,12 @@ With Coach, it is possible to model an agent by combining various building block
 The available environments allow testing the agent in different practical fields such as robotics, autonomous driving, games and more. 
 Coach collects statistics from the training process and supports advanced visualization techniques for debugging the agent being trained.
 
+
+
+Blog post from the Intel® Nervana™ website can be found [here](https://www.intelnervana.com/reinforcement-learning-coach-intel). 
+
+GitHub repository is [here](https://github.com/NervanaSystems/coach). 
+
 ## Design
 
 <img src="img/design.png" alt="Coach Design" style="width: 800px;"/>
