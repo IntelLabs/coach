@@ -51,7 +51,7 @@ INSTALL_VIRTUAL_ENVIRONMENT=1
 
 # Get user preferences
 TEMP=`getopt -o cpgvrmeNndh \
-             --long coach,dashboard,gym,no_virtual_environment,ngraph,debug,help \
+             --long coach,dashboard,gym,no_virtual_environment,neon,debug,help \
              -- "$@"`
 eval set -- "$TEMP"
 while true; do
@@ -73,8 +73,8 @@ while true; do
             INSTALL_VIRTUAL_ENVIRONMENT=0
             GET_PREFERENCES_MANUALLY=0;
             shift;;
-        -ng|--ngraph)
-            INSTALL_NGRAPH=1
+        -ne|--neon)
+            INSTALL_NEON=1
             GET_PREFERENCES_MANUALLY=0;
             shift;;
         -d|--debug) set -x; shift;;
@@ -104,8 +104,8 @@ if [ ${GET_PREFERENCES_MANUALLY} -eq 1 ]; then
     prompt "Install Gym support?" Y
     INSTALL_GYM=${retval}
 
-    prompt "Install Neon and NGraph support?" Y
-    INSTALL_NGRAPH=${retval}
+    prompt "Install Neon and neon support?" Y
+    INSTALL_NEON=${retval}
 fi
 
 IN_VIRTUAL_ENV=`python -c 'import sys; print("%i" % hasattr(sys, "real_prefix"))'`
@@ -172,8 +172,8 @@ if [ ${INSTALL_GYM} -eq 1 ]; then
 fi
 
 # NGraph and Neon
-if [ ${INSTALL_NGRAPH} -eq 1 ]; then
-    echo "Installing NGraph requirements"
+if [ ${INSTALL_NEON} -eq 1 ]; then
+    echo "Installing neon requirements"
 
     # MKL
     git clone https://github.com/01org/mkl-dnn.git
