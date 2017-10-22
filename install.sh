@@ -1,9 +1,5 @@
 #!/bin/bash -e
 
-if [ "${HTTPS_PROXY}" == "" ]; then
-    HTTPS_PROXY="${https_proxy}"
-fi
-
 prompt () {
     # prints a yes / no question to the user and returns the answer
     # first argument is the prompt question
@@ -48,6 +44,7 @@ INSTALL_COACH=0
 INSTALL_DASHBOARD=0
 INSTALL_GYM=0
 INSTALL_VIRTUAL_ENVIRONMENT=1
+INSTALL_NEON=0
 
 # Get user preferences
 TEMP=`getopt -o cpgvrmeNndh \
@@ -78,7 +75,7 @@ while true; do
             GET_PREFERENCES_MANUALLY=0;
             shift;;
         -d|--debug) set -x; shift;;
-        -h|--help) 
+        -h|--help)
             echo "Available command line arguments:"
             echo ""
             echo "   -c | --coach                  - Install Coach requirements"
@@ -142,13 +139,13 @@ sudo -E apt-get install libboost-all-dev -y
 # Coach
 if [ ${INSTALL_COACH} -eq 1 ]; then
     echo "Installing Coach requirements"
-    pip install -r ./requirements_coach.txt --proxy ${HTTPS_PROXY}
+    pip install -r ./requirements_coach.txt
 fi
 
 # Dashboard
 if [ ${INSTALL_DASHBOARD} -eq 1 ]; then
     echo "Installing Dashboard requirements"
-    pip install -r ./requirements_dashboard.txt --proxy ${HTTPS_PROXY}
+    pip install -r ./requirements_dashboard.txt
     sudo -E apt-get install dpkg-dev build-essential python3.5-dev libjpeg-dev  libtiff-dev libsdl1.2-dev libnotify-dev \
     freeglut3 freeglut3-dev libsm-dev libgtk2.0-dev libgtk-3-dev libwebkitgtk-dev libgtk-3-dev libwebkitgtk-3.0-dev libgstreamer-plugins-base1.0-dev -y
 
@@ -192,7 +189,7 @@ if [ ${INSTALL_NEON} -eq 1 ]; then
     cd ngraph
     make install -j
     cd ..
-    
+
     # Neon
     sudo -E apt-get install libhdf5-dev libyaml-dev pkg-config clang -y
     git clone https://github.com/NervanaSystems/neon.git
@@ -202,5 +199,3 @@ fi
 
 # Intel Optimized TensorFlow
 pip3 install https://anaconda.org/intel/tensorflow/1.3.0/download/tensorflow-1.3.0-cp35-cp35m-linux_x86_64.whl
-
-
