@@ -63,7 +63,7 @@ def list_all_classes_in_module(module):
 
 
 def parse_bool(value):
-    return {'true': True, 'false': False}.get(value..strip().lower(), value)
+    return {'true': True, 'false': False}.get(value.strip().lower(), value)
 
 
 def convert_to_ascii(data):
