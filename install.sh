@@ -104,7 +104,7 @@ if [ ${GET_PREFERENCES_MANUALLY} -eq 1 ]; then
     prompt "Install Gym support?" Y
     INSTALL_GYM=${retval}
 
-    prompt "Install Neon and neon support?" Y
+    prompt "Install neon support?" Y
     INSTALL_NEON=${retval}
 fi
 
