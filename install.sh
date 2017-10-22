@@ -191,11 +191,10 @@ if [ ${INSTALL_NEON} -eq 1 ]; then
     git clone https://github.com/NervanaSystems/ngraph.git
     cd ngraph
     make install -j
-    make gpu_prepare -j
     cd ..
     
     # Neon
-    sudo -E apt-get install libhdf5-dev libyaml-dev pkg-config clang
+    sudo -E apt-get install libhdf5-dev libyaml-dev pkg-config clang -y
     git clone https://github.com/NervanaSystems/neon.git
     cd neon && make sysinstall -j
     cd ..
