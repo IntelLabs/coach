@@ -12,7 +12,7 @@
 
 </p>
 
-## Algorithmic Description
+## Algorithm Description
 ### Training the network
 In MMC, targets are calculated as a mixture between Double DQN targets and full Monte Carlo samples (total discounted returns).
 

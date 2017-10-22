@@ -12,7 +12,7 @@
 
 </p>
 
-## Algorithmic Description
+## Algorithm Description
 ### Choosing an action
 The current state is used as an input to the network. The action mean $ \mu(s_t ) $ is extracted from the output head. It is then passed to the exploration policy which adds noise in order to encourage exploration.
 ###Training the network

@@ -11,7 +11,7 @@
 </p>
 
 
-## Algorithmic Description
+## Algorithm Description
 ### Choosing an action - Continuous action
 Same as in PPO. 
 ### Training the network

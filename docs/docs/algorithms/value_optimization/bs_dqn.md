@@ -12,7 +12,7 @@
 
 </p>
 
-## Algorithmic Description
+## Algorithm Description
 ### Choosing an action
 The current states are used as the input to the network. The network contains several $Q$ heads, which  are used for returning different estimations of the action $ Q $ values. For each episode, the bootstrapped exploration policy selects a single head to play with during the episode. According to the selected head, only the relevant output $ Q $ values are used. Using those $ Q $ values, the exploration policy then selects the action for acting.
 

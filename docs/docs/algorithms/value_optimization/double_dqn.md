@@ -14,7 +14,7 @@
 
 
 
-## Algorithmic Description
+## Algorithm Description
 
 ### Training the network
 1. Sample a batch of transitions from the replay buffer. 

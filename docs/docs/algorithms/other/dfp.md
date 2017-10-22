@@ -12,7 +12,7 @@
 
 </p>
 
-## Algorithmic Description
+## Algorithm Description
 ### Choosing an action
 
 1. The current states (observations and measurements) and the corresponding goal vector are passed as an input to the network. The output of the network is the predicted future measurements for time-steps $t+1,t+2,t+4,t+8,t+16$ and $t+32$ for each possible action. 
@@ -22,4 +22,4 @@
 
 ### Training the network
 
-Given a batch of transitions, run them through the network to get the current predictions of the future measurements per action, and set it as the initial targets for training the network. For each transition $(s_t,a_t,r_t,s_{t+1} )$ in the batch, the target of the network for the action that was taken, is the actual measurements that were seen in time-steps $t+1,t+2,t+4,t+8,t+16$ and $t+32$. For the actions that were not taken, the targets are the current values.
+Given a batch of transitions, run them through the network to get the current predictions of the future measurements per action, and set them as the initial targets for training the network. For each transition $(s_t,a_t,r_t,s_{t+1} )$ in the batch, the target of the network for the action that was taken, is the actual measurements that were seen in time-steps $t+1,t+2,t+4,t+8,t+16$ and $t+32$. For the actions that were not taken, the targets are the current values.

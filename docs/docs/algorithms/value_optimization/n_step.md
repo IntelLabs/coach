@@ -14,7 +14,7 @@
 
 
 
-## Algorithmic Description
+## Algorithm Description
 
 ### Training the network
 

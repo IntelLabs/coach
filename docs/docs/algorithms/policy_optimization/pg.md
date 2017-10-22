@@ -12,7 +12,7 @@
 
 </p>
 
-## Algorithmic Description
+## Algorithm Description
 ### Choosing an action - Discrete actions
 Run the current states through the network and get a policy distribution over the actions. While training, sample from the policy distribution. When testing, take the action with the highest probability. 
 

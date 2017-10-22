@@ -4,8 +4,6 @@ installation
 	http://www.mkdocs.org/#installation
 2. install the math extension for mkdocs 
 	sudo -E pip install python-markdown-math
-3. install the material theme
-	sudo -E pip install mkdocs-material
 
 to build the documentation website run:
 - mkdocs build

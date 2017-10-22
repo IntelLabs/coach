@@ -13,7 +13,7 @@
 </p>
 
 
-## Algorithmic Description
+## Algorithm Description
 ### Choosing an action - Continuous actions
 Run the observation through the policy network, and get the mean and standard deviation vectors for this observation. While in training phase, sample from a multi-dimensional Gaussian distribution with these mean and standard deviation values. When testing, just take the mean values predicted by the network. 
 ### Training the network
