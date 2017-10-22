@@ -15,6 +15,8 @@ python coach.py -p CartPole_DQN -r
 
 <img src="img/doom.gif" alt="Doom Health Gathering" width="265" height="200"/><img src="img/minitaur.gif" alt="PyBullet Minitaur" width="265" height="200"/> <img src="img/ant.gif" alt="Gym Extensions Ant" width="250" height="200"/>
 
+Blog post from the Intel® Nervana™ website can be found [here](https://www.intelnervana.com/reinforcement-learning-coach-intel).
+
 ## Installation
 
 Note: Coach has been tested on Ubuntu 16.04 LTS only.
