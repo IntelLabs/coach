@@ -166,7 +166,7 @@ fi
 # Gym
 if [ ${INSTALL_GYM} -eq 1 ]; then
     echo "Installing Gym support"
-    sudo -E apt-get install xvfb libav-tools xorg-dev libsdl2-dev swig cmake -y
+    sudo -E apt-get install libav-tools libsdl2-dev swig cmake -y
     pip install box2d # for bipedal walker etc.
     pip install gym
 fi
