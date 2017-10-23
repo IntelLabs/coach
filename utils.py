@@ -63,11 +63,7 @@ def list_all_classes_in_module(module):
 
 
 def parse_bool(value):
-    if value.lower() == 'true':
-        return True
-    elif value.lower() == 'false':
-        return False
-    return value
+    return {'true': True, 'false': False}.get(value.strip().lower(), value)
 
 
 def convert_to_ascii(data):
@@ -90,13 +86,7 @@ def break_file_path(path):
 
 
 def is_empty(str):
-    if str == 0:
-        return True
-    str = str.replace("'", "")
-    str = str.replace("\"", "")
-    if len(str) == 0:
-        return True
-    return False
+    return str == 0 or len(str.replace("'", "").replace("\"", "")) == 0
 
 
 def read_json(filename):
@@ -128,10 +118,7 @@ def parse_int(value):
     import ast
     try:
         int_value = int(value)
-        if int_value != value:
-            return value
-        else:
-            return int_value
+        return int_value if int_value == value else value
     except:
         pass
 
