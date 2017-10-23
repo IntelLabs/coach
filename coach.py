@@ -273,7 +273,7 @@ if __name__ == "__main__":
         set_cpu()
 
         # create a parameter server
-        Popen(["python",
+        Popen(["python3",
                "./parallel_actor.py",
                "--ps_hosts={}".format(ps_hosts),
                "--worker_hosts={}".format(worker_hosts),
@@ -296,7 +296,7 @@ if __name__ == "__main__":
                 run_dict['visualization.render'] = False  # #In a parallel setting, only the evaluation agent renders
 
             json_run_dict_path = run_dict_to_json(run_dict, i)
-            workers_args = ["python", "./parallel_actor.py",
+            workers_args = ["python3", "./parallel_actor.py",
                             "--ps_hosts={}".format(ps_hosts),
                             "--worker_hosts={}".format(worker_hosts),
                             "--job_name=worker",

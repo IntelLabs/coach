@@ -10,7 +10,7 @@ Basic RL components (algorithms, environments, neural network architectures, exp
 Training an agent to solve an environment is as easy as running:
 
 ```bash
-python coach.py -p CartPole_DQN -r
+python3 coach.py -p CartPole_DQN -r
 ```
 
 <img src="img/doom.gif" alt="Doom Health Gathering" width="265" height="200"/><img src="img/minitaur.gif" alt="PyBullet Minitaur" width="265" height="200"/> <img src="img/ant.gif" alt="Gym Extensions Ant" width="250" height="200"/>
@@ -19,7 +19,7 @@ Blog post from the Intel® Nervana™ website can be found [here](https://www.in
 
 ## Installation
 
-Note: Coach has been tested on Ubuntu 16.04 LTS only.
+Note: Coach has only been tested on Ubuntu 16.04 LTS, and with Python 3.5.
 
 Coach's installer will setup all the basics needed to get the user going with running Coach on top of [OpenAI Gym](https://github.com/openai/gym) environments.  This can be done by running the following command and then following the on-screen printed instructions:
 
@@ -48,7 +48,7 @@ In addition to OpenAI Gym, several other environments were tested and are suppor
 Coach's installer installs [Intel-Optimized TensorFlow](https://software.intel.com/en-us/articles/intel-optimized-tensorflow-wheel-now-available), which does not support GPU, by default. In order to have Coach running with GPU, a GPU supported TensorFlow version must be installed. This can be done by overriding the TensorFlow version: 
 
 ```bash
-pip install tensorflow-gpu
+pip3 install tensorflow-gpu
 ```
 
 ## Running Coach
@@ -67,38 +67,38 @@ To list all the available presets use the `-l` flag.
 To run a preset, use:
 
 ```bash
-python coach.py -r -p <preset_name>
+python3 coach.py -r -p <preset_name>
 ```
 
 For example:
 1. CartPole environment using Policy Gradients:
 
   ```bash
-  python coach.py -r -p CartPole_PG
+  python3 coach.py -r -p CartPole_PG
   ```
 
 2. Pendulum using Clipped PPO:
 
   ```bash
-  python coach.py -r -p Pendulum_ClippedPPO -n 8
+  python3 coach.py -r -p Pendulum_ClippedPPO -n 8
   ```
 
 3. MountainCar using A3C:
 
   ```bash
-  python coach.py -r -p MountainCar_A3C -n 8
+  python3 coach.py -r -p MountainCar_A3C -n 8
   ```
-  
+
 4. Doom basic level using Dueling network and Double DQN algorithm:
 
   ```bash
-   python coach.py -r -p Doom_Basic_Dueling_DDQN
+   python3 coach.py -r -p Doom_Basic_Dueling_DDQN
   ```
 
 5. Doom health gathering level using Mixed Monte Carlo:
 
   ```bash
-  python coach.py -r -p Doom_Health_MMC
+  python3 coach.py -r -p Doom_Health_MMC
   ```
 
 It is easy to create new presets for different levels or environments by following the same pattern as in presets.py
@@ -113,7 +113,7 @@ While Coach trains an agent, a csv file containing the relevant training signals
 To use it, run:
 
 ```bash
-python dashboard.py
+python3 dashboard.py
 ```
 
 
@@ -143,7 +143,7 @@ Once a parallelized run is started, the ```train_and_sync_networks``` API will a
 Then, it merely requires running Coach with the ``` -n``` flag and with the number of workers to run with. For instance, the following command  will set 16 workers to work together to train a MuJoCo Hopper:
 
 ```bash
-python coach.py -p Hopper_A3C -n 16
+python3 coach.py -p Hopper_A3C -n 16
 ```
 
 

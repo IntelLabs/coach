@@ -16,7 +16,7 @@
 
 """
 To run Coach Dashboard, run the following command:
-python dashboard.py
+python3 dashboard.py
 """
 
 from utils import *

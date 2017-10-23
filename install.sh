@@ -105,7 +105,7 @@ if [ ${GET_PREFERENCES_MANUALLY} -eq 1 ]; then
     INSTALL_NEON=${retval}
 fi
 
-IN_VIRTUAL_ENV=`python -c 'import sys; print("%i" % hasattr(sys, "real_prefix"))'`
+IN_VIRTUAL_ENV=`python3 -c 'import sys; print("%i" % hasattr(sys, "real_prefix"))'`
 
 # basic installations
 sudo -E apt-get install python3-pip cmake zlib1g-dev python3-tk python-opencv -y
@@ -139,13 +139,13 @@ sudo -E apt-get install libboost-all-dev -y
 # Coach
 if [ ${INSTALL_COACH} -eq 1 ]; then
     echo "Installing Coach requirements"
-    pip install -r ./requirements_coach.txt
+    pip3 install -r ./requirements_coach.txt
 fi
 
 # Dashboard
 if [ ${INSTALL_DASHBOARD} -eq 1 ]; then
     echo "Installing Dashboard requirements"
-    pip install -r ./requirements_dashboard.txt
+    pip3 install -r ./requirements_dashboard.txt
     sudo -E apt-get install dpkg-dev build-essential python3.5-dev libjpeg-dev  libtiff-dev libsdl1.2-dev libnotify-dev \
     freeglut3 freeglut3-dev libsm-dev libgtk2.0-dev libgtk-3-dev libwebkitgtk-dev libgtk-3-dev libwebkitgtk-3.0-dev libgstreamer-plugins-base1.0-dev -y
 
@@ -164,8 +164,8 @@ fi
 if [ ${INSTALL_GYM} -eq 1 ]; then
     echo "Installing Gym support"
     sudo -E apt-get install libav-tools libsdl2-dev swig cmake -y
-    pip install box2d # for bipedal walker etc.
-    pip install gym
+    pip3 install box2d # for bipedal walker etc.
+    pip3 install gym
 fi
 
 # NGraph and Neon
