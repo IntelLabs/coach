@@ -191,7 +191,7 @@ if [ ${INSTALL_NEON} -eq 1 ]; then
     cd ..
 
     # Neon
-    sudo -E apt-get install libhdf5-dev libyaml-dev pkg-config clang virtualenv -y
+    sudo -E apt-get install libhdf5-dev libyaml-dev pkg-config clang virtualenv libcurl4-openssl-dev libopencv-dev libsox-dev -y
     git clone https://github.com/NervanaSystems/neon.git
     cd neon && make sysinstall -j
     cd ..
