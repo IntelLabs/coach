@@ -819,7 +819,7 @@ class Montezuma_NEC(Preset):
 class Breakout_NEC(Preset):
     def __init__(self):
         Preset.__init__(self, NEC, Atari, ExplorationParameters)
-        self.env.level = 'BreakoutDeterministic-v3'
+        self.env.level = 'BreakoutDeterministic-v4'
         self.learning_rate = 0.00025
         self.agent.num_transitions_in_experience_replay = 1000000
         self.exploration.initial_epsilon = 1.0
@@ -1107,7 +1107,7 @@ class Doom_Basic_A3C(Preset):
 class Pong_A3C(Preset):
     def __init__(self):
         Preset.__init__(self, ActorCritic, Atari, CategoricalExploration)
-        self.env.level = 'PongDeterministic-v3'
+        self.env.level = 'PongDeterministic-v4'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -1123,7 +1123,7 @@ class Pong_A3C(Preset):
 class Breakout_A3C(Preset):
     def __init__(self):
         Preset.__init__(self, ActorCritic, Atari, CategoricalExploration)
-        self.env.level = 'BreakoutDeterministic-v3'
+        self.env.level = 'BreakoutDeterministic-v4'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 200
