@@ -128,7 +128,7 @@ Framework documentation, algoritmic description and instructions on how to contr
 
 ## Parallelizing an Algorithm
 
-Since the introduction of [A3C](https://arxiv.org/abs/1602.01783) in 2016, many algorithms were shown to benefit from running multiple instances in parallel, on many CPU cores. So far, these algorithms include [A3C](https://arxiv.org/abs/1602.01783), [DDPG](https://arxiv.org/pdf/1704.03073.pdf), [PPO](https://arxiv.org/abs/1707.02286), and [NAF](https://arxiv.org/pdf/1610.00633.pdf), and this is most probably only the begining. 
+Since the introduction of [A3C](https://arxiv.org/abs/1602.01783) in 2016, many algorithms were shown to benefit from running multiple instances in parallel, on many CPU cores. So far, these algorithms include [A3C](https://arxiv.org/abs/1602.01783), [DDPG](https://arxiv.org/pdf/1704.03073.pdf), [PPO](https://arxiv.org/pdf/1707.06347.pdf), and [NAF](https://arxiv.org/pdf/1610.00633.pdf), and this is most probably only the begining. 
 
 Parallelizing an algorithm using Coach is straight-forward. 
 
@@ -203,7 +203,7 @@ python3 coach.py -p Hopper_A3C -n 16
 * [Policy Gradients (PG)](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) | **Distributed**
 * [Actor Critic / A3C](https://arxiv.org/abs/1602.01783) | **Distributed**
 * [Deep Deterministic Policy Gradients (DDPG)](https://arxiv.org/abs/1509.02971) | **Distributed**
-* [Proximal Policy Optimization (PPO)](https://arxiv.org/pdf/1707.02286.pdf)
+* [Proximal Policy Optimization (PPO)](https://arxiv.org/pdf/1707.06347.pdf)
 * [Clipped Proximal Policy Optimization](https://arxiv.org/pdf/1707.06347.pdf) | **Distributed**
 * [Direct Future Prediction (DFP)](https://arxiv.org/abs/1611.01779) | **Distributed**
 

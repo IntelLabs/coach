@@ -19,7 +19,7 @@ from random import shuffle
 import tensorflow as tf
 
 
-# Proximal Policy Optimization - https://arxiv.org/pdf/1707.02286.pdf
+# Proximal Policy Optimization - https://arxiv.org/pdf/1707.06347.pdf
 class PPOAgent(ActorCriticAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
         ActorCriticAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,

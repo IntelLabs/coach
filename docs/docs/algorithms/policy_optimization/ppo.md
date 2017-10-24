@@ -2,7 +2,7 @@
 
 **Actions space:** Discrete|Continuous
 
-**References:** [Emergence of Locomotion Behaviours in Rich Environments](https://arxiv.org/pdf/1707.02286.pdf)
+**References:** [Proximal Policy Optimization Algorithms](https://arxiv.org/pdf/1707.06347.pdf)
 
 ## Network Structure
 
