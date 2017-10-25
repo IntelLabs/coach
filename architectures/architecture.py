@@ -68,3 +68,9 @@ class Architecture(object):
 
     def apply_gradients(self, gradients):
         pass
+
+    def get_variable_value(self, variable):
+        pass
+
+    def set_variable_value(self, assign_op, value, placeholder=None):
+        pass

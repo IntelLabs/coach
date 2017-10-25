@@ -16,7 +16,6 @@
 
 from agents.actor_critic_agent import *
 from random import shuffle
-import tensorflow as tf
 
 
 # Clipped Proximal Policy Optimization - https://arxiv.org/abs/1707.06347
@@ -132,7 +131,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                 loss[key] = np.mean(loss[key], 0)
 
             if self.tp.learning_rate_decay_rate != 0:
-                curr_learning_rate = self.tp.sess.run(self.tp.learning_rate)
+                curr_learning_rate = self.main_network.online_network.get_variable_value(self.tp.learning_rate)
                 self.curr_learning_rate.add_sample(curr_learning_rate)
             else:
                 curr_learning_rate = self.tp.learning_rate

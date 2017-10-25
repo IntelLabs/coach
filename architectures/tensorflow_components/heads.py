@@ -351,14 +351,18 @@ class PPOHead(Head):
         self.num_actions = tuning_parameters.env_instance.action_space_size
         self.discrete_controls = tuning_parameters.env_instance.discrete_controls
         self.output_scale = np.max(tuning_parameters.env_instance.action_space_abs_range)
+
+        # kl coefficient and its corresponding assignment operation and placeholder
         self.kl_coefficient = tf.Variable(tuning_parameters.agent.initial_kl_coefficient,
                                           trainable=False, name='kl_coefficient')
+        self.kl_coefficient_ph = tf.placeholder('float', name='kl_coefficient_ph')
+        self.assign_kl_coefficient = tf.assign(self.kl_coefficient, self.kl_coefficient_ph)
+
         self.kl_cutoff = 2*tuning_parameters.agent.target_kl_divergence
         self.high_kl_penalty_coefficient = tuning_parameters.agent.high_kl_penalty_coefficient
         self.clip_likelihood_ratio_using_epsilon = tuning_parameters.agent.clip_likelihood_ratio_using_epsilon
         self.use_kl_regularization = tuning_parameters.agent.use_kl_regularization
         self.beta = tuning_parameters.agent.beta_entropy
-
 
     def _build_module(self, input_layer):
         eps = 1e-15
