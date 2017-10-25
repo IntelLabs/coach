@@ -72,6 +72,7 @@ class AgentParameters:
     # Agent parameters
     num_consecutive_playing_steps = 1
     num_consecutive_training_steps = 1
+    update_evaluation_agent_network_after_every_num_steps = 3000
     bootstrap_total_return_from_old_policy = False
     n_step = -1
     num_episodes_in_experience_replay = 200

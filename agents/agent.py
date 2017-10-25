@@ -457,6 +457,11 @@ class Agent:
             while not episode_ended:
                 episode_ended = self.act(phase=RunPhase.TEST)
 
+                if keep_networks_synced \
+                   and self.total_steps_counter % self.tp.agent.update_evaluation_agent_network_after_every_num_steps:
+                    for network in self.networks:
+                        network.sync()
+
             if self.tp.visualization.dump_gifs and self.total_reward_in_current_episode > max_reward_achieved:
                 max_reward_achieved = self.total_reward_in_current_episode
                 frame_skipping = int(5/self.tp.env.frame_skip)
