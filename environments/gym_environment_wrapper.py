@@ -46,15 +46,13 @@ i = 0
 class GymEnvironmentWrapper(EnvironmentWrapper):
     def __init__(self, tuning_parameters):
         EnvironmentWrapper.__init__(self, tuning_parameters)
-        ports = (5200, 15200)
+
         # env parameters
         self.env = gym.make(self.env_id)
-        self.env_id = self.env_id
         if self.seed is not None:
             self.env.seed(self.seed)
 
-        self.env_spec = gym.spec(self.env_id)
-        self.none_counter = 0
+        # self.env_spec = gym.spec(self.env_id)
         self.discrete_controls = type(self.env.action_space) != gym.spaces.box.Box
 
         # pybullet requires rendering before resetting the environment, but other gym environments (Pendulum) will crash
@@ -70,7 +68,6 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
         if self.is_rendered:
             self.render()
 
-        # self.env.render()
         self.is_state_type_image = len(o.shape) > 1
         if self.is_state_type_image:
             self.width = o.shape[1]
