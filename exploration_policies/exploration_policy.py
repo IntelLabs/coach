@@ -19,7 +19,7 @@ from utils import *
 from configurations import *
 
 
-class ExplorationPolicy:
+class ExplorationPolicy(object):
     def __init__(self, tuning_parameters):
         """
         :param tuning_parameters: A Preset class instance with all the running paramaters

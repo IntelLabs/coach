@@ -19,7 +19,7 @@ import ngraph as ng
 from ngraph.util.names import name_scope
 
 
-class InputEmbedder:
+class InputEmbedder(object):
     def __init__(self, input_size, batch_size=None, activation_function=neon.Rectlin(), name="embedder"):
         self.name = name
         self.input_size = input_size

@@ -29,7 +29,7 @@ except ImportError:
     failed_imports.append("Neon")
 
 
-class NetworkWrapper:
+class NetworkWrapper(object):
     def __init__(self, tuning_parameters, has_target, has_global, name, replicated_device=None, worker_device=None):
         """
         

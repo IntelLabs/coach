@@ -19,7 +19,7 @@ import copy
 from configurations import *
 
 
-class Memory:
+class Memory(object):
     def __init__(self, tuning_parameters):
         """
         :param tuning_parameters: A Preset class instance with all the running paramaters
@@ -43,7 +43,7 @@ class Memory:
         pass
 
 
-class Episode:
+class Episode(object):
     def __init__(self):
         self.transitions = []
         # a num_transitions x num_transitions table with the n step return in the n'th row
@@ -122,7 +122,7 @@ class Episode:
         return batch
 
 
-class Transition:
+class Transition(object):
     def __init__(self, state, action, reward, next_state, game_over):
         self.state = copy.deepcopy(state)
         self.state['observation'] = np.array(self.state['observation'], copy=False)

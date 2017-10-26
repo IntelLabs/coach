@@ -19,7 +19,7 @@ from utils import *
 from configurations import Preset
 
 
-class EnvironmentWrapper:
+class EnvironmentWrapper(object):
     def __init__(self, tuning_parameters):
         """
         :param tuning_parameters:

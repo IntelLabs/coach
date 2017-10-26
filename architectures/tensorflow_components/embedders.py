@@ -17,7 +17,7 @@
 import tensorflow as tf
 
 
-class InputEmbedder:
+class InputEmbedder(object):
     def __init__(self, input_size, activation_function=tf.nn.relu, name="embedder"):
         self.name = name
         self.input_size = input_size
