@@ -33,10 +33,10 @@ def json_to_preset(json_path):
             tuning_parameters.agent = eval(run_dict['agent_type'])()
 
         if run_dict['environment_type'] is not None:
-            tuning_parameters.agent = eval(run_dict['environment_type'])()
+            tuning_parameters.env = eval(run_dict['environment_type'])()
 
         if run_dict['exploration_policy_type'] is not None:
-            tuning_parameters.agent = eval(run_dict['exploration_policy_type'])()
+            tuning_parameters.exploration = eval(run_dict['exploration_policy_type'])()
 
     if run_dict['custom_parameter'] is not None:
         unstripped_key_value_pairs = [pair.split('=') for pair in run_dict['custom_parameter'].split(';')]
