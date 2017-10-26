@@ -22,7 +22,7 @@ from utils import force_list
 from architectures.neon_components.losses import *
 
 
-class Head:
+class Head(object):
     def __init__(self, tuning_parameters, head_idx=0, loss_weight=1., is_local=True):
         self.head_idx = head_idx
         self.name = "head"

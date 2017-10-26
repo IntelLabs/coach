@@ -18,7 +18,7 @@ import numpy as np
 from annoy import AnnoyIndex
 
 
-class AnnoyDictionary:
+class AnnoyDictionary(object):
     def __init__(self, dict_size, key_width, new_value_shift_coefficient=0.1, batch_size=100, key_error_threshold=0.01):
         self.max_size = dict_size
         self.curr_size = 0

@@ -20,7 +20,7 @@ from ngraph.util.names import name_scope
 import numpy as np
 
 
-class MiddlewareEmbedder:
+class MiddlewareEmbedder(object):
     def __init__(self, activation_function=neon.Rectlin(), name="middleware_embedder"):
         self.name = name
         self.input = None

@@ -24,7 +24,7 @@ class Frameworks(Enum):
     Neon = 2
 
 
-class InputTypes:
+class InputTypes(object):
     Observation = 1
     Measurements = 2
     GoalVector = 3
@@ -32,7 +32,7 @@ class InputTypes:
     TimedObservation = 5
 
 
-class OutputTypes:
+class OutputTypes(object):
     Q = 1
     DuelingQ = 2
     V = 3
@@ -45,12 +45,12 @@ class OutputTypes:
     DistributionalQ = 10
 
 
-class MiddlewareTypes:
+class MiddlewareTypes(object):
     LSTM = 1
     FC = 2
 
 
-class AgentParameters:
+class AgentParameters(object):
     agent = ''
 
     # Architecture parameters
@@ -120,7 +120,7 @@ class AgentParameters:
     share_statistics_between_workers = True
 
 
-class EnvironmentParameters:
+class EnvironmentParameters(object):
     type = 'Doom'
     level = 'basic'
     observation_stack_size = 4
@@ -133,7 +133,7 @@ class EnvironmentParameters:
     reward_clipping_max = None
 
 
-class ExplorationParameters:
+class ExplorationParameters(object):
     # Exploration policies
     policy = 'EGreedy'
     evaluation_policy = 'Greedy'
@@ -167,7 +167,7 @@ class ExplorationParameters:
     dt = 0.01
 
 
-class GeneralParameters:
+class GeneralParameters(object):
     train = True
     framework = Frameworks.TensorFlow
     threads = 1
@@ -212,7 +212,7 @@ class GeneralParameters:
     test_num_workers = 1
 
 
-class VisualizationParameters:
+class VisualizationParameters(object):
     # Visualization parameters
     record_video_every = 1000
     video_path = '/home/llt_lab/temp/breakout-videos'

@@ -17,7 +17,7 @@
 from configurations import Preset
 
 
-class Architecture:
+class Architecture(object):
     def __init__(self, tuning_parameters, name=""):
         """
         :param tuning_parameters: A Preset class instance with all the running paramaters

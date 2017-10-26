@@ -33,7 +33,7 @@ from architectures.tensorflow_components.shared_variables import SharedRunningSt
 from six.moves import range
 
 
-class Agent:
+class Agent(object):
     def __init__(self, env, tuning_parameters, replicated_device=None, task_id=0):
         """
         :param env: An environment instance

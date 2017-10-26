@@ -27,7 +27,7 @@ global failed_imports
 failed_imports = []
 
 
-class Colors:
+class Colors(object):
     PURPLE = '\033[95m'
     CYAN = '\033[96m'
     DARKCYAN = '\033[36m'
@@ -51,7 +51,7 @@ class Colors:
 
 
 # prints to screen with a prefix identifying the origin of the print
-class ScreenLogger:
+class ScreenLogger(object):
     def __init__(self, name):
         self.name = name
 
@@ -85,7 +85,7 @@ class ScreenLogger:
         return input("{}{}{}".format(Colors.BG_CYAN, title, Colors.END))
 
 
-class BaseLogger:
+class BaseLogger(object):
     def __init__(self):
         pass
 

@@ -18,7 +18,7 @@ import tensorflow as tf
 import numpy as np
 
 
-class MiddlewareEmbedder:
+class MiddlewareEmbedder(object):
     def __init__(self, activation_function=tf.nn.relu, name="middleware_embedder"):
         self.name = name
         self.input = None

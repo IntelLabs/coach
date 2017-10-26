@@ -24,7 +24,7 @@ from subprocess import call, Popen
 killed_processes = []
 
 
-class Enum:
+class Enum(object):
     def __init__(self):
         pass
 
@@ -177,7 +177,7 @@ def threaded_cmd_line_run(run_cmd, id=-1):
     return result
 
 
-class Signal:
+class Signal(object):
     def __init__(self, name):
         self.name = name
         self.sample_count = 0
