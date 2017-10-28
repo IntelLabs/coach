@@ -15,8 +15,6 @@
 #
 
 from utils import Enum
-import json
-from logger import screen, logger
 
 
 class Frameworks(Enum):
@@ -267,6 +265,14 @@ class Doom(EnvironmentParameters):
     desired_observation_width = 76
 
 
+class JForex(EnvironmentParameters):
+    type = 'JForex'
+    frame_skip = 4
+    observation_stack_size = 3
+    desired_observation_height = 60
+    desired_observation_width = 76
+
+
 class NStepQ(AgentParameters):
     type = 'NStepQAgent'
     input_types = [InputTypes.Observation]
@@ -298,9 +304,11 @@ class DQN(AgentParameters):
 class DDQN(DQN):
     type = 'DDQNAgent'
 
+
 class DuelingDQN(DQN):
     type = 'DQNAgent'
     output_types = [OutputTypes.DuelingQ]
+
 
 class BootstrappedDQN(DQN):
     type = 'BootstrappedDQNAgent'
@@ -413,7 +421,7 @@ class PPO(AgentParameters):
     initial_kl_coefficient = 1.0
     high_kl_penalty_coefficient = 1000
     add_a_normalized_timestep_to_the_observation = True
-    l2_regularization = 0#1e-3
+    l2_regularization = 0  # 1e-3
     value_targets_mix_fraction = 0.1
     async_training = True
     estimate_value_using_gae = True
@@ -444,6 +452,7 @@ class ClippedPPO(AgentParameters):
     use_separate_networks_per_head = True
     step_until_collecting_full_episodes = True
     beta_entropy = 0.01
+
 
 class DFP(AgentParameters):
     type = 'DFPAgent'
@@ -530,4 +539,3 @@ class Preset(GeneralParameters):
         self.agent = agent
         self.env = env
         self.exploration = exploration
-
