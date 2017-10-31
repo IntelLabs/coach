@@ -202,6 +202,7 @@ class Doom_Health_DFP(Preset):
         self.learning_rate = 0.00025
         self.num_heatup_steps = 1000
         self.exploration.epsilon_decay_steps = 10000
+        self.agent.use_accumulated_reward_as_measurement = True
 
 
 class Doom_Deadly_Corridor_Bootstrapped_DQN(Preset):
@@ -212,6 +213,7 @@ class Doom_Deadly_Corridor_Bootstrapped_DQN(Preset):
         self.learning_rate = 0.00025
         self.agent.num_steps_between_copying_online_weights_to_target = 1000
         self.num_heatup_steps = 1000
+
 
 class CartPole_Bootstrapped_DQN(Preset):
     def __init__(self):
@@ -371,8 +373,8 @@ class Breakout_DQN(Preset):
         self.exploration.evaluation_policy = 'EGreedy'
         self.exploration.evaluation_epsilon = 0.05
         self.num_heatup_steps = 50000
-        self.evaluation_episodes = 25
-        self.evaluate_every_x_episodes = 1000
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 100
 
 
 class Breakout_DistributionalDQN(Preset):
