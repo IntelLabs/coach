@@ -73,7 +73,7 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
             else:
                 action = np.argmax(action_values)
             action_value = {"action_probability": action_values[action]}
-            self.entropy.add_sample(-np.sum(action_values * np.log(action_values)))
+            self.entropy.add_sample(-np.sum(action_values * np.log(action_values + eps)))
         else:
             # CONTINUOUS
             result = self.main_network.online_network.predict(observation)

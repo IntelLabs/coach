@@ -121,7 +121,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             else:
                 action = np.argmax(action_probabilities)
             action_info = {"action_probability": action_probabilities[action], "state_value": state_value}
-            self.entropy.add_sample(-np.sum(action_probabilities * np.log(action_probabilities)))
+            self.entropy.add_sample(-np.sum(action_probabilities * np.log(action_probabilities + eps)))
         else:
             # CONTINUOUS
             state_value, action_values_mean, action_values_std = self.main_network.online_network.predict(observation)

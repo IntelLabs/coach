@@ -23,6 +23,7 @@ from subprocess import call, Popen
 
 killed_processes = []
 
+eps = np.finfo(np.float32).eps
 
 class Enum(object):
     def __init__(self):
