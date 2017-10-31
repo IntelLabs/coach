@@ -67,4 +67,4 @@ class EGreedy(ExplorationPolicy):
             return np.squeeze(action_values + (np.random.rand() < epsilon) * noise)
 
     def get_control_param(self):
-        return self.epsilon
+        return self.evaluation_epsilon if self.phase == RunPhase.TEST else self.epsilon
