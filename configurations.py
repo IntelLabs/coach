@@ -42,7 +42,8 @@ class OutputTypes(object):
     NAF = 7
     PPO = 8
     PPO_V = 9
-    DistributionalQ = 10
+    CategoricalQ = 10
+    QuantileRegressionQ = 11
 
 
 class MiddlewareTypes(object):
@@ -307,11 +308,17 @@ class BootstrappedDQN(DQN):
     num_output_head_copies = 10
 
 
-class DistributionalDQN(DQN):
-    type = 'DistributionalDQNAgent'
-    output_types = [OutputTypes.DistributionalQ]
+class CategoricalDQN(DQN):
+    type = 'CategoricalDQNAgent'
+    output_types = [OutputTypes.CategoricalQ]
     v_min = -10.0
     v_max = 10.0
+    atoms = 51
+
+
+class QuantileRegressionDQN(DQN):
+    type = 'QuantileRegressionDQNAgent'
+    output_types = [OutputTypes.QuantileRegressionQ]
     atoms = 51
 
 

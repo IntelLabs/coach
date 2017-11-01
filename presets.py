@@ -70,6 +70,18 @@ class Doom_Basic_DQN(Preset):
         self.num_heatup_steps = 1000
 
 
+
+class Doom_Basic_QRDQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, QuantileRegressionDQN, Doom, ExplorationParameters)
+        self.env.level = 'basic'
+        self.agent.num_steps_between_copying_online_weights_to_target = 1000
+        self.learning_rate = 0.00025
+        self.agent.num_episodes_in_experience_replay = 200
+        self.num_heatup_steps = 1000
+
+
+
 class Doom_Basic_OneStepQ(Preset):
     def __init__(self):
         Preset.__init__(self, NStepQ, Doom, ExplorationParameters)
@@ -340,9 +352,9 @@ class CartPole_DQN(Preset):
         self.test_min_return_threshold = 150
 
 
-class CartPole_DistributionalDQN(Preset):
+class CartPole_C51(Preset):
     def __init__(self):
-        Preset.__init__(self, DistributionalDQN, GymVectorObservation, ExplorationParameters)
+        Preset.__init__(self, CategoricalDQN, GymVectorObservation, ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.00025
@@ -354,6 +366,18 @@ class CartPole_DistributionalDQN(Preset):
         self.test = True
         self.test_max_step_threshold = 150
         self.test_min_return_threshold = 150
+
+
+class CartPole_QRDQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, QuantileRegressionDQN, GymVectorObservation, ExplorationParameters)
+        self.env.level = 'CartPole-v0'
+        self.agent.num_steps_between_copying_online_weights_to_target = 100
+        self.learning_rate = 0.00025
+        self.agent.num_episodes_in_experience_replay = 200
+        self.num_heatup_steps = 1000
+        self.exploration.epsilon_decay_steps = 3000
+        self.agent.discount = 1.0
 
 
 # The below preset matches the hyper-parameters setting as in the original DQN paper.
@@ -377,9 +401,9 @@ class Breakout_DQN(Preset):
         self.evaluate_every_x_episodes = 100
 
 
-class Breakout_DistributionalDQN(Preset):
+class Breakout_C51(Preset):
     def __init__(self):
-        Preset.__init__(self, DistributionalDQN, Atari, ExplorationParameters)
+        Preset.__init__(self, CategoricalDQN, Atari, ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025

@@ -17,8 +17,8 @@
 from agents.value_optimization_agent import *
 
 
-# Distributional Deep Q Network - https://arxiv.org/pdf/1707.06887.pdf
-class DistributionalDQNAgent(ValueOptimizationAgent):
+# Categorical Deep Q Network - https://arxiv.org/pdf/1707.06887.pdf
+class CategoricalDQNAgent(ValueOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
         ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
         self.z_values = np.linspace(self.tp.agent.v_min, self.tp.agent.v_max, self.tp.agent.atoms)

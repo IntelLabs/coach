@@ -15,7 +15,7 @@ pages:
         - 'DQN' : algorithms/value_optimization/dqn.md
         - 'Double DQN' : algorithms/value_optimization/double_dqn.md
         - 'Dueling DQN' : algorithms/value_optimization/dueling_dqn.md
-        - 'Distributional DQN' : algorithms/value_optimization/distributional_dqn.md
+        - 'Categorical DQN' : algorithms/value_optimization/categorical_dqn.md
         - 'Mixed Monte Carlo' : algorithms/value_optimization/mmc.md
         - 'Persistent Advantage Learning' : algorithms/value_optimization/pal.md
         - 'Neural Episodic Control' : algorithms/value_optimization/nec.md

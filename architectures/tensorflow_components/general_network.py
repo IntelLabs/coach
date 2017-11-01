@@ -80,7 +80,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             OutputTypes.NAF: NAFHead,
             OutputTypes.PPO: PPOHead,
             OutputTypes.PPO_V : PPOVHead,
-            OutputTypes.DistributionalQ: DistributionalQHead
+            OutputTypes.CategoricalQ: CategoricalQHead,
+            OutputTypes.QuantileRegressionQ: QuantileRegressionQHead
         }
         return output_mapping[head_type](self.tp, head_idx, loss_weight, self.network_is_local)
 

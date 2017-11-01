@@ -1,4 +1,4 @@
-# Distributional DQN
+# Categorical DQN
 
 **Actions space:** Discrete
 
