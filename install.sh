@@ -43,8 +43,8 @@ GET_PREFERENCES_MANUALLY=1
 INSTALL_COACH=0
 INSTALL_DASHBOARD=0
 INSTALL_GYM=0
-INSTALL_VIRTUAL_ENVIRONMENT=1
 INSTALL_NEON=0
+INSTALL_VIRTUAL_ENVIRONMENT=1
 
 # Get user preferences
 TEMP=`getopt -o cpgvrmeNndh \
@@ -202,4 +202,3 @@ else
     # GPU supported TensorFlow
     pip3 install tensorflow-gpu
 fi
-

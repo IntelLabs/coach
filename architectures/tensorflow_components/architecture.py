@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ class TensorFlowArchitecture(Architecture):
                                                     trainable=False)
                 self.lock = self.lock_counter.assign_add(1, use_locking=True)
                 self.lock_init = self.lock_counter.assign(0)
-    
+
                 self.release_counter = tf.get_variable("release_counter", [], tf.int32,
                                                        initializer=tf.constant_initializer(0, dtype=tf.int32),
                                                        trainable=False)
@@ -86,6 +86,7 @@ class TensorFlowArchitecture(Architecture):
                                                                              tuning_parameters.clip_gradients)
 
             # gradients of the outputs w.r.t. the inputs
+            # at the moment, this is only used by ddpg
             if len(self.outputs) == 1:
                 self.gradients_wrt_inputs = [tf.gradients(self.outputs[0], input_ph) for input_ph in self.inputs]
                 self.gradients_weights_ph = tf.placeholder('float32', self.outputs[0].shape, 'output_gradient_weights')
@@ -126,7 +127,7 @@ class TensorFlowArchitecture(Architecture):
 
     def accumulate_gradients(self, inputs, targets, additional_fetches=None):
         """
-        Runs a forward pass & backward pass, clips gradients if needed and accumulates them into the accumulation 
+        Runs a forward pass & backward pass, clips gradients if needed and accumulates them into the accumulation
         placeholders
         :param additional_fetches: Optional tensors to fetch during gradients calculation
         :param inputs: The input batch for the network
@@ -164,6 +165,7 @@ class TensorFlowArchitecture(Architecture):
 
             # feed the lstm state if necessary
             if self.tp.agent.middleware_type == MiddlewareTypes.LSTM:
+                # we can't always assume that we are starting from scratch here can we?
                 feed_dict[self.middleware_embedder.c_in] = self.middleware_embedder.c_init
                 feed_dict[self.middleware_embedder.h_in] = self.middleware_embedder.h_init
 
@@ -231,20 +233,27 @@ class TensorFlowArchitecture(Architecture):
                 while self.tp.sess.run(self.release_counter) % self.tp.num_threads != 0:
                     time.sleep(0.00001)
 
-    def predict(self, inputs):
+    def predict(self, inputs, outputs=None):
         """
         Run a forward pass of the network using the given input
         :param inputs: The input for the network
+        :param outputs: The output for the network, defaults to self.outputs
         :return: The network output
+
+        WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
 
         feed_dict = dict(zip(self.inputs, force_list(inputs)))
+        if outputs is None:
+            outputs = self.outputs
+
         if self.tp.agent.middleware_type == MiddlewareTypes.LSTM:
             feed_dict[self.middleware_embedder.c_in] = self.curr_rnn_c_in
             feed_dict[self.middleware_embedder.h_in] = self.curr_rnn_h_in
-            output, (self.curr_rnn_c_in, self.curr_rnn_h_in) = self.tp.sess.run([self.outputs, self.middleware_embedder.state_out], feed_dict=feed_dict)
+
+            output, (self.curr_rnn_c_in, self.curr_rnn_h_in) = self.tp.sess.run([outputs, self.middleware_embedder.state_out], feed_dict=feed_dict)
         else:
-            output = self.tp.sess.run(self.outputs, feed_dict)
+            output = self.tp.sess.run(outputs, feed_dict)
 
         return squeeze_list(output)
 
@@ -299,7 +308,7 @@ class TensorFlowArchitecture(Architecture):
 
     def set_variable_value(self, assign_op, value, placeholder=None):
         """
-        Updates the value of a variable. 
+        Updates the value of a variable.
         This requires having an assign operation for the variable, and a placeholder which will provide the value
         :param assign_op: an assign operation for the variable
         :param value: a value to set the variable to

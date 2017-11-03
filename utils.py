@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -180,6 +180,10 @@ def threaded_cmd_line_run(run_cmd, id=-1):
 
 
 class Signal(object):
+    """
+    Stores a stream of values and provides methods like get_mean and get_max
+    which returns the statistics about accumulated values.
+    """
     def __init__(self, name):
         self.name = name
         self.sample_count = 0
@@ -190,39 +194,36 @@ class Signal(object):
         self.values = []
 
     def add_sample(self, sample):
+        """
+        :param sample: either a single value or an array of values
+        """
         self.values.append(sample)
+
+    def _get_values(self):
+        if type(self.values[0]) == np.ndarray:
+            return np.concatenate(self.values)
+        else:
+            return self.values
 
     def get_mean(self):
         if len(self.values) == 0:
             return ''
-        if type(self.values[0]) == np.ndarray:
-            return np.mean(np.concatenate(self.values))
-        else:
-            return np.mean(self.values)
+        return np.mean(self._get_values())
 
     def get_max(self):
         if len(self.values) == 0:
             return ''
-        if type(self.values[0]) == np.ndarray:
-            return np.max(np.concatenate(self.values))
-        else:
-            return np.max(self.values)
+        return np.max(self._get_values())
 
     def get_min(self):
         if len(self.values) == 0:
             return ''
-        if type(self.values[0]) == np.ndarray:
-            return np.min(np.concatenate(self.values))
-        else:
-            return np.min(self.values)
+        return np.min(self._get_values())
 
     def get_stdev(self):
         if len(self.values) == 0:
             return ''
-        if type(self.values[0]) == np.ndarray:
-            return np.std(np.concatenate(self.values))
-        else:
-            return np.std(self.values)
+        return np.std(self._get_values())
 
 
 def force_list(var):
