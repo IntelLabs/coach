@@ -37,7 +37,7 @@ There a few simple steps to follow, and we will walk through them one by one.
         Doom = "DoomEnvironmentWrapper"
     
                 
-3. In addition a new configuration class should be implemented for defining the environment's parameters. 
+3. In addition a new configuration class should be implemented for defining the environment's parameters and placed in configurations.py. 
 For instance, the following is used for Doom:
 
         class Doom(EnvironmentParameters):
