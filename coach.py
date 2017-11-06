@@ -37,7 +37,6 @@ time_started = datetime.datetime.now()
 cur_time = time_started.time()
 cur_date = time_started.date()
 
-
 def get_experiment_path(general_experiments_path):
     if not os.path.exists(general_experiments_path):
         os.makedirs(general_experiments_path)
@@ -265,7 +264,7 @@ if __name__ == "__main__":
     # Multi-threaded runs
     else:
         assert args.framework.lower() == 'tensorflow', "Distributed training works only with TensorFlow"
-
+        os.environ["OMP_NUM_THREADS"]="1"
         # set parameter server and workers addresses
         ps_hosts = "localhost:{}".format(get_open_port())
         worker_hosts = ",".join(["localhost:{}".format(get_open_port()) for i in range(run_dict['num_threads'] + 1)])

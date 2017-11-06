@@ -343,8 +343,8 @@ class Agent(object):
         :param to_type: can be 'channels_first' or 'channels_last'
         :return: a new observation with the requested axes order
         """
-        if from_type == to_type:
-            return
+        if from_type == to_type or len(observation.shape) == 1:
+            return observation
         assert 2 <= len(observation.shape) <= 3, 'num axes of an observation must be 2 for a vector or 3 for an image'
         assert type(observation) == np.ndarray, 'observation must be a numpy array'
         if len(observation.shape) == 3:
