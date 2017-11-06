@@ -49,7 +49,7 @@ class TensorFlowArchitecture(Architecture):
         if self.tp.seed is not None:
             tf.set_random_seed(self.tp.seed)
         with tf.variable_scope(self.name, initializer=tf.contrib.layers.xavier_initializer()):
-            self.global_step = tf.contrib.framework.get_or_create_global_step()
+            self.global_step = tf.train.get_or_create_global_step()
 
             # build the network
             self.get_model(tuning_parameters)

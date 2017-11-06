@@ -30,7 +30,8 @@ from subprocess import Popen
 import datetime
 import presets
 
-screen.warning("Warning: failed to import the following packages - {}".format(', '.join(set(failed_imports))))
+if len(set(failed_imports)) > 0:
+    screen.warning("Warning: failed to import the following packages - {}".format(', '.join(set(failed_imports))))
 
 time_started = datetime.datetime.now()
 cur_time = time_started.time()
