@@ -519,7 +519,7 @@ class Agent(object):
                 current_snapshot_period = (int(total_training_time) // self.tp.save_model_sec)
                 if current_snapshot_period > model_snapshots_periods_passed:
                     model_snapshots_periods_passed = current_snapshot_period
-                    self.main_network.save_model(model_snapshots_periods_passed)
+                    self.save_model(model_snapshots_periods_passed)
 
             # play and record in replay buffer
             if self.tp.agent.step_until_collecting_full_episodes:
@@ -539,3 +539,5 @@ class Agent(object):
                     self.training_iteration += 1
                 self.post_training_commands()
 
+    def save_model(self, model_id):
+        self.main_network.save_model(model_id)

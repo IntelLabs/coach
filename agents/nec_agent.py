@@ -25,6 +25,8 @@ class NECAgent(ValueOptimizationAgent):
         self.current_episode_state_embeddings = []
         self.current_episode_actions = []
         self.training_started = False
+        # if self.tp.checkpoint_restore_dir:
+        #     self.load_dnd(self.tp.checkpoint_restore_dir)
 
     def learn_from_batch(self, batch):
         if not self.main_network.online_network.output_heads[0].DND.has_enough_entries(self.tp.agent.number_of_knn):
@@ -102,3 +104,8 @@ class NECAgent(ValueOptimizationAgent):
 
         self.current_episode_state_embeddings = []
         self.current_episode_actions = []
+
+    def save_model(self, model_id):
+        self.main_network.save_model(model_id)
+        with open(os.path.join(self.tp.save_model_dir, str(model_id) + '.dnd'), 'wb') as f:
+            pickle.dump(self.main_network.online_network.output_heads[0].DND, f, pickle.HIGHEST_PROTOCOL)
