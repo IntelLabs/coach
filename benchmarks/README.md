@@ -3,7 +3,7 @@
 The following figures are training curves of some of the presets available through Coach.
 The X axis in all the figures is the total steps (for multi-threaded runs, this is the accumulated number of steps over all the workers).
 The Y axis in all the figures is the average episode reward with an averaging window of 11 episodes.
-These are the result you can expect to get when running the pre-defined presets in Coach.
+These are the results you can expect to get when running the pre-defined presets in Coach.
 
 
 ## A3C
@@ -102,7 +102,7 @@ python3 coach.py -p Doom_Basic_Dueling_DDQN -r
 python3 coach.py -p Doom_Health_DFP -r
 ```
 
-<img src="img/Doom_Health.png" alt="Doom_Health_DFP" width="800"/>
+<img src="img/Doom_Health_DFP.png" alt="Doom_Health_DFP" width="800"/>
 
 ## MMC
 
