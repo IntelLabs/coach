@@ -14,20 +14,18 @@
 # limitations under the License.
 #
 
-from logger import *
-from utils import Enum
-from environments.gym_environment_wrapper import *
 from environments.doom_environment_wrapper import *
+from environments.gym_environment_wrapper import *
+from environments.jforex_environment_wrapper import *
+
 
 class EnvTypes(Enum):
     Doom = "DoomEnvironmentWrapper"
     Gym = "GymEnvironmentWrapper"
+    JForex = "JForexEnvironmentWrapper"
 
 
 def create_environment(tuning_parameters):
     env_type_name, env_type = EnvTypes().verify(tuning_parameters.env.type)
     env = eval(env_type)(tuning_parameters)
     return env
-
-
-
