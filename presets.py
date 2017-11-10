@@ -70,7 +70,6 @@ class Doom_Basic_DQN(Preset):
         self.num_heatup_steps = 1000
 
 
-
 class Doom_Basic_QRDQN(Preset):
     def __init__(self):
         Preset.__init__(self, QuantileRegressionDQN, Doom, ExplorationParameters)
@@ -362,6 +361,9 @@ class CartPole_C51(Preset):
         self.num_heatup_steps = 1000
         self.exploration.epsilon_decay_steps = 3000
         self.agent.discount = 1.0
+        # self.env.reward_scaling = 20.
+        self.agent.v_min = 0.0
+        self.agent.v_max = 200.0
 
         self.test = True
         self.test_max_step_threshold = 150
@@ -408,14 +410,16 @@ class Breakout_C51(Preset):
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025
         self.agent.num_transitions_in_experience_replay = 1000000
-        self.exploration.initial_epsilon = 0.01
+        self.exploration.initial_epsilon = 1.0
         self.exploration.final_epsilon = 0.01
         self.exploration.epsilon_decay_steps = 1000000
+        self.env.reward_clipping_max = 1.0
+        self.env.reward_clipping_min = -1.0
         self.exploration.evaluation_policy = 'EGreedy'
         self.exploration.evaluation_epsilon = 0.001
         self.num_heatup_steps = 50000
-        self.evaluation_episodes = 25
-        self.evaluate_every_x_episodes = 10000
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 5000000
 
 
 class Atari_DQN_TestBench(Preset):
