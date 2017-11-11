@@ -190,7 +190,7 @@ python3 coach.py -p Hopper_A3C -n 16
 
 
 
-* [Deep Q Network (DQN](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
+* [Deep Q Network (DQN)](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
 * [Double Deep Q Network (DDQN)](https://arxiv.org/pdf/1509.06461.pdf)
 * [Dueling Q Network](https://arxiv.org/abs/1511.06581)
 * [Mixed Monte Carlo (MMC)](https://arxiv.org/abs/1703.01310)
@@ -199,10 +199,10 @@ python3 coach.py -p Hopper_A3C -n 16
 * [Quantile Regression Deep Q Network (QR-DQN)](https://arxiv.org/pdf/1710.10044v1.pdf)
 * [Bootstrapped Deep Q Network](https://arxiv.org/abs/1602.04621)
 * [N-Step Q Learning](https://arxiv.org/abs/1602.01783) | **Distributed**
-* [Neural Episodic Control (NEC) ](https://arxiv.org/abs/1703.01988)
+* [Neural Episodic Control (NEC)](https://arxiv.org/abs/1703.01988)
 * [Normalized Advantage Functions (NAF)](https://arxiv.org/abs/1603.00748.pdf) | **Distributed**
 * [Policy Gradients (PG)](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) | **Distributed**
-* [Actor Critic / A3C](https://arxiv.org/abs/1602.01783) | **Distributed**
+* [Asynchronous Advantage Actor-Critic (A3C)](https://arxiv.org/abs/1602.01783) | **Distributed**
 * [Deep Deterministic Policy Gradients (DDPG)](https://arxiv.org/abs/1509.02971) | **Distributed**
 * [Proximal Policy Optimization (PPO)](https://arxiv.org/pdf/1707.06347.pdf)
 * [Clipped Proximal Policy Optimization](https://arxiv.org/pdf/1707.06347.pdf) | **Distributed**
