@@ -192,15 +192,14 @@ class Logger(BaseLogger):
         if self.start_time:
             self.create_signal_value('Wall-Clock Time', time.time() - self.start_time, time=episode)
 
-    def create_gif(self, images, fps=25, name="Gif"):
+    def create_gif(self, images, fps=10, name="Gif"):
         output_file = '{}_{}.gif'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'), name)
         output_dir = os.path.join(self.experiments_path, 'gifs')
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         output_path = os.path.join(output_dir, output_file)
-        gif = Image.new('RGB', images[0].transpose(1, 0, 2).shape[:2])
         pil_images = [Image.fromarray(image) for image in images]
-        gif.save(output_path, save_all=True, append_images=pil_images, duration=1.0 / fps, loop=0)
+        pil_images[0].save(output_path, save_all=True, append_images=pil_images[1:], duration=1.0 / fps, loop=0)
 
 
 global logger

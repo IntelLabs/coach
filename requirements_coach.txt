@@ -1,5 +1,5 @@
 annoy==1.8.3
-Pillow==4.1.1
+Pillow==4.3.0
 matplotlib==2.0.2
 numpy==1.13.0
 pandas==0.20.2
