@@ -522,12 +522,13 @@ class QuantileRegressionQHead(Head):
         tau_i = tf.tile(tf.expand_dims(self.quantile_midpoints, -1), [1, 1, self.num_atoms])
 
         # Huber loss of T(theta_j) - theta_i
-        abs_error = tf.abs(T_theta_j - theta_i)
+        error = T_theta_j - theta_i
+        abs_error = tf.abs(error)
         quadratic = tf.minimum(abs_error, self.huber_loss_interval)
         huber_loss = self.huber_loss_interval * (abs_error - quadratic) + 0.5 * quadratic ** 2
 
         # Quantile Huber loss
-        quantile_huber_loss = tf.abs(tau_i - tf.cast(abs_error < 0, dtype=tf.float32)) * huber_loss
+        quantile_huber_loss = tf.abs(tau_i - tf.cast(error < 0, dtype=tf.float32)) * huber_loss
 
         # Quantile regression loss (the probability for each quantile is 1/num_quantiles)
         quantile_regression_loss = tf.reduce_sum(quantile_huber_loss) / float(self.num_atoms)
