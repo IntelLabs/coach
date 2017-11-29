@@ -422,6 +422,24 @@ class Breakout_C51(Preset):
         self.evaluate_every_x_episodes = 5000000
 
 
+
+class Breakout_QRDQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, QuantileRegressionDQN, Atari, ExplorationParameters)
+        self.env.level = 'BreakoutDeterministic-v4'
+        self.agent.num_steps_between_copying_online_weights_to_target = 10000
+        self.learning_rate = 0.00025
+        self.agent.num_transitions_in_experience_replay = 1000000
+        self.exploration.initial_epsilon = 1.0
+        self.exploration.final_epsilon = 0.01
+        self.exploration.epsilon_decay_steps = 1000000
+        self.exploration.evaluation_policy = 'EGreedy'
+        self.exploration.evaluation_epsilon = 0.001
+        self.num_heatup_steps = 50000
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 50
+
+
 class Atari_DQN_TestBench(Preset):
     def __init__(self):
         Preset.__init__(self, DQN, Atari, ExplorationParameters)
