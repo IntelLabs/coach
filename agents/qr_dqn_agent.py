@@ -51,8 +51,9 @@ class QuantileRegressionDQNAgent(ValueOptimizationAgent):
         cumulative_probabilities = np.array(range(self.tp.agent.atoms+1))/float(self.tp.agent.atoms)  # tau_i
         quantile_midpoints = 0.5*(cumulative_probabilities[1:] + cumulative_probabilities[:-1])  # tau^hat_i
         quantile_midpoints = np.tile(quantile_midpoints, (self.tp.batch_size, 1))
+        sorted_quantiles = np.argsort(current_quantiles[batch_idx, actions])
         for idx in range(self.tp.batch_size):
-            quantile_midpoints[idx, :] = quantile_midpoints[idx, np.argsort(current_quantiles[batch_idx, actions])[idx]]
+            quantile_midpoints[idx, :] = quantile_midpoints[idx, sorted_quantiles[idx]]
 
         # train
         result = self.main_network.train_and_sync_networks([current_states, actions_locations, quantile_midpoints], TD_targets)
