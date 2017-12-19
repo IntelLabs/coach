@@ -74,7 +74,9 @@ class EpisodicExperienceReplay(Memory):
 
     def sample(self, size):
         assert self.num_transitions_in_complete_episodes() > size, \
-            'There are not enough transitions in the replay buffer'
+            'There are not enough transitions in the replay buffer. ' \
+            'Available transitions: {}. Requested transitions: {}.'\
+                .format(self.num_transitions_in_complete_episodes(), size)
         batch = []
         transitions_idx = np.random.randint(self.num_transitions_in_complete_episodes(), size=size)
         for i in transitions_idx:

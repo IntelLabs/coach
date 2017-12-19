@@ -18,6 +18,7 @@ from pandas import *
 import os
 from pprint import pprint
 import threading
+from subprocess import Popen, PIPE
 import time
 import datetime
 from six.moves import input
@@ -61,7 +62,7 @@ class ScreenLogger(object):
         print("")
 
     def log(self, data):
-        print(self.name + ": " + data)
+        print(data)
 
     def log_dict(self, dict, prefix=""):
         str = "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
@@ -78,8 +79,10 @@ class ScreenLogger(object):
     def warning(self, text):
         print("{}{}{}".format(Colors.YELLOW, text, Colors.END))
 
-    def error(self, text):
+    def error(self, text, crash=True):
         print("{}{}{}".format(Colors.RED, text, Colors.END))
+        if crash:
+            exit(1)
 
     def ask_input(self, title):
         return input("{}{}{}".format(Colors.BG_CYAN, title, Colors.END))

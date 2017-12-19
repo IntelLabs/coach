@@ -38,6 +38,15 @@ def json_to_preset(json_path):
         if run_dict['exploration_policy_type'] is not None:
             tuning_parameters.exploration = eval(run_dict['exploration_policy_type'])()
 
+    # human control
+    if run_dict['play']:
+        tuning_parameters.agent.type = 'HumanAgent'
+        tuning_parameters.env.human_control = True
+        tuning_parameters.num_heatup_steps = 0
+        
+    if run_dict['level']:
+        tuning_parameters.env.level = run_dict['level']
+
     if run_dict['custom_parameter'] is not None:
         unstripped_key_value_pairs = [pair.split('=') for pair in run_dict['custom_parameter'].split(';')]
         stripped_key_value_pairs = [tuple([pair[0].strip(), ast.literal_eval(pair[1].strip())]) for pair in
@@ -331,7 +340,7 @@ class CartPole_NStepQ(Preset):
         self.agent.num_steps_between_gradient_updates = 5
 
         self.test = True
-        self.test_max_step_threshold = 1000
+        self.test_max_step_threshold = 2000
         self.test_min_return_threshold = 150
         self.test_num_workers = 8
 
@@ -926,7 +935,7 @@ class CartPole_A3C(Preset):
         self.agent.middleware_type = MiddlewareTypes.FC
 
         self.test = True
-        self.test_max_step_threshold = 200
+        self.test_max_step_threshold = 1000
         self.test_min_return_threshold = 150
         self.test_num_workers = 8
 
@@ -1182,3 +1191,93 @@ class Breakout_A3C(Preset):
         self.agent.beta_entropy = 0.05
         self.clip_gradients = 40.0
         self.agent.middleware_type = MiddlewareTypes.FC
+
+
+class Carla_A3C(Preset):
+    def __init__(self):
+        Preset.__init__(self, ActorCritic, Carla, EntropyExploration)
+        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        self.agent.policy_gradient_rescaler = 'GAE'
+        self.learning_rate = 0.0001
+        self.num_heatup_steps = 0
+        # self.env.reward_scaling = 1.0e9
+        self.agent.discount = 0.99
+        self.agent.apply_gradients_every_x_episodes = 1
+        self.agent.num_steps_between_gradient_updates = 30
+        self.agent.gae_lambda = 1
+        self.agent.beta_entropy = 0.01
+        self.clip_gradients = 40
+        self.agent.middleware_type = MiddlewareTypes.FC
+
+
+class Carla_DDPG(Preset):
+    def __init__(self):
+        Preset.__init__(self, DDPG, Carla, OUExploration)
+        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        self.learning_rate = 0.0001
+        self.num_heatup_steps = 1000
+        self.agent.num_consecutive_training_steps = 5
+
+
+class Carla_BC(Preset):
+    def __init__(self):
+        Preset.__init__(self, BC, Carla, ExplorationParameters)
+        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        self.agent.load_memory_from_file_path = 'datasets/carla_town1.p'
+        self.learning_rate = 0.0005
+        self.num_heatup_steps = 0
+        self.evaluation_episodes = 5
+        self.batch_size = 120
+        self.evaluate_every_x_training_iterations = 5000
+
+
+class Doom_Basic_BC(Preset):
+    def __init__(self):
+        Preset.__init__(self, BC, Doom, ExplorationParameters)
+        self.env.level = 'basic'
+        self.agent.load_memory_from_file_path = 'datasets/doom_basic.p'
+        self.learning_rate = 0.0005
+        self.num_heatup_steps = 0
+        self.evaluation_episodes = 5
+        self.batch_size = 120
+        self.evaluate_every_x_training_iterations = 100
+        self.num_training_iterations = 2000
+
+
+class Doom_Defend_BC(Preset):
+    def __init__(self):
+        Preset.__init__(self, BC, Doom, ExplorationParameters)
+        self.env.level = 'defend'
+        self.agent.load_memory_from_file_path = 'datasets/doom_defend.p'
+        self.learning_rate = 0.0005
+        self.num_heatup_steps = 0
+        self.evaluation_episodes = 5
+        self.batch_size = 120
+        self.evaluate_every_x_training_iterations = 100
+
+
+class Doom_Deathmatch_BC(Preset):
+    def __init__(self):
+        Preset.__init__(self, BC, Doom, ExplorationParameters)
+        self.env.level = 'deathmatch'
+        self.agent.load_memory_from_file_path = 'datasets/doom_deathmatch.p'
+        self.learning_rate = 0.0005
+        self.num_heatup_steps = 0
+        self.evaluation_episodes = 5
+        self.batch_size = 120
+        self.evaluate_every_x_training_iterations = 100
+
+
+class MontezumaRevenge_BC(Preset):
+    def __init__(self):
+        Preset.__init__(self, BC, Atari, ExplorationParameters)
+        self.env.level = 'MontezumaRevenge-v0'
+        self.agent.load_memory_from_file_path = 'datasets/montezuma_revenge.p'
+        self.learning_rate = 0.0005
+        self.num_heatup_steps = 0
+        self.evaluation_episodes = 5
+        self.batch_size = 120
+        self.evaluate_every_x_training_iterations = 100
+        self.exploration.evaluation_epsilon = 0.05
+        self.exploration.evaluation_policy = 'EGreedy'
+        self.env.frame_skip = 1

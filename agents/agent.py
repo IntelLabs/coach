@@ -50,6 +50,7 @@ class Agent(object):
         self.task_id = task_id
         self.sess = tuning_parameters.sess
         self.env = tuning_parameters.env_instance = env
+        self.imitation = False
 
         # i/o dimensions
         if not tuning_parameters.env.desired_observation_width or not tuning_parameters.env.desired_observation_height:
@@ -61,7 +62,12 @@ class Agent(object):
             self.measurements_size = tuning_parameters.env.measurements_size = (self.measurements_size[0] + 1,)
 
         # modules
-        self.memory = eval(tuning_parameters.memory + '(tuning_parameters)')
+        if tuning_parameters.agent.load_memory_from_file_path:
+            screen.log_title("Loading replay buffer from pickle. Pickle path: {}"
+                             .format(tuning_parameters.agent.load_memory_from_file_path))
+            self.memory = read_pickle(tuning_parameters.agent.load_memory_from_file_path)
+        else:
+            self.memory = eval(tuning_parameters.memory + '(tuning_parameters)')
         # self.architecture = eval(tuning_parameters.architecture)
 
         self.has_global = replicated_device is not None
@@ -121,11 +127,12 @@ class Agent(object):
 
     def log_to_screen(self, phase):
         # log to screen
-        if self.current_episode > 0:
-            if phase == RunPhase.TEST:
-                exploration = self.evaluation_exploration_policy.get_control_param()
-            else:
+        if self.current_episode >= 0:
+            if phase == RunPhase.TRAIN:
                 exploration = self.exploration_policy.get_control_param()
+            else:
+                exploration = self.evaluation_exploration_policy.get_control_param()
+
             screen.log_dict(
                 OrderedDict([
                     ("Worker", self.task_id),
@@ -135,7 +142,7 @@ class Agent(object):
                     ("steps", self.total_steps_counter),
                     ("training iteration", self.training_iteration)
                 ]),
-                prefix="Heatup" if self.in_heatup else "Training" if phase == RunPhase.TRAIN else "Testing"
+                prefix=phase
             )
 
     def update_log(self, phase=RunPhase.TRAIN):
@@ -146,7 +153,7 @@ class Agent(object):
         # log all the signals to file
         logger.set_current_time(self.current_episode)
         logger.create_signal_value('Training Iter', self.training_iteration)
-        logger.create_signal_value('In Heatup', int(self.in_heatup))
+        logger.create_signal_value('In Heatup', int(phase == RunPhase.HEATUP))
         logger.create_signal_value('ER #Transitions', self.memory.num_transitions())
         logger.create_signal_value('ER #Episodes', self.memory.length())
         logger.create_signal_value('Episode Length', self.current_episode_steps_counter)
@@ -196,24 +203,6 @@ class Agent(object):
             for network in self.networks:
                 network.curr_rnn_c_in = network.middleware_embedder.c_init
                 network.curr_rnn_h_in = network.middleware_embedder.h_init
-
-    def stack_observation(self, curr_stack, observation):
-        """
-        Adds a new observation to an existing stack of observations from previous time-steps.
-        :param curr_stack: The current observations stack.
-        :param observation: The new observation
-        :return: The updated observation stack
-        """
-
-        if curr_stack == []:
-            # starting an episode
-            curr_stack = np.vstack(np.expand_dims([observation] * self.tp.env.observation_stack_size, 0))
-            curr_stack = self.switch_axes_order(curr_stack, from_type='channels_first', to_type='channels_last')
-        else:
-            curr_stack = np.append(curr_stack, np.expand_dims(np.squeeze(observation), axis=-1), axis=-1)
-            curr_stack = np.delete(curr_stack, 0, -1)
-
-        return curr_stack
 
     def preprocess_observation(self, observation):
         """
@@ -335,26 +324,6 @@ class Agent(object):
             reward = max(reward, self.tp.env.reward_clipping_min)
         return reward
 
-    def switch_axes_order(self, observation, from_type='channels_first', to_type='channels_last'):
-        """
-        transpose an observation axes from channels_first to channels_last or vice versa
-        :param observation: a numpy array 
-        :param from_type: can be 'channels_first' or 'channels_last'
-        :param to_type: can be 'channels_first' or 'channels_last'
-        :return: a new observation with the requested axes order
-        """
-        if from_type == to_type or len(observation.shape) == 1:
-            return observation
-        assert 2 <= len(observation.shape) <= 3, 'num axes of an observation must be 2 for a vector or 3 for an image'
-        assert type(observation) == np.ndarray, 'observation must be a numpy array'
-        if len(observation.shape) == 3:
-            if from_type == 'channels_first' and to_type == 'channels_last':
-                return np.transpose(observation, (1, 2, 0))
-            elif from_type == 'channels_last' and to_type == 'channels_first':
-                return np.transpose(observation, (2, 0, 1))
-        else:
-            return np.transpose(observation, (1, 0))
-
     def act(self, phase=RunPhase.TRAIN):
         """
         Take one step in the environment according to the network prediction and store the transition in memory
@@ -370,7 +339,7 @@ class Agent(object):
         is_first_transition_in_episode = (self.curr_state == [])
         if is_first_transition_in_episode:
             observation = self.preprocess_observation(self.env.observation)
-            observation = self.stack_observation([], observation)
+            observation = stack_observation([], observation, self.tp.env.observation_stack_size)
 
             self.curr_state = {'observation': observation}
             if self.tp.agent.use_measurements:
@@ -378,7 +347,7 @@ class Agent(object):
                 if self.tp.agent.use_accumulated_reward_as_measurement:
                     self.curr_state['measurements'] = np.append(self.curr_state['measurements'], 0)
 
-        if self.in_heatup:  # we do not have a stacked curr_state yet
+        if phase == RunPhase.HEATUP and not self.tp.heatup_using_network_decisions:
             action = self.env.get_random_action()
         else:
             action, action_info = self.choose_action(self.curr_state, phase=phase)
@@ -394,11 +363,11 @@ class Agent(object):
         observation = self.preprocess_observation(result['observation'])
 
         # plot action values online
-        if self.tp.visualization.plot_action_values_online and not self.in_heatup:
+        if self.tp.visualization.plot_action_values_online and phase != RunPhase.HEATUP:
             self.plot_action_values_online()
 
         # initialize the next state
-        observation = self.stack_observation(self.curr_state['observation'], observation)
+        observation = stack_observation(self.curr_state['observation'], observation, self.tp.env.observation_stack_size)
 
         next_state = {'observation': observation}
         if self.tp.agent.use_measurements and 'measurements' in result.keys():
@@ -407,7 +376,7 @@ class Agent(object):
                 next_state['measurements'] = np.append(next_state['measurements'], self.total_reward_in_current_episode)
 
         # store the transition only if we are training
-        if phase == RunPhase.TRAIN:
+        if phase == RunPhase.TRAIN or phase == RunPhase.HEATUP:
             transition = Transition(self.curr_state, result['action'], shaped_reward, next_state, result['done'])
             for key in action_info.keys():
                 transition.info[key] = action_info[key]
@@ -427,7 +396,7 @@ class Agent(object):
                 self.update_log(phase=phase)
             self.log_to_screen(phase=phase)
 
-            if phase == RunPhase.TRAIN:
+            if phase == RunPhase.TRAIN or phase == RunPhase.HEATUP:
                 self.reset_game()
 
             self.current_episode += 1
@@ -462,11 +431,12 @@ class Agent(object):
                     for network in self.networks:
                         network.sync()
 
-            if self.tp.visualization.dump_gifs and self.total_reward_in_current_episode > max_reward_achieved:
+            if self.total_reward_in_current_episode > max_reward_achieved:
                 max_reward_achieved = self.total_reward_in_current_episode
                 frame_skipping = int(5/self.tp.env.frame_skip)
-                logger.create_gif(self.last_episode_images[::frame_skipping],
-                                  name='score-{}'.format(max_reward_achieved), fps=10)
+                if self.tp.visualization.dump_gifs:
+                    logger.create_gif(self.last_episode_images[::frame_skipping],
+                                      name='score-{}'.format(max_reward_achieved), fps=10)
 
             average_evaluation_reward += self.total_reward_in_current_episode
             self.reset_game()
@@ -496,7 +466,7 @@ class Agent(object):
             screen.log_title("Starting heatup {}".format(self.task_id))
             num_steps_required_for_one_training_batch = self.tp.batch_size * self.tp.env.observation_stack_size
             for step in range(max(self.tp.num_heatup_steps, num_steps_required_for_one_training_batch)):
-                self.act()
+                self.act(phase=RunPhase.HEATUP)
 
         # training phase
         self.in_heatup = False
@@ -509,7 +479,12 @@ class Agent(object):
             # evaluate
             evaluate_agent = (self.last_episode_evaluation_ran is not self.current_episode) and \
                              (self.current_episode % self.tp.evaluate_every_x_episodes == 0)
+            evaluate_agent = evaluate_agent or \
+                             (self.imitation and self.training_iteration > 0 and
+                              self.training_iteration % self.tp.evaluate_every_x_training_iterations == 0)
+
             if evaluate_agent:
+                self.env.reset()
                 self.last_episode_evaluation_ran = self.current_episode
                 self.evaluate(self.tp.evaluation_episodes)
 
@@ -522,14 +497,15 @@ class Agent(object):
                     self.save_model(model_snapshots_periods_passed)
 
             # play and record in replay buffer
-            if self.tp.agent.step_until_collecting_full_episodes:
-                step = 0
-                while step < self.tp.agent.num_consecutive_playing_steps or self.memory.get_episode(-1).length() != 0:
-                    self.act()
-                    step += 1
-            else:
-                for step in range(self.tp.agent.num_consecutive_playing_steps):
-                    self.act()
+            if self.tp.agent.collect_new_data:
+                if self.tp.agent.step_until_collecting_full_episodes:
+                    step = 0
+                    while step < self.tp.agent.num_consecutive_playing_steps or self.memory.get_episode(-1).length() != 0:
+                        self.act()
+                        step += 1
+                else:
+                    for step in range(self.tp.agent.num_consecutive_playing_steps):
+                        self.act()
 
             # train
             if self.tp.train:
@@ -537,6 +513,8 @@ class Agent(object):
                     loss = self.train()
                     self.loss.add_sample(loss)
                     self.training_iteration += 1
+                    if self.imitation:
+                        self.log_to_screen(RunPhase.TRAIN)
                 self.post_training_commands()
 
     def save_model(self, model_id):

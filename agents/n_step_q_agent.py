@@ -45,7 +45,7 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
             # 1-Step Q learning
             q_st_plus_1 = self.main_network.target_network.predict(next_states)
 
-            for i in reversed(xrange(num_transitions)):
+            for i in reversed(range(num_transitions)):
                 state_value_head_targets[i][actions[i]] = \
                     rewards[i] + (1.0 - game_overs[i]) * self.tp.agent.discount * np.max(q_st_plus_1[i], 0)
 
@@ -56,7 +56,7 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
             else:
                 R = np.max(self.main_network.target_network.predict(np.expand_dims(next_states[-1], 0)))
 
-            for i in reversed(xrange(num_transitions)):
+            for i in reversed(range(num_transitions)):
                 R = rewards[i] + self.tp.agent.discount * R
                 state_value_head_targets[i][actions[i]] = R
 

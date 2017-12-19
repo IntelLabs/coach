@@ -13,9 +13,15 @@ Training an agent to solve an environment is as easy as running:
 python3 coach.py -p CartPole_DQN -r
 ```
 
-<img src="img/doom.gif" alt="Doom Health Gathering" width="265" height="200"/><img src="img/minitaur.gif" alt="PyBullet Minitaur" width="265" height="200"/> <img src="img/ant.gif" alt="Gym Extensions Ant" width="250" height="200"/>
+<img src="img/doom_deathmatch.gif" alt="Doom Deathmatch" width="267" height="200"/> <img src="img/carla.gif" alt="CARLA" width="284" height="200"/> <img src="img/montezuma.gif" alt="MontezumaRevenge" width="152" height="200"/>
 
 Blog post from the Intel® Nervana™ website can be found [here](https://www.intelnervana.com/reinforcement-learning-coach-intel).
+
+
+## Documentation
+
+Framework documentation, algorithm description and instructions on how to contribute a new agent/environment can be found [here](http://coach.nervanasys.com).
+
 
 ## Installation
 
@@ -103,6 +109,8 @@ For example:
 
 It is easy to create new presets for different levels or environments by following the same pattern as in presets.py
 
+More usage examples can be found [here](http://coach.nervanasys.com/usage/index.html).
+
 ## Running Coach Dashboard (Visualization)
 Training an agent to solve an environment can be tricky, at times. 
 
@@ -119,11 +127,6 @@ python3 dashboard.py
 
 
 <img src="img/dashboard.png" alt="Coach Design" style="width: 800px;"/>
-
-
-## Documentation
-
-Framework documentation, algoritmic description and instructions on how to contribute a new agent/environment can be found [here](http://coach.nervanasys.com).
 
 
 ## Parallelizing an Algorithm
@@ -150,11 +153,11 @@ python3 coach.py -p Hopper_A3C -n 16
 
 ## Supported Environments
 
-* OpenAI Gym 
+* *OpenAI Gym:*
 
     Installed by default by Coach's installer.
 
-* ViZDoom:
+* *ViZDoom:*
 
     Follow the instructions described in the ViZDoom repository -
 
@@ -162,13 +165,13 @@ python3 coach.py -p Hopper_A3C -n 16
 
     Additionally, Coach assumes that the environment variable VIZDOOM_ROOT points to the ViZDoom installation directory.
 
-* Roboschool:
+* *Roboschool:*
 
     Follow the instructions described in the roboschool repository - 
 
     https://github.com/openai/roboschool
 
-* GymExtensions:
+* *GymExtensions:*
 
     Follow the instructions described in the GymExtensions repository -
 
@@ -176,10 +179,19 @@ python3 coach.py -p Hopper_A3C -n 16
 
     Additionally, add the installation directory to the PYTHONPATH environment variable.
 
-* PyBullet
+* *PyBullet:*
 
     Follow the instructions described in the [Quick Start Guide](https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA) (basically just - 'pip install pybullet')
 
+* *CARLA:*
+
+    Download release 0.7 from the CARLA repository -
+
+    https://github.com/carla-simulator/carla/releases
+
+    Create a new CARLA_ROOT environment variable pointing to CARLA's installation directory.
+
+    A simple CARLA settings file (```CarlaSettings.ini```) is supplied with Coach, and is located in the ```environments``` directory.
 
 
 ## Supported Algorithms
@@ -190,24 +202,24 @@ python3 coach.py -p Hopper_A3C -n 16
 
 
 
-* [Deep Q Network (DQN)](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
-* [Double Deep Q Network (DDQN)](https://arxiv.org/pdf/1509.06461.pdf)
+* [Deep Q Network (DQN)](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)  ([code](agents/dqn_agent.py))
+* [Double Deep Q Network (DDQN)](https://arxiv.org/pdf/1509.06461.pdf)  ([code](agents/ddqn_agent.py))
 * [Dueling Q Network](https://arxiv.org/abs/1511.06581)
-* [Mixed Monte Carlo (MMC)](https://arxiv.org/abs/1703.01310)
-* [Persistent Advantage Learning (PAL)](https://arxiv.org/abs/1512.04860)
-* [Categorical Deep Q Network (C51)](https://arxiv.org/abs/1707.06887)
-* [Quantile Regression Deep Q Network (QR-DQN)](https://arxiv.org/pdf/1710.10044v1.pdf)
-* [Bootstrapped Deep Q Network](https://arxiv.org/abs/1602.04621)
-* [N-Step Q Learning](https://arxiv.org/abs/1602.01783) | **Distributed**
-* [Neural Episodic Control (NEC)](https://arxiv.org/abs/1703.01988)
-* [Normalized Advantage Functions (NAF)](https://arxiv.org/abs/1603.00748.pdf) | **Distributed**
-* [Policy Gradients (PG)](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) | **Distributed**
-* [Asynchronous Advantage Actor-Critic (A3C)](https://arxiv.org/abs/1602.01783) | **Distributed**
-* [Deep Deterministic Policy Gradients (DDPG)](https://arxiv.org/abs/1509.02971) | **Distributed**
-* [Proximal Policy Optimization (PPO)](https://arxiv.org/pdf/1707.06347.pdf)
-* [Clipped Proximal Policy Optimization](https://arxiv.org/pdf/1707.06347.pdf) | **Distributed**
-* [Direct Future Prediction (DFP)](https://arxiv.org/abs/1611.01779) | **Distributed**
-
+* [Mixed Monte Carlo (MMC)](https://arxiv.org/abs/1703.01310)  ([code](agents/mmc_agent.py))
+* [Persistent Advantage Learning (PAL)](https://arxiv.org/abs/1512.04860)  ([code](agents/pal_agent.py))
+* [Categorical Deep Q Network (C51)](https://arxiv.org/abs/1707.06887)  ([code](agents/categorical_dqn_agent.py))
+* [Quantile Regression Deep Q Network (QR-DQN)](https://arxiv.org/pdf/1710.10044v1.pdf)  ([code](agents/qr_dqn_agent.py))
+* [Bootstrapped Deep Q Network](https://arxiv.org/abs/1602.04621)  ([code](agents/bootstrapped_dqn_agent.py))
+* [N-Step Q Learning](https://arxiv.org/abs/1602.01783) | **Distributed**  ([code](agents/n_step_q_agent.py))
+* [Neural Episodic Control (NEC)](https://arxiv.org/abs/1703.01988)  ([code](agents/nec_agent.py))
+* [Normalized Advantage Functions (NAF)](https://arxiv.org/abs/1603.00748.pdf) | **Distributed**  ([code](agents/naf_agent.py))
+* [Policy Gradients (PG)](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) | **Distributed**  ([code](agents/policy_gradients_agent.py))
+* [Asynchronous Advantage Actor-Critic (A3C)](https://arxiv.org/abs/1602.01783) | **Distributed**  ([code](agents/actor_critic_agent.py))
+* [Deep Deterministic Policy Gradients (DDPG)](https://arxiv.org/abs/1509.02971) | **Distributed**  ([code](agents/ddpg_agent.py))
+* [Proximal Policy Optimization (PPO)](https://arxiv.org/pdf/1707.06347.pdf)  ([code](agents/ppo_agent.py))
+* [Clipped Proximal Policy Optimization](https://arxiv.org/pdf/1707.06347.pdf) | **Distributed**  ([code](agents/clipped_ppo_agent.py))
+* [Direct Future Prediction (DFP)](https://arxiv.org/abs/1611.01779) | **Distributed**  ([code](agents/dfp_agent.py))
+* Behavioral Cloning (BC)  ([code](agents/bc_agent.py))
 
 
 

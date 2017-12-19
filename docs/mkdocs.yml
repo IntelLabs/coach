@@ -11,6 +11,7 @@ extra_css: [extra.css]
 pages:
 - Home : index.md
 - Design: design.md
+- Usage: usage.md
 - Algorithms:
         - 'DQN' : algorithms/value_optimization/dqn.md
         - 'Double DQN' : algorithms/value_optimization/double_dqn.md
@@ -28,6 +29,7 @@ pages:
         - 'Proximal Policy Optimization' : algorithms/policy_optimization/ppo.md
         - 'Clipped Proximal Policy Optimization' : algorithms/policy_optimization/cppo.md
         - 'Direct Future Prediction' : algorithms/other/dfp.md
+        - 'Behavioral Cloning' : algorithms/imitation/bc.md
         
 - Coach Dashboard : 'dashboard.md'
 - Contributing : 
