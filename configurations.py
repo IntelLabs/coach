@@ -32,6 +32,11 @@ class InputTypes(object):
     TimedObservation = 5
 
 
+class EmbedderComplexity(object):
+    Shallow = 1
+    Deep = 2
+
+
 class OutputTypes(object):
     Q = 1
     DuelingQ = 2
@@ -60,6 +65,7 @@ class AgentParameters(object):
     middleware_type = MiddlewareTypes.FC
     loss_weights = [1.0]
     stop_gradients_from_head = [False]
+    embedder_complexity = EmbedderComplexity.Shallow
     num_output_head_copies = 1
     use_measurements = False
     use_accumulated_reward_as_measurement = False
@@ -90,6 +96,8 @@ class AgentParameters(object):
     step_until_collecting_full_episodes = False
     targets_horizon = 'N-Step'
     replace_mse_with_huber_loss = False
+    load_memory_from_file_path = None
+    collect_new_data = True
 
     # PPO related params
     target_kl_divergence = 0.01
@@ -132,6 +140,7 @@ class EnvironmentParameters(object):
     reward_scaling = 1.0
     reward_clipping_min = None
     reward_clipping_max = None
+    human_control = False
 
 
 class ExplorationParameters(object):
@@ -188,6 +197,7 @@ class GeneralParameters(object):
     kl_divergence_constraint = 100000
     num_training_iterations = 10000000000
     num_heatup_steps = 1000
+    heatup_using_network_decisions = False
     batch_size = 32
     save_model_sec = None
     save_model_dir = None
@@ -197,6 +207,7 @@ class GeneralParameters(object):
     learning_rate_decay_steps = 0
     evaluation_episodes = 5
     evaluate_every_x_episodes = 1000000
+    evaluate_every_x_training_iterations = 0
     rescaling_interpolation_type = 'bilinear'
 
     # setting a seed will only work for non-parallel algorithms. Parallel algorithms add uncontrollable noise in
@@ -224,6 +235,7 @@ class VisualizationParameters(object):
     dump_signals_to_csv_every_x_episodes = 10
     render = False
     dump_gifs = True
+    max_fps_for_human_control = 10
 
 
 class Roboschool(EnvironmentParameters):
@@ -252,7 +264,7 @@ class Bullet(EnvironmentParameters):
 
 class Atari(EnvironmentParameters):
     type = 'Gym'
-    frame_skip = 1
+    frame_skip = 4
     observation_stack_size = 4
     desired_observation_height = 84
     desired_observation_width = 84
@@ -266,6 +278,31 @@ class Doom(EnvironmentParameters):
     observation_stack_size = 3
     desired_observation_height = 60
     desired_observation_width = 76
+
+
+class Carla(EnvironmentParameters):
+    type = 'Carla'
+    frame_skip = 1
+    observation_stack_size = 4
+    desired_observation_height = 128
+    desired_observation_width = 180
+    normalize_observation = False
+    server_height = 256
+    server_width = 360
+    config = 'environments/CarlaSettings.ini'
+    level = 'town1'
+    verbose = True
+    stereo = False
+    semantic_segmentation = False
+    depth = False
+    episode_max_time = 100000  # miliseconds for each episode
+    continuous_to_bool_threshold = 0.5
+    allow_braking = False
+
+
+class Human(AgentParameters):
+    type = 'HumanAgent'
+    num_episodes_in_experience_replay = 10000000
 
 
 class NStepQ(AgentParameters):
@@ -299,9 +336,11 @@ class DQN(AgentParameters):
 class DDQN(DQN):
     type = 'DDQNAgent'
 
+
 class DuelingDQN(DQN):
     type = 'DQNAgent'
     output_types = [OutputTypes.DuelingQ]
+
 
 class BootstrappedDQN(DQN):
     type = 'BootstrappedDQNAgent'
@@ -314,6 +353,7 @@ class CategoricalDQN(DQN):
     v_min = -10.0
     v_max = 10.0
     atoms = 51
+    neon_support = False
 
 
 class QuantileRegressionDQN(DQN):
@@ -452,6 +492,7 @@ class ClippedPPO(AgentParameters):
     step_until_collecting_full_episodes = True
     beta_entropy = 0.01
 
+
 class DFP(AgentParameters):
     type = 'DFPAgent'
     input_types = [InputTypes.Observation, InputTypes.Measurements, InputTypes.GoalVector]
@@ -483,6 +524,15 @@ class PAL(AgentParameters):
     persistent_advantage_learning = False
     num_steps_between_copying_online_weights_to_target = 1000
     neon_support = True
+
+
+class BC(AgentParameters):
+    type = 'BCAgent'
+    input_types = [InputTypes.Observation]
+    output_types = [OutputTypes.Q]
+    loss_weights = [1.0]
+    collect_new_data = False
+    evaluate_every_x_training_iterations = 50000
 
 
 class EGreedyExploration(ExplorationParameters):

@@ -15,8 +15,10 @@
 #
 
 import sys
+from logger import *
 import gym
 import numpy as np
+import time
 try:
     import roboschool
     from OpenGL import GL
@@ -40,8 +42,6 @@ from gym import wrappers
 from utils import force_list, RunPhase
 from environments.environment_wrapper import EnvironmentWrapper
 
-i = 0
-
 
 class GymEnvironmentWrapper(EnvironmentWrapper):
     def __init__(self, tuning_parameters):
@@ -53,29 +53,30 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
             self.env.seed(self.seed)
 
         # self.env_spec = gym.spec(self.env_id)
+        self.env.frameskip = self.frame_skip
         self.discrete_controls = type(self.env.action_space) != gym.spaces.box.Box
 
-        # pybullet requires rendering before resetting the environment, but other gym environments (Pendulum) will crash
-        try:
-            if self.is_rendered:
-                self.render()
-        except:
-            pass
-
-        o = self.reset(True)['observation']
+        self.observation = self.reset(True)['observation']
 
         # render
         if self.is_rendered:
-            self.render()
+            image = self.get_rendered_image()
+            scale = 1
+            if self.human_control:
+                scale = 2
+            self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
-        self.is_state_type_image = len(o.shape) > 1
+        self.is_state_type_image = len(self.observation.shape) > 1
         if self.is_state_type_image:
-            self.width = o.shape[1]
-            self.height = o.shape[0]
+            self.width = self.observation.shape[1]
+            self.height = self.observation.shape[0]
         else:
-            self.width = o.shape[0]
+            self.width = self.observation.shape[0]
 
+        # action space
         self.actions_description = {}
+        if hasattr(self.env.unwrapped, 'get_action_meanings'):
+            self.actions_description = self.env.unwrapped.get_action_meanings()
         if self.discrete_controls:
             self.action_space_size = self.env.action_space.n
             self.action_space_abs_range = 0
@@ -85,33 +86,30 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
             self.action_space_low = self.env.action_space.low
             self.action_space_abs_range = np.maximum(np.abs(self.action_space_low), np.abs(self.action_space_high))
         self.actions = {i: i for i in range(self.action_space_size)}
+        self.key_to_action = {}
+        if hasattr(self.env.unwrapped, 'get_keys_to_action'):
+            self.key_to_action = self.env.unwrapped.get_keys_to_action()
+
+        # measurements
         self.timestep_limit = self.env.spec.timestep_limit
-        self.current_ale_lives = 0
         self.measurements_size = len(self.step(0)['info'].keys())
 
-        # env intialization
-        self.observation = o
-        self.reward = 0
-        self.done = False
-        self.last_action = self.actions[0]
+    def _update_state(self):
+        if hasattr(self.env.env, 'ale'):
+            if self.phase == RunPhase.TRAIN and hasattr(self, 'current_ale_lives'):
+                # signal termination for life loss
+                if self.current_ale_lives != self.env.env.ale.lives():
+                    self.done = True
+            self.current_ale_lives = self.env.env.ale.lives()
 
-    def render(self):
-        self.env.render()
-
-    def step(self, action_idx):
-
+    def _take_action(self, action_idx):
         if action_idx is None:
             action_idx = self.last_action_idx
-
-        self.last_action_idx = action_idx
 
         if self.discrete_controls:
             action = self.actions[action_idx]
         else:
             action = action_idx
-
-        if hasattr(self.env.env, 'ale'):
-            prev_ale_lives = self.env.env.ale.lives()
 
         # pendulum-v0 for example expects a list
         if not self.discrete_controls:
@@ -128,42 +126,26 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
 
         self.observation, self.reward, self.done, self.info = self.env.step(action)
 
-        if hasattr(self.env.env, 'ale') and self.phase == RunPhase.TRAIN:
-            # signal termination for breakout life loss
-            if prev_ale_lives != self.env.env.ale.lives():
-                self.done = True
-
+    def _preprocess_observation(self, observation):
         if any(env in self.env_id for env in ["Breakout", "Pong"]):
             # crop image
-            self.observation = self.observation[34:195, :, :]
-
-        if self.is_rendered:
-            self.render()
-
-        return {'observation': self.observation,
-                'reward': self.reward,
-                'done': self.done,
-                'action': self.last_action_idx,
-                'info': self.info}
+            observation = observation[34:195, :, :]
+        return observation
 
     def _restart_environment_episode(self, force_environment_reset=False):
         # prevent reset of environment if there are ale lives left
-        if "Breakout" in self.env_id and self.env.env.ale.lives() > 0 and not force_environment_reset:
+        if (hasattr(self.env.env, 'ale') and self.env.env.ale.lives() > 0) \
+                and not force_environment_reset and not self.env._past_limit():
             return self.observation
 
         if self.seed:
             self.env.seed(self.seed)
-        observation = self.env.reset()
-        while observation is None:
-            observation = self.step(0)['observation']
 
-        if "Breakout" in self.env_id:
-            # crop image
-            observation = observation[34:195, :, :]
+        self.observation = self.env.reset()
+        while self.observation is None:
+            self.step(0)
 
-        self.observation = observation
-
-        return observation
+        return self.observation
 
     def get_rendered_image(self):
         return self.env.render(mode='rgb_array')

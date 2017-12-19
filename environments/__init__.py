@@ -15,13 +15,16 @@
 #
 
 from logger import *
-from utils import Enum
+from utils import Enum, get_open_port
 from environments.gym_environment_wrapper import *
 from environments.doom_environment_wrapper import *
+from environments.carla_environment_wrapper import *
+
 
 class EnvTypes(Enum):
     Doom = "DoomEnvironmentWrapper"
     Gym = "GymEnvironmentWrapper"
+    Carla = "CarlaEnvironmentWrapper"
 
 
 def create_environment(tuning_parameters):

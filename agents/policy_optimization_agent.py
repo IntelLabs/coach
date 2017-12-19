@@ -58,7 +58,7 @@ class PolicyOptimizationAgent(Agent):
                     ("steps", self.total_steps_counter),
                     ("training iteration", self.training_iteration)
                 ]),
-                prefix="Heatup" if self.in_heatup else "Training" if phase == RunPhase.TRAIN else "Testing"
+                prefix=phase
             )
 
     def update_episode_statistics(self, episode):

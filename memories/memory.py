@@ -73,6 +73,7 @@ class Episode(object):
         if n_step_return == -1 or n_step_return > self.length():
             n_step_return = self.length()
         rewards = np.array([t.reward for t in self.transitions])
+        rewards = rewards.astype('float')
         total_return = rewards.copy()
         current_discount = discount
         for i in range(1, n_step_return):
@@ -123,12 +124,30 @@ class Episode(object):
 
 
 class Transition(object):
-    def __init__(self, state, action, reward, next_state, game_over):
+    def __init__(self, state, action, reward=0, next_state=None, game_over=False):
+        """
+        A transition is a tuple containing the information of a single step of interaction
+        between the agent and the environment. The most basic version should contain the following values:
+        (current state, action, reward, next state, game over)
+        For imitation learning algorithms, if the reward, next state or game over is not known,
+        it is sufficient to store the current state and action taken by the expert.
+
+        :param state: The current state. Assumed to be a dictionary where the observation
+                      is located at state['observation']
+        :param action: The current action that was taken
+        :param reward: The reward received from the environment
+        :param next_state: The next state of the environment after applying the action.
+                           The next state should be similar to the state in its structure.
+        :param game_over: A boolean which should be True if the episode terminated after
+                          the execution of the action.
+        """
         self.state = copy.deepcopy(state)
         self.state['observation'] = np.array(self.state['observation'], copy=False)
         self.action = action
         self.reward = reward
         self.total_return = None
+        if not next_state:
+            next_state = state
         self.next_state = copy.deepcopy(next_state)
         self.next_state['observation'] = np.array(self.next_state['observation'], copy=False)
         self.game_over = game_over
