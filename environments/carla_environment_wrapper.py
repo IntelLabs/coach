@@ -2,7 +2,8 @@ import sys
 from os import path, environ
 
 try:
-    sys.path.append(path.join(environ.get('CARLA_ROOT'), 'PythonClient'))
+    if 'CARLA_ROOT' in environ:
+        sys.path.append(path.join(environ.get('CARLA_ROOT'), 'PythonClient'))
     from carla.client import CarlaClient
     from carla.settings import CarlaSettings
     from carla.tcp import TCPConnectionError
@@ -126,7 +127,7 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
                 if action == key:
                     self.key_to_action[key_map[key]] = idx
         self.num_speedup_steps = 30
-        
+
         # measurements
         self.measurements_size = (1,)
         self.autopilot = None
@@ -227,4 +228,3 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
         self.observation = observation
 
         return observation
-
