@@ -15,7 +15,7 @@ python3 coach.py -p CartPole_DQN -r
 
 <img src="img/doom_deathmatch.gif" alt="Doom Deathmatch" width="267" height="200"/> <img src="img/carla.gif" alt="CARLA" width="284" height="200"/> <img src="img/montezuma.gif" alt="MontezumaRevenge" width="152" height="200"/>
 
-Blog post from the Intel® Nervana™ website can be found [here](https://www.intelnervana.com/reinforcement-learning-coach-intel).
+Blog posts from the Intel® Nervana™ website can be found [here](https://www.intelnervana.com/reinforcement-learning-coach-intel) and [here](https://www.intelnervana.com/reinforcement-learning-coach-carla-qr-dqn/).
 
 
 ## Documentation
