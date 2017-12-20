@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,12 @@
 #
 
 import scipy.ndimage
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    from logger import failed_imports
+    failed_imports.append("matplotlib")
+
 import copy
 from configurations import Preset
 from collections import OrderedDict
@@ -206,8 +211,8 @@ class Agent(object):
 
     def preprocess_observation(self, observation):
         """
-        Preprocesses the given observation. 
-        For images - convert to grayscale, resize and convert to int. 
+        Preprocesses the given observation.
+        For images - convert to grayscale, resize and convert to int.
         For measurements vectors - normalize by a running average and std.
         :param observation: The agents observation
         :return: A processed version of the observation
@@ -308,8 +313,8 @@ class Agent(object):
         """
         choose an action to act with in the current episode being played. Different behavior might be exhibited when training
          or testing.
-         
-        :param curr_state: the current state to act upon.  
+
+        :param curr_state: the current state to act upon.
         :param phase: the current phase: training or testing.
         :return: chosen action, some action value describing the action (q-value, probability, etc)
         """
