@@ -206,8 +206,8 @@ class Agent(object):
             plt.clf()
         if self.tp.agent.middleware_type == MiddlewareTypes.LSTM:
             for network in self.networks:
-                network.curr_rnn_c_in = network.middleware_embedder.c_init
-                network.curr_rnn_h_in = network.middleware_embedder.h_init
+                network.online_network.curr_rnn_c_in = network.online_network.middleware_embedder.c_init
+                network.online_network.curr_rnn_h_in = network.online_network.middleware_embedder.h_init
 
     def preprocess_observation(self, observation):
         """

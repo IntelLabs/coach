@@ -26,6 +26,8 @@ class ValueOptimizationAgent(Agent):
         self.q_values = Signal("Q")
         self.signals.append(self.q_values)
 
+        self.reset_game(do_not_reset_env=True)
+
     # Algorithms for which q_values are calculated from predictions will override this function
     def get_q_values(self, prediction):
         return prediction
