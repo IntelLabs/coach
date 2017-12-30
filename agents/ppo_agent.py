@@ -45,6 +45,8 @@ class PPOAgent(ActorCriticAgent):
         self.unclipped_grads = Signal('Grads (unclipped)')
         self.signals.append(self.unclipped_grads)
 
+        self.reset_game(do_not_reset_env=True)
+
     def fill_advantages(self, batch):
         current_states, next_states, actions, rewards, game_overs, total_return = self.extract_batch(batch)
 

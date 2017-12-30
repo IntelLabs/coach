@@ -37,6 +37,8 @@ class DDPGAgent(ActorCriticAgent):
         self.q_values = Signal("Q")
         self.signals.append(self.q_values)
 
+        self.reset_game(do_not_reset_env=True)
+
     def learn_from_batch(self, batch):
         current_states, next_states, actions, rewards, game_overs, _ = self.extract_batch(batch)
 

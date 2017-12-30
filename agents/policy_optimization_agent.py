@@ -47,6 +47,8 @@ class PolicyOptimizationAgent(Agent):
         self.entropy = Signal('Entropy')
         self.signals.append(self.entropy)
 
+        self.reset_game(do_not_reset_env=True)
+
     def log_to_screen(self, phase):
         # log to screen
         if self.current_episode > 0:
