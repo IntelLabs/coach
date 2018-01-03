@@ -1,5 +1,7 @@
 # Coach
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)
+
 ##  Overview
 
 Coach is a python reinforcement learning research framework containing implementation of many state-of-the-art algorithms.
@@ -222,6 +224,22 @@ python3 coach.py -p Hopper_A3C -n 16
 * Behavioral Cloning (BC)  ([code](agents/bc_agent.py))
 
 
+## Citation
+
+If you used Coach for your work, please use the following citation:
+
+```
+@misc{caspi_itai_2017_1134899,
+  author       = {Caspi, Itai and
+                  Leibovich, Gal and
+                  Novik, Gal},
+  title        = {Reinforcement Learning Coach},
+  month        = dec,
+  year         = 2017,
+  doi          = {10.5281/zenodo.1134899},
+  url          = {https://doi.org/10.5281/zenodo.1134899}
+}
+```
 
 ## Disclaimer
 
