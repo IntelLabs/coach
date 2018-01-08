@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -905,6 +905,19 @@ class Doom_Health_DQN(Preset):
         self.num_heatup_steps = 1000
         self.exploration.epsilon_decay_steps = 10000
         self.agent.num_steps_between_copying_online_weights_to_target = 1000
+
+
+class Pong_NEC_LSTM(Preset):
+    def __init__(self):
+        Preset.__init__(self, NEC, Atari, ExplorationParameters)
+        self.env.level = 'PongDeterministic-v4'
+        self.learning_rate = 0.001
+        self.agent.num_transitions_in_experience_replay = 1000000
+        self.agent.middleware_type = MiddlewareTypes.LSTM
+        self.exploration.initial_epsilon = 0.5
+        self.exploration.final_epsilon = 0.1
+        self.exploration.epsilon_decay_steps = 1000000
+        self.num_heatup_steps = 500
 
 
 class Pong_NEC(Preset):

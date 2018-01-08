@@ -22,6 +22,9 @@ from configurations import InputTypes, OutputTypes, MiddlewareTypes
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
+    """
+    A generalized version of all possible networks implemented using tensorflow.
+    """
     def __init__(self, tuning_parameters, name="", global_network=None, network_is_local=True):
         self.global_network = global_network
         self.network_is_local = network_is_local
@@ -79,7 +82,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             OutputTypes.DNDQ: DNDQHead,
             OutputTypes.NAF: NAFHead,
             OutputTypes.PPO: PPOHead,
-            OutputTypes.PPO_V : PPOVHead,
+            OutputTypes.PPO_V: PPOVHead,
             OutputTypes.CategoricalQ: CategoricalQHead,
             OutputTypes.QuantileRegressionQ: QuantileRegressionQHead
         }
