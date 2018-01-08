@@ -156,7 +156,7 @@ if [ ${INSTALL_DASHBOARD} -eq 1 ]; then
     libs=( wx )
     for lib in ${libs[@]}
     do
-        ln -s $lib_system_path/$lib $lib_virtualenv_path/$lib
+        ln -sf $lib_system_path/$lib $lib_virtualenv_path/$lib
     done
 fi
 
