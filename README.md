@@ -17,8 +17,11 @@ python3 coach.py -p CartPole_DQN -r
 
 <img src="img/doom_deathmatch.gif" alt="Doom Deathmatch" width="267" height="200"/> <img src="img/carla.gif" alt="CARLA" width="284" height="200"/> <img src="img/montezuma.gif" alt="MontezumaRevenge" width="152" height="200"/>
 
-Blog posts from the Intel® AI website can be found [here](https://ai.intel.com/reinforcement-learning-coach-intel/) and [here](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/).
+Blog posts from the Intel® AI website:
+* [Release 0.8.0](https://ai.intel.com/reinforcement-learning-coach-intel/) (initial release)
+* [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/).
 
+Contacting the Coach development team is also possible through the email [coach@intel.com](coach@intel.com)
 
 ## Documentation
 
@@ -245,4 +248,3 @@ If you used Coach for your work, please use the following citation:
 
 Coach is released as a reference code for research purposes. It is not an official Intel product, and the level of quality and support may not be as expected from an official product. 
 Additional algorithms and environments are planned to be added to the framework. Feedback and contributions from the open source and RL research communities are more than welcome.
-
