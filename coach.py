@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -273,6 +273,9 @@ if __name__ == "__main__":
                              "\"visualization.render=False; num_training_iterations=500; optimizer='rmsprop'\"",
                         default=None,
                         type=str)
+    parser.add_argument('--print_parameters',
+                        help="(flag) Print tuning_parameters to stdout",
+                        action='store_true')
 
     args, run_dict = check_input_and_fill_run_dict(parser)
 
@@ -289,6 +292,9 @@ if __name__ == "__main__":
         json_run_dict_path = run_dict_to_json(run_dict)
         tuning_parameters = json_to_preset(json_run_dict_path)
         tuning_parameters.sess = set_framework(args.framework)
+
+        if args.print_parameters:
+            print('tuning_parameters', tuning_parameters)
 
         # Single-thread runs
         tuning_parameters.task_index = 0
@@ -352,5 +358,3 @@ if __name__ == "__main__":
         # wait for all workers
         [w.wait() for w in workers]
         evaluation_worker.kill()
-
-
