@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,11 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
         EnvironmentWrapper.__init__(self, tuning_parameters)
 
         # env parameters
-        self.env = gym.make(self.env_id)
+        if ':' in self.env_id:
+            self.env = gym.envs.registration.load(self.env_id)()
+        else:
+            self.env = gym.make(self.env_id)
+
         if self.seed is not None:
             self.env.seed(self.seed)
 
@@ -91,11 +95,14 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
             self.key_to_action = self.env.unwrapped.get_keys_to_action()
 
         # measurements
-        self.timestep_limit = self.env.spec.timestep_limit
+        if self.env.spec is not None:
+            self.timestep_limit = self.env.spec.timestep_limit
+        else:
+            self.timestep_limit = None
         self.measurements_size = len(self.step(0)['info'].keys())
 
     def _update_state(self):
-        if hasattr(self.env.env, 'ale'):
+        if hasattr(self.env, 'env') and hasattr(self.env.env, 'ale'):
             if self.phase == RunPhase.TRAIN and hasattr(self, 'current_ale_lives'):
                 # signal termination for life loss
                 if self.current_ale_lives != self.env.env.ale.lives():
@@ -134,7 +141,7 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
 
     def _restart_environment_episode(self, force_environment_reset=False):
         # prevent reset of environment if there are ale lives left
-        if (hasattr(self.env.env, 'ale') and self.env.env.ale.lives() > 0) \
+        if (hasattr(self.env, 'env') and hasattr(self.env.env, 'ale') and self.env.env.ale.lives() > 0) \
                 and not force_environment_reset and not self.env._past_limit():
             return self.observation
 
