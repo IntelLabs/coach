@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import sys
 import time
 from logger import screen
 from utils import list_all_classes_in_module, threaded_cmd_line_run, killed_processes
-from subprocess import Popen
+import subprocess
 import signal
 import argparse
 
@@ -42,6 +42,12 @@ if __name__ == '__main__':
                         action='store_true')
     parser.add_argument('-in', '--ignore_neon',
                         help="(flag) Don't test neon presets.",
+                        action='store_true')
+    parser.add_argument('-v', '--verbose',
+                        help="(flag) display verbose logs in the event of an error",
+                        action='store_true')
+    parser.add_argument('--stop_after_first_failure',
+                        help="(flag) stop executing tests after the first error",
                         action='store_true')
 
     args = parser.parse_args()
@@ -70,13 +76,33 @@ if __name__ == '__main__':
                 frameworks.append('neon')
 
             for framework in frameworks:
+                if args.stop_after_first_failure and fail_count > 0:
+                    break
+
                 test_count += 1
 
                 # run the experiment in a separate thread
                 screen.log_title("Running test {} - {}".format(preset_name, framework))
-                cmd = 'CUDA_VISIBLE_DEVICES='' python3 coach.py -p {} -f {} -e {} -n {} -cp "seed=0" &> test_log_{}_{}.txt '\
-                    .format(preset_name, framework, test_name, preset.test_num_workers, preset_name, framework)
-                p = Popen(cmd, shell=True, executable="/bin/bash", preexec_fn=os.setsid)
+                log_file_name = 'test_log_{preset_name}_{framework}.txt'.format(
+                    preset_name=preset_name,
+                    framework=framework,
+                )
+                cmd = (
+                    'CUDA_VISIBLE_DEVICES='' python3 coach.py '
+                    '-p {preset_name} '
+                    '-f {framework} '
+                    '-e {test_name} '
+                    '-n {num_workers} '
+                    '-cp "seed=0" '
+                    '&> {log_file_name} '
+                ).format(
+                    preset_name=preset_name,
+                    framework=framework,
+                    test_name=test_name,
+                    num_workers=preset.test_num_workers,
+                    log_file_name=log_file_name,
+                )
+                p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", preexec_fn=os.setsid)
 
                 # get the csv with the results
                 csv_path = None
@@ -153,9 +179,21 @@ if __name__ == '__main__':
                 if test_passed:
                     screen.success("Passed successfully")
                 else:
-                    screen.error("Failed due to a mismatch with the golden", crash=False)
+                    if csv_paths:
+                        screen.error("Failed due to insufficient reward", crash=False)
+                        screen.error("preset.test_max_step_threshold: {}".format(preset.test_max_step_threshold), crash=False)
+                        screen.error("preset.test_min_return_threshold: {}".format(preset.test_min_return_threshold), crash=False)
+                        screen.error("averaged_rewards: {}".format(averaged_rewards), crash=False)
+                        screen.error("episode number: {}".format(csv['Episode #'].values[-1]), crash=False)
+                    else:
+                        screen.error("csv file never found", crash=False)
+                        if args.verbose:
+                            screen.error("command exitcode: {}".format(p.returncode), crash=False)
+                            screen.error(open(log_file_name).read(), crash=False)
+
                     fail_count += 1
                 shutil.rmtree(test_path)
+
 
     screen.separator()
     if fail_count == 0:
