@@ -42,6 +42,7 @@ class GeneralNeonNetwork(NeonArchitecture):
             'tanh': neon.Tanh(),
             'sigmoid': neon.Logistic(),
             'elu': neon.Explin(),
+            'selu': None,
             'none': None
         }
         assert activation_function_string in activation_functions.keys(), \

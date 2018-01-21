@@ -45,6 +45,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             'tanh': tf.nn.tanh,
             'sigmoid': tf.nn.sigmoid,
             'elu': tf.nn.elu,
+            'selu': tf.nn.selu,
             'none': None
         }
         assert activation_function_string in activation_functions.keys(), \
