@@ -21,9 +21,26 @@ python3 coach.py -p CartPole_DQN -r
 
 Blog posts from the Intel® AI website:
 * [Release 0.8.0](https://ai.intel.com/reinforcement-learning-coach-intel/) (initial release)
-* [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/).
+* [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/)
 
 Contacting the Coach development team is also possible through the email [coach@intel.com](coach@intel.com)
+
+## Table of Contents
+
+- [Coach](#coach)
+  * [Overview](#overview)
+  * [Documentation](#documentation)
+  * [Installation](#installation)
+    + [Coach Installer](#coach-installer)
+    + [TensorFlow GPU Support](#tensorflow-gpu-support)
+  * [Usage](#usage)
+    + [Running Coach](#running-coach)
+    + [Running Coach Dashboard (Visualization)](#running-coach-dashboard-visualization)
+    + [Parallelizing an Algorithm](#parallelizing-an-algorithm)
+  * [Supported Environments](#supported-environments)
+  * [Supported Algorithms](#supported-algorithms)
+  * [Citation](#citation)
+  * [Disclaimer](#disclaimer)
 
 ## Documentation
 
@@ -33,6 +50,8 @@ Framework documentation, algorithm description and instructions on how to contri
 ## Installation
 
 Note: Coach has only been tested on Ubuntu 16.04 LTS, and with Python 3.5.
+
+### Coach Installer
 
 Coach's installer will setup all the basics needed to get the user going with running Coach on top of [OpenAI Gym](https://github.com/openai/gym) environments.  This can be done by running the following command and then following the on-screen printed instructions:
 
@@ -54,9 +73,7 @@ deactivate
 
 In addition to OpenAI Gym, several other environments were tested and are supported. Please follow the instructions in the Supported Environments section below in order to install more environments.
 
-### GPU Support
-
-#### TensorFlow
+### TensorFlow GPU Support
 
 Coach's installer installs [Intel-Optimized TensorFlow](https://software.intel.com/en-us/articles/intel-optimized-tensorflow-wheel-now-available), which does not support GPU, by default. In order to have Coach running with GPU, a GPU supported TensorFlow version must be installed. This can be done by overriding the TensorFlow version: 
 
@@ -64,7 +81,9 @@ Coach's installer installs [Intel-Optimized TensorFlow](https://software.intel.c
 pip3 install tensorflow-gpu
 ```
 
-## Running Coach
+## Usage
+
+### Running Coach
 
 Coach supports both TensorFlow and neon deep learning frameworks.
 
@@ -118,7 +137,7 @@ It is easy to create new presets for different levels or environments by followi
 
 More usage examples can be found [here](http://coach.nervanasys.com/usage/index.html).
 
-## Running Coach Dashboard (Visualization)
+### Running Coach Dashboard (Visualization)
 Training an agent to solve an environment can be tricky, at times. 
 
 In order to debug the training process, Coach outputs several signals, per trained algorithm, in order to track algorithmic performance. 
@@ -136,7 +155,7 @@ python3 dashboard.py
 <img src="img/dashboard.png" alt="Coach Design" style="width: 800px;"/>
 
 
-## Parallelizing an Algorithm
+### Parallelizing an Algorithm
 
 Since the introduction of [A3C](https://arxiv.org/abs/1602.01783) in 2016, many algorithms were shown to benefit from running multiple instances in parallel, on many CPU cores. So far, these algorithms include [A3C](https://arxiv.org/abs/1602.01783), [DDPG](https://arxiv.org/pdf/1704.03073.pdf), [PPO](https://arxiv.org/pdf/1707.06347.pdf), and [NAF](https://arxiv.org/pdf/1610.00633.pdf), and this is most probably only the begining. 
 
