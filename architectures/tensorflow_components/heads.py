@@ -125,14 +125,14 @@ class DuelingQHead(QHead):
     def _build_module(self, input_layer):
         # state value tower - V
         with tf.variable_scope("state_value"):
-            state_value = tf.layers.dense(input_layer, 256, activation=tf.nn.relu)
-            state_value = tf.layers.dense(state_value, 1)
+            state_value = tf.layers.dense(input_layer, 256, activation=tf.nn.relu, name='fc1')
+            state_value = tf.layers.dense(state_value, 1, name='fc2')
             # state_value = tf.expand_dims(state_value, axis=-1)
 
         # action advantage tower - A
         with tf.variable_scope("action_advantage"):
-            action_advantage = tf.layers.dense(input_layer, 256, activation=tf.nn.relu)
-            action_advantage = tf.layers.dense(action_advantage, self.num_actions)
+            action_advantage = tf.layers.dense(input_layer, 256, activation=tf.nn.relu, name='fc1')
+            action_advantage = tf.layers.dense(action_advantage, self.num_actions, name='fc2')
             action_advantage = action_advantage - tf.reduce_mean(action_advantage)
 
         # merge to state-action value function Q
@@ -177,7 +177,7 @@ class PolicyHead(Head):
 
         # Policy Head
         if self.discrete_controls:
-            policy_values = tf.layers.dense(input_layer, self.num_actions)
+            policy_values = tf.layers.dense(input_layer, self.num_actions, name='fc')
             self.policy_mean = tf.nn.softmax(policy_values, name="policy")
 
             # define the distributions for the policy and the old policy
@@ -186,7 +186,7 @@ class PolicyHead(Head):
             self.output = self.policy_mean
         else:
             # mean
-            policy_values_mean = tf.layers.dense(input_layer, self.num_actions, activation=tf.nn.tanh)
+            policy_values_mean = tf.layers.dense(input_layer, self.num_actions, activation=tf.nn.tanh, name='fc_mean')
             self.policy_mean = tf.multiply(policy_values_mean, self.output_scale, name='output_mean')
 
             self.output = [self.policy_mean]
@@ -194,7 +194,7 @@ class PolicyHead(Head):
             # std
             if self.exploration_policy == 'ContinuousEntropy':
                 policy_values_std = tf.layers.dense(input_layer, self.num_actions,
-                                            kernel_initializer=normalized_columns_initializer(0.01))
+                                            kernel_initializer=normalized_columns_initializer(0.01), name='fc_std')
                 self.policy_std = tf.nn.softplus(policy_values_std, name='output_variance') + eps
 
                 self.output.append(self.policy_std)
@@ -239,14 +239,15 @@ class MeasurementsPredictionHead(Head):
         # This is almost exactly the same as Dueling Network but we predict the future measurements for each action
         # actions expectation tower (expectation stream) - E
         with tf.variable_scope("expectation_stream"):
-            expectation_stream = tf.layers.dense(input_layer, 256, activation=tf.nn.elu)
-            expectation_stream = tf.layers.dense(expectation_stream, self.multi_step_measurements_size)
+            expectation_stream = tf.layers.dense(input_layer, 256, activation=tf.nn.elu, name='fc1')
+            expectation_stream = tf.layers.dense(expectation_stream, self.multi_step_measurements_size, name='output')
             expectation_stream = tf.expand_dims(expectation_stream, axis=1)
 
         # action fine differences tower (action stream) - A
         with tf.variable_scope("action_stream"):
-            action_stream = tf.layers.dense(input_layer, 256, activation=tf.nn.elu)
-            action_stream = tf.layers.dense(action_stream, self.num_actions * self.multi_step_measurements_size)
+            action_stream = tf.layers.dense(input_layer, 256, activation=tf.nn.elu, name='fc1')
+            action_stream = tf.layers.dense(action_stream, self.num_actions * self.multi_step_measurements_size,
+                                            name='output')
             action_stream = tf.reshape(action_stream,
                                        (tf.shape(action_stream)[0], self.num_actions, self.multi_step_measurements_size))
             action_stream = action_stream - tf.reduce_mean(action_stream, reduction_indices=1, keep_dims=True)
@@ -393,7 +394,7 @@ class PPOHead(Head):
         # Policy Head
         if self.discrete_controls:
             self.input = [self.actions, self.old_policy_mean]
-            policy_values = tf.layers.dense(input_layer, self.num_actions)
+            policy_values = tf.layers.dense(input_layer, self.num_actions, name='policy_fc')
             self.policy_mean = tf.nn.softmax(policy_values, name="policy")
 
             # define the distributions for the policy and the old policy
@@ -488,7 +489,7 @@ class CategoricalQHead(Head):
         self.actions = tf.placeholder(tf.int32, [None], name="actions")
         self.input = [self.actions]
 
-        values_distribution = tf.layers.dense(input_layer, self.num_actions * self.num_atoms)
+        values_distribution = tf.layers.dense(input_layer, self.num_actions * self.num_atoms, name='output')
         values_distribution = tf.reshape(values_distribution, (tf.shape(values_distribution)[0], self.num_actions, self.num_atoms))
         # softmax on atoms dimension
         self.output = tf.nn.softmax(values_distribution)
@@ -514,7 +515,7 @@ class QuantileRegressionQHead(Head):
         self.input = [self.actions, self.quantile_midpoints]
 
         # the output of the head is the N unordered quantile locations {theta_1, ..., theta_N}
-        quantiles_locations = tf.layers.dense(input_layer, self.num_actions * self.num_atoms)
+        quantiles_locations = tf.layers.dense(input_layer, self.num_actions * self.num_atoms, name='output')
         quantiles_locations = tf.reshape(quantiles_locations, (tf.shape(quantiles_locations)[0], self.num_actions, self.num_atoms))
         self.output = quantiles_locations
 

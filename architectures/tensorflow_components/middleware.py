@@ -50,7 +50,7 @@ class LSTM_Embedder(MiddlewareEmbedder):
         which would definitely be wrong. need to double check the shape
         """
 
-        middleware = tf.layers.dense(self.input, 512, activation=self.activation_function)
+        middleware = tf.layers.dense(self.input, 512, activation=self.activation_function, name='fc1')
         lstm_cell = tf.contrib.rnn.BasicLSTMCell(256, state_is_tuple=True)
         self.c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
         self.h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
@@ -70,4 +70,4 @@ class LSTM_Embedder(MiddlewareEmbedder):
 
 class FC_Embedder(MiddlewareEmbedder):
     def _build_module(self):
-        self.output = tf.layers.dense(self.input, 512, activation=self.activation_function)
+        self.output = tf.layers.dense(self.input, 512, activation=self.activation_function, name='fc1')

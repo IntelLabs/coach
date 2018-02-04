@@ -21,6 +21,20 @@ from configurations import Preset, MiddlewareTypes
 import numpy as np
 import time
 
+def variable_summaries(var):
+    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+    with tf.name_scope('summaries'):
+        layer_weight_name = '_'.join(var.name.split('/')[-3:])[:-2]
+
+        with tf.name_scope(layer_weight_name):
+            mean = tf.reduce_mean(var)
+            tf.summary.scalar('mean', mean)
+            with tf.name_scope('stddev'):
+              stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+            tf.summary.scalar('stddev', stddev)
+            tf.summary.scalar('max', tf.reduce_max(var))
+            tf.summary.scalar('min', tf.reduce_min(var))
+            tf.summary.histogram('histogram', var)
 
 class TensorFlowArchitecture(Architecture):
     def __init__(self, tuning_parameters, name="", global_network=None, network_is_local=True):
@@ -75,6 +89,8 @@ class TensorFlowArchitecture(Architecture):
             for idx, var in enumerate(self.trainable_weights):
                 placeholder = tf.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
                 self.weights_placeholders.append(placeholder)
+                variable_summaries(var)
+
             self.update_weights_from_list = [weights.assign(holder) for holder, weights in
                                              zip(self.weights_placeholders, self.trainable_weights)]
 
@@ -108,10 +124,17 @@ class TensorFlowArchitecture(Architecture):
 
             # initialize or restore model
             if not self.tp.distributed:
+                # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
+                self.merged = tf.summary.merge_all()
+
                 self.init_op = tf.global_variables_initializer()
 
                 if self.sess:
-                        self.sess.run(self.init_op)
+                    if self.tp.visualization.tensorboard:
+                        self.train_writer = tf.summary.FileWriter(self.tp.experiment_path + '/tensorboard',
+                                                                  self.sess.graph)
+                    self.sess.run(self.init_op)
+
 
         self.accumulated_gradients = None
 
@@ -169,8 +192,12 @@ class TensorFlowArchitecture(Architecture):
                 feed_dict[self.middleware_embedder.c_in] = self.middleware_embedder.c_init
                 feed_dict[self.middleware_embedder.h_in] = self.middleware_embedder.h_init
 
+            fetches += [self.merged]
+
             # get grads
             result = self.tp.sess.run(fetches, feed_dict=feed_dict)
+            if hasattr(self, 'train_writer'):
+                self.train_writer.add_summary(result[-1], self.tp.current_episode)
 
             # extract the fetches
             norm_unclipped_grads, grads, total_loss, losses = result[:4]

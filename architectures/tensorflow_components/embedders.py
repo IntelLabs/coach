@@ -59,13 +59,17 @@ class ImageEmbedder(InputEmbedder):
             # same embedder as used in the original DQN paper
             self.observation_conv1 = tf.layers.conv2d(rescaled_observation_stack,
                                                       filters=32, kernel_size=(8, 8), strides=(4, 4),
-                                                      activation=self.activation_function, data_format='channels_last')
+                                                      activation=self.activation_function, data_format='channels_last',
+                                                      name='conv1')
             self.observation_conv2 = tf.layers.conv2d(self.observation_conv1,
                                                       filters=64, kernel_size=(4, 4), strides=(2, 2),
-                                                      activation=self.activation_function, data_format='channels_last')
+                                                      activation=self.activation_function, data_format='channels_last',
+                                                      name='conv2')
             self.observation_conv3 = tf.layers.conv2d(self.observation_conv2,
                                                       filters=64, kernel_size=(3, 3), strides=(1, 1),
-                                                      activation=self.activation_function, data_format='channels_last')
+                                                      activation=self.activation_function, data_format='channels_last',
+                                                      name='conv3'
+                                                      )
 
             self.output = tf.contrib.layers.flatten(self.observation_conv3)
 
@@ -73,28 +77,36 @@ class ImageEmbedder(InputEmbedder):
             # the embedder used in the CARLA papers
             self.observation_conv1 = tf.layers.conv2d(rescaled_observation_stack,
                                                  filters=32, kernel_size=(5, 5), strides=(2, 2),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv1')
             self.observation_conv2 = tf.layers.conv2d(self.observation_conv1,
                                                  filters=32, kernel_size=(3, 3), strides=(1, 1),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv2')
             self.observation_conv3 = tf.layers.conv2d(self.observation_conv2,
                                                  filters=64, kernel_size=(3, 3), strides=(2, 2),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv3')
             self.observation_conv4 = tf.layers.conv2d(self.observation_conv3,
                                                  filters=64, kernel_size=(3, 3), strides=(1, 1),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv4')
             self.observation_conv5 = tf.layers.conv2d(self.observation_conv4,
                                                  filters=128, kernel_size=(3, 3), strides=(2, 2),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv5')
             self.observation_conv6 = tf.layers.conv2d(self.observation_conv5,
                                                  filters=128, kernel_size=(3, 3), strides=(1, 1),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv6')
             self.observation_conv7 = tf.layers.conv2d(self.observation_conv6,
                                                  filters=256, kernel_size=(3, 3), strides=(2, 2),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv7')
             self.observation_conv8 = tf.layers.conv2d(self.observation_conv7,
                                                  filters=256, kernel_size=(3, 3), strides=(1, 1),
-                                                 activation=self.activation_function, data_format='channels_last')
+                                                 activation=self.activation_function, data_format='channels_last',
+                                                 name='conv8')
 
             self.output = tf.contrib.layers.flatten(self.observation_conv8)
         else:
@@ -111,12 +123,16 @@ class VectorEmbedder(InputEmbedder):
         input_layer = tf.contrib.layers.flatten(self.input)
 
         if self.embedder_complexity == EmbedderComplexity.Shallow:
-            self.output = tf.layers.dense(input_layer, 256, activation=self.activation_function)
+            self.output = tf.layers.dense(input_layer, 256, activation=self.activation_function,
+                                                 name='fc1')
 
         elif self.embedder_complexity == EmbedderComplexity.Deep:
             # the embedder used in the CARLA papers
-            self.observation_fc1 = tf.layers.dense(input_layer, 128, activation=self.activation_function)
-            self.observation_fc2 = tf.layers.dense(self.observation_fc1, 128, activation=self.activation_function)
-            self.output = tf.layers.dense(self.observation_fc2, 128, activation=self.activation_function)
+            self.observation_fc1 = tf.layers.dense(input_layer, 128, activation=self.activation_function,
+                                                 name='fc1')
+            self.observation_fc2 = tf.layers.dense(self.observation_fc1, 128, activation=self.activation_function,
+                                                 name='fc2')
+            self.output = tf.layers.dense(self.observation_fc2, 128, activation=self.activation_function,
+                                                 name='fc3')
         else:
             raise ValueError("The defined embedder complexity value is invalid")
