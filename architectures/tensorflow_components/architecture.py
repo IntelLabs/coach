@@ -58,6 +58,7 @@ class TensorFlowArchitecture(Architecture):
         self.curr_rnn_c_in = None
         self.curr_rnn_h_in = None
         self.gradients_wrt_inputs = []
+        self.train_writer = None
 
         self.optimizer_type = self.tp.agent.optimizer_type
         if self.tp.seed is not None:
@@ -122,10 +123,11 @@ class TensorFlowArchitecture(Architecture):
                 self.update_weights_from_batch_gradients = self.optimizer.apply_gradients(
                     zip(self.weights_placeholders, self.trainable_weights), global_step=self.global_step)
 
+            self.merged = tf.summary.merge_all()
+
             # initialize or restore model
             if not self.tp.distributed:
                 # Merge all the summaries
-                self.merged = tf.summary.merge_all()
 
                 self.init_op = tf.global_variables_initializer()
 
@@ -197,7 +199,7 @@ class TensorFlowArchitecture(Architecture):
 
             # get grads
             result = self.tp.sess.run(fetches, feed_dict=feed_dict)
-            if hasattr(self, 'train_writer'):
+            if hasattr(self, 'train_writer') and self.train_writer is not None:
                 self.train_writer.add_summary(result[-1], self.tp.current_episode)
 
             # extract the fetches
