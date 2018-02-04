@@ -518,7 +518,6 @@ class Agent(object):
             if self.tp.train:
                 for step in range(self.tp.agent.num_consecutive_training_steps):
                     loss = self.train()
-
                     self.loss.add_sample(loss)
                     self.training_iteration += 1
                     if self.imitation:

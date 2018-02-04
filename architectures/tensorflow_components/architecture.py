@@ -124,13 +124,14 @@ class TensorFlowArchitecture(Architecture):
 
             # initialize or restore model
             if not self.tp.distributed:
-                # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
+                # Merge all the summaries
                 self.merged = tf.summary.merge_all()
 
                 self.init_op = tf.global_variables_initializer()
 
                 if self.sess:
                     if self.tp.visualization.tensorboard:
+                        # Write the merged summaries to the current experiment directory
                         self.train_writer = tf.summary.FileWriter(self.tp.experiment_path + '/tensorboard',
                                                                   self.sess.graph)
                     self.sess.run(self.init_op)
