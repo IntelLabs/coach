@@ -37,6 +37,10 @@ if __name__ == '__main__':
                         help="(string) Name of a preset to run (as configured in presets.py)",
                         default=None,
                         type=str)
+    parser.add_argument('-ip', '--ignore_presets',
+                        help="(string) Name of a preset(s) to ignore (comma separated, and as configured in presets.py)",
+                        default=None,
+                        type=str)
     parser.add_argument('-itf', '--ignore_tensorflow',
                         help="(flag) Don't test TensorFlow presets.",
                         action='store_true')
@@ -65,10 +69,13 @@ if __name__ == '__main__':
     test_path = os.path.join('./experiments', test_name)
     if path.exists(test_path):
         shutil.rmtree(test_path)
-
+    if args.ignore_presets is not None:
+        presets_to_ignore = args.ignore_presets.split(',')
+    else:
+        presets_to_ignore = []
     for idx, preset_name in enumerate(presets_lists):
         preset = eval('presets.{}()'.format(preset_name))
-        if preset.test:
+        if preset.test and preset_name not in presets_to_ignore:
             frameworks = []
             if preset.agent.tensorflow_support and not args.ignore_tensorflow:
                 frameworks.append('tensorflow')
