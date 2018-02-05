@@ -208,7 +208,8 @@ class TensorFlowArchitecture(Architecture):
                 (self.curr_rnn_c_in, self.curr_rnn_h_in) = result[4]
             fetched_tensors = []
             if len(additional_fetches) > 0:
-                fetched_tensors = result[additional_fetches_start_idx:]
+                fetched_tensors = result[additional_fetches_start_idx:additional_fetches_start_idx +
+                                                                      len(additional_fetches)]
 
             # accumulate the gradients
             for idx, grad in enumerate(grads):
