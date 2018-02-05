@@ -226,6 +226,7 @@ class GeneralParameters(Parameters):
     evaluate_every_x_episodes = 1000000
     evaluate_every_x_training_iterations = 0
     rescaling_interpolation_type = 'bilinear'
+    current_episode = 0
 
     # setting a seed will only work for non-parallel algorithms. Parallel algorithms add uncontrollable noise in
     # the form of different workers starting at different times, and getting different assignments of CPU
@@ -253,6 +254,7 @@ class VisualizationParameters(Parameters):
     render = False
     dump_gifs = True
     max_fps_for_human_control = 10
+    tensorboard = False
 
 
 class Roboschool(EnvironmentParameters):

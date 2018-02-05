@@ -178,6 +178,7 @@ def check_input_and_fill_run_dict(parser):
     # visualization
     run_dict['visualization.dump_gifs'] = args.dump_gifs
     run_dict['visualization.render'] = args.render
+    run_dict['visualization.tensorboard'] = args.tensorboard
 
     return args, run_dict
 
@@ -275,6 +276,9 @@ if __name__ == "__main__":
                         type=str)
     parser.add_argument('--print_parameters',
                         help="(flag) Print tuning_parameters to stdout",
+                        action='store_true')
+    parser.add_argument('-tb', '--tensorboard',
+                        help="(flag) When using the TensorFlow backend, enable TensorBoard log dumps. ",
                         action='store_true')
 
     args, run_dict = check_input_and_fill_run_dict(parser)

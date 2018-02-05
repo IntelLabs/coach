@@ -157,6 +157,12 @@ if __name__ == "__main__":
         for network in agent.networks:
             network.set_session(sess)
 
+        if tuning_parameters.visualization.tensorboard:
+            # Write the merged summaries to the current experiment directory
+            agent.main_network.online_network.train_writer = tf.summary.FileWriter(
+                tuning_parameters.experiment_path + '/tensorboard_worker{}'.format(tuning_parameters.task_id),
+                sess.graph)
+
         # Start the training or evaluation
         if tuning_parameters.evaluate_only:
             agent.evaluate(sys.maxsize, keep_networks_synced=True)  # evaluate forever

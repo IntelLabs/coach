@@ -91,7 +91,7 @@ class Agent(object):
         self.total_steps_counter = 0
         self.running_reward = None
         self.training_iteration = 0
-        self.current_episode = 0
+        self.current_episode = self.tp.current_episode = 0
         self.curr_state = []
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
@@ -406,6 +406,7 @@ class Agent(object):
                 self.reset_game()
 
             self.current_episode += 1
+            self.tp.current_episode = self.current_episode
 
         # return episode really ended
         return result['done']
