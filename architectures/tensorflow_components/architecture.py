@@ -123,7 +123,9 @@ class TensorFlowArchitecture(Architecture):
                 self.update_weights_from_batch_gradients = self.optimizer.apply_gradients(
                     zip(self.weights_placeholders, self.trainable_weights), global_step=self.global_step)
 
-            self.merged = tf.summary.merge_all()
+            current_scope_summaries = tf.get_collection(tf.GraphKeys.SUMMARIES,
+                                                        scope=tf.contrib.framework.get_name_scope())
+            self.merged = tf.summary.merge(current_scope_summaries)
 
             # initialize or restore model
             if not self.tp.distributed:
@@ -137,7 +139,6 @@ class TensorFlowArchitecture(Architecture):
                         self.train_writer = tf.summary.FileWriter(self.tp.experiment_path + '/tensorboard',
                                                                   self.sess.graph)
                     self.sess.run(self.init_op)
-
 
         self.accumulated_gradients = None
 
