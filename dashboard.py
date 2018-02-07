@@ -252,11 +252,11 @@ class SignalsFileBase:
     def file_was_modified_on_disk(self):
         pass
 
-    def get_range_of_selected_signals_on_axis(self, axis):
+    def get_range_of_selected_signals_on_axis(self, axis, selected_signal=None):
         max_val = -float('inf')
         min_val = float('inf')
         for signal in self.signals.values():
-            if signal.selected and signal.axis == axis:
+            if (selected_signal and signal.name == selected_signal) or (signal.selected and signal.axis == axis):
                 max_val = max(max_val, signal.max_val)
                 min_val = min(min_val, signal.min_val)
         return min_val, max_val
@@ -279,6 +279,8 @@ class SignalsFile(SignalsFileBase):
         self.dir, self.filename, _ = break_file_path(csv_path)
         if load:
             self.load()
+            # this helps set the correct x axis
+            self.change_averaging_window(1, force=True)
 
     def load_csv(self):
         # load csv and fix sparse data.
@@ -313,9 +315,17 @@ class SignalsFilesGroup(SignalsFileBase):
                     self.signals_files.append(SignalsFilesGroup(add_directory_csv_files(csv_path)))
                 else:
                     self.signals_files.append(SignalsFile(str(csv_path), load=False))
-        self.dir = os.path.dirname(os.path.commonprefix(csv_paths))
+        if len(csv_paths) == 1:
+            # get the parent directory name (since the current directory is the timestamp directory)
+            self.dir = os.path.abspath(os.path.join(os.path.dirname(csv_paths[0]), '..'))
+        else:
+            # get the common directory for all the experiments
+            self.dir = os.path.dirname(os.path.commonprefix(csv_paths))
         self.filename = '{} - Group({})'.format(basename(self.dir), len(self.signals_files))
         self.load()
+
+        # this helps set the correct x axis
+        self.change_averaging_window(1, force=True)
 
     def load_csv(self):
         corrupted_files_idx = []
@@ -368,7 +378,7 @@ class SignalsFilesGroup(SignalsFileBase):
             del self.csv[col]
 
         # remove NaNs
-        # self.csv.fillna(value=0, inplace=True)
+        self.csv.fillna(value=0, inplace=True)  # removing this line will make bollinger bands fail
         for key in self.csv.keys():
             if 'Stdev' in key and 'Evaluation' not in key:
                 self.csv[key] = self.csv[key].fillna(value=0)
@@ -450,7 +460,8 @@ legend = widgetbox([div])
 # create figures
 plot = figure(plot_width=800, plot_height=800,
               tools='pan,box_zoom,wheel_zoom,crosshair,reset,save',
-              toolbar_location='above', x_axis_label='Episodes')
+              toolbar_location='above', x_axis_label='Episodes',
+              x_range=Range1d(0, 100))
 plot.extra_y_ranges = {"secondary": Range1d(start=-100, end=200)}
 plot.add_layout(LinearAxis(y_range_name="secondary"), 'right')
 
@@ -458,8 +469,11 @@ plot.add_layout(LinearAxis(y_range_name="secondary"), 'right')
 def update_axis_range(name, range_placeholder):
     max_val = -float('inf')
     min_val = float('inf')
+    selected_signal = None
+    if name in x_axis_options:
+        selected_signal = name
     for signals_file in signals_files.values():
-        curr_min_val, curr_max_val = signals_file.get_range_of_selected_signals_on_axis(name)
+        curr_min_val, curr_max_val = signals_file.get_range_of_selected_signals_on_axis(name, selected_signal)
         max_val = max(max_val, curr_max_val)
         min_val = min(min_val, curr_min_val)
     if min_val != float('inf'):
@@ -504,6 +518,7 @@ def select_data(args, old, new):
 
     # update axes ranges
     update_ranges()
+    update_axis_range(x_axis, plot.x_range)
 
     # update the legend
     update_legend()
@@ -664,6 +679,7 @@ def create_files_signal(files):
         new_signal_files.append(signals_file)
 
     filenames = [f.filename for f in new_signal_files]
+
     files_selector.options += filenames
     files_selector.value = filenames[0]
     selected_file = new_signal_files[0]
@@ -673,6 +689,7 @@ def create_files_signal(files):
 def load_files():
     show_spinner()
     files = open_file_dialog()
+
     # no files selected
     if not files or not files[0]:
         hide_spinner()
@@ -713,6 +730,7 @@ def reload_all_files(force=False):
 # unselect the currently selected signals and then select the requested signals in the data selector
 def change_selected_signals_in_data_selector(selected_signals):
     # the default bokeh way is not working due to a bug since Bokeh 0.12.6 (https://github.com/bokeh/bokeh/issues/6501)
+    # this will currently cause the signals to change color
     for value in list(data_selector.value):
         if value in data_selector.options:
             index = data_selector.options.index(value)
@@ -752,7 +770,9 @@ def change_x_axis(val):
     global x_axis
     show_spinner()
     x_axis = x_axis_options[val]
+    plot.xaxis.axis_label = x_axis
     reload_all_files(force=True)
+    update_axis_range(x_axis, plot.x_range)
     hide_spinner()
 
 
