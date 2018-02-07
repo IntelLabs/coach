@@ -197,7 +197,8 @@ fi
 
 if ! [ -x "$(command -v nvidia-smi)" ]; then
     # Intel Optimized TensorFlow
-    pip3 install https://anaconda.org/intel/tensorflow/1.3.0/download/tensorflow-1.3.0-cp35-cp35m-linux_x86_64.whl
+    #pip3 install https://anaconda.org/intel/tensorflow/1.3.0/download/tensorflow-1.3.0-cp35-cp35m-linux_x86_64.whl
+    pip3 install https://anaconda.org/intel/tensorflow/1.4.0/download/tensorflow-1.4.0-cp35-cp35m-linux_x86_64.whl
 else
     # GPU supported TensorFlow
     pip3 install tensorflow-gpu==1.4.1
