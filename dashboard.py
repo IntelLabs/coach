@@ -31,7 +31,7 @@ from pandas.io.common import EmptyDataError
 import numpy as np
 from bokeh.palettes import Dark2
 from bokeh.layouts import row, column, widgetbox, Spacer
-from bokeh.models import ColumnDataSource, Range1d, LinearAxis, HoverTool, WheelZoomTool, PanTool
+from bokeh.models import ColumnDataSource, Range1d, LinearAxis, HoverTool, WheelZoomTool, PanTool, Legend
 from bokeh.models.widgets import RadioButtonGroup, MultiSelect, Button, Select, Slider, Div, CheckboxGroup
 from bokeh.models.glyphs import Patch
 from bokeh.plotting import figure, show, curdoc
@@ -453,17 +453,26 @@ spinner = Div(text="""""")
 # file refresh time placeholder
 refresh_info = Div(text="""""", width=210)
 
+# create figures
+plot = figure(plot_width=1200, plot_height=800,
+              tools='pan,box_zoom,wheel_zoom,crosshair,undo,redo,reset,save',
+              toolbar_location='above', x_axis_label='Episodes',
+              x_range=Range1d(0, 10000), y_range=Range1d(0, 100000))
+plot.extra_y_ranges = {"secondary": Range1d(start=-100, end=200)}
+plot.add_layout(LinearAxis(y_range_name="secondary"), 'right')
+
 # legend
 div = Div(text="""""")
 legend = widgetbox([div])
 
-# create figures
-plot = figure(plot_width=800, plot_height=800,
-              tools='pan,box_zoom,wheel_zoom,crosshair,reset,save',
-              toolbar_location='above', x_axis_label='Episodes',
-              x_range=Range1d(0, 100))
-plot.extra_y_ranges = {"secondary": Range1d(start=-100, end=200)}
-plot.add_layout(LinearAxis(y_range_name="secondary"), 'right')
+bokeh_legend = Legend(
+    items=[("12345678901234567890123456789012345678901234567890", [])],  # 50 letters
+    location=(-20, 0), orientation="vertical",
+    border_line_color="black",
+    label_text_font_size={'value': '8pt'},
+    margin=30
+)
+plot.add_layout(bokeh_legend, "right")
 
 
 def update_axis_range(name, range_placeholder):
@@ -499,11 +508,17 @@ def get_all_selected_signals():
 def update_legend():
     legend_text = """<div></div>"""
     selected_signals = get_all_selected_signals()
+    items = []
     for signal in selected_signals:
         side_sign = "<" if signal.axis == 'default' else ">"
         legend_text += """<div style='color: {}'><b>{} {}</b></div>"""\
                        .format(signal.color, side_sign, signal.full_name)
+        items.append((signal.full_name, [signal.line]))
     div.text = legend_text
+    # the visible=false => visible=true is a hack to make the legend render again
+    bokeh_legend.visible = False
+    bokeh_legend.items = items
+    bokeh_legend.visible = True
 
 
 # select lines to display
