@@ -29,6 +29,7 @@ import random
 import pandas as pd
 from pandas.io.common import EmptyDataError
 import numpy as np
+import colorsys
 from bokeh.palettes import Dark2
 from bokeh.layouts import row, column, widgetbox, Spacer
 from bokeh.models import ColumnDataSource, Range1d, LinearAxis, HoverTool, WheelZoomTool, PanTool, Legend
@@ -94,22 +95,27 @@ class Signal:
         self.bollinger_bands_source = None
         self.update_range()
 
+    def set_color(self, color):
+        self.color = color
+        if self.line:
+            self.line.glyph.line_color = color
+        if self.bands:
+            self.bands.glyph.fill_color = color
+
     def set_selected(self, val):
         global current_color
         if self.selected != val:
             self.selected = val
             if self.line:
-                self.color = Dark2[8][current_color]
-                current_color = (current_color + 1) % len(Dark2[8])
-                self.line.glyph.line_color = self.color
+                # self.set_color(Dark2[8][current_color])
+                # current_color = (current_color + 1) % len(Dark2[8])
                 self.line.visible = self.selected
                 if self.bands:
-                    self.bands.glyph.fill_color = self.color
                     self.bands.visible = self.selected and self.show_bollinger_bands
             elif self.selected:
                 # lazy plotting - plot only when selected for the first time
                 show_spinner()
-                self.color = Dark2[8][current_color]
+                self.set_color(Dark2[8][current_color])
                 current_color = (current_color + 1) % len(Dark2[8])
                 if self.has_bollinger_bands:
                     self.set_bands_source()
@@ -467,9 +473,10 @@ legend = widgetbox([div])
 
 bokeh_legend = Legend(
     items=[("12345678901234567890123456789012345678901234567890", [])],  # 50 letters
+    # items=[("                                                  ", [])],  # 50 letters
     location=(-20, 0), orientation="vertical",
     border_line_color="black",
-    label_text_font_size={'value': '8pt'},
+    label_text_font_size={'value': '9pt'},
     margin=30
 )
 plot.add_layout(bokeh_legend, "right")
@@ -820,6 +827,45 @@ def change_displayed_doc():
         doc.remove_root(landing_page)
         doc.add_root(layout)
 
+
+# Color selection - most of these functions are taken from bokeh examples (plotting/color_sliders.py)
+def select_color(attr, old, new):
+    show_spinner()
+    signals = selected_file.get_selected_signals()
+    for signal in signals:
+        signal.set_color(rgb_to_hex(crRGBs[new['1d']['indices'][0]]))
+    hide_spinner()
+
+
+def generate_color_range(N, I):
+    HSV_tuples = [(x*1.0/N, 0.5, I) for x in range(N)]
+    RGB_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), HSV_tuples)
+    for_conversion = []
+    for RGB_tuple in RGB_tuples:
+        for_conversion.append((int(RGB_tuple[0]*255), int(RGB_tuple[1]*255), int(RGB_tuple[2]*255)))
+    hex_colors = [rgb_to_hex(RGB_tuple) for RGB_tuple in for_conversion]
+    return hex_colors, for_conversion
+
+
+# convert RGB tuple to hexadecimal code
+def rgb_to_hex(rgb):
+    return '#%02x%02x%02x' % rgb
+
+
+# convert hexadecimal to RGB tuple
+def hex_to_dec(hex):
+    red = ''.join(hex.strip('#')[0:2])
+    green = ''.join(hex.strip('#')[2:4])
+    blue = ''.join(hex.strip('#')[4:6])
+    return int(red, 16), int(green, 16), int(blue,16)
+
+color_resolution = 1000
+brightness = 0.75  # change to have brighter/darker colors
+crx = list(range(1, color_resolution+1))  # the resolution is 1000 colors
+cry = [5 for i in range(len(crx))]
+crcolor, crRGBs = generate_color_range(color_resolution, brightness)  # produce spectrum
+
+
 # ---------------- Build Website Layout -------------------
 
 # select file
@@ -835,7 +881,7 @@ unload_file_button = Button(label="Unload", button_type="danger", width=50)
 unload_file_button.on_click(unload_file)
 
 # files selection box
-files_selector = Select(title="Files:", options=[])
+files_selector = Select(title="Files:", options=[], width=200)
 files_selector.on_change('value', change_data_selector)
 
 # data selection box
@@ -859,6 +905,20 @@ averaging_slider.on_change('value', update_averaging)
 group_cb = CheckboxGroup(labels=["Show statistics bands", "Ungroup signals"], active=[])
 group_cb.on_click(toggle_group_property)
 
+# color selector
+color_selector_title = Div(text="""Select Color:""")
+crsource = ColumnDataSource(data=dict(x=crx, y=cry, crcolor=crcolor, RGBs=crRGBs))
+color_selector = figure(x_range=(0, color_resolution), y_range=(0, 10),
+                        plot_width=300, plot_height=40,
+                        tools='tap')
+color_selector.axis.visible = False
+color_range = color_selector.rect(x='x', y='y', width=1, height=10,
+                                  color='crcolor', source=crsource)
+crsource.on_change('selected', select_color)
+color_range.nonselection_glyph = color_range.glyph
+color_selector.toolbar.logo = None
+color_selector.toolbar_location = None
+
 # title
 title = Div(text="""<h1>Coach Dashboard</h1>""")
 
@@ -879,12 +939,14 @@ layout = row(file_selection_button, files_selector_spacer, group_selection_butto
 layout = column(layout, files_selector)
 layout = column(layout, row(refresh_info, unload_file_button))
 layout = column(layout, data_selector)
+layout = column(layout, color_selector_title)
+layout = column(layout, color_selector)
 layout = column(layout, x_axis_selector_title)
 layout = column(layout, x_axis_selector)
 layout = column(layout, group_cb)
 layout = column(layout, toggle_second_axis_button)
 layout = column(layout, averaging_slider)
-layout = column(layout, legend)
+# layout = column(layout, legend)
 layout = row(layout, plot)
 layout = column(title, layout)
 layout = column(layout, spinner)
