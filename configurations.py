@@ -250,7 +250,7 @@ class VisualizationParameters(Parameters):
     show_saliency_maps_every_num_episodes = 1000000000
     print_summary = False
     dump_csv = True
-    dump_signals_to_csv_every_x_episodes = 10
+    dump_signals_to_csv_every_x_episodes = 5
     render = False
     dump_gifs = True
     max_fps_for_human_control = 10
