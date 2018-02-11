@@ -28,8 +28,10 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
         self.last_gradient_update_step_idx = 0
         self.q_values = Signal('Q Values')
         self.unclipped_grads = Signal('Grads (unclipped)')
+        self.value_loss = Signal('Value Loss')
         self.signals.append(self.q_values)
         self.signals.append(self.unclipped_grads)
+        self.signals.append(self.value_loss)
 
     def learn_from_batch(self, batch):
         # batch contains a list of episodes to learn from
@@ -69,7 +71,7 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
         # logging
         total_loss, losses, unclipped_grads = result[:3]
         self.unclipped_grads.add_sample(unclipped_grads)
-        logger.create_signal_value('Value Loss', losses[0])
+        self.value_loss.add_sample(losses[0])
 
         return total_loss
 

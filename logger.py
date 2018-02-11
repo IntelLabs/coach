@@ -127,6 +127,7 @@ class Logger(BaseLogger):
         self.start_time = None
         self.time = None
         self.experiments_path = ""
+        self.last_line_idx_written_to_csv = 0
 
     def set_current_time(self, time):
         self.time = time
@@ -184,16 +185,23 @@ class Logger(BaseLogger):
     def get_signal_value(self, time, signal_name):
         return self.data.loc[time, signal_name]
 
-    def dump_output_csv(self):
+    def dump_output_csv(self, append=True):
         self.data.index.name = "Episode #"
         if len(self.data.index) == 1:
             self.start_time = time.time()
 
-        self.data.to_csv(self.csv_path)
+        if os.path.exists(self.csv_path) and append:
+            self.data[self.last_line_idx_written_to_csv:].to_csv(self.csv_path, mode='a', header=False)
+        else:
+            self.data.to_csv(self.csv_path)
+
+        self.last_line_idx_written_to_csv = len(self.data.index)
 
     def update_wall_clock_time(self, episode):
         if self.start_time:
             self.create_signal_value('Wall-Clock Time', time.time() - self.start_time, time=episode)
+        else:
+            self.create_signal_value('Wall-Clock Time', time.time(), time=episode)
 
     def create_gif(self, images, fps=10, name="Gif"):
         output_file = '{}_{}.gif'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'), name)
