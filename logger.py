@@ -241,7 +241,7 @@ class Logger(BaseLogger):
         pil_images[0].save(output_path, save_all=True, append_images=pil_images[1:], duration=1.0 / fps, loop=0)
 
     def remove_experiment_dir(self):
-        os.removedirs(self.experiments_path)
+        shutil.rmtree(self.experiments_path)
 
     def print_summary(self):
         screen.separator()
@@ -252,7 +252,7 @@ class Logger(BaseLogger):
         screen.separator()
         if screen.ask_yes_no("Do you want to discard the experiment results (Warning: this cannot be undone)?", False):
             self.remove_experiment_dir()
-        if screen.ask_yes_no("Do you want to specify a different experiment name to save to?", False):
+        elif screen.ask_yes_no("Do you want to specify a different experiment name to save to?", False):
             new_name = self.get_experiment_name()
             new_path = self.get_experiment_path(new_name, create_path=False)
             shutil.move(self.experiments_path, new_path)

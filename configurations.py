@@ -248,6 +248,7 @@ class VisualizationParameters(Parameters):
     video_path = '/home/llt_lab/temp/breakout-videos'
     plot_action_values_online = False
     show_saliency_maps_every_num_episodes = 1000000000
+    render_observation = False
     print_summary = False
     dump_csv = True
     dump_signals_to_csv_every_x_episodes = 5

@@ -22,6 +22,7 @@ except:
     failed_imports.append("matplotlib")
 
 import copy
+from renderer import Renderer
 from configurations import Preset
 from collections import OrderedDict
 from utils import RunPhase, Signal, is_empty, RunningStat
@@ -101,6 +102,7 @@ class Agent(object):
         self.main_network = None
         self.networks = []
         self.last_episode_images = []
+        self.renderer = Renderer()
 
         # signals
         self.signals = []
@@ -231,6 +233,13 @@ class Agent(object):
             if len(observation.shape) > 2 and observation.shape[2] > 1:
                 r, g, b = observation[:, :, 0], observation[:, :, 1], observation[:, :, 2]
                 observation = 0.2989 * r + 0.5870 * g + 0.1140 * b
+
+            # Render the processed observation which is how the agent will see it
+            # Warning: this cannot currently be done in parallel to rendering the environment
+            if self.tp.visualization.render_observation:
+                if not self.renderer.is_open:
+                    self.renderer.create_screen(observation.shape[0], observation.shape[1])
+                self.renderer.render_image(observation)
 
             return observation.astype('uint8')
         else:
