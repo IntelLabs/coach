@@ -41,6 +41,8 @@ class Renderer(object):
         :return: None
         """
         if self.is_open:
+            if len(image.shape) == 2:
+                image = np.stack([image] * 3)
             if len(image.shape) == 3:
                 if image.shape[0] == 3 or image.shape[0] == 1:
                     image = np.transpose(image, (1, 2, 0))
