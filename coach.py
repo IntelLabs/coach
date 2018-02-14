@@ -237,6 +237,9 @@ if __name__ == "__main__":
     parser.add_argument('-tb', '--tensorboard',
                         help="(flag) When using the TensorFlow backend, enable TensorBoard log dumps. ",
                         action='store_true')
+    parser.add_argument('-ns', '--no_summary',
+                        help="(flag) Prevent Coach from printing a summary and asking questions at the end of runs",
+                        action='store_true')
 
     args, run_dict = check_input_and_fill_run_dict(parser)
 
@@ -246,7 +249,8 @@ if __name__ == "__main__":
 
     # dump documentation
     logger.set_dump_dir(run_dict['experiment_path'], add_timestamp=True)
-    atexit.register(logger.print_summary)
+    if not args.no_summary:
+        atexit.register(logger.print_summary)
 
     # Single-threaded runs
     if run_dict['num_threads'] == 1:
