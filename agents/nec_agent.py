@@ -16,7 +16,8 @@
 
 import numpy as np
 
-from agents.value_optimization_agent import *
+from agents.value_optimization_agent import ValueOptimizationAgent
+from logger import screen
 
 
 # Neural Episodic Control - https://arxiv.org/pdf/1703.01988.pdf
