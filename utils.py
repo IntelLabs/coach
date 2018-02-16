@@ -132,6 +132,7 @@ def parse_int(value):
 
 def set_gpu(gpu_id):
     os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
+    os.environ['NVIDIA_VISIBLE_DEVICES'] = str(gpu_id)
 
 
 def set_cpu():

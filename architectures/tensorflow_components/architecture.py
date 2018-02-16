@@ -266,10 +266,20 @@ class TensorFlowArchitecture(Architecture):
                     time.sleep(0.00001)
 
     def _feed_dict(self, inputs):
-        return {
-            self.inputs[input_name]: input_value
-            for input_name, input_value in inputs.items()
-        }
+        feed_dict = {}
+        for input_name, input_value in inputs.items():
+            if input_name not in self.inputs:
+                raise ValueError((
+                    'input name {input_name} was provided to create a feed '
+                    'dictionary, but there is no placeholder with that name. '
+                    'placeholder names available include: {placeholder_names}'
+                ).format(
+                    input_name=input_name,
+                    placeholder_names=', '.join(self.inputs.keys())
+                ))
+
+            feed_dict[self.inputs[input_name]] = input_value
+        return feed_dict
 
     def predict(self, inputs, outputs=None):
         """
