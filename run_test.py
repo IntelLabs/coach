@@ -109,6 +109,7 @@ if __name__ == '__main__':
                     num_workers=preset.test_num_workers,
                     log_file_name=log_file_name,
                 )
+                print('cmd', cmd)
                 p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", preexec_fn=os.setsid)
 
                 # get the csv with the results

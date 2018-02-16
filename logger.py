@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -250,13 +250,13 @@ class Logger(BaseLogger):
         if 'Training Reward' in self.data.keys() and 'Evaluation Reward' in self.data.keys():
             screen.log_title("Max training reward: {}, max evaluation reward: {}".format(self.data['Training Reward'].max(), self.data['Evaluation Reward'].max()))
         screen.separator()
-        if screen.ask_yes_no("Do you want to discard the experiment results (Warning: this cannot be undone)?", False):
-            self.remove_experiment_dir()
-        elif screen.ask_yes_no("Do you want to specify a different experiment name to save to?", False):
-            new_name = self.get_experiment_name()
-            new_path = self.get_experiment_path(new_name, create_path=False)
-            shutil.move(self.experiments_path, new_path)
-            screen.log_title("Results moved to: {}".format(new_path))
+        # if screen.ask_yes_no("Do you want to discard the experiment results (Warning: this cannot be undone)?", False):
+        #     self.remove_experiment_dir()
+        # elif screen.ask_yes_no("Do you want to specify a different experiment name to save to?", False):
+        #     new_name = self.get_experiment_name()
+        #     new_path = self.get_experiment_path(new_name, create_path=False)
+        #     shutil.move(self.experiments_path, new_path)
+        #     screen.log_title("Results moved to: {}".format(new_path))
 
     def get_experiment_name(self, initial_experiment_name=''):
         match = None

@@ -93,7 +93,7 @@ class Agent(object):
         self.running_reward = None
         self.training_iteration = 0
         self.current_episode = self.tp.current_episode = 0
-        self.curr_state = []
+        self.curr_state = {}
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
         self.last_episode_evaluation_ran = 0
@@ -194,7 +194,7 @@ class Agent(object):
         for signal in self.signals:
             signal.reset()
         self.total_reward_in_current_episode = 0
-        self.curr_state = []
+        self.curr_state = {}
         self.last_episode_images = []
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
@@ -289,23 +289,20 @@ class Agent(object):
         :param batch: An array of transitions
         :return: For each transition element, returns a numpy array of all the transitions in the batch
         """
+        current_states = {}
+        next_states = {}
 
-        current_observations = np.array([transition.state['observation'] for transition in batch])
-        next_observations = np.array([transition.next_state['observation'] for transition in batch])
+        current_states['observation'] = np.array([transition.state['observation'] for transition in batch])
+        next_states['observation'] = np.array([transition.next_state['observation'] for transition in batch])
         actions = np.array([transition.action for transition in batch])
         rewards = np.array([transition.reward for transition in batch])
         game_overs = np.array([transition.game_over for transition in batch])
         total_return = np.array([transition.total_return for transition in batch])
 
-        current_states = current_observations
-        next_states = next_observations
-
         # get the entire state including measurements if available
         if self.tp.agent.use_measurements:
-            current_measurements = np.array([transition.state['measurements'] for transition in batch])
-            next_measurements = np.array([transition.next_state['measurements'] for transition in batch])
-            current_states = [current_observations, current_measurements]
-            next_states = [next_observations, next_measurements]
+            current_states['measurements'] = np.array([transition.state['measurements'] for transition in batch])
+            next_states['measurements'] = np.array([transition.next_state['measurements'] for transition in batch])
 
         return current_states, next_states, actions, rewards, game_overs, total_return
 
@@ -353,12 +350,24 @@ class Agent(object):
 
         # get new action
         action_info = {"action_probability": 1.0 / self.env.action_space_size, "action_value": 0}
-        is_first_transition_in_episode = (self.curr_state == [])
+        is_first_transition_in_episode = (self.curr_state == {})
         if is_first_transition_in_episode:
-            observation = self.preprocess_observation(self.env.observation)
-            observation = stack_observation([], observation, self.tp.env.observation_stack_size)
+            if not isinstance(self.env.state, dict):
+                raise ValueError((
+                    'expected state to be a dictionary, found {}'
+                ).format(type(self.env.state)))
 
-            self.curr_state = {'observation': observation}
+            state = self.env.state
+            # TODO: modify preprocess_observation to modify the entire state
+            # for now, only preprocess the observation
+            state['observation'] = self.preprocess_observation(state['observation'])
+
+            # TODO: provide option to stack more than just the observation
+            # TODO: this should probably be happening in an environment wrapper anyway
+            state['observation'] = stack_observation([], state['observation'], self.tp.env.observation_stack_size)
+
+            self.curr_state = state
+            # TODO: this should be handled in the environment
             if self.tp.agent.use_measurements:
                 self.curr_state['measurements'] = self.env.measurements
                 if self.tp.agent.use_accumulated_reward_as_measurement:
@@ -373,22 +382,25 @@ class Agent(object):
         if type(action) == np.ndarray:
             action = action.squeeze()
         result = self.env.step(action)
+
         shaped_reward = self.preprocess_reward(result['reward'])
         if 'action_intrinsic_reward' in action_info.keys():
             shaped_reward += action_info['action_intrinsic_reward']
+        # TODO: should total_reward_in_current_episode include shaped_reward?
         self.total_reward_in_current_episode += result['reward']
-        observation = self.preprocess_observation(result['observation'])
+        next_state = result['state']
+        next_state['observation'] = self.preprocess_observation(next_state['observation'])
 
         # plot action values online
         if self.tp.visualization.plot_action_values_online and phase != RunPhase.HEATUP:
             self.plot_action_values_online()
 
         # initialize the next state
-        observation = stack_observation(self.curr_state['observation'], observation, self.tp.env.observation_stack_size)
+        # TODO: provide option to stack more than just the observation
+        next_state['observation'] = stack_observation(self.curr_state['observation'], next_state['observation'], self.tp.env.observation_stack_size)
 
-        next_state = {'observation': observation}
         if self.tp.agent.use_measurements and 'measurements' in result.keys():
-            next_state['measurements'] = result['measurements']
+            next_state['measurements'] = result['state']['measurements']
             if self.tp.agent.use_accumulated_reward_as_measurement:
                 next_state['measurements'] = np.append(next_state['measurements'], self.total_reward_in_current_episode)
 

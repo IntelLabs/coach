@@ -20,6 +20,17 @@ from utils import *
 import scipy.signal
 
 
+def last_sample(state):
+    """
+    given a batch of states, return the last sample of the batch with length 1
+    batch axis.
+    """
+    return {
+        k: np.expand_dims(v[-1], 0)
+        for k, v in state.items()
+    }
+
+
 # Actor Critic - https://arxiv.org/abs/1602.01783
 class ActorCriticAgent(PolicyOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0, create_target_network = False):
@@ -76,7 +87,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             if game_overs[-1]:
                 R = 0
             else:
-                R = self.main_network.online_network.predict(np.expand_dims(next_states[-1], 0))[0]
+                R = self.main_network.online_network.predict(last_sample(next_states))[0]
 
             for i in reversed(range(num_transitions)):
                 R = rewards[i] + self.tp.agent.discount * R
@@ -85,7 +96,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
 
         elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
             # get bootstraps
-            bootstrapped_value = self.main_network.online_network.predict(np.expand_dims(next_states[-1], 0))[0]
+            bootstrapped_value = self.main_network.online_network.predict(last_sample(next_states))[0]
             values = np.append(current_state_values, bootstrapped_value)
             if game_overs[-1]:
                 values[-1] = 0
@@ -101,7 +112,9 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             actions = np.expand_dims(actions, -1)
 
         # train
-        result = self.main_network.online_network.accumulate_gradients([current_states, actions],
+        inputs = copy.copy(current_states)
+        inputs['output_1_0'] = actions
+        result = self.main_network.online_network.accumulate_gradients(inputs,
                                                                        [state_value_head_targets, action_advantages])
 
         # logging
@@ -114,11 +127,17 @@ class ActorCriticAgent(PolicyOptimizationAgent):
         return total_loss
 
     def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+        # TODO: rename curr_state -> state
+
         # convert to batch so we can run it through the network
-        observation = np.expand_dims(np.array(curr_state['observation']), 0)
+        curr_state = {
+            k: np.expand_dims(np.array(curr_state[k]), 0)
+            for k in curr_state.keys()
+        }
+
         if self.env.discrete_controls:
             # DISCRETE
-            state_value, action_probabilities = self.main_network.online_network.predict(observation)
+            state_value, action_probabilities = self.main_network.online_network.predict(curr_state)
             action_probabilities = action_probabilities.squeeze()
             if phase == RunPhase.TRAIN:
                 action = self.exploration_policy.get_action(action_probabilities)
@@ -128,7 +147,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             self.entropy.add_sample(-np.sum(action_probabilities * np.log(action_probabilities + eps)))
         else:
             # CONTINUOUS
-            state_value, action_values_mean, action_values_std = self.main_network.online_network.predict(observation)
+            state_value, action_values_mean, action_values_std = self.main_network.online_network.predict(curr_state)
             action_values_mean = action_values_mean.squeeze()
             action_values_std = action_values_std.squeeze()
             if phase == RunPhase.TRAIN:
