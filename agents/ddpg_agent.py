@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class DDPGAgent(ActorCriticAgent):
         # self.networks.append(self.critic_network)
 
         # define actor network
-        tuning_parameters.agent.input_types = [InputTypes.Observation]
+        tuning_parameters.agent.input_types = {'observation': InputTypes.Observation}
         tuning_parameters.agent.output_types = [OutputTypes.Pi]
         self.actor_network = NetworkWrapper(tuning_parameters, True, self.has_global, 'actor',
                                             self.replicated_device, self.worker_device)
@@ -43,33 +43,36 @@ class DDPGAgent(ActorCriticAgent):
         current_states, next_states, actions, rewards, game_overs, _ = self.extract_batch(batch)
 
         # TD error = r + discount*max(q_st_plus_1) - q_st
-        next_actions = self.actor_network.target_network.predict([next_states])
-        q_st_plus_1 = self.critic_network.target_network.predict([next_states, next_actions])
+        next_actions = self.actor_network.target_network.predict(next_states)
+        inputs = copy.copy(next_states)
+        inputs['action'] = next_actions
+        q_st_plus_1 = self.critic_network.target_network.predict(inputs)
         TD_targets = np.expand_dims(rewards, -1) + \
                      (1.0 - np.expand_dims(game_overs, -1)) * self.tp.agent.discount * q_st_plus_1
 
         # get the gradients of the critic output with respect to the action
         actions_mean = self.actor_network.online_network.predict(current_states)
         critic_online_network = self.critic_network.online_network
+        # TODO: convert into call to predict, current method ignores lstm middleware for example
         action_gradients = self.critic_network.sess.run(critic_online_network.gradients_wrt_inputs[1],
-                                                        feed_dict={
-                                                            critic_online_network.inputs[0]: current_states,
-                                                            critic_online_network.inputs[1]: actions_mean,
-                                                        })[0]
+                                                        feed_dict=critic_online_network._feed_dict({
+                                                            **current_states,
+                                                            'action': actions_mean,
+                                                        }))[0]
 
         # train the critic
         if len(actions.shape) == 1:
             actions = np.expand_dims(actions, -1)
-        result = self.critic_network.train_and_sync_networks([current_states, actions], TD_targets)
+        result = self.critic_network.train_and_sync_networks({**current_states, 'action': actions}, TD_targets)
         total_loss = result[0]
 
         # apply the gradients from the critic to the actor
         actor_online_network = self.actor_network.online_network
         gradients = self.actor_network.sess.run(actor_online_network.weighted_gradients,
-                                                feed_dict={
+                                                feed_dict=actor_online_network._feed_dict({
+                                                    **current_states,
                                                     actor_online_network.gradients_weights_ph: -action_gradients,
-                                                    actor_online_network.inputs[0]: current_states
-                                                })
+                                                }))
         if self.actor_network.has_global:
             self.actor_network.global_network.apply_gradients(gradients)
             self.actor_network.update_online_network()
@@ -83,9 +86,7 @@ class DDPGAgent(ActorCriticAgent):
 
     def choose_action(self, curr_state, phase=RunPhase.TRAIN):
         assert not self.env.discrete_controls, 'DDPG works only for continuous control problems'
-        # convert to batch so we can run it through the network
-        observation = np.expand_dims(np.array(curr_state['observation']), 0)
-        result = self.actor_network.online_network.predict(observation)
+        result = self.actor_network.online_network.predict(self.tf_input_state(curr_state))
         action_values = result[0].squeeze()
 
         if phase == RunPhase.TRAIN:
@@ -99,7 +100,9 @@ class DDPGAgent(ActorCriticAgent):
         action_batch = np.expand_dims(action, 0)
         if type(action) != np.ndarray:
             action_batch = np.array([[action]])
-        q_value = self.critic_network.online_network.predict([observation, action_batch])[0]
+        inputs = self.tf_input_state(curr_state)
+        inputs['action'] = action_batch
+        q_value = self.critic_network.online_network.predict(inputs)[0]
         self.q_values.add_sample(q_value)
         action_info = {"action_value": q_value}
 
