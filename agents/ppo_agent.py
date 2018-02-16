@@ -112,8 +112,12 @@ class PPOAgent(ActorCriticAgent):
                     current_values = self.critic_network.online_network.predict(current_states_batch)
                     targets = current_values * (1 - mix_fraction) + total_return_batch * mix_fraction
 
+                inputs = copy.copy(current_states_batch)
+                for input_index, input in enumerate(old_policy_values):
+                    inputs['output_0_{}'.format(input_index)] = input
+
                 value_loss = self.critic_network.online_network.\
-                    accumulate_gradients([current_states_batch] + old_policy_values, targets)
+                    accumulate_gradients(inputs, targets)
                 self.critic_network.apply_gradients_to_online_network()
                 if self.tp.distributed:
                     self.critic_network.apply_gradients_to_global_network()
