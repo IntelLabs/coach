@@ -327,13 +327,15 @@ if __name__ == "__main__":
         set_cpu()
 
         # create a parameter server
-        parameter_server = Popen([
+        cmd = [
             "python3",
            "./parallel_actor.py",
            "--ps_hosts={}".format(ps_hosts),
            "--worker_hosts={}".format(worker_hosts),
            "--job_name=ps",
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
+        ]
+        print(' '.join(cmd))
+        parameter_server = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
 
         screen.log_title("*** Distributed Training ***")
         time.sleep(1)
@@ -358,6 +360,7 @@ if __name__ == "__main__":
                             "--job_name=worker",
                             "--load_json={}".format(json_run_dict_path)]
 
+            print(' '.join(workers_args))
             p = Popen(workers_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
 
             if i != run_dict['num_threads']:

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class ClippedPPOAgent(ActorCriticAgent):
     def fill_advantages(self, batch):
         current_states, next_states, actions, rewards, game_overs, total_return = self.extract_batch(batch)
 
-        current_state_values = self.main_network.online_network.predict([current_states])[0]
+        current_state_values = self.main_network.online_network.predict(current_states)[0]
         current_state_values = current_state_values.squeeze()
         self.state_values.add_sample(current_state_values)
 
@@ -97,7 +97,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                     actions = np.expand_dims(actions, -1)
 
                 # get old policy probabilities and distribution
-                result = self.main_network.target_network.predict([current_states])
+                result = self.main_network.target_network.predict(current_states)
                 old_policy_distribution = result[1:]
 
                 # calculate gradients and apply on both the local policy network and on the global policy network
@@ -106,10 +106,18 @@ class ClippedPPOAgent(ActorCriticAgent):
 
                 total_return = np.expand_dims(total_return, -1)
                 value_targets = gae_based_value_targets if self.tp.agent.estimate_value_using_gae else total_return
+                inputs = copy.copy(current_states)
+                # TODO: why is this output 0 and not output 1?
+                inputs['output_0_0'] = actions
+                # TODO: does old_policy_distribution really need to be represented as a list?
+                # A: yes it does, in the event of discrete controls, it has just a mean
+                # otherwise, it has both a mean and standard deviation
+                for input_index, input in enumerate(old_policy_distribution):
+                    inputs['output_0_{}'.format(input_index + 1)] = input
+                # print('old_policy_distribution.shape', len(old_policy_distribution))
                 total_loss, policy_losses, unclipped_grads, fetch_result =\
                     self.main_network.online_network.accumulate_gradients(
-                        [current_states] + [actions] + old_policy_distribution,
-                        [total_return, advantages], additional_fetches=fetches)
+                        inputs, [total_return, advantages], additional_fetches=fetches)
 
                 self.value_targets.add_sample(value_targets)
                 if self.tp.distributed:
@@ -177,14 +185,10 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.update_log()  # should be done in order to update the data that has been accumulated * while not playing *
         return np.append(losses[0], losses[1])
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
-        # convert to batch so we can run it through the network
-        observation = curr_state['observation']
-        observation = np.expand_dims(np.array(observation), 0)
-
+    def choose_action(self, current_state, phase=RunPhase.TRAIN):
         if self.env.discrete_controls:
             # DISCRETE
-            _, action_values = self.main_network.online_network.predict(observation)
+            _, action_values = self.main_network.online_network.predict(self.tf_input_state(current_state))
             action_values = action_values.squeeze()
 
             if phase == RunPhase.TRAIN:
@@ -195,7 +199,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             # self.entropy.add_sample(-np.sum(action_values * np.log(action_values)))
         else:
             # CONTINUOUS
-            _, action_values_mean, action_values_std = self.main_network.online_network.predict(observation)
+            _, action_values_mean, action_values_std = self.main_network.online_network.predict(self.tf_input_state(current_state))
             action_values_mean = action_values_mean.squeeze()
             action_values_std = action_values_std.squeeze()
             if phase == RunPhase.TRAIN:
