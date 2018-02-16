@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,14 +31,13 @@ class EnvironmentWrapper(object):
         # env initialization
         self.game = []
         self.actions = {}
-        self.observation = []
+        self.state = []
         self.reward = 0
         self.done = False
         self.default_action = 0
         self.last_action_idx = 0
         self.episode_idx = 0
         self.last_episode_time = time.time()
-        self.measurements = []
         self.info = []
         self.action_space_low = 0
         self.action_space_high = 0
@@ -64,6 +63,22 @@ class EnvironmentWrapper(object):
         self.is_rendered = self.is_rendered or self.human_control
         self.game_is_open = True
         self.renderer = Renderer()
+
+    @property
+    def measurements(self):
+        assert False
+
+    @measurements.setter
+    def measurements(self, value):
+        assert False
+
+    @property
+    def observation(self):
+        assert False
+
+    @observation.setter
+    def observation(self, value):
+        assert False
 
     def _idx_to_action(self, action_idx):
         """
@@ -108,7 +123,7 @@ class EnvironmentWrapper(object):
             for env_keys in self.key_to_action.keys():
                 if set(env_keys) == set(self.renderer.pressed_keys):
                     return self.key_to_action[env_keys]
-                    
+
         # return the default action 0 so that the environment will continue running
         return self.default_action
 
@@ -116,7 +131,7 @@ class EnvironmentWrapper(object):
         """
         Perform a single step on the environment using the given action
         :param action_idx: the action to perform on the environment
-        :return: A dictionary containing the observation, reward, done flag, action and measurements
+        :return: A dictionary containing the state, reward, done flag and action
         """
         self.last_action_idx = action_idx
 
@@ -127,13 +142,12 @@ class EnvironmentWrapper(object):
         if self.is_rendered:
             self.render()
 
-        self.observation = self._preprocess_observation(self.observation)
+        self.state = self._preprocess_state(self.state)
 
-        return {'observation': self.observation,
+        return {'state': self.state,
                 'reward': self.reward,
                 'done': self.done,
                 'action': self.last_action_idx,
-                'measurements': self.measurements,
                 'info': self.info}
 
     def render(self):
@@ -146,7 +160,7 @@ class EnvironmentWrapper(object):
         """
         Reset the environment and all the variable of the wrapper
         :param force_environment_reset: forces environment reset even when the game did not end
-        :return: A dictionary containing the observation, reward, done flag, action and measurements
+        :return: A dictionary containing the state, reward, done flag and action
         """
         self._restart_environment_episode(force_environment_reset)
         self.last_episode_time = time.time()
@@ -156,17 +170,18 @@ class EnvironmentWrapper(object):
         self.last_action_idx = 0
         self._update_state()
 
-        # render before the preprocessing of the observation, so that the image will be in its original quality
+        # render before the preprocessing of the state, so that the image will be in its original quality
         if self.is_rendered:
             self.render()
 
-        self.observation = self._preprocess_observation(self.observation)
+        # TODO BUG: if the environment has not been reset, _preprocessed_state will be running on an already preprocessed state
+        # TODO: see also _update_state above
+        self.state = self._preprocess_state(self.state)
 
-        return {'observation': self.observation,
+        return {'state': self.state,
                 'reward': self.reward,
                 'done': self.done,
                 'action': self.last_action_idx,
-                'measurements': self.measurements,
                 'info': self.info}
 
     def get_random_action(self):
@@ -181,7 +196,7 @@ class EnvironmentWrapper(object):
 
     def change_phase(self, phase):
         """
-        Change the current phase of the run. 
+        Change the current phase of the run.
         This is useful when different behavior is expected when testing and training
         :param phase: The running phase of the algorithm
         :type phase: RunPhase
@@ -216,19 +231,19 @@ class EnvironmentWrapper(object):
         """
         pass
 
-    def _preprocess_observation(self, observation):
+    def _preprocess_state(self, state):
         """
-        Do initial observation preprocessing such as cropping, rgb2gray, rescale etc.
+        Do initial state preprocessing such as cropping, rgb2gray, rescale etc.
         Implementing this function is optional.
-        :param observation: a raw observation from the environment
-        :return: the preprocessed observation
+        :param state: a raw state from the environment
+        :return: the preprocessed state
         """
-        return observation
+        return state
 
     def _update_state(self):
         """
         Updates the state from the environment.
-        Should update self.observation, self.reward, self.done, self.measurements and self.info
+        Should update self.state, self.reward, self.done and self.info
         :return: None
         """
         pass
@@ -243,7 +258,8 @@ class EnvironmentWrapper(object):
     def get_rendered_image(self):
         """
         Return a numpy array containing the image that will be rendered to the screen.
-        This can be different from the observation. For example, mujoco's observation is a measurements vector.
+        This can be different from the state. For example, mujoco's state is a measurements vector.
         :return: numpy array containing the image that will be rendered to the screen
         """
-        return self.observation
+        # TODO: probably needs revisiting
+        return self.state

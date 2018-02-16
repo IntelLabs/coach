@@ -60,7 +60,7 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
         self.env.frameskip = self.frame_skip
         self.discrete_controls = type(self.env.action_space) != gym.spaces.box.Box
 
-        self.observation = self.reset(True)['observation']
+        self.state = self.reset(True)['state']
 
         # render
         if self.is_rendered:
@@ -70,12 +70,13 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
                 scale = 2
             self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
-        self.is_state_type_image = len(self.observation.shape) > 1
+        # TODO: collect and store this as observation space instead
+        self.is_state_type_image = len(self.state['observation'].shape) > 1
         if self.is_state_type_image:
-            self.width = self.observation.shape[1]
-            self.height = self.observation.shape[0]
+            self.width = self.state['observation'].shape[1]
+            self.height = self.state['observation'].shape[0]
         else:
-            self.width = self.observation.shape[0]
+            self.width = self.state['observation'].shape[0]
 
         # action space
         self.actions_description = {}
@@ -100,6 +101,12 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
         else:
             self.timestep_limit = None
         self.measurements_size = len(self.step(0)['info'].keys())
+
+    def _wrap_state(self, state):
+        if isinstance(self.env.observation_space, gym.spaces.Dict):
+            return state
+        else:
+            return {'observation': state}
 
     def _update_state(self):
         if hasattr(self.env, 'env') and hasattr(self.env.env, 'ale'):
@@ -131,28 +138,30 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
                 action = np.squeeze(action)
             action = np.clip(action, self.action_space_low, self.action_space_high)
 
-        self.observation, self.reward, self.done, self.info = self.env.step(action)
+        state, self.reward, self.done, self.info = self.env.step(action)
+        self.state = self._wrap_state(state)
 
-    def _preprocess_observation(self, observation):
+    def _preprocess_state(self, state):
+        # TODO: move this into wrapper
         if any(env in self.env_id for env in ["Breakout", "Pong"]):
             # crop image
-            observation = observation[34:195, :, :]
-        return observation
+            state['observation'] = state['observation'][34:195, :, :]
+        return state
 
     def _restart_environment_episode(self, force_environment_reset=False):
         # prevent reset of environment if there are ale lives left
         if (hasattr(self.env, 'env') and hasattr(self.env.env, 'ale') and self.env.env.ale.lives() > 0) \
                 and not force_environment_reset and not self.env._past_limit():
-            return self.observation
+            return self.state
 
         if self.seed:
             self.env.seed(self.seed)
 
-        self.observation = self.env.reset()
-        while self.observation is None:
+        self.state = self._wrap_state(self.env.reset())
+        while self.state is None:
             self.step(0)
 
-        return self.observation
+        return self.state
 
     def get_rendered_image(self):
         return self.env.render(mode='rgb_array')

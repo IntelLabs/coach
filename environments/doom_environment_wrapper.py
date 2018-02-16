@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -135,8 +135,10 @@ class DoomEnvironmentWrapper(EnvironmentWrapper):
         # extract all data from the current state
         state = self.game.get_state()
         if state is not None and state.screen_buffer is not None:
-            self.observation = state.screen_buffer
-            self.measurements = state.game_variables
+            self.observation = {
+                'observation': state.screen_buffer,
+                'measurements': state.game_variables,
+            }
         self.reward = self.game.get_last_reward()
         self.done = self.game.is_episode_finished()
 
@@ -157,5 +159,3 @@ class DoomEnvironmentWrapper(EnvironmentWrapper):
 
     def _restart_environment_episode(self, force_environment_reset=False):
         self.game.new_episode()
-
-

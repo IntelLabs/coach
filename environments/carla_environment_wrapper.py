@@ -161,7 +161,6 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
         measurements = []
         while type(measurements) == list:
             measurements, sensor_data = self.game.read_data()
-        self.observation = sensor_data['CameraRGB'].data
 
         self.location = (measurements.player_measurements.transform.location.x,
                          measurements.player_measurements.transform.location.y,
@@ -181,7 +180,10 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
                       - np.abs(self.control.steer) * 10
 
         # update measurements
-        self.measurements = [measurements.player_measurements.forward_speed]
+        self.observation = {
+            'observation': sensor_data['CameraRGB'].data,
+            'measurements': [measurements.player_measurements.forward_speed],
+        }
         self.autopilot = measurements.player_measurements.autopilot_control
 
         # action_p = ['%.2f' % member for member in [self.control.throttle, self.control.steer]]
