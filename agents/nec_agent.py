@@ -18,6 +18,7 @@ import numpy as np
 
 from agents.value_optimization_agent import ValueOptimizationAgent
 from logger import screen
+from utils import RunPhase
 
 
 # Neural Episodic Control - https://arxiv.org/pdf/1703.01988.pdf
@@ -40,7 +41,7 @@ class NECAgent(ValueOptimizationAgent):
                 screen.log_title("Finished collecting initial entries in DND. Starting to train network...")
 
         current_states, next_states, actions, rewards, game_overs, total_return = self.extract_batch(batch)
-        result = self.main_network.train_and_sync_networks([current_states, actions], total_return)
+        result = self.main_network.train_and_sync_networks(current_states, total_return)
         total_loss = result[0]
 
         return total_loss
