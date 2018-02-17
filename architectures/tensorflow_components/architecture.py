@@ -90,7 +90,8 @@ class TensorFlowArchitecture(Architecture):
             for idx, var in enumerate(self.trainable_weights):
                 placeholder = tf.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
                 self.weights_placeholders.append(placeholder)
-                variable_summaries(var)
+                if self.tp.visualization.tensorboard:
+                    variable_summaries(var)
 
             self.update_weights_from_list = [weights.assign(holder) for holder, weights in
                                              zip(self.weights_placeholders, self.trainable_weights)]
