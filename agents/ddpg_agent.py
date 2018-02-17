@@ -54,7 +54,7 @@ class DDPGAgent(ActorCriticAgent):
         actions_mean = self.actor_network.online_network.predict(current_states)
         critic_online_network = self.critic_network.online_network
         # TODO: convert into call to predict, current method ignores lstm middleware for example
-        action_gradients = self.critic_network.sess.run(critic_online_network.gradients_wrt_inputs[1],
+        action_gradients = self.critic_network.sess.run(critic_online_network.gradients_wrt_inputs['action'],
                                                         feed_dict=critic_online_network._feed_dict({
                                                             **current_states,
                                                             'action': actions_mean,
