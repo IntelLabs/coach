@@ -114,7 +114,6 @@ class ClippedPPOAgent(ActorCriticAgent):
                 # otherwise, it has both a mean and standard deviation
                 for input_index, input in enumerate(old_policy_distribution):
                     inputs['output_0_{}'.format(input_index + 1)] = input
-                # print('old_policy_distribution.shape', len(old_policy_distribution))
                 total_loss, policy_losses, unclipped_grads, fetch_result =\
                     self.main_network.online_network.accumulate_gradients(
                         inputs, [total_return, advantages], additional_fetches=fetches)
