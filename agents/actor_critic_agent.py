@@ -20,17 +20,6 @@ from utils import *
 import scipy.signal
 
 
-def last_sample(state):
-    """
-    given a batch of states, return the last sample of the batch with length 1
-    batch axis.
-    """
-    return {
-        k: np.expand_dims(v[-1], 0)
-        for k, v in state.items()
-    }
-
-
 # Actor Critic - https://arxiv.org/abs/1602.01783
 class ActorCriticAgent(PolicyOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0, create_target_network = False):
