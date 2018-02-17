@@ -26,7 +26,7 @@ class PPOAgent(ActorCriticAgent):
         self.critic_network = self.main_network
 
         # define the policy network
-        tuning_parameters.agent.input_types = [InputTypes.Observation]
+        tuning_parameters.agent.input_types = {'observation': InputTypes.Observation}
         tuning_parameters.agent.output_types = [OutputTypes.PPO]
         tuning_parameters.agent.optimizer_type = 'Adam'
         tuning_parameters.agent.l2_regularization = 0
@@ -53,7 +53,7 @@ class PPOAgent(ActorCriticAgent):
         # * Found not to have any impact *
         # current_states_with_timestep = self.concat_state_and_timestep(batch)
 
-        current_state_values = self.critic_network.online_network.predict(current_state).squeeze()
+        current_state_values = self.critic_network.online_network.predict(current_states).squeeze()
 
         # calculate advantages
         advantages = []
@@ -102,7 +102,10 @@ class PPOAgent(ActorCriticAgent):
                 batch_size = self.tp.batch_size
             for i in range(len(dataset) // batch_size):
                 # split to batches for first order optimization techniques
-                current_states_batch = current_states[i * batch_size:(i + 1) * batch_size]
+                current_states_batch = {
+                    k: v[i * batch_size:(i + 1) * batch_size]
+                    for k, v in current_states.items()
+                }
                 total_return_batch = total_return[i * batch_size:(i + 1) * batch_size]
                 old_policy_values = force_list(self.critic_network.target_network.predict(
                     current_states_batch).squeeze())
@@ -114,10 +117,11 @@ class PPOAgent(ActorCriticAgent):
 
                 inputs = copy.copy(current_states_batch)
                 for input_index, input in enumerate(old_policy_values):
-                    inputs['output_0_{}'.format(input_index)] = input
+                    name = 'output_0_{}'.format(input_index)
+                    if name in self.critic_network.online_network.inputs:
+                        inputs[name] = input
 
-                value_loss = self.critic_network.online_network.\
-                    accumulate_gradients(inputs, targets)
+                value_loss = self.critic_network.online_network.accumulate_gradients(inputs, targets)
                 self.critic_network.apply_gradients_to_online_network()
                 if self.tp.distributed:
                     self.critic_network.apply_gradients_to_global_network()
@@ -151,15 +155,23 @@ class PPOAgent(ActorCriticAgent):
                     actions = np.expand_dims(actions, -1)
 
                 # get old policy probabilities and distribution
-                old_policy = force_list(self.policy_network.target_network.predict([current_states]))
+                old_policy = force_list(self.policy_network.target_network.predict(current_states))
 
                 # calculate gradients and apply on both the local policy network and on the global policy network
                 fetches = [self.policy_network.online_network.output_heads[0].kl_divergence,
                            self.policy_network.online_network.output_heads[0].entropy]
 
+                inputs = copy.copy(current_states)
+                # TODO: why is this output 0 and not output 1?
+                inputs['output_0_0'] = actions
+                # TODO: does old_policy_distribution really need to be represented as a list?
+                # A: yes it does, in the event of discrete controls, it has just a mean
+                # otherwise, it has both a mean and standard deviation
+                for input_index, input in enumerate(old_policy):
+                    inputs['output_0_{}'.format(input_index + 1)] = input
                 total_loss, policy_losses, unclipped_grads, fetch_result =\
                     self.policy_network.online_network.accumulate_gradients(
-                        [current_states, actions] + old_policy, [advantages], additional_fetches=fetches)
+                        inputs, [advantages], additional_fetches=fetches)
 
                 self.policy_network.apply_gradients_to_online_network()
                 if self.tp.distributed:
@@ -253,13 +265,9 @@ class PPOAgent(ActorCriticAgent):
         return np.append(value_loss, policy_loss)
 
     def choose_action(self, curr_state, phase=RunPhase.TRAIN):
-        # convert to batch so we can run it through the network
-        observation = curr_state['observation']
-        observation = np.expand_dims(np.array(observation), 0)
-
         if self.env.discrete_controls:
             # DISCRETE
-            action_values = self.policy_network.online_network.predict(observation).squeeze()
+            action_values = self.policy_network.online_network.predict(self.tf_input_state(curr_state)).squeeze()
 
             if phase == RunPhase.TRAIN:
                 action = self.exploration_policy.get_action(action_values)
@@ -269,7 +277,7 @@ class PPOAgent(ActorCriticAgent):
             # self.entropy.add_sample(-np.sum(action_values * np.log(action_values)))
         else:
             # CONTINUOUS
-            action_values_mean, action_values_std = self.policy_network.online_network.predict(observation)
+            action_values_mean, action_values_std = self.policy_network.online_network.predict(self.tf_input_state(curr_state))
             action_values_mean = action_values_mean.squeeze()
             action_values_std = action_values_std.squeeze()
             if phase == RunPhase.TRAIN:
