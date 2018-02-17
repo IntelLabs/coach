@@ -101,9 +101,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             actions = np.expand_dims(actions, -1)
 
         # train
-        inputs = copy.copy(current_states)
-        inputs['output_1_0'] = actions
-        result = self.main_network.online_network.accumulate_gradients(inputs,
+        result = self.main_network.online_network.accumulate_gradients({**current_states, 'output_1_0': actions},
                                                                        [state_value_head_targets, action_advantages])
 
         # logging
