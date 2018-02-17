@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,8 +56,11 @@ class QuantileRegressionDQNAgent(ValueOptimizationAgent):
             quantile_midpoints[idx, :] = quantile_midpoints[idx, sorted_quantiles[idx]]
 
         # train
-        result = self.main_network.train_and_sync_networks([current_states, actions_locations, quantile_midpoints], TD_targets)
+        result = self.main_network.train_and_sync_networks({
+            **current_states,
+            'output_0_0': actions_locations,
+            'output_0_1': quantile_midpoints,
+        }, TD_targets)
         total_loss = result[0]
 
         return total_loss
-
