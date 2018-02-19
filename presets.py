@@ -89,7 +89,6 @@ class Doom_Basic_QRDQN(Preset):
         self.num_heatup_steps = 1000
 
 
-
 class Doom_Basic_OneStepQ(Preset):
     def __init__(self):
         Preset.__init__(self, NStepQ, Doom, ExplorationParameters)
@@ -408,8 +407,67 @@ class Breakout_DQN(Preset):
         self.exploration.evaluation_policy = 'EGreedy'
         self.exploration.evaluation_epsilon = 0.05
         self.num_heatup_steps = 50000
+        self.agent.num_consecutive_playing_steps = 4
         self.evaluation_episodes = 1
-        self.evaluate_every_x_episodes = 100
+        self.evaluate_every_x_episodes = 25
+        self.agent.replace_mse_with_huber_loss = True
+        # self.env.crop_observation = True  # TODO: remove
+        # self.rescaling_interpolation_type = 'nearest' # TODO: remove
+
+
+class Breakout_DDQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, DDQN, Atari, ExplorationParameters)
+        self.env.level = 'BreakoutDeterministic-v4'
+        self.agent.num_steps_between_copying_online_weights_to_target = 30000
+        self.learning_rate = 0.00025
+        self.agent.num_transitions_in_experience_replay = 1000000
+        self.exploration.initial_epsilon = 1.0
+        self.exploration.final_epsilon = 0.01
+        self.exploration.epsilon_decay_steps = 1000000
+        self.exploration.evaluation_policy = 'EGreedy'
+        self.exploration.evaluation_epsilon = 0.001
+        self.num_heatup_steps = 50000
+        self.agent.num_consecutive_playing_steps = 4
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 25
+        self.agent.replace_mse_with_huber_loss = True
+
+
+class Breakout_Dueling_DDQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, DDQN, Atari, ExplorationParameters)
+        self.env.level = 'BreakoutDeterministic-v4'
+        self.agent.output_types = [OutputTypes.DuelingQ]
+        self.agent.num_steps_between_copying_online_weights_to_target = 30000
+        self.learning_rate = 0.00025
+        self.agent.num_transitions_in_experience_replay = 1000000
+        self.exploration.initial_epsilon = 1.0
+        self.exploration.final_epsilon = 0.01
+        self.exploration.epsilon_decay_steps = 1000000
+        self.exploration.evaluation_policy = 'EGreedy'
+        self.exploration.evaluation_epsilon = 0.001
+        self.num_heatup_steps = 50000
+        self.agent.num_consecutive_playing_steps = 4
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 25
+        self.agent.replace_mse_with_huber_loss = True
+
+class Alien_DQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, DQN, Atari, ExplorationParameters)
+        self.env.level = 'AlienDeterministic-v4'
+        self.agent.num_steps_between_copying_online_weights_to_target = 10000
+        self.learning_rate = 0.00025
+        self.agent.num_transitions_in_experience_replay = 1000000
+        self.exploration.initial_epsilon = 1.0
+        self.exploration.final_epsilon = 0.1
+        self.exploration.epsilon_decay_steps = 1000000
+        self.exploration.evaluation_policy = 'EGreedy'
+        self.exploration.evaluation_epsilon = 0.05
+        self.num_heatup_steps = 50000
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 5
 
 
 class Breakout_C51(Preset):
@@ -846,7 +904,8 @@ class CartPole_NEC(Preset):
         self.num_heatup_steps = 1000
         self.exploration.epsilon_decay_steps = 1000
         self.exploration.final_epsilon = 0.1
-        self.agent.discount = 1.0
+        self.agent.discount = 0.99
+        self.seed = 0
 
         self.test = True
         self.test_max_step_threshold = 200
@@ -857,10 +916,16 @@ class Doom_Basic_NEC(Preset):
     def __init__(self):
         Preset.__init__(self, NEC, Doom, ExplorationParameters)
         self.env.level = 'basic'
-        self.agent.num_episodes_in_experience_replay = 200
-        self.learning_rate = 0.00025
-        self.num_heatup_steps = 1000
-        self.agent.num_playing_steps_between_two_training_steps = 1
+        self.learning_rate = 0.00001
+        self.agent.num_transitions_in_experience_replay = 100000
+        # self.exploration.initial_epsilon = 0.1  # TODO: try exploration
+        # self.exploration.final_epsilon = 0.1
+        # self.exploration.epsilon_decay_steps = 1000000
+        self.num_heatup_steps = 200
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 5
+        self.seed = 123
+
 
 
 class Montezuma_NEC(Preset):
@@ -877,12 +942,20 @@ class Breakout_NEC(Preset):
     def __init__(self):
         Preset.__init__(self, NEC, Atari, ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
-        self.learning_rate = 0.00025
+        self.agent.num_steps_between_copying_online_weights_to_target = 10000
+        self.learning_rate = 0.00001
         self.agent.num_transitions_in_experience_replay = 1000000
-        self.exploration.initial_epsilon = 1.0
+        self.exploration.initial_epsilon = 0.1
         self.exploration.final_epsilon = 0.1
         self.exploration.epsilon_decay_steps = 1000000
-        self.num_heatup_steps = 50000
+        self.exploration.evaluation_policy = 'EGreedy'
+        self.exploration.evaluation_epsilon = 0.05
+        self.num_heatup_steps = 1000
+        self.env.reward_clipping_max = None
+        self.env.reward_clipping_min = None
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 25
+        self.seed = 123
 
 
 class Doom_Health_NEC(Preset):
@@ -924,12 +997,54 @@ class Pong_NEC(Preset):
     def __init__(self):
         Preset.__init__(self, NEC, Atari, ExplorationParameters)
         self.env.level = 'PongDeterministic-v4'
-        self.learning_rate = 0.001
+        self.learning_rate = 0.00001
         self.agent.num_transitions_in_experience_replay = 100000
-        self.exploration.initial_epsilon = 0.5
+        self.exploration.initial_epsilon = 0.1  # TODO: try exploration
         self.exploration.final_epsilon = 0.1
         self.exploration.epsilon_decay_steps = 1000000
+        self.num_heatup_steps = 2000
+        self.env.reward_clipping_max = None
+        self.env.reward_clipping_min = None
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 5
+        self.env.crop_observation = True  # TODO: remove
+        self.env.random_initialization_steps = 1  # TODO: remove
+        # self.seed = 123
+
+
+class Alien_NEC(Preset):
+    def __init__(self):
+        Preset.__init__(self, NEC, Atari, ExplorationParameters)
+        self.env.level = 'AlienDeterministic-v4'
+        self.learning_rate = 0.0001
+        self.agent.num_transitions_in_experience_replay = 100000
+        self.exploration.initial_epsilon = 0.1  # TODO: try exploration
+        self.exploration.final_epsilon = 0.1
+        self.exploration.epsilon_decay_steps = 1000000
+        self.num_heatup_steps = 3000
+        self.env.reward_clipping_max = None
+        self.env.reward_clipping_min = None
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 5
+        self.seed = 123
+
+
+class Pong_DQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, DQN, Atari, ExplorationParameters)
+        self.env.level = 'PongDeterministic-v4'
+        self.agent.num_steps_between_copying_online_weights_to_target = 10000
+        self.learning_rate = 0.00025
+        self.agent.num_transitions_in_experience_replay = 1000000
+        self.exploration.initial_epsilon = 1.0
+        self.exploration.final_epsilon = 0.1
+        self.exploration.epsilon_decay_steps = 1000000
+        self.exploration.evaluation_policy = 'EGreedy'
+        self.exploration.evaluation_epsilon = 0.05
         self.num_heatup_steps = 50000
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 5
+        self.seed = 123
 
 
 class CartPole_A3C(Preset):

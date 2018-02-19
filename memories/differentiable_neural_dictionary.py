@@ -83,6 +83,9 @@ class AnnoyDictionary(object):
 
     # Returns the stored embeddings and values of the closest embeddings
     def query(self, keys, k):
+        if not self.has_enough_entries(k):
+            return [0.0], [0.0], [0]
+
         _, indices = self._get_k_nearest_neighbors_indices(keys, k)
 
         embeddings = []
@@ -94,7 +97,7 @@ class AnnoyDictionary(object):
 
         self.current_timestamp += 1
 
-        return embeddings, values
+        return embeddings, values, indices
 
     def has_enough_entries(self, k):
         return self.curr_size > k and (self.built_capacity > k)
@@ -133,9 +136,11 @@ class AnnoyDictionary(object):
 
 
 class QDND:
-    def __init__(self, dict_size, key_width, num_actions, new_value_shift_coefficient=0.1, key_error_threshold=0.01):
+    def __init__(self, dict_size, key_width, num_actions, new_value_shift_coefficient=0.1, key_error_threshold=0.01,
+                 learning_rate=0.01):
         self.num_actions = num_actions
         self.dicts = []
+        self.learning_rate = learning_rate
 
         # create a dict for each action
         for a in range(num_actions):
@@ -155,16 +160,18 @@ class QDND:
             self.dicts[a].add(curr_action_embeddings, curr_action_values)
         return True
 
-    def query(self, embeddings, actions, k):
+    def query(self, embeddings, action, k):
         # query for nearest neighbors to the given embeddings
         dnd_embeddings = []
         dnd_values = []
-        for i, action in enumerate(actions):
-            embedding, value = self.dicts[action].query([embeddings[i]], k)
+        dnd_indices = []
+        for i in range(len(embeddings)):
+            embedding, value, indices = self.dicts[action].query([embeddings[i]], k)
             dnd_embeddings.append(embedding[0])
             dnd_values.append(value[0])
+            dnd_indices.append(indices[0])
 
-        return dnd_embeddings, dnd_values
+        return dnd_embeddings, dnd_values, dnd_indices
 
     def has_enough_entries(self, k):
         # check if each of the action dictionaries has at least k entries
@@ -193,4 +200,5 @@ def load_dnd(model_dir):
                 DND.dicts[a].index.add_item(idx, key)
 
             DND.dicts[a].index.build(50)
+
     return DND

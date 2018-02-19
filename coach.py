@@ -258,7 +258,8 @@ if __name__ == "__main__":
     # dump documentation
     logger.set_dump_dir(run_dict['experiment_path'], add_timestamp=True)
     if not args.no_summary:
-        atexit.register(logger.print_summary)
+    	atexit.register(logger.print_summary)
+    	screen.change_terminal_title(logger.experiment_name)
 
     # Single-threaded runs
     if run_dict['num_threads'] == 1:

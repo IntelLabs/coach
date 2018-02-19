@@ -18,7 +18,7 @@ import numpy as np
 
 from agents.value_optimization_agent import ValueOptimizationAgent
 from logger import screen
-from utils import RunPhase
+from utils import stack_observation
 
 
 # Neural Episodic Control - https://arxiv.org/pdf/1703.01988.pdf
@@ -27,10 +27,7 @@ class NECAgent(ValueOptimizationAgent):
         ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
                                         create_target_network=False)
         self.current_episode_state_embeddings = []
-        self.current_episode_actions = []
         self.training_started = False
-        # if self.tp.checkpoint_restore_dir:
-        #     self.load_dnd(self.tp.checkpoint_restore_dir)
 
     def learn_from_batch(self, batch):
         if not self.main_network.online_network.output_heads[0].DND.has_enough_entries(self.tp.agent.number_of_knn):
@@ -41,83 +38,73 @@ class NECAgent(ValueOptimizationAgent):
                 screen.log_title("Finished collecting initial entries in DND. Starting to train network...")
 
         current_states, next_states, actions, rewards, game_overs, total_return = self.extract_batch(batch)
-        result = self.main_network.train_and_sync_networks(current_states, total_return)
+
+        # get the bootstraps for the return from the current policy Q value
+        if self.tp.agent.bootstrap_total_return_from_current_policy:
+            bootstrap_states = np.array([t.info['bootstrap_state'] for t in batch])
+            bootstraps_values = self.main_network.online_network.predict(bootstrap_states)
+
+        TD_targets = self.main_network.online_network.predict(current_states)
+
+        #  only update the action that we have actually done in this transition
+        for i in range(self.tp.batch_size):
+            TD_targets[i, actions[i]] = total_return[i]
+
+            # bootstraps the return from the current policy Q value
+            if self.tp.agent.bootstrap_total_return_from_current_policy:
+                TD_targets[i, actions[i]] += (1.0 - batch[i].info['has_bootstrap_state']) * (self.tp.agent.discount ** self.tp.agent.n_step)\
+                                                * np.max(bootstraps_values[i], 0)
+
+        # set the gradients to fetch for the DND update
+        fetches = []
+        head = self.main_network.online_network.output_heads[0]
+        if self.tp.agent.propogate_updates_to_DND:
+            fetches = [head.dnd_embeddings_grad, head.dnd_values_grad, head.dnd_indices]
+
+        # train the neural network
+        result = self.main_network.train_and_sync_networks([current_states, actions], total_return)
+
         total_loss = result[0]
 
         return total_loss
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
-        """
-        this method modifies the superclass's behavior in only 3 ways:
+    def act(self, phase=RunPhase.TRAIN):
+        if self.in_heatup:
+            # get embedding in heatup (otherwise we get it through choose_action)
+            embedding = self.main_network.online_network.predict(
+                self.tf_input_state(self.curr_state),
+                outputs=self.main_network.online_network.state_embedding)
+            self.current_episode_state_embeddings.append(embedding)
 
-        1) the embedding is saved and stored in self.current_episode_state_embeddings
-        2) the dnd output head is only called if it has a minimum number of entries in it
-            ideally, the dnd had would do this on its own, but in my attempt in encoding this
-            behavior in tensorflow, I ran into problems. Would definitely be worth
-            revisiting in the future
-        3) during training, actions are saved and stored in self.current_episode_actions
-            if behaviors 1 and 2 were handled elsewhere, this could easily be implemented
-            as a wrapper around super instead of overriding this method entirelysearch
-        """
+        return super().act(phase)
 
-        # get embedding
-        embedding = self.main_network.online_network.predict(
+    def get_prediction(self, curr_state):
+        # get the actions q values and the state embedding
+        embedding, actions_q_values = self.main_network.online_network.predict(
             self.tf_input_state(curr_state),
-            outputs=self.main_network.online_network.state_embedding)
-        self.current_episode_state_embeddings.append(embedding)
+            outputs=[self.main_network.online_network.state_embedding,
+                     self.main_network.online_network.output_heads[0].output]
+        )
 
-        # TODO: support additional heads.  Right now all other heads are ignored
-        if self.main_network.online_network.output_heads[0].DND.has_enough_entries(self.tp.agent.number_of_knn):
-            # if there are enough entries in the DND then we can query it to get the action values
-            # actions_q_values = []
-            feed_dict = {
-                self.main_network.online_network.state_embedding: [embedding],
-            }
-            actions_q_values = self.main_network.sess.run(
-                self.main_network.online_network.output_heads[0].output, feed_dict=feed_dict)
-        else:
-            # get only the embedding so we can insert it to the DND
-            actions_q_values = [0] * self.action_space_size
-
-        # choose action according to the exploration policy and the current phase (evaluating or training the agent)
-        if phase == RunPhase.TRAIN:
-            action = self.exploration_policy.get_action(actions_q_values)
-            # NOTE: this next line is not in the parent implementation
-            # NOTE: it could be implemented as a wrapper around the parent since action is returned
-            self.current_episode_actions.append(action)
-        else:
-            action = np.argmax(actions_q_values)
-
-        # store the q values statistics for logging
-        self.q_values.add_sample(actions_q_values)
-
-        # store information for plotting interactively (actual plotting is done in agent)
-        if self.tp.visualization.plot_action_values_online:
-            for idx, action_name in enumerate(self.env.actions_description):
-                self.episode_running_info[action_name].append(actions_q_values[idx])
-
-        action_value = {"action_value": actions_q_values[action]}
-        return action, action_value
+        # store the state embedding for inserting it to the DND later
+        self.current_episode_state_embeddings.append(embedding.squeeze())
+        actions_q_values = actions_q_values[0][0]
+        return actions_q_values
 
     def reset_game(self, do_not_reset_env=False):
-        ValueOptimizationAgent.reset_game(self, do_not_reset_env)
+        super().reset_game(do_not_reset_env)
 
-        # make sure we already have at least one episode
-        if self.memory.num_complete_episodes() >= 1 and not self.in_heatup:
-            # get the last full episode that we have collected
-            episode = self.memory.get(-2)
-            returns = []
-            for i in range(episode.length()):
-                returns.append(episode.get_transition(i).total_return)
-            # Just to deal with the end of heatup where there might be a case where it ends in a middle
-            # of an episode, and thus when getting the episode out of the ER, it will be a complete one whereas
-            # the other statistics collected here, are collected only during training.
-            returns = returns[-len(self.current_episode_actions):]
+        # get the last full episode that we have collected
+        episode = self.memory.get_last_complete_episode()
+        if episode is not None:
+            returns = episode.get_transitions_attribute('total_return')[:len(self.current_episode_state_embeddings)]
+            if self.tp.agent.bootstrap_total_return_from_current_policy:
+                returns = episode.get_transitions_attribute('bootstrapped_return')[:len(self.current_episode_state_embeddings)]
+            actions = episode.get_transitions_attribute('action')[:len(self.current_episode_state_embeddings)]
             self.main_network.online_network.output_heads[0].DND.add(self.current_episode_state_embeddings,
-                                                                     self.current_episode_actions, returns)
+                                                                     actions, returns)
 
         self.current_episode_state_embeddings = []
-        self.current_episode_actions = []
 
     def save_model(self, model_id):
         self.main_network.save_model(model_id)

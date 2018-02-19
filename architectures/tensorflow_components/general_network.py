@@ -56,7 +56,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # the observation can be either an image or a vector
         def get_observation_embedding(with_timestep=False):
             if self.input_height > 1:
-                return ImageEmbedder((self.input_height, self.input_width, self.input_depth), name="observation")
+                return ImageEmbedder((self.input_height, self.input_width, self.input_depth), name="observation",
+                                     input_rescaler=self.tp.agent.input_rescaler)
             else:
                 return VectorEmbedder((self.input_width + int(with_timestep), self.input_depth), name="observation")
 
@@ -191,7 +192,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             if tuning_parameters.agent.optimizer_type == 'Adam':
                 self.optimizer = tf.train.AdamOptimizer(learning_rate=tuning_parameters.learning_rate)
             elif tuning_parameters.agent.optimizer_type == 'RMSProp':
-                self.optimizer = tf.train.RMSPropOptimizer(self.tp.learning_rate, decay=0.9, epsilon=0.01)
+                self.optimizer = tf.train.RMSPropOptimizer(tuning_parameters.learning_rate, decay=0.9, epsilon=0.01)
             elif tuning_parameters.agent.optimizer_type == 'LBFGS':
                 self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
                                                                         options={'maxiter': 25})

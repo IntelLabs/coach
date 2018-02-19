@@ -81,11 +81,27 @@ class Episode(object):
             current_discount *= discount
 
         if is_bootstrapped:
-            bootstraps = np.array([np.squeeze(t.info['action_value']) for t in self.transitions[n_step_return:]])
+            bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[n_step_return:]])
             total_return += current_discount * np.pad(bootstraps, (0, n_step_return), 'constant', constant_values=0)
+        else:
+            bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[n_step_return:]])
+            bootstrapped_return = total_return + current_discount * np.pad(bootstraps, (0, n_step_return), 'constant', constant_values=0)
 
         for transition_idx in range(self.length()):
             self.transitions[transition_idx].total_return = total_return[transition_idx]
+            # TODO: fix this
+            if not is_bootstrapped:
+                self.transitions[transition_idx].bootstrapped_return = bootstrapped_return[transition_idx]
+
+    def update_bootstrap_states(self, n_step_return=-1):
+        for transition_idx in range(self.length()):
+            bootstrap_idx = transition_idx + n_step_return
+            if bootstrap_idx < self.length():
+                self.transitions[transition_idx].info['bootstrap_state'] = self.transitions[bootstrap_idx].state['observation']
+                self.transitions[transition_idx].info['has_bootstrap_state'] = True
+            else:
+                self.transitions[transition_idx].info['bootstrap_state'] = self.transitions[self.length()-1].state['observation']
+                self.transitions[transition_idx].info['has_bootstrap_state'] = False
 
     def update_measurements_targets(self, num_steps):
         if 'measurements' not in self.transitions[0].state:
@@ -114,7 +130,13 @@ class Episode(object):
         return self.returns_table
 
     def get_returns(self):
-        return [t.total_return for t in self.transitions]
+        return self.get_transitions_attribute('total_return')
+
+    def get_transitions_attribute(self, attribute_name):
+        if hasattr(self.transitions[0], attribute_name):
+            return [t.__dict__[attribute_name] for t in self.transitions]
+        else:
+            raise ValueError("The transitions have no such attribute name")
 
     def to_batch(self):
         batch = []
@@ -141,14 +163,12 @@ class Transition(object):
         :param game_over: A boolean which should be True if the episode terminated after
                           the execution of the action.
         """
-        self.state = copy.deepcopy(state)
-        self.state['observation'] = np.array(self.state['observation'], copy=False)
+        self.state = state
         self.action = action
         self.reward = reward
         self.total_return = None
         if not next_state:
             next_state = state
-        self.next_state = copy.deepcopy(next_state)
-        self.next_state['observation'] = np.array(self.next_state['observation'], copy=False)
+        self.next_state = next_state
         self.game_over = game_over
         self.info = {}

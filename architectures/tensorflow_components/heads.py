@@ -57,7 +57,8 @@ class Head(object):
             self.loss = force_list(self.loss)
             self.regularizations = force_list(self.regularizations)
             if self.is_local:
-               self.set_loss()
+                self.set_loss()
+            self._post_build()
 
         if self.is_local:
             return self.output, self.target, self.input
@@ -72,6 +73,14 @@ class Head(object):
         in self.output.
 
         :param input_layer: the input to the graph
+        :return: None
+        """
+        pass
+
+    def _post_build(self):
+        """
+        Optional function that allows adding any extra definitions after the head has been fully defined
+        For example, this allows doing additional calculations that are based on the loss
         :return: None
         """
         pass
@@ -271,6 +280,9 @@ class DNDQHead(Head):
         else:
             self.loss_type = tf.losses.mean_squared_error
         self.tp = tuning_parameters
+        self.dnd_embeddings = [None]*self.num_actions
+        self.dnd_values = [None]*self.num_actions
+        self.dnd_indices = [None]*self.num_actions
 
     def _build_module(self, input_layer):
         # DND based Q head
@@ -281,29 +293,29 @@ class DNDQHead(Head):
         else:
             self.DND = differentiable_neural_dictionary.QDND(
                 self.DND_size, input_layer.get_shape()[-1], self.num_actions, self.new_value_shift_coefficient,
-                key_error_threshold=self.DND_key_error_threshold)
+                key_error_threshold=self.DND_key_error_threshold, learning_rate=self.tp.learning_rate)
 
         # Retrieve info from DND dictionary
-        # self.action = tf.placeholder(tf.int8, [None], name="action")
-        # self.input = self.action
-        self.output = [
+        # We assume that all actions have enough entries in the DND
+        self.output = tf.transpose([
             self._q_value(input_layer, action)
             for action in range(self.num_actions)
-        ]
+        ])
 
     def _q_value(self, input_layer, action):
         result = tf.py_func(self.DND.query,
-                            [input_layer, [action], self.number_of_nn],
-                            [tf.float64, tf.float64])
-        dnd_embeddings = tf.to_float(result[0])
-        dnd_values = tf.to_float(result[1])
+                            [input_layer, action, self.number_of_nn],
+                            [tf.float64, tf.float64, tf.int64])
+        self.dnd_embeddings[action] = tf.to_float(result[0])
+        self.dnd_values[action] = tf.to_float(result[1])
+        self.dnd_indices[action] = result[2]
 
         # DND calculation
-        square_diff = tf.square(dnd_embeddings - tf.expand_dims(input_layer, 1))
+        square_diff = tf.square(self.dnd_embeddings[action] - tf.expand_dims(input_layer, 1))
         distances = tf.reduce_sum(square_diff, axis=2) + [self.l2_norm_added_delta]
         weights = 1.0 / distances
         normalised_weights = weights / tf.reduce_sum(weights, axis=1, keep_dims=True)
-        return tf.reduce_sum(dnd_values * normalised_weights, axis=1)
+        return tf.reduce_sum(self.dnd_values[action] * normalised_weights, axis=1)
 
 
 class NAFHead(Head):
