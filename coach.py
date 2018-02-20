@@ -300,7 +300,6 @@ if __name__ == "__main__":
            "--worker_hosts={}".format(worker_hosts),
            "--job_name=ps",
         ]
-        print(' '.join(cmd))
         parameter_server = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
 
         screen.log_title("*** Distributed Training ***")
