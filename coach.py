@@ -160,38 +160,6 @@ def run_dict_to_json(_run_dict, task_id=''):
     return json_path
 
 
-def enqueue_output(out, queue):
-    for line in iter(out.readline, b''):
-        queue.put(line)
-    out.close()
-
-
-def merge_streams(processes, output_stream=sys.stdout):
-    q = Queue()
-    threads = []
-    for p in processes:
-        threads.append(Thread(target=enqueue_output, args=(p.stdout, q)))
-        threads.append(Thread(target=enqueue_output, args=(p.stderr, q)))
-
-    for t in threads:
-        t.daemon = True
-        t.start()
-
-    while True:
-        try:
-            line = q.get_nowait()
-        except Empty:
-            # break when all processes are done and q is empty
-            if all(p.poll() is not None for p in processes):
-                break
-        else:
-            # sys.stdout.write(line)
-            output_stream.write(line.decode(output_stream.encoding))
-            output_stream.flush()
-
-    print('All processes done')
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--preset',
@@ -292,8 +260,6 @@ if __name__ == "__main__":
     if not args.no_summary:
         atexit.register(logger.print_summary)
 
-    set_cpu()
-
     # Single-threaded runs
     if run_dict['num_threads'] == 1:
         # set tuning parameters
@@ -367,8 +333,6 @@ if __name__ == "__main__":
                 workers.append(p)
             else:
                 evaluation_worker = p
-
-        merge_streams(workers + [parameter_server])
 
         # wait for all workers
         [w.wait() for w in workers]
