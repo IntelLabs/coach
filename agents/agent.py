@@ -378,9 +378,10 @@ class Agent(object):
             state['observation'] = stack_observation([], state['observation'], self.tp.env.observation_stack_size)
 
             self.curr_state = state
-            # TODO: this should be handled in the environment
             if self.tp.agent.use_measurements:
+                # TODO: this should be handled in the environment
                 self.curr_state['measurements'] = self.env.measurements
+
                 if self.tp.agent.use_accumulated_reward_as_measurement:
                     self.curr_state['measurements'] = np.append(self.curr_state['measurements'], 0)
 
