@@ -15,7 +15,6 @@
 #
 import time
 
-import six
 import numpy as np
 import tensorflow as tf
 
@@ -270,7 +269,7 @@ class TensorFlowArchitecture(Architecture):
     def _feed_dict(self, inputs):
         feed_dict = {}
         for input_name, input_value in inputs.items():
-            if isinstance(input_name, six.string_types):
+            if isinstance(input_name, str):
                 if input_name not in self.inputs:
                     raise ValueError((
                         'input name {input_name} was provided to create a feed '
