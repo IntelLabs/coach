@@ -70,6 +70,18 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
                 scale = 2
             self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
+        if isinstance(self.env.observation_space, gym.spaces.Dict):
+            if 'observation' not in self.env.observation_space:
+                raise ValueError((
+                    'The gym environment provided {env_id} does not contain '
+                    '"observation" in its observation space. For now this is '
+                    'required. The environment does include the following '
+                    'keys in its observation space: {keys}'
+                ).format(
+                    env_id=self.env_id,
+                    keys=self.env.observation_space.keys(),
+                ))
+
         # TODO: collect and store this as observation space instead
         self.is_state_type_image = len(self.state['observation'].shape) > 1
         if self.is_state_type_image:
