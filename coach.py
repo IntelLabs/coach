@@ -326,7 +326,6 @@ if __name__ == "__main__":
                             "--job_name=worker",
                             "--load_json={}".format(json_run_dict_path)]
 
-            print(' '.join(workers_args))
             p = Popen(workers_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
 
             if i != run_dict['num_threads']:
