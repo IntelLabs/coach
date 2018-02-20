@@ -261,5 +261,4 @@ class EnvironmentWrapper(object):
         This can be different from the state. For example, mujoco's state is a measurements vector.
         :return: numpy array containing the image that will be rendered to the screen
         """
-        # TODO: probably needs revisiting
-        return self.state
+        return self.state['observation']
