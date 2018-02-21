@@ -18,7 +18,7 @@ import numpy as np
 
 from agents.value_optimization_agent import ValueOptimizationAgent
 from logger import screen
-from utils import stack_observation
+from utils import RunPhase
 
 
 # Neural Episodic Control - https://arxiv.org/pdf/1703.01988.pdf
@@ -55,14 +55,8 @@ class NECAgent(ValueOptimizationAgent):
                 TD_targets[i, actions[i]] += (1.0 - batch[i].info['has_bootstrap_state']) * (self.tp.agent.discount ** self.tp.agent.n_step)\
                                                 * np.max(bootstraps_values[i], 0)
 
-        # set the gradients to fetch for the DND update
-        fetches = []
-        head = self.main_network.online_network.output_heads[0]
-        if self.tp.agent.propogate_updates_to_DND:
-            fetches = [head.dnd_embeddings_grad, head.dnd_values_grad, head.dnd_indices]
-
         # train the neural network
-        result = self.main_network.train_and_sync_networks([current_states, actions], total_return)
+        result = self.main_network.train_and_sync_networks(current_states, TD_targets)
 
         total_loss = result[0]
 

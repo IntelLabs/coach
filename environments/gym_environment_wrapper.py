@@ -114,16 +114,13 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
         else:
             self.timestep_limit = None
         self.measurements_size = len(self.step(0)['info'].keys())
-		
-		self.random_initialization_steps = self.tp.env.random_initialization_steps
+        self.random_initialization_steps = self.tp.env.random_initialization_steps
 
     def _wrap_state(self, state):
         if isinstance(self.env.observation_space, gym.spaces.Dict):
             return state
         else:
             return {'observation': state}
-
-
 
     def _update_state(self):
         if hasattr(self.env, 'env') and hasattr(self.env.env, 'ale'):

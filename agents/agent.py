@@ -295,9 +295,8 @@ class Agent(object):
         """
         current_states = {}
         next_states = {}
-
-        current_states['observation'] = np.array([transition.state['observation'] for transition in batch])
-        next_states['observation'] = np.array([transition.next_state['observation'] for transition in batch])
+        current_states['observation'] = np.array([np.array(transition.state['observation']) for transition in batch])
+        next_states['observation'] = np.array([np.array(transition.next_state['observation']) for transition in batch])
         actions = np.array([transition.action for transition in batch])
         rewards = np.array([transition.reward for transition in batch])
         game_overs = np.array([transition.game_over for transition in batch])
@@ -342,7 +341,7 @@ class Agent(object):
             reward = max(reward, self.tp.env.reward_clipping_min)
         return reward
 
-	def tf_input_state(self, curr_state):
+    def tf_input_state(self, curr_state):
         """
         convert curr_state into input tensors tensorflow is expecting.
         """
@@ -353,12 +352,12 @@ class Agent(object):
             input_state[input_name] = np.expand_dims(np.array(curr_state[input_name]), 0)
         return input_state
         
-	def prepare_initial_state(self):
+    def prepare_initial_state(self):
         """
         Create an initial state when starting a new episode
         :return: None
         """
-        observation = self.preprocess_observation(self.env.observation)
+        observation = self.preprocess_observation(self.env.state['observation'])
         self.curr_stack = deque([observation]*self.tp.env.observation_stack_size, maxlen=self.tp.env.observation_stack_size)
         observation = LazyStack(self.curr_stack, -1)
 
@@ -369,7 +368,6 @@ class Agent(object):
             self.curr_state['measurements'] = self.env.measurements
             if self.tp.agent.use_accumulated_reward_as_measurement:
                 self.curr_state['measurements'] = np.append(self.curr_state['measurements'], 0)
-
 
     def act(self, phase=RunPhase.TRAIN):
         """
@@ -409,10 +407,10 @@ class Agent(object):
 
         # initialize the next state
         # TODO: provide option to stack more than just the observation
-        self.curr_stack.append(observation)
+        self.curr_stack.append(next_state['observation'])
         observation = LazyStack(self.curr_stack, -1)
 
-		next_state = {'observation': observation}	
+        next_state['observation'] = observation
         if self.tp.agent.use_measurements and 'measurements' in result.keys():
             next_state['measurements'] = result['state']['measurements']
             if self.tp.agent.use_accumulated_reward_as_measurement:
