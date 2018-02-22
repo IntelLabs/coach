@@ -34,11 +34,6 @@ import sys
 import subprocess
 from threading import Thread
 
-try:
-    from Queue import Queue, Empty
-except ImportError:
-    from queue import Queue, Empty # for Python 3.x
-
 if len(set(failed_imports)) > 0:
     screen.warning("Warning: failed to import the following packages - {}".format(', '.join(set(failed_imports))))
 
@@ -301,7 +296,7 @@ if __name__ == "__main__":
            "--worker_hosts={}".format(worker_hosts),
            "--job_name=ps",
         ]
-        parameter_server = Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
+        parameter_server = Popen(cmd)
 
         screen.log_title("*** Distributed Training ***")
         time.sleep(1)
@@ -326,7 +321,7 @@ if __name__ == "__main__":
                             "--job_name=worker",
                             "--load_json={}".format(json_run_dict_path)]
 
-            p = Popen(workers_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
+            p = Popen(workers_args)
 
             if i != run_dict['num_threads']:
                 workers.append(p)
