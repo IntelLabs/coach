@@ -84,6 +84,8 @@ class AnnoyDictionary(object):
     # Returns the stored embeddings and values of the closest embeddings
     def query(self, keys, k):
         if not self.has_enough_entries(k):
+            # this will only happen when the DND is not yet populated with enough entries, which is only during heatup
+            # these values won't be used and therefore they are meaningless
             return [0.0], [0.0], [0]
 
         _, indices = self._get_k_nearest_neighbors_indices(keys, k)

@@ -89,17 +89,6 @@ class Episode(object):
 
         for transition_idx in range(self.length()):
             self.transitions[transition_idx].total_return = total_return[transition_idx]
-            self.transitions[transition_idx].bootstrapped_return = bootstrapped_return[transition_idx]
-
-    def update_bootstrap_states(self, n_step_return=-1):
-        for transition_idx in range(self.length()):
-            bootstrap_idx = transition_idx + n_step_return
-            if bootstrap_idx < self.length():
-                self.transitions[transition_idx].info['bootstrap_state'] = self.transitions[bootstrap_idx].state['observation']
-                self.transitions[transition_idx].info['has_bootstrap_state'] = True
-            else:
-                self.transitions[transition_idx].info['bootstrap_state'] = self.transitions[self.length()-1].state['observation']
-                self.transitions[transition_idx].info['has_bootstrap_state'] = False
 
     def update_measurements_targets(self, num_steps):
         if 'measurements' not in self.transitions[0].state:

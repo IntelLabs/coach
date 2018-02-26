@@ -81,6 +81,8 @@ class NECAgent(ValueOptimizationAgent):
         # get the last full episode that we have collected
         episode = self.memory.get_last_complete_episode()
         if episode is not None:
+            # the indexing is only necessary because the heatup can end in the middle of an episode
+            # this won't be required after fixing this so that when the heatup is ended, the episode is closed
             returns = episode.get_transitions_attribute('total_return')[:len(self.current_episode_state_embeddings)]
             actions = episode.get_transitions_attribute('action')[:len(self.current_episode_state_embeddings)]
             self.main_network.online_network.output_heads[0].DND.add(self.current_episode_state_embeddings,
