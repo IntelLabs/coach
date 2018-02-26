@@ -104,8 +104,6 @@ class EpisodicExperienceReplay(Memory):
         if transition.game_over:
             self._num_transitions_in_complete_episodes += last_episode.length()
             self._length += 1
-            if self.tp.agent.bootstrap_total_return_from_current_policy:
-                self.buffer[-1].update_bootstrap_states(n_step_return=self.tp.agent.n_step)
             self.buffer[-1].update_returns(self.discount,
                                            is_bootstrapped=self.tp.agent.bootstrap_total_return_from_old_policy,
                                            n_step_return=self.tp.agent.n_step)

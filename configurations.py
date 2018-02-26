@@ -137,7 +137,6 @@ class AgentParameters(Parameters):
     new_value_shift_coefficient = 0.1
     number_of_knn = 50
     DND_key_error_threshold = 0.01
-    bootstrap_total_return_from_current_policy = False
 
     # Framework support
     neon_support = False
@@ -401,8 +400,7 @@ class NEC(AgentParameters):
     number_of_knn = 50
     n_step = 100
     bootstrap_total_return_from_old_policy = True
-    bootstrap_total_return_from_current_policy = False
-    DND_key_error_threshold = 0#.01  # TODO: define as 0.1
+    DND_key_error_threshold = 0
     input_rescaler = 1.0
     num_consecutive_playing_steps = 4
 

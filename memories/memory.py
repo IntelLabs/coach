@@ -80,18 +80,16 @@ class Episode(object):
             total_return += current_discount * np.pad(rewards[i:], (0, i), 'constant', constant_values=0)
             current_discount *= discount
 
+        # calculate the bootstrapped returns
+        bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[n_step_return:]])
+        bootstrapped_return = total_return + current_discount * np.pad(bootstraps, (0, n_step_return), 'constant',
+                                                                       constant_values=0)
         if is_bootstrapped:
-            bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[n_step_return:]])
-            total_return += current_discount * np.pad(bootstraps, (0, n_step_return), 'constant', constant_values=0)
-        else:
-            bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[n_step_return:]])
-            bootstrapped_return = total_return + current_discount * np.pad(bootstraps, (0, n_step_return), 'constant', constant_values=0)
+            total_return = bootstrapped_return
 
         for transition_idx in range(self.length()):
             self.transitions[transition_idx].total_return = total_return[transition_idx]
-            # TODO: fix this
-            if not is_bootstrapped:
-                self.transitions[transition_idx].bootstrapped_return = bootstrapped_return[transition_idx]
+            self.transitions[transition_idx].bootstrapped_return = bootstrapped_return[transition_idx]
 
     def update_bootstrap_states(self, n_step_return=-1):
         for transition_idx in range(self.length()):

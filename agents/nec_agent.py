@@ -39,21 +39,11 @@ class NECAgent(ValueOptimizationAgent):
 
         current_states, next_states, actions, rewards, game_overs, total_return = self.extract_batch(batch)
 
-        # get the bootstraps for the return from the current policy Q value
-        if self.tp.agent.bootstrap_total_return_from_current_policy:
-            bootstrap_states = np.array([t.info['bootstrap_state'] for t in batch])
-            bootstraps_values = self.main_network.online_network.predict(bootstrap_states)
-
         TD_targets = self.main_network.online_network.predict(current_states)
 
         #  only update the action that we have actually done in this transition
         for i in range(self.tp.batch_size):
             TD_targets[i, actions[i]] = total_return[i]
-
-            # bootstraps the return from the current policy Q value
-            if self.tp.agent.bootstrap_total_return_from_current_policy:
-                TD_targets[i, actions[i]] += (1.0 - batch[i].info['has_bootstrap_state']) * (self.tp.agent.discount ** self.tp.agent.n_step)\
-                                                * np.max(bootstraps_values[i], 0)
 
         # train the neural network
         result = self.main_network.train_and_sync_networks(current_states, TD_targets)
@@ -92,8 +82,6 @@ class NECAgent(ValueOptimizationAgent):
         episode = self.memory.get_last_complete_episode()
         if episode is not None:
             returns = episode.get_transitions_attribute('total_return')[:len(self.current_episode_state_embeddings)]
-            if self.tp.agent.bootstrap_total_return_from_current_policy:
-                returns = episode.get_transitions_attribute('bootstrapped_return')[:len(self.current_episode_state_embeddings)]
             actions = episode.get_transitions_attribute('action')[:len(self.current_episode_state_embeddings)]
             self.main_network.online_network.output_heads[0].DND.add(self.current_episode_state_embeddings,
                                                                      actions, returns)
