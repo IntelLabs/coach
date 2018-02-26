@@ -19,6 +19,7 @@ from logger import *
 import gym
 import numpy as np
 import time
+import random
 try:
     import roboschool
     from OpenGL import GL
@@ -59,7 +60,7 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
         # self.env_spec = gym.spec(self.env_id)
         self.env.frameskip = self.frame_skip
         self.discrete_controls = type(self.env.action_space) != gym.spaces.box.Box
-
+        self.random_initialization_steps = 0
         self.state = self.reset(True)['state']
 
         # render
@@ -113,6 +114,7 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
         else:
             self.timestep_limit = None
         self.measurements_size = len(self.step(0)['info'].keys())
+        self.random_initialization_steps = self.tp.env.random_initialization_steps
 
     def _wrap_state(self, state):
         if isinstance(self.env.observation_space, gym.spaces.Dict):
@@ -155,8 +157,9 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
 
     def _preprocess_state(self, state):
         # TODO: move this into wrapper
-        if any(env in self.env_id for env in ["Breakout", "Pong"]):
-            # crop image
+        # crop image for atari games
+        # the image from the environment is 210x160
+        if self.tp.env.crop_observation and hasattr(self.env, 'env') and hasattr(self.env.env, 'ale'):
             state['observation'] = state['observation'][34:195, :, :]
         return state
 
@@ -170,7 +173,16 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
             self.env.seed(self.seed)
 
         self.state = self._wrap_state(self.env.reset())
-        while self.state is None:
+
+        # initialize the number of lives
+        if hasattr(self.env, 'env') and hasattr(self.env.env, 'ale'):
+            self.current_ale_lives = self.env.env.ale.lives()
+
+        # simulate a random initial environment state by stepping for a random number of times between 0 and 30
+        step_count = 0
+        random_initialization_steps = random.randint(0, self.random_initialization_steps)
+        while self.state is None or step_count < random_initialization_steps:
+            step_count += 1
             self.step(0)
 
         return self.state

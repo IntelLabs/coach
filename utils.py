@@ -21,6 +21,7 @@ import numpy as np
 import threading
 from subprocess import call, Popen
 import signal
+import copy
 
 killed_processes = []
 
@@ -331,6 +332,23 @@ def switch_axes_order(observation, from_type='channels_first', to_type='channels
             return np.transpose(observation, (2, 0, 1))
     else:
         return np.transpose(observation, (1, 0))
+
+
+class LazyStack(object):
+    """
+    A lazy version of np.stack which avoids copying the memory until it is
+    needed.
+    """
+
+    def __init__(self, history, axis=None):
+        self.history = copy.copy(history)
+        self.axis = axis
+
+    def __array__(self, dtype=None):
+        array = np.stack(self.history, axis=self.axis)
+        if dtype is not None:
+            array = array.astype(dtype)
+        return array
 
 
 def stack_observation(curr_stack, observation, stack_size):

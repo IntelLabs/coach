@@ -125,14 +125,15 @@ class NetworkWrapper(object):
         """
         self.online_network.apply_gradients(self.online_network.accumulated_gradients)
 
-    def train_and_sync_networks(self, inputs, targets):
+    def train_and_sync_networks(self, inputs, targets, additional_fetches=[]):
         """
         A generic training function that enables multi-threading training using a global network if necessary.
         :param inputs: The inputs for the network.
         :param targets: The targets corresponding to the given inputs
+        :param additional_fetches: Any additional tensor the user wants to fetch
         :return: The loss of the training iteration
         """
-        result = self.online_network.accumulate_gradients(inputs, targets)
+        result = self.online_network.accumulate_gradients(inputs, targets, additional_fetches=additional_fetches)
         self.apply_gradients_and_sync_networks()
         return result
 
