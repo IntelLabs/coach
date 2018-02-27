@@ -359,6 +359,20 @@ class CartPole_DQN(Preset):
         self.test_max_step_threshold = 150
         self.test_min_return_threshold = 150
 
+class TouchWand_DQN(Preset):
+    def __init__(self):
+        Preset.__init__(self, DQN, Sensenet, ExplorationParameters)
+        self.env.level = 'TouchWandEnv-v0'
+        self.agent.num_steps_between_copying_online_weights_to_target = 100
+        self.learning_rate = 0.00025
+        self.agent.num_episodes_in_experience_replay = 200
+        self.num_heatup_steps = 1000
+        self.exploration.epsilon_decay_steps = 3000
+        self.agent.discount = 1.0
+
+        self.test = True
+        self.test_max_step_threshold = 150
+        self.test_min_return_threshold = 150
 
 class CartPole_C51(Preset):
     def __init__(self):
@@ -1294,3 +1308,4 @@ class MontezumaRevenge_BC(Preset):
         self.exploration.evaluation_epsilon = 0.05
         self.exploration.evaluation_policy = 'EGreedy'
         self.env.frame_skip = 1
+

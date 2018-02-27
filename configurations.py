@@ -266,6 +266,13 @@ class Roboschool(EnvironmentParameters):
     desired_observation_width = None
 
 
+class Sensenet(EnvironmentParameters):
+    type = 'Sensenet'
+    frame_skip = 1
+    observation_stack_size = 1
+    desired_observation_height = None
+    desired_observation_width = None
+
 class GymVectorObservation(EnvironmentParameters):
     type = 'Gym'
     frame_skip = 1
