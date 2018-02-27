@@ -116,6 +116,14 @@ python3 coach.py -p Doom_Health_MMC -r
 
 ## NEC
 
+## Pong_NEC
+
+```bash
+python3 coach.py -p Pong_NEC -r
+```
+
+<img src="img/Pong_NEC.png" alt="Pong_NEC" width="400"/>
+
 ## Doom_Basic_NEC
 
 ```bash

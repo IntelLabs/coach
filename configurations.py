@@ -115,6 +115,7 @@ class AgentParameters(Parameters):
     replace_mse_with_huber_loss = False
     load_memory_from_file_path = None
     collect_new_data = True
+    input_rescaler = 255.0
 
     # PPO related params
     target_kl_divergence = 0.01
@@ -154,6 +155,8 @@ class EnvironmentParameters(Parameters):
     desired_observation_width = 76
     desired_observation_height = 60
     normalize_observation = False
+    crop_observation = False
+    random_initialization_steps = 0
     reward_scaling = 1.0
     reward_clipping_min = None
     reward_clipping_max = None
@@ -297,6 +300,8 @@ class Atari(EnvironmentParameters):
     desired_observation_width = 84
     reward_clipping_max = 1.0
     reward_clipping_min = -1.0
+    random_initialization_steps = 30
+    crop_observation = False  # in the original paper the observation is cropped but not in the Nature paper
 
 
 class Doom(EnvironmentParameters):
@@ -362,6 +367,7 @@ class DQN(AgentParameters):
 
 class DDQN(DQN):
     type = 'DDQNAgent'
+    num_steps_between_copying_online_weights_to_target = 30000
 
 
 class DuelingDQN(DQN):
@@ -391,17 +397,19 @@ class QuantileRegressionDQN(DQN):
 
 class NEC(AgentParameters):
     type = 'NECAgent'
-    optimizer_type = 'RMSProp'
+    optimizer_type = 'Adam'
     input_types = {'observation': InputTypes.Observation}
     output_types = [OutputTypes.DNDQ]
     loss_weights = [1.0]
     dnd_size = 500000
     l2_norm_added_delta = 0.001
-    new_value_shift_coefficient = 0.1
+    new_value_shift_coefficient = 0.1  # alpha
     number_of_knn = 50
     n_step = 100
     bootstrap_total_return_from_old_policy = True
-    DND_key_error_threshold = 0.1
+    DND_key_error_threshold = 0
+    input_rescaler = 1.0
+    num_consecutive_playing_steps = 4
 
 
 class ActorCritic(AgentParameters):

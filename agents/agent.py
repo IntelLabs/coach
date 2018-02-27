@@ -24,6 +24,8 @@ except:
 import copy
 from renderer import Renderer
 from configurations import Preset
+from collections import deque
+from utils import LazyStack
 from collections import OrderedDict
 from utils import RunPhase, Signal, is_empty, RunningStat
 from architectures import *
@@ -214,6 +216,8 @@ class Agent(object):
                 network.online_network.curr_rnn_c_in = network.online_network.middleware_embedder.c_init
                 network.online_network.curr_rnn_h_in = network.online_network.middleware_embedder.h_init
 
+        self.prepare_initial_state()
+
     def preprocess_observation(self, observation):
         """
         Preprocesses the given observation.
@@ -291,9 +295,8 @@ class Agent(object):
         """
         current_states = {}
         next_states = {}
-
-        current_states['observation'] = np.array([transition.state['observation'] for transition in batch])
-        next_states['observation'] = np.array([transition.next_state['observation'] for transition in batch])
+        current_states['observation'] = np.array([np.array(transition.state['observation']) for transition in batch])
+        next_states['observation'] = np.array([np.array(transition.next_state['observation']) for transition in batch])
         actions = np.array([transition.action for transition in batch])
         rewards = np.array([transition.reward for transition in batch])
         game_overs = np.array([transition.game_over for transition in batch])
@@ -348,6 +351,23 @@ class Agent(object):
         for input_name in self.tp.agent.input_types.keys():
             input_state[input_name] = np.expand_dims(np.array(curr_state[input_name]), 0)
         return input_state
+        
+    def prepare_initial_state(self):
+        """
+        Create an initial state when starting a new episode
+        :return: None
+        """
+        observation = self.preprocess_observation(self.env.state['observation'])
+        self.curr_stack = deque([observation]*self.tp.env.observation_stack_size, maxlen=self.tp.env.observation_stack_size)
+        observation = LazyStack(self.curr_stack, -1)
+
+        self.curr_state = {
+            'observation': observation
+        }
+        if self.tp.agent.use_measurements:
+            self.curr_state['measurements'] = self.env.measurements
+            if self.tp.agent.use_accumulated_reward_as_measurement:
+                self.curr_state['measurements'] = np.append(self.curr_state['measurements'], 0)
 
     def act(self, phase=RunPhase.TRAIN):
         """
@@ -356,34 +376,12 @@ class Agent(object):
         :return: A boolean value that signals an episode termination
         """
 
-        self.total_steps_counter += 1
+        if phase != RunPhase.TEST:
+            self.total_steps_counter += 1
         self.current_episode_steps_counter += 1
 
         # get new action
-        action_info = {"action_probability": 1.0 / self.env.action_space_size, "action_value": 0}
-        is_first_transition_in_episode = (self.curr_state == {})
-        if is_first_transition_in_episode:
-            if not isinstance(self.env.state, dict):
-                raise ValueError((
-                    'expected state to be a dictionary, found {}'
-                ).format(type(self.env.state)))
-
-            state = self.env.state
-            # TODO: modify preprocess_observation to modify the entire state
-            # for now, only preprocess the observation
-            state['observation'] = self.preprocess_observation(state['observation'])
-
-            # TODO: provide option to stack more than just the observation
-            # TODO: this should probably be happening in an environment wrapper anyway
-            state['observation'] = stack_observation([], state['observation'], self.tp.env.observation_stack_size)
-
-            self.curr_state = state
-            if self.tp.agent.use_measurements:
-                # TODO: this should be handled in the environment
-                self.curr_state['measurements'] = self.env.measurements
-
-                if self.tp.agent.use_accumulated_reward_as_measurement:
-                    self.curr_state['measurements'] = np.append(self.curr_state['measurements'], 0)
+        action_info = {"action_probability": 1.0 / self.env.action_space_size, "action_value": 0, "max_action_value": 0}
 
         if phase == RunPhase.HEATUP and not self.tp.heatup_using_network_decisions:
             action = self.env.get_random_action()
@@ -409,8 +407,10 @@ class Agent(object):
 
         # initialize the next state
         # TODO: provide option to stack more than just the observation
-        next_state['observation'] = stack_observation(self.curr_state['observation'], next_state['observation'], self.tp.env.observation_stack_size)
+        self.curr_stack.append(next_state['observation'])
+        observation = LazyStack(self.curr_stack, -1)
 
+        next_state['observation'] = observation
         if self.tp.agent.use_measurements and 'measurements' in result.keys():
             next_state['measurements'] = result['state']['measurements']
             if self.tp.agent.use_accumulated_reward_as_measurement:
@@ -516,6 +516,7 @@ class Agent(object):
         self.exploration_policy.change_phase(RunPhase.TRAIN)
         training_start_time = time.time()
         model_snapshots_periods_passed = -1
+        self.reset_game()
 
         while self.training_iteration < self.tp.num_training_iterations:
             # evaluate
@@ -526,7 +527,7 @@ class Agent(object):
                               self.training_iteration % self.tp.evaluate_every_x_training_iterations == 0)
 
             if evaluate_agent:
-                self.env.reset()
+                self.env.reset(force_environment_reset=True)
                 self.last_episode_evaluation_ran = self.current_episode
                 self.evaluate(self.tp.evaluation_episodes)
 

@@ -16,6 +16,7 @@
 
 from memories.memory import *
 import threading
+from typing import Union
 
 
 class EpisodicExperienceReplay(Memory):
@@ -103,7 +104,8 @@ class EpisodicExperienceReplay(Memory):
         if transition.game_over:
             self._num_transitions_in_complete_episodes += last_episode.length()
             self._length += 1
-            self.buffer[-1].update_returns(self.discount, is_bootstrapped=self.return_is_bootstrapped,
+            self.buffer[-1].update_returns(self.discount,
+                                           is_bootstrapped=self.tp.agent.bootstrap_total_return_from_old_policy,
                                            n_step_return=self.tp.agent.n_step)
             self.buffer[-1].update_measurements_targets(self.tp.agent.num_predicted_steps_ahead)
             # self.buffer[-1].update_actions_probabilities() # used for off-policy policy optimization
@@ -145,6 +147,17 @@ class EpisodicExperienceReplay(Memory):
     # for API compatibility
     def get(self, index):
         return self.get_episode(index)
+
+    def get_last_complete_episode(self) -> Union[None, Episode]:
+        """
+        Returns the last complete episode in the memory or None if there are no complete episodes
+        :return: None or the last complete episode
+        """
+        last_complete_episode_index = self.num_complete_episodes()-1
+        if last_complete_episode_index >= 0:
+            return self.get(last_complete_episode_index)
+        else:
+            return None
 
     def update_last_transition_info(self, info):
         episode = self.buffer[-1]

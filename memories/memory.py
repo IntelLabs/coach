@@ -80,9 +80,12 @@ class Episode(object):
             total_return += current_discount * np.pad(rewards[i:], (0, i), 'constant', constant_values=0)
             current_discount *= discount
 
+        # calculate the bootstrapped returns
+        bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[n_step_return:]])
+        bootstrapped_return = total_return + current_discount * np.pad(bootstraps, (0, n_step_return), 'constant',
+                                                                       constant_values=0)
         if is_bootstrapped:
-            bootstraps = np.array([np.squeeze(t.info['action_value']) for t in self.transitions[n_step_return:]])
-            total_return += current_discount * np.pad(bootstraps, (0, n_step_return), 'constant', constant_values=0)
+            total_return = bootstrapped_return
 
         for transition_idx in range(self.length()):
             self.transitions[transition_idx].total_return = total_return[transition_idx]
@@ -114,7 +117,13 @@ class Episode(object):
         return self.returns_table
 
     def get_returns(self):
-        return [t.total_return for t in self.transitions]
+        return self.get_transitions_attribute('total_return')
+
+    def get_transitions_attribute(self, attribute_name):
+        if hasattr(self.transitions[0], attribute_name):
+            return [t.__dict__[attribute_name] for t in self.transitions]
+        else:
+            raise ValueError("The transitions have no such attribute name")
 
     def to_batch(self):
         batch = []
@@ -141,14 +150,12 @@ class Transition(object):
         :param game_over: A boolean which should be True if the episode terminated after
                           the execution of the action.
         """
-        self.state = copy.deepcopy(state)
-        self.state['observation'] = np.array(self.state['observation'], copy=False)
+        self.state = state
         self.action = action
         self.reward = reward
         self.total_return = None
         if not next_state:
             next_state = state
-        self.next_state = copy.deepcopy(next_state)
-        self.next_state['observation'] = np.array(self.next_state['observation'], copy=False)
+        self.next_state = next_state
         self.game_over = game_over
         self.info = {}

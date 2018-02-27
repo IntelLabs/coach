@@ -15,3 +15,8 @@ roboschool
 *.orig
 docs/site
 coach_env
+build
+rl_coach.egg*
+contrib
+test_log_*
+dist

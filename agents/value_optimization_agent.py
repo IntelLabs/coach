@@ -73,5 +73,5 @@ class ValueOptimizationAgent(Agent):
             for idx, action_name in enumerate(self.env.actions_description):
                 self.episode_running_info[action_name].append(actions_q_values[idx])
 
-        action_value = {"action_value": actions_q_values[action]}
+        action_value = {"action_value": actions_q_values[action], "max_action_value": np.max(actions_q_values)}
         return action, action_value
