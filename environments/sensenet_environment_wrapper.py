@@ -25,7 +25,7 @@ from utils import force_list, RunPhase
 from environments.environment_wrapper import EnvironmentWrapper
 
 
-class SenseNetEnvironmentWrapper(EnvironmentWrapper):
+class SensenetEnvironmentWrapper(EnvironmentWrapper):
     def __init__(self, tuning_parameters):
         EnvironmentWrapper.__init__(self, tuning_parameters)
 
@@ -40,7 +40,7 @@ class SenseNetEnvironmentWrapper(EnvironmentWrapper):
 
         # self.env_spec = gym.spec(self.env_id)
         self.env.frameskip = self.frame_skip
-        self.discrete_controls = type(self.env.action_space) != gym.spaces.box.Box
+        self.discrete_controls = type(self.env.action_space) != sensenet.spaces.box.Box
 
         self.state = self.reset(True)['state']
 
@@ -52,17 +52,17 @@ class SenseNetEnvironmentWrapper(EnvironmentWrapper):
                 scale = 2
             self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
-        if isinstance(self.env.observation_space, gym.spaces.Dict):
-            if 'observation' not in self.env.observation_space:
-                raise ValueError((
-                    'The SenseNet environment provided {env_id} does not contain '
-                    '"observation" in its observation space. For now this is '
-                    'required. The environment does include the following '
-                    'keys in its observation space: {keys}'
-                ).format(
-                    env_id=self.env_id,
-                    keys=self.env.observation_space.keys(),
-                ))
+        #if isinstance(self.env.observation_space, sensenet.spaces.Dict):
+        #    if 'observation' not in self.env.observation_space:
+        #        raise ValueError((
+        #            'The SenseNet environment provided {env_id} does not contain '
+        #            '"observation" in its observation space. For now this is '
+        #            'required. The environment does include the following '
+        #            'keys in its observation space: {keys}'
+        #        ).format(
+        #            env_id=self.env_id,
+        #            keys=self.env.observation_space.keys(),
+        #        ))
 
         # TODO: collect and store this as observation space instead
         self.is_state_type_image = len(self.state['observation'].shape) > 1
@@ -94,13 +94,13 @@ class SenseNetEnvironmentWrapper(EnvironmentWrapper):
             self.timestep_limit = self.env.spec.timestep_limit
         else:
             self.timestep_limit = None
-        self.measurements_size = len(self.step(0)['info'].keys())
+        #self.measurements_size = len(self.step(0)['info'].keys())
 
     def _wrap_state(self, state):
-        if isinstance(self.env.observation_space, gym.spaces.Dict):
-            return state
-        else:
-            return {'observation': state}
+        #if isinstance(self.env.observation_space, sensenet.spaces.Dict):
+        #    return state
+        #else:
+        return {'observation': state}
 
 
     def _take_action(self, action_idx):
