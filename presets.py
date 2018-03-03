@@ -373,6 +373,24 @@ class TouchWand_DQN(Preset):
         self.test_max_step_threshold = 150
         self.test_min_return_threshold = 150
 
+class TouchWand_PPO(Preset):
+    def __init__(self):
+        Preset.__init__(self, PPO, Sensenet, ExplorationParameters)
+        self.env.level = 'TouchWandEnv-v0'
+        self.learning_rate = 0.001
+        self.num_heatup_steps = 0
+        self.agent.num_consecutive_training_steps = 1
+        self.agent.num_consecutive_playing_steps = 5000
+        self.agent.discount = 0.99
+        self.batch_size = 128
+        self.agent.policy_gradient_rescaler = 'GAE'
+        self.agent.gae_lambda = 0.96
+        self.visualization.dump_csv = True
+        self.agent.optimizer_type = 'Adam'
+        self.agent.shared_optimizer = False
+        self.agent.async_training = True
+        self.env.normalize_observation = True
+
 class CartPole_C51(Preset):
     def __init__(self):
         Preset.__init__(self, CategoricalDQN, GymVectorObservation, ExplorationParameters)
