@@ -133,6 +133,12 @@ For example:
   python3 coach.py -r -p Doom_Health_MMC
   ```
 
+6. Sensenet TouchWand using DQN:
+
+  ```bash
+  python3 coach.py -r -p TouchWand_DQN
+  ```
+
 It is easy to create new presets for different levels or environments by following the same pattern as in presets.py
 
 More usage examples can be found [here](http://coach.nervanasys.com/usage/index.html).
@@ -218,6 +224,14 @@ python3 coach.py -p Hopper_A3C -n 16
     Create a new CARLA_ROOT environment variable pointing to CARLA's installation directory.
 
     A simple CARLA settings file (```CarlaSettings.ini```) is supplied with Coach, and is located in the ```environments``` directory.
+
+* *Sensenet:*
+
+    Follow the instructions described in the Sensenet repository -
+
+    https://github.com/jtoy/sensenet
+
+    pip install sensenet
 
 
 ## Supported Algorithms
