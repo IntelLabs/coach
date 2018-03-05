@@ -133,7 +133,7 @@ For example:
   python3 coach.py -r -p Doom_Health_MMC
   ```
 
-6. Sensenet TouchWand using DQN:
+6. SenseNet TouchWand using DQN:
 
   ```bash
   python3 coach.py -r -p TouchWand_DQN
@@ -225,13 +225,13 @@ python3 coach.py -p Hopper_A3C -n 16
 
     A simple CARLA settings file (```CarlaSettings.ini```) is supplied with Coach, and is located in the ```environments``` directory.
 
-* *Sensenet:*
+* *SenseNet:*
 
     Follow the instructions described in the Sensenet repository -
 
     https://github.com/jtoy/sensenet
 
-    pip install sensenet
+    basically just 'pip install sensenet'
 
 
 ## Supported Algorithms
