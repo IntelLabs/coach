@@ -1,3 +1,4 @@
+tornado==4.5.1
 bokeh==0.12.7
 futures==3.1.1
 pandas==0.20.2
