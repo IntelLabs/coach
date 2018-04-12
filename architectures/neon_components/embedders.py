@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import ngraph.frontends.neon as neon
 import ngraph as ng
-from ngraph.util.names import name_scope
+import ngraph.frontends.neon as neon
+import ngraph.util.names as ngraph_names
 
 
 class InputEmbedder(object):
@@ -31,7 +30,7 @@ class InputEmbedder(object):
         self.output = None
 
     def __call__(self, prev_input_placeholder=None):
-        with name_scope(self.get_name()):
+        with ngraph_names.name_scope(self.get_name()):
             # create the input axes
             axes = []
             if len(self.input_size) == 2:

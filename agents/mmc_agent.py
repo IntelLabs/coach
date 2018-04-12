@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from agents.value_optimization_agent import *
+from agents import value_optimization_agent as voa
 
 
-class MixedMonteCarloAgent(ValueOptimizationAgent):
+class MixedMonteCarloAgent(voa.ValueOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        voa.ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
         self.mixing_rate = tuning_parameters.agent.monte_carlo_mixing_rate
 
     def learn_from_batch(self, batch):

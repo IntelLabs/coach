@@ -13,23 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
+from scipy import signal
 
-from agents.policy_optimization_agent import *
-from logger import *
-from utils import *
-import scipy.signal
+from agents import policy_optimization_agent as poa
+import utils
+import logger
 
 
 # Actor Critic - https://arxiv.org/abs/1602.01783
-class ActorCriticAgent(PolicyOptimizationAgent):
+class ActorCriticAgent(poa.PolicyOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0, create_target_network = False):
-        PolicyOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id, create_target_network)
+        poa.PolicyOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id, create_target_network)
         self.last_gradient_update_step_idx = 0
-        self.action_advantages = Signal('Advantages')
-        self.state_values = Signal('Values')
-        self.unclipped_grads = Signal('Grads (unclipped)')
-        self.value_loss = Signal('Value Loss')
-        self.policy_loss = Signal('Policy Loss')
+        self.action_advantages = utils.Signal('Advantages')
+        self.state_values = utils.Signal('Values')
+        self.unclipped_grads = utils.Signal('Grads (unclipped)')
+        self.value_loss = utils.Signal('Value Loss')
+        self.policy_loss = utils.Signal('Policy Loss')
         self.signals.append(self.action_advantages)
         self.signals.append(self.state_values)
         self.signals.append(self.unclipped_grads)
@@ -38,7 +39,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
 
     # Discounting function used to calculate discounted returns.
     def discount(self, x, gamma):
-        return scipy.signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]
+        return signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]
 
     def get_general_advantage_estimation_values(self, rewards, values):
         # values contain n+1 elements (t ... t+n+1), rewards contain n elements (t ... t + n)
@@ -72,20 +73,20 @@ class ActorCriticAgent(PolicyOptimizationAgent):
         # estimate the advantage function
         action_advantages = np.zeros((num_transitions, 1))
 
-        if self.policy_gradient_rescaler == PolicyGradientRescaler.A_VALUE:
+        if self.policy_gradient_rescaler == poa.PolicyGradientRescaler.A_VALUE:
             if game_overs[-1]:
                 R = 0
             else:
-                R = self.main_network.online_network.predict(last_sample(next_states))[0]
+                R = self.main_network.online_network.predict(utils.last_sample(next_states))[0]
 
             for i in reversed(range(num_transitions)):
                 R = rewards[i] + self.tp.agent.discount * R
                 state_value_head_targets[i] = R
                 action_advantages[i] = R - current_state_values[i]
 
-        elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
+        elif self.policy_gradient_rescaler == poa.PolicyGradientRescaler.GAE:
             # get bootstraps
-            bootstrapped_value = self.main_network.online_network.predict(last_sample(next_states))[0]
+            bootstrapped_value = self.main_network.online_network.predict(utils.last_sample(next_states))[0]
             values = np.append(current_state_values, bootstrapped_value)
             if game_overs[-1]:
                 values[-1] = 0
@@ -94,7 +95,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             gae_values, state_value_head_targets = self.get_general_advantage_estimation_values(rewards, values)
             action_advantages = np.vstack(gae_values)
         else:
-            screen.warning("WARNING: The requested policy gradient rescaler is not available")
+            logger.screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         action_advantages = action_advantages.squeeze(axis=-1)
         if not self.env.discrete_controls and len(actions.shape) < 2:
@@ -113,7 +114,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
 
         return total_loss
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         # TODO: rename curr_state -> state
 
         # convert to batch so we can run it through the network
@@ -126,7 +127,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             # DISCRETE
             state_value, action_probabilities = self.main_network.online_network.predict(curr_state)
             action_probabilities = action_probabilities.squeeze()
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = self.exploration_policy.get_action(action_probabilities)
             else:
                 action = np.argmax(action_probabilities)
@@ -137,7 +138,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             state_value, action_values_mean, action_values_std = self.main_network.online_network.predict(curr_state)
             action_values_mean = action_values_mean.squeeze()
             action_values_std = action_values_std.squeeze()
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = np.squeeze(np.random.randn(1, self.action_space_size) * action_values_std + action_values_mean)
             else:
                 action = action_values_mean

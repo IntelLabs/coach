@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import numpy as np
-from utils import *
-from configurations import Preset
-from renderer import Renderer
 import operator
 import time
+
+import numpy as np
+
+import renderer
+import utils
 
 
 class EnvironmentWrapper(object):
@@ -50,7 +50,7 @@ class EnvironmentWrapper(object):
         self.height = 1
         self.is_state_type_image = True
         self.measurements_size = 0
-        self.phase = RunPhase.TRAIN
+        self.phase = utils.RunPhase.TRAIN
         self.tp = tuning_parameters
         self.record_video_every = self.tp.visualization.record_video_every
         self.env_id = self.tp.env.level
@@ -62,7 +62,7 @@ class EnvironmentWrapper(object):
         self.wait_for_explicit_human_action = False
         self.is_rendered = self.is_rendered or self.human_control
         self.game_is_open = True
-        self.renderer = Renderer()
+        self.renderer = renderer.Renderer()
 
     @property
     def measurements(self):

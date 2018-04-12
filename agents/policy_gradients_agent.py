@@ -13,25 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from agents.policy_optimization_agent import *
 import numpy as np
-from logger import *
-import tensorflow as tf
-try:
-    import matplotlib.pyplot as plt
-except:
-    from logger import failed_imports
-    failed_imports.append("matplotlib")
 
-from utils import *
+from agents import policy_optimization_agent as poa
+import logger
+import utils
 
 
-class PolicyGradientsAgent(PolicyOptimizationAgent):
+class PolicyGradientsAgent(poa.PolicyOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        PolicyOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
-        self.returns_mean = Signal('Returns Mean')
-        self.returns_variance = Signal('Returns Variance')
+        poa.PolicyOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        self.returns_mean = utils.Signal('Returns Mean')
+        self.returns_variance = utils.Signal('Returns Variance')
         self.signals.append(self.returns_mean)
         self.signals.append(self.returns_variance)
         self.last_gradient_update_step_idx = 0
@@ -41,21 +34,21 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
         current_states, next_states, actions, rewards, game_overs, total_returns = self.extract_batch(batch)
 
         for i in reversed(range(len(total_returns))):
-            if self.policy_gradient_rescaler == PolicyGradientRescaler.TOTAL_RETURN:
+            if self.policy_gradient_rescaler == poa.PolicyGradientRescaler.TOTAL_RETURN:
                 total_returns[i] = total_returns[0]
-            elif self.policy_gradient_rescaler == PolicyGradientRescaler.FUTURE_RETURN:
+            elif self.policy_gradient_rescaler == poa.PolicyGradientRescaler.FUTURE_RETURN:
                 # just take the total return as it is
                 pass
-            elif self.policy_gradient_rescaler == PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_EPISODE:
+            elif self.policy_gradient_rescaler == poa.PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_EPISODE:
                 # we can get a single transition episode while playing Doom Basic, causing the std to be 0
                 if self.std_discounted_return != 0:
                     total_returns[i] = (total_returns[i] - self.mean_discounted_return) / self.std_discounted_return
                 else:
                     total_returns[i] = 0
-            elif self.policy_gradient_rescaler == PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_TIMESTEP:
+            elif self.policy_gradient_rescaler == poa.PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_TIMESTEP:
                 total_returns[i] -= self.mean_return_over_multiple_episodes[i]
             else:
-                screen.warning("WARNING: The requested policy gradient rescaler is not available")
+                logger.screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         targets = total_returns
         if not self.env.discrete_controls and len(actions.shape) < 2:
@@ -69,12 +62,12 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
 
         return total_loss
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         # convert to batch so we can run it through the network
         if self.env.discrete_controls:
             # DISCRETE
             action_values = self.main_network.online_network.predict(self.tf_input_state(curr_state)).squeeze()
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = self.exploration_policy.get_action(action_values)
             else:
                 action = np.argmax(action_values)
@@ -84,7 +77,7 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
             # CONTINUOUS
             result = self.main_network.online_network.predict(self.tf_input_state(curr_state))
             action_values = result[0].squeeze()
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = self.exploration_policy.get_action(action_values)
             else:
                 action = action_values

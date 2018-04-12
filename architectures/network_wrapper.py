@@ -13,20 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import collections
 
-from collections import OrderedDict
-from configurations import Preset, Frameworks
-from logger import *
+import configurations as conf
+import logger
 try:
     import tensorflow as tf
-    from architectures.tensorflow_components.general_network import GeneralTensorFlowNetwork
+    from architectures.tensorflow_components import general_network as tf_net  #import GeneralTensorFlowNetwork
 except ImportError:
-    failed_imports.append("TensorFlow")
+    logger.failed_imports.append("TensorFlow")
 
 try:
-    from architectures.neon_components.general_network import GeneralNeonNetwork
+    from architectures.neon_components import general_network as neon_net
 except ImportError:
-    failed_imports.append("Neon")
+    logger.failed_imports.append("Neon")
 
 
 class NetworkWrapper(object):
@@ -50,12 +51,12 @@ class NetworkWrapper(object):
         self.name = name
         self.sess = tuning_parameters.sess
 
-        if self.tp.framework == Frameworks.TensorFlow:
-            general_network = GeneralTensorFlowNetwork
-        elif self.tp.framework == Frameworks.Neon:
-            general_network = GeneralNeonNetwork
+        if self.tp.framework == conf.Frameworks.TensorFlow:
+            general_network = tf_net.GeneralTensorFlowNetwork
+        elif self.tp.framework == conf.Frameworks.Neon:
+            general_network = neon_net.GeneralNeonNetwork
         else:
-            raise Exception("{} Framework is not supported".format(Frameworks().to_string(self.tp.framework)))
+            raise Exception("{} Framework is not supported".format(conf.Frameworks().to_string(self.tp.framework)))
 
         # Global network - the main network shared between threads
         self.global_network = None
@@ -77,13 +78,13 @@ class NetworkWrapper(object):
                 self.target_network = general_network(tuning_parameters, '{}/target'.format(name),
                                                       network_is_local=True)
 
-        if not self.tp.distributed and self.tp.framework == Frameworks.TensorFlow:
+        if not self.tp.distributed and self.tp.framework == conf.Frameworks.TensorFlow:
             variables_to_restore = tf.global_variables()
             variables_to_restore = [v for v in variables_to_restore if '/online' in v.name]
             self.model_saver = tf.train.Saver(variables_to_restore)
             if self.tp.sess and self.tp.checkpoint_restore_dir:
                 checkpoint = tf.train.latest_checkpoint(self.tp.checkpoint_restore_dir)
-                screen.log_title("Loading checkpoint: {}".format(checkpoint))
+                logger.screen.log_title("Loading checkpoint: {}".format(checkpoint))
                 self.model_saver.restore(self.tp.sess, checkpoint)
                 self.update_target_network()
 
@@ -178,8 +179,8 @@ class NetworkWrapper(object):
     def save_model(self, model_id):
         saved_model_path = self.model_saver.save(self.tp.sess, os.path.join(self.tp.save_model_dir,
                                                                         str(model_id) + '.ckpt'))
-        screen.log_dict(
-            OrderedDict([
+        logger.screen.log_dict(
+            collections.OrderedDict([
                 ("Saving model", saved_model_path),
             ]),
             prefix="Checkpoint"

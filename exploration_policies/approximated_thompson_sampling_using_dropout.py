@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from exploration_policies.exploration_policy import *
+from exploration_policies import exploration_policy
 
 
-class ApproximatedThompsonSamplingUsingDropout(ExplorationPolicy):
+class ApproximatedThompsonSamplingUsingDropout(exploration_policy.ExplorationPolicy):
     def __init__(self, tuning_parameters):
         """
         :param tuning_parameters: A Preset class instance with all the running paramaters
         :type tuning_parameters: Preset
         """
-        ExplorationPolicy.__init__(self, tuning_parameters)
+        exploration_policy.ExplorationPolicy.__init__(self, tuning_parameters)
         self.dropout_discard_probability = tuning_parameters.exploration.dropout_discard_probability
         self.network = tuning_parameters.network
         self.assign_op = self.network.dropout_discard_probability.assign(self.dropout_discard_probability)

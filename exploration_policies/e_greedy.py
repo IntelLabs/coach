@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from exploration_policies.exploration_policy import *
+from exploration_policies import exploration_policy
+import utils
 
 
-class EGreedy(ExplorationPolicy):
+class EGreedy(exploration_policy.ExplorationPolicy):
     def __init__(self, tuning_parameters):
         """
         :param tuning_parameters: A Preset class instance with all the running paramaters
         :type tuning_parameters: Preset
         """
-        ExplorationPolicy.__init__(self, tuning_parameters)
+        exploration_policy.ExplorationPolicy.__init__(self, tuning_parameters)
         self.epsilon = tuning_parameters.exploration.initial_epsilon
         self.final_epsilon = tuning_parameters.exploration.final_epsilon
         self.epsilon_decay_delta = (
@@ -52,9 +54,9 @@ class EGreedy(ExplorationPolicy):
                 self.variance = self.final_variance
 
     def get_action(self, action_values):
-        if self.phase == RunPhase.TRAIN:
+        if self.phase == utils.RunPhase.TRAIN:
             self.decay_exploration()
-        epsilon = self.evaluation_epsilon if self.phase == RunPhase.TEST else self.epsilon
+        epsilon = self.evaluation_epsilon if self.phase == utils.RunPhase.TEST else self.epsilon
 
         if self.discrete_controls:
             top_action = np.argmax(action_values)
@@ -67,4 +69,4 @@ class EGreedy(ExplorationPolicy):
             return np.squeeze(action_values + (np.random.rand() < epsilon) * noise)
 
     def get_control_param(self):
-        return self.evaluation_epsilon if self.phase == RunPhase.TEST else self.epsilon
+        return self.evaluation_epsilon if self.phase == utils.RunPhase.TEST else self.epsilon

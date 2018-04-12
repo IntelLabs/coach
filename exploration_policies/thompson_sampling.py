@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from exploration_policies.exploration_policy import *
+from exploration_policies import exploration_policy
 
 
-class ThompsonSampling(ExplorationPolicy):
+class ThompsonSampling(exploration_policy.ExplorationPolicy):
     def __init__(self, tuning_parameters):
         """
         :param tuning_parameters: A Preset class instance with all the running paramaters
         :type tuning_parameters: Preset
         """
-        ExplorationPolicy.__init__(self, tuning_parameters)
+        exploration_policy.ExplorationPolicy.__init__(self, tuning_parameters)
         self.action_space_size = tuning_parameters.env.action_space_size
 
     def get_action(self, action_values):

@@ -13,46 +13,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import sys, inspect, re
-import os
-import json
-import presets
-from presets import *
-from utils import set_gpu, list_all_classes_in_module
-from architectures import *
-from environments import *
-from agents import *
-from utils import *
-from logger import screen, logger
-import argparse
-from subprocess import Popen
-import datetime
-import presets
 import atexit
-import sys
+import json
+import os
+import re
 import subprocess
-from threading import Thread
+import sys
+import time
 
-if len(set(failed_imports)) > 0:
-    screen.warning("Warning: failed to import the following packages - {}".format(', '.join(set(failed_imports))))
+import agents
+import argparse
+import configurations as conf
+import environments
+import logger
+import presets
+import utils
+
+
+if len(set(logger.failed_imports)) > 0:
+    logger.screen.warning("Warning: failed to import the following packages - {}".format(', '.join(set(logger.failed_imports))))
 
 
 def set_framework(framework_type):
     # choosing neural network framework
-    framework = Frameworks().get(framework_type)
+    framework = conf.Frameworks().get(framework_type)
     sess = None
-    if framework == Frameworks.TensorFlow:
+    if framework == conf.Frameworks.TensorFlow:
         import tensorflow as tf
         config = tf.ConfigProto()
         config.allow_soft_placement = True
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = 0.2
         sess = tf.Session(config=config)
-    elif framework == Frameworks.Neon:
+    elif framework == conf.Frameworks.Neon:
         import ngraph as ng
         sess = ng.transformers.make_transformer()
-    screen.log_title("Using {} framework".format(Frameworks().to_string(framework)))
+    logger.screen.log_title("Using {} framework".format(conf.Frameworks().to_string(framework)))
     return sess
 
 
@@ -66,8 +62,8 @@ def check_input_and_fill_run_dict(parser):
 
     # list available presets
     if args.list:
-        presets_lists = list_all_classes_in_module(presets)
-        screen.log_title("Available Presets:")
+        presets_lists = utils.list_all_classes_in_module(presets)
+        logger.screen.log_title("Available Presets:")
         for preset in presets_lists:
             print(preset)
         sys.exit(0)
@@ -77,28 +73,28 @@ def check_input_and_fill_run_dict(parser):
         # num_workers = int(args.num_workers)
         num_workers = int(re.match("^\d+$", args.num_workers).group(0))
     except ValueError:
-        screen.error("Parameter num_workers should be an integer.")
+        logger.screen.error("Parameter num_workers should be an integer.")
 
-    preset_names = list_all_classes_in_module(presets)
+    preset_names = utils.list_all_classes_in_module(presets)
     if args.preset is not None and args.preset not in preset_names:
-        screen.error("A non-existing preset was selected. ")
+        logger.screen.error("A non-existing preset was selected. ")
 
     if args.checkpoint_restore_dir is not None and not os.path.exists(args.checkpoint_restore_dir):
-        screen.error("The requested checkpoint folder to load from does not exist. ")
+        logger.screen.error("The requested checkpoint folder to load from does not exist. ")
 
     if args.save_model_sec is not None:
         try:
             args.save_model_sec = int(args.save_model_sec)
         except ValueError:
-            screen.error("Parameter save_model_sec should be an integer.")
+            logger.screen.error("Parameter save_model_sec should be an integer.")
 
     if args.preset is None and (args.agent_type is None or args.environment_type is None
                                        or args.exploration_policy_type is None) and not args.play:
-        screen.error('When no preset is given for Coach to run, the user is expected to input the desired agent_type,'
+        logger.screen.error('When no preset is given for Coach to run, the user is expected to input the desired agent_type,'
                      ' environment_type and exploration_policy_type to assemble a preset. '
                      '\nAt least one of these parameters was not given.')
     elif args.preset is None and args.play and args.environment_type is None:
-        screen.error('When no preset is given for Coach to run, and the user requests human control over the environment,'
+        logger.screen.error('When no preset is given for Coach to run, and the user requests human control over the environment,'
                      ' the user is expected to input the desired environment_type and level.'
                      '\nAt least one of these parameters was not given.')
     elif args.preset is None and args.play and args.environment_type:
@@ -106,11 +102,11 @@ def check_input_and_fill_run_dict(parser):
         args.exploration_policy_type = 'ExplorationParameters'
 
     # get experiment name and path
-    experiment_name = logger.get_experiment_name(args.experiment_name)
-    experiment_path = logger.get_experiment_path(experiment_name)
+    experiment_name = logger.logger.get_experiment_name(args.experiment_name)
+    experiment_path = logger.logger.get_experiment_path(experiment_name)
 
     if args.play and num_workers > 1:
-        screen.warning("Playing the game as a human is only available with a single worker. "
+        logger.screen.warning("Playing the game as a human is only available with a single worker. "
                        "The number of workers will be reduced to 1")
         num_workers = 1
 
@@ -123,7 +119,7 @@ def check_input_and_fill_run_dict(parser):
     run_dict['preset'] = args.preset
     run_dict['custom_parameter'] = args.custom_parameter
     run_dict['experiment_path'] = experiment_path
-    run_dict['framework'] = Frameworks().get(args.framework)
+    run_dict['framework'] = conf.Frameworks().get(args.framework)
     run_dict['play'] = args.play
     run_dict['evaluate'] = args.evaluate# or args.play
 
@@ -251,16 +247,16 @@ if __name__ == "__main__":
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
     # dump documentation
-    logger.set_dump_dir(run_dict['experiment_path'], add_timestamp=True)
+    logger.logger.set_dump_dir(run_dict['experiment_path'], add_timestamp=True)
     if not args.no_summary:
-        atexit.register(logger.summarize_experiment)
-        screen.change_terminal_title(logger.experiment_name)
+        atexit.register(logger.logger.summarize_experiment)
+        logger.screen.change_terminal_title(logger.logger.experiment_name)
 
     # Single-threaded runs
     if run_dict['num_threads'] == 1:
         # set tuning parameters
         json_run_dict_path = run_dict_to_json(run_dict)
-        tuning_parameters = json_to_preset(json_run_dict_path)
+        tuning_parameters = presets.json_to_preset(json_run_dict_path)
         tuning_parameters.sess = set_framework(args.framework)
 
         if args.print_parameters:
@@ -268,8 +264,9 @@ if __name__ == "__main__":
 
         # Single-thread runs
         tuning_parameters.task_index = 0
-        env_instance = create_environment(tuning_parameters)
-        agent = eval(tuning_parameters.agent.type + '(env_instance, tuning_parameters)')
+        env_instance = environments.create_environment(tuning_parameters)
+        agent = eval('agents.' + tuning_parameters.agent.type +
+                     '(env_instance, tuning_parameters)')
 
         # Start the training or evaluation
         if tuning_parameters.evaluate:
@@ -282,11 +279,11 @@ if __name__ == "__main__":
         assert args.framework.lower() == 'tensorflow', "Distributed training works only with TensorFlow"
         os.environ["OMP_NUM_THREADS"]="1"
         # set parameter server and workers addresses
-        ps_hosts = "localhost:{}".format(get_open_port())
-        worker_hosts = ",".join(["localhost:{}".format(get_open_port()) for i in range(run_dict['num_threads'] + 1)])
+        ps_hosts = "localhost:{}".format(utils.get_open_port())
+        worker_hosts = ",".join(["localhost:{}".format(utils.get_open_port()) for i in range(run_dict['num_threads'] + 1)])
 
         # Make sure to disable GPU so that all the workers will use the CPU
-        set_cpu()
+        utils.set_cpu()
 
         # create a parameter server
         cmd = [
@@ -296,9 +293,9 @@ if __name__ == "__main__":
            "--worker_hosts={}".format(worker_hosts),
            "--job_name=ps",
         ]
-        parameter_server = Popen(cmd)
+        parameter_server = subprocess.Popen(cmd)
 
-        screen.log_title("*** Distributed Training ***")
+        logger.screen.log_title("*** Distributed Training ***")
         time.sleep(1)
 
         # create N training workers and 1 evaluating worker
@@ -321,7 +318,7 @@ if __name__ == "__main__":
                             "--job_name=worker",
                             "--load_json={}".format(json_run_dict_path)]
 
-            p = Popen(workers_args)
+            p = subprocess.Popen(workers_args)
 
             if i != run_dict['num_threads']:
                 workers.append(p)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import argparse
-import tensorflow as tf
-from architectures import *
-from environments import *
-from agents import *
-from utils import *
+import os
 import time
-import copy
-from logger import *
-from configurations import *
-from presets import *
-import shutil
+
+import tensorflow as tf
+
+import agents
+import environments
+import logger
+import presets
 
 start_time = time.time()
 
@@ -66,15 +63,15 @@ if __name__ == "__main__":
 
     elif args.job_name == "worker":
         # get tuning parameters
-        tuning_parameters = json_to_preset(args.load_json_path)
+        tuning_parameters = presets.json_to_preset(args.load_json_path)
 
         # dump documentation
         if not os.path.exists(tuning_parameters.experiment_path):
             os.makedirs(tuning_parameters.experiment_path)
         if tuning_parameters.evaluate_only:
-            logger.set_dump_dir(tuning_parameters.experiment_path, tuning_parameters.task_id, filename='evaluator')
+            logger.logger.set_dump_dir(tuning_parameters.experiment_path, tuning_parameters.task_id, filename='evaluator')
         else:
-            logger.set_dump_dir(tuning_parameters.experiment_path, tuning_parameters.task_id)
+            logger.logger.set_dump_dir(tuning_parameters.experiment_path, tuning_parameters.task_id)
 
         # multi-threading parameters
         tuning_parameters.start_time = start_time
@@ -98,8 +95,8 @@ if __name__ == "__main__":
                                                 cluster=cluster)
 
         # create the agent and the environment
-        env_instance = create_environment(tuning_parameters)
-        exec('agent = ' + tuning_parameters.agent.type + '(env_instance, tuning_parameters, replicated_device=device, '
+        env_instance = environments.create_environment(tuning_parameters)
+        exec('agent = agents.' + tuning_parameters.agent.type + '(env_instance, tuning_parameters, replicated_device=device, '
                                                     'thread_id=tuning_parameters.task_id)')
 
         # building the scaffold
@@ -169,6 +166,6 @@ if __name__ == "__main__":
         else:
             agent.improve()
     else:
-        screen.error("Invalid mode requested for parallel_actor.")
+        logger.screen.error("Invalid mode requested for parallel_actor.")
         exit(1)
 

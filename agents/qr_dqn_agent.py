@@ -13,14 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from agents.value_optimization_agent import *
+from agents import value_optimization_agent as voa
 
 
 # Quantile Regression Deep Q Network - https://arxiv.org/pdf/1710.10044v1.pdf
-class QuantileRegressionDQNAgent(ValueOptimizationAgent):
+class QuantileRegressionDQNAgent(voa.ValueOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        voa.ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
         self.quantile_probabilities = np.ones(self.tp.agent.atoms) / float(self.tp.agent.atoms)
 
     # prediction's format is (batch,actions,atoms)

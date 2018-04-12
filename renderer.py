@@ -1,6 +1,6 @@
-import pygame
-from pygame.locals import *
 import numpy as np
+import pygame
+from pygame import locals as loc
 
 
 class Renderer(object):
@@ -21,7 +21,8 @@ class Renderer(object):
         :return: None
         """
         self.size = (width, height)
-        self.screen = self.display.set_mode(self.size, HWSURFACE | DOUBLEBUF)
+        self.screen = self.display.set_mode(self.size,
+                                            loc.HWSURFACE | loc.DOUBLEBUF)
         self.display.set_caption("Coach")
         self.is_open = True
 

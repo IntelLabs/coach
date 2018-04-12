@@ -13,19 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import numpy as np
-
-from agents.value_optimization_agent import ValueOptimizationAgent
+from agents import value_optimization_agent as voa
 from logger import screen
-from utils import RunPhase
+import utils
 
 
 # Neural Episodic Control - https://arxiv.org/pdf/1703.01988.pdf
-class NECAgent(ValueOptimizationAgent):
+class NECAgent(voa.ValueOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
-                                        create_target_network=False)
+        voa.ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
+                                            create_target_network=False)
         self.current_episode_state_embeddings = []
         self.training_started = False
 
@@ -52,7 +49,7 @@ class NECAgent(ValueOptimizationAgent):
 
         return total_loss
 
-    def act(self, phase=RunPhase.TRAIN):
+    def act(self, phase=utils.RunPhase.TRAIN):
         if self.in_heatup:
             # get embedding in heatup (otherwise we get it through choose_action)
             embedding = self.main_network.online_network.predict(

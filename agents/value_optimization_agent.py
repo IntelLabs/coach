@@ -13,21 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import numpy as np
 
-from agents.agent import Agent
-from architectures.network_wrapper import NetworkWrapper
-from utils import RunPhase, Signal
+from agents import agent
+from architectures import network_wrapper as nw
+import utils
 
 
-class ValueOptimizationAgent(Agent):
+class ValueOptimizationAgent(agent.Agent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0, create_target_network=True):
-        Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
-        self.main_network = NetworkWrapper(tuning_parameters, create_target_network, self.has_global, 'main',
-                                           self.replicated_device, self.worker_device)
+        agent.Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        self.main_network = nw.NetworkWrapper(tuning_parameters, create_target_network, self.has_global, 'main',
+                                              self.replicated_device, self.worker_device)
         self.networks.append(self.main_network)
-        self.q_values = Signal("Q")
+        self.q_values = utils.Signal("Q")
         self.signals.append(self.q_values)
 
         self.reset_game(do_not_reset_env=True)
@@ -47,12 +46,12 @@ class ValueOptimizationAgent(Agent):
                 'require exploration policies which return a single action.'
             ).format(policy.__class__.__name__))
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         prediction = self.get_prediction(curr_state)
         actions_q_values = self.get_q_values(prediction)
 
         # choose action according to the exploration policy and the current phase (evaluating or training the agent)
-        if phase == RunPhase.TRAIN:
+        if phase == utils.RunPhase.TRAIN:
             exploration_policy = self.exploration_policy
         else:
             exploration_policy = self.evaluation_exploration_policy

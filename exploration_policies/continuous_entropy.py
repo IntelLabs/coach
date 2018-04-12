@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import numpy as np
-from exploration_policies.exploration_policy import *
+from exploration_policies import exploration_policy
 
 
-class ContinuousEntropy(ExplorationPolicy):
+class ContinuousEntropy(exploration_policy.ExplorationPolicy):
     pass

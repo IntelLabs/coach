@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import ngraph as ng
 import ngraph.frontends.neon as neon
-from ngraph.util.names import name_scope
-import numpy as np
+from ngraph.util import names as ngraph_names
 
 
 class MiddlewareEmbedder(object):
@@ -30,7 +27,7 @@ class MiddlewareEmbedder(object):
         self.activation_function = activation_function
 
     def __call__(self, input_layer):
-        with name_scope(self.get_name()):
+        with ngraph_names.name_scope(self.get_name()):
             self.input = input_layer
             self._build_module()
 

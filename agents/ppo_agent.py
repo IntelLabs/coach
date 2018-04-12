@@ -13,36 +13,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import collections
+import copy
 
-from agents.actor_critic_agent import *
-from random import shuffle
+import numpy as np
+
+from agents import actor_critic_agent as aca
+from agents import policy_optimization_agent as poa
+from architectures import network_wrapper as nw
+import configurations
+import logger
+import utils
 
 
 # Proximal Policy Optimization - https://arxiv.org/pdf/1707.06347.pdf
-class PPOAgent(ActorCriticAgent):
+class PPOAgent(aca.ActorCriticAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ActorCriticAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
-                                  create_target_network=True)
+        aca.ActorCriticAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
+                                      create_target_network=True)
         self.critic_network = self.main_network
 
         # define the policy network
-        tuning_parameters.agent.input_types = {'observation': InputTypes.Observation}
-        tuning_parameters.agent.output_types = [OutputTypes.PPO]
+        tuning_parameters.agent.input_types = {'observation': configurations.InputTypes.Observation}
+        tuning_parameters.agent.output_types = [configurations.OutputTypes.PPO]
         tuning_parameters.agent.optimizer_type = 'Adam'
         tuning_parameters.agent.l2_regularization = 0
-        self.policy_network = NetworkWrapper(tuning_parameters, True, self.has_global, 'policy',
-                                             self.replicated_device, self.worker_device)
+        self.policy_network = nw.NetworkWrapper(tuning_parameters, True, self.has_global, 'policy',
+                                                self.replicated_device, self.worker_device)
         self.networks.append(self.policy_network)
 
         # signals definition
-        self.value_loss = Signal('Value Loss')
+        self.value_loss = utils.Signal('Value Loss')
         self.signals.append(self.value_loss)
-        self.policy_loss = Signal('Policy Loss')
+        self.policy_loss = utils.Signal('Policy Loss')
         self.signals.append(self.policy_loss)
-        self.kl_divergence = Signal('KL Divergence')
+        self.kl_divergence = utils.Signal('KL Divergence')
         self.signals.append(self.kl_divergence)
         self.total_kl_divergence_during_training_process = 0.0
-        self.unclipped_grads = Signal('Grads (unclipped)')
+        self.unclipped_grads = utils.Signal('Grads (unclipped)')
         self.signals.append(self.unclipped_grads)
 
         self.reset_game(do_not_reset_env=True)
@@ -57,9 +65,9 @@ class PPOAgent(ActorCriticAgent):
 
         # calculate advantages
         advantages = []
-        if self.policy_gradient_rescaler == PolicyGradientRescaler.A_VALUE:
+        if self.policy_gradient_rescaler == poa.PolicyGradientRescaler.A_VALUE:
             advantages = total_return - current_state_values
-        elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
+        elif self.policy_gradient_rescaler == poa.PolicyGradientRescaler.GAE:
             # get bootstraps
             episode_start_idx = 0
             advantages = np.array([])
@@ -76,7 +84,7 @@ class PPOAgent(ActorCriticAgent):
                     episode_start_idx = idx + 1
                     advantages = np.append(advantages, rollout_advantages)
         else:
-            screen.warning("WARNING: The requested policy gradient rescaler is not available")
+            logger.screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         # standardize
         advantages = (advantages - np.mean(advantages)) / np.std(advantages)
@@ -107,7 +115,7 @@ class PPOAgent(ActorCriticAgent):
                     for k, v in current_states.items()
                 }
                 total_return_batch = total_return[i * batch_size:(i + 1) * batch_size]
-                old_policy_values = force_list(self.critic_network.target_network.predict(
+                old_policy_values = utils.force_list(self.critic_network.target_network.predict(
                     current_states_batch).squeeze())
                 if self.critic_network.online_network.optimizer_type != 'LBFGS':
                     targets = total_return_batch
@@ -155,7 +163,7 @@ class PPOAgent(ActorCriticAgent):
                     actions = np.expand_dims(actions, -1)
 
                 # get old policy probabilities and distribution
-                old_policy = force_list(self.policy_network.target_network.predict(current_states))
+                old_policy = utils.force_list(self.policy_network.target_network.predict(current_states))
 
                 # calculate gradients and apply on both the local policy network and on the global policy network
                 fetches = [self.policy_network.online_network.output_heads[0].kl_divergence,
@@ -196,8 +204,8 @@ class PPOAgent(ActorCriticAgent):
                 curr_learning_rate = self.tp.learning_rate
 
             # log training parameters
-            screen.log_dict(
-                OrderedDict([
+            logger.screen.log_dict(
+                collections.OrderedDict([
                     ("Surrogate loss", loss['policy_losses'][0]),
                     ("KL divergence", loss['fetch_result'][0]),
                     ("Entropy", loss['fetch_result'][1]),
@@ -215,7 +223,7 @@ class PPOAgent(ActorCriticAgent):
     def update_kl_coefficient(self):
         # John Schulman takes the mean kl divergence only over the last epoch which is strange but we will follow
         # his implementation for now because we know it works well
-        screen.log_title("KL = {}".format(self.total_kl_divergence_during_training_process))
+        logger.screen.log_title("KL = {}".format(self.total_kl_divergence_during_training_process))
 
         # update kl coefficient
         kl_target = self.tp.agent.target_kl_divergence
@@ -236,7 +244,7 @@ class PPOAgent(ActorCriticAgent):
                 new_kl_coefficient,
                 self.policy_network.online_network.output_heads[0].kl_coefficient_ph)
 
-        screen.log_title("KL penalty coefficient change = {} -> {}".format(kl_coefficient, new_kl_coefficient))
+        logger.screen.log_title("KL penalty coefficient change = {} -> {}".format(kl_coefficient, new_kl_coefficient))
 
     def post_training_commands(self):
         if self.tp.agent.use_kl_regularization:
@@ -264,12 +272,12 @@ class PPOAgent(ActorCriticAgent):
         self.update_log()  # should be done in order to update the data that has been accumulated * while not playing *
         return np.append(value_loss, policy_loss)
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         if self.env.discrete_controls:
             # DISCRETE
             action_values = self.policy_network.online_network.predict(self.tf_input_state(curr_state)).squeeze()
 
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = self.exploration_policy.get_action(action_values)
             else:
                 action = np.argmax(action_values)
@@ -280,7 +288,7 @@ class PPOAgent(ActorCriticAgent):
             action_values_mean, action_values_std = self.policy_network.online_network.predict(self.tf_input_state(curr_state))
             action_values_mean = action_values_mean.squeeze()
             action_values_std = action_values_std.squeeze()
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = np.squeeze(np.random.randn(1, self.action_space_size) * action_values_std + action_values_mean)
             else:
                 action = action_values_mean

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import fnmatch
+import os
 
-import os, fnmatch, sys
+
 def findReplace(directory, find, replace, filePattern):
     for path, dirs, files in os.walk(os.path.abspath(directory)):
         for filename in fnmatch.filter(files, filePattern):
@@ -25,7 +27,8 @@ def findReplace(directory, find, replace, filePattern):
             with open(filepath, "w") as f:
                 f.write(s)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     findReplace('./site/', '/"', '/index.html"', "*.html")
     findReplace('./site/', '"/index.html"', '"./index.html"', "*.html")
     findReplace('./site/', '"."', '"./index.html"', "*.html")

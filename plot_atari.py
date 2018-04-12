@@ -1,8 +1,10 @@
 import argparse
+import os
+
 import matplotlib
 import matplotlib.pyplot as plt
+
 from dashboard import SignalsFile
-import os
 
 
 class FigureMaker(object):

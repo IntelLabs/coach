@@ -13,17 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from agents.agent import *
+from agents import agent
+from architectures import network_wrapper as nw
+import utils
 
 
 # Direct Future Prediction Agent - http://vladlen.info/papers/learning-to-act.pdf
-class DFPAgent(Agent):
+class DFPAgent(agent.Agent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        agent.Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
         self.current_goal = self.tp.agent.goal_vector
-        self.main_network = NetworkWrapper(tuning_parameters, False, self.has_global, 'main',
-                                           self.replicated_device, self.worker_device)
+        self.main_network = nw.NetworkWrapper(tuning_parameters, False, self.has_global, 'main',
+                                              self.replicated_device, self.worker_device)
         self.networks.append(self.main_network)
 
     def learn_from_batch(self, batch):
@@ -45,7 +48,7 @@ class DFPAgent(Agent):
 
         return total_loss
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         # convert to batch so we can run it through the network
         observation = np.expand_dims(np.array(curr_state['observation']), 0)
         measurements = np.expand_dims(np.array(curr_state['measurements']), 0)
@@ -66,7 +69,7 @@ class DFPAgent(Agent):
                                                self.tp.agent.future_measurements_weights)
 
         # choose action according to the exploration policy and the current phase (evaluating or training the agent)
-        if phase == RunPhase.TRAIN:
+        if phase == utils.RunPhase.TRAIN:
             action = self.exploration_policy.get_action(action_values)
         else:
             action = np.argmax(action_values)

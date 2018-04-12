@@ -13,23 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import enum
+import os
 
+import numpy as np
 
+import logger
 try:
     import vizdoom
 except ImportError:
-    from logger import failed_imports
-    failed_imports.append("ViZDoom")
+    logger.failed_imports.append("ViZDoom")
 
-import numpy as np
-from environments.environment_wrapper import EnvironmentWrapper
-from os import path, environ
-from utils import *
-from logger import *
+from environments import environment_wrapper as ew
+import utils
 
 
 # enum of the available levels and their path
-class DoomLevel(Enum):
+class DoomLevel(utils.Enum):
     BASIC = "basic.cfg"
     DEFEND = "defend_the_center.cfg"
     DEATHMATCH = "deathmatch.cfg"
@@ -39,6 +39,7 @@ class DoomLevel(Enum):
     HEALTH_GATHERING_SUPREME = "health_gathering_supreme.cfg"
     DEFEND_THE_LINE = "defend_the_line.cfg"
     DEADLY_CORRIDOR = "deadly_corridor.cfg"
+
 
 key_map = {
     'NO-OP': 96,  # `
@@ -78,15 +79,16 @@ key_map = {
 }
 
 
-class DoomEnvironmentWrapper(EnvironmentWrapper):
+class DoomEnvironmentWrapper(ew.EnvironmentWrapper):
     def __init__(self, tuning_parameters):
-        EnvironmentWrapper.__init__(self, tuning_parameters)
+        ew.EnvironmentWrapper.__init__(self, tuning_parameters)
 
         # load the emulator with the required level
         self.level = DoomLevel().get(self.tp.env.level)
-        self.scenarios_dir = path.join(environ.get('VIZDOOM_ROOT'), 'scenarios')
+        self.scenarios_dir = os.path.join(os.environ.get('VIZDOOM_ROOT'),
+                                          'scenarios')
         self.game = vizdoom.DoomGame()
-        self.game.load_config(path.join(self.scenarios_dir, self.level))
+        self.game.load_config(os.path.join(self.scenarios_dir, self.level))
         self.game.set_window_visible(False)
         self.game.add_game_args("+vid_forcesurface 1")
 

@@ -13,21 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import numpy as np
 
 from agents.value_optimization_agent import ValueOptimizationAgent
-from utils import RunPhase, Signal
+import utils
 
 
 # Normalized Advantage Functions - https://arxiv.org/pdf/1603.00748.pdf
 class NAFAgent(ValueOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
         ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
-        self.l_values = Signal("L")
-        self.a_values = Signal("Advantage")
-        self.mu_values = Signal("Action")
-        self.v_values = Signal("V")
+        self.l_values = utils.Signal("L")
+        self.a_values = utils.Signal("Advantage")
+        self.mu_values = utils.Signal("Action")
+        self.v_values = utils.Signal("V")
         self.signals += [self.l_values, self.a_values, self.mu_values, self.v_values]
 
     def learn_from_batch(self, batch):
@@ -49,7 +48,7 @@ class NAFAgent(ValueOptimizationAgent):
 
         return total_loss
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         assert not self.env.discrete_controls, 'NAF works only for continuous control problems'
 
         # convert to batch so we can run it through the network
@@ -60,7 +59,7 @@ class NAFAgent(ValueOptimizationAgent):
             outputs=naf_head.mu,
             squeeze_output=False,
         )
-        if phase == RunPhase.TRAIN:
+        if phase == utils.RunPhase.TRAIN:
             action = self.exploration_policy.get_action(action_values)
         else:
             action = action_values

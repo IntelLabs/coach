@@ -13,40 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import random
 
-import sys
-from logger import *
 import gym
 import numpy as np
-import time
-import random
-try:
-    import roboschool
-    from OpenGL import GL
-except ImportError:
-    from logger import failed_imports
-    failed_imports.append("RoboSchool")
 
-try:
-    from gym_extensions.continuous import mujoco
-except:
-    from logger import failed_imports
-    failed_imports.append("GymExtensions")
-
-try:
-    import pybullet_envs
-except ImportError:
-    from logger import failed_imports
-    failed_imports.append("PyBullet")
-
-from gym import wrappers
-from utils import force_list, RunPhase
-from environments.environment_wrapper import EnvironmentWrapper
+from environments import environment_wrapper as ew
+import utils
 
 
-class GymEnvironmentWrapper(EnvironmentWrapper):
+class GymEnvironmentWrapper(ew.EnvironmentWrapper):
     def __init__(self, tuning_parameters):
-        EnvironmentWrapper.__init__(self, tuning_parameters)
+        ew.EnvironmentWrapper.__init__(self, tuning_parameters)
 
         # env parameters
         if ':' in self.env_id:
@@ -124,7 +102,7 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
 
     def _update_state(self):
         if hasattr(self.env, 'env') and hasattr(self.env.env, 'ale'):
-            if self.phase == RunPhase.TRAIN and hasattr(self, 'current_ale_lives'):
+            if self.phase == utils.RunPhase.TRAIN and hasattr(self, 'current_ale_lives'):
                 # signal termination for life loss
                 if self.current_ale_lives != self.env.env.ale.lives():
                     self.done = True
@@ -146,7 +124,7 @@ class GymEnvironmentWrapper(EnvironmentWrapper):
             if type(action_idx) == int and action_idx == 0:
                 # deal with the "reset" action 0
                 action = [0] * self.env.action_space.shape[0]
-            action = np.array(force_list(action))
+            action = np.array(utils.force_list(action))
             # removing redundant dimensions such that the action size will match the expected action size from gym
             if action.shape != self.env.action_space.shape:
                 action = np.squeeze(action)

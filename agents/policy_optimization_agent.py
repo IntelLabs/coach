@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import collections
 
-from agents.agent import *
-from memories.memory import Episode
+import numpy as np
+
+from agents import agent
+from architectures import network_wrapper as nw
+import logger
+import utils
 
 
-class PolicyGradientRescaler(Enum):
+class PolicyGradientRescaler(utils.Enum):
     TOTAL_RETURN = 0
     FUTURE_RETURN = 1
     FUTURE_RETURN_NORMALIZED_BY_EPISODE = 2
@@ -30,11 +35,11 @@ class PolicyGradientRescaler(Enum):
     GAE = 8
 
 
-class PolicyOptimizationAgent(Agent):
+class PolicyOptimizationAgent(agent.Agent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0, create_target_network=False):
-        Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
-        self.main_network = NetworkWrapper(tuning_parameters, create_target_network, self.has_global, 'main',
-                                           self.replicated_device, self.worker_device)
+        agent.Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        self.main_network = nw.NetworkWrapper(tuning_parameters, create_target_network, self.has_global, 'main',
+                                              self.replicated_device, self.worker_device)
         self.networks.append(self.main_network)
 
         self.policy_gradient_rescaler = PolicyGradientRescaler().get(self.tp.agent.policy_gradient_rescaler)
@@ -44,7 +49,7 @@ class PolicyOptimizationAgent(Agent):
         self.max_episode_length = 100000
         self.mean_return_over_multiple_episodes = np.zeros(self.max_episode_length)
         self.num_episodes_where_step_has_been_seen = np.zeros(self.max_episode_length)
-        self.entropy = Signal('Entropy')
+        self.entropy = utils.Signal('Entropy')
         self.signals.append(self.entropy)
 
         self.reset_game(do_not_reset_env=True)
@@ -52,8 +57,8 @@ class PolicyOptimizationAgent(Agent):
     def log_to_screen(self, phase):
         # log to screen
         if self.current_episode > 0:
-            screen.log_dict(
-                OrderedDict([
+            logger.screen.log_dict(
+                collections.OrderedDict([
                     ("Worker", self.task_id),
                     ("Episode", self.current_episode),
                     ("total reward", self.total_reward_in_current_episode),

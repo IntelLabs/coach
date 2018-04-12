@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from agents.value_optimization_agent import *
+from agents import value_optimization_agent as voa
 
 
 # Persistent Advantage Learning - https://arxiv.org/pdf/1512.04860.pdf
-class PALAgent(ValueOptimizationAgent):
+class PALAgent(voa.ValueOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        voa.ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
         self.alpha = tuning_parameters.agent.pal_alpha
         self.persistent = tuning_parameters.agent.persistent_advantage_learning
         self.monte_carlo_mixing_rate = tuning_parameters.agent.monte_carlo_mixing_rate

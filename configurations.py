@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from utils import Enum
 import json
+
 import types
+import utils
 
 
-class Frameworks(Enum):
+class Frameworks(utils.Enum):
     TensorFlow = 1
     Neon = 2
 

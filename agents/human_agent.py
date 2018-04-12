@@ -13,31 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import collections
+import os
 
-from agents.agent import *
 import pygame
+from pandas.io import pickle
+
+from agents import agent
+import logger
+import utils
 
 
-class HumanAgent(Agent):
+class HumanAgent(agent.Agent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        agent.Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
 
         self.clock = pygame.time.Clock()
         self.max_fps = int(self.tp.visualization.max_fps_for_human_control)
 
-        screen.log_title("Human Control Mode")
+        utils.screen.log_title("Human Control Mode")
         available_keys = self.env.get_available_keys()
         if available_keys:
-            screen.log("Use keyboard keys to move. Press escape to quit. Available keys:")
-            screen.log("")
+            utils.screen.log("Use keyboard keys to move. Press escape to quit. Available keys:")
+            utils.screen.log("")
             for action, key in self.env.get_available_keys():
-                screen.log("\t- {}: {}".format(action, key))
-            screen.separator()
+                utils.screen.log("\t- {}: {}".format(action, key))
+            utils.screen.separator()
 
     def train(self):
         return 0
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         action = self.env.get_action_from_user()
 
         # keep constant fps
@@ -49,16 +55,16 @@ class HumanAgent(Agent):
         return action, {"action_value": 0}
 
     def save_replay_buffer_and_exit(self):
-        replay_buffer_path = os.path.join(logger.experiments_path, 'replay_buffer.p')
+        replay_buffer_path = os.path.join(logger.logger.experiments_path, 'replay_buffer.p')
         self.memory.tp = None
-        to_pickle(self.memory, replay_buffer_path)
-        screen.log_title("Replay buffer was stored in {}".format(replay_buffer_path))
+        pickle.to_pickle(self.memory, replay_buffer_path)
+        utils.screen.log_title("Replay buffer was stored in {}".format(replay_buffer_path))
         exit()
 
     def log_to_screen(self, phase):
-        # log to screen
-        screen.log_dict(
-            OrderedDict([
+        # log to utils.screen
+        utils.screen.log_dict(
+            collections.OrderedDict([
                 ("Episode", self.current_episode),
                 ("total reward", self.total_reward_in_current_episode),
                 ("steps", self.total_steps_counter)

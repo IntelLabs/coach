@@ -13,28 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import copy
 
-from agents.actor_critic_agent import *
-from configurations import *
+import numpy as np
+
+from agents import actor_critic_agent as aca
+from agents import agent
+from architectures import network_wrapper as nw
+import configurations as conf
+import utils
 
 
 # Deep Deterministic Policy Gradients Network - https://arxiv.org/pdf/1509.02971.pdf
-class DDPGAgent(ActorCriticAgent):
+class DDPGAgent(aca.ActorCriticAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ActorCriticAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
-                                  create_target_network=True)
+        aca.ActorCriticAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
+                                      create_target_network=True)
         # define critic network
         self.critic_network = self.main_network
         # self.networks.append(self.critic_network)
 
         # define actor network
-        tuning_parameters.agent.input_types = {'observation': InputTypes.Observation}
-        tuning_parameters.agent.output_types = [OutputTypes.Pi]
-        self.actor_network = NetworkWrapper(tuning_parameters, True, self.has_global, 'actor',
-                                            self.replicated_device, self.worker_device)
+        tuning_parameters.agent.input_types = {'observation': conf.InputTypes.Observation}
+        tuning_parameters.agent.output_types = [conf.OutputTypes.Pi]
+        self.actor_network = nw.NetworkWrapper(tuning_parameters, True, self.has_global, 'actor',
+                                               self.replicated_device, self.worker_device)
         self.networks.append(self.actor_network)
 
-        self.q_values = Signal("Q")
+        self.q_values = utils.Signal("Q")
         self.signals.append(self.q_values)
 
         self.reset_game(do_not_reset_env=True)
@@ -82,14 +88,14 @@ class DDPGAgent(ActorCriticAgent):
         return total_loss
 
     def train(self):
-        return Agent.train(self)
+        return agent.Agent.train(self)
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         assert not self.env.discrete_controls, 'DDPG works only for continuous control problems'
         result = self.actor_network.online_network.predict(self.tf_input_state(curr_state))
         action_values = result[0].squeeze()
 
-        if phase == RunPhase.TRAIN:
+        if phase == utils.RunPhase.TRAIN:
             action = self.exploration_policy.get_action(action_values)
         else:
             action = action_values

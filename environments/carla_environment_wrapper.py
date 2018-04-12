@@ -1,33 +1,30 @@
+import logging
+import os
+import signal
+import subprocess
 import sys
-from os import path, environ
-
-try:
-    if 'CARLA_ROOT' in environ:
-        sys.path.append(path.join(environ.get('CARLA_ROOT'), 'PythonClient'))
-    from carla.client import CarlaClient
-    from carla.settings import CarlaSettings
-    from carla.tcp import TCPConnectionError
-    from carla.sensor import Camera
-    from carla.client import VehicleControl
-except ImportError:
-    from logger import failed_imports
-    failed_imports.append("CARLA")
 
 import numpy as np
-import time
-import logging
-import subprocess
-import signal
-from environments.environment_wrapper import EnvironmentWrapper
-from utils import *
-from logger import screen, logger
-from PIL import Image
+
+import logger
+try:
+    if 'CARLA_ROOT' in os.environ:
+        sys.path.append(os.path.join(os.environ.get('CARLA_ROOT'),
+                                     'PythonClient'))
+    from carla import client as carla_client
+    from carla import settings as carla_settings
+    from carla import sensor as carla_sensor
+except ImportError:
+    logger.failed_imports.append("CARLA")
+from environments import environment_wrapper as ew
+import utils
 
 
 # enum of the available levels and their path
-class CarlaLevel(Enum):
+class CarlaLevel(utils.Enum):
     TOWN1 = "/Game/Maps/Town01"
     TOWN2 = "/Game/Maps/Town02"
+
 
 key_map = {
     'BRAKE': (274,),  # down arrow
@@ -41,16 +38,16 @@ key_map = {
 }
 
 
-class CarlaEnvironmentWrapper(EnvironmentWrapper):
+class CarlaEnvironmentWrapper(ew.EnvironmentWrapper):
     def __init__(self, tuning_parameters):
-        EnvironmentWrapper.__init__(self, tuning_parameters)
+        ew.EnvironmentWrapper.__init__(self, tuning_parameters)
 
         self.tp = tuning_parameters
 
         # server configuration
         self.server_height = self.tp.env.server_height
         self.server_width = self.tp.env.server_width
-        self.port = get_open_port()
+        self.port = utils.get_open_port()
         self.host = 'localhost'
         self.map = CarlaLevel().get(self.tp.env.level)
 
@@ -70,7 +67,7 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
                 self.settings = fp.read()
         else:
             # hard coded settings
-            self.settings = CarlaSettings()
+            self.settings = carla_settings.CarlaSettings()
             self.settings.set(
                 SynchronousMode=True,
                 SendNonPlayerAgentsInfo=False,
@@ -80,7 +77,7 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
             self.settings.randomize_seeds()
 
             # add cameras
-            camera = Camera('CameraRGB')
+            camera = carla_sensor.Camera('CameraRGB')
             camera.set_image_size(self.width, self.height)
             camera.set_position(200, 0, 140)
             camera.set_rotation(0, 0, 0)
@@ -92,7 +89,7 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
         logging.disable(40)
 
         # open the client
-        self.game = CarlaClient(self.host, self.port, timeout=99999999)
+        self.game = carla_client.CarlaClient(self.host, self.port, timeout=99999999)
         self.game.connect()
         scene = self.game.load_settings(self.settings)
 
@@ -141,12 +138,12 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
             self.renderer.create_screen(image.shape[1], image.shape[0])
 
     def _open_server(self):
-        log_path = path.join(logger.experiments_path, "CARLA_LOG_{}.txt".format(self.port))
+        log_path = os.path.join(logger.logger.experiments_path, "CARLA_LOG_{}.txt".format(self.port))
         with open(log_path, "wb") as out:
-            cmd = [path.join(environ.get('CARLA_ROOT'), 'CarlaUE4.sh'), self.map,
-                                  "-benchmark", "-carla-server", "-fps=10", "-world-port={}".format(self.port),
-                                  "-windowed -ResX={} -ResY={}".format(self.server_width, self.server_height),
-                                  "-carla-no-hud"]
+            cmd = [os.path.join(os.environ.get('CARLA_ROOT'), 'CarlaUE4.sh'), self.map,
+                   "-benchmark", "-carla-server", "-fps=10", "-world-port={}".format(self.port),
+                   "-windowed -ResX={} -ResY={}".format(self.server_width, self.server_height),
+                   "-carla-no-hud"]
             if self.config:
                 cmd.append("-carla-settings={}".format(self.config))
             p = subprocess.Popen(cmd, stdout=out, stderr=out)
@@ -201,7 +198,7 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
             action = action_idx
         self.last_action_idx = action
 
-        self.control = VehicleControl()
+        self.control = carla_client.VehicleControl()
         self.control.throttle = np.clip(action[0], 0, 1)
         self.control.steer = np.clip(action[1], -1, 1)
         self.control.brake = np.abs(np.clip(action[0], -1, 0))

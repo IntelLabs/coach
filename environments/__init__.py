@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from logger import *
-from utils import Enum, get_open_port
-from environments.gym_environment_wrapper import *
-from environments.doom_environment_wrapper import *
-from environments.carla_environment_wrapper import *
+from environments.gym_environment_wrapper import GymEnvironmentWrapper
+from environments.doom_environment_wrapper import DoomEnvironmentWrapper
+from environments.carla_environment_wrapper import CarlaEnvironmentWrapper
+import utils
 
 
-class EnvTypes(Enum):
+class EnvTypes(utils.Enum):
     Doom = "DoomEnvironmentWrapper"
     Gym = "GymEnvironmentWrapper"
     Carla = "CarlaEnvironmentWrapper"
@@ -31,6 +29,3 @@ def create_environment(tuning_parameters):
     env_type_name, env_type = EnvTypes().verify(tuning_parameters.env.type)
     env = eval(env_type)(tuning_parameters)
     return env
-
-
-

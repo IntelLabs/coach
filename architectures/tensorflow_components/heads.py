@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import tensorflow as tf
 import numpy as np
-from utils import force_list
+
+import utils
 
 
 # Used to initialize weights for policy and value output layers
@@ -36,7 +36,7 @@ class Head(object):
         self.loss = []
         self.loss_type = []
         self.regularizations = []
-        self.loss_weight = force_list(loss_weight)
+        self.loss_weight = utils.force_list(loss_weight)
         self.target = []
         self.input = []
         self.is_local = is_local
@@ -50,12 +50,12 @@ class Head(object):
         with tf.variable_scope(self.get_name(), initializer=tf.contrib.layers.xavier_initializer()):
             self._build_module(input_layer)
 
-            self.output = force_list(self.output)
-            self.target = force_list(self.target)
-            self.input = force_list(self.input)
-            self.loss_type = force_list(self.loss_type)
-            self.loss = force_list(self.loss)
-            self.regularizations = force_list(self.regularizations)
+            self.output = utils.force_list(self.output)
+            self.target = utils.force_list(self.target)
+            self.input = utils.force_list(self.input)
+            self.loss_type = utils.force_list(self.loss_type)
+            self.loss = utils.force_list(self.loss)
+            self.regularizations = utils.force_list(self.regularizations)
             if self.is_local:
                 self.set_loss()
             self._post_build()

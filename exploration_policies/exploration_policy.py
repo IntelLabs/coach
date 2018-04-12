@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import numpy as np
-from utils import *
-from configurations import *
+import utils
 
 
 class ExplorationPolicy(object):
@@ -25,7 +22,7 @@ class ExplorationPolicy(object):
         :param tuning_parameters: A Preset class instance with all the running paramaters
         :type tuning_parameters: Preset
         """
-        self.phase = RunPhase.HEATUP
+        self.phase = utils.RunPhase.HEATUP
         self.action_space_size = tuning_parameters.env.action_space_size
         self.action_abs_range = tuning_parameters.env_instance.action_space_abs_range
         self.discrete_controls = tuning_parameters.env_instance.discrete_controls
@@ -39,7 +36,7 @@ class ExplorationPolicy(object):
 
     def get_action(self, action_values):
         """
-        Given a list of values corresponding to each action, 
+        Given a list of values corresponding to each action,
         choose one actions according to the exploration policy
         :param action_values: A list of action values
         :return: The chosen action

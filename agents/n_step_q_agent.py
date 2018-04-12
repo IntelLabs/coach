@@ -14,22 +14,21 @@
 # limitations under the License.
 #
 import numpy as np
-import scipy.signal
 
-from agents.value_optimization_agent import ValueOptimizationAgent
-from agents.policy_optimization_agent import PolicyOptimizationAgent
-from logger import logger
-from utils import Signal, last_sample
+from agents import value_optimization_agent as voa
+from agents import policy_optimization_agent as poa
+import logger
+import utils
 
 
 # N Step Q Learning Agent - https://arxiv.org/abs/1602.01783
-class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
+class NStepQAgent(voa.ValueOptimizationAgent, poa.PolicyOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id, create_target_network=True)
+        voa.ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id, create_target_network=True)
         self.last_gradient_update_step_idx = 0
-        self.q_values = Signal('Q Values')
-        self.unclipped_grads = Signal('Grads (unclipped)')
-        self.value_loss = Signal('Value Loss')
+        self.q_values = utils.Signal('Q Values')
+        self.unclipped_grads = utils.Signal('Grads (unclipped)')
+        self.value_loss = utils.Signal('Value Loss')
         self.signals.append(self.q_values)
         self.signals.append(self.unclipped_grads)
         self.signals.append(self.value_loss)
@@ -57,7 +56,7 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
             if game_overs[-1]:
                 R = 0
             else:
-                R = np.max(self.main_network.target_network.predict(last_sample(next_states)))
+                R = np.max(self.main_network.target_network.predict(utils.last_sample(next_states)))
 
             for i in reversed(range(num_transitions)):
                 R = rewards[i] + self.tp.agent.discount * R
@@ -85,4 +84,4 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
         else:
             logger.create_signal_value('Update Target Network', 0, overwrite=False)
 
-        return PolicyOptimizationAgent.train(self)
+        return poa.PolicyOptimizationAgent.train(self)

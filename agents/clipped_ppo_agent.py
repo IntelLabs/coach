@@ -13,27 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from agents.actor_critic_agent import *
+import collections
+import copy
 from random import shuffle
+
+import numpy as np
+
+from agents import actor_critic_agent as aca
+from agents import policy_optimization_agent as poa
+import logger
+import utils
 
 
 # Clipped Proximal Policy Optimization - https://arxiv.org/abs/1707.06347
-class ClippedPPOAgent(ActorCriticAgent):
+class ClippedPPOAgent(aca.ActorCriticAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ActorCriticAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
-                                  create_target_network=True)
+        aca.ActorCriticAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id,
+                                      create_target_network=True)
         # signals definition
-        self.value_loss = Signal('Value Loss')
+        self.value_loss = utils.Signal('Value Loss')
         self.signals.append(self.value_loss)
-        self.policy_loss = Signal('Policy Loss')
+        self.policy_loss = utils.Signal('Policy Loss')
         self.signals.append(self.policy_loss)
         self.total_kl_divergence_during_training_process = 0.0
-        self.unclipped_grads = Signal('Grads (unclipped)')
+        self.unclipped_grads = utils.Signal('Grads (unclipped)')
         self.signals.append(self.unclipped_grads)
-        self.value_targets = Signal('Value Targets')
+        self.value_targets = utils.Signal('Value Targets')
         self.signals.append(self.value_targets)
-        self.kl_divergence = Signal('KL Divergence')
+        self.kl_divergence = utils.Signal('KL Divergence')
         self.signals.append(self.kl_divergence)
 
     def fill_advantages(self, batch):
@@ -46,9 +53,9 @@ class ClippedPPOAgent(ActorCriticAgent):
         # calculate advantages
         advantages = []
         value_targets = []
-        if self.policy_gradient_rescaler == PolicyGradientRescaler.A_VALUE:
+        if self.policy_gradient_rescaler == poa.PolicyGradientRescaler.A_VALUE:
             advantages = total_return - current_state_values
-        elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
+        elif self.policy_gradient_rescaler == poa.PolicyGradientRescaler.GAE:
             # get bootstraps
             episode_start_idx = 0
             advantages = np.array([])
@@ -66,7 +73,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                     advantages = np.append(advantages, rollout_advantages)
                     value_targets = np.append(value_targets, gae_based_value_targets)
         else:
-            screen.warning("WARNING: The requested policy gradient rescaler is not available")
+            logger.screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         # standardize
         advantages = (advantages - np.mean(advantages)) / np.std(advantages)
@@ -144,8 +151,8 @@ class ClippedPPOAgent(ActorCriticAgent):
                 curr_learning_rate = self.tp.learning_rate
 
             # log training parameters
-            screen.log_dict(
-                OrderedDict([
+            logger.screen.log_dict(
+                collections.OrderedDict([
                     ("Surrogate loss", loss['policy_losses'][0]),
                     ("KL divergence", loss['fetch_result'][0]),
                     ("Entropy", loss['fetch_result'][1]),
@@ -184,13 +191,13 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.update_log()  # should be done in order to update the data that has been accumulated * while not playing *
         return np.append(losses[0], losses[1])
 
-    def choose_action(self, current_state, phase=RunPhase.TRAIN):
+    def choose_action(self, current_state, phase=utils.RunPhase.TRAIN):
         if self.env.discrete_controls:
             # DISCRETE
             _, action_values = self.main_network.online_network.predict(self.tf_input_state(current_state))
             action_values = action_values.squeeze()
 
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = self.exploration_policy.get_action(action_values)
             else:
                 action = np.argmax(action_values)
@@ -201,7 +208,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             _, action_values_mean, action_values_std = self.main_network.online_network.predict(self.tf_input_state(current_state))
             action_values_mean = action_values_mean.squeeze()
             action_values_std = action_values_std.squeeze()
-            if phase == RunPhase.TRAIN:
+            if phase == utils.RunPhase.TRAIN:
                 action = np.squeeze(np.random.randn(1, self.action_space_size) * action_values_std + action_values_mean)
                 # if self.current_episode % 5 == 0 and self.current_episode_steps_counter < 5:
                 #     print action

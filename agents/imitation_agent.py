@@ -13,23 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import collections
 
-from agents.agent import *
+from agents import agent
+from architectures import network_wrapper as nw
+import utils
+import logging
 
 
 # Imitation Agent
-class ImitationAgent(Agent):
+class ImitationAgent(agent.Agent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
-        self.main_network = NetworkWrapper(tuning_parameters, False, self.has_global, 'main',
-                                           self.replicated_device, self.worker_device)
+        agent.Agent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        self.main_network = nw.NetworkWrapper(tuning_parameters, False, self.has_global, 'main',
+                                              self.replicated_device, self.worker_device)
         self.networks.append(self.main_network)
         self.imitation = True
 
     def extract_action_values(self, prediction):
         return prediction.squeeze()
 
-    def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+    def choose_action(self, curr_state, phase=utils.RunPhase.TRAIN):
         # convert to batch so we can run it through the network
         prediction = self.main_network.online_network.predict(self.tf_input_state(curr_state))
 
@@ -49,10 +53,10 @@ class ImitationAgent(Agent):
 
     def log_to_screen(self, phase):
         # log to screen
-        if phase == RunPhase.TRAIN:
+        if phase == utils.RunPhase.TRAIN:
             # for the training phase - we log during the episode to visualize the progress in training
-            screen.log_dict(
-                OrderedDict([
+            logging.screen.log_dict(
+                collections.OrderedDict([
                     ("Worker", self.task_id),
                     ("Episode", self.current_episode),
                     ("Loss", self.loss.values[-1]),
@@ -62,4 +66,4 @@ class ImitationAgent(Agent):
             )
         else:
             # for the evaluation phase - logging as in regular RL
-            Agent.log_to_screen(self, phase)
+            agent.Agent.log_to_screen(self, phase)

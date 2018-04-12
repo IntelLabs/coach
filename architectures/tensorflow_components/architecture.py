@@ -15,12 +15,11 @@
 #
 import time
 
-import numpy as np
 import tensorflow as tf
 
-from architectures.architecture import Architecture
-from utils import force_list, squeeze_list
-from configurations import Preset, MiddlewareTypes
+from architectures import architecture
+import configurations as conf
+import utils
 
 def variable_summaries(var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
@@ -37,14 +36,14 @@ def variable_summaries(var):
             tf.summary.scalar('min', tf.reduce_min(var))
             tf.summary.histogram('histogram', var)
 
-class TensorFlowArchitecture(Architecture):
+class TensorFlowArchitecture(architecture.Architecture):
     def __init__(self, tuning_parameters, name="", global_network=None, network_is_local=True):
         """
         :param tuning_parameters: The parameters used for running the algorithm
         :type tuning_parameters: Preset
         :param name: The name of the network
         """
-        Architecture.__init__(self, tuning_parameters, name)
+        architecture.Architecture.__init__(self, tuning_parameters, name)
         self.middleware_embedder = None
         self.network_is_local = network_is_local
         assert tuning_parameters.agent.tensorflow_support, 'TensorFlow is not supported for this agent'
@@ -174,7 +173,7 @@ class TensorFlowArchitecture(Architecture):
         feed_dict = self._feed_dict(inputs)
 
         # feed targets
-        targets = force_list(targets)
+        targets = utils.force_list(targets)
         for placeholder_idx, target in enumerate(targets):
             feed_dict[self.targets[placeholder_idx]] = target
 
@@ -186,13 +185,13 @@ class TensorFlowArchitecture(Architecture):
             else:
                 fetches.append(self.tensor_gradients)
             fetches += [self.total_loss, self.losses]
-            if self.tp.agent.middleware_type == MiddlewareTypes.LSTM:
+            if self.tp.agent.middleware_type == conf.MiddlewareTypes.LSTM:
                 fetches.append(self.middleware_embedder.state_out)
             additional_fetches_start_idx = len(fetches)
             fetches += additional_fetches
 
             # feed the lstm state if necessary
-            if self.tp.agent.middleware_type == MiddlewareTypes.LSTM:
+            if self.tp.agent.middleware_type == conf.MiddlewareTypes.LSTM:
                 # we can't always assume that we are starting from scratch here can we?
                 feed_dict[self.middleware_embedder.c_in] = self.middleware_embedder.c_init
                 feed_dict[self.middleware_embedder.h_in] = self.middleware_embedder.h_init
@@ -206,7 +205,7 @@ class TensorFlowArchitecture(Architecture):
 
             # extract the fetches
             norm_unclipped_grads, grads, total_loss, losses = result[:4]
-            if self.tp.agent.middleware_type == MiddlewareTypes.LSTM:
+            if self.tp.agent.middleware_type == conf.MiddlewareTypes.LSTM:
                 (self.curr_rnn_c_in, self.curr_rnn_h_in) = result[4]
             fetched_tensors = []
             if len(additional_fetches) > 0:
@@ -308,7 +307,7 @@ class TensorFlowArchitecture(Architecture):
         if outputs is None:
             outputs = self.outputs
 
-        if self.tp.agent.middleware_type == MiddlewareTypes.LSTM:
+        if self.tp.agent.middleware_type == conf.MiddlewareTypes.LSTM:
             feed_dict[self.middleware_embedder.c_in] = self.curr_rnn_c_in
             feed_dict[self.middleware_embedder.h_in] = self.curr_rnn_h_in
 
@@ -317,7 +316,7 @@ class TensorFlowArchitecture(Architecture):
             output = self.tp.sess.run(outputs, feed_dict)
 
         if squeeze_output:
-            output = squeeze_list(output)
+            output = utils.squeeze_list(output)
 
         return output
 

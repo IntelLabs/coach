@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import sys
-import copy
-from ngraph.frontends.neon import *
 import ngraph as ng
-from architectures.architecture import *
 import numpy as np
-from utils import *
+
+from architectures import architecture
+import utils
 
 
-class NeonArchitecture(Architecture):
+class NeonArchitecture(architecture.Architecture):
     def __init__(self, tuning_parameters, name="", global_network=None, network_is_local=True):
-        Architecture.__init__(self, tuning_parameters, name)
+        architecture.Architecture.__init__(self, tuning_parameters, name)
         assert tuning_parameters.agent.neon_support, 'Neon is not supported for this agent'
         self.clip_error = tuning_parameters.clip_gradients
         self.total_loss = None
@@ -113,8 +110,8 @@ class NeonArchitecture(Architecture):
     def accumulate_gradients(self, inputs, targets):
         # Neon doesn't currently allow separating the grads calculation and grad apply operations
         # so this feature is not currently available. instead we do a full training iteration
-        inputs = force_list(inputs)
-        targets = force_list(targets)
+        inputs = utils.force_list(inputs)
+        targets = utils.force_list(targets)
 
         for idx, input in enumerate(inputs):
             inputs[idx] = input.swapaxes(0, -1)

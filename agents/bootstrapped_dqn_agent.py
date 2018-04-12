@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import numpy as np
 
-from agents.value_optimization_agent import *
-
+from agents import value_optimization_agent as voa
+import utils
 
 # Bootstrapped DQN - https://arxiv.org/pdf/1602.04621.pdf
-class BootstrappedDQNAgent(ValueOptimizationAgent):
+class BootstrappedDQNAgent(voa.ValueOptimizationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        voa.ValueOptimizationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
 
     def reset_game(self, do_not_reset_env=False):
-        ValueOptimizationAgent.reset_game(self, do_not_reset_env)
+        voa.ValueOptimizationAgent.reset_game(self, do_not_reset_env)
         self.exploration_policy.select_head()
 
     def learn_from_batch(self, batch):
@@ -51,8 +52,8 @@ class BootstrappedDQNAgent(ValueOptimizationAgent):
 
         return total_loss
 
-    def act(self, phase=RunPhase.TRAIN):
-        ValueOptimizationAgent.act(self, phase)
+    def act(self, phase=utils.RunPhase.TRAIN):
+        voa.ValueOptimizationAgent.act(self, phase)
         mask = np.random.binomial(1, self.tp.exploration.bootstrapped_data_sharing_probability,
                                   self.tp.exploration.architecture_num_q_heads)
         self.memory.update_last_transition_info({'mask': mask})

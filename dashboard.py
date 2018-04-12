@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,29 +19,24 @@ To run Coach Dashboard, run the following command:
 python3 dashboard.py
 """
 
-from utils import *
-import os
-import datetime
-
-import sys
-import wx
-import random
-import pandas as pd
-from pandas.io.common import EmptyDataError
-import numpy as np
 import colorsys
-from bokeh.palettes import Dark2
-from bokeh.layouts import row, column, widgetbox, Spacer
-from bokeh.models import ColumnDataSource, Range1d, LinearAxis, HoverTool, WheelZoomTool, PanTool, Legend
-from bokeh.models.widgets import RadioButtonGroup, MultiSelect, Button, Select, Slider, Div, CheckboxGroup
-from bokeh.models.glyphs import Patch
-from bokeh.plotting import figure, show, curdoc
-from utils import force_list
-from utils import squeeze_list
-from itertools import cycle
-from os import listdir
-from os.path import isfile, join, isdir, basename
-from enum import Enum
+import datetime
+import enum
+import itertools
+import os
+import random
+
+from bokeh import palettes
+from bokeh import layouts as bl
+from bokeh import models as bm
+from bokeh.models import widgets as bw
+from bokeh import plotting as bp
+import numpy as np
+import pandas as pd
+from pandas.io import pandas_common
+import wx
+
+import utils
 
 
 class DialogApp(wx.App):
@@ -67,7 +62,7 @@ class Signal:
         self.name = name
         self.full_name = "{}/{}".format(parent.filename, self.name)
         self.selected = False
-        self.color = random.choice(Dark2[8])
+        self.color = random.choice(palettes.Dark2[8])
         self.line = None
         self.bands = None
         self.bokeh_source = parent.bokeh_source
@@ -79,12 +74,12 @@ class Signal:
             if (len(name.split('/')) == 1 and name == self.name) or '/'.join(name.split('/')[:-1]) == self.name:
                 self.sub_signals.append(name)
         if len(self.sub_signals) > 1:
-            self.mean_signal = squeeze_list([name for name in self.sub_signals if 'Mean' in name.split('/')[-1]])
-            self.stdev_signal = squeeze_list([name for name in self.sub_signals if 'Stdev' in name.split('/')[-1]])
-            self.min_signal = squeeze_list([name for name in self.sub_signals if 'Min' in name.split('/')[-1]])
-            self.max_signal = squeeze_list([name for name in self.sub_signals if 'Max' in name.split('/')[-1]])
+            self.mean_signal = utils.squeeze_list([name for name in self.sub_signals if 'Mean' in name.split('/')[-1]])
+            self.stdev_signal = utils.squeeze_list([name for name in self.sub_signals if 'Stdev' in name.split('/')[-1]])
+            self.min_signal = utils.squeeze_list([name for name in self.sub_signals if 'Min' in name.split('/')[-1]])
+            self.max_signal = utils.squeeze_list([name for name in self.sub_signals if 'Max' in name.split('/')[-1]])
         else:
-            self.mean_signal = squeeze_list(self.name)
+            self.mean_signal = utils.squeeze_list(self.name)
             self.stdev_signal = None
             self.min_signal = None
             self.max_signal = None
@@ -107,16 +102,16 @@ class Signal:
         if self.selected != val:
             self.selected = val
             if self.line:
-                # self.set_color(Dark2[8][current_color])
-                # current_color = (current_color + 1) % len(Dark2[8])
+                # self.set_color(palettes.Dark2[8][current_color])
+                # current_color = (current_color + 1) % len(palettes.Dark2[8])
                 self.line.visible = self.selected
                 if self.bands:
                     self.bands.visible = self.selected and self.show_bollinger_bands
             elif self.selected:
                 # lazy plotting - plot only when selected for the first time
                 show_spinner()
-                self.set_color(Dark2[8][current_color])
-                current_color = (current_color + 1) % len(Dark2[8])
+                self.set_color(palettes.Dark2[8][current_color])
+                current_color = (current_color + 1) % len(palettes.Dark2[8])
                 if self.has_bollinger_bands:
                     self.set_bands_source()
                     self.create_bands()
@@ -149,7 +144,7 @@ class Signal:
         if self.bollinger_bands_source:
             self.bollinger_bands_source.data = source_data
         else:
-            self.bollinger_bands_source = ColumnDataSource(source_data)
+            self.bollinger_bands_source = bm.ColumnDataSource(source_data)
 
     def change_bollinger_bands_state(self, new_state):
         self.show_bollinger_bands = new_state
@@ -192,11 +187,11 @@ class SignalsFileBase:
 
     def update_source_and_signals(self):
         # create bokeh data sources
-        self.bokeh_source_orig = ColumnDataSource(self.csv)
+        self.bokeh_source_orig = bm.ColumnDataSource(self.csv)
         self.bokeh_source_orig.data['index'] = self.bokeh_source_orig.data[x_axis]
 
         if self.bokeh_source is None:
-            self.bokeh_source = ColumnDataSource(self.csv)
+            self.bokeh_source = bm.ColumnDataSource(self.csv)
         else:
             # self.bokeh_source.data = self.bokeh_source_orig.data
             # smooth the data if necessary
@@ -282,7 +277,7 @@ class SignalsFile(SignalsFileBase):
     def __init__(self, csv_path, load=True):
         SignalsFileBase.__init__(self)
         self.full_csv_path = csv_path
-        self.dir, self.filename, _ = break_file_path(csv_path)
+        self.dir, self.filename, _ = utils.break_file_path(csv_path)
         if load:
             self.load()
             # this helps set the correct x axis
@@ -296,7 +291,7 @@ class SignalsFile(SignalsFileBase):
             try:
                 self.csv = pd.read_csv(self.full_csv_path)
                 break
-            except EmptyDataError:
+            except pandas_common.EmptyDataError:
                 self.csv = None
                 continue
         self.csv = self.csv.interpolate()
@@ -327,7 +322,7 @@ class SignalsFilesGroup(SignalsFileBase):
         else:
             # get the common directory for all the experiments
             self.dir = os.path.dirname(os.path.commonprefix(csv_paths))
-        self.filename = '{} - Group({})'.format(basename(self.dir), len(self.signals_files))
+        self.filename = '{} - Group({})'.format(os.path.basename(self.dir), len(self.signals_files))
         self.load()
 
         # this helps set the correct x axis
@@ -425,7 +420,7 @@ class SignalsFilesGroup(SignalsFileBase):
                     pass
 
 
-class RunType(Enum):
+class RunType(enum.Enum):
     SINGLE_FOLDER_SINGLE_FILE = 1
     SINGLE_FOLDER_MULTIPLE_FILES = 2
     MULTIPLE_FOLDERS_SINGLE_FILES = 3
@@ -433,7 +428,7 @@ class RunType(Enum):
     UNKNOWN = 0
 
 
-class FolderType(Enum):
+class FolderType(enum.Enum):
     SINGLE_FILE = 1
     MULTIPLE_FILES = 2
     MULTIPLE_FOLDERS = 3
@@ -454,24 +449,24 @@ root_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(root_dir, 'spinner.css'), 'r') as f:
     spinner_style = """<style>{}</style>""".format(f.read())
 spinner_html = """<ul class="spinner"><li></li><li></li><li></li><li></li></ul>"""
-spinner = Div(text="""""")
+spinner = bw.Div(text="""""")
 
 # file refresh time placeholder
-refresh_info = Div(text="""""", width=210)
+refresh_info = bw.Div(text="""""", width=210)
 
 # create figures
-plot = figure(plot_width=1200, plot_height=800,
-              tools='pan,box_zoom,wheel_zoom,crosshair,undo,redo,reset,save',
-              toolbar_location='above', x_axis_label='Episodes',
-              x_range=Range1d(0, 10000), y_range=Range1d(0, 100000))
-plot.extra_y_ranges = {"secondary": Range1d(start=-100, end=200)}
-plot.add_layout(LinearAxis(y_range_name="secondary"), 'right')
+plot = bp.figure(plot_width=1200, plot_height=800,
+                 tools='pan,box_zoom,wheel_zoom,crosshair,undo,redo,reset,save',
+                 toolbar_location='above', x_axis_label='Episodes',
+                 x_range=bm.Range1d(0, 10000), y_range=bm.Range1d(0, 100000))
+plot.extra_y_ranges = {"secondary": bm.Range1d(start=-100, end=200)}
+plot.add_layout(bm.LinearAxis(y_range_name="secondary"), 'right')
 
 # legend
-div = Div(text="""""")
-legend = widgetbox([div])
+div = bw.Div(text="""""")
+legend = bl.widgetbox([div])
 
-bokeh_legend = Legend(
+bokeh_legend = bm.Legend(
     items=[("12345678901234567890123456789012345678901234567890", [])],  # 50 letters
     # items=[("                                                  ", [])],  # 50 letters
     location=(-20, 0), orientation="vertical",
@@ -605,8 +600,8 @@ def load_files_group():
 
 # classify the folder as containing a single file, multiple files or only folders
 def classify_folder(dir_path):
-    files = [f for f in listdir(dir_path) if isfile(join(dir_path, f)) and f.endswith('.csv')]
-    folders = [d for d in listdir(dir_path) if isdir(join(dir_path, d))]
+    files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f)) and f.endswith('.csv')]
+    folders = [d for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]
     if len(files) == 1:
         return FolderType.SINGLE_FILE
     elif len(files) > 1:
@@ -628,7 +623,7 @@ def get_run_type(dir_path):
 
     elif folder_type == FolderType.MULTIPLE_FOLDERS:
         # folder contains sub dirs -> we assume we can classify the folder using only the first sub dir
-        sub_dirs = [d for d in listdir(dir_path) if isdir(join(dir_path, d))]
+        sub_dirs = [d for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]
 
         # checking only the first folder in the root dir for its type, since we assume that all sub dirs will share the
         # same structure (i.e. if one is a result of multi-threaded run, so will all the other).
@@ -645,12 +640,12 @@ def add_directory_csv_files(dir_path, paths=None):
     if not paths:
         paths = []
 
-    for p in listdir(dir_path):
-        path = join(dir_path, p)
-        if isdir(path):
+    for p in os.listdir(dir_path):
+        path = os.path.join(dir_path, p)
+        if os.path.isdir(path):
             # call recursively for each dir
             paths = add_directory_csv_files(path, paths)
-        elif isfile(path) and path.endswith('.csv'):
+        elif os.path.isfile(path) and path.endswith('.csv'):
             # add every file to the list
             paths.append(path)
 
@@ -667,7 +662,7 @@ def handle_dir(dir_path, run_type):
     elif run_type == RunType.MULTIPLE_FOLDERS_SINGLE_FILES:
         create_files_group_signal(paths)
     elif run_type == RunType.MULTIPLE_FOLDERS_MULTIPLE_FILES:
-        sub_dirs = [d for d in listdir(dir_path) if isdir(join(dir_path, d))]
+        sub_dirs = [d for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]
         # for d in sub_dirs:
         #     paths = add_directory_csv_files(os.path.join(dir_path, d))
         #     create_files_group_signal(paths)
@@ -731,7 +726,7 @@ def unload_file():
     selected_file.hide_all_signals()
     del signals_files[selected_file.filename]
     data_selector.options = [""]
-    filenames = cycle(files_selector.options)
+    filenames = itertools.cycle(files_selector.options)
     files_selector.options.remove(selected_file.filename)
     if len(files_selector.options) > 0:
         files_selector.value = next(filenames)
@@ -869,48 +864,48 @@ crcolor, crRGBs = generate_color_range(color_resolution, brightness)  # produce 
 # ---------------- Build Website Layout -------------------
 
 # select file
-file_selection_button = Button(label="Select Files", button_type="success", width=120)
+file_selection_button = bw.Button(label="Select Files", button_type="success", width=120)
 file_selection_button.on_click(load_files_group)
 
-files_selector_spacer = Spacer(width=10)
+files_selector_spacer = bl.Spacer(width=10)
 
-group_selection_button = Button(label="Select Directory", button_type="primary", width=140)
+group_selection_button = bw.Button(label="Select Directory", button_type="primary", width=140)
 group_selection_button.on_click(load_directory_group)
 
-unload_file_button = Button(label="Unload", button_type="danger", width=50)
+unload_file_button = bw.Button(label="Unload", button_type="danger", width=50)
 unload_file_button.on_click(unload_file)
 
 # files selection box
-files_selector = Select(title="Files:", options=[], width=200)
+files_selector = bw.Select(title="Files:", options=[], width=200)
 files_selector.on_change('value', change_data_selector)
 
 # data selection box
-data_selector = MultiSelect(title="Data:", options=[], size=12)
+data_selector = bw.MultiSelect(title="Data:", options=[], size=12)
 data_selector.on_change('value', select_data)
 
 # x axis selection box
-x_axis_selector_title = Div(text="""X Axis:""")
-x_axis_selector = RadioButtonGroup(labels=x_axis_options, active=0)
+x_axis_selector_title = bw.Div(text="""X Axis:""")
+x_axis_selector = bw.RadioButtonGroup(labels=x_axis_options, active=0)
 x_axis_selector.on_click(change_x_axis)
 
-# toggle second axis button
-toggle_second_axis_button = Button(label="Toggle Second Axis", button_type="success")
+# toggle second axis bw.button
+toggle_second_axis_button = bw.Button(label="Toggle Second Axis", button_type="success")
 toggle_second_axis_button.on_click(toggle_second_axis)
 
 # averaging slider
-averaging_slider = Slider(title="Averaging window", start=1, end=101, step=10)
+averaging_slider = bw.Slider(title="Averaging window", start=1, end=101, step=10)
 averaging_slider.on_change('value', update_averaging)
 
 # group properties checkbox
-group_cb = CheckboxGroup(labels=["Show statistics bands", "Ungroup signals"], active=[])
+group_cb = bw.CheckboxGroup(labels=["Show statistics bands", "Ungroup signals"], active=[])
 group_cb.on_click(toggle_group_property)
 
 # color selector
-color_selector_title = Div(text="""Select Color:""")
-crsource = ColumnDataSource(data=dict(x=crx, y=cry, crcolor=crcolor, RGBs=crRGBs))
-color_selector = figure(x_range=(0, color_resolution), y_range=(0, 10),
-                        plot_width=300, plot_height=40,
-                        tools='tap')
+color_selector_title = bw.Div(text="""Select Color:""")
+crsource = bm.ColumnDataSource(data=dict(x=crx, y=cry, crcolor=crcolor, RGBs=crRGBs))
+color_selector = bp.figure(x_range=(0, color_resolution), y_range=(0, 10),
+                           plot_width=300, plot_height=40,
+                           tools='tap')
 color_selector.axis.visible = False
 color_range = color_selector.rect(x='x', y='y', width=1, height=10,
                                   color='crcolor', source=crsource)
@@ -920,43 +915,43 @@ color_selector.toolbar.logo = None
 color_selector.toolbar_location = None
 
 # title
-title = Div(text="""<h1>Coach Dashboard</h1>""")
+title = bw.Div(text="""<h1>Coach Dashboard</h1>""")
 
 # landing page
-landing_page_description = Div(text="""<h3>Start by selecting an experiment file or directory to open:</h3>""")
-center = Div(text="""<style>html { text-align: center; } </style>""")
-center_buttons = Div(text="""<style>.bk-grid-row .bk-layout-fixed { margin: 0 auto; }</style>""", width=0)
-landing_page = column(center,
+landing_page_description = bw.Div(text="""<h3>Start by selecting an experiment file or directory to open:</h3>""")
+center = bw.Div(text="""<style>html { text-align: center; } </style>""")
+center_buttons = bw.Div(text="""<style>.bk-grid-row .bk-layout-fixed { margin: 0 auto; }</style>""", width=0)
+landing_page = bl.column(center,
                       title,
                       landing_page_description,
-                      row(center_buttons),
-                      row(file_selection_button, sizing_mode='scale_width'),
-                      row(group_selection_button, sizing_mode='scale_width'),
+                      bl.row(center_buttons),
+                      bl.row(file_selection_button, sizing_mode='scale_width'),
+                      bl.row(group_selection_button, sizing_mode='scale_width'),
                       sizing_mode='scale_width')
 
 # main layout of the document
-layout = row(file_selection_button, files_selector_spacer, group_selection_button, width=300)
-layout = column(layout, files_selector)
-layout = column(layout, row(refresh_info, unload_file_button))
-layout = column(layout, data_selector)
-layout = column(layout, color_selector_title)
-layout = column(layout, color_selector)
-layout = column(layout, x_axis_selector_title)
-layout = column(layout, x_axis_selector)
-layout = column(layout, group_cb)
-layout = column(layout, toggle_second_axis_button)
-layout = column(layout, averaging_slider)
-# layout = column(layout, legend)
-layout = row(layout, plot)
-layout = column(title, layout)
-layout = column(layout, spinner)
+layout = bl.row(file_selection_button, files_selector_spacer, group_selection_button, width=300)
+layout = bl.column(layout, files_selector)
+layout = bl.column(layout, bl.row(refresh_info, unload_file_button))
+layout = bl.column(layout, data_selector)
+layout = bl.column(layout, color_selector_title)
+layout = bl.column(layout, color_selector)
+layout = bl.column(layout, x_axis_selector_title)
+layout = bl.column(layout, x_axis_selector)
+layout = bl.column(layout, group_cb)
+layout = bl.column(layout, toggle_second_axis_button)
+layout = bl.column(layout, averaging_slider)
+# layout = bl.column(layout, legend)
+layout = bl.row(layout, plot)
+layout = bl.column(title, layout)
+layout = bl.column(layout, spinner)
 
-doc = curdoc()
+doc = bp.curdoc()
 doc.add_root(landing_page)
 
 doc.add_periodic_callback(reload_all_files, 20000)
-plot.y_range = Range1d(0, 100)
-plot.extra_y_ranges['secondary'] = Range1d(0, 100)
+plot.y_range = bm.Range1d(0, 100)
+plot.extra_y_ranges['secondary'] = bm.Range1d(0, 100)
 
 # show load file dialog immediately on start
 #doc.add_timeout_callback(load_files, 1000)

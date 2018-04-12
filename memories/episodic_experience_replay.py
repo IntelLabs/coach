@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,24 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import typing
 
-from memories.memory import *
-import threading
-from typing import Union
+import numpy as np
+
+from memories import memory
 
 
-class EpisodicExperienceReplay(Memory):
+class EpisodicExperienceReplay(memory.Memory):
     def __init__(self, tuning_parameters):
         """
         :param tuning_parameters: A Preset class instance with all the running paramaters
         :type tuning_parameters: Preset
         """
-        Memory.__init__(self, tuning_parameters)
+        memory.Memory.__init__(self, tuning_parameters)
         self.tp = tuning_parameters
         self.max_size_in_episodes = tuning_parameters.agent.num_episodes_in_experience_replay
         self.max_size_in_transitions = tuning_parameters.agent.num_transitions_in_experience_replay
         self.discount = tuning_parameters.agent.discount
-        self.buffer = [Episode()]  # list of episodes
+        self.buffer = [memory.Episode()]  # list of episodes
         self.transitions = []
         self._length = 1
         self._num_transitions = 0
@@ -96,7 +97,7 @@ class EpisodicExperienceReplay(Memory):
 
     def store(self, transition):
         if len(self.buffer) == 0:
-            self.buffer.append(Episode())
+            self.buffer.append(memory.Episode())
         last_episode = self.buffer[-1]
         last_episode.insert(transition)
         self.transitions.append(transition)
@@ -109,7 +110,7 @@ class EpisodicExperienceReplay(Memory):
                                            n_step_return=self.tp.agent.n_step)
             self.buffer[-1].update_measurements_targets(self.tp.agent.num_predicted_steps_ahead)
             # self.buffer[-1].update_actions_probabilities() # used for off-policy policy optimization
-            self.buffer.append(Episode())
+            self.buffer.append(memory.Episode())
 
         self.enforce_length()
 
@@ -148,7 +149,7 @@ class EpisodicExperienceReplay(Memory):
     def get(self, index):
         return self.get_episode(index)
 
-    def get_last_complete_episode(self) -> Union[None, Episode]:
+    def get_last_complete_episode(self) -> typing.Union[None, memory.Episode]:
         """
         Returns the last complete episode in the memory or None if there are no complete episodes
         :return: None or the last complete episode
@@ -170,7 +171,7 @@ class EpisodicExperienceReplay(Memory):
 
     def clean(self):
         self.transitions = []
-        self.buffer = [Episode()]
+        self.buffer = [memory.Episode()]
         self._length = 1
         self._num_transitions = 0
         self._num_transitions_in_complete_episodes = 0

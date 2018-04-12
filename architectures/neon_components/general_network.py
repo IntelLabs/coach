@@ -13,15 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import ngraph as ng
+from ngraph.frontends import neon
+from ngraph.util import names as ngraph_names
 
-from architectures.neon_components.embedders import *
-from architectures.neon_components.heads import *
-from architectures.neon_components.middleware import *
-from architectures.neon_components.architecture import *
-from configurations import InputTypes, OutputTypes, MiddlewareTypes
+from architectures.neon_components import architecture
+from architectures.neon_components import embedders
+from architectures.neon_components import middleware
+from architectures.neon_components import heads
+import configurations as conf
 
 
-class GeneralNeonNetwork(NeonArchitecture):
+class GeneralNeonNetwork(architecture.NeonArchitecture):
     def __init__(self, tuning_parameters, name="", global_network=None, network_is_local=True):
         self.global_network = global_network
         self.network_is_local = network_is_local
@@ -34,7 +37,7 @@ class GeneralNeonNetwork(NeonArchitecture):
         self.activation_function = self.get_activation_function(
             tuning_parameters.agent.hidden_layers_activation_function)
 
-        NeonArchitecture.__init__(self, tuning_parameters, name, global_network, network_is_local)
+        architecture.NeonArchitecture.__init__(self, tuning_parameters, name, global_network, network_is_local)
 
     def get_activation_function(self, activation_function_string):
         activation_functions = {
@@ -53,36 +56,36 @@ class GeneralNeonNetwork(NeonArchitecture):
         # the observation can be either an image or a vector
         def get_observation_embedding(with_timestep=False):
             if self.input_height > 1:
-                return ImageEmbedder((self.input_depth, self.input_height, self.input_width), self.batch_size,
-                                     name="observation")
+                return embedders.ImageEmbedder((self.input_depth, self.input_height, self.input_width), self.batch_size,
+                                               name="observation")
             else:
-                return VectorEmbedder((self.input_depth, self.input_width + int(with_timestep)), self.batch_size,
-                                      name="observation")
+                return embedders.VectorEmbedder((self.input_depth, self.input_width + int(with_timestep)), self.batch_size,
+                                                name="observation")
 
         input_mapping = {
-            InputTypes.Observation: get_observation_embedding(),
-            InputTypes.Measurements: VectorEmbedder(self.measurements_size, self.batch_size, name="measurements"),
-            InputTypes.GoalVector: VectorEmbedder(self.measurements_size, self.batch_size, name="goal_vector"),
-            InputTypes.Action: VectorEmbedder((self.num_actions,), self.batch_size, name="action"),
-            InputTypes.TimedObservation: get_observation_embedding(with_timestep=True),
+            conf.InputTypes.Observation: get_observation_embedding(),
+            conf.InputTypes.Measurements: embedders.VectorEmbedder(self.measurements_size, self.batch_size, name="measurements"),
+            conf.InputTypes.GoalVector: embedders.VectorEmbedder(self.measurements_size, self.batch_size, name="goal_vector"),
+            conf.InputTypes.Action: embedders.VectorEmbedder((self.num_actions,), self.batch_size, name="action"),
+            conf.InputTypes.TimedObservation: get_observation_embedding(with_timestep=True),
         }
         return input_mapping[embedder_type]
 
     def get_middleware_embedder(self, middleware_type):
-        return {MiddlewareTypes.LSTM: None,   # LSTM over Neon is currently not supported in Coach
-                MiddlewareTypes.FC: FC_Embedder}.get(middleware_type)(self.activation_function)
+        return {conf.MiddlewareTypes.LSTM: None,   # LSTM over Neon is currently not supported in Coach
+                conf.MiddlewareTypes.FC: middleware.FC_Embedder}.get(middleware_type)(self.activation_function)
 
     def get_output_head(self, head_type, head_idx, loss_weight=1.):
         output_mapping = {
-            OutputTypes.Q: QHead,
-            OutputTypes.DuelingQ: DuelingQHead,
-            OutputTypes.V: None, # Policy Optimization algorithms over Neon are currently not supported in Coach
-            OutputTypes.Pi: None,  # Policy Optimization algorithms over Neon are currently not supported in Coach
-            OutputTypes.MeasurementsPrediction: None, # DFP over Neon is currently not supported in Coach
-            OutputTypes.DNDQ: None,  # NEC over Neon is currently not supported in Coach
-            OutputTypes.NAF: None,  # NAF over Neon is currently not supported in Coach
-            OutputTypes.PPO: None, # PPO over Neon is currently not supported in Coach
-            OutputTypes.PPO_V: None  # PPO over Neon is currently not supported in Coach
+            conf.OutputTypes.Q: heads.QHead,
+            conf.OutputTypes.DuelingQ: heads.DuelingQHead,
+            conf.OutputTypes.V: None, # Policy Optimization algorithms over Neon are currently not supported in Coach
+            conf.OutputTypes.Pi: None,  # Policy Optimization algorithms over Neon are currently not supported in Coach
+            conf.OutputTypes.MeasurementsPrediction: None, # DFP over Neon is currently not supported in Coach
+            conf.OutputTypes.DNDQ: None,  # NEC over Neon is currently not supported in Coach
+            conf.OutputTypes.NAF: None,  # NAF over Neon is currently not supported in Coach
+            conf.OutputTypes.PPO: None, # PPO over Neon is currently not supported in Coach
+            conf.OutputTypes.PPO_V: None  # PPO over Neon is currently not supported in Coach
         }
         return output_mapping[head_type](self.tp, head_idx, loss_weight, self.network_is_local)
 
@@ -104,7 +107,7 @@ class GeneralNeonNetwork(NeonArchitecture):
         done_creating_input_placeholders = False
 
         for network_idx in range(self.num_networks):
-            with name_scope('network_{}'.format(network_idx)):
+            with ngraph_names.name_scope('network_{}'.format(network_idx)):
                 ####################
                 # Input Embeddings #
                 ####################

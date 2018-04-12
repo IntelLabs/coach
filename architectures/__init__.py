@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,19 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from architectures.architecture import *
-from logger import failed_imports
-try:
-    from architectures.tensorflow_components.general_network import *
-    from architectures.tensorflow_components.architecture import *
-except ImportError:
-    failed_imports.append("TensorFlow")
+import logger
 
 try:
-    from architectures.neon_components.general_network import *
-    from architectures.neon_components.architecture import *
+    from architectures.tensorflow_components import general_network as ts_gn
+    from architectures.tensorflow_components import architecture as ts_arch
 except ImportError:
-    failed_imports.append("Neon")
+    logger.failed_imports.append("TensorFlow")
 
-from architectures.network_wrapper import *
+try:
+    from architectures.neon_components import general_network as neon_gn
+    from architectures.neon_components import architecture as neon_arch
+except ImportError:
+    logger.failed_imports.append("Neon")

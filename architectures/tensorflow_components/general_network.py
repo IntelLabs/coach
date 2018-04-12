@@ -13,15 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import tensorflow as tf
 
-from architectures.tensorflow_components.embedders import *
-from architectures.tensorflow_components.heads import *
-from architectures.tensorflow_components.middleware import *
-from architectures.tensorflow_components.architecture import *
-from configurations import InputTypes, OutputTypes, MiddlewareTypes
+from architectures.tensorflow_components import architecture
+from architectures.tensorflow_components import embedders
+from architectures.tensorflow_components import middleware
+from architectures.tensorflow_components import heads
+import configurations as conf
 
 
-class GeneralTensorFlowNetwork(TensorFlowArchitecture):
+class GeneralTensorFlowNetwork(architecture.TensorFlowArchitecture):
     """
     A generalized version of all possible networks implemented using tensorflow.
     """
@@ -37,7 +38,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.activation_function = self.get_activation_function(
             tuning_parameters.agent.hidden_layers_activation_function)
 
-        TensorFlowArchitecture.__init__(self, tuning_parameters, name, global_network, network_is_local)
+        architecture.TensorFlowArchitecture.__init__(self, tuning_parameters, name, global_network, network_is_local)
 
     def get_activation_function(self, activation_function_string):
         activation_functions = {
@@ -56,37 +57,37 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # the observation can be either an image or a vector
         def get_observation_embedding(with_timestep=False):
             if self.input_height > 1:
-                return ImageEmbedder((self.input_height, self.input_width, self.input_depth), name="observation",
-                                     input_rescaler=self.tp.agent.input_rescaler)
+                return embedders.ImageEmbedder((self.input_height, self.input_width, self.input_depth), name="observation",
+                                               input_rescaler=self.tp.agent.input_rescaler)
             else:
-                return VectorEmbedder((self.input_width + int(with_timestep), self.input_depth), name="observation")
+                return embedders.VectorEmbedder((self.input_width + int(with_timestep), self.input_depth), name="observation")
 
         input_mapping = {
-            InputTypes.Observation: get_observation_embedding(),
-            InputTypes.Measurements: VectorEmbedder(self.measurements_size, name="measurements"),
-            InputTypes.GoalVector: VectorEmbedder(self.measurements_size, name="goal_vector"),
-            InputTypes.Action: VectorEmbedder((self.num_actions,), name="action"),
-            InputTypes.TimedObservation: get_observation_embedding(with_timestep=True),
+            conf.InputTypes.Observation: get_observation_embedding(),
+            conf.InputTypes.Measurements: embedders.VectorEmbedder(self.measurements_size, name="measurements"),
+            conf.InputTypes.GoalVector: embedders.VectorEmbedder(self.measurements_size, name="goal_vector"),
+            conf.InputTypes.Action: embedders.VectorEmbedder((self.num_actions,), name="action"),
+            conf.InputTypes.TimedObservation: get_observation_embedding(with_timestep=True),
         }
         return input_mapping[embedder_type]
 
     def get_middleware_embedder(self, middleware_type):
-        return {MiddlewareTypes.LSTM: LSTM_Embedder,
-                MiddlewareTypes.FC: FC_Embedder}.get(middleware_type)(self.activation_function)
+        return {conf.MiddlewareTypes.LSTM: middleware.LSTM_Embedder,
+                conf.MiddlewareTypes.FC: middleware.FC_Embedder}.get(middleware_type)(self.activation_function)
 
     def get_output_head(self, head_type, head_idx, loss_weight=1.):
         output_mapping = {
-            OutputTypes.Q: QHead,
-            OutputTypes.DuelingQ: DuelingQHead,
-            OutputTypes.V: VHead,
-            OutputTypes.Pi: PolicyHead,
-            OutputTypes.MeasurementsPrediction: MeasurementsPredictionHead,
-            OutputTypes.DNDQ: DNDQHead,
-            OutputTypes.NAF: NAFHead,
-            OutputTypes.PPO: PPOHead,
-            OutputTypes.PPO_V: PPOVHead,
-            OutputTypes.CategoricalQ: CategoricalQHead,
-            OutputTypes.QuantileRegressionQ: QuantileRegressionQHead
+            conf.OutputTypes.Q: heads.QHead,
+            conf.OutputTypes.DuelingQ: heads.DuelingQHead,
+            conf.OutputTypes.V: heads.VHead,
+            conf.OutputTypes.Pi: heads.PolicyHead,
+            conf.OutputTypes.MeasurementsPrediction: heads.MeasurementsPredictionHead,
+            conf.OutputTypes.DNDQ: heads.DNDQHead,
+            conf.OutputTypes.NAF: heads.NAFHead,
+            conf.OutputTypes.PPO: heads.PPOHead,
+            conf.OutputTypes.PPO_V: heads.PPOVHead,
+            conf.OutputTypes.CategoricalQ: heads.CategoricalQHead,
+            conf.OutputTypes.QuantileRegressionQ: heads.QuantileRegressionQHead
         }
         return output_mapping[head_type](self.tp, head_idx, loss_weight, self.network_is_local)
 

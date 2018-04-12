@@ -13,19 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-import json
-import inspect
-import os
-import numpy as np
-import threading
-from subprocess import call, Popen
-import signal
 import copy
+import inspect
+import json
+import os
+import signal
+import subprocess
+import threading
+
+import numpy as np
+
 
 killed_processes = []
 
 eps = np.finfo(np.float32).eps
+
 
 class Enum(object):
     def __init__(self):
@@ -161,7 +163,7 @@ def ClassToDict(x):
 
 
 def cmd_line_run(result, run_cmd, id=-1):
-    p = Popen(run_cmd, shell=True, executable="/bin/bash")
+    p = subprocess.Popen(run_cmd, shell=True, executable="/bin/bash")
     while result[0] is None or result[0] == [None]:
         if id in killed_processes:
             p.kill()

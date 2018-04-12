@@ -13,16 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import numpy as np
 
-from agents.imitation_agent import ImitationAgent
+from agents import imitation_agent
 
 
 # Behavioral Cloning Agent
-class BCAgent(ImitationAgent):
+class BCAgent(imitation_agent.ImitationAgent):
     def __init__(self, env, tuning_parameters, replicated_device=None, thread_id=0):
-        ImitationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
+        imitation_agent.ImitationAgent.__init__(self, env, tuning_parameters, replicated_device, thread_id)
 
     def learn_from_batch(self, batch):
         current_states, _, actions, _, _, _ = self.extract_batch(batch)

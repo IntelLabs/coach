@@ -13,10 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from configurations import *
 import ast
+import json
 import sys
+
+import agents
+import configurations as conf
+import environments as env
+import exploration_policies as ep
+import presets
 
 
 def json_to_preset(json_path):
@@ -24,26 +29,27 @@ def json_to_preset(json_path):
         run_dict = json.loads(json_file.read())
 
     if run_dict['preset'] is None:
-        tuning_parameters = Preset(eval(run_dict['agent_type']), eval(run_dict['environment_type']),
-                                   eval(run_dict['exploration_policy_type']))
+        tuning_parameters = conf.Preset(eval('agents.' + run_dict['agent_type']),
+                                        eval('env.' + run_dict['environment_type']),
+                                        eval('ep.' + run_dict['exploration_policy_type']))
     else:
-        tuning_parameters = eval(run_dict['preset'])()
+        tuning_parameters = eval('presets.' + run_dict['preset'])()
         # Override existing parts of the preset
         if run_dict['agent_type'] is not None:
-            tuning_parameters.agent = eval(run_dict['agent_type'])()
+            tuning_parameters.agent = eval('agents.' + run_dict['agent_type'])()
 
         if run_dict['environment_type'] is not None:
-            tuning_parameters.env = eval(run_dict['environment_type'])()
+            tuning_parameters.env = eval('env.' + run_dict['environment_type'])()
 
         if run_dict['exploration_policy_type'] is not None:
-            tuning_parameters.exploration = eval(run_dict['exploration_policy_type'])()
+            tuning_parameters.exploration = eval('ep.' + run_dict['exploration_policy_type'])()
 
     # human control
     if run_dict['play']:
         tuning_parameters.agent.type = 'HumanAgent'
         tuning_parameters.env.human_control = True
         tuning_parameters.num_heatup_steps = 0
-        
+
     if run_dict['level']:
         tuning_parameters.env.level = run_dict['level']
 
@@ -69,9 +75,9 @@ def json_to_preset(json_path):
     return tuning_parameters
 
 
-class Doom_Basic_DQN(Preset):
+class Doom_Basic_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DQN, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DQN, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -79,9 +85,9 @@ class Doom_Basic_DQN(Preset):
         self.num_heatup_steps = 1000
 
 
-class Doom_Basic_QRDQN(Preset):
+class Doom_Basic_QRDQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, QuantileRegressionDQN, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.QuantileRegressionDQN, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
         self.agent.num_steps_between_copying_online_weights_to_target = 1000
         self.learning_rate = 0.00025
@@ -89,9 +95,9 @@ class Doom_Basic_QRDQN(Preset):
         self.num_heatup_steps = 1000
 
 
-class Doom_Basic_OneStepQ(Preset):
+class Doom_Basic_OneStepQ(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NStepQ, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NStepQ, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
         self.learning_rate = 0.00025
         self.num_heatup_steps = 0
@@ -101,9 +107,9 @@ class Doom_Basic_OneStepQ(Preset):
         self.agent.targets_horizon = '1-Step'
 
 
-class Doom_Basic_NStepQ(Preset):
+class Doom_Basic_NStepQ(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NStepQ, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NStepQ, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
         self.learning_rate = 0.000025
         self.num_heatup_steps = 0
@@ -112,9 +118,9 @@ class Doom_Basic_NStepQ(Preset):
         self.clip_gradients = 1000
 
 
-class Doom_Basic_A2C(Preset):
+class Doom_Basic_A2C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, Doom, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.Doom, conf.CategoricalExploration)
         self.env.level = 'basic'
         self.agent.policy_gradient_rescaler = 'A_VALUE'
         self.learning_rate = 0.00025
@@ -122,19 +128,19 @@ class Doom_Basic_A2C(Preset):
         self.env.reward_scaling = 100.
 
 
-class Doom_Basic_Dueling_DDQN(Preset):
+class Doom_Basic_Dueling_DDQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDQN, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DDQN, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
-        self.agent.output_types = [OutputTypes.DuelingQ]
+        self.agent.output_types = [conf.OutputTypes.DuelingQ]
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
         self.agent.num_steps_between_copying_online_weights_to_target = 1000
         self.num_heatup_steps = 1000
 
-class Doom_Basic_Dueling_DQN(Preset):
+class Doom_Basic_Dueling_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DuelingDQN, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DuelingDQN, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -142,11 +148,11 @@ class Doom_Basic_Dueling_DQN(Preset):
         self.num_heatup_steps = 1000
 
 
-class CartPole_Dueling_DDQN(Preset):
+class CartPole_Dueling_DDQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDQN, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DDQN, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
-        self.agent.output_types = [OutputTypes.DuelingQ]
+        self.agent.output_types = [conf.OutputTypes.DuelingQ]
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
         self.agent.num_steps_between_copying_online_weights_to_target = 100
@@ -159,9 +165,9 @@ class CartPole_Dueling_DDQN(Preset):
         self.test_min_return_threshold = 150
 
 
-class Doom_Health_MMC(Preset):
+class Doom_Health_MMC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, MMC, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.MMC, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'HEALTH_GATHERING'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -169,9 +175,9 @@ class Doom_Health_MMC(Preset):
         self.num_heatup_steps = 1000
         self.exploration.epsilon_decay_steps = 10000
 
-class CartPole_MMC(Preset):
+class CartPole_MMC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, MMC, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.MMC, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.00025
@@ -185,9 +191,9 @@ class CartPole_MMC(Preset):
         self.test_min_return_threshold = 150
 
 
-class CartPole_PAL(Preset):
+class CartPole_PAL(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PAL, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.PAL, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.00025
@@ -200,9 +206,9 @@ class CartPole_PAL(Preset):
         self.test_max_step_threshold = 100
         self.test_min_return_threshold = 150
 
-class Doom_Basic_DFP(Preset):
+class Doom_Basic_DFP(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DFP, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DFP, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'BASIC'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.0001
@@ -213,9 +219,9 @@ class Doom_Basic_DFP(Preset):
         # self.agent.num_consecutive_playing_steps = 10
 
 
-class Doom_Health_DFP(Preset):
+class Doom_Health_DFP(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DFP, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DFP, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'HEALTH_GATHERING'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -224,9 +230,9 @@ class Doom_Health_DFP(Preset):
         self.agent.use_accumulated_reward_as_measurement = True
 
 
-class Doom_Deadly_Corridor_Bootstrapped_DQN(Preset):
+class Doom_Deadly_Corridor_Bootstrapped_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, BootstrappedDQN, Doom, BootstrappedDQNExploration)
+        conf.Preset.__init__(self, conf.BootstrappedDQN, conf.Doom, conf.BootstrappedDQNExploration)
         self.env.level = 'deadly_corridor'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -234,9 +240,9 @@ class Doom_Deadly_Corridor_Bootstrapped_DQN(Preset):
         self.num_heatup_steps = 1000
 
 
-class CartPole_Bootstrapped_DQN(Preset):
+class CartPole_Bootstrapped_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, BootstrappedDQN, GymVectorObservation, BootstrappedDQNExploration)
+        conf.Preset.__init__(self, conf.BootstrappedDQN, conf.GymVectorObservation, conf.BootstrappedDQNExploration)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 200
         self.learning_rate = 0.00025
@@ -249,9 +255,9 @@ class CartPole_Bootstrapped_DQN(Preset):
         self.test_max_step_threshold = 200
         self.test_min_return_threshold = 150
 
-class CartPole_PG(Preset):
+class CartPole_PG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PolicyGradient, GymVectorObservation, CategoricalExploration)
+        conf.Preset.__init__(self, conf.PolicyGradient, conf.GymVectorObservation, conf.CategoricalExploration)
         self.env.level = 'CartPole-v0'
         self.agent.policy_gradient_rescaler = 'FUTURE_RETURN_NORMALIZED_BY_TIMESTEP'
         self.learning_rate = 0.001
@@ -263,9 +269,9 @@ class CartPole_PG(Preset):
         self.test_min_return_threshold = 150
 
 
-class CartPole_PPO(Preset):
+class CartPole_PPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PPO, GymVectorObservation, CategoricalExploration)
+        conf.Preset.__init__(self, conf.PPO, conf.GymVectorObservation, conf.CategoricalExploration)
         self.env.level = 'CartPole-v0'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -281,9 +287,9 @@ class CartPole_PPO(Preset):
         self.test_max_step_threshold = 200
         self.test_min_return_threshold = 150
 
-class CartPole_ClippedPPO(Preset):
+class CartPole_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.CategoricalExploration)
         self.env.level = 'CartPole-v0'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -301,9 +307,9 @@ class CartPole_ClippedPPO(Preset):
         self.test_max_step_threshold = 200
         self.test_min_return_threshold = 150
 
-class CartPole_A2C(Preset):
+class CartPole_A2C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.CategoricalExploration)
         self.env.level = 'CartPole-v0'
         self.agent.policy_gradient_rescaler = 'A_VALUE'
         self.learning_rate = 0.001
@@ -316,9 +322,9 @@ class CartPole_A2C(Preset):
         self.test_min_return_threshold = 150
 
 
-class CartPole_OneStepQ(Preset):
+class CartPole_OneStepQ(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NStepQ, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NStepQ, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.0001
@@ -327,9 +333,9 @@ class CartPole_OneStepQ(Preset):
         self.agent.targets_horizon = '1-Step'
 
 
-class CartPole_NStepQ(Preset):
+class CartPole_NStepQ(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NStepQ, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NStepQ, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.0001
@@ -343,9 +349,9 @@ class CartPole_NStepQ(Preset):
         self.test_min_return_threshold = 150
         self.test_num_workers = 8
 
-class CartPole_DQN(Preset):
+class CartPole_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DQN, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DQN, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.00025
@@ -359,9 +365,9 @@ class CartPole_DQN(Preset):
         self.test_min_return_threshold = 150
 
 
-class CartPole_C51(Preset):
+class CartPole_C51(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, CategoricalDQN, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.CategoricalDQN, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.00025
@@ -378,9 +384,9 @@ class CartPole_C51(Preset):
         self.test_min_return_threshold = 150
 
 
-class CartPole_QRDQN(Preset):
+class CartPole_QRDQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, QuantileRegressionDQN, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.QuantileRegressionDQN, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.agent.num_steps_between_copying_online_weights_to_target = 100
         self.learning_rate = 0.00025
@@ -394,9 +400,9 @@ class CartPole_QRDQN(Preset):
 # This a very resource intensive preset, and might easily blow up your RAM (> 100GB of usage).
 # Try reducing the number of transitions in the experience replay (50e3 might be a reasonable number to start with),
 # so to make sure it fits your RAM.
-class Breakout_DQN(Preset):
+class Breakout_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025
@@ -415,9 +421,9 @@ class Breakout_DQN(Preset):
         # self.rescaling_interpolation_type = 'nearest' # TODO: remove
 
 
-class Breakout_DDQN(Preset):
+class Breakout_DDQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DDQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 30000
         self.learning_rate = 0.00025
@@ -434,11 +440,11 @@ class Breakout_DDQN(Preset):
         self.agent.replace_mse_with_huber_loss = True
 
 
-class Breakout_Dueling_DDQN(Preset):
+class Breakout_Dueling_DDQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DDQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
-        self.agent.output_types = [OutputTypes.DuelingQ]
+        self.agent.output_types = [conf.OutputTypes.DuelingQ]
         self.agent.num_steps_between_copying_online_weights_to_target = 30000
         self.learning_rate = 0.00025
         self.agent.num_transitions_in_experience_replay = 1000000
@@ -453,9 +459,9 @@ class Breakout_Dueling_DDQN(Preset):
         self.evaluate_every_x_episodes = 25
         self.agent.replace_mse_with_huber_loss = True
 
-class Alien_DQN(Preset):
+class Alien_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'AlienDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025
@@ -470,9 +476,9 @@ class Alien_DQN(Preset):
         self.evaluate_every_x_episodes = 5
 
 
-class Breakout_C51(Preset):
+class Breakout_C51(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, CategoricalDQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.CategoricalDQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025
@@ -490,9 +496,9 @@ class Breakout_C51(Preset):
 
 
 
-class Breakout_QRDQN(Preset):
+class Breakout_QRDQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, QuantileRegressionDQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.QuantileRegressionDQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025
@@ -507,9 +513,9 @@ class Breakout_QRDQN(Preset):
         self.evaluate_every_x_episodes = 50
 
 
-class Atari_DQN_TestBench(Preset):
+class Atari_DQN_TestBench(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025
@@ -525,9 +531,9 @@ class Atari_DQN_TestBench(Preset):
         self.num_training_iterations = 500
 
 
-class Doom_Basic_PG(Preset):
+class Doom_Basic_PG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PolicyGradient, Doom, CategoricalExploration)
+        conf.Preset.__init__(self, conf.PolicyGradient, conf.Doom, conf.CategoricalExploration)
         self.env.level = 'basic'
         self.agent.policy_gradient_rescaler = 'FUTURE_RETURN_NORMALIZED_BY_TIMESTEP'
         self.learning_rate = 0.00001
@@ -535,18 +541,18 @@ class Doom_Basic_PG(Preset):
         self.agent.beta_entropy = 0.01
 
 
-class InvertedPendulum_PG(Preset):
+class InvertedPendulum_PG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PolicyGradient, GymVectorObservation, AdditiveNoiseExploration)
+        conf.Preset.__init__(self, conf.PolicyGradient, conf.GymVectorObservation, conf.AdditiveNoiseExploration)
         self.env.level = 'InvertedPendulum-v1'
         self.agent.policy_gradient_rescaler = 'FUTURE_RETURN_NORMALIZED_BY_TIMESTEP'
         self.learning_rate = 0.001
         self.num_heatup_steps = 0
 
 
-class Pendulum_PG(Preset):
+class Pendulum_PG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PolicyGradient, GymVectorObservation, AdditiveNoiseExploration)
+        conf.Preset.__init__(self, conf.PolicyGradient, conf.GymVectorObservation, conf.AdditiveNoiseExploration)
         self.env.level = 'Pendulum-v0'
         self.agent.policy_gradient_rescaler = 'FUTURE_RETURN_NORMALIZED_BY_TIMESTEP'
         self.learning_rate = 0.001
@@ -554,9 +560,9 @@ class Pendulum_PG(Preset):
         self.agent.apply_gradients_every_x_episodes = 10
 
 
-class Pendulum_DDPG(Preset):
+class Pendulum_DDPG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDPG, GymVectorObservation, AdditiveNoiseExploration)
+        conf.Preset.__init__(self, conf.DDPG, conf.GymVectorObservation, conf.AdditiveNoiseExploration)
         self.env.level = 'Pendulum-v0'
         self.learning_rate = 0.001
         self.num_heatup_steps = 1000
@@ -567,18 +573,18 @@ class Pendulum_DDPG(Preset):
         self.test_min_return_threshold = -250
 
 
-class InvertedPendulum_DDPG(Preset):
+class InvertedPendulum_DDPG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDPG, GymVectorObservation, OUExploration)
+        conf.Preset.__init__(self, conf.DDPG, conf.GymVectorObservation, conf.OUExploration)
         self.env.level = 'InvertedPendulum-v1'
         self.learning_rate = 0.00025
         self.num_heatup_steps = 100
         self.env.normalize_observation = True
 
 
-class InvertedPendulum_PPO(Preset):
+class InvertedPendulum_PPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.PPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'InvertedPendulum-v1'
         self.learning_rate = 0.001
         self.num_heatup_steps = 0
@@ -595,9 +601,9 @@ class InvertedPendulum_PPO(Preset):
         self.env.normalize_observation = True
 
 
-class Pendulum_ClippedPPO(Preset):
+class Pendulum_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'Pendulum-v0'
         self.learning_rate = 0.00005
         self.num_heatup_steps = 0
@@ -613,9 +619,9 @@ class Pendulum_ClippedPPO(Preset):
         self.agent.beta_entropy = 0.01
 
 
-class Hopper_DPPO(Preset):
+class Hopper_DPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.PPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'Hopper-v1'
         self.learning_rate = 0.00001
         self.num_heatup_steps = 0
@@ -631,9 +637,9 @@ class Hopper_DPPO(Preset):
         self.env.normalize_observation = True
 
 
-class InvertedPendulum_ClippedPPO(Preset):
+class InvertedPendulum_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'InvertedPendulum-v1'
         self.learning_rate = 0.00005
         self.num_heatup_steps = 0
@@ -647,9 +653,9 @@ class InvertedPendulum_ClippedPPO(Preset):
         self.agent.optimizer_type = 'Adam'
         self.env.normalize_observation = True
 
-class Humanoid_ClippedPPO(Preset):
+class Humanoid_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'Humanoid-v1'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -664,9 +670,9 @@ class Humanoid_ClippedPPO(Preset):
         self.env.normalize_observation = True
 
 
-class Hopper_ClippedPPO(Preset):
+class Hopper_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'Hopper-v1'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -681,9 +687,9 @@ class Hopper_ClippedPPO(Preset):
         self.env.normalize_observation = True
 
 
-class InvertedPendulum_ClippedPPO_Roboschool(Preset):
+class InvertedPendulum_ClippedPPO_Roboschool(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, Roboschool, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.Roboschool, conf.ExplorationParameters)
         self.env.level = 'RoboschoolInvertedPendulum-v1'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -698,9 +704,9 @@ class InvertedPendulum_ClippedPPO_Roboschool(Preset):
         self.env.normalize_observation = True
 
 
-class HalfCheetah_ClippedPPO_Roboschool(Preset):
+class HalfCheetah_ClippedPPO_Roboschool(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, Roboschool, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.Roboschool, conf.ExplorationParameters)
         self.env.level = 'RoboschoolHalfCheetah-v1'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -715,9 +721,9 @@ class HalfCheetah_ClippedPPO_Roboschool(Preset):
         self.env.normalize_observation = True
 
 
-class Hopper_ClippedPPO_Roboschool(Preset):
+class Hopper_ClippedPPO_Roboschool(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, Roboschool, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.Roboschool, conf.ExplorationParameters)
         self.env.level = 'RoboschoolHopper-v1'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -732,9 +738,9 @@ class Hopper_ClippedPPO_Roboschool(Preset):
         self.env.normalize_observation = True
 
 
-class Ant_ClippedPPO(Preset):
+class Ant_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'Ant-v1'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -749,9 +755,9 @@ class Ant_ClippedPPO(Preset):
         self.env.normalize_observation = True
 
 
-class Hopper_ClippedPPO_Distributed(Preset):
+class Hopper_ClippedPPO_Distributed(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'Hopper-v1'
         self.learning_rate = 0.00001
         self.num_heatup_steps = 0
@@ -766,17 +772,17 @@ class Hopper_ClippedPPO_Distributed(Preset):
         self.env.normalize_observation = True
 
 
-class Hopper_DDPG_Roboschool(Preset):
+class Hopper_DDPG_Roboschool(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDPG, Roboschool, OUExploration)
+        conf.Preset.__init__(self, conf.DDPG, conf.Roboschool, conf.OUExploration)
         self.env.level = 'RoboschoolHopper-v1'
         self.learning_rate = 0.00025
         self.num_heatup_steps = 100
 
 
-class Hopper_PPO_Roboschool(Preset):
+class Hopper_PPO_Roboschool(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PPO, Roboschool, ExplorationParameters)
+        conf.Preset.__init__(self, conf.PPO, conf.Roboschool, conf.ExplorationParameters)
         self.env.level = 'RoboschoolHopper-v1'
         self.learning_rate = 0.001
         self.num_heatup_steps = 0
@@ -790,27 +796,27 @@ class Hopper_PPO_Roboschool(Preset):
         self.agent.optimizer_type = 'LBFGS'
 
 
-class Hopper_DDPG(Preset):
+class Hopper_DDPG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDPG, GymVectorObservation, OUExploration)
+        conf.Preset.__init__(self, conf.DDPG, conf.GymVectorObservation, conf.OUExploration)
         self.env.level = 'Hopper-v1'
         self.learning_rate = 0.00025
         self.num_heatup_steps = 100
         self.env.normalize_observation = True
 
 
-class Hopper_DDDPG(Preset):
+class Hopper_DDDPG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDDPG, GymVectorObservation, OUExploration)
+        conf.Preset.__init__(self, conf.DDDPG, conf.GymVectorObservation, conf.OUExploration)
         self.env.level = 'Hopper-v1'
         self.learning_rate = 0.00025
         self.num_heatup_steps = 100
         self.env.normalize_observation = True
 
 
-class Hopper_PPO(Preset):
+class Hopper_PPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.PPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'Hopper-v1'
         self.learning_rate = 0.001
         self.num_heatup_steps = 0
@@ -826,9 +832,9 @@ class Hopper_PPO(Preset):
         self.env.normalize_observation = True
 
 
-class Walker_PPO(Preset):
+class Walker_PPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, PPO, GymVectorObservation, AdditiveNoiseExploration)
+        conf.Preset.__init__(self, conf.PPO, conf.GymVectorObservation, conf.AdditiveNoiseExploration)
         self.env.level = 'Walker2d-v1'
         self.learning_rate = 0.001
         self.num_heatup_steps = 0
@@ -843,27 +849,27 @@ class Walker_PPO(Preset):
         self.env.normalize_observation = True
 
 
-class HalfCheetah_DDPG(Preset):
+class HalfCheetah_DDPG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDPG, GymVectorObservation, OUExploration)
+        conf.Preset.__init__(self, conf.DDPG, conf.GymVectorObservation, conf.OUExploration)
         self.env.level = 'HalfCheetah-v1'
         self.learning_rate = 0.00025
         self.num_heatup_steps = 1000
         self.env.normalize_observation = True
 
 
-class Ant_DDPG(Preset):
+class Ant_DDPG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDPG, GymVectorObservation, OUExploration)
+        conf.Preset.__init__(self, conf.DDPG, conf.GymVectorObservation, conf.OUExploration)
         self.env.level = 'Ant-v1'
         self.learning_rate = 0.00025
         self.num_heatup_steps = 1000
         self.env.normalize_observation = True
 
 
-class Pendulum_NAF(Preset):
+class Pendulum_NAF(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NAF, GymVectorObservation, AdditiveNoiseExploration)
+        conf.Preset.__init__(self, conf.NAF, conf.GymVectorObservation, conf.AdditiveNoiseExploration)
         self.env.level = 'Pendulum-v0'
         self.learning_rate = 0.001
         self.num_heatup_steps = 1000
@@ -875,18 +881,18 @@ class Pendulum_NAF(Preset):
         self.test_min_return_threshold = -250
 
 
-class InvertedPendulum_NAF(Preset):
+class InvertedPendulum_NAF(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NAF, GymVectorObservation, AdditiveNoiseExploration)
+        conf.Preset.__init__(self, conf.NAF, conf.GymVectorObservation, conf.AdditiveNoiseExploration)
         self.env.level = 'InvertedPendulum-v1'
         self.learning_rate = 0.001
         self.num_heatup_steps = 1000
         self.batch_size = 100
 
 
-class Hopper_NAF(Preset):
+class Hopper_NAF(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NAF, GymVectorObservation, AdditiveNoiseExploration)
+        conf.Preset.__init__(self, conf.NAF, conf.GymVectorObservation, conf.AdditiveNoiseExploration)
         self.env.level = 'Hopper-v1'
         self.learning_rate = 0.0005
         self.num_heatup_steps = 1000
@@ -895,9 +901,9 @@ class Hopper_NAF(Preset):
         self.env.normalize_observation = True
 
 
-class CartPole_NEC(Preset):
+class CartPole_NEC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'CartPole-v0'
         self.learning_rate = 0.00025
         self.agent.num_episodes_in_experience_replay = 200
@@ -912,9 +918,9 @@ class CartPole_NEC(Preset):
         self.test_min_return_threshold = 150
 
 
-class Doom_Basic_NEC(Preset):
+class Doom_Basic_NEC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
         self.learning_rate = 0.00001
         self.agent.num_transitions_in_experience_replay = 100000
@@ -928,9 +934,9 @@ class Doom_Basic_NEC(Preset):
 
 
 
-class Montezuma_NEC(Preset):
+class Montezuma_NEC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'MontezumaRevenge-v0'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -938,9 +944,9 @@ class Montezuma_NEC(Preset):
         self.agent.num_playing_steps_between_two_training_steps = 1
 
 
-class Breakout_NEC(Preset):
+class Breakout_NEC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00001
@@ -958,9 +964,9 @@ class Breakout_NEC(Preset):
         self.seed = 123
 
 
-class Doom_Health_NEC(Preset):
+class Doom_Health_NEC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'HEALTH_GATHERING'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -969,9 +975,9 @@ class Doom_Health_NEC(Preset):
         self.agent.num_playing_steps_between_two_training_steps = 1
 
 
-class Doom_Health_DQN(Preset):
+class Doom_Health_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DQN, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DQN, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'HEALTH_GATHERING'
         self.agent.num_episodes_in_experience_replay = 200
         self.learning_rate = 0.00025
@@ -980,22 +986,22 @@ class Doom_Health_DQN(Preset):
         self.agent.num_steps_between_copying_online_weights_to_target = 1000
 
 
-class Pong_NEC_LSTM(Preset):
+class Pong_NEC_LSTM(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'PongDeterministic-v4'
         self.learning_rate = 0.001
         self.agent.num_transitions_in_experience_replay = 1000000
-        self.agent.middleware_type = MiddlewareTypes.LSTM
+        self.agent.middleware_type = conf.MiddlewareTypes.LSTM
         self.exploration.initial_epsilon = 0.5
         self.exploration.final_epsilon = 0.1
         self.exploration.epsilon_decay_steps = 1000000
         self.num_heatup_steps = 500
 
 
-class Pong_NEC(Preset):
+class Pong_NEC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'PongDeterministic-v4'
         self.learning_rate = 0.00001
         self.agent.num_transitions_in_experience_replay = 100000
@@ -1012,9 +1018,9 @@ class Pong_NEC(Preset):
         # self.seed = 123
 
 
-class Alien_NEC(Preset):
+class Alien_NEC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, NEC, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.NEC, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'AlienDeterministic-v4'
         self.learning_rate = 0.0001
         self.agent.num_transitions_in_experience_replay = 100000
@@ -1029,9 +1035,9 @@ class Alien_NEC(Preset):
         self.seed = 123
 
 
-class Pong_DQN(Preset):
+class Pong_DQN(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DQN, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.DQN, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'PongDeterministic-v4'
         self.agent.num_steps_between_copying_online_weights_to_target = 10000
         self.learning_rate = 0.00025
@@ -1047,9 +1053,9 @@ class Pong_DQN(Preset):
         self.seed = 123
 
 
-class CartPole_A3C(Preset):
+class CartPole_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.CategoricalExploration)
         self.env.level = 'CartPole-v0'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
@@ -1060,7 +1066,7 @@ class CartPole_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.01
         self.agent.num_steps_between_gradient_updates = 5
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
         self.test = True
         self.test_max_step_threshold = 1000
@@ -1068,9 +1074,9 @@ class CartPole_A3C(Preset):
         self.test_num_workers = 8
 
 
-class MountainCar_A3C(Preset):
+class MountainCar_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.CategoricalExploration)
         self.env.level = 'MountainCar-v0'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
@@ -1081,12 +1087,12 @@ class MountainCar_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.01
         self.agent.num_steps_between_gradient_updates = 5
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class InvertedPendulum_A3C(Preset):
+class InvertedPendulum_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, EntropyExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.EntropyExploration)
         self.env.level = 'InvertedPendulum-v1'
         self.agent.policy_gradient_rescaler = 'A_VALUE'
         self.agent.optimizer_type = 'Adam'
@@ -1099,12 +1105,12 @@ class InvertedPendulum_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.005
         self.clip_gradients = 40
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class Hopper_A3C(Preset):
+class Hopper_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, EntropyExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.EntropyExploration)
         self.env.level = 'Hopper-v1'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.agent.optimizer_type = 'Adam'
@@ -1117,7 +1123,7 @@ class Hopper_A3C(Preset):
         self.agent.gae_lambda = 0.98
         self.agent.beta_entropy = 0.005
         self.clip_gradients = 40
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
 class HopperIceWall_A3C(Hopper_A3C):
@@ -1138,9 +1144,9 @@ class HopperBullet_A3C(Hopper_A3C):
         self.env.level = 'HopperBulletEnv-v0'
 
 
-class Kuka_ClippedPPO(Preset):
+class Kuka_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'KukaBulletEnv-v0'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -1155,9 +1161,9 @@ class Kuka_ClippedPPO(Preset):
         self.env.normalize_observation = True
 
 
-class Minitaur_ClippedPPO(Preset):
+class Minitaur_ClippedPPO(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
+        conf.Preset.__init__(self, conf.ClippedPPO, conf.GymVectorObservation, conf.ExplorationParameters)
         self.env.level = 'MinitaurBulletEnv-v0'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -1172,9 +1178,9 @@ class Minitaur_ClippedPPO(Preset):
         self.env.normalize_observation = True
 
 
-class Walker_A3C(Preset):
+class Walker_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, EntropyExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.EntropyExploration)
         self.env.level = 'Walker2d-v1'
         self.agent.policy_gradient_rescaler = 'A_VALUE'
         self.agent.optimizer_type = 'Adam'
@@ -1187,12 +1193,12 @@ class Walker_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.005
         self.clip_gradients = 40
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class Ant_A3C(Preset):
+class Ant_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, EntropyExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.EntropyExploration)
         self.env.level = 'Ant-v1'
         self.agent.policy_gradient_rescaler = 'A_VALUE'
         self.agent.optimizer_type = 'Adam'
@@ -1205,7 +1211,7 @@ class Ant_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.005
         self.clip_gradients = 40
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
         self.env.normalize_observation = True
 
 
@@ -1221,9 +1227,9 @@ class AntMaze_A3C(Ant_A3C):
         self.env.level = 'AntMaze-v0'
 
 
-class Humanoid_A3C(Preset):
+class Humanoid_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, EntropyExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.EntropyExploration)
         self.env.level = 'Humanoid-v1'
         self.agent.policy_gradient_rescaler = 'A_VALUE'
         self.agent.optimizer_type = 'Adam'
@@ -1236,13 +1242,13 @@ class Humanoid_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.005
         self.clip_gradients = 40
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
         self.env.normalize_observation = True
 
 
-class Pendulum_A3C(Preset):
+class Pendulum_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, EntropyExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.EntropyExploration)
         self.env.level = 'Pendulum-v0'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.agent.optimizer_type = 'Adam'
@@ -1254,9 +1260,9 @@ class Pendulum_A3C(Preset):
 
 
 
-class BipedalWalker_A3C(Preset):
+class BipedalWalker_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, GymVectorObservation, EntropyExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.GymVectorObservation, conf.EntropyExploration)
         self.env.level = 'BipedalWalker-v2'
         self.agent.policy_gradient_rescaler = 'A_VALUE'
         self.agent.optimizer_type = 'RMSProp'
@@ -1269,12 +1275,12 @@ class BipedalWalker_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.005
         self.clip_gradients = None
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class Doom_Basic_A3C(Preset):
+class Doom_Basic_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, Doom, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.Doom, conf.CategoricalExploration)
         self.env.level = 'basic'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
@@ -1286,12 +1292,12 @@ class Doom_Basic_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.01
         self.clip_gradients = 40
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class Pong_A3C(Preset):
+class Pong_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, Atari, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.Atari, conf.CategoricalExploration)
         self.env.level = 'PongDeterministic-v4'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
@@ -1302,12 +1308,12 @@ class Pong_A3C(Preset):
         self.agent.gae_lambda = 1.
         self.agent.beta_entropy = 0.01
         self.clip_gradients = 40.0
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class Breakout_A3C(Preset):
+class Breakout_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, Atari, CategoricalExploration)
+        conf.Preset.__init__(self, conf.ActorCritic, conf.Atari, conf.CategoricalExploration)
         self.env.level = 'BreakoutDeterministic-v4'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
@@ -1318,13 +1324,13 @@ class Breakout_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.05
         self.clip_gradients = 40.0
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class Carla_A3C(Preset):
+class Carla_A3C(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, ActorCritic, Carla, EntropyExploration)
-        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        conf.Preset.__init__(self, conf.ActorCritic, conf.Carla, conf.EntropyExploration)
+        self.agent.embedder_complexity = conf.EmbedderComplexity.Deep
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -1335,22 +1341,22 @@ class Carla_A3C(Preset):
         self.agent.gae_lambda = 1
         self.agent.beta_entropy = 0.01
         self.clip_gradients = 40
-        self.agent.middleware_type = MiddlewareTypes.FC
+        self.agent.middleware_type = conf.MiddlewareTypes.FC
 
 
-class Carla_DDPG(Preset):
+class Carla_DDPG(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, DDPG, Carla, OUExploration)
-        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        conf.Preset.__init__(self, conf.DDPG, conf.Carla, conf.OUExploration)
+        self.agent.embedder_complexity = conf.EmbedderComplexity.Deep
         self.learning_rate = 0.0001
         self.num_heatup_steps = 1000
         self.agent.num_consecutive_training_steps = 5
 
 
-class Carla_BC(Preset):
+class Carla_BC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, BC, Carla, ExplorationParameters)
-        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        conf.Preset.__init__(self, conf.BC, conf.Carla, conf.ExplorationParameters)
+        self.agent.embedder_complexity = conf.EmbedderComplexity.Deep
         self.agent.load_memory_from_file_path = 'datasets/carla_town1.p'
         self.learning_rate = 0.0005
         self.num_heatup_steps = 0
@@ -1359,9 +1365,9 @@ class Carla_BC(Preset):
         self.evaluate_every_x_training_iterations = 5000
 
 
-class Doom_Basic_BC(Preset):
+class Doom_Basic_BC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, BC, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.BC, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'basic'
         self.agent.load_memory_from_file_path = 'datasets/doom_basic.p'
         self.learning_rate = 0.0005
@@ -1372,9 +1378,9 @@ class Doom_Basic_BC(Preset):
         self.num_training_iterations = 2000
 
 
-class Doom_Defend_BC(Preset):
+class Doom_Defend_BC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, BC, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.BC, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'defend'
         self.agent.load_memory_from_file_path = 'datasets/doom_defend.p'
         self.learning_rate = 0.0005
@@ -1384,9 +1390,9 @@ class Doom_Defend_BC(Preset):
         self.evaluate_every_x_training_iterations = 100
 
 
-class Doom_Deathmatch_BC(Preset):
+class Doom_Deathmatch_BC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, BC, Doom, ExplorationParameters)
+        conf.Preset.__init__(self, conf.BC, conf.Doom, conf.ExplorationParameters)
         self.env.level = 'deathmatch'
         self.agent.load_memory_from_file_path = 'datasets/doom_deathmatch.p'
         self.learning_rate = 0.0005
@@ -1396,9 +1402,9 @@ class Doom_Deathmatch_BC(Preset):
         self.evaluate_every_x_training_iterations = 100
 
 
-class MontezumaRevenge_BC(Preset):
+class MontezumaRevenge_BC(conf.Preset):
     def __init__(self):
-        Preset.__init__(self, BC, Atari, ExplorationParameters)
+        conf.Preset.__init__(self, conf.BC, conf.Atari, conf.ExplorationParameters)
         self.env.level = 'MontezumaRevenge-v0'
         self.agent.load_memory_from_file_path = 'datasets/montezuma_revenge.p'
         self.learning_rate = 0.0005

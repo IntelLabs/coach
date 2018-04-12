@@ -13,19 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from pandas import *
+import datetime
 import os
 import re
-from pprint import pprint
-import threading
-from subprocess import Popen, PIPE
-import time
-import datetime
-from six.moves import input
-from PIL import Image
-from typing import Union
 import shutil
+import time
+import typing
+
+import pandas
+import PIL
+from six.moves import input
 
 global failed_imports
 failed_imports = []
@@ -90,7 +87,7 @@ class ScreenLogger(object):
     def ask_input(self, title):
         return input("{}{}{}".format(Colors.BG_CYAN, title, Colors.END))
 
-    def ask_yes_no(self, title: str, default: Union[None, bool]=None):
+    def ask_yes_no(self, title: str, default: typing.Union[None, bool]=None):
         """
         Ask the user for a yes / no question and return True if the answer is yes and False otherwise.
         The function will keep asking the user for an answer until he answers one of the possible responses.
@@ -156,7 +153,7 @@ class BaseLogger(object):
 class Logger(BaseLogger):
     def __init__(self):
         BaseLogger.__init__(self)
-        self.data = DataFrame()
+        self.data = pandas.DataFrame()
         self.csv_path = ''
         self.doc_path = ''
         self.aggregated_data_across_threads = None
@@ -249,7 +246,7 @@ class Logger(BaseLogger):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         output_path = os.path.join(output_dir, output_file)
-        pil_images = [Image.fromarray(image) for image in images]
+        pil_images = [PIL.Image.fromarray(image) for image in images]
         pil_images[0].save(output_path, save_all=True, append_images=pil_images[1:], duration=1.0 / fps, loop=0)
 
     def remove_experiment_dir(self):

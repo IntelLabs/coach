@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,16 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from exploration_policies.additive_noise import AdditiveNoise
+from exploration_policies.approximated_thompson_sampling_using_dropout import ApproximatedThompsonSamplingUsingDropout
+from exploration_policies.bayesian import Bayesian
+from exploration_policies.boltzmann import Boltzmann
+from exploration_policies.bootstrapped import Bootstrapped
+from exploration_policies.categorical import Categorical
+from exploration_policies.continuous_entropy import ContinuousEntropy
+from exploration_policies.e_greedy import EGreedy
+from exploration_policies.exploration_policy import ExplorationPolicy
+from exploration_policies.greedy import Greedy
+from exploration_policies.ou_process import OUProcess
+from exploration_policies.thompson_sampling import ThompsonSampling
 
-from exploration_policies.additive_noise import *
-from exploration_policies.approximated_thompson_sampling_using_dropout import *
-from exploration_policies.bayesian import *
-from exploration_policies.boltzmann import *
-from exploration_policies.bootstrapped import *
-from exploration_policies.categorical import *
-from exploration_policies.continuous_entropy import *
-from exploration_policies.e_greedy import *
-from exploration_policies.exploration_policy import *
-from exploration_policies.greedy import *
-from exploration_policies.ou_process import *
-from exploration_policies.thompson_sampling import *
+
+__all__ = [AdditiveNoise,
+           ApproximatedThompsonSamplingUsingDropout,
+           Bayesian,
+           Boltzmann,
+           Bootstrapped,
+           Categorical,
+           ContinuousEntropy,
+           EGreedy,
+           ExplorationPolicy,
+           Greedy,
+           OUProcess,
+           ThompsonSampling]
