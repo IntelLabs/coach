@@ -180,7 +180,7 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
                       - np.abs(self.control.steer) * 10
 
         # update measurements
-        self.observation = {
+        self.state = {
             'observation': sensor_data['CameraRGB'].data,
             'measurements': [measurements.player_measurements.forward_speed],
         }
@@ -224,9 +224,9 @@ class CarlaEnvironmentWrapper(EnvironmentWrapper):
             self.game.start_episode(self.iterator_start_positions)
 
         # start the game with some initial speed
-        observation = None
+        state = None
         for i in range(self.num_speedup_steps):
-            observation = self.step([1.0, 0])['observation']
-        self.observation = observation
+            state = self.step([1.0, 0])['state']
+        self.state = state
 
-        return observation
+        return state
