@@ -1,7 +1,7 @@
 # Coach
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/NervanaSystems/coach/blob/master/LICENSE)
-[![Docs](https://img.shields.io/readthedocs/pip/stable.svg)](http://coach.nervanasys.com/)
+[![Docs](https://img.shields.io/readthedocs/pip/stable.svg)](http://NervanaSystems.github.io/coach/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)
 
 ##  Overview
@@ -44,7 +44,7 @@ Contacting the Coach development team is also possible through the email [coach@
 
 ## Documentation
 
-Framework documentation, algorithm description and instructions on how to contribute a new agent/environment can be found [here](http://coach.nervanasys.com).
+Framework documentation, algorithm description and instructions on how to contribute a new agent/environment can be found [here](http://NervanaSystems.github.io/coach/).
 
 
 ## Installation
@@ -135,7 +135,7 @@ For example:
 
 It is easy to create new presets for different levels or environments by following the same pattern as in presets.py
 
-More usage examples can be found [here](http://coach.nervanasys.com/usage/index.html).
+More usage examples can be found [here](http://NervanaSystems.github.io/coach/usage/index.html).
 
 ### Running Coach Dashboard (Visualization)
 Training an agent to solve an environment can be tricky, at times. 
