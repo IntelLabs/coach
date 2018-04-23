@@ -200,6 +200,19 @@ class CartPole_PAL(Preset):
         self.test_max_step_threshold = 100
         self.test_min_return_threshold = 150
 
+
+class CartPole_DFP(Preset):
+    def __init__(self):
+        Preset.__init__(self, DFP, GymVectorObservation, ExplorationParameters)
+        self.env.level = 'CartPole-v0'
+        self.agent.num_episodes_in_experience_replay = 200
+        self.learning_rate = 0.0001
+        self.num_heatup_steps = 1000
+        self.exploration.epsilon_decay_steps = 10000
+        self.agent.use_accumulated_reward_as_measurement = True
+        self.agent.goal_vector = [1.0]
+
+
 class Doom_Basic_DFP(Preset):
     def __init__(self):
         Preset.__init__(self, DFP, Doom, ExplorationParameters)

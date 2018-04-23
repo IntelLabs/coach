@@ -135,7 +135,7 @@ class DoomEnvironmentWrapper(EnvironmentWrapper):
         # extract all data from the current state
         state = self.game.get_state()
         if state is not None and state.screen_buffer is not None:
-            self.observation = {
+            self.state = {
                 'observation': state.screen_buffer,
                 'measurements': state.game_variables,
             }
