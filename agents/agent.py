@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 import collections
+import copy
 import random
 import time
 
@@ -30,8 +31,8 @@ import scipy
 
 from architectures.tensorflow_components import shared_variables as sv
 import configurations
-import exploration_policies as ep
-import memories
+import exploration_policies as ep  # noqa, used in eval()
+import memories  # noqa, used in eval()
 from memories import memory
 import renderer
 import utils

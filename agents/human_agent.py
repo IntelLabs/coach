@@ -31,14 +31,14 @@ class HumanAgent(agent.Agent):
         self.clock = pygame.time.Clock()
         self.max_fps = int(self.tp.visualization.max_fps_for_human_control)
 
-        utils.screen.log_title("Human Control Mode")
+        logger.screen.log_title("Human Control Mode")
         available_keys = self.env.get_available_keys()
         if available_keys:
-            utils.screen.log("Use keyboard keys to move. Press escape to quit. Available keys:")
-            utils.screen.log("")
+            logger.screen.log("Use keyboard keys to move. Press escape to quit. Available keys:")
+            logger.screen.log("")
             for action, key in self.env.get_available_keys():
-                utils.screen.log("\t- {}: {}".format(action, key))
-            utils.screen.separator()
+                logger.screen.log("\t- {}: {}".format(action, key))
+            logger.screen.separator()
 
     def train(self):
         return 0
@@ -58,12 +58,12 @@ class HumanAgent(agent.Agent):
         replay_buffer_path = os.path.join(logger.logger.experiments_path, 'replay_buffer.p')
         self.memory.tp = None
         pickle.to_pickle(self.memory, replay_buffer_path)
-        utils.screen.log_title("Replay buffer was stored in {}".format(replay_buffer_path))
+        logger.screen.log_title("Replay buffer was stored in {}".format(replay_buffer_path))
         exit()
 
     def log_to_screen(self, phase):
-        # log to utils.screen
-        utils.screen.log_dict(
+        # log to logger.screen
+        logger.screen.log_dict(
             collections.OrderedDict([
                 ("Episode", self.current_episode),
                 ("total reward", self.total_reward_in_current_episode),
