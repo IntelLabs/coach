@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    
+    <url>
+     <loc>None/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>None/design/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>None/usage/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+        
+    <url>
+     <loc>None/algorithms/value_optimization/dqn/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/double_dqn/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/dueling_dqn/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/categorical_dqn/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/mmc/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/pal/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/nec/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/bs_dqn/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/n_step/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/value_optimization/naf/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/policy_optimization/pg/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/policy_optimization/ac/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/policy_optimization/ddpg/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/policy_optimization/ppo/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/policy_optimization/cppo/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/other/dfp/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/algorithms/imitation/bc/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+    <url>
+     <loc>None/dashboard/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+        
+    <url>
+     <loc>None/contributing/add_agent/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/contributing/add_env/</loc>
+     <lastmod>2017-12-18</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+</urlset>

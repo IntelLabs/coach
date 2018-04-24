@@ -91,7 +91,7 @@ class GymEnvironmentWrapper(ew.EnvironmentWrapper):
             self.timestep_limit = self.env.spec.timestep_limit
         else:
             self.timestep_limit = None
-        self.measurements_size = len(self.step(0)['info'].keys())
+        self.measurements_size = (len(self.step(0)['info'].keys()),)
         self.random_initialization_steps = self.tp.env.random_initialization_steps
 
     def _wrap_state(self, state):
