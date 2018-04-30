@@ -176,7 +176,7 @@ class ClippedPPOAgent(ActorCriticAgent):
         dataset = dataset[:self.tp.agent.num_consecutive_playing_steps]
 
         if self.tp.distributed and self.tp.agent.share_statistics_between_workers:
-            self.running_observation_stats.push(np.array([t.state['observation'] for t in dataset]))
+            self.running_observation_stats.push(np.array([np.array(t.state['observation']) for t in dataset]))
 
         losses = self.train_network(dataset, 10)
         self.value_loss.add_sample(losses[0])
