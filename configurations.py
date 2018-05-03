@@ -32,11 +32,6 @@ class InputTypes(object):
     TimedObservation = 5
 
 
-class EmbedderComplexity(object):
-    Shallow = 1
-    Deep = 2
-
-
 class OutputTypes(object):
     Q = 1
     DuelingQ = 2
@@ -49,6 +44,17 @@ class OutputTypes(object):
     PPO_V = 9
     CategoricalQ = 10
     QuantileRegressionQ = 11
+
+
+
+class EmbedderDepth(object):
+    Shallow = 1
+    Deep = 2
+
+
+class EmbedderWidth(object):
+    Narrow = 1
+    Wide = 2
 
 
 class MiddlewareTypes(object):
@@ -82,7 +88,8 @@ class AgentParameters(Parameters):
     middleware_type = MiddlewareTypes.FC
     loss_weights = [1.0]
     stop_gradients_from_head = [False]
-    embedder_complexity = EmbedderComplexity.Shallow
+    embedder_depth = EmbedderDepth.Shallow
+    embedder_width = EmbedderWidth.Wide
     num_output_head_copies = 1
     use_measurements = False
     use_accumulated_reward_as_measurement = False

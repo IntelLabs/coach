@@ -664,8 +664,11 @@ class Humanoid_ClippedPPO(Preset):
     def __init__(self):
         Preset.__init__(self, ClippedPPO, GymVectorObservation, ExplorationParameters)
         self.env.level = 'Humanoid-v1'
-        self.learning_rate = 0.0001
+        self.agent.embedder_width = EmbedderWidth.Narrow
+        self.learning_rate = 0.00001
         self.num_heatup_steps = 0
+        self.evaluation_episodes = 1
+        self.evaluate_every_x_episodes = 1
         self.agent.num_consecutive_training_steps = 1
         self.agent.num_consecutive_playing_steps = 2048
         self.agent.discount = 0.99
@@ -1337,7 +1340,7 @@ class Breakout_A3C(Preset):
 class Carla_A3C(Preset):
     def __init__(self):
         Preset.__init__(self, ActorCritic, Carla, EntropyExploration)
-        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        self.agent.embedder_complexity = EmbedderDepth.Deep
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
         self.num_heatup_steps = 0
@@ -1354,7 +1357,7 @@ class Carla_A3C(Preset):
 class Carla_DDPG(Preset):
     def __init__(self):
         Preset.__init__(self, DDPG, Carla, OUExploration)
-        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        self.agent.embedder_complexity = EmbedderDepth.Deep
         self.learning_rate = 0.0001
         self.num_heatup_steps = 1000
         self.agent.num_consecutive_training_steps = 5
@@ -1363,7 +1366,7 @@ class Carla_DDPG(Preset):
 class Carla_BC(Preset):
     def __init__(self):
         Preset.__init__(self, BC, Carla, ExplorationParameters)
-        self.agent.embedder_complexity = EmbedderComplexity.Deep
+        self.agent.embedder_complexity = EmbedderDepth.Deep
         self.agent.load_memory_from_file_path = 'datasets/carla_town1.p'
         self.learning_rate = 0.0005
         self.num_heatup_steps = 0

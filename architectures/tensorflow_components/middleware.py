@@ -16,13 +16,15 @@
 
 import tensorflow as tf
 import numpy as np
+from configurations import EmbedderWidth
 
 
 class MiddlewareEmbedder(object):
-    def __init__(self, activation_function=tf.nn.relu, name="middleware_embedder"):
+    def __init__(self, activation_function=tf.nn.relu, embedder_width=EmbedderWidth.Wide, name="middleware_embedder"):
         self.name = name
         self.input = None
         self.output = None
+        self.embedder_width = embedder_width
         self.activation_function = activation_function
 
     def __call__(self, input_layer):
@@ -70,4 +72,6 @@ class LSTM_Embedder(MiddlewareEmbedder):
 
 class FC_Embedder(MiddlewareEmbedder):
     def _build_module(self):
-        self.output = tf.layers.dense(self.input, 512, activation=self.activation_function, name='fc1')
+        width = 512 if self.embedder_width == EmbedderWidth.Wide else 64
+        self.output = tf.layers.dense(self.input, width, activation=self.activation_function, name='fc1')
+
