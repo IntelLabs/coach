@@ -15,18 +15,20 @@
 #
 
 import tensorflow as tf
-from configurations import EmbedderComplexity
+from configurations import EmbedderDepth, EmbedderWidth
 
 
 class InputEmbedder(object):
     def __init__(self, input_size, activation_function=tf.nn.relu,
-                 embedder_complexity=EmbedderComplexity.Shallow, name="embedder"):
+                 embedder_depth=EmbedderDepth.Shallow, embedder_width=EmbedderWidth.Wide,
+                 name="embedder"):
         self.name = name
         self.input_size = input_size
         self.activation_function = activation_function
         self.input = None
         self.output = None
-        self.embedder_complexity = embedder_complexity
+        self.embedder_depth = embedder_depth
+        self.embedder_width = embedder_width
 
     def __call__(self, prev_input_placeholder=None):
         with tf.variable_scope(self.get_name()):
@@ -47,15 +49,16 @@ class InputEmbedder(object):
 
 class ImageEmbedder(InputEmbedder):
     def __init__(self, input_size, input_rescaler=255.0, activation_function=tf.nn.relu,
-                 embedder_complexity=EmbedderComplexity.Shallow, name="embedder"):
-        InputEmbedder.__init__(self, input_size, activation_function, embedder_complexity, name)
+                 embedder_depth=EmbedderDepth.Shallow, embedder_width=EmbedderWidth.Wide,
+                 name="embedder"):
+        InputEmbedder.__init__(self, input_size, activation_function, embedder_depth, embedder_width, name)
         self.input_rescaler = input_rescaler
 
     def _build_module(self):
         # image observation
         rescaled_observation_stack = self.input / self.input_rescaler
 
-        if self.embedder_complexity == EmbedderComplexity.Shallow:
+        if self.embedder_depth == EmbedderDepth.Shallow:
             # same embedder as used in the original DQN paper
             self.observation_conv1 = tf.layers.conv2d(rescaled_observation_stack,
                                                       filters=32, kernel_size=(8, 8), strides=(4, 4),
@@ -73,7 +76,7 @@ class ImageEmbedder(InputEmbedder):
 
             self.output = tf.contrib.layers.flatten(self.observation_conv3)
 
-        elif self.embedder_complexity == EmbedderComplexity.Deep:
+        elif self.embedder_depth == EmbedderDepth.Deep:
             # the embedder used in the CARLA papers
             self.observation_conv1 = tf.layers.conv2d(rescaled_observation_stack,
                                                  filters=32, kernel_size=(5, 5), strides=(2, 2),
@@ -115,24 +118,27 @@ class ImageEmbedder(InputEmbedder):
 
 class VectorEmbedder(InputEmbedder):
     def __init__(self, input_size, activation_function=tf.nn.relu,
-                 embedder_complexity=EmbedderComplexity.Shallow, name="embedder"):
-        InputEmbedder.__init__(self, input_size, activation_function, embedder_complexity, name)
+                 embedder_depth=EmbedderDepth.Shallow, embedder_width=EmbedderWidth.Wide,
+                 name="embedder"):
+        InputEmbedder.__init__(self, input_size, activation_function, embedder_depth, embedder_width, name)
 
     def _build_module(self):
         # vector observation
         input_layer = tf.contrib.layers.flatten(self.input)
 
-        if self.embedder_complexity == EmbedderComplexity.Shallow:
-            self.output = tf.layers.dense(input_layer, 256, activation=self.activation_function,
+        width = 128 if self.embedder_width == EmbedderWidth.Wide else 32
+
+        if self.embedder_depth == EmbedderDepth.Shallow:
+            self.output = tf.layers.dense(input_layer, 2*width, activation=self.activation_function,
                                                  name='fc1')
 
-        elif self.embedder_complexity == EmbedderComplexity.Deep:
+        elif self.embedder_depth == EmbedderDepth.Deep:
             # the embedder used in the CARLA papers
-            self.observation_fc1 = tf.layers.dense(input_layer, 128, activation=self.activation_function,
+            self.observation_fc1 = tf.layers.dense(input_layer, width, activation=self.activation_function,
                                                  name='fc1')
-            self.observation_fc2 = tf.layers.dense(self.observation_fc1, 128, activation=self.activation_function,
+            self.observation_fc2 = tf.layers.dense(self.observation_fc1, width, activation=self.activation_function,
                                                  name='fc2')
-            self.output = tf.layers.dense(self.observation_fc2, 128, activation=self.activation_function,
+            self.output = tf.layers.dense(self.observation_fc2, width, activation=self.activation_function,
                                                  name='fc3')
         else:
             raise ValueError("The defined embedder complexity value is invalid")

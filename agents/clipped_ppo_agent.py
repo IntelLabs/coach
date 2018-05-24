@@ -69,7 +69,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         # standardize
-        advantages = (advantages - np.mean(advantages)) / np.std(advantages)
+        advantages = (advantages - np.mean(advantages)) / (np.std(advantages) + 1e-8)
 
         for transition, advantage, value_target in zip(batch, advantages, value_targets):
             transition.info['advantage'] = advantage

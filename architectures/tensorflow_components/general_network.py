@@ -36,6 +36,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.output_heads = []
         self.activation_function = self.get_activation_function(
             tuning_parameters.agent.hidden_layers_activation_function)
+        self.embedder_width = tuning_parameters.agent.embedder_width
 
         TensorFlowArchitecture.__init__(self, tuning_parameters, name, global_network, network_is_local)
 
@@ -57,22 +58,26 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         def get_observation_embedding(with_timestep=False):
             if self.input_height > 1:
                 return ImageEmbedder((self.input_height, self.input_width, self.input_depth), name="observation",
-                                     input_rescaler=self.tp.agent.input_rescaler)
+                                     input_rescaler=self.tp.agent.input_rescaler, embedder_width=self.embedder_width)
             else:
-                return VectorEmbedder((self.input_width + int(with_timestep), self.input_depth), name="observation")
+                return VectorEmbedder((self.input_width + int(with_timestep), self.input_depth), name="observation",
+                                      embedder_width=self.embedder_width)
 
         input_mapping = {
             InputTypes.Observation: get_observation_embedding(),
-            InputTypes.Measurements: VectorEmbedder(self.measurements_size, name="measurements"),
-            InputTypes.GoalVector: VectorEmbedder(self.measurements_size, name="goal_vector"),
-            InputTypes.Action: VectorEmbedder((self.num_actions,), name="action"),
+            InputTypes.Measurements: VectorEmbedder(self.measurements_size, name="measurements",
+                                                    embedder_width=self.embedder_width),
+            InputTypes.GoalVector: VectorEmbedder(self.measurements_size, name="goal_vector",
+                                                  embedder_width=self.embedder_width),
+            InputTypes.Action: VectorEmbedder((self.num_actions,), name="action",
+                                              embedder_width=self.embedder_width),
             InputTypes.TimedObservation: get_observation_embedding(with_timestep=True),
         }
         return input_mapping[embedder_type]
 
     def get_middleware_embedder(self, middleware_type):
         return {MiddlewareTypes.LSTM: LSTM_Embedder,
-                MiddlewareTypes.FC: FC_Embedder}.get(middleware_type)(self.activation_function)
+                MiddlewareTypes.FC: FC_Embedder}.get(middleware_type)(self.activation_function, self.embedder_width)
 
     def get_output_head(self, head_type, head_idx, loss_weight=1.):
         output_mapping = {
@@ -174,7 +179,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.losses = tf.losses.get_losses(self.name)
         self.losses += tf.losses.get_regularization_losses(self.name)
         self.total_loss = tf.losses.compute_weighted_loss(self.losses, scope=self.name)
-        tf.summary.scalar('total_loss', self.total_loss)
+        if self.tp.visualization.tensorboard:
+            tf.summary.scalar('total_loss', self.total_loss)
 
 
         # Learning rate

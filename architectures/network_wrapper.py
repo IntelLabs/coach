@@ -81,6 +81,7 @@ class NetworkWrapper(object):
             variables_to_restore = tf.global_variables()
             variables_to_restore = [v for v in variables_to_restore if '/online' in v.name]
             self.model_saver = tf.train.Saver(variables_to_restore)
+            #, max_to_keep=None) # uncomment to unlimit number of stored checkpoints
             if self.tp.sess and self.tp.checkpoint_restore_dir:
                 checkpoint = tf.train.latest_checkpoint(self.tp.checkpoint_restore_dir)
                 screen.log_title("Loading checkpoint: {}".format(checkpoint))
