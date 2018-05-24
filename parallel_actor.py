@@ -159,10 +159,10 @@ if __name__ == "__main__":
         tuning_parameters.sess = sess
         for network in agent.networks:
             network.set_session(sess)
-            if hasattr(network.global_network, 'lock_init'):
-                sess.run(network.global_network.lock_init)
-            if hasattr(network.global_network, 'release_init'):
-                sess.run(network.global_network.release_init)
+            # if hasattr(network.global_network, 'lock_init'):
+            #     sess.run(network.global_network.lock_init)
+            # if hasattr(network.global_network, 'release_init'):
+            #     sess.run(network.global_network.release_init)
 
         if tuning_parameters.visualization.tensorboard:
             # Write the merged summaries to the current experiment directory
