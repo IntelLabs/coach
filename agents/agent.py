@@ -550,7 +550,7 @@ class Agent(object):
                 if current_snapshot_period > model_snapshots_periods_passed:
                     model_snapshots_periods_passed = current_snapshot_period
                     self.save_model(model_snapshots_periods_passed)
-                    if self.running_observation_stats is not None:
+                    if hasattr(self, 'running_observation_state') and self.running_observation_stats is not None:
                         to_pickle(self.running_observation_stats,
                                   os.path.join(self.tp.save_model_dir,
                                                "running_stats.p".format(model_snapshots_periods_passed)))
