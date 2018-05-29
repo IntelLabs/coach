@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+PIP=pip
+
 prompt () {
     # prints a yes / no question to the user and returns the answer
     # first argument is the prompt question
@@ -139,17 +141,17 @@ sudo -E apt-get install libboost-all-dev -y
 # Coach
 if [ ${INSTALL_COACH} -eq 1 ]; then
     echo "Installing Coach requirements"
-    pip3 install -r ./requirements_coach.txt
+    ${PIP} install -r ./requirements_coach.txt
 fi
 
 # Dashboard
 if [ ${INSTALL_DASHBOARD} -eq 1 ]; then
     echo "Installing Dashboard requirements"
-    pip3 install -r ./requirements_dashboard.txt
+    ${PIP} install -r ./requirements_dashboard.txt
     sudo -E apt-get install dpkg-dev build-essential python3.5-dev libjpeg-dev  libtiff-dev libsdl1.2-dev libnotify-dev \
     freeglut3 freeglut3-dev libsm-dev libgtk2.0-dev libgtk-3-dev libwebkitgtk-dev libgtk-3-dev libwebkitgtk-3.0-dev libgstreamer-plugins-base1.0-dev -y
 
-    sudo -E -H pip3 install -U --pre -f \
+    sudo -E -H ${PIP} install -U --pre -f \
     https://wxpython.org/Phoenix/snapshot-builds/linux/gtk3/ubuntu-16.04/wxPython-4.0.0a3.dev3059+4a5c5d9-cp35-cp35m-linux_x86_64.whl  wxPython
 
     # link wxPython Phoenix library into the virtualenv since it is installed with apt-get and not accessible
@@ -164,8 +166,8 @@ fi
 if [ ${INSTALL_GYM} -eq 1 ]; then
     echo "Installing Gym support"
     sudo -E apt-get install libav-tools libsdl2-dev swig cmake -y
-    pip3 install box2d # for bipedal walker etc.
-    pip3 install gym[all]==0.9.4
+    ${PIP} install box2d # for bipedal walker etc.
+    ${PIP} install gym[all]==0.9.4
 fi
 
 # NGraph and Neon
@@ -192,14 +194,14 @@ if [ ${INSTALL_NEON} -eq 1 ]; then
 
     # Neon
     sudo -E apt-get install libhdf5-dev libyaml-dev pkg-config clang virtualenv libcurl4-openssl-dev libopencv-dev libsox-dev -y
-    pip3 install nervananeon
+    ${PIP} install nervananeon
 fi
 
 if ! [ -x "$(command -v nvidia-smi)" ]; then
     # Intel Optimized TensorFlow
     #pip3 install https://anaconda.org/intel/tensorflow/1.3.0/download/tensorflow-1.3.0-cp35-cp35m-linux_x86_64.whl
-    pip3 install https://anaconda.org/intel/tensorflow/1.4.0/download/tensorflow-1.4.0-cp35-cp35m-linux_x86_64.whl
+    ${PIP} install https://anaconda.org/intel/tensorflow/1.4.0/download/tensorflow-1.4.0-cp35-cp35m-linux_x86_64.whl
 else
     # GPU supported TensorFlow
-    pip3 install tensorflow-gpu==1.4.1
+    ${PIP} install tensorflow-gpu==1.4.1
 fi
