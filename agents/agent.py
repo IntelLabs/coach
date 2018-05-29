@@ -371,7 +371,7 @@ class Agent(object):
             'observation': observation
         }
         if self.tp.agent.use_measurements:
-            if 'measurements' in self.curr_state.keys():
+            if 'measurements' in self.env.state.keys():
                 self.curr_state['measurements'] = self.env.state['measurements']
             else:
                 self.curr_state['measurements'] = np.zeros(0)
