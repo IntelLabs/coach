@@ -1,7 +1,7 @@
 # Coach
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/NervanaSystems/coach/blob/master/LICENSE)
-[![Docs](https://img.shields.io/readthedocs/pip.svg)](http://NervanaSystems.github.io/coach/)
+[![Docs](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat)](http://NervanaSystems.github.io/coach/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)
 
 ##  Overview
