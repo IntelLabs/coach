@@ -187,8 +187,12 @@ if [ ${INSTALL_NEON} -eq 1 ]; then
     # NGraph
     git clone https://github.com/NervanaSystems/ngraph.git
     cd ngraph
+    mkdir build
+    cd build
+    cmake ..
+    make -j
     make install -j
-    cd ..
+    cd ../..
 
     # Neon
     sudo -E apt-get install libhdf5-dev libyaml-dev pkg-config clang virtualenv libcurl4-openssl-dev libopencv-dev libsox-dev -y
