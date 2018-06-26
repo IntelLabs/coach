@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from pandas import *
+from pandas import DataFrame
 import os
 import re
 from pprint import pprint
