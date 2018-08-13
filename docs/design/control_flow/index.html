@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Control Flow - Reinforcement Learning Coach</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Control Flow";
+    var mkdocs_page_input_path = "design/control_flow.md";
+    var mkdocs_page_url = "/design/control_flow/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Reinforcement Learning Coach</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../usage/">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Design</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../features/">Features</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Control Flow</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#coach-control-flow">Coach Control Flow</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#graph-manager">Graph Manager</a></li>
+        
+            <li><a class="toctree-l4" href="#level-manager">Level Manager</a></li>
+        
+            <li><a class="toctree-l4" href="#agent">Agent</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../network/">Network</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../filters/">Filters</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Algorithms</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dqn/">DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/double_dqn/">Double DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dueling_dqn/">Dueling DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/categorical_dqn/">Categorical DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/mmc/">Mixed Monte Carlo</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/pal/">Persistent Advantage Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/nec/">Neural Episodic Control</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/bs_dqn/">Bootstrapped DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/n_step/">N-Step Q Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/naf/">Normalized Advantage Functions</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/pg/">Policy Gradient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ac/">Actor-Critic</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ddpg/">Deep Determinstic Policy Gradients</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ppo/">Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/cppo/">Clipped Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/other/dfp/">Direct Future Prediction</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/imitation/bc/">Behavioral Cloning</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../dashboard/">Coach Dashboard</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Contributing</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../contributing/add_agent/">Adding a New Agent</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../contributing/add_env/">Adding a New Environment</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Reinforcement Learning Coach</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Design &raquo;</li>
+        
+      
+    
+    <li>Control Flow</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <!-- language-all: python -->
+
+<h1 id="coach-control-flow">Coach Control Flow</h1>
+<p>Coach is built in a modular way, encouraging modules reuse and reducing the amount of boilerplate code needed
+for developing new algorithms or integrating a new challenge as an environment.
+On the other hand, it can be overwhelming for new users to ramp up on the code.
+To help with that, here's a short overview of the control flow.</p>
+<h2 id="graph-manager">Graph Manager</h2>
+<p>The main entry point for Coach is <strong>coach.py</strong>.
+The main functionality of this script is to parse the command line arguments and invoke all the sub-processes needed
+for the given experiment.
+<strong>coach.py</strong> executes the given <strong>preset</strong> file which returns a <strong>GraphManager</strong> object.</p>
+<p>A <strong>preset</strong> is a design pattern that is intended for concentrating the entire definition of an experiment in a single
+file. This helps with experiments reproducibility, improves readability and prevents confusion.
+The outcome of a preset is a <strong>GraphManager</strong> which will usually be instantiated in the final lines of the preset.</p>
+<p>A <strong>GraphManager</strong> is an object that holds all the agents and environments of an experiment, and is mostly responsible
+for scheduling their work. Why is it called a <strong>graph</strong> manager? Because agents and environments are structured into
+a graph of interactions. For example, in hierarchical reinforcement learning schemes, there will often be a master
+policy agent, that will control a sub-policy agent, which will interact with the environment. Other schemes can have
+much more complex graphs of control, such as several hierarchy layers, each with multiple agents.
+The graph manager's main loop is the improve loop.</p>
+<p style="text-align: center;">
+
+<img src="../../img/improve.png" alt="Improve loop" style="width: 400px;"/>
+
+</p>
+
+<p>The improve loop skips between 3 main phases - heatup, training and evaluation:</p>
+<ul>
+<li>
+<p><strong>Heatup</strong> - the goal of this phase is to collect initial data for populating the replay buffers. The heatup phase
+  takes place only in the beginning of the experiment, and the agents will act completely randomly during this phase.
+  Importantly, the agents do not train their networks during this phase. DQN for example, uses 50k random steps in order
+  to initialize the replay buffers.</p>
+</li>
+<li>
+<p><strong>Training</strong> - the training phase is the main phase of the experiment. This phase can change between agent types,
+  but essentially consists of repeated cycles of acting, collecting data from the environment, and training the agent
+  networks. During this phase, the agent will use its exploration policy in training mode, which will add noise to its
+  actions in order to improve its knowledge about the environment state space.</p>
+</li>
+<li>
+<p><strong>Evaluation</strong> - the evaluation phase is intended for evaluating the current performance of the agent. The agents
+  will act greedily in order to exploit the knowledge aggregated so far and the performance over multiple episodes of
+  evaluation will be averaged in order to reduce the stochasticity effects of all the components.</p>
+</li>
+</ul>
+<h2 id="level-manager">Level Manager</h2>
+<p>In each of the 3 phases described above, the graph manager will invoke all the hierarchy levels in the graph in a
+synchronized manner. In Coach, agents do not interact directly with the environment. Instead, they go through a
+<em>LevelManager</em>, which is a proxy that manages their interaction. The level manager passes the current state and reward
+from the environment to the agent, and the actions from the agent to the environment.</p>
+<p>The motivation for having a level manager is to disentangle the code of the environment and the agent, so to allow more
+complex interactions. Each level can have multiple agents which interact with the environment. Who gets to choose the
+action for each step is controlled by the level manager.
+Additionally, each level manager can act as an environment for the hierarchy level above it, such that each hierarchy
+level can be seen as an interaction between an agent and an environment, even if the environment is just more agents in
+a lower hierarchy level.</p>
+<h2 id="agent">Agent</h2>
+<p>The base agent class has 3 main function that will be used during those phases - observe, act and train.</p>
+<ul>
+<li><strong>Observe</strong> - this function gets the latest response from the environment as input, and updates the internal state
+  of the agent with the new information. The environment response will
+  be first passed through the agent's <strong>InputFilter</strong> object, which will process the values in the response, according
+  to the specific agent definition. The environment response will then be converted into a
+  <strong>Transition</strong> which will contain the information from a single step
+  (<script type="math/tex"> s_{t}, a_{t}, r_{t}, s_{t+1}, terminal signal </script>), and store it in the memory.</li>
+</ul>
+<p><img src="../../img/observe.png" alt="Observe" style="width: 700px;"/></p>
+<ul>
+<li><strong>Act</strong> - this function uses the current internal state of the agent in order to select the next action to take on
+  the environment. This function will call the per-agent custom function <strong>choose_action</strong> that will use the network
+  and the exploration policy in order to select an action. The action will be stored, together with any additional
+  information (like the action value for example) in an <strong>ActionInfo</strong> object. The ActionInfo object will then be
+  passed through the agent's <strong>OutputFilter</strong> to allow any processing of the action (like discretization,
+  or shifting, for example), before passing it to the environment.</li>
+</ul>
+<p><img src="../../img/act.png" alt="Act" style="width: 700px;"/></p>
+<ul>
+<li><strong>Train</strong> - this function will sample a batch from the memory and train on it. The batch of transitions will be
+  first wrapped into a <strong>Batch</strong> object to allow efficient querying of the batch values. It will then be passed into
+  the agent specific <strong>learn_from_batch</strong> function, that will extract network target values from the batch and will
+  train the networks accordingly. Lastly, if there's a target network defined for the agent, it will sync the target
+  network weights with the online network.</li>
+</ul>
+<p><img src="../../img/train.png" alt="Train" style="width: 700px;"/></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../network/" class="btn btn-neutral float-right" title="Network">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../features/" class="btn btn-neutral" title="Features"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../features/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../network/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
+
+</body>
+</html>

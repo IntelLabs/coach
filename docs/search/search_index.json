@@ -1,0 +1,704 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "What is Coach?\n\n\nMotivation\n\n\nTrain and evaluate reinforcement learning agents by harnessing the power of multi-core CPU processing to achieve state-of-the-art results. Provide a sandbox for easing the development process of new algorithms through a modular design and an elegant set of APIs. \n\n\nSolution\n\n\nCoach is a python environment which models the interaction between an agent and an environment in a modular way.\nWith Coach, it is possible to model an agent by combining various building blocks, and training the agent on multiple environments.\nThe available environments allow testing the agent in different practical fields such as robotics, autonomous driving, games and more. \nCoach collects statistics from the training process and supports advanced visualization techniques for debugging the agent being trained.\n\n\nBlog post from the Intel\u00ae AI website can be found \nhere\n.\n\n\nGitHub repository is \nhere\n. \n\n\nDesign",
+            "title": "Home"
+        },
+        {
+            "location": "/#what-is-coach",
+            "text": "",
+            "title": "What is Coach?"
+        },
+        {
+            "location": "/#motivation",
+            "text": "Train and evaluate reinforcement learning agents by harnessing the power of multi-core CPU processing to achieve state-of-the-art results. Provide a sandbox for easing the development process of new algorithms through a modular design and an elegant set of APIs.",
+            "title": "Motivation"
+        },
+        {
+            "location": "/#solution",
+            "text": "Coach is a python environment which models the interaction between an agent and an environment in a modular way.\nWith Coach, it is possible to model an agent by combining various building blocks, and training the agent on multiple environments.\nThe available environments allow testing the agent in different practical fields such as robotics, autonomous driving, games and more. \nCoach collects statistics from the training process and supports advanced visualization techniques for debugging the agent being trained.  Blog post from the Intel\u00ae AI website can be found  here .  GitHub repository is  here .",
+            "title": "Solution"
+        },
+        {
+            "location": "/#design",
+            "text": "",
+            "title": "Design"
+        },
+        {
+            "location": "/usage/",
+            "text": "Coach Usage\n\n\nTraining an Agent\n\n\nSingle-threaded Algorithms\n\n\nThis is the most common case. Just choose a preset using the \n-p\n flag and press enter.\n\n\nExample:\n\n\npython coach.py -p CartPole_DQN\n\n\nMulti-threaded Algorithms\n\n\nMulti-threaded algorithms are very common this days.\nThey typically achieve the best results, and scale gracefully with the number of threads.\nIn Coach, running such algorithms is done by selecting a suitable preset, and choosing the number of threads to run using the \n-n\n flag.\n\n\nExample:\n\n\npython coach.py -p CartPole_A3C -n 8\n\n\nEvaluating an Agent\n\n\nThere are several options for evaluating an agent during the training:\n\n\n\n\n\n\nFor multi-threaded runs, an evaluation agent will constantly run in the background and evaluate the model during the training.\n\n\n\n\n\n\nFor single-threaded runs, it is possible to define an evaluation period through the preset. This will run several episodes of evaluation once in a while.\n\n\n\n\n\n\nAdditionally, it is possible to save checkpoints of the agents networks and then run only in evaluation mode.\nSaving checkpoints can be done by specifying the number of seconds between storing checkpoints using the \n-s\n flag.\nThe checkpoints will be saved into the experiment directory.\nLoading a model for evaluation can be done by specifying the \n-crd\n flag with the experiment directory, and the \n--evaluate\n flag to disable training.\n\n\nExample:\n\n\npython coach.py -p CartPole_DQN -s 60\n\n\npython coach.py -p CartPole_DQN --evaluate -crd CHECKPOINT_RESTORE_DIR\n\n\nPlaying with the Environment as a Human\n\n\nInteracting with the environment as a human can be useful for understanding its difficulties and for collecting data for imitation learning.\nIn Coach, this can be easily done by selecting a preset that defines the environment to use, and specifying the \n--play\n flag.\nWhen the environment is loaded, the available keyboard buttons will be printed to the screen.\nPressing the escape key when finished will end the simulation and store the replay buffer in the experiment dir.\n\n\nExample:\n\n\npython coach.py -p Breakout_DQN --play\n\n\nLearning Through Imitation Learning\n\n\nLearning through imitation of human behavior is a nice way to speedup the learning.\nIn Coach, this can be done in two steps -\n\n\n\n\n\n\nCreate a dataset of demonstrations by playing with the environment as a human.\n   After this step, a pickle of the replay buffer containing your game play will be stored in the experiment directory.\n   The path to this replay buffer will be printed to the screen.\n   To do so, you should select an environment type and level through the command line, and specify the \n--play\n flag.\n\n\nExample:\n\n\npython coach.py -et Doom -lvl Basic --play\n\n\n\n\n\n\nNext, use an imitation learning preset and set the replay buffer path accordingly.\n    The path can be set either from the command line or from the preset itself.\n\n\nExample:\n\n\npython coach.py -p Doom_Basic_BC -cp='agent.load_memory_from_file_path=\\\"<experiment dir>/replay_buffer.p\\\"'\n\n\n\n\n\n\nVisualizations\n\n\nRendering the Environment\n\n\nRendering the environment can be done by using the \n-r\n flag.\nWhen working with multi-threaded algorithms, the rendered image will be representing the game play of the evaluation worker.\nWhen working with single-threaded algorithms, the rendered image will be representing the single worker which can be either training or evaluating.\nKeep in mind that rendering the environment in single-threaded algorithms may slow the training to some extent.\nWhen playing with the environment using the \n--play\n flag, the environment will be rendered automatically without the need for specifying the \n-r\n flag.\n\n\nExample:\n\n\npython coach.py -p Breakout_DQN -r\n\n\nDumping GIFs\n\n\nCoach allows storing GIFs of the agent game play.\nTo dump GIF files, use the \n-dg\n flag.\nThe files are dumped after every evaluation episode, and are saved into the experiment directory, under a gifs sub-directory.\n\n\nExample:\n\n\npython coach.py -p Breakout_A3C -n 4 -dg\n\n\nSwitching between deep learning frameworks\n\n\nCoach uses TensorFlow as its main backend framework, but it also supports neon for some of the algorithms.\nBy default, TensorFlow will be used. It is possible to switch to neon using the \n-f\n flag.\n\n\nExample:\n\n\npython coach.py -p Doom_Basic_DQN -f neon\n\n\nAdditional Flags\n\n\nThere are several convenient flags which are important to know about.\nHere we will list most of the flags, but these can be updated from time to time.\nThe most up to date description can be found by using the \n-h\n flag.\n\n\n\n\n\n\n\n\nFlag\n\n\nType\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\n-p PRESET\n, \n`--preset PRESET\n\n\nstring\n\n\nName of a preset to run (as configured in presets.py)\n\n\n\n\n\n\n-l\n, \n--list\n\n\nflag\n\n\nList all available presets\n\n\n\n\n\n\n-e EXPERIMENT_NAME\n, \n--experiment_name EXPERIMENT_NAME\n\n\nstring\n\n\nExperiment name to be used to store the results.\n\n\n\n\n\n\n-r\n, \n--render\n\n\nflag\n\n\nRender environment\n\n\n\n\n\n\n-f FRAMEWORK\n, \n--framework FRAMEWORK\n\n\nstring\n\n\nNeural network framework. Available values: tensorflow, neon\n\n\n\n\n\n\n-n NUM_WORKERS\n, \n--num_workers NUM_WORKERS\n\n\nint\n\n\nNumber of workers for multi-process based agents, e.g. A3C\n\n\n\n\n\n\n--play\n\n\nflag\n\n\nPlay as a human by controlling the game with the keyboard. This option will save a replay buffer with the game play.\n\n\n\n\n\n\n--evaluate\n\n\nflag\n\n\nRun evaluation only. This is a convenient way to disable training in order to evaluate an existing checkpoint.\n\n\n\n\n\n\n-v\n, \n--verbose\n\n\nflag\n\n\nDon't suppress TensorFlow debug prints.\n\n\n\n\n\n\n-s SAVE_MODEL_SEC\n, \n--save_model_sec SAVE_MODEL_SEC\n\n\nint\n\n\nTime in seconds between saving checkpoints of the model.\n\n\n\n\n\n\n-crd CHECKPOINT_RESTORE_DIR\n, \n--checkpoint_restore_dir CHECKPOINT_RESTORE_DIR\n\n\nstring\n\n\nPath to a folder containing a checkpoint to restore the model from.\n\n\n\n\n\n\n-dg\n, \n--dump_gifs\n\n\nflag\n\n\nEnable the gif saving functionality.\n\n\n\n\n\n\n-at AGENT_TYPE\n, \n--agent_type AGENT_TYPE\n\n\nstring\n\n\nChoose an agent type class to override on top of the selected preset. If no preset is defined, a preset can be set from the command-line by combining settings which are set by using \n--agent_type\n, \n--experiment_type\n, \n--environemnt_type\n\n\n\n\n\n\n-et ENVIRONMENT_TYPE\n, \n--environment_type ENVIRONMENT_TYPE\n\n\nstring\n\n\nChoose an environment type class to override on top of the selected preset. If no preset is defined, a preset can be set from the command-line by combining settings which are set by using \n--agent_type\n, \n--experiment_type\n, \n--environemnt_type\n\n\n\n\n\n\n-ept EXPLORATION_POLICY_TYPE\n, \n--exploration_policy_type EXPLORATION_POLICY_TYPE\n\n\nstring\n\n\nChoose an exploration policy type class to override on top of the selected preset.If no preset is defined, a preset can be set from the command-line by combining settings which are set by using \n--agent_type\n, \n--experiment_type\n, \n--environemnt_type\n\n\n\n\n\n\n-lvl LEVEL\n, \n--level LEVEL\n\n\nstring\n\n\nChoose the level that will be played in the environment that was selected. This value will override the level parameter in the environment class.\n\n\n\n\n\n\n-cp CUSTOM_PARAMETER\n, \n--custom_parameter CUSTOM_PARAMETER\n\n\nstring\n\n\nSemicolon separated parameters used to override specific parameters on top of the selected preset (or on top of the command-line assembled one). Whenever a parameter value is a string, it should be inputted as \n'\\\"string\\\"'\n. For ex.: \n\"visualization.render=False;\n \nnum_training_iterations=500;\n \noptimizer='rmsprop'\"",
+            "title": "Usage"
+        },
+        {
+            "location": "/usage/#coach-usage",
+            "text": "",
+            "title": "Coach Usage"
+        },
+        {
+            "location": "/usage/#training-an-agent",
+            "text": "",
+            "title": "Training an Agent"
+        },
+        {
+            "location": "/usage/#single-threaded-algorithms",
+            "text": "This is the most common case. Just choose a preset using the  -p  flag and press enter.  Example:  python coach.py -p CartPole_DQN",
+            "title": "Single-threaded Algorithms"
+        },
+        {
+            "location": "/usage/#multi-threaded-algorithms",
+            "text": "Multi-threaded algorithms are very common this days.\nThey typically achieve the best results, and scale gracefully with the number of threads.\nIn Coach, running such algorithms is done by selecting a suitable preset, and choosing the number of threads to run using the  -n  flag.  Example:  python coach.py -p CartPole_A3C -n 8",
+            "title": "Multi-threaded Algorithms"
+        },
+        {
+            "location": "/usage/#evaluating-an-agent",
+            "text": "There are several options for evaluating an agent during the training:    For multi-threaded runs, an evaluation agent will constantly run in the background and evaluate the model during the training.    For single-threaded runs, it is possible to define an evaluation period through the preset. This will run several episodes of evaluation once in a while.    Additionally, it is possible to save checkpoints of the agents networks and then run only in evaluation mode.\nSaving checkpoints can be done by specifying the number of seconds between storing checkpoints using the  -s  flag.\nThe checkpoints will be saved into the experiment directory.\nLoading a model for evaluation can be done by specifying the  -crd  flag with the experiment directory, and the  --evaluate  flag to disable training.  Example:  python coach.py -p CartPole_DQN -s 60  python coach.py -p CartPole_DQN --evaluate -crd CHECKPOINT_RESTORE_DIR",
+            "title": "Evaluating an Agent"
+        },
+        {
+            "location": "/usage/#playing-with-the-environment-as-a-human",
+            "text": "Interacting with the environment as a human can be useful for understanding its difficulties and for collecting data for imitation learning.\nIn Coach, this can be easily done by selecting a preset that defines the environment to use, and specifying the  --play  flag.\nWhen the environment is loaded, the available keyboard buttons will be printed to the screen.\nPressing the escape key when finished will end the simulation and store the replay buffer in the experiment dir.  Example:  python coach.py -p Breakout_DQN --play",
+            "title": "Playing with the Environment as a Human"
+        },
+        {
+            "location": "/usage/#learning-through-imitation-learning",
+            "text": "Learning through imitation of human behavior is a nice way to speedup the learning.\nIn Coach, this can be done in two steps -    Create a dataset of demonstrations by playing with the environment as a human.\n   After this step, a pickle of the replay buffer containing your game play will be stored in the experiment directory.\n   The path to this replay buffer will be printed to the screen.\n   To do so, you should select an environment type and level through the command line, and specify the  --play  flag.  Example:  python coach.py -et Doom -lvl Basic --play    Next, use an imitation learning preset and set the replay buffer path accordingly.\n    The path can be set either from the command line or from the preset itself.  Example:  python coach.py -p Doom_Basic_BC -cp='agent.load_memory_from_file_path=\\\"<experiment dir>/replay_buffer.p\\\"'",
+            "title": "Learning Through Imitation Learning"
+        },
+        {
+            "location": "/usage/#visualizations",
+            "text": "",
+            "title": "Visualizations"
+        },
+        {
+            "location": "/usage/#rendering-the-environment",
+            "text": "Rendering the environment can be done by using the  -r  flag.\nWhen working with multi-threaded algorithms, the rendered image will be representing the game play of the evaluation worker.\nWhen working with single-threaded algorithms, the rendered image will be representing the single worker which can be either training or evaluating.\nKeep in mind that rendering the environment in single-threaded algorithms may slow the training to some extent.\nWhen playing with the environment using the  --play  flag, the environment will be rendered automatically without the need for specifying the  -r  flag.  Example:  python coach.py -p Breakout_DQN -r",
+            "title": "Rendering the Environment"
+        },
+        {
+            "location": "/usage/#dumping-gifs",
+            "text": "Coach allows storing GIFs of the agent game play.\nTo dump GIF files, use the  -dg  flag.\nThe files are dumped after every evaluation episode, and are saved into the experiment directory, under a gifs sub-directory.  Example:  python coach.py -p Breakout_A3C -n 4 -dg",
+            "title": "Dumping GIFs"
+        },
+        {
+            "location": "/usage/#switching-between-deep-learning-frameworks",
+            "text": "Coach uses TensorFlow as its main backend framework, but it also supports neon for some of the algorithms.\nBy default, TensorFlow will be used. It is possible to switch to neon using the  -f  flag.  Example:  python coach.py -p Doom_Basic_DQN -f neon",
+            "title": "Switching between deep learning frameworks"
+        },
+        {
+            "location": "/usage/#additional-flags",
+            "text": "There are several convenient flags which are important to know about.\nHere we will list most of the flags, but these can be updated from time to time.\nThe most up to date description can be found by using the  -h  flag.     Flag  Type  Description      -p PRESET ,  `--preset PRESET  string  Name of a preset to run (as configured in presets.py)    -l ,  --list  flag  List all available presets    -e EXPERIMENT_NAME ,  --experiment_name EXPERIMENT_NAME  string  Experiment name to be used to store the results.    -r ,  --render  flag  Render environment    -f FRAMEWORK ,  --framework FRAMEWORK  string  Neural network framework. Available values: tensorflow, neon    -n NUM_WORKERS ,  --num_workers NUM_WORKERS  int  Number of workers for multi-process based agents, e.g. A3C    --play  flag  Play as a human by controlling the game with the keyboard. This option will save a replay buffer with the game play.    --evaluate  flag  Run evaluation only. This is a convenient way to disable training in order to evaluate an existing checkpoint.    -v ,  --verbose  flag  Don't suppress TensorFlow debug prints.    -s SAVE_MODEL_SEC ,  --save_model_sec SAVE_MODEL_SEC  int  Time in seconds between saving checkpoints of the model.    -crd CHECKPOINT_RESTORE_DIR ,  --checkpoint_restore_dir CHECKPOINT_RESTORE_DIR  string  Path to a folder containing a checkpoint to restore the model from.    -dg ,  --dump_gifs  flag  Enable the gif saving functionality.    -at AGENT_TYPE ,  --agent_type AGENT_TYPE  string  Choose an agent type class to override on top of the selected preset. If no preset is defined, a preset can be set from the command-line by combining settings which are set by using  --agent_type ,  --experiment_type ,  --environemnt_type    -et ENVIRONMENT_TYPE ,  --environment_type ENVIRONMENT_TYPE  string  Choose an environment type class to override on top of the selected preset. If no preset is defined, a preset can be set from the command-line by combining settings which are set by using  --agent_type ,  --experiment_type ,  --environemnt_type    -ept EXPLORATION_POLICY_TYPE ,  --exploration_policy_type EXPLORATION_POLICY_TYPE  string  Choose an exploration policy type class to override on top of the selected preset.If no preset is defined, a preset can be set from the command-line by combining settings which are set by using  --agent_type ,  --experiment_type ,  --environemnt_type    -lvl LEVEL ,  --level LEVEL  string  Choose the level that will be played in the environment that was selected. This value will override the level parameter in the environment class.    -cp CUSTOM_PARAMETER ,  --custom_parameter CUSTOM_PARAMETER  string  Semicolon separated parameters used to override specific parameters on top of the selected preset (or on top of the command-line assembled one). Whenever a parameter value is a string, it should be inputted as  '\\\"string\\\"' . For ex.:  \"visualization.render=False;   num_training_iterations=500;   optimizer='rmsprop'\"",
+            "title": "Additional Flags"
+        },
+        {
+            "location": "/design/features/",
+            "text": "Coach Features\n\n\nSupported Algorithms\n\n\nCoach supports many state-of-the-art reinforcement learning algorithms, which are separated into two main classes -\nvalue optimization and policy optimization. A detailed description of those algorithms may be found in the algorithms\nsection.\n\n\n\n\n\n\n\n\n\n\n\nSupported Environments\n\n\nCoach supports a large number of environments which can be solved using reinforcement learning:\n\n\n\n\n\n\nDeepMind Control Suite\n - a set of reinforcement learning environments\n  powered by the MuJoCo physics engine.\n\n\n\n\n\n\nBlizzard Starcraft II\n - a popular strategy game which was wrapped with a\n  python interface by DeepMind.\n\n\n\n\n\n\nViZDoom\n - a Doom-based AI research platform for reinforcement learning\n  from raw visual information.\n\n\n\n\n\n\nCARLA\n - an open-source simulator for autonomous driving research.\n\n\n\n\n\n\nOpenAI Gym\n - a library which consists of a set of environments, from games to robotics.\n  Additionally, it can be extended using the API defined by the authors.\n\n\n\n\n\n\nIn Coach, we support all the native environments in Gym, along with several extensions such as:\n\n\n\n\n\n\nRoboschool\n - a set of environments powered by the PyBullet engine,\n    that offer a free alternative to MuJoCo.\n\n\n\n\n\n\nGym Extensions\n - a set of environments that extends Gym for\n    auxiliary tasks (multitask learning, transfer learning, inverse reinforcement learning, etc.)\n\n\n\n\n\n\nPyBullet\n - a physics engine that\n    includes a set of robotics environments.",
+            "title": "Features"
+        },
+        {
+            "location": "/design/features/#coach-features",
+            "text": "",
+            "title": "Coach Features"
+        },
+        {
+            "location": "/design/features/#supported-algorithms",
+            "text": "Coach supports many state-of-the-art reinforcement learning algorithms, which are separated into two main classes -\nvalue optimization and policy optimization. A detailed description of those algorithms may be found in the algorithms\nsection.",
+            "title": "Supported Algorithms"
+        },
+        {
+            "location": "/design/features/#supported-environments",
+            "text": "Coach supports a large number of environments which can be solved using reinforcement learning:    DeepMind Control Suite  - a set of reinforcement learning environments\n  powered by the MuJoCo physics engine.    Blizzard Starcraft II  - a popular strategy game which was wrapped with a\n  python interface by DeepMind.    ViZDoom  - a Doom-based AI research platform for reinforcement learning\n  from raw visual information.    CARLA  - an open-source simulator for autonomous driving research.    OpenAI Gym  - a library which consists of a set of environments, from games to robotics.\n  Additionally, it can be extended using the API defined by the authors.    In Coach, we support all the native environments in Gym, along with several extensions such as:    Roboschool  - a set of environments powered by the PyBullet engine,\n    that offer a free alternative to MuJoCo.    Gym Extensions  - a set of environments that extends Gym for\n    auxiliary tasks (multitask learning, transfer learning, inverse reinforcement learning, etc.)    PyBullet  - a physics engine that\n    includes a set of robotics environments.",
+            "title": "Supported Environments"
+        },
+        {
+            "location": "/design/control_flow/",
+            "text": "Coach Control Flow\n\n\nCoach is built in a modular way, encouraging modules reuse and reducing the amount of boilerplate code needed\nfor developing new algorithms or integrating a new challenge as an environment.\nOn the other hand, it can be overwhelming for new users to ramp up on the code.\nTo help with that, here's a short overview of the control flow.\n\n\nGraph Manager\n\n\nThe main entry point for Coach is \ncoach.py\n.\nThe main functionality of this script is to parse the command line arguments and invoke all the sub-processes needed\nfor the given experiment.\n\ncoach.py\n executes the given \npreset\n file which returns a \nGraphManager\n object.\n\n\nA \npreset\n is a design pattern that is intended for concentrating the entire definition of an experiment in a single\nfile. This helps with experiments reproducibility, improves readability and prevents confusion.\nThe outcome of a preset is a \nGraphManager\n which will usually be instantiated in the final lines of the preset.\n\n\nA \nGraphManager\n is an object that holds all the agents and environments of an experiment, and is mostly responsible\nfor scheduling their work. Why is it called a \ngraph\n manager? Because agents and environments are structured into\na graph of interactions. For example, in hierarchical reinforcement learning schemes, there will often be a master\npolicy agent, that will control a sub-policy agent, which will interact with the environment. Other schemes can have\nmuch more complex graphs of control, such as several hierarchy layers, each with multiple agents.\nThe graph manager's main loop is the improve loop.\n\n\n\n\n\n\n\n\n\n\n\nThe improve loop skips between 3 main phases - heatup, training and evaluation:\n\n\n\n\n\n\nHeatup\n - the goal of this phase is to collect initial data for populating the replay buffers. The heatup phase\n  takes place only in the beginning of the experiment, and the agents will act completely randomly during this phase.\n  Importantly, the agents do not train their networks during this phase. DQN for example, uses 50k random steps in order\n  to initialize the replay buffers.\n\n\n\n\n\n\nTraining\n - the training phase is the main phase of the experiment. This phase can change between agent types,\n  but essentially consists of repeated cycles of acting, collecting data from the environment, and training the agent\n  networks. During this phase, the agent will use its exploration policy in training mode, which will add noise to its\n  actions in order to improve its knowledge about the environment state space.\n\n\n\n\n\n\nEvaluation\n - the evaluation phase is intended for evaluating the current performance of the agent. The agents\n  will act greedily in order to exploit the knowledge aggregated so far and the performance over multiple episodes of\n  evaluation will be averaged in order to reduce the stochasticity effects of all the components.\n\n\n\n\n\n\nLevel Manager\n\n\nIn each of the 3 phases described above, the graph manager will invoke all the hierarchy levels in the graph in a\nsynchronized manner. In Coach, agents do not interact directly with the environment. Instead, they go through a\n\nLevelManager\n, which is a proxy that manages their interaction. The level manager passes the current state and reward\nfrom the environment to the agent, and the actions from the agent to the environment.\n\n\nThe motivation for having a level manager is to disentangle the code of the environment and the agent, so to allow more\ncomplex interactions. Each level can have multiple agents which interact with the environment. Who gets to choose the\naction for each step is controlled by the level manager.\nAdditionally, each level manager can act as an environment for the hierarchy level above it, such that each hierarchy\nlevel can be seen as an interaction between an agent and an environment, even if the environment is just more agents in\na lower hierarchy level.\n\n\nAgent\n\n\nThe base agent class has 3 main function that will be used during those phases - observe, act and train.\n\n\n\n\nObserve\n - this function gets the latest response from the environment as input, and updates the internal state\n  of the agent with the new information. The environment response will\n  be first passed through the agent's \nInputFilter\n object, which will process the values in the response, according\n  to the specific agent definition. The environment response will then be converted into a\n  \nTransition\n which will contain the information from a single step\n  (\n s_{t}, a_{t}, r_{t}, s_{t+1}, terminal signal \n), and store it in the memory.\n\n\n\n\n\n\n\n\nAct\n - this function uses the current internal state of the agent in order to select the next action to take on\n  the environment. This function will call the per-agent custom function \nchoose_action\n that will use the network\n  and the exploration policy in order to select an action. The action will be stored, together with any additional\n  information (like the action value for example) in an \nActionInfo\n object. The ActionInfo object will then be\n  passed through the agent's \nOutputFilter\n to allow any processing of the action (like discretization,\n  or shifting, for example), before passing it to the environment.\n\n\n\n\n\n\n\n\nTrain\n - this function will sample a batch from the memory and train on it. The batch of transitions will be\n  first wrapped into a \nBatch\n object to allow efficient querying of the batch values. It will then be passed into\n  the agent specific \nlearn_from_batch\n function, that will extract network target values from the batch and will\n  train the networks accordingly. Lastly, if there's a target network defined for the agent, it will sync the target\n  network weights with the online network.",
+            "title": "Control Flow"
+        },
+        {
+            "location": "/design/control_flow/#coach-control-flow",
+            "text": "Coach is built in a modular way, encouraging modules reuse and reducing the amount of boilerplate code needed\nfor developing new algorithms or integrating a new challenge as an environment.\nOn the other hand, it can be overwhelming for new users to ramp up on the code.\nTo help with that, here's a short overview of the control flow.",
+            "title": "Coach Control Flow"
+        },
+        {
+            "location": "/design/control_flow/#graph-manager",
+            "text": "The main entry point for Coach is  coach.py .\nThe main functionality of this script is to parse the command line arguments and invoke all the sub-processes needed\nfor the given experiment. coach.py  executes the given  preset  file which returns a  GraphManager  object.  A  preset  is a design pattern that is intended for concentrating the entire definition of an experiment in a single\nfile. This helps with experiments reproducibility, improves readability and prevents confusion.\nThe outcome of a preset is a  GraphManager  which will usually be instantiated in the final lines of the preset.  A  GraphManager  is an object that holds all the agents and environments of an experiment, and is mostly responsible\nfor scheduling their work. Why is it called a  graph  manager? Because agents and environments are structured into\na graph of interactions. For example, in hierarchical reinforcement learning schemes, there will often be a master\npolicy agent, that will control a sub-policy agent, which will interact with the environment. Other schemes can have\nmuch more complex graphs of control, such as several hierarchy layers, each with multiple agents.\nThe graph manager's main loop is the improve loop.     The improve loop skips between 3 main phases - heatup, training and evaluation:    Heatup  - the goal of this phase is to collect initial data for populating the replay buffers. The heatup phase\n  takes place only in the beginning of the experiment, and the agents will act completely randomly during this phase.\n  Importantly, the agents do not train their networks during this phase. DQN for example, uses 50k random steps in order\n  to initialize the replay buffers.    Training  - the training phase is the main phase of the experiment. This phase can change between agent types,\n  but essentially consists of repeated cycles of acting, collecting data from the environment, and training the agent\n  networks. During this phase, the agent will use its exploration policy in training mode, which will add noise to its\n  actions in order to improve its knowledge about the environment state space.    Evaluation  - the evaluation phase is intended for evaluating the current performance of the agent. The agents\n  will act greedily in order to exploit the knowledge aggregated so far and the performance over multiple episodes of\n  evaluation will be averaged in order to reduce the stochasticity effects of all the components.",
+            "title": "Graph Manager"
+        },
+        {
+            "location": "/design/control_flow/#level-manager",
+            "text": "In each of the 3 phases described above, the graph manager will invoke all the hierarchy levels in the graph in a\nsynchronized manner. In Coach, agents do not interact directly with the environment. Instead, they go through a LevelManager , which is a proxy that manages their interaction. The level manager passes the current state and reward\nfrom the environment to the agent, and the actions from the agent to the environment.  The motivation for having a level manager is to disentangle the code of the environment and the agent, so to allow more\ncomplex interactions. Each level can have multiple agents which interact with the environment. Who gets to choose the\naction for each step is controlled by the level manager.\nAdditionally, each level manager can act as an environment for the hierarchy level above it, such that each hierarchy\nlevel can be seen as an interaction between an agent and an environment, even if the environment is just more agents in\na lower hierarchy level.",
+            "title": "Level Manager"
+        },
+        {
+            "location": "/design/control_flow/#agent",
+            "text": "The base agent class has 3 main function that will be used during those phases - observe, act and train.   Observe  - this function gets the latest response from the environment as input, and updates the internal state\n  of the agent with the new information. The environment response will\n  be first passed through the agent's  InputFilter  object, which will process the values in the response, according\n  to the specific agent definition. The environment response will then be converted into a\n   Transition  which will contain the information from a single step\n  (  s_{t}, a_{t}, r_{t}, s_{t+1}, terminal signal  ), and store it in the memory.     Act  - this function uses the current internal state of the agent in order to select the next action to take on\n  the environment. This function will call the per-agent custom function  choose_action  that will use the network\n  and the exploration policy in order to select an action. The action will be stored, together with any additional\n  information (like the action value for example) in an  ActionInfo  object. The ActionInfo object will then be\n  passed through the agent's  OutputFilter  to allow any processing of the action (like discretization,\n  or shifting, for example), before passing it to the environment.     Train  - this function will sample a batch from the memory and train on it. The batch of transitions will be\n  first wrapped into a  Batch  object to allow efficient querying of the batch values. It will then be passed into\n  the agent specific  learn_from_batch  function, that will extract network target values from the batch and will\n  train the networks accordingly. Lastly, if there's a target network defined for the agent, it will sync the target\n  network weights with the online network.",
+            "title": "Agent"
+        },
+        {
+            "location": "/design/network/",
+            "text": "Network Design\n\n\nEach agent has at least one neural network, used as the function approximator, for choosing the actions. The network is designed in a modular way to allow reusability in different agents. It is separated into three main parts:\n\n\n\n\n\n\nInput Embedders\n - This is the first stage of the network, meant to convert the input into a feature vector representation. It is possible to combine several instances of any of the supported embedders, in order to allow varied combinations of inputs. \n\n\nThere are two main types of input embedders: \n\n\n\n\nImage embedder - Convolutional neural network. \n\n\nVector embedder - Multi-layer perceptron. \n\n\n\n\n\n\n\n\nMiddlewares\n - The middleware gets the output of the input embedder, and processes it into a different representation domain, before sending it through the output head. The goal of the middleware is to enable processing the combined outputs of several input embedders, and pass them through some extra processing. This, for instance, might include an LSTM or just a plain simple FC layer.\n\n\n\n\n\n\nOutput Heads\n - The output head is used in order to predict the values required from the network. These might include action-values, state-values or a policy. As with the input embedders, it is possible to use several output heads in the same network. For example, the \nActor Critic\n agent combines two heads - a policy head and a state-value head.\n  In addition, the output heads defines the loss function according to the head type.\n\n\n\n\n\n\n\u200b\n\n\n\n\n\n\n\n\n\n\n\nKeeping Network Copies in Sync\n\n\nMost of the reinforcement learning agents include more than one copy of the neural network. These copies serve as counterparts of the main network which are updated in different rates, and are often synchronized either locally or between parallel workers. For easier synchronization of those copies, a wrapper around these copies exposes a simplified API, which allows hiding these complexities from the agent.",
+            "title": "Network"
+        },
+        {
+            "location": "/design/network/#network-design",
+            "text": "Each agent has at least one neural network, used as the function approximator, for choosing the actions. The network is designed in a modular way to allow reusability in different agents. It is separated into three main parts:    Input Embedders  - This is the first stage of the network, meant to convert the input into a feature vector representation. It is possible to combine several instances of any of the supported embedders, in order to allow varied combinations of inputs.   There are two main types of input embedders:    Image embedder - Convolutional neural network.   Vector embedder - Multi-layer perceptron.      Middlewares  - The middleware gets the output of the input embedder, and processes it into a different representation domain, before sending it through the output head. The goal of the middleware is to enable processing the combined outputs of several input embedders, and pass them through some extra processing. This, for instance, might include an LSTM or just a plain simple FC layer.    Output Heads  - The output head is used in order to predict the values required from the network. These might include action-values, state-values or a policy. As with the input embedders, it is possible to use several output heads in the same network. For example, the  Actor Critic  agent combines two heads - a policy head and a state-value head.\n  In addition, the output heads defines the loss function according to the head type.    \u200b",
+            "title": "Network Design"
+        },
+        {
+            "location": "/design/network/#keeping-network-copies-in-sync",
+            "text": "Most of the reinforcement learning agents include more than one copy of the neural network. These copies serve as counterparts of the main network which are updated in different rates, and are often synchronized either locally or between parallel workers. For easier synchronization of those copies, a wrapper around these copies exposes a simplified API, which allows hiding these complexities from the agent.",
+            "title": "Keeping Network Copies in Sync"
+        },
+        {
+            "location": "/design/filters/",
+            "text": "Filters\n\n\nFilters are a mechanism in Coach that allows doing pre-processing and post-processing of the internal agent information.\nThere are two filter categories -\n\n\n\n\n\n\nInput filters\n - these are filters that process the information passed \ninto\n the agent from the environment.\n  This information includes the observation and the reward. Input filters therefore allow rescaling observations,\n  normalizing rewards, stack observations, etc.\n\n\n\n\n\n\nOutput filters\n - these are filters that process the information going \nout\n of the agent into the environment.\n  This information includes the action the agent chooses to take. Output filters therefore allow conversion of\n  actions from one space into another. For example, the agent can take \n N \n discrete actions, that will be mapped by\n  the output filter onto \n N \n continuous actions.\n\n\n\n\n\n\nFilters can be stacked on top of each other in order to build complex processing flows of the inputs or outputs.\n\n\n\n\n\n\n\n\n\n\n\nInput Filters\n\n\nThe input filters are separated into two categories - \nobservation filters\n and \nreward filters\n.\n\n\nObservation Filters\n\n\n\n\n\n\nObservationClippingFilter\n - Clips the observation values to a given range of values. For example, if the\n  observation consists of measurements in an arbitrary range, and we want to control the minimum and maximum values\n  of these observations, we can define a range and clip the values of the measurements.\n\n\n\n\n\n\nObservationCropFilter\n - Crops the size of the observation to a given crop window. For example, in Atari, the\n  observations are images with a shape of 210x160. Usually, we will want to crop the size of the observation to a\n  square of 160x160 before rescaling them.\n\n\n\n\n\n\nObservationMoveAxisFilter\n - Reorders the axes of the observation. This can be useful when the observation is an\n  image, and we want to move the channel axis to be the last axis instead of the first axis.\n\n\n\n\n\n\nObservationNormalizationFilter\n - Normalizes the observation values with a running mean and standard deviation of\n  all the observations seen so far. The normalization is performed element-wise. Additionally, when working with\n  multiple workers, the statistics used for the normalization operation are accumulated over all the workers.\n\n\n\n\n\n\nObservationReductionBySubPartsNameFilter\n - Allows keeping only parts of the observation, by specifying their\n  name. For example, the CARLA environment extracts multiple measurements that can be used by the agent, such as\n  speed and location. If we want to only use the speed, it can be done using this filter.\n\n\n\n\n\n\nObservationRescaleSizeByFactorFilter\n - Rescales an image observation by some factor. For example, the image size\n  can be reduced by a factor of 2.\n\n\n\n\n\n\nObservationRescaleToSizeFilter\n - Rescales an image observation to a given size. The target size does not\n  necessarily keep the aspect ratio of the original observation.\n\n\n\n\n\n\nObservationRGBToYFilter\n - Converts a color image observation specified using the RGB encoding into a grayscale\n  image observation, by keeping only the luminance (Y) channel of the YUV encoding. This can be useful if the colors\n  in the original image are not relevant for solving the task at hand.\n\n\n\n\n\n\nObservationSqueezeFilter\n - Removes redundant axes from the observation, which are axes with a dimension of 1.\n\n\n\n\n\n\nObservationStackingFilter\n - Stacks several observations on top of each other. For image observation this will\n  create a 3D blob. The stacking is done in a lazy manner in order to reduce memory consumption. To achieve this,\n  a LazyStack object is used in order to wrap the observations in the stack. For this reason, the\n  ObservationStackingFilter \nmust\n be the last filter in the inputs filters stack.\n\n\n\n\n\n\nObservationUint8Filter\n - Converts a floating point observation into an unsigned int 8 bit observation. This is\n  mostly useful for reducing memory consumption and is usually used for image observations. The filter will first\n  spread the observation values over the range 0-255 and then discretize them into integer values.\n\n\n\n\n\n\nReward Filters\n\n\n\n\n\n\nRewardClippingFilter\n - Clips the reward values into a given range. For example, in DQN, the Atari rewards are\n  clipped into the range -1 and 1 in order to control the scale of the returns.\n\n\n\n\n\n\nRewardNormalizationFilter\n -  Normalizes the reward values with a running mean and standard deviation of\n  all the rewards seen so far. When working with multiple workers, the statistics used for the normalization operation\n  are accumulated over all the workers.\n\n\n\n\n\n\nRewardRescaleFilter\n - Rescales the reward by a given factor. Rescaling the rewards of the environment has been\n  observed to have a large effect (negative or positive) on the behavior of the learning process.\n\n\n\n\n\n\nOutput Filters\n\n\nThe output filters only process the actions.\n\n\nAction Filters\n\n\n\n\n\n\nAttentionDiscretization\n - Discretizes an \nAttentionActionSpace\n. The attention action space defines the actions\n  as choosing sub-boxes in a given box. For example, consider an image of size 100x100, where the action is choosing\n  a crop window of size 20x20 to attend to in the image. AttentionDiscretization allows discretizing the possible crop\n  windows to choose into a finite number of options, and map a discrete action space into those crop windows.\n\n\n\n\n\n\nBoxDiscretization\n - Discretizes a continuous action space into a discrete action space, allowing the usage of\n  agents such as DQN for continuous environments such as MuJoCo. Given the number of bins to discretize into, the\n  original continuous action space is uniformly separated into the given number of bins, each mapped to a discrete\n  action index. For example, if the original actions space is between -1 and 1 and 5 bins were selected, the new action\n  space will consist of 5 actions mapped to -1, -0.5, 0, 0.5 and 1.\n\n\n\n\n\n\nBoxMasking\n - Masks part of the action space to enforce the agent to work in a defined space. For example,\n  if the original action space is between -1 and 1, then this filter can be used in order to constrain the agent actions\n  to the range 0 and 1 instead. This essentially masks the range -1 and 0 from the agent.\n\n\n\n\n\n\nPartialDiscreteActionSpaceMap\n - Partial map of two countable action spaces. For example, consider an environment\n  with a MultiSelect action space (select multiple actions at the same time, such as jump and go right), with 8 actual\n  MultiSelect actions. If we want the agent to be able to select only 5 of those actions by their index (0-4), we can\n  map a discrete action space with 5 actions into the 5 selected MultiSelect actions. This will both allow the agent to\n  use regular discrete actions, and mask 3 of the actions from the agent.\n\n\n\n\n\n\nFullDiscreteActionSpaceMap\n - Full map of two countable action spaces. This works in a similar way to the\n  PartialDiscreteActionSpaceMap, but maps the entire source action space into the entire target action space, without\n  masking any actions.\n\n\n\n\n\n\nLinearBoxToBoxMap\n - A linear mapping of two box action spaces. For example, if the action space of the\n  environment consists of continuous actions between 0 and 1, and we want the agent to choose actions between -1 and 1,\n  the LinearBoxToBoxMap can be used to map the range -1 and 1 to the range 0 and 1 in a linear way. This means that the\n  action -1 will be mapped to 0, the action 1 will be mapped to 1, and the rest of the actions will be linearly mapped\n  between those values.",
+            "title": "Filters"
+        },
+        {
+            "location": "/design/filters/#filters",
+            "text": "Filters are a mechanism in Coach that allows doing pre-processing and post-processing of the internal agent information.\nThere are two filter categories -    Input filters  - these are filters that process the information passed  into  the agent from the environment.\n  This information includes the observation and the reward. Input filters therefore allow rescaling observations,\n  normalizing rewards, stack observations, etc.    Output filters  - these are filters that process the information going  out  of the agent into the environment.\n  This information includes the action the agent chooses to take. Output filters therefore allow conversion of\n  actions from one space into another. For example, the agent can take   N   discrete actions, that will be mapped by\n  the output filter onto   N   continuous actions.    Filters can be stacked on top of each other in order to build complex processing flows of the inputs or outputs.",
+            "title": "Filters"
+        },
+        {
+            "location": "/design/filters/#input-filters",
+            "text": "The input filters are separated into two categories -  observation filters  and  reward filters .",
+            "title": "Input Filters"
+        },
+        {
+            "location": "/design/filters/#observation-filters",
+            "text": "ObservationClippingFilter  - Clips the observation values to a given range of values. For example, if the\n  observation consists of measurements in an arbitrary range, and we want to control the minimum and maximum values\n  of these observations, we can define a range and clip the values of the measurements.    ObservationCropFilter  - Crops the size of the observation to a given crop window. For example, in Atari, the\n  observations are images with a shape of 210x160. Usually, we will want to crop the size of the observation to a\n  square of 160x160 before rescaling them.    ObservationMoveAxisFilter  - Reorders the axes of the observation. This can be useful when the observation is an\n  image, and we want to move the channel axis to be the last axis instead of the first axis.    ObservationNormalizationFilter  - Normalizes the observation values with a running mean and standard deviation of\n  all the observations seen so far. The normalization is performed element-wise. Additionally, when working with\n  multiple workers, the statistics used for the normalization operation are accumulated over all the workers.    ObservationReductionBySubPartsNameFilter  - Allows keeping only parts of the observation, by specifying their\n  name. For example, the CARLA environment extracts multiple measurements that can be used by the agent, such as\n  speed and location. If we want to only use the speed, it can be done using this filter.    ObservationRescaleSizeByFactorFilter  - Rescales an image observation by some factor. For example, the image size\n  can be reduced by a factor of 2.    ObservationRescaleToSizeFilter  - Rescales an image observation to a given size. The target size does not\n  necessarily keep the aspect ratio of the original observation.    ObservationRGBToYFilter  - Converts a color image observation specified using the RGB encoding into a grayscale\n  image observation, by keeping only the luminance (Y) channel of the YUV encoding. This can be useful if the colors\n  in the original image are not relevant for solving the task at hand.    ObservationSqueezeFilter  - Removes redundant axes from the observation, which are axes with a dimension of 1.    ObservationStackingFilter  - Stacks several observations on top of each other. For image observation this will\n  create a 3D blob. The stacking is done in a lazy manner in order to reduce memory consumption. To achieve this,\n  a LazyStack object is used in order to wrap the observations in the stack. For this reason, the\n  ObservationStackingFilter  must  be the last filter in the inputs filters stack.    ObservationUint8Filter  - Converts a floating point observation into an unsigned int 8 bit observation. This is\n  mostly useful for reducing memory consumption and is usually used for image observations. The filter will first\n  spread the observation values over the range 0-255 and then discretize them into integer values.",
+            "title": "Observation Filters"
+        },
+        {
+            "location": "/design/filters/#reward-filters",
+            "text": "RewardClippingFilter  - Clips the reward values into a given range. For example, in DQN, the Atari rewards are\n  clipped into the range -1 and 1 in order to control the scale of the returns.    RewardNormalizationFilter  -  Normalizes the reward values with a running mean and standard deviation of\n  all the rewards seen so far. When working with multiple workers, the statistics used for the normalization operation\n  are accumulated over all the workers.    RewardRescaleFilter  - Rescales the reward by a given factor. Rescaling the rewards of the environment has been\n  observed to have a large effect (negative or positive) on the behavior of the learning process.",
+            "title": "Reward Filters"
+        },
+        {
+            "location": "/design/filters/#output-filters",
+            "text": "The output filters only process the actions.",
+            "title": "Output Filters"
+        },
+        {
+            "location": "/design/filters/#action-filters",
+            "text": "AttentionDiscretization  - Discretizes an  AttentionActionSpace . The attention action space defines the actions\n  as choosing sub-boxes in a given box. For example, consider an image of size 100x100, where the action is choosing\n  a crop window of size 20x20 to attend to in the image. AttentionDiscretization allows discretizing the possible crop\n  windows to choose into a finite number of options, and map a discrete action space into those crop windows.    BoxDiscretization  - Discretizes a continuous action space into a discrete action space, allowing the usage of\n  agents such as DQN for continuous environments such as MuJoCo. Given the number of bins to discretize into, the\n  original continuous action space is uniformly separated into the given number of bins, each mapped to a discrete\n  action index. For example, if the original actions space is between -1 and 1 and 5 bins were selected, the new action\n  space will consist of 5 actions mapped to -1, -0.5, 0, 0.5 and 1.    BoxMasking  - Masks part of the action space to enforce the agent to work in a defined space. For example,\n  if the original action space is between -1 and 1, then this filter can be used in order to constrain the agent actions\n  to the range 0 and 1 instead. This essentially masks the range -1 and 0 from the agent.    PartialDiscreteActionSpaceMap  - Partial map of two countable action spaces. For example, consider an environment\n  with a MultiSelect action space (select multiple actions at the same time, such as jump and go right), with 8 actual\n  MultiSelect actions. If we want the agent to be able to select only 5 of those actions by their index (0-4), we can\n  map a discrete action space with 5 actions into the 5 selected MultiSelect actions. This will both allow the agent to\n  use regular discrete actions, and mask 3 of the actions from the agent.    FullDiscreteActionSpaceMap  - Full map of two countable action spaces. This works in a similar way to the\n  PartialDiscreteActionSpaceMap, but maps the entire source action space into the entire target action space, without\n  masking any actions.    LinearBoxToBoxMap  - A linear mapping of two box action spaces. For example, if the action space of the\n  environment consists of continuous actions between 0 and 1, and we want the agent to choose actions between -1 and 1,\n  the LinearBoxToBoxMap can be used to map the range -1 and 1 to the range 0 and 1 in a linear way. This means that the\n  action -1 will be mapped to 0, the action 1 will be mapped to 1, and the rest of the actions will be linearly mapped\n  between those values.",
+            "title": "Action Filters"
+        },
+        {
+            "location": "/algorithms/value_optimization/dqn/",
+            "text": "Deep Q Networks\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nPlaying Atari with Deep Reinforcement Learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nTraining the network\n\n\n\n\nSample a batch of transitions from the replay buffer. \n\n\nUsing the next states from the sampled batch, run the target network to calculate the \n Q \n values for each of the actions \n Q(s_{t+1},a) \n, and keep only the maximum value for each state. \n\n\nIn order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss), use the current states from the sampled batch, and run the online network to get the current Q values predictions. Set those values as the targets for the actions that were not actually played. \n\n\n\n\nFor each action that was played, use the following equation for calculating the targets of the network:\u200b                                                         \n y_t=r(s_t,a_t)+\u03b3\\cdot max_a {Q(s_{t+1},a)} \n\n\n\n\n\n\n\n\nFinally, train the online network using the current states as inputs, and with the aforementioned targets. \n\n\n\n\nOnce in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/dqn/#deep-q-networks",
+            "text": "Actions space:  Discrete  References:   Playing Atari with Deep Reinforcement Learning",
+            "title": "Deep Q Networks"
+        },
+        {
+            "location": "/algorithms/value_optimization/dqn/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/dqn/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/dqn/#training-the-network",
+            "text": "Sample a batch of transitions from the replay buffer.   Using the next states from the sampled batch, run the target network to calculate the   Q   values for each of the actions   Q(s_{t+1},a)  , and keep only the maximum value for each state.   In order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss), use the current states from the sampled batch, and run the online network to get the current Q values predictions. Set those values as the targets for the actions that were not actually played.    For each action that was played, use the following equation for calculating the targets of the network:\u200b                                                           y_t=r(s_t,a_t)+\u03b3\\cdot max_a {Q(s_{t+1},a)}      Finally, train the online network using the current states as inputs, and with the aforementioned targets.    Once in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/double_dqn/",
+            "text": "Double DQN\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nDeep Reinforcement Learning with Double Q-learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nTraining the network\n\n\n\n\nSample a batch of transitions from the replay buffer. \n\n\nUsing the next states from the sampled batch, run the online network in order to find the \nQ\n maximizing action \nargmax_a Q(s_{t+1},a)\n. For these actions, use the corresponding next states and run the target network to calculate \nQ(s_{t+1},argmax_a Q(s_{t+1},a))\n.\n\n\nIn order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss), use the current states from the sampled batch, and run the online network to get the current Q values predictions. Set those values as the targets for the actions that were not actually played. \n\n\n\n\nFor each action that was played, use the following equation for calculating the targets of the network:\n   \n y_t=r(s_t,a_t )+\\gamma \\cdot Q(s_{t+1},argmax_a Q(s_{t+1},a)) \n\n\n\n\n\n\n\n\nFinally, train the online network using the current states as inputs, and with the aforementioned targets. \n\n\n\n\nOnce in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Double DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/double_dqn/#double-dqn",
+            "text": "Actions space:  Discrete  References:   Deep Reinforcement Learning with Double Q-learning",
+            "title": "Double DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/double_dqn/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/double_dqn/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/double_dqn/#training-the-network",
+            "text": "Sample a batch of transitions from the replay buffer.   Using the next states from the sampled batch, run the online network in order to find the  Q  maximizing action  argmax_a Q(s_{t+1},a) . For these actions, use the corresponding next states and run the target network to calculate  Q(s_{t+1},argmax_a Q(s_{t+1},a)) .  In order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss), use the current states from the sampled batch, and run the online network to get the current Q values predictions. Set those values as the targets for the actions that were not actually played.    For each action that was played, use the following equation for calculating the targets of the network:\n     y_t=r(s_t,a_t )+\\gamma \\cdot Q(s_{t+1},argmax_a Q(s_{t+1},a))      Finally, train the online network using the current states as inputs, and with the aforementioned targets.    Once in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/dueling_dqn/",
+            "text": "Dueling DQN\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nDueling Network Architectures for Deep Reinforcement Learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nGeneral Description\n\n\nDueling DQN presents a change in the network structure comparing to DQN.\n\n\nDueling DQN uses a specialized \nDueling Q Head\n in order to separate \n Q \n to an \n A \n (advantage) stream and a \n V \n stream. Adding this type of structure to the network head allows the network to better differentiate actions from one another, and significantly improves the learning.\n\n\nIn many states, the values of the different actions are very similar, and it is less important which action to take.\nThis is especially important in environments where there are many actions to choose from. In DQN, on each training iteration, for each of the states in the batch, we update the \nQ\n values only for the specific actions taken in those states. This results in slower learning as we do not learn the \nQ\n values for actions that were not taken yet. On dueling architecture, on the other hand, learning is faster - as we start learning the state-value even if only a single action has been taken at this state.",
+            "title": "Dueling DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/dueling_dqn/#dueling-dqn",
+            "text": "Actions space:  Discrete  References:   Dueling Network Architectures for Deep Reinforcement Learning",
+            "title": "Dueling DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/dueling_dqn/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/dueling_dqn/#general-description",
+            "text": "Dueling DQN presents a change in the network structure comparing to DQN.  Dueling DQN uses a specialized  Dueling Q Head  in order to separate   Q   to an   A   (advantage) stream and a   V   stream. Adding this type of structure to the network head allows the network to better differentiate actions from one another, and significantly improves the learning.  In many states, the values of the different actions are very similar, and it is less important which action to take.\nThis is especially important in environments where there are many actions to choose from. In DQN, on each training iteration, for each of the states in the batch, we update the  Q  values only for the specific actions taken in those states. This results in slower learning as we do not learn the  Q  values for actions that were not taken yet. On dueling architecture, on the other hand, learning is faster - as we start learning the state-value even if only a single action has been taken at this state.",
+            "title": "General Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/categorical_dqn/",
+            "text": "Categorical DQN\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nA Distributional Perspective on Reinforcement Learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nTraining the network\n\n\n\n\nSample a batch of transitions from the replay buffer. \n\n\n\n\nThe Bellman update is projected to the set of atoms representing the \n Q \n values distribution, such that the \ni-th\n component of the projected update is calculated as follows:\n   \n (\\Phi \\hat{T} Z_{\\theta}(s_t,a_t))_i=\\sum_{j=0}^{N-1}\\Big[1-\\frac{|[\\hat{T}_{z_{j}}]^{V_{MAX}}_{V_{MIN}}-z_i|}{\\Delta z}\\Big]^1_0 \\ p_j(s_{t+1}, \\pi(s_{t+1})) \n\n   where:\n\n\n\n\n\n\n[ \\cdot ] \n bounds its argument in the range [a, b]\n\n\n\n\n\\hat{T}_{z_{j}}\n is the Bellman update for atom \nz_j\n: \u00a0 \u00a0   \n\\hat{T}_{z_{j}} := r+\\gamma z_j\n\n\n\n\n\n\n\n\n\n\nNetwork is trained with the cross entropy loss between the resulting probability distribution and the target probability distribution.   Only the target of the actions that were actually taken is updated. \n\n\n\n\nOnce in every few thousand steps, weights are copied from the online network to the target network.",
+            "title": "Categorical DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/categorical_dqn/#categorical-dqn",
+            "text": "Actions space:  Discrete  References:   A Distributional Perspective on Reinforcement Learning",
+            "title": "Categorical DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/categorical_dqn/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/categorical_dqn/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/categorical_dqn/#training-the-network",
+            "text": "Sample a batch of transitions from the replay buffer.    The Bellman update is projected to the set of atoms representing the   Q   values distribution, such that the  i-th  component of the projected update is calculated as follows:\n     (\\Phi \\hat{T} Z_{\\theta}(s_t,a_t))_i=\\sum_{j=0}^{N-1}\\Big[1-\\frac{|[\\hat{T}_{z_{j}}]^{V_{MAX}}_{V_{MIN}}-z_i|}{\\Delta z}\\Big]^1_0 \\ p_j(s_{t+1}, \\pi(s_{t+1}))  \n   where:    [ \\cdot ]   bounds its argument in the range [a, b]   \\hat{T}_{z_{j}}  is the Bellman update for atom  z_j : \u00a0 \u00a0    \\hat{T}_{z_{j}} := r+\\gamma z_j      Network is trained with the cross entropy loss between the resulting probability distribution and the target probability distribution.   Only the target of the actions that were actually taken is updated.    Once in every few thousand steps, weights are copied from the online network to the target network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/mmc/",
+            "text": "Mixed Monte Carlo\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nCount-Based Exploration with Neural Density Models\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nTraining the network\n\n\nIn MMC, targets are calculated as a mixture between Double DQN targets and full Monte Carlo samples (total discounted returns).\n\n\nThe DDQN targets are calculated in the same manner as in the DDQN agent:\n\n\n\n\n y_t^{DDQN}=r(s_t,a_t )+\\gamma Q(s_{t+1},argmax_a Q(s_{t+1},a)) \n\n\n\n\nThe Monte Carlo targets are calculated by summing up the discounted rewards across the entire episode:\n\n\n\n\n y_t^{MC}=\\sum_{j=0}^T\\gamma^j r(s_{t+j},a_{t+j} ) \n\n\n\n\nA mixing ratio \n\\alpha\n is then used to get the final targets:\n\n\n\n\n y_t=(1-\\alpha)\\cdot y_t^{DDQN}+\\alpha \\cdot y_t^{MC} \n\n\n\n\nFinally, the online network is trained using the current states as inputs, and the calculated targets.\nOnce in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Mixed Monte Carlo"
+        },
+        {
+            "location": "/algorithms/value_optimization/mmc/#mixed-monte-carlo",
+            "text": "Actions space:  Discrete  References:   Count-Based Exploration with Neural Density Models",
+            "title": "Mixed Monte Carlo"
+        },
+        {
+            "location": "/algorithms/value_optimization/mmc/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/mmc/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/mmc/#training-the-network",
+            "text": "In MMC, targets are calculated as a mixture between Double DQN targets and full Monte Carlo samples (total discounted returns).  The DDQN targets are calculated in the same manner as in the DDQN agent:    y_t^{DDQN}=r(s_t,a_t )+\\gamma Q(s_{t+1},argmax_a Q(s_{t+1},a))    The Monte Carlo targets are calculated by summing up the discounted rewards across the entire episode:    y_t^{MC}=\\sum_{j=0}^T\\gamma^j r(s_{t+j},a_{t+j} )    A mixing ratio  \\alpha  is then used to get the final targets:    y_t=(1-\\alpha)\\cdot y_t^{DDQN}+\\alpha \\cdot y_t^{MC}    Finally, the online network is trained using the current states as inputs, and the calculated targets.\nOnce in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/pal/",
+            "text": "Persistent Advantage Learning\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nIncreasing the Action Gap: New Operators for Reinforcement Learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nTraining the network\n\n\n\n\n\n\nSample a batch of transitions from the replay buffer. \n\n\n\n\n\n\nStart by calculating the initial target values in the same manner as they are calculated in DDQN\n   \n y_t^{DDQN}=r(s_t,a_t )+\\gamma Q(s_{t+1},argmax_a Q(s_{t+1},a)) \n\n\n\n\n\n\nThe action gap \n V(s_t )-Q(s_t,a_t) \n should then be subtracted from each of the calculated targets. To calculate the action gap, run the target network using the current states and get the \n Q \n values for all the actions. Then estimate \n V \n as the maximum predicted \n Q \n value for the current state:\n   \n V(s_t )=max_a Q(s_t,a) \n\n\n\n\nFor \nadvantage learning (AL)\n, reduce the action gap weighted by a predefined parameter \n \\alpha \n from the targets \n y_t^{DDQN} \n: \n   \n y_t=y_t^{DDQN}-\\alpha \\cdot (V(s_t )-Q(s_t,a_t )) \n\n\n\n\nFor \npersistent advantage learning (PAL)\n, the target network is also used in order to calculate the action gap for the next state:\n   \n V(s_{t+1} )-Q(s_{t+1},a_{t+1}) \n\n   where \n a_{t+1} \n is chosen by running the next states through the online network and choosing the action that has the highest predicted \n Q \n value. Finally, the targets will be defined as -\n   \n y_t=y_t^{DDQN}-\\alpha \\cdot min(V(s_t )-Q(s_t,a_t ),V(s_{t+1} )-Q(s_{t+1},a_{t+1} )) \n\n\n\n\n\n\nTrain the online network using the current states as inputs, and with the aforementioned targets.\n\n\n\n\n\n\nOnce in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Persistent Advantage Learning"
+        },
+        {
+            "location": "/algorithms/value_optimization/pal/#persistent-advantage-learning",
+            "text": "Actions space:  Discrete  References:   Increasing the Action Gap: New Operators for Reinforcement Learning",
+            "title": "Persistent Advantage Learning"
+        },
+        {
+            "location": "/algorithms/value_optimization/pal/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/pal/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/pal/#training-the-network",
+            "text": "Sample a batch of transitions from the replay buffer.     Start by calculating the initial target values in the same manner as they are calculated in DDQN\n     y_t^{DDQN}=r(s_t,a_t )+\\gamma Q(s_{t+1},argmax_a Q(s_{t+1},a))     The action gap   V(s_t )-Q(s_t,a_t)   should then be subtracted from each of the calculated targets. To calculate the action gap, run the target network using the current states and get the   Q   values for all the actions. Then estimate   V   as the maximum predicted   Q   value for the current state:\n     V(s_t )=max_a Q(s_t,a)    For  advantage learning (AL) , reduce the action gap weighted by a predefined parameter   \\alpha   from the targets   y_t^{DDQN}  : \n     y_t=y_t^{DDQN}-\\alpha \\cdot (V(s_t )-Q(s_t,a_t ))    For  persistent advantage learning (PAL) , the target network is also used in order to calculate the action gap for the next state:\n     V(s_{t+1} )-Q(s_{t+1},a_{t+1})  \n   where   a_{t+1}   is chosen by running the next states through the online network and choosing the action that has the highest predicted   Q   value. Finally, the targets will be defined as -\n     y_t=y_t^{DDQN}-\\alpha \\cdot min(V(s_t )-Q(s_t,a_t ),V(s_{t+1} )-Q(s_{t+1},a_{t+1} ))     Train the online network using the current states as inputs, and with the aforementioned targets.    Once in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/nec/",
+            "text": "Neural Episodic Control\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nNeural Episodic Control\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action\n\n\n\n\nUse the current state as an input to the online network and extract the state embedding, which is the intermediate output from the middleware. \n\n\nFor each possible action \na_i\n, run the DND head using the state embedding and the selected action \na_i\n as inputs. The DND is queried and returns the \n P \n nearest neighbor keys and values. The keys and values are used to calculate and return the action \n Q \n value from the network. \n\n\nPass all the \n Q \n values to the exploration policy and choose an action accordingly. \n\n\nStore the state embeddings and actions taken during the current episode in a small buffer \nB\n, in order to accumulate transitions until it is possible to calculate the total discounted returns over the entire episode.\n\n\n\n\nFinalizing an episode\n\n\nFor each step in the episode, the state embeddings and the taken actions are stored in the buffer \nB\n. When the episode is finished, the replay buffer calculates the \n N \n-step total return of each transition in the buffer, bootstrapped using the maximum \nQ\n value of the \nN\n-th transition. Those values are inserted along with the total return into the DND, and the buffer \nB\n is reset.\n\n\nTraining the network\n\n\nTrain the network only when the DND has enough entries for querying.\n\n\nTo train the network, the current states are used as the inputs and the \nN\n-step returns are used as the targets. The \nN\n-step return used takes into account \n N \n consecutive steps, and bootstraps the last value from the network if necessary:\n\n y_t=\\sum_{j=0}^{N-1}\\gamma^j r(s_{t+j},a_{t+j} ) +\\gamma^N   max_a Q(s_{t+N},a)",
+            "title": "Neural Episodic Control"
+        },
+        {
+            "location": "/algorithms/value_optimization/nec/#neural-episodic-control",
+            "text": "Actions space:  Discrete  References:   Neural Episodic Control",
+            "title": "Neural Episodic Control"
+        },
+        {
+            "location": "/algorithms/value_optimization/nec/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/nec/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/nec/#choosing-an-action",
+            "text": "Use the current state as an input to the online network and extract the state embedding, which is the intermediate output from the middleware.   For each possible action  a_i , run the DND head using the state embedding and the selected action  a_i  as inputs. The DND is queried and returns the   P   nearest neighbor keys and values. The keys and values are used to calculate and return the action   Q   value from the network.   Pass all the   Q   values to the exploration policy and choose an action accordingly.   Store the state embeddings and actions taken during the current episode in a small buffer  B , in order to accumulate transitions until it is possible to calculate the total discounted returns over the entire episode.",
+            "title": "Choosing an action"
+        },
+        {
+            "location": "/algorithms/value_optimization/nec/#finalizing-an-episode",
+            "text": "For each step in the episode, the state embeddings and the taken actions are stored in the buffer  B . When the episode is finished, the replay buffer calculates the   N  -step total return of each transition in the buffer, bootstrapped using the maximum  Q  value of the  N -th transition. Those values are inserted along with the total return into the DND, and the buffer  B  is reset.",
+            "title": "Finalizing an episode"
+        },
+        {
+            "location": "/algorithms/value_optimization/nec/#training-the-network",
+            "text": "Train the network only when the DND has enough entries for querying.  To train the network, the current states are used as the inputs and the  N -step returns are used as the targets. The  N -step return used takes into account   N   consecutive steps, and bootstraps the last value from the network if necessary:  y_t=\\sum_{j=0}^{N-1}\\gamma^j r(s_{t+j},a_{t+j} ) +\\gamma^N   max_a Q(s_{t+N},a)",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/bs_dqn/",
+            "text": "Bootstrapped DQN\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nDeep Exploration via Bootstrapped DQN\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action\n\n\nThe current states are used as the input to the network. The network contains several \nQ\n heads, which  are used for returning different estimations of the action \n Q \n values. For each episode, the bootstrapped exploration policy selects a single head to play with during the episode. According to the selected head, only the relevant output \n Q \n values are used. Using those \n Q \n values, the exploration policy then selects the action for acting.\n\n\nStoring the transitions\n\n\nFor each transition, a Binomial mask is generated according to a predefined probability, and the number of output heads. The mask is a binary vector where each element holds a 0 for heads that shouldn't train on the specific transition, and 1 for heads that should use the transition for training. The mask is stored as part of the transition info in the replay buffer. \n\n\nTraining the network\n\n\nFirst, sample a batch of transitions from the replay buffer. Run the current states through the network and get the current \n Q \n value predictions for all the heads and all the actions. For each transition in the batch, and for each output head, if the transition mask is 1 - change the targets of the played action to \ny_t\n, according to the standard DQN update rule:\n\n\n\n\n y_t=r(s_t,a_t )+\\gamma\\cdot max_a Q(s_{t+1},a) \n\n\n\n\nOtherwise, leave it intact so that the transition does not affect the learning of this head. Then, train the online network according to the calculated targets.\n\n\nAs in DQN, once in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Bootstrapped DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/bs_dqn/#bootstrapped-dqn",
+            "text": "Actions space:  Discrete  References:   Deep Exploration via Bootstrapped DQN",
+            "title": "Bootstrapped DQN"
+        },
+        {
+            "location": "/algorithms/value_optimization/bs_dqn/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/bs_dqn/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/bs_dqn/#choosing-an-action",
+            "text": "The current states are used as the input to the network. The network contains several  Q  heads, which  are used for returning different estimations of the action   Q   values. For each episode, the bootstrapped exploration policy selects a single head to play with during the episode. According to the selected head, only the relevant output   Q   values are used. Using those   Q   values, the exploration policy then selects the action for acting.",
+            "title": "Choosing an action"
+        },
+        {
+            "location": "/algorithms/value_optimization/bs_dqn/#storing-the-transitions",
+            "text": "For each transition, a Binomial mask is generated according to a predefined probability, and the number of output heads. The mask is a binary vector where each element holds a 0 for heads that shouldn't train on the specific transition, and 1 for heads that should use the transition for training. The mask is stored as part of the transition info in the replay buffer.",
+            "title": "Storing the transitions"
+        },
+        {
+            "location": "/algorithms/value_optimization/bs_dqn/#training-the-network",
+            "text": "First, sample a batch of transitions from the replay buffer. Run the current states through the network and get the current   Q   value predictions for all the heads and all the actions. For each transition in the batch, and for each output head, if the transition mask is 1 - change the targets of the played action to  y_t , according to the standard DQN update rule:    y_t=r(s_t,a_t )+\\gamma\\cdot max_a Q(s_{t+1},a)    Otherwise, leave it intact so that the transition does not affect the learning of this head. Then, train the online network according to the calculated targets.  As in DQN, once in every few thousand steps, copy the weights from the online network to the target network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/n_step/",
+            "text": "N-Step Q Learning\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nAsynchronous Methods for Deep Reinforcement Learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nTraining the network\n\n\nThe \nN\n-step Q learning algorithm works in similar manner to DQN except for the following changes:\n\n\n\n\n\n\nNo replay buffer is used. Instead of sampling random batches of transitions, the network is trained every \nN\n steps using the latest \nN\n steps played by the agent.\n\n\n\n\n\n\nIn order to stabilize the learning, multiple workers work together to update the network. This creates the same effect as uncorrelating the samples used for training.\n\n\n\n\n\n\nInstead of using single-step Q targets for the network, the rewards from \nN\n consequent steps are accumulated to form the \nN\n-step Q targets, according to the following equation: \n\nR(s_t, a_t) = \\sum_{i=t}^{i=t + k - 1} \\gamma^{i-t}r_i +\\gamma^{k} V(s_{t+k})\n\nwhere \nk\n is \nT_{max} - State\\_Index\n for each state in the batch",
+            "title": "N-Step Q Learning"
+        },
+        {
+            "location": "/algorithms/value_optimization/n_step/#n-step-q-learning",
+            "text": "Actions space:  Discrete  References:   Asynchronous Methods for Deep Reinforcement Learning",
+            "title": "N-Step Q Learning"
+        },
+        {
+            "location": "/algorithms/value_optimization/n_step/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/n_step/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/n_step/#training-the-network",
+            "text": "The  N -step Q learning algorithm works in similar manner to DQN except for the following changes:    No replay buffer is used. Instead of sampling random batches of transitions, the network is trained every  N  steps using the latest  N  steps played by the agent.    In order to stabilize the learning, multiple workers work together to update the network. This creates the same effect as uncorrelating the samples used for training.    Instead of using single-step Q targets for the network, the rewards from  N  consequent steps are accumulated to form the  N -step Q targets, according to the following equation:  R(s_t, a_t) = \\sum_{i=t}^{i=t + k - 1} \\gamma^{i-t}r_i +\\gamma^{k} V(s_{t+k}) \nwhere  k  is  T_{max} - State\\_Index  for each state in the batch",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/value_optimization/naf/",
+            "text": "Normalized Advantage Functions\n\n\nActions space:\n Continuous\n\n\nReferences:\n \nContinuous Deep Q-Learning with Model-based Acceleration\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action\n\n\nThe current state is used as an input to the network. The action mean \n \\mu(s_t ) \n is extracted from the output head. It is then passed to the exploration policy which adds noise in order to encourage exploration.\n\n\nTraining the network\n\n\nThe network is trained by using the following targets:\n\n y_t=r(s_t,a_t )+\\gamma\\cdot V(s_{t+1}) \n\nUse the next states as the inputs to the target network and extract the \n V \n value, from within the head, to get \n V(s_{t+1} ) \n. Then, update the online network using the current states and actions as inputs, and \n y_t \n as the targets.\nAfter every training step, use a soft update in order to copy the weights from the online network to the target network.",
+            "title": "Normalized Advantage Functions"
+        },
+        {
+            "location": "/algorithms/value_optimization/naf/#normalized-advantage-functions",
+            "text": "Actions space:  Continuous  References:   Continuous Deep Q-Learning with Model-based Acceleration",
+            "title": "Normalized Advantage Functions"
+        },
+        {
+            "location": "/algorithms/value_optimization/naf/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/value_optimization/naf/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/value_optimization/naf/#choosing-an-action",
+            "text": "The current state is used as an input to the network. The action mean   \\mu(s_t )   is extracted from the output head. It is then passed to the exploration policy which adds noise in order to encourage exploration.",
+            "title": "Choosing an action"
+        },
+        {
+            "location": "/algorithms/value_optimization/naf/#training-the-network",
+            "text": "The network is trained by using the following targets:  y_t=r(s_t,a_t )+\\gamma\\cdot V(s_{t+1})  \nUse the next states as the inputs to the target network and extract the   V   value, from within the head, to get   V(s_{t+1} )  . Then, update the online network using the current states and actions as inputs, and   y_t   as the targets.\nAfter every training step, use a soft update in order to copy the weights from the online network to the target network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/policy_optimization/pg/",
+            "text": "Policy Gradient\n\n\nActions space:\n Discrete|Continuous\n\n\nReferences:\n \nSimple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action - Discrete actions\n\n\nRun the current states through the network and get a policy distribution over the actions. While training, sample from the policy distribution. When testing, take the action with the highest probability. \n\n\nTraining the network\n\n\nThe policy head loss is defined as \n L=-log (\\pi) \\cdot  PolicyGradientRescaler \n. The \nPolicyGradientRescaler\n is used in order to reduce the policy gradient variance, which might be very noisy. This is done in order to reduce the variance of the updates, since noisy gradient updates might destabilize the policy's convergence. The rescaler is a configurable parameter and there are few options to choose from:  \n\n\n \nTotal Episode Return\n - The sum of all the discounted rewards during the episode.\n\n \nFuture Return\n - Return from each transition until the end of the episode.\n\n \nFuture Return Normalized by Episode\n - Future returns across the episode normalized by the episode's mean and standard deviation.\n\n \nFuture Return Normalized by Timestep\n - Future returns normalized using running means and standard deviations, which are calculated seperately for each timestep, across different episodes. \n\n\nGradients are accumulated over a number of full played episodes. The gradients accumulation over several episodes serves the same purpose - reducing the update variance. After accumulating gradients for several episodes, the gradients are then applied to the network.",
+            "title": "Policy Gradient"
+        },
+        {
+            "location": "/algorithms/policy_optimization/pg/#policy-gradient",
+            "text": "Actions space:  Discrete|Continuous  References:   Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning",
+            "title": "Policy Gradient"
+        },
+        {
+            "location": "/algorithms/policy_optimization/pg/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/policy_optimization/pg/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/policy_optimization/pg/#choosing-an-action-discrete-actions",
+            "text": "Run the current states through the network and get a policy distribution over the actions. While training, sample from the policy distribution. When testing, take the action with the highest probability.",
+            "title": "Choosing an action - Discrete actions"
+        },
+        {
+            "location": "/algorithms/policy_optimization/pg/#training-the-network",
+            "text": "The policy head loss is defined as   L=-log (\\pi) \\cdot  PolicyGradientRescaler  . The  PolicyGradientRescaler  is used in order to reduce the policy gradient variance, which might be very noisy. This is done in order to reduce the variance of the updates, since noisy gradient updates might destabilize the policy's convergence. The rescaler is a configurable parameter and there are few options to choose from:      Total Episode Return  - The sum of all the discounted rewards during the episode.   Future Return  - Return from each transition until the end of the episode.   Future Return Normalized by Episode  - Future returns across the episode normalized by the episode's mean and standard deviation.   Future Return Normalized by Timestep  - Future returns normalized using running means and standard deviations, which are calculated seperately for each timestep, across different episodes.   Gradients are accumulated over a number of full played episodes. The gradients accumulation over several episodes serves the same purpose - reducing the update variance. After accumulating gradients for several episodes, the gradients are then applied to the network.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ac/",
+            "text": "Actor-Critic\n\n\nActions space:\n Discrete|Continuous\n\n\nReferences:\n \nAsynchronous Methods for Deep Reinforcement Learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action - Discrete actions\n\n\nThe policy network is used in order to predict action probabilites. While training, a sample is taken from a categorical distribution assigned with these probabilities. When testing, the action with the highest probability is used.\n\n\nTraining the network\n\n\nA batch of \n T_{max} \n transitions is used, and the advantages are calculated upon it.\n\n\nAdvantages can be calculated by either of the following methods (configured by the selected preset) -\n\n\n\n\nA_VALUE\n - Estimating advantage directly:\n A(s_t, a_t) = \\underbrace{\\sum_{i=t}^{i=t + k - 1} \\gamma^{i-t}r_i +\\gamma^{k} V(s_{t+k})}_{Q(s_t, a_t)} - V(s_t) \nwhere \nk\n is \nT_{max} - State\\_Index\n for each state in the batch.\n\n\nGAE\n - By following the \nGeneralized Advantage Estimation\n paper. \n\n\n\n\nThe advantages are then used in order to accumulate gradients according to \n\n L = -\\mathop{\\mathbb{E}} [log (\\pi) \\cdot A]",
+            "title": "Actor-Critic"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ac/#actor-critic",
+            "text": "Actions space:  Discrete|Continuous  References:   Asynchronous Methods for Deep Reinforcement Learning",
+            "title": "Actor-Critic"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ac/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ac/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ac/#choosing-an-action-discrete-actions",
+            "text": "The policy network is used in order to predict action probabilites. While training, a sample is taken from a categorical distribution assigned with these probabilities. When testing, the action with the highest probability is used.",
+            "title": "Choosing an action - Discrete actions"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ac/#training-the-network",
+            "text": "A batch of   T_{max}   transitions is used, and the advantages are calculated upon it.  Advantages can be calculated by either of the following methods (configured by the selected preset) -   A_VALUE  - Estimating advantage directly:  A(s_t, a_t) = \\underbrace{\\sum_{i=t}^{i=t + k - 1} \\gamma^{i-t}r_i +\\gamma^{k} V(s_{t+k})}_{Q(s_t, a_t)} - V(s_t)  where  k  is  T_{max} - State\\_Index  for each state in the batch.  GAE  - By following the  Generalized Advantage Estimation  paper.    The advantages are then used in order to accumulate gradients according to   L = -\\mathop{\\mathbb{E}} [log (\\pi) \\cdot A]",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ddpg/",
+            "text": "Deep Deterministic Policy Gradient\n\n\nActions space:\n Continuous\n\n\nReferences:\n \nContinuous control with deep reinforcement learning\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action\n\n\nPass the current states through the actor network, and get an action mean vector \n \\mu \n. While in training phase, use a continuous exploration policy, such as the Ornstein-Uhlenbeck process, to add exploration noise to the action. When testing, use the mean vector \n\\mu\n as-is.\n\n\nTraining the network\n\n\nStart by sampling a batch of transitions from the experience replay.\n\n\n\n\nTo train the \ncritic network\n, use the following targets:\n\n\n\n\n\n\n y_t=r(s_t,a_t )+\\gamma \\cdot Q(s_{t+1},\\mu(s_{t+1} )) \n\n  First run the actor target network, using the next states as the inputs, and get \n \\mu (s_{t+1} ) \n. Next, run the critic target network using the next states and \n \\mu (s_{t+1} ) \n, and use the output to calculate \n y_t \n according to the equation above. To train the network, use the current states and actions as the inputs, and \ny_t\n as the targets.\n\n\n\n\nTo train the \nactor network\n, use the following equation:\n\n\n\n\n\n\n \\nabla_{\\theta^\\mu } J \\approx E_{s_t \\tilde{} \\rho^\\beta } [\\nabla_a Q(s,a)|_{s=s_t,a=\\mu (s_t ) } \\cdot \\nabla_{\\theta^\\mu} \\mu(s)|_{s=s_t} ] \n\n  Use the actor's online network to get the action mean values using the current states as the inputs. Then, use the critic online network in order to get the gradients of the critic output with respect to the action mean values \n \\nabla _a Q(s,a)|_{s=s_t,a=\\mu(s_t ) } \n. Using the chain rule, calculate the gradients of the actor's output, with respect to the actor weights, given \n \\nabla_a Q(s,a) \n. Finally, apply those gradients to the actor network.\n\n\nAfter every training step, do a soft update of the critic and actor target networks' weights from the online networks.",
+            "title": "Deep Determinstic Policy Gradients"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ddpg/#deep-deterministic-policy-gradient",
+            "text": "Actions space:  Continuous  References:   Continuous control with deep reinforcement learning",
+            "title": "Deep Deterministic Policy Gradient"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ddpg/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ddpg/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ddpg/#choosing-an-action",
+            "text": "Pass the current states through the actor network, and get an action mean vector   \\mu  . While in training phase, use a continuous exploration policy, such as the Ornstein-Uhlenbeck process, to add exploration noise to the action. When testing, use the mean vector  \\mu  as-is.",
+            "title": "Choosing an action"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ddpg/#training-the-network",
+            "text": "Start by sampling a batch of transitions from the experience replay.   To train the  critic network , use the following targets:     y_t=r(s_t,a_t )+\\gamma \\cdot Q(s_{t+1},\\mu(s_{t+1} ))  \n  First run the actor target network, using the next states as the inputs, and get   \\mu (s_{t+1} )  . Next, run the critic target network using the next states and   \\mu (s_{t+1} )  , and use the output to calculate   y_t   according to the equation above. To train the network, use the current states and actions as the inputs, and  y_t  as the targets.   To train the  actor network , use the following equation:     \\nabla_{\\theta^\\mu } J \\approx E_{s_t \\tilde{} \\rho^\\beta } [\\nabla_a Q(s,a)|_{s=s_t,a=\\mu (s_t ) } \\cdot \\nabla_{\\theta^\\mu} \\mu(s)|_{s=s_t} ]  \n  Use the actor's online network to get the action mean values using the current states as the inputs. Then, use the critic online network in order to get the gradients of the critic output with respect to the action mean values   \\nabla _a Q(s,a)|_{s=s_t,a=\\mu(s_t ) }  . Using the chain rule, calculate the gradients of the actor's output, with respect to the actor weights, given   \\nabla_a Q(s,a)  . Finally, apply those gradients to the actor network.  After every training step, do a soft update of the critic and actor target networks' weights from the online networks.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ppo/",
+            "text": "Proximal Policy Optimization\n\n\nActions space:\n Discrete|Continuous\n\n\nReferences:\n \nProximal Policy Optimization Algorithms\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action - Continuous actions\n\n\nRun the observation through the policy network, and get the mean and standard deviation vectors for this observation. While in training phase, sample from a multi-dimensional Gaussian distribution with these mean and standard deviation values. When testing, just take the mean values predicted by the network. \n\n\nTraining the network\n\n\n\n\nCollect a big chunk of experience (in the order of thousands of transitions, sampled from multiple episodes).\n\n\nCalculate the advantages for each transition, using the \nGeneralized Advantage Estimation\n method (Schulman '2015).  \n\n\nRun a single training iteration of the value network using an L-BFGS optimizer. Unlike first order optimizers, the L-BFGS optimizer runs on the entire dataset at once, without batching. It continues running until some low loss threshold is reached. To prevent overfitting to the current dataset, the value targets are updated in a soft manner, using an Exponentially Weighted Moving Average, based on the total discounted returns of each state in each episode.\n\n\nRun several training iterations of the policy network. This is done by using the previously calculated advantages as targets. The loss function penalizes policies that deviate too far from the old policy (the policy that was used \nbefore\n starting to run the current set of training iterations) using a regularization term. \n\n\nAfter training is done, the last sampled KL divergence value will be compared with the \ntarget KL divergence\n value, in order to adapt the penalty coefficient used in the policy loss. If the KL divergence went too high, increase the penalty, if it went too low, reduce it. Otherwise, leave it unchanged.",
+            "title": "Proximal Policy Optimization"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ppo/#proximal-policy-optimization",
+            "text": "Actions space:  Discrete|Continuous  References:   Proximal Policy Optimization Algorithms",
+            "title": "Proximal Policy Optimization"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ppo/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ppo/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ppo/#choosing-an-action-continuous-actions",
+            "text": "Run the observation through the policy network, and get the mean and standard deviation vectors for this observation. While in training phase, sample from a multi-dimensional Gaussian distribution with these mean and standard deviation values. When testing, just take the mean values predicted by the network.",
+            "title": "Choosing an action - Continuous actions"
+        },
+        {
+            "location": "/algorithms/policy_optimization/ppo/#training-the-network",
+            "text": "Collect a big chunk of experience (in the order of thousands of transitions, sampled from multiple episodes).  Calculate the advantages for each transition, using the  Generalized Advantage Estimation  method (Schulman '2015).    Run a single training iteration of the value network using an L-BFGS optimizer. Unlike first order optimizers, the L-BFGS optimizer runs on the entire dataset at once, without batching. It continues running until some low loss threshold is reached. To prevent overfitting to the current dataset, the value targets are updated in a soft manner, using an Exponentially Weighted Moving Average, based on the total discounted returns of each state in each episode.  Run several training iterations of the policy network. This is done by using the previously calculated advantages as targets. The loss function penalizes policies that deviate too far from the old policy (the policy that was used  before  starting to run the current set of training iterations) using a regularization term.   After training is done, the last sampled KL divergence value will be compared with the  target KL divergence  value, in order to adapt the penalty coefficient used in the policy loss. If the KL divergence went too high, increase the penalty, if it went too low, reduce it. Otherwise, leave it unchanged.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/policy_optimization/cppo/",
+            "text": "Clipped Proximal Policy Optimization\n\n\nActions space:\n Discrete|Continuous\n\n\nReferences:\n \nProximal Policy Optimization Algorithms\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action - Continuous action\n\n\nSame as in PPO. \n\n\nTraining the network\n\n\nVery similar to PPO, with several small (but very simplifying) changes:\n\n\n\n\n\n\nTrain both the value and policy networks, simultaneously, by defining a single loss function, which is the sum of each of the networks loss functions. Then, back propagate gradients only once from this unified loss function.\n\n\n\n\n\n\nThe unified network's optimizer is set to Adam (instead of L-BFGS for the value network as in PPO). \n\n\n\n\n\n\nValue targets are now also calculated based on the GAE advantages. In this method, the \n V \n values are predicted from the critic network, and then added to the GAE based advantages, in order to get a \n Q \n value for each action. Now, since our critic network is predicting a \n V \n value for each state, setting the \n Q \n calculated action-values as a target, will on average serve as a \n V \n state-value target.  \n\n\n\n\n\n\nInstead of adapting the penalizing KL divergence coefficient used in PPO, the likelihood ratio \nr_t(\\theta) =\\frac{\\pi_{\\theta}(a|s)}{\\pi_{\\theta_{old}}(a|s)}\n is clipped, to achieve a similar effect. This is done by defining the policy's loss function to be the minimum between the standard surrogate loss and an epsilon clipped surrogate loss:\n\n\n\n\n\n\n\n\nL^{CLIP}(\\theta)=E_{t}[min(r_t(\\theta)\\cdot \\hat{A}_t, clip(r_t(\\theta), 1-\\epsilon, 1+\\epsilon) \\cdot \\hat{A}_t)]",
+            "title": "Clipped Proximal Policy Optimization"
+        },
+        {
+            "location": "/algorithms/policy_optimization/cppo/#clipped-proximal-policy-optimization",
+            "text": "Actions space:  Discrete|Continuous  References:   Proximal Policy Optimization Algorithms",
+            "title": "Clipped Proximal Policy Optimization"
+        },
+        {
+            "location": "/algorithms/policy_optimization/cppo/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/policy_optimization/cppo/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/policy_optimization/cppo/#choosing-an-action-continuous-action",
+            "text": "Same as in PPO.",
+            "title": "Choosing an action - Continuous action"
+        },
+        {
+            "location": "/algorithms/policy_optimization/cppo/#training-the-network",
+            "text": "Very similar to PPO, with several small (but very simplifying) changes:    Train both the value and policy networks, simultaneously, by defining a single loss function, which is the sum of each of the networks loss functions. Then, back propagate gradients only once from this unified loss function.    The unified network's optimizer is set to Adam (instead of L-BFGS for the value network as in PPO).     Value targets are now also calculated based on the GAE advantages. In this method, the   V   values are predicted from the critic network, and then added to the GAE based advantages, in order to get a   Q   value for each action. Now, since our critic network is predicting a   V   value for each state, setting the   Q   calculated action-values as a target, will on average serve as a   V   state-value target.      Instead of adapting the penalizing KL divergence coefficient used in PPO, the likelihood ratio  r_t(\\theta) =\\frac{\\pi_{\\theta}(a|s)}{\\pi_{\\theta_{old}}(a|s)}  is clipped, to achieve a similar effect. This is done by defining the policy's loss function to be the minimum between the standard surrogate loss and an epsilon clipped surrogate loss:     L^{CLIP}(\\theta)=E_{t}[min(r_t(\\theta)\\cdot \\hat{A}_t, clip(r_t(\\theta), 1-\\epsilon, 1+\\epsilon) \\cdot \\hat{A}_t)]",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/other/dfp/",
+            "text": "Direct Future Prediction\n\n\nActions space:\n Discrete\n\n\nReferences:\n \nLearning to Act by Predicting the Future\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nChoosing an action\n\n\n\n\nThe current states (observations and measurements) and the corresponding goal vector are passed as an input to the network. The output of the network is the predicted future measurements for time-steps \nt+1,t+2,t+4,t+8,t+16\n and \nt+32\n for each possible action. \n\n\nFor each action, the measurements of each predicted time-step are multiplied by the goal vector, and the result is a single vector of future values for each action. \n\n\nThen, a weighted sum of the future values of each action is calculated, and the result is a single value for each action. \n\n\nThe action values are passed to the exploration policy to decide on the action to use.\n\n\n\n\nTraining the network\n\n\nGiven a batch of transitions, run them through the network to get the current predictions of the future measurements per action, and set them as the initial targets for training the network. For each transition \n(s_t,a_t,r_t,s_{t+1} )\n in the batch, the target of the network for the action that was taken, is the actual measurements that were seen in time-steps \nt+1,t+2,t+4,t+8,t+16\n and \nt+32\n. For the actions that were not taken, the targets are the current values.",
+            "title": "Direct Future Prediction"
+        },
+        {
+            "location": "/algorithms/other/dfp/#direct-future-prediction",
+            "text": "Actions space:  Discrete  References:   Learning to Act by Predicting the Future",
+            "title": "Direct Future Prediction"
+        },
+        {
+            "location": "/algorithms/other/dfp/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/other/dfp/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/other/dfp/#choosing-an-action",
+            "text": "The current states (observations and measurements) and the corresponding goal vector are passed as an input to the network. The output of the network is the predicted future measurements for time-steps  t+1,t+2,t+4,t+8,t+16  and  t+32  for each possible action.   For each action, the measurements of each predicted time-step are multiplied by the goal vector, and the result is a single vector of future values for each action.   Then, a weighted sum of the future values of each action is calculated, and the result is a single value for each action.   The action values are passed to the exploration policy to decide on the action to use.",
+            "title": "Choosing an action"
+        },
+        {
+            "location": "/algorithms/other/dfp/#training-the-network",
+            "text": "Given a batch of transitions, run them through the network to get the current predictions of the future measurements per action, and set them as the initial targets for training the network. For each transition  (s_t,a_t,r_t,s_{t+1} )  in the batch, the target of the network for the action that was taken, is the actual measurements that were seen in time-steps  t+1,t+2,t+4,t+8,t+16  and  t+32 . For the actions that were not taken, the targets are the current values.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/algorithms/imitation/bc/",
+            "text": "Behavioral Cloning\n\n\nActions space:\n Discrete|Continuous\n\n\nNetwork Structure\n\n\n\n\n\n\n\n\n\n\n\nAlgorithm Description\n\n\nTraining the network\n\n\nThe replay buffer contains the expert demonstrations for the task.\nThese demonstrations are given as state, action tuples, and with no reward.\nThe training goal is to reduce the difference between the actions predicted by the network and the actions taken by the expert for each state.\n\n\n\n\nSample a batch of transitions from the replay buffer.\n\n\nUse the current states as input to the network, and the expert actions as the targets of the network.\n\n\nThe loss function for the network is MSE, and therefore we use the Q head to minimize this loss.",
+            "title": "Behavioral Cloning"
+        },
+        {
+            "location": "/algorithms/imitation/bc/#behavioral-cloning",
+            "text": "Actions space:  Discrete|Continuous",
+            "title": "Behavioral Cloning"
+        },
+        {
+            "location": "/algorithms/imitation/bc/#network-structure",
+            "text": "",
+            "title": "Network Structure"
+        },
+        {
+            "location": "/algorithms/imitation/bc/#algorithm-description",
+            "text": "",
+            "title": "Algorithm Description"
+        },
+        {
+            "location": "/algorithms/imitation/bc/#training-the-network",
+            "text": "The replay buffer contains the expert demonstrations for the task.\nThese demonstrations are given as state, action tuples, and with no reward.\nThe training goal is to reduce the difference between the actions predicted by the network and the actions taken by the expert for each state.   Sample a batch of transitions from the replay buffer.  Use the current states as input to the network, and the expert actions as the targets of the network.  The loss function for the network is MSE, and therefore we use the Q head to minimize this loss.",
+            "title": "Training the network"
+        },
+        {
+            "location": "/dashboard/",
+            "text": "Reinforcement learning algorithms are neat. That is - when they work. But when they don't, RL algorithms are often quite tricky to debug. \n\n\nFinding the root cause for why things break in RL is rather difficult. Moreover, different RL algorithms shine in some aspects, but then lack on other. Comparing the algorithms faithfully is also a hard task, which requires the right tools.\n\n\nCoach Dashboard is a visualization tool which simplifies the analysis of the training process. Each run of Coach extracts a lot of information from within the algorithm and stores it in the experiment directory. This information is very valuable for debugging, analyzing and comparing different algorithms. But without a good visualization tool, this information can not be utilized. This is where Coach Dashboard takes place.\n\n\nVisualizing Signals\n\n\nCoach Dashboard exposes a convenient user interface for visualizing the training signals. The signals are dynamically updated - during the agent training. Additionaly, it allows selecting a subset of the available signals, and then overlaying them on top of each other.  \n\n\n\n\n\n\n\n\n\n\n\n\n\nHolding the CTRL key, while selecting signals, will allow visualizing more than one signal. \n\n\nSignals can be visualized, using either of the Y-axes, in order to visualize signals with different scales. To move a signal to the second Y-axis, select it and press the 'Toggle Second Axis' button.\n\n\n\n\nTracking Statistics\n\n\nWhen running parallel algorithms, such as A3C, it often helps visualizing the learning of all the workers, at the same time. Coach Dashboard allows viewing multiple signals (and even smooth them out, if required) from multiple workers. In addition, it supports viewing the mean and standard deviation of the same signal, across different workers, using Bollinger bands.  \n\n\n\n\n\n\n\n\n\n    \n\n    \nDisplaying Bollinger Bands\n\n\n\n\n\n    \n\n    \nDisplaying All The Workers\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nComparing Runs\n\n\nReinforcement learning algorithms are notoriously known as unstable, and suffer from high run-to-run variance. This makes benchmarking and comparing different algorithms even harder. To ease this process, it is common to execute several runs of the same algorithm and average over them. This is easy to do with Coach Dashboard, by centralizing all the experiment directories in a single directory, and then loading them as a single group. Loading several groups of different algorithms then allows comparing the averaged signals, such as the total episode reward.  \n\n\nIn RL, there are several interesting performance metrics to consider, and this is easy to do by controlling the X-axis units in Coach Dashboard. It is possible to switch between several options such as the total number of steps or the total training time.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nComparing Several Algorithms According to the Time Passed\n\n\n\n\n\n\n\n\n\n\n\n\n\nComparing Several Algorithms According to the Number of Episodes Played",
+            "title": "Coach Dashboard"
+        },
+        {
+            "location": "/dashboard/#visualizing-signals",
+            "text": "Coach Dashboard exposes a convenient user interface for visualizing the training signals. The signals are dynamically updated - during the agent training. Additionaly, it allows selecting a subset of the available signals, and then overlaying them on top of each other.        Holding the CTRL key, while selecting signals, will allow visualizing more than one signal.   Signals can be visualized, using either of the Y-axes, in order to visualize signals with different scales. To move a signal to the second Y-axis, select it and press the 'Toggle Second Axis' button.",
+            "title": "Visualizing Signals"
+        },
+        {
+            "location": "/dashboard/#tracking-statistics",
+            "text": "When running parallel algorithms, such as A3C, it often helps visualizing the learning of all the workers, at the same time. Coach Dashboard allows viewing multiple signals (and even smooth them out, if required) from multiple workers. In addition, it supports viewing the mean and standard deviation of the same signal, across different workers, using Bollinger bands.       \n     \n     Displaying Bollinger Bands   \n     \n     Displaying All The Workers",
+            "title": "Tracking Statistics"
+        },
+        {
+            "location": "/dashboard/#comparing-runs",
+            "text": "Reinforcement learning algorithms are notoriously known as unstable, and suffer from high run-to-run variance. This makes benchmarking and comparing different algorithms even harder. To ease this process, it is common to execute several runs of the same algorithm and average over them. This is easy to do with Coach Dashboard, by centralizing all the experiment directories in a single directory, and then loading them as a single group. Loading several groups of different algorithms then allows comparing the averaged signals, such as the total episode reward.    In RL, there are several interesting performance metrics to consider, and this is easy to do by controlling the X-axis units in Coach Dashboard. It is possible to switch between several options such as the total number of steps or the total training time.       Comparing Several Algorithms According to the Time Passed     Comparing Several Algorithms According to the Number of Episodes Played",
+            "title": "Comparing Runs"
+        },
+        {
+            "location": "/contributing/add_agent/",
+            "text": "Coach's modularity makes adding an agent a simple and clean task, that involves the following steps:\n\n\n\n\n\n\nImplement your algorithm in a new file. The agent can inherit base classes such as \nValueOptimizationAgent\n or\n    \nActorCriticAgent\n, or the more generic \nAgent\n base class.\n\n\n\n\nValueOptimizationAgent\n, \nPolicyOptimizationAgent\n and \nAgent\n are abstract classes. \nlearn_from_batch() should be overriden with the desired behavior for the algorithm being implemented.\nIf deciding to inherit from \nAgent\n, also choose_action() should be overriden.\ndef learn_from_batch(self, batch) -> Tuple[float, List, List]:\n    \"\"\"\n    Given a batch of transitions, calculates their target values and updates the network.\n    :param batch: A list of transitions\n    :return: The total loss of the training, the loss per head and the unclipped gradients\n    \"\"\"\n\ndef choose_action(self, curr_state):\n    \"\"\"\n    choose an action to act with in the current episode being played. Different behavior might be exhibited when training\n     or testing.\n\n    :param curr_state: the current state to act upon.\n    :return: chosen action, some action value describing the action (q-value, probability, etc)\n    \"\"\"\n\n\n\n\n\n\n\n\n\n\n\nImplement your agent's specific network head, if needed, at the implementation for the framework of your choice.\n    For example \narchitectures/neon_components/heads.py\n. The head will inherit the generic base class Head.\n    A new output type should be added to configurations.py, and a mapping between the new head and output type should\n    be defined in the get_output_head() function at \narchitectures/neon_components/general_network.py\n\n\n\n\n\n\nDefine a new parameters class that inherits AgentParameters.\n    The parameters class defines all the hyperparameters for the agent, and is initialized with 4 main components:\n\n\n\n\nalgorithm\n: A class inheriting AlgorithmParameters which defines any algorithm specific parameters\n\n\nexploration\n: A class inheriting ExplorationParameters which defines the exploration policy parameters.\n               There are several common exploration policies built-in which you can use, and are defined under\n               the exploration sub directory. You can also define your own custom exploration policy.\n\n\nmemory\n: A class inheriting MemoryParameters which defined the memory parameters.\n          There are several common memory types built-in which you can use, and are defined under the memories\n          sub directory. You can also define your own custom memory.\n\n\nnetworks\n: A dictionary defining all the networks that will be used by the agent. The keys of the dictionary\n            define the network name and will be used to access each network through the agent class.\n            The dictionary values are a class inheriting NetworkParameters, which define the network structure\n            and parameters.\n\n\n\n\nAdditionally, set the path property to return the path to your agent class in the following format:\n\n\n    <path to python module>:<name of agent class>\n\n\n\nFor example,\n\n\n    class RainbowAgentParameters(AgentParameters):\n    def __init__(self):\n        super().__init__(algorithm=RainbowAlgorithmParameters(),\n                         exploration=RainbowExplorationParameters(),\n                         memory=RainbowMemoryParameters(),\n                         networks={\"main\": RainbowNetworkParameters()})\n\n    @property\n    def path(self):\n        return 'rainbow.rainbow_agent:RainbowAgent'\n\n\n\n\n\n\n\n(Optional) Define a preset using the new agent type with a given environment, and the hyper-parameters that should\n    be used for training on that environment.",
+            "title": "Adding a New Agent"
+        },
+        {
+            "location": "/contributing/add_env/",
+            "text": "Adding a new environment to Coach is as easy as solving CartPole. \n\n\nThere are essentially two ways to integrate new environments to Coach:\n\n\nUsing the OpenAI Gym API\n\n\nIf your environment is already using the OpenAI Gym API, you are already good to go.\nWhen selecting the environment parameters in the preset, use GymEnvironmentParameters(),\nand pass the path to your environment source code using the level parameter.\nYou can specify additional parameters for your environment using the additional_simulator_parameters parameter.\nTake for example the definition used in the Pendulum_HAC preset:\n\n\n    env_params = GymEnvironmentParameters()\n    env_params.level = \"rl_coach.environments.mujoco.pendulum_with_goals:PendulumWithGoals\"\n    env_params.additional_simulator_parameters = {\"time_limit\": 1000}\n\n\n\nUsing the Coach API\n\n\nThere are a few simple steps to follow, and we will walk through them one by one.\n\n\n\n\n\n\nCreate a new class for your environment, and inherit the Environment class.\n\n\n\n\n\n\nCoach defines a simple API for implementing a new environment, which are defined in environment/environment.py.\n    There are several functions to implement, but only some of them are mandatory.\n\n\nHere are the important ones:\n\n\n    def _take_action(self, action_idx: ActionType) -> None:\n        \"\"\"\n        An environment dependent function that sends an action to the simulator.\n        :param action_idx: the action to perform on the environment\n        :return: None\n        \"\"\"\n\n    def _update_state(self) -> None:\n        \"\"\"\n        Updates the state from the environment.\n        Should update self.observation, self.reward, self.done, self.measurements and self.info\n        :return: None\n        \"\"\"\n\n    def _restart_environment_episode(self, force_environment_reset=False) -> None:\n        \"\"\"\n        Restarts the simulator episode\n        :param force_environment_reset: Force the environment to reset even if the episode is not done yet.\n        :return: None\n        \"\"\"\n\n    def _render(self) -> None:\n        \"\"\"\n        Renders the environment using the native simulator renderer\n        :return: None\n        \"\"\"\n\n    def get_rendered_image(self) -> np.ndarray:\n        \"\"\"\n        Return a numpy array containing the image that will be rendered to the screen.\n        This can be different from the observation. For example, mujoco's observation is a measurements vector.\n        :return: numpy array containing the image that will be rendered to the screen\n        \"\"\"\n\n\n\n\n\n\n\nCreate a new parameters class for your environment, which inherits the EnvironmentParameters class.\n    In the \ninit\n of your class, define all the parameters you used in your Environment class.\n    Additionally, fill the path property of the class with the path to your Environment class.\n    For example, take a look at the EnvironmentParameters class used for Doom:\n\n\n    class DoomEnvironmentParameters(EnvironmentParameters):\n    def __init__(self):\n        super().__init__()\n        self.default_input_filter = DoomInputFilter\n        self.default_output_filter = DoomOutputFilter\n        self.cameras = [DoomEnvironment.CameraTypes.OBSERVATION]\n\n    @property\n    def path(self):\n        return 'rl_coach.environments.doom_environment:DoomEnvironment'\n\n\n\n\n\n\n\nAnd that's it, you're done. Now just add a new preset with your newly created environment, and start training an agent on top of it.",
+            "title": "Adding a New Environment"
+        },
+        {
+            "location": "/contributing/add_env/#using-the-openai-gym-api",
+            "text": "If your environment is already using the OpenAI Gym API, you are already good to go.\nWhen selecting the environment parameters in the preset, use GymEnvironmentParameters(),\nand pass the path to your environment source code using the level parameter.\nYou can specify additional parameters for your environment using the additional_simulator_parameters parameter.\nTake for example the definition used in the Pendulum_HAC preset:      env_params = GymEnvironmentParameters()\n    env_params.level = \"rl_coach.environments.mujoco.pendulum_with_goals:PendulumWithGoals\"\n    env_params.additional_simulator_parameters = {\"time_limit\": 1000}",
+            "title": "Using the OpenAI Gym API"
+        },
+        {
+            "location": "/contributing/add_env/#using-the-coach-api",
+            "text": "There are a few simple steps to follow, and we will walk through them one by one.    Create a new class for your environment, and inherit the Environment class.    Coach defines a simple API for implementing a new environment, which are defined in environment/environment.py.\n    There are several functions to implement, but only some of them are mandatory.  Here are the important ones:      def _take_action(self, action_idx: ActionType) -> None:\n        \"\"\"\n        An environment dependent function that sends an action to the simulator.\n        :param action_idx: the action to perform on the environment\n        :return: None\n        \"\"\"\n\n    def _update_state(self) -> None:\n        \"\"\"\n        Updates the state from the environment.\n        Should update self.observation, self.reward, self.done, self.measurements and self.info\n        :return: None\n        \"\"\"\n\n    def _restart_environment_episode(self, force_environment_reset=False) -> None:\n        \"\"\"\n        Restarts the simulator episode\n        :param force_environment_reset: Force the environment to reset even if the episode is not done yet.\n        :return: None\n        \"\"\"\n\n    def _render(self) -> None:\n        \"\"\"\n        Renders the environment using the native simulator renderer\n        :return: None\n        \"\"\"\n\n    def get_rendered_image(self) -> np.ndarray:\n        \"\"\"\n        Return a numpy array containing the image that will be rendered to the screen.\n        This can be different from the observation. For example, mujoco's observation is a measurements vector.\n        :return: numpy array containing the image that will be rendered to the screen\n        \"\"\"    Create a new parameters class for your environment, which inherits the EnvironmentParameters class.\n    In the  init  of your class, define all the parameters you used in your Environment class.\n    Additionally, fill the path property of the class with the path to your Environment class.\n    For example, take a look at the EnvironmentParameters class used for Doom:      class DoomEnvironmentParameters(EnvironmentParameters):\n    def __init__(self):\n        super().__init__()\n        self.default_input_filter = DoomInputFilter\n        self.default_output_filter = DoomOutputFilter\n        self.cameras = [DoomEnvironment.CameraTypes.OBSERVATION]\n\n    @property\n    def path(self):\n        return 'rl_coach.environments.doom_environment:DoomEnvironment'    And that's it, you're done. Now just add a new preset with your newly created environment, and start training an agent on top of it.",
+            "title": "Using the Coach API"
+        }
+    ]
+}

@@ -3,31 +3,22 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Reinforcement Learning Coach Documentation</title>
   
-
   <link rel="shortcut icon" href="./img/favicon.ico">
-
-  
+  <title>Reinforcement Learning Coach</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="./css/theme.css" type="text/css" />
   <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="./css/highlight.css">
   <link href="./extra.css" rel="stylesheet">
-
   
   <script src="./js/jquery-2.1.1.min.js"></script>
   <script src="./js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="./js/highlight.pack.js"></script>
-  <script src="./js/theme.js"></script>
-  <script>var base_url = '.';</script>
-  <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
-
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-
+  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
   
 </head>
 
@@ -38,7 +29,7 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="./index.html" class="icon icon-home"> Reinforcement Learning Coach Documentation</a>
+        <a href="." class="icon icon-home"> Reinforcement Learning Coach</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -47,184 +38,136 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        <ul class="current">
+	<ul class="current">
+	  
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="./index.html">Home</a>
-        
-    </li>
-<li>
+            <li class="toctree-l1">
+		
+    <a class="" href=".">Home</a>
+	    </li>
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="design/index.html">Design</a>
-        
-    </li>
-<li>
+            <li class="toctree-l1">
+		
+    <a class="" href="usage/">Usage</a>
+	    </li>
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="usage/index.html">Usage</a>
-        
-    </li>
-<li>
-          
-            <li>
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Design</span>
     <ul class="subnav">
-    <li><span>Algorithms</span></li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/dqn/index.html">DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/double_dqn/index.html">Double DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/dueling_dqn/index.html">Dueling DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/categorical_dqn/index.html">Categorical DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/mmc/index.html">Mixed Monte Carlo</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/pal/index.html">Persistent Advantage Learning</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/nec/index.html">Neural Episodic Control</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/bs_dqn/index.html">Bootstrapped DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/n_step/index.html">N-Step Q Learning</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/value_optimization/naf/index.html">Normalized Advantage Functions</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/policy_optimization/pg/index.html">Policy Gradient</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/policy_optimization/ac/index.html">Actor-Critic</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/policy_optimization/ddpg/index.html">Deep Determinstic Policy Gradients</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/policy_optimization/ppo/index.html">Proximal Policy Optimization</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/policy_optimization/cppo/index.html">Clipped Proximal Policy Optimization</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/other/dfp/index.html">Direct Future Prediction</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="algorithms/imitation/bc/index.html">Behavioral Cloning</a>
-        
-    </li>
-
-        
+                <li class="">
+                    
+    <a class="" href="design/features/">Features</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="design/control_flow/">Control Flow</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="design/network/">Network</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="design/filters/">Filters</a>
+                </li>
     </ul>
-<li>
+	    </li>
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="dashboard/index.html">Coach Dashboard</a>
-        
-    </li>
-<li>
-          
-            <li>
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Algorithms</span>
     <ul class="subnav">
-    <li><span>Contributing</span></li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="contributing/add_agent/index.html">Adding a New Agent</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="contributing/add_env/index.html">Adding a New Environment</a>
-        
-    </li>
-
-        
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/dqn/">DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/double_dqn/">Double DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/dueling_dqn/">Dueling DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/categorical_dqn/">Categorical DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/mmc/">Mixed Monte Carlo</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/pal/">Persistent Advantage Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/nec/">Neural Episodic Control</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/bs_dqn/">Bootstrapped DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/n_step/">N-Step Q Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/value_optimization/naf/">Normalized Advantage Functions</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/policy_optimization/pg/">Policy Gradient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/policy_optimization/ac/">Actor-Critic</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/policy_optimization/ddpg/">Deep Determinstic Policy Gradients</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/policy_optimization/ppo/">Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/policy_optimization/cppo/">Clipped Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/other/dfp/">Direct Future Prediction</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="algorithms/imitation/bc/">Behavioral Cloning</a>
+                </li>
     </ul>
-<li>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="dashboard/">Coach Dashboard</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Contributing</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="contributing/add_agent/">Adding a New Agent</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="contributing/add_env/">Adding a New Environment</a>
+                </li>
+    </ul>
+	    </li>
           
         </ul>
       </div>
@@ -236,7 +179,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="./index.html">Reinforcement Learning Coach Documentation</a>
+        <a href=".">Reinforcement Learning Coach</a>
       </nav>
 
       
@@ -244,7 +187,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="./index.html">Docs</a> &raquo;</li>
+    <li><a href=".">Docs</a> &raquo;</li>
     
     
     <li class="wy-breadcrumbs-aside">
@@ -264,8 +207,8 @@
     <input name="q" id="mkdocs-search-query" type="text" class="search_input search-query ui-autocomplete-input" placeholder="Search the Docs" autocomplete="off" autofocus>
   </form>
 
-  <div id="mkdocs-search-results">
-    Sorry, page not found.
+  <div id="mkdocs-search-results" class="search-results">
+    Searching...
   </div>
 
 
@@ -283,7 +226,7 @@
 
   Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
-	  
+      
         </div>
       </div>
 
@@ -291,13 +234,18 @@
 
   </div>
 
-<div class="rst-versions" role="note" style="cursor: pointer">
+  <div class="rst-versions" role="note" style="cursor: pointer">
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
       
     </span>
 </div>
+    <script>var base_url = '.';</script>
+    <script src="./js/theme.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="./search/require.js"></script>
+      <script src="./search/search.js"></script>
 
 </body>
 </html>

@@ -1,172 +1,44 @@
 # Coach Benchmarks
 
-The following figures are training curves of some of the presets available through Coach.
-The X axis in all the figures is the total steps (for multi-threaded runs, this is the accumulated number of steps over all the workers).
-The Y axis in all the figures is the average episode reward with an averaging window of 11 episodes.
+The following table represents the current status of algorithms implemented in Coach relative to the results reported in the original papers. The detailed results for each algorithm can be seen by clicking on its name.
+
+The X axis in all the figures is the total steps (for multi-threaded runs, this is the number of steps per worker).
+The Y axis in all the figures is the average episode reward with an averaging window of 100 timesteps.
+
+For each algorithm, there is a command line for reproducing the results of each graph.
 These are the results you can expect to get when running the pre-defined presets in Coach.
 
+The environments that were used for testing include:
+* **Atari** - Breakout, Pong and Space Invaders
+* **Mujoco** - Inverted Pendulum, Inverted Double Pendulum, Reacher, Hopper, Half Cheetah, Walker 2D, Ant, Swimmer and Humanoid.
+* **Doom** - Basic, Health Gathering (D1: Basic), Health Gathering Supreme (D2: Navigation), Battle (D3: Battle)
+* **Fetch** - Reach, Slide, Push, Pick-and-Place
 
-## A3C
+## Summary
 
-### Breakout_A3C with 16 workers
+![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) *Reproducing paper's results*
 
-```bash
-python3 coach.py -p Breakout_A3C -n 16 -r
-```
+![#ceffad](https://placehold.it/15/ceffad/000000?text=+) *Reproducing paper's results for some of the environments*
 
-<img src="img/Breakout_A3C_16_workers.png" alt="Breakout_A3C_16_workers" width="400"/>
+![#FFA500](https://placehold.it/15/FFA500/000000?text=+) *Training but not reproducing paper's results*
 
-### InvertedPendulum_A3C with 16 workers
+![#FF4040](https://placehold.it/15/FF4040/000000?text=+) *Not training*
 
-```bash
-python3 coach.py -p InvertedPendulum_A3C -n 16 -r
-```
 
-<img src="img/Inverted_Pendulum_A3C_16_workers.png" alt="Inverted_Pendulum_A3C_16_workers" width="400"/>
+|                         |**Status**                                                |**Environments**|**Comments**|
+| ----------------------- |:--------------------------------------------------------:|:--------------:|:--------:|
+|**[DQN](dqn)**                  | ![#ceffad](https://placehold.it/15/ceffad/000000?text=+) |Atari           | Pong is not training |
+|**[Dueling DDQN](dueling_ddqn)**| ![#ceffad](https://placehold.it/15/ceffad/000000?text=+) |Atari           | Pong is not training |
+|**[Dueling DDQN with PER](dueling_ddqn_with_per)**| ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
+|**[Bootstrapped DQN](bootstrapped_dqn)**| ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
+|**[QR-DQN](qr_dqn)**            | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
+|**[A3C](a3c)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari, Mujoco   | |
+|**[Clipped PPO](clipped_ppo)**  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Mujoco          | |
+|**[DDPG](ddpg)**                | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Mujoco          | |
+|**[NEC](nec)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
+|**[HER](ddpg_her)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Fetch           | |
+|**[HAC](hac)**                  | ![#969696](https://placehold.it/15/969696/000000?text=+) |Pendulum        | |
+|**[DFP](dfp)**                  | ![#ceffad](https://placehold.it/15/ceffad/000000?text=+) |Doom            | Doom Battle was not verified |
 
-### Hopper_A3C with 16 workers
 
-```bash
-python3 coach.py -p Hopper_A3C -n 16 -r
-```
-
-<img src="img/Hopper_A3C_16_workers.png" alt="Hopper_A3C_16_workers" width="400"/>
-
-### Ant_A3C with 16 workers
-
-```bash
-python3 coach.py -p Ant_A3C -n 16 -r
-```
-
-<img src="img/Ant_A3C_16_workers.png" alt="Ant_A3C_16_workers" width="400"/>
-
-## Clipped PPO
-
-### InvertedPendulum_ClippedPPO with 16 workers
-
-```bash
-python3 coach.py -p InvertedPendulum_ClippedPPO -n 16 -r
-```
-
-<img src="img/InvertedPendulum_ClippedPPO_16_workers.png" alt="InvertedPendulum_ClippedPPO_16_workers" width="400"/>
-
-### Hopper_ClippedPPO with 16 workers
-
-```bash
-python3 coach.py -p Hopper_ClippedPPO -n 16 -r
-```
-
-<img src="img/Hopper_ClippedPPO_16_workers.png" alt="Hopper_Clipped_PPO_16_workers" width="400"/>
-
-### Humanoid_ClippedPPO with 16 workers
-
-```bash
-python3 coach.py -p Humanoid_ClippedPPO -n 16 -r
-```
-
-<img src="img/Humanoid_ClippedPPO_16_workers.png" alt="Humanoid_ClippedPPO_16_workers" width="400"/>
-
-## DQN
-
-### Pong_DQN
-
-```bash
-python3 coach.py -p Pong_DQN -r
-```
-
-<img src="img/Pong_DQN.png" alt="Pong_DQN" width="400"/>
-
-### Doom_Basic_DQN
-
-```bash
-python3 coach.py -p Doom_Basic_DQN -r
-```
-
-<img src="img/Doom_Basic_DQN.png" alt="Doom_Basic_DQN" width="400"/>
-
-## Dueling DDQN
-
-### Doom_Basic_Dueling_DDQN
-
-```bash
-python3 coach.py -p Doom_Basic_Dueling_DDQN -r
-```
-
-<img src="img/Doom_Basic_Dueling_DDQN.png" alt="Doom_Basic_Dueling_DDQN" width="400"/>
-
-## DFP
-
-### Doom_Health_DFP
-
-```bash
-python3 coach.py -p Doom_Health_DFP -r
-```
-
-<img src="img/Doom_Health_DFP.png" alt="Doom_Health_DFP" width="400"/>
-
-## MMC
-
-### Doom_Health_MMC
-
-```bash
-python3 coach.py -p Doom_Health_MMC -r
-```
-
-<img src="img/Doom_Health_MMC.png" alt="Doom_Health_MMC" width="400"/>
-
-## NEC
-
-## Pong_NEC
-
-```bash
-python3 coach.py -p Pong_NEC -r
-```
-
-<img src="img/Pong_NEC.png" alt="Pong_NEC" width="400"/>
-
-## Doom_Basic_NEC
-
-```bash
-python3 coach.py -p Doom_Basic_NEC -r
-```
-
-<img src="img/Doom_Basic_NEC.png" alt="Doom_Basic_NEC" width="400"/>
-
-## PG
-
-### CartPole_PG
-
-```bash
-python3 coach.py -p CartPole_PG -r
-```
-
-<img src="img/CartPole_PG.png" alt="CartPole_PG" width="400"/>
-
-## DDPG
-
-### Pendulum_DDPG
-
-```bash
-python3 coach.py -p Pendulum_DDPG -r
-```
-
-<img src="img/Pendulum_DDPG.png" alt="Pendulum_DDPG" width="400"/>
-
-
-## NAF
-
-### InvertedPendulum_NAF
-
-```bash
-python3 coach.py -p InvertedPendulum_NAF -r
-```
-
-<img src="img/InvertedPendulum_NAF.png" alt="InvertedPendulum_NAF" width="400"/>
-
-### Pendulum_NAF
-
-```bash
-python3 coach.py -p Pendulum_NAF -r
-```
-
-<img src="img/Pendulum_NAF.png" alt="Pendulum_NAF" width="400"/>
+**Click on each algorithm to see detailed benchmarking results**

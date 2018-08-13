@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Features - Reinforcement Learning Coach</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Features";
+    var mkdocs_page_input_path = "design/features.md";
+    var mkdocs_page_url = "/design/features/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Reinforcement Learning Coach</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../usage/">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Design</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">Features</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#coach-features">Coach Features</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#supported-algorithms">Supported Algorithms</a></li>
+        
+            <li><a class="toctree-l4" href="#supported-environments">Supported Environments</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../control_flow/">Control Flow</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../network/">Network</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../filters/">Filters</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Algorithms</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dqn/">DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/double_dqn/">Double DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dueling_dqn/">Dueling DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/categorical_dqn/">Categorical DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/mmc/">Mixed Monte Carlo</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/pal/">Persistent Advantage Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/nec/">Neural Episodic Control</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/bs_dqn/">Bootstrapped DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/n_step/">N-Step Q Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/naf/">Normalized Advantage Functions</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/pg/">Policy Gradient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ac/">Actor-Critic</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ddpg/">Deep Determinstic Policy Gradients</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ppo/">Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/cppo/">Clipped Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/other/dfp/">Direct Future Prediction</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/imitation/bc/">Behavioral Cloning</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../dashboard/">Coach Dashboard</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Contributing</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../contributing/add_agent/">Adding a New Agent</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../contributing/add_env/">Adding a New Environment</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Reinforcement Learning Coach</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Design &raquo;</li>
+        
+      
+    
+    <li>Features</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="coach-features">Coach Features</h1>
+<h2 id="supported-algorithms">Supported Algorithms</h2>
+<p>Coach supports many state-of-the-art reinforcement learning algorithms, which are separated into two main classes -
+value optimization and policy optimization. A detailed description of those algorithms may be found in the algorithms
+section.</p>
+<p style="text-align: center;">
+
+<img src="../../img/algorithms.png" alt="Supported Algorithms" style="width: 600px;"/>
+
+</p>
+
+<h2 id="supported-environments">Supported Environments</h2>
+<p>Coach supports a large number of environments which can be solved using reinforcement learning:</p>
+<ul>
+<li>
+<p><strong><a href="https://github.com/deepmind/dm_control">DeepMind Control Suite</a></strong> - a set of reinforcement learning environments
+  powered by the MuJoCo physics engine.</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/deepmind/pysc2">Blizzard Starcraft II</a></strong> - a popular strategy game which was wrapped with a
+  python interface by DeepMind.</p>
+</li>
+<li>
+<p><strong><a href="http://vizdoom.cs.put.edu.pl/">ViZDoom</a></strong> - a Doom-based AI research platform for reinforcement learning
+  from raw visual information.</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/carla-simulator/carla">CARLA</a></strong> - an open-source simulator for autonomous driving research.</p>
+</li>
+<li>
+<p><strong><a href="https://gym.openai.com/">OpenAI Gym</a></strong> - a library which consists of a set of environments, from games to robotics.
+  Additionally, it can be extended using the API defined by the authors.</p>
+</li>
+</ul>
+<p>In Coach, we support all the native environments in Gym, along with several extensions such as:</p>
+<ul>
+<li>
+<p><strong><a href="https://github.com/openai/roboschool">Roboschool</a></strong> - a set of environments powered by the PyBullet engine,
+    that offer a free alternative to MuJoCo.</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/Breakend/gym-extensions">Gym Extensions</a></strong> - a set of environments that extends Gym for
+    auxiliary tasks (multitask learning, transfer learning, inverse reinforcement learning, etc.)</p>
+</li>
+<li>
+<p><strong><a href="https://github.com/bulletphysics/bullet3/tree/master/examples/pybullet">PyBullet</a></strong> - a physics engine that
+    includes a set of robotics environments.</p>
+</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../control_flow/" class="btn btn-neutral float-right" title="Control Flow">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../../usage/" class="btn btn-neutral" title="Usage"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../../usage/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../control_flow/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
+
+</body>
+</html>

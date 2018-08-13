@@ -1,0 +1,113 @@
+#
+# Copyright (c) 2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+import numpy as np
+import tensorflow as tf
+from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
+from rl_coach.base_parameters import MiddlewareScheme
+
+from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout
+from rl_coach.core_types import Middleware_LSTM_Embedding
+
+
+class LSTMMiddlewareParameters(MiddlewareParameters):
+    def __init__(self, activation_function='relu', number_of_lstm_cells=256,
+                 scheme: MiddlewareScheme = MiddlewareScheme.Medium,
+                 batchnorm: bool = False, dropout: bool = False,
+                 name="middleware_lstm_embedder"):
+        super().__init__(parameterized_class=LSTMMiddleware, activation_function=activation_function,
+                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name)
+        self.number_of_lstm_cells = number_of_lstm_cells
+
+
+class LSTMMiddleware(Middleware):
+    schemes = {
+        MiddlewareScheme.Empty:
+            [],
+
+        # ppo
+        MiddlewareScheme.Shallow:
+            [
+                [64]
+            ],
+
+        # dqn
+        MiddlewareScheme.Medium:
+            [
+                [512]
+            ],
+
+        MiddlewareScheme.Deep: \
+            [
+                [128],
+                [128],
+                [128]
+            ]
+    }
+
+    def __init__(self, activation_function=tf.nn.relu, number_of_lstm_cells: int=256,
+                 scheme: MiddlewareScheme = MiddlewareScheme.Medium,
+                 batchnorm: bool = False, dropout: bool = False,
+                 name="middleware_lstm_embedder"):
+        super().__init__(activation_function=activation_function, batchnorm=batchnorm,
+                         dropout=dropout, scheme=scheme, name=name)
+        self.return_type = Middleware_LSTM_Embedding
+        self.number_of_lstm_cells = number_of_lstm_cells
+        self.layers = []
+
+    def _build_module(self):
+        """
+        self.state_in: tuple of placeholders containing the initial state
+        self.state_out: tuple of output state
+
+        todo: it appears that the shape of the output is batch, feature
+        the code here seems to be slicing off the first element in the batch
+        which would definitely be wrong. need to double check the shape
+        """
+
+        self.layers.append(self.input)
+
+        # optionally insert some dense layers before the LSTM
+        if isinstance(self.scheme, MiddlewareScheme):
+            layers_params = LSTMMiddleware.schemes[self.scheme]
+        else:
+            layers_params = self.scheme
+        for idx, layer_params in enumerate(layers_params):
+            self.layers.append(
+                tf.layers.dense(self.layers[-1], layer_params[0], name='fc{}'.format(idx))
+            )
+
+            self.layers.extend(batchnorm_activation_dropout(self.layers[-1], self.batchnorm,
+                                                            self.activation_function, self.dropout,
+                                                            self.dropout_rate, idx))
+
+        # add the LSTM layer
+        lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.number_of_lstm_cells, state_is_tuple=True)
+        self.c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
+        self.h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
+        self.state_init = [self.c_init, self.h_init]
+        self.c_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.c])
+        self.h_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.h])
+        self.state_in = (self.c_in, self.h_in)
+        rnn_in = tf.expand_dims(self.layers[-1], [0])
+        step_size = tf.shape(self.layers[-1])[:1]
+        state_in = tf.nn.rnn_cell.LSTMStateTuple(self.c_in, self.h_in)
+        lstm_outputs, lstm_state = tf.nn.dynamic_rnn(
+            lstm_cell, rnn_in, initial_state=state_in, sequence_length=step_size, time_major=False)
+        lstm_c, lstm_h = lstm_state
+        self.state_out = (lstm_c[:1, :], lstm_h[:1, :])
+        self.output = tf.reshape(lstm_outputs, [-1, self.number_of_lstm_cells])

@@ -1,0 +1,19 @@
+A custom environment implementation should look like this:
+
+```bash
+from coach.filters.input_filter import InputFilter
+
+class CustomFilter(InputFilter):
+  def __init__(self):
+    ...
+  def _filter(self, env_response: EnvResponse) -> EnvResponse:
+    ...
+  def _get_filtered_observation_space(self, input_observation_space: ObservationSpace) -> ObservationSpace:
+    ...
+  def _get_filtered_reward_space(self, input_reward_space: RewardSpace) -> RewardSpace:
+    ...
+  def _validate_input_observation_space(self, input_observation_space: ObservationSpace):
+    ...
+  def _reset(self):
+    ...
+```

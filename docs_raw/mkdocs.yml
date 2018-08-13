@@ -1,6 +1,6 @@
-site_name: Reinforcement Learning Coach Documentation
+site_name: Reinforcement Learning Coach
 theme: readthedocs
-site_description: 'Reinforcement Learning Coach Documentation by Intel Nervana.'
+site_description: 'Reinforcement Learning Coach by Intel Nervana.'
 markdown_extensions: 
 - mdx_math:
     enable_dollar_delimiter: True #for use of inline $..$
@@ -10,8 +10,13 @@ extra_css: [extra.css]
 
 pages:
 - Home : index.md
-- Design: design.md
 - Usage: usage.md
+- Design:
+        - 'Features' : design/features.md
+        - 'Control Flow' : design/control_flow.md
+        - 'Network' : design/network.md
+        - 'Filters' : design/filters.md
+
 - Algorithms:
         - 'DQN' : algorithms/value_optimization/dqn.md
         - 'Double DQN' : algorithms/value_optimization/double_dqn.md

@@ -13,7 +13,7 @@ Coach collects statistics from the training process and supports advanced visual
 
 
 
-Blog post from the Intel® Nervana™ website can be found [here](https://www.intelnervana.com/reinforcement-learning-coach-intel). 
+Blog post from the Intel® AI website can be found [here](https://ai.intel.com/reinforcement-learning-coach-intel/).
 
 GitHub repository is [here](https://github.com/NervanaSystems/coach). 
 

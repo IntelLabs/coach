@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Filters - Reinforcement Learning Coach</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Filters";
+    var mkdocs_page_input_path = "design/filters.md";
+    var mkdocs_page_url = "/design/filters/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Reinforcement Learning Coach</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../usage/">Usage</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Design</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../features/">Features</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../control_flow/">Control Flow</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../network/">Network</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Filters</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#filters">Filters</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#input-filters">Input Filters</a></li>
+        
+            <li><a class="toctree-l4" href="#output-filters">Output Filters</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Algorithms</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dqn/">DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/double_dqn/">Double DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dueling_dqn/">Dueling DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/categorical_dqn/">Categorical DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/mmc/">Mixed Monte Carlo</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/pal/">Persistent Advantage Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/nec/">Neural Episodic Control</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/bs_dqn/">Bootstrapped DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/n_step/">N-Step Q Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/naf/">Normalized Advantage Functions</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/pg/">Policy Gradient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ac/">Actor-Critic</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ddpg/">Deep Determinstic Policy Gradients</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ppo/">Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/cppo/">Clipped Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/other/dfp/">Direct Future Prediction</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/imitation/bc/">Behavioral Cloning</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../dashboard/">Coach Dashboard</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Contributing</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../contributing/add_agent/">Adding a New Agent</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../contributing/add_env/">Adding a New Environment</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Reinforcement Learning Coach</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Design &raquo;</li>
+        
+      
+    
+    <li>Filters</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="filters">Filters</h1>
+<p>Filters are a mechanism in Coach that allows doing pre-processing and post-processing of the internal agent information.
+There are two filter categories -</p>
+<ul>
+<li>
+<p><strong>Input filters</strong> - these are filters that process the information passed <strong>into</strong> the agent from the environment.
+  This information includes the observation and the reward. Input filters therefore allow rescaling observations,
+  normalizing rewards, stack observations, etc.</p>
+</li>
+<li>
+<p><strong>Output filters</strong> - these are filters that process the information going <strong>out</strong> of the agent into the environment.
+  This information includes the action the agent chooses to take. Output filters therefore allow conversion of
+  actions from one space into another. For example, the agent can take <script type="math/tex"> N </script> discrete actions, that will be mapped by
+  the output filter onto <script type="math/tex"> N </script> continuous actions.</p>
+</li>
+</ul>
+<p>Filters can be stacked on top of each other in order to build complex processing flows of the inputs or outputs.</p>
+<p style="text-align: center;">
+
+<img src="../../img/filters.png" alt="Filters mechanism" style="width: 350px;"/>
+
+</p>
+
+<h2 id="input-filters">Input Filters</h2>
+<p>The input filters are separated into two categories - <strong>observation filters</strong> and <strong>reward filters</strong>.</p>
+<h3 id="observation-filters">Observation Filters</h3>
+<ul>
+<li>
+<p><strong>ObservationClippingFilter</strong> - Clips the observation values to a given range of values. For example, if the
+  observation consists of measurements in an arbitrary range, and we want to control the minimum and maximum values
+  of these observations, we can define a range and clip the values of the measurements.</p>
+</li>
+<li>
+<p><strong>ObservationCropFilter</strong> - Crops the size of the observation to a given crop window. For example, in Atari, the
+  observations are images with a shape of 210x160. Usually, we will want to crop the size of the observation to a
+  square of 160x160 before rescaling them.</p>
+</li>
+<li>
+<p><strong>ObservationMoveAxisFilter</strong> - Reorders the axes of the observation. This can be useful when the observation is an
+  image, and we want to move the channel axis to be the last axis instead of the first axis.</p>
+</li>
+<li>
+<p><strong>ObservationNormalizationFilter</strong> - Normalizes the observation values with a running mean and standard deviation of
+  all the observations seen so far. The normalization is performed element-wise. Additionally, when working with
+  multiple workers, the statistics used for the normalization operation are accumulated over all the workers.</p>
+</li>
+<li>
+<p><strong>ObservationReductionBySubPartsNameFilter</strong> - Allows keeping only parts of the observation, by specifying their
+  name. For example, the CARLA environment extracts multiple measurements that can be used by the agent, such as
+  speed and location. If we want to only use the speed, it can be done using this filter.</p>
+</li>
+<li>
+<p><strong>ObservationRescaleSizeByFactorFilter</strong> - Rescales an image observation by some factor. For example, the image size
+  can be reduced by a factor of 2.</p>
+</li>
+<li>
+<p><strong>ObservationRescaleToSizeFilter</strong> - Rescales an image observation to a given size. The target size does not
+  necessarily keep the aspect ratio of the original observation.</p>
+</li>
+<li>
+<p><strong>ObservationRGBToYFilter</strong> - Converts a color image observation specified using the RGB encoding into a grayscale
+  image observation, by keeping only the luminance (Y) channel of the YUV encoding. This can be useful if the colors
+  in the original image are not relevant for solving the task at hand.</p>
+</li>
+<li>
+<p><strong>ObservationSqueezeFilter</strong> - Removes redundant axes from the observation, which are axes with a dimension of 1.</p>
+</li>
+<li>
+<p><strong>ObservationStackingFilter</strong> - Stacks several observations on top of each other. For image observation this will
+  create a 3D blob. The stacking is done in a lazy manner in order to reduce memory consumption. To achieve this,
+  a LazyStack object is used in order to wrap the observations in the stack. For this reason, the
+  ObservationStackingFilter <strong>must</strong> be the last filter in the inputs filters stack.</p>
+</li>
+<li>
+<p><strong>ObservationUint8Filter</strong> - Converts a floating point observation into an unsigned int 8 bit observation. This is
+  mostly useful for reducing memory consumption and is usually used for image observations. The filter will first
+  spread the observation values over the range 0-255 and then discretize them into integer values.</p>
+</li>
+</ul>
+<h3 id="reward-filters">Reward Filters</h3>
+<ul>
+<li>
+<p><strong>RewardClippingFilter</strong> - Clips the reward values into a given range. For example, in DQN, the Atari rewards are
+  clipped into the range -1 and 1 in order to control the scale of the returns.</p>
+</li>
+<li>
+<p><strong>RewardNormalizationFilter</strong> -  Normalizes the reward values with a running mean and standard deviation of
+  all the rewards seen so far. When working with multiple workers, the statistics used for the normalization operation
+  are accumulated over all the workers.</p>
+</li>
+<li>
+<p><strong>RewardRescaleFilter</strong> - Rescales the reward by a given factor. Rescaling the rewards of the environment has been
+  observed to have a large effect (negative or positive) on the behavior of the learning process.</p>
+</li>
+</ul>
+<h2 id="output-filters">Output Filters</h2>
+<p>The output filters only process the actions.</p>
+<h3 id="action-filters">Action Filters</h3>
+<ul>
+<li>
+<p><strong>AttentionDiscretization</strong> - Discretizes an <strong>AttentionActionSpace</strong>. The attention action space defines the actions
+  as choosing sub-boxes in a given box. For example, consider an image of size 100x100, where the action is choosing
+  a crop window of size 20x20 to attend to in the image. AttentionDiscretization allows discretizing the possible crop
+  windows to choose into a finite number of options, and map a discrete action space into those crop windows.</p>
+</li>
+<li>
+<p><strong>BoxDiscretization</strong> - Discretizes a continuous action space into a discrete action space, allowing the usage of
+  agents such as DQN for continuous environments such as MuJoCo. Given the number of bins to discretize into, the
+  original continuous action space is uniformly separated into the given number of bins, each mapped to a discrete
+  action index. For example, if the original actions space is between -1 and 1 and 5 bins were selected, the new action
+  space will consist of 5 actions mapped to -1, -0.5, 0, 0.5 and 1.</p>
+</li>
+<li>
+<p><strong>BoxMasking</strong> - Masks part of the action space to enforce the agent to work in a defined space. For example,
+  if the original action space is between -1 and 1, then this filter can be used in order to constrain the agent actions
+  to the range 0 and 1 instead. This essentially masks the range -1 and 0 from the agent.</p>
+</li>
+<li>
+<p><strong>PartialDiscreteActionSpaceMap</strong> - Partial map of two countable action spaces. For example, consider an environment
+  with a MultiSelect action space (select multiple actions at the same time, such as jump and go right), with 8 actual
+  MultiSelect actions. If we want the agent to be able to select only 5 of those actions by their index (0-4), we can
+  map a discrete action space with 5 actions into the 5 selected MultiSelect actions. This will both allow the agent to
+  use regular discrete actions, and mask 3 of the actions from the agent.</p>
+</li>
+<li>
+<p><strong>FullDiscreteActionSpaceMap</strong> - Full map of two countable action spaces. This works in a similar way to the
+  PartialDiscreteActionSpaceMap, but maps the entire source action space into the entire target action space, without
+  masking any actions.</p>
+</li>
+<li>
+<p><strong>LinearBoxToBoxMap</strong> - A linear mapping of two box action spaces. For example, if the action space of the
+  environment consists of continuous actions between 0 and 1, and we want the agent to choose actions between -1 and 1,
+  the LinearBoxToBoxMap can be used to map the range -1 and 1 to the range 0 and 1 in a linear way. This means that the
+  action -1 will be mapped to 0, the action 1 will be mapped to 1, and the rest of the actions will be linearly mapped
+  between those values.</p>
+</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../algorithms/value_optimization/dqn/" class="btn btn-neutral float-right" title="DQN">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../network/" class="btn btn-neutral" title="Network"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../network/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../../algorithms/value_optimization/dqn/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
+
+</body>
+</html>

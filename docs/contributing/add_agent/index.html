@@ -3,33 +3,29 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Adding a New Agent - Reinforcement Learning Coach Documentation</title>
   
-
   <link rel="shortcut icon" href="../../img/favicon.ico">
-
-  
+  <title>Adding a New Agent - Reinforcement Learning Coach</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="../../css/highlight.css">
   <link href="../../extra.css" rel="stylesheet">
-
   
   <script>
     // Current page data
     var mkdocs_page_name = "Adding a New Agent";
+    var mkdocs_page_input_path = "contributing/add_agent.md";
+    var mkdocs_page_url = "/contributing/add_agent/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
   <script src="../../js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
-  <script src="../../js/theme.js"></script> 
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
   
 </head>
 
@@ -40,7 +36,7 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="../.." class="icon icon-home"> Reinforcement Learning Coach Documentation</a>
+        <a href="../.." class="icon icon-home"> Reinforcement Learning Coach</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -49,188 +45,139 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        <ul class="current">
+	<ul class="current">
+	  
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../..">Home</a>
-        
-    </li>
-<li>
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../../design/index.html">Design</a>
-        
-    </li>
-<li>
+            <li class="toctree-l1">
+		
+    <a class="" href="../../usage/">Usage</a>
+	    </li>
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../../usage/index.html">Usage</a>
-        
-    </li>
-<li>
-          
-            <li>
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Design</span>
     <ul class="subnav">
-    <li><span>Algorithms</span></li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/dqn/index.html">DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/double_dqn/index.html">Double DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/dueling_dqn/index.html">Dueling DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/categorical_dqn/index.html">Categorical DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/mmc/index.html">Mixed Monte Carlo</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/pal/index.html">Persistent Advantage Learning</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/nec/index.html">Neural Episodic Control</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/bs_dqn/index.html">Bootstrapped DQN</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/n_step/index.html">N-Step Q Learning</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/value_optimization/naf/index.html">Normalized Advantage Functions</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/policy_optimization/pg/index.html">Policy Gradient</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/policy_optimization/ac/index.html">Actor-Critic</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/policy_optimization/ddpg/index.html">Deep Determinstic Policy Gradients</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/policy_optimization/ppo/index.html">Proximal Policy Optimization</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/policy_optimization/cppo/index.html">Clipped Proximal Policy Optimization</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/other/dfp/index.html">Direct Future Prediction</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../algorithms/imitation/bc/index.html">Behavioral Cloning</a>
-        
-    </li>
-
-        
+                <li class="">
+                    
+    <a class="" href="../../design/features/">Features</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../design/control_flow/">Control Flow</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../design/network/">Network</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../design/filters/">Filters</a>
+                </li>
     </ul>
-<li>
+	    </li>
           
-            <li>
-    <li class="toctree-l1 ">
-        <a class="" href="../../dashboard/index.html">Coach Dashboard</a>
-        
-    </li>
-<li>
-          
-            <li>
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Algorithms</span>
     <ul class="subnav">
-    <li><span>Contributing</span></li>
-
-        
-            
-    <li class="toctree-l1 current">
-        <a class="current" href="./index.html">Adding a New Agent</a>
-        
-            <ul>
-            
-            </ul>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../add_env/index.html">Adding a New Environment</a>
-        
-    </li>
-
-        
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dqn/">DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/double_dqn/">Double DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/dueling_dqn/">Dueling DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/categorical_dqn/">Categorical DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/mmc/">Mixed Monte Carlo</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/pal/">Persistent Advantage Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/nec/">Neural Episodic Control</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/bs_dqn/">Bootstrapped DQN</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/n_step/">N-Step Q Learning</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/value_optimization/naf/">Normalized Advantage Functions</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/pg/">Policy Gradient</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ac/">Actor-Critic</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ddpg/">Deep Determinstic Policy Gradients</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/ppo/">Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/policy_optimization/cppo/">Clipped Proximal Policy Optimization</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/other/dfp/">Direct Future Prediction</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../algorithms/imitation/bc/">Behavioral Cloning</a>
+                </li>
     </ul>
-<li>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../dashboard/">Coach Dashboard</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Contributing</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">Adding a New Agent</a>
+    <ul class="subnav">
+            
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../add_env/">Adding a New Environment</a>
+                </li>
+    </ul>
+	    </li>
           
         </ul>
       </div>
@@ -242,7 +189,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../..">Reinforcement Learning Coach Documentation</a>
+        <a href="../..">Reinforcement Learning Coach</a>
       </nav>
 
       
@@ -273,42 +220,72 @@
 <p>Coach's modularity makes adding an agent a simple and clean task, that involves the following steps:</p>
 <ol>
 <li>
-<p>Implement your algorithm in a new file under the agents directory. The agent can inherit base classes such as <strong>ValueOptimizationAgent</strong> or <strong>ActorCriticAgent</strong>, or the more generic <strong>Agent</strong> base class.</p>
+<p>Implement your algorithm in a new file. The agent can inherit base classes such as <strong>ValueOptimizationAgent</strong> or
+    <strong>ActorCriticAgent</strong>, or the more generic <strong>Agent</strong> base class.</p>
 <ul>
-<li>
-<p><strong>ValueOptimizationAgent</strong>, <strong>PolicyOptimizationAgent</strong> and <strong>Agent</strong> are abstract classes. 
-learn_from_batch() should be overriden with the desired behavior for the algorithm being implemented. If deciding to inherit from <strong>Agent</strong>, also choose_action() should be overriden.       </p>
-<pre><code>def learn_from_batch(self, batch):
+<li><strong>ValueOptimizationAgent</strong>, <strong>PolicyOptimizationAgent</strong> and <strong>Agent</strong> are abstract classes. 
+learn_from_batch() should be overriden with the desired behavior for the algorithm being implemented.
+If deciding to inherit from <strong>Agent</strong>, also choose_action() should be overriden.<pre><code>def learn_from_batch(self, batch) -&gt; Tuple[float, List, List]:
     """
     Given a batch of transitions, calculates their target values and updates the network.
     :param batch: A list of transitions
-    :return: The loss of the training
+    :return: The total loss of the training, the loss per head and the unclipped gradients
     """
-    pass
 
-def choose_action(self, curr_state, phase=RunPhase.TRAIN):
+def choose_action(self, curr_state):
     """
     choose an action to act with in the current episode being played. Different behavior might be exhibited when training
      or testing.
 
-    :param curr_state: the current state to act upon.  
-    :param phase: the current phase: training or testing.
+    :param curr_state: the current state to act upon.
     :return: chosen action, some action value describing the action (q-value, probability, etc)
     """
-    pass
 </code></pre>
-</li>
-<li>
-<p>Make sure to add your new agent to <strong>agents/__init__.py</strong></p>
 </li>
 </ul>
 </li>
 <li>
-<p>Implement your agent's specific network head, if needed, at the implementation for the framework of your choice. For example <strong>architectures/neon_components/heads.py</strong>. The head will inherit the generic base class Head.
-    A new output type should be added to configurations.py, and a mapping between the new head and output type should be defined in the get_output_head() function at <strong>architectures/neon_components/general_network.py</strong></p>
+<p>Implement your agent's specific network head, if needed, at the implementation for the framework of your choice.
+    For example <strong>architectures/neon_components/heads.py</strong>. The head will inherit the generic base class Head.
+    A new output type should be added to configurations.py, and a mapping between the new head and output type should
+    be defined in the get_output_head() function at <strong>architectures/neon_components/general_network.py</strong></p>
 </li>
-<li>Define a new configuration class at configurations.py, which includes the new agent name in the <strong>type</strong> field, the new output type in the <strong>output_types</strong> field, and assigning default values to hyperparameters.</li>
-<li>(Optional) Define a preset using the new agent type with a given environment, and the hyperparameters that should be used for training on that environment.</li>
+<li>
+<p>Define a new parameters class that inherits AgentParameters.
+    The parameters class defines all the hyperparameters for the agent, and is initialized with 4 main components:</p>
+<ul>
+<li><strong>algorithm</strong>: A class inheriting AlgorithmParameters which defines any algorithm specific parameters</li>
+<li><strong>exploration</strong>: A class inheriting ExplorationParameters which defines the exploration policy parameters.
+               There are several common exploration policies built-in which you can use, and are defined under
+               the exploration sub directory. You can also define your own custom exploration policy.</li>
+<li><strong>memory</strong>: A class inheriting MemoryParameters which defined the memory parameters.
+          There are several common memory types built-in which you can use, and are defined under the memories
+          sub directory. You can also define your own custom memory.</li>
+<li><strong>networks</strong>: A dictionary defining all the networks that will be used by the agent. The keys of the dictionary
+            define the network name and will be used to access each network through the agent class.
+            The dictionary values are a class inheriting NetworkParameters, which define the network structure
+            and parameters.</li>
+</ul>
+<p>Additionally, set the path property to return the path to your agent class in the following format:</p>
+<pre><code>    &lt;path to python module&gt;:&lt;name of agent class&gt;
+</code></pre>
+<p>For example,</p>
+<pre><code>    class RainbowAgentParameters(AgentParameters):
+    def __init__(self):
+        super().__init__(algorithm=RainbowAlgorithmParameters(),
+                         exploration=RainbowExplorationParameters(),
+                         memory=RainbowMemoryParameters(),
+                         networks={"main": RainbowNetworkParameters()})
+
+    @property
+    def path(self):
+        return 'rainbow.rainbow_agent:RainbowAgent'
+</code></pre>
+</li>
+<li>
+<p>(Optional) Define a preset using the new agent type with a given environment, and the hyper-parameters that should
+    be used for training on that environment.</p>
+</li>
 </ol>
               
             </div>
@@ -317,10 +294,10 @@ def choose_action(self, curr_state, phase=RunPhase.TRAIN):
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../add_env/index.html" class="btn btn-neutral float-right" title="Adding a New Environment"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../add_env/" class="btn btn-neutral float-right" title="Adding a New Environment">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../../dashboard/index.html" class="btn btn-neutral" title="Coach Dashboard"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../dashboard/" class="btn btn-neutral" title="Coach Dashboard"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -334,7 +311,7 @@ def choose_action(self, curr_state, phase=RunPhase.TRAIN):
 
   Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
-	  
+      
         </div>
       </div>
 
@@ -342,17 +319,22 @@ def choose_action(self, curr_state, phase=RunPhase.TRAIN):
 
   </div>
 
-<div class="rst-versions" role="note" style="cursor: pointer">
+  <div class="rst-versions" role="note" style="cursor: pointer">
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../../dashboard/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../../dashboard/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../add_env/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../add_env/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script>
 
 </body>
 </html>
