@@ -425,7 +425,8 @@ class GymEnvironment(Environment):
         :param camera_idx: The index of the camera to use. Should be defined in the model
         :return: None
         """
-        if self.env.unwrapped.viewer.cam.fixedcamid != camera_idx and self.env.unwrapped.viewer._ncam > camera_idx:
+        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx and\
+                self.env.unwrapped.viewer._ncam > camera_idx:
             from mujoco_py.generated import const
             self.env.unwrapped.viewer.cam.type = const.CAMERA_FIXED
             self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
