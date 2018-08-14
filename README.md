@@ -290,7 +290,8 @@ If you used Coach for your work, please use the following citation:
 @misc{caspi_itai_2017_1134899,
   author       = {Caspi, Itai and
                   Leibovich, Gal and
-                  Novik, Gal},
+                  Novik, Gal and
+                  Endrawis, Shadi},
   title        = {Reinforcement Learning Coach},
   month        = dec,
   year         = 2017,
