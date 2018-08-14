@@ -14,7 +14,7 @@ Basic RL components (algorithms, environments, neural network architectures, exp
 Training an agent to solve an environment is as easy as running:
 
 ```bash
-python3 coach.py -p CartPole_DQN -r
+coach -p CartPole_DQN -r
 ```
 
 <img src="img/doom_deathmatch.gif" alt="Doom Deathmatch" width="267" height="200"/> <img src="img/carla.gif" alt="CARLA" width="284" height="200"/> <img src="img/montezuma.gif" alt="MontezumaRevenge" width="152" height="200"/>
@@ -111,20 +111,20 @@ To list all the available presets use the `-l` flag.
 To run a preset, use:
 
 ```bash
-python3 rl_coach/coach.py -r -p <preset_name>
+coach -r -p <preset_name>
 ```
 
 For example:
 * CartPole environment using Policy Gradients (PG):
 
   ```bash
-  python3 rl_coach/coach.py -r -p CartPole_PG
+  coach -r -p CartPole_PG
   ```
   
 * Basic level of Doom using Dueling network and Double DQN (DDQN) algorithm:
 
   ```bash
-  python3 rl_coach/coach.py -r -p Doom_Basic_Dueling_DDQN
+  coach -r -p Doom_Basic_Dueling_DDQN
   ```
 
 Some presets apply to a group of environment levels, like the entire Atari or Mujoco suites for example.
@@ -136,7 +136,7 @@ For example:
 * Pong using the Nerual Episodic Control (NEC) algorithm:
 
   ```bash
-  python3 rl_coach/coach.py -r -p Atari_NEC -lvl pong
+  coach -r -p Atari_NEC -lvl pong
   ```
 
 There are several types of agents that can benefit from running them in a distrbitued fashion with multiple workers in parallel. Each worker interacts with its own copy of the environment but updates a shared network, which improves the data collection speed and the stability of the learning process.
@@ -146,7 +146,7 @@ For example:
 * Breakout using Asynchronous Advantage Actor-Critic (A3C) with 8 workers:
 
   ```bash
-  python3 rl_coach/coach.py -r -p Atari_A3C -lvl breakout -n 8
+  coach -r -p Atari_A3C -lvl breakout -n 8
   ```
 
 
@@ -164,7 +164,7 @@ While Coach trains an agent, a csv file containing the relevant training signals
 To use it, run:
 
 ```bash
-python3 dashboard.py
+dashboard
 ```
 
 
