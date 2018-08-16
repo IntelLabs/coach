@@ -34,6 +34,25 @@ python3 coach.py -p Mujoco_A3C -lvl walker2d -n 16
 <img src="walker2d_a3c_16_workers.png" alt="Walker2D A3C 16 workers" width="800"/>
 
 
+### Half Cheetah A3C - 16 workers
+
+```bash
+python3 coach.py -p Mujoco_A3C -lvl half_cheetah -n 16
+```
+
+<img src="half_cheetah_a3c_16_workers.png" alt="Half Cheetah A3C 16 workers" width="800"/>
+
+
+### Ant A3C - 16 workers
+
+```bash
+python3 coach.py -p Mujoco_A3C -lvl ant -n 16
+```
+
+<img src="ant_a3c_16_workers.png" alt="Ant A3C 16 workers" width="800"/>
+
+
+
 ### Space Invaders A3C - 16 workers
 
 ```bash
