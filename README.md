@@ -17,7 +17,12 @@ Training an agent to solve an environment is as easy as running:
 coach -p CartPole_DQN -r
 ```
 
-<img src="img/doom_deathmatch.gif" alt="Doom Deathmatch" width="267" height="200"/> <img src="img/carla.gif" alt="CARLA" width="284" height="200"/> <img src="img/montezuma.gif" alt="MontezumaRevenge" width="152" height="200"/>
+<img src="img/fetch_slide.gif" alt="Fetch Slide"/> <img src="img/pendulum.gif" alt="Pendulum"/> <img src="img/starcraft.gif" alt="Starcraft"/>
+<br>
+<img src="img/doom_deathmatch.gif" alt="Doom Deathmatch"/> <img src="img/carla.gif" alt="CARLA"/> <img src="img/montezuma.gif" alt="MontezumaRevenge"/>
+<br>
+<img src="img/doom_health.gif" alt="Doom Health Gathering"/><img src="img/minitaur.gif" alt="PyBullet Minitaur"/> <img src="img/ant.gif" alt="Gym Extensions Ant"/>
+<br><br>
 
 Blog posts from the Intel® AI website:
 * [Release 0.8.0](https://ai.intel.com/reinforcement-learning-coach-intel/) (initial release)

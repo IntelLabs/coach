@@ -142,6 +142,9 @@ class GraphManager(object):
         config = tf.ConfigProto()
         config.allow_soft_placement = True  # allow placing ops on cpu if they are not fit for gpu
         config.gpu_options.allow_growth = True  # allow the gpu memory allocated for the worker to grow if needed
+        config.gpu_options.per_process_gpu_memory_fraction = 0.2
+        config.intra_op_parallelism_threads = 1
+        config.inter_op_parallelism_threads = 1
 
         from rl_coach.architectures.tensorflow_components.distributed_tf_utils import create_and_start_parameters_server, \
             create_cluster_spec, create_worker_server_and_device
@@ -169,6 +172,8 @@ class GraphManager(object):
         config.allow_soft_placement = True  # allow placing ops on cpu if they are not fit for gpu
         config.gpu_options.allow_growth = True  # allow the gpu memory allocated for the worker to grow if needed
         # config.gpu_options.per_process_gpu_memory_fraction = 0.2
+        config.intra_op_parallelism_threads = 1
+        config.inter_op_parallelism_threads = 1
 
         if isinstance(task_parameters, DistributedTaskParameters):
             # the distributed tensorflow setting

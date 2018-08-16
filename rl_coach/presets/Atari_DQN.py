@@ -20,7 +20,8 @@ schedule_params.heatup_steps = EnvironmentSteps(50000)
 # Agent #
 #########
 agent_params = DQNAgentParameters()
-agent_params.network_wrappers['main'].learning_rate = 0.00025
+# since we are using Adam instead of RMSProp, we adjust the learning rate as well
+agent_params.network_wrappers['main'].learning_rate = 0.0001
 
 ###############
 # Environment #

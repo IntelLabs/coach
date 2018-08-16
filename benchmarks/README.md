@@ -25,10 +25,11 @@ The environments that were used for testing include:
 ![#FF4040](https://placehold.it/15/FF4040/000000?text=+) *Not training*
 
 
+
 |                         |**Status**                                                |**Environments**|**Comments**|
 | ----------------------- |:--------------------------------------------------------:|:--------------:|:--------:|
-|**[DQN](dqn)**                  | ![#ceffad](https://placehold.it/15/ceffad/000000?text=+) |Atari           | Pong is not training |
-|**[Dueling DDQN](dueling_ddqn)**| ![#ceffad](https://placehold.it/15/ceffad/000000?text=+) |Atari           | Pong is not training |
+|**[DQN](dqn)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           |  |
+|**[Dueling DDQN](dueling_ddqn)**| ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           |  |
 |**[Dueling DDQN with PER](dueling_ddqn_with_per)**| ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
 |**[Bootstrapped DQN](bootstrapped_dqn)**| ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
 |**[QR-DQN](qr_dqn)**            | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
