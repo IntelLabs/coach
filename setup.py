@@ -23,6 +23,11 @@ from setuptools import setup, find_packages
 import subprocess
 
 # Creating the pip package involves the following steps:
+# - Define the pip package related files - setup.py (this file) and MANIFEST.in by:
+# 1. Make sure all the requirements in install_requires are defined correctly and that their version is the correct one
+# 2. Add all the non .py files to the package_data and to the MANIFEST.in file
+# 3. Make sure that all the python directories have an __init__.py file
+
 # - Check that everything works fine by:
 # 1. Create a new virtual environment using `virtualenv coach_env -p python3`
 # 2. Run `pip install -e .`
@@ -70,7 +75,13 @@ setup(
     packages=find_packages(),
     python_requires="==3.5.*",
     install_requires=install_requires,
-    package_data={'rl_coach': ['dashboard_components/*.css', '*.css', 'environments/*.ini']},
+    package_data={'rl_coach': ['dashboard_components/*.css',
+                               'environments/doom/*.cfg',
+                               'environments/doom/*.wad',
+                               'environments/mujoco/common/*.xml',
+                               'environments/mujoco/*.xml',
+                               'environments/*.ini',
+                               'tests/*.ini']},
     entry_points={
         'console_scripts': [
             'coach=rl_coach.coach:main',

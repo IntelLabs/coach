@@ -1,3 +1,7 @@
-include *.txt
-include rl_coach/environments/CarlaSettings.ini
-include rl_coach/dashboard_components/spinner.css
+include rl_coach/dashboard_components/*.css
+include rl_coach/environments/doom/*.cfg
+include rl_coach/environments/doom/*.wad
+include rl_coach/environments/mujoco/common/*.xml
+include rl_coach/environments/mujoco/*.xml
+include rl_coach/environments/*.ini
+include rl_coach/tests/*.ini
