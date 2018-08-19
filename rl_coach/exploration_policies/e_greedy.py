@@ -17,14 +17,14 @@
 from typing import List
 
 import numpy as np
+
+from rl_coach.core_types import RunPhase, ActionType
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
+from rl_coach.exploration_policies.exploration_policy import ExplorationParameters
+from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy
 from rl_coach.schedules import Schedule, LinearSchedule
 from rl_coach.spaces import ActionSpace, DiscreteActionSpace, BoxActionSpace
 from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
-
-from rl_coach.core_types import RunPhase, ActionType
-from rl_coach.exploration_policies.exploration_policy import ExplorationParameters
-from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy
 
 
 class EGreedyParameters(ExplorationParameters):

@@ -1,14 +1,13 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
-from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
+from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.control_suite_environment import ControlSuiteEnvironmentParameters, control_suite_envs
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
 from rl_coach.environments.gym_environment import MujocoInputFilter
+from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 
 ####################
 # Graph Scheduling #

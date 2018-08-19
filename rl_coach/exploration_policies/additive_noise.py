@@ -17,11 +17,11 @@
 from typing import List
 
 import numpy as np
-from rl_coach.schedules import Schedule, LinearSchedule
-from rl_coach.spaces import ActionSpace, BoxActionSpace
 
 from rl_coach.core_types import RunPhase, ActionType
 from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy, ExplorationParameters
+from rl_coach.schedules import Schedule, LinearSchedule
+from rl_coach.spaces import ActionSpace, BoxActionSpace
 
 
 # TODO: consider renaming to gaussian sampling

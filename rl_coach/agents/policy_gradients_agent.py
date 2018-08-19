@@ -17,16 +17,16 @@
 from typing import Union
 
 import numpy as np
+
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent, PolicyGradientRescaler
 from rl_coach.architectures.tensorflow_components.heads.policy_head import PolicyHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters, InputEmbedderParameters
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
-from rl_coach.spaces import DiscreteActionSpace
-
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
+from rl_coach.spaces import DiscreteActionSpace
 
 
 class PolicyGradientNetworkParameters(NetworkParameters):

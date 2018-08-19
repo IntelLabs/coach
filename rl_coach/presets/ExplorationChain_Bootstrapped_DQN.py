@@ -1,13 +1,12 @@
-from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.agents.bootstrapped_dqn_agent import BootstrappedDQNAgentParameters
+from rl_coach.base_parameters import VisualizationParameters
+from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.gym_environment import Mujoco
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import ConstantSchedule
-
-from rl_coach.agents.bootstrapped_dqn_agent import BootstrappedDQNAgentParameters
-from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 
 N = 20
 num_output_head_copies = 20

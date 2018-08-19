@@ -18,10 +18,9 @@ from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
-from rl_coach.architectures.tensorflow_components.shared_variables import SharedRunningStats
-from rl_coach.base_parameters import EmbedderScheme
 
 from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout
+from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputEmbedding
 
 

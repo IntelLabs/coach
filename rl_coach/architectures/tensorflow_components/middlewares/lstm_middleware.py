@@ -17,10 +17,10 @@
 
 import numpy as np
 import tensorflow as tf
-from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
-from rl_coach.base_parameters import MiddlewareScheme
 
 from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout
+from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
+from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_LSTM_Embedding
 
 

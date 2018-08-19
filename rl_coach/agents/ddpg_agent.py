@@ -19,18 +19,18 @@ from typing import Union
 from collections import OrderedDict
 
 import numpy as np
+
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.agent import Agent
+from rl_coach.architectures.tensorflow_components.heads.ddpg_actor_head import DDPGActorHeadParameters
 from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters, InputEmbedderParameters, EmbedderScheme
+from rl_coach.core_types import ActionInfo, EnvironmentSteps
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.spaces import BoxActionSpace, GoalsSpace
-
-from rl_coach.architectures.tensorflow_components.heads.ddpg_actor_head import DDPGActorHeadParameters
-from rl_coach.core_types import ActionInfo, EnvironmentSteps
 
 
 class DDPGCriticNetworkParameters(NetworkParameters):

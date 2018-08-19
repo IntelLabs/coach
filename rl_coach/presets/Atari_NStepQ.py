@@ -1,12 +1,11 @@
+from rl_coach.agents.n_step_q_agent import NStepQAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Conv2d, Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SingleLevelSelection, SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.environments.gym_environment import Atari, atari_deterministic_v4
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-
-from rl_coach.agents.n_step_q_agent import NStepQAgentParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 
 ####################
 # Graph Scheduling #

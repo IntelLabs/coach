@@ -17,8 +17,8 @@
 from typing import Union, List
 
 import numpy as np
-from rl_coach.filters.action.box_discretization import BoxDiscretization
 
+from rl_coach.filters.action.box_discretization import BoxDiscretization
 from rl_coach.filters.action.partial_discrete_action_space_map import PartialDiscreteActionSpaceMap
 from rl_coach.spaces import AttentionActionSpace, BoxActionSpace, DiscreteActionSpace
 

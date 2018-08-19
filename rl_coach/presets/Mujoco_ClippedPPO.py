@@ -1,16 +1,14 @@
-from rl_coach.exploration_policies .additive_noise import AdditiveNoiseParameters
-
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
 from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
+from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
+from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
-
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 
 ####################
 # Graph Scheduling #

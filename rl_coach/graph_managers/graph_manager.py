@@ -18,20 +18,19 @@ import copy
 import os
 import time
 from collections import OrderedDict
-from typing import List, Tuple
 from distutils.dir_util import copy_tree, remove_tree
+from typing import List, Tuple
 
-import numpy as np
-from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, VisualizationParameters, \
+from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, \
+    VisualizationParameters, \
     Parameters, PresetValidationParameters
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
     EnvironmentSteps, \
     StepMethod
 from rl_coach.environments.environment import Environment
 from rl_coach.level_manager import LevelManager
-from rl_coach.utils import set_cpu
-
 from rl_coach.logger import screen, Logger
+from rl_coach.utils import set_cpu
 
 
 class ScheduleParameters(Parameters):

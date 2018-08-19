@@ -17,7 +17,6 @@
 from typing import Union
 
 import numpy as np
-import copy
 
 from rl_coach.agents.ddpg_agent import DDPGAgent, DDPGAgentParameters, DDPGAlgorithmParameters
 from rl_coach.core_types import RunPhase

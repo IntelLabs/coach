@@ -1,18 +1,14 @@
 from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
-from rl_coach.agents.dqn_agent import DQNAgentParameters
 from rl_coach.agents.policy_optimization_agent import PolicyGradientRescaler
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
+from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.environments.gym_environment import MujocoInputFilter
 from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-from rl_coach.memories.memory import MemoryGranularity
-from rl_coach.schedules import LinearSchedule
-
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 
 ####################
 # Graph Scheduling #

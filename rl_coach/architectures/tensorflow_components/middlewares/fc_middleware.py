@@ -16,10 +16,10 @@
 from typing import Union, List
 
 import tensorflow as tf
-from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
-from rl_coach.base_parameters import MiddlewareScheme
 
 from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
+from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_FC_Embedding
 
 

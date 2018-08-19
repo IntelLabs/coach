@@ -22,9 +22,9 @@ from typing import Union, List, Dict, Tuple, Callable
 import numpy as np
 import scipy
 import scipy.spatial
-from rl_coach.utils import eps
 
 from rl_coach.core_types import ActionType, ActionInfo
+from rl_coach.utils import eps
 
 
 class Space(object):

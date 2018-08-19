@@ -17,11 +17,11 @@
 from typing import Union
 
 import numpy as np
-from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplay
-from rl_coach.spaces import DiscreteActionSpace
 
 from rl_coach.agents.agent import Agent
 from rl_coach.core_types import ActionInfo, StateType
+from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplay
+from rl_coach.spaces import DiscreteActionSpace
 
 
 ## This is an abstract agent - there is no learn_from_batch method ##

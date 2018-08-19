@@ -1,14 +1,13 @@
+from rl_coach.agents.dqn_agent import DQNAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, InputEmbedderParameters, \
     PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.gym_environment import Mujoco
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import ConstantSchedule
-
-from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 
 bit_length = 8
 

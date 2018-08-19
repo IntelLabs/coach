@@ -1,9 +1,12 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
-from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, InputEmbedderParameters, PresetValidationParameters
+from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, InputEmbedderParameters, \
+    PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod, SingleLevelSelection
 from rl_coach.environments.gym_environment import Mujoco, MujocoInputFilter, fetch_v1
+from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.filters.observation.observation_clipping_filter import ObservationClippingFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -13,9 +16,6 @@ from rl_coach.memories.episodic.episodic_hindsight_experience_replay import Epis
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import ConstantSchedule
 from rl_coach.spaces import GoalsSpace, ReachingGoal
-
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 
 cycles = 100  # 20 for reach. for others it's 100
 

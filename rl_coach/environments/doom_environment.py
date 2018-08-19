@@ -26,17 +26,17 @@ from os import path, environ
 from typing import Union, List
 
 import numpy as np
+
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
 from rl_coach.filters.action.full_discrete_action_space_map import FullDiscreteActionSpaceMap
 from rl_coach.filters.filter import InputFilter, OutputFilter
 from rl_coach.filters.observation.observation_rescale_to_size_filter import ObservationRescaleToSizeFilter
+from rl_coach.filters.observation.observation_rgb_to_y_filter import ObservationRGBToYFilter
 from rl_coach.filters.observation.observation_stacking_filter import ObservationStackingFilter
 from rl_coach.filters.observation.observation_to_uint8_filter import ObservationToUInt8Filter
 from rl_coach.spaces import MultiSelectActionSpace, ImageObservationSpace, \
     VectorObservationSpace, StateSpace
-
-from rl_coach.filters.observation.observation_rgb_to_y_filter import ObservationRGBToYFilter
 
 
 # enum of the available levels and their path

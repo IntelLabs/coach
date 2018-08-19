@@ -1,11 +1,14 @@
 import numpy as np
-from rl_coach.agents.ddpg_agent import DDPGAgentParameters
+
 from rl_coach.agents.hac_ddpg_agent import HACDDPGAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbeddingMergerType, EmbedderScheme, \
     InputEmbedderParameters
+from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, RunPhase, TrainingSteps
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod
 from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.exploration_policies.e_greedy import EGreedyParameters
+from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.graph_managers.hac_graph_manager import HACGraphManager
 from rl_coach.memories.episodic.episodic_hindsight_experience_replay import HindsightGoalSelectionMethod, \
@@ -13,13 +16,8 @@ from rl_coach.memories.episodic.episodic_hindsight_experience_replay import Hind
 from rl_coach.memories.episodic.episodic_hrl_hindsight_experience_replay import \
     EpisodicHRLHindsightExperienceReplayParameters
 from rl_coach.memories.memory import MemoryGranularity
-
 from rl_coach.schedules import ConstantSchedule
 from rl_coach.spaces import GoalsSpace, ReachingGoal
-
-from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, RunPhase, TrainingSteps
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
-from rl_coach.exploration_policies.ou_process import OUProcessParameters
 
 ####################
 # Graph Scheduling #

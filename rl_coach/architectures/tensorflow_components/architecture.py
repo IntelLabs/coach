@@ -19,12 +19,12 @@ from typing import List
 
 import numpy as np
 import tensorflow as tf
-from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
-from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import force_list, squeeze_list
 
 from rl_coach.architectures.architecture import Architecture
+from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import GradientClippingMethod
+from rl_coach.spaces import SpacesDefinition
+from rl_coach.utils import force_list, squeeze_list
 
 
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout, dropout_rate, layer_idx):

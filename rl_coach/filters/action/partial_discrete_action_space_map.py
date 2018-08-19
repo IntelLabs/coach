@@ -16,10 +16,9 @@
 
 from typing import List
 
-from rl_coach.spaces import DiscreteActionSpace, ActionSpace
-
 from rl_coach.core_types import ActionType
 from rl_coach.filters.action.action_filter import ActionFilter
+from rl_coach.spaces import DiscreteActionSpace, ActionSpace
 
 
 class PartialDiscreteActionSpaceMap(ActionFilter):

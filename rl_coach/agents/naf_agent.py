@@ -17,16 +17,16 @@
 from typing import Union
 
 import numpy as np
+
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.architectures.tensorflow_components.heads.naf_head import NAFHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, \
     NetworkParameters, InputEmbedderParameters
-from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
-from rl_coach.spaces import BoxActionSpace
-
 from rl_coach.core_types import ActionInfo, EnvironmentSteps
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
+from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
+from rl_coach.spaces import BoxActionSpace
 
 
 class NAFNetworkParameters(NetworkParameters):

@@ -17,10 +17,10 @@
 from typing import List
 
 import tensorflow as tf
-from rl_coach.architectures.tensorflow_components.architecture import Dense
-from rl_coach.base_parameters import EmbedderScheme
 
+from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
+from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputVectorEmbedding
 
 

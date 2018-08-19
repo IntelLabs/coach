@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 import tensorflow as tf
-from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters
 
-from rl_coach.base_parameters import AgentParameters
+from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters
 from rl_coach.architectures.tensorflow_components.heads.q_head import QHead
-from rl_coach.spaces import SpacesDefinition
+from rl_coach.base_parameters import AgentParameters
 from rl_coach.memories.non_episodic import differentiable_neural_dictionary
+from rl_coach.spaces import SpacesDefinition
 
 
 class DNDQHeadParameters(HeadParameters):

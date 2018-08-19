@@ -1,14 +1,12 @@
 from rl_coach.agents.pal_agent import PALAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.environments.gym_environment import Mujoco
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import LinearSchedule
-
-from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 
 ####################
 # Graph Scheduling #

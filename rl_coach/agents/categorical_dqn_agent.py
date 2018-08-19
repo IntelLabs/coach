@@ -17,15 +17,15 @@
 from typing import Union
 
 import numpy as np
+
 from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.architectures.tensorflow_components.heads.categorical_q_head import CategoricalQHeadParameters
 from rl_coach.base_parameters import AgentParameters
-from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
-from rl_coach.schedules import LinearSchedule
-
 from rl_coach.core_types import StateType
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
+from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
+from rl_coach.schedules import LinearSchedule
 
 
 class CategoricalDQNNetworkParameters(DQNNetworkParameters):

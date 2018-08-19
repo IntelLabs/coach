@@ -14,14 +14,13 @@
 # limitations under the License.
 #
 import copy
-from typing import Union, Dict, Tuple, Type
-
-from rl_coach.environments.environment import Environment
-from rl_coach.environments.environment_interface import EnvironmentInterface
-from rl_coach.spaces import ActionSpace, SpacesDefinition
+from typing import Union, Dict
 
 from rl_coach.agents.composite_agent import CompositeAgent
 from rl_coach.core_types import EnvResponse, ActionInfo, RunPhase, ActionType, EnvironmentSteps
+from rl_coach.environments.environment import Environment
+from rl_coach.environments.environment_interface import EnvironmentInterface
+from rl_coach.spaces import ActionSpace, SpacesDefinition
 
 
 class LevelManager(EnvironmentInterface):

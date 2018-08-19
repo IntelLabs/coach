@@ -1,11 +1,10 @@
 from rl_coach.agents.bc_agent import BCAgentParameters
 from rl_coach.base_parameters import VisualizationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
+from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
-
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
-from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 
 ####################
 # Graph Scheduling #

@@ -17,10 +17,10 @@ from typing import Type
 
 import numpy as np
 import tensorflow as tf
-from rl_coach.base_parameters import AgentParameters, Parameters
-from rl_coach.spaces import SpacesDefinition
 from tensorflow.python.ops.losses.losses_impl import Reduction
 
+from rl_coach.base_parameters import AgentParameters, Parameters
+from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list
 
 

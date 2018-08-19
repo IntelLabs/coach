@@ -16,11 +16,11 @@
 
 
 import numpy as np
-from rl_coach.spaces import RewardSpace
 
 from rl_coach.architectures.tensorflow_components.shared_variables import SharedRunningStats
 from rl_coach.core_types import RewardType
 from rl_coach.filters.reward.reward_filter import RewardFilter
+from rl_coach.spaces import RewardSpace
 
 
 class RewardNormalizationFilter(RewardFilter):

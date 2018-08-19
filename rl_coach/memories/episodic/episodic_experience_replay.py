@@ -17,10 +17,10 @@
 from typing import List, Tuple, Union, Dict, Any
 
 import numpy as np
-from rl_coach.utils import ReaderWriterLock
 
 from rl_coach.core_types import Transition, Episode
 from rl_coach.memories.memory import Memory, MemoryGranularity, MemoryParameters
+from rl_coach.utils import ReaderWriterLock
 
 
 class EpisodicExperienceReplayParameters(MemoryParameters):

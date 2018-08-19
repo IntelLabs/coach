@@ -17,10 +17,10 @@
 from typing import List
 
 import numpy as np
-from rl_coach.spaces import ActionSpace, DiscreteActionSpace, BoxActionSpace
 
 from rl_coach.core_types import ActionType
 from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy, ExplorationParameters
+from rl_coach.spaces import ActionSpace, DiscreteActionSpace, BoxActionSpace
 
 
 class GreedyParameters(ExplorationParameters):

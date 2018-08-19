@@ -16,8 +16,8 @@
 from typing import Type, Union, List
 
 import tensorflow as tf
-from rl_coach.base_parameters import MiddlewareScheme, Parameters
 
+from rl_coach.base_parameters import MiddlewareScheme, Parameters
 from rl_coach.core_types import MiddlewareEmbedding
 
 

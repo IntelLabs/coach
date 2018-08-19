@@ -20,16 +20,16 @@ from collections import OrderedDict
 from typing import Union, List, Tuple, Dict
 
 import numpy as np
+
+from rl_coach import logger
 from rl_coach.base_parameters import Parameters
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import GoalType, ActionType, EnvResponse, RunPhase
+from rl_coach.environments.environment_interface import EnvironmentInterface
+from rl_coach.logger import screen
 from rl_coach.renderer import Renderer
 from rl_coach.spaces import ActionSpace, ObservationSpace, DiscreteActionSpace, RewardSpace, StateSpace
 from rl_coach.utils import squeeze_list, force_list
-
-from rl_coach import logger
-from rl_coach.environments.environment_interface import EnvironmentInterface
-from rl_coach.logger import screen
 
 
 class LevelSelection(object):

@@ -17,9 +17,9 @@
 from typing import Union
 
 import numpy as np
+
 from rl_coach.agents.dqn_agent import DQNAgentParameters, DQNNetworkParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-
 from rl_coach.exploration_policies.bootstrapped import BootstrappedParameters
 
 

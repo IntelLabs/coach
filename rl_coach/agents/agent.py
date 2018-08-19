@@ -20,20 +20,19 @@ from collections import OrderedDict
 from typing import Dict, List, Union, Tuple
 
 import numpy as np
+from pandas import read_pickle
+from six.moves import range
 
 from rl_coach.agents.agent_interface import AgentInterface
+from rl_coach.architectures.network_wrapper import NetworkWrapper
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import RunPhase, PredictionType, EnvironmentEpisodes, ActionType, Batch, Episode, StateType
 from rl_coach.core_types import Transition, ActionInfo, TrainingSteps, EnvironmentSteps, EnvResponse
-from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplay
-from pandas import read_pickle
-from six.moves import range
-from rl_coach.spaces import SpacesDefinition, VectorObservationSpace, GoalsSpace, AttentionActionSpace
-from rl_coach.utils import Signal, force_list, set_cpu
-from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
-
-from rl_coach.architectures.network_wrapper import NetworkWrapper
 from rl_coach.logger import screen, Logger, EpisodeLogger
+from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplay
+from rl_coach.spaces import SpacesDefinition, VectorObservationSpace, GoalsSpace, AttentionActionSpace
+from rl_coach.utils import Signal, force_list
+from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
 
 
 class Agent(AgentInterface):

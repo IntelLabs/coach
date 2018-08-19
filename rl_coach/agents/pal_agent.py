@@ -20,8 +20,7 @@ import numpy as np
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters, DQNAlgorithmParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplay, \
-    EpisodicExperienceReplayParameters
+from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 
 
 class PALAlgorithmParameters(DQNAlgorithmParameters):

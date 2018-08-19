@@ -17,9 +17,8 @@
 from typing import List
 
 from rl_coach.base_parameters import Parameters
-from rl_coach.spaces import ActionSpace
-
 from rl_coach.core_types import RunPhase, ActionType
+from rl_coach.spaces import ActionSpace
 
 
 class ExplorationParameters(Parameters):

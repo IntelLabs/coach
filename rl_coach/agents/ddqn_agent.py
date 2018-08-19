@@ -17,11 +17,11 @@
 from typing import Union
 
 import numpy as np
-from rl_coach.schedules import LinearSchedule
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.core_types import EnvironmentSteps
+from rl_coach.schedules import LinearSchedule
 
 
 class DDQNAgentParameters(DQNAgentParameters):

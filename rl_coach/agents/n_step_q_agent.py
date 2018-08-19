@@ -17,17 +17,17 @@
 from typing import Union
 
 import numpy as np
+
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.architectures.tensorflow_components.heads.q_head import QHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, NetworkParameters, \
     InputEmbedderParameters
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
-from rl_coach.utils import last_sample
-
 from rl_coach.core_types import EnvironmentSteps
+from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
+from rl_coach.utils import last_sample
 
 
 class NStepQNetworkParameters(NetworkParameters):

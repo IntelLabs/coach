@@ -20,15 +20,14 @@ from enum import Enum
 from typing import Union, List, Dict
 
 import numpy as np
+
 from rl_coach.agents.agent_interface import AgentInterface
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters
-# from rl_coach.environments.environment_interface import ActionSpace
-from rl_coach.spaces import ActionSpace
-from rl_coach.spaces import AgentSelection, AttentionActionSpace, ObservationSpace, SpacesDefinition
-from rl_coach.utils import short_dynamic_import
-
 from rl_coach.core_types import ActionInfo, EnvResponse, ActionType, RunPhase
 from rl_coach.filters.observation.observation_crop_filter import ObservationCropFilter
+from rl_coach.spaces import ActionSpace
+from rl_coach.spaces import AgentSelection, AttentionActionSpace, SpacesDefinition
+from rl_coach.utils import short_dynamic_import
 
 
 class DecisionPolicy(object):

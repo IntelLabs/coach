@@ -18,6 +18,7 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from rl_coach.filters.observation.observation_stacking_filter import LazyStack
 
 

@@ -16,9 +16,8 @@
 
 from typing import Union, Dict
 
-from rl_coach.spaces import ActionSpace
-
 from rl_coach.core_types import ActionType, EnvResponse, RunPhase
+from rl_coach.spaces import ActionSpace
 
 
 class EnvironmentInterface(object):

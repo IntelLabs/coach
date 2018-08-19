@@ -16,14 +16,14 @@
 
 import numpy as np
 import tensorflow as tf
+
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer, HeadParameters
 from rl_coach.base_parameters import AgentParameters
+from rl_coach.core_types import ActionProbabilities
+from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace, CompoundActionSpace
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import eps
-
-from rl_coach.core_types import ActionProbabilities
-from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 
 
 class PolicyHeadParameters(HeadParameters):

@@ -17,11 +17,10 @@
 from collections import OrderedDict
 from typing import Union
 
-from rl_coach.core_types import RunPhase, ActionInfo
-from rl_coach.spaces import DiscreteActionSpace
-
 from rl_coach.agents.agent import Agent
+from rl_coach.core_types import RunPhase, ActionInfo
 from rl_coach.logger import screen
+from rl_coach.spaces import DiscreteActionSpace
 
 
 ## This is an abstract agent - there is no learn_from_batch method ##

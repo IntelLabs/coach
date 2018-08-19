@@ -1,11 +1,10 @@
+from rl_coach.agents.ddpg_agent import DDPGAgentParameters
 from rl_coach.base_parameters import VisualizationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.carla_environment import CarlaEnvironmentParameters
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-
-from rl_coach.agents.ddpg_agent import DDPGAgentParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 
 ####################
 # Graph Scheduling #

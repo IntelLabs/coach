@@ -14,10 +14,9 @@
 # limitations under the License.
 #
 
-from rl_coach.spaces import RewardSpace
-
 from rl_coach.core_types import RewardType
 from rl_coach.filters.reward.reward_filter import RewardFilter
+from rl_coach.spaces import RewardSpace
 
 
 class RewardRescaleFilter(RewardFilter):

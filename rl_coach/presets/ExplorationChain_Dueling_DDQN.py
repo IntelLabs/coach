@@ -1,14 +1,13 @@
+from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 from rl_coach.architectures.tensorflow_components.heads.dueling_q_head import DuelingQHeadParameters
-from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.base_parameters import VisualizationParameters
+from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.gym_environment import GymEnvironmentParameters
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import LinearSchedule
-
-from rl_coach.agents.ddqn_agent import DDQNAgentParameters
-from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 
 N = 20
 num_output_head_copies = 20

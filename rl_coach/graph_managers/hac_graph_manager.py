@@ -13,16 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import numpy as np
 from typing import List, Union, Tuple
 
-from rl_coach.base_parameters import AgentParameters, VisualizationParameters, TaskParameters, PresetValidationParameters
+from rl_coach.base_parameters import AgentParameters, VisualizationParameters, TaskParameters, \
+    PresetValidationParameters
+from rl_coach.core_types import EnvironmentSteps
 from rl_coach.environments.environment import EnvironmentParameters, Environment
+from rl_coach.graph_managers.graph_manager import GraphManager, ScheduleParameters
 from rl_coach.level_manager import LevelManager
 from rl_coach.utils import short_dynamic_import
-
-from rl_coach.core_types import EnvironmentSteps
-from rl_coach.graph_managers.graph_manager import GraphManager, ScheduleParameters
 
 
 class HACGraphManager(GraphManager):

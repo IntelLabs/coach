@@ -17,10 +17,9 @@ import copy
 from enum import Enum
 from typing import List
 
-from rl_coach.spaces import ObservationSpace, VectorObservationSpace
-
 from rl_coach.core_types import ObservationType
 from rl_coach.filters.observation.observation_filter import ObservationFilter
+from rl_coach.spaces import ObservationSpace, VectorObservationSpace
 
 
 class ObservationReductionBySubPartsNameFilter(ObservationFilter):

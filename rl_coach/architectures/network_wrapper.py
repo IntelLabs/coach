@@ -17,9 +17,8 @@
 from typing import List, Tuple
 
 from rl_coach.base_parameters import Frameworks, AgentParameters
-from rl_coach.spaces import SpacesDefinition
-
 from rl_coach.logger import failed_imports
+from rl_coach.spaces import SpacesDefinition
 
 try:
     import tensorflow as tf

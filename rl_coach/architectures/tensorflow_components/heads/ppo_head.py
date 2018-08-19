@@ -16,13 +16,13 @@
 
 import numpy as np
 import tensorflow as tf
+
+from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters, normalized_columns_initializer
 from rl_coach.base_parameters import AgentParameters
+from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import eps
-
-from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters, normalized_columns_initializer
-from rl_coach.core_types import ActionProbabilities
 
 
 class PPOHeadParameters(HeadParameters):

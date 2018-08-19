@@ -19,8 +19,8 @@ from collections import OrderedDict
 from copy import deepcopy
 from typing import Dict, Union, List
 
-from rl_coach.spaces import ActionSpace, RewardSpace, ObservationSpace
 from rl_coach.core_types import EnvResponse, ActionInfo, Transition
+from rl_coach.spaces import ActionSpace, RewardSpace, ObservationSpace
 from rl_coach.utils import force_list
 
 

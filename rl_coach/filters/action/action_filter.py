@@ -14,10 +14,9 @@
 # limitations under the License.
 #
 
-from rl_coach.spaces import ActionSpace
-
 from rl_coach.core_types import ActionType
 from rl_coach.filters.filter import Filter
+from rl_coach.spaces import ActionSpace
 
 
 class ActionFilter(Filter):

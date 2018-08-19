@@ -18,10 +18,10 @@ import copy
 from collections import deque
 
 import numpy as np
-from rl_coach.spaces import ObservationSpace
 
 from rl_coach.core_types import ObservationType
 from rl_coach.filters.observation.observation_filter import ObservationFilter
+from rl_coach.spaces import ObservationSpace
 
 
 class LazyStack(object):

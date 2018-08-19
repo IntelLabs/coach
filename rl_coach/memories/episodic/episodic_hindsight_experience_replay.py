@@ -21,7 +21,8 @@ from typing import Tuple, List
 import numpy as np
 
 from rl_coach.core_types import Episode, Transition
-from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters, EpisodicExperienceReplay
+from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters, \
+    EpisodicExperienceReplay
 from rl_coach.memories.non_episodic.experience_replay import MemoryGranularity
 from rl_coach.spaces import GoalsSpace
 

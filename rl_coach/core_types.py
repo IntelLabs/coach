@@ -15,12 +15,12 @@
 #
 
 
+import copy
 from enum import Enum
-from typing import List, Union, Dict, Any, Type
 from random import shuffle
+from typing import List, Union, Dict, Any, Type
 
 import numpy as np
-import copy
 
 ActionType = Union[int, float, np.ndarray, List]
 GoalType = Union[None, np.ndarray]

@@ -20,11 +20,11 @@ from enum import Enum
 from typing import List, Tuple, Any
 
 import numpy as np
-from rl_coach.memories.memory import MemoryGranularity
-from rl_coach.schedules import Schedule, ConstantSchedule
 
 from rl_coach.core_types import Transition
+from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters, ExperienceReplay
+from rl_coach.schedules import Schedule, ConstantSchedule
 
 
 class PrioritizedExperienceReplayParameters(ExperienceReplayParameters):

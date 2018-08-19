@@ -19,6 +19,8 @@ from collections import OrderedDict
 from typing import Union
 
 import pygame
+from pandas import to_pickle
+
 from rl_coach.agents.agent import Agent
 from rl_coach.agents.bc_agent import BCNetworkParameters
 from rl_coach.architectures.tensorflow_components.heads.policy_head import PolicyHeadParameters
@@ -26,11 +28,9 @@ from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware impo
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, InputEmbedderParameters, EmbedderScheme, \
     AgentParameters
 from rl_coach.core_types import ActionInfo
-from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
-from pandas import to_pickle
-
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.logger import screen
+from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 
 
 class HumanAlgorithmParameters(AlgorithmParameters):

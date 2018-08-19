@@ -19,12 +19,12 @@ from enum import Enum
 from typing import Union
 
 import numpy as np
-from rl_coach.core_types import Batch, ActionInfo
-from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
-from rl_coach.utils import eps
 
 from rl_coach.agents.agent import Agent
+from rl_coach.core_types import Batch, ActionInfo
 from rl_coach.logger import screen
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
+from rl_coach.utils import eps
 
 
 class PolicyGradientRescaler(Enum):

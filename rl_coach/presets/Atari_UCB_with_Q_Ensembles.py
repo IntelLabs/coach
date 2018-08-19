@@ -1,12 +1,11 @@
 from rl_coach.agents.bootstrapped_dqn_agent import BootstrappedDQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.core_types import EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
 from rl_coach.environments.gym_environment import Atari, atari_deterministic_v4
+from rl_coach.exploration_policies.ucb import UCBParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-
-from rl_coach.core_types import EnvironmentSteps, RunPhase
-from rl_coach.exploration_policies.ucb import UCBParameters
 
 ####################
 # Graph Scheduling #

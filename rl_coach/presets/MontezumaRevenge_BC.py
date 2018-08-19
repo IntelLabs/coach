@@ -1,12 +1,11 @@
+from rl_coach.agents.bc_agent import BCAgentParameters
 from rl_coach.base_parameters import VisualizationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod
 from rl_coach.environments.gym_environment import Atari
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
-
-from rl_coach.agents.bc_agent import BCAgentParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 
 ####################
 # Graph Scheduling #

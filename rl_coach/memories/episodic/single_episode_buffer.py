@@ -14,9 +14,8 @@
 # limitations under the License.
 #
 
-from rl_coach.memories.memory import MemoryGranularity, MemoryParameters
-
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplay
+from rl_coach.memories.memory import MemoryGranularity, MemoryParameters
 
 
 class SingleEpisodeBufferParameters(MemoryParameters):

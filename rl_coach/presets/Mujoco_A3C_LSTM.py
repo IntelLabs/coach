@@ -1,16 +1,16 @@
 from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.lstm_middleware import LSTMMiddlewareParameters
-from rl_coach.base_parameters import VisualizationParameters, InputEmbedderParameters, MiddlewareScheme, PresetValidationParameters
+from rl_coach.base_parameters import VisualizationParameters, InputEmbedderParameters, MiddlewareScheme, \
+    PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
 from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
 from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
+from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 
 ####################
 # Graph Scheduling #

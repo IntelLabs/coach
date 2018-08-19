@@ -19,18 +19,19 @@ from enum import Enum
 from typing import Union
 
 import numpy as np
+
 from rl_coach.agents.agent import Agent
 from rl_coach.architectures.tensorflow_components.architecture import Conv2d, Dense
-from rl_coach.architectures.tensorflow_components.heads.measurements_prediction_head import MeasurementsPredictionHeadParameters
+from rl_coach.architectures.tensorflow_components.heads.measurements_prediction_head import \
+    MeasurementsPredictionHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, NetworkParameters, \
     InputEmbedderParameters, MiddlewareScheme
+from rl_coach.core_types import ActionInfo, EnvironmentSteps, RunPhase
+from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.spaces import SpacesDefinition, VectorObservationSpace
-
-from rl_coach.core_types import ActionInfo, EnvironmentSteps, RunPhase
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 
 
 class HandlingTargetsAfterEpisodeEnd(Enum):

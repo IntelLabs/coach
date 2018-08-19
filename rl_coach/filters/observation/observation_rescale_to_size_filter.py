@@ -19,10 +19,10 @@ from enum import Enum
 
 import numpy as np
 import scipy.ndimage
-from rl_coach.spaces import ObservationSpace, PlanarMapsObservationSpace, ImageObservationSpace
 
 from rl_coach.core_types import ObservationType
 from rl_coach.filters.observation.observation_filter import ObservationFilter
+from rl_coach.spaces import ObservationSpace, PlanarMapsObservationSpace, ImageObservationSpace
 
 
 # imresize interpolation types as defined by scipy here:

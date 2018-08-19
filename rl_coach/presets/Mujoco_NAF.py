@@ -1,12 +1,11 @@
+from rl_coach.agents.naf_agent import NAFAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase, GradientClippingMethod
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
 from rl_coach.environments.gym_environment import Mujoco, mujoco_v2
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-
-from rl_coach.agents.naf_agent import NAFAgentParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase, GradientClippingMethod
 
 ####################
 # Graph Scheduling #

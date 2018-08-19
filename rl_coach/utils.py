@@ -22,11 +22,11 @@ import os
 import signal
 import threading
 import time
+from multiprocessing import Manager
 from subprocess import Popen
 from typing import List, Tuple
 
 import numpy as np
-from multiprocessing import Manager
 
 killed_processes = []
 
