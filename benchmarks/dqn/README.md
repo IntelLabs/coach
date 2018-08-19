@@ -1,7 +1,7 @@
 # DQN
 
 Each experiment uses 3 seeds.
-The parameters used for DQN are the same parameters as described in the [original paper](https://arxiv.org/abs/1607.05077.pdf).
+The parameters used for DQN are the same parameters as described in the [original paper](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf), except for the optimizer (changed to ADAM) and learning rate (1e-4) used.
 
 ### Breakout DQN - single worker
 
