@@ -6,7 +6,7 @@ The parameters used for Bootstrapped DQN are the same parameters as described in
 ### Breakout Bootstrapped DQN - single worker
 
 ```bash
-python3 coach.py -p Atari_Bootstrapped_DQN -lvl breakout
+coach -p Atari_Bootstrapped_DQN -lvl breakout
 ```
 
 <img src="breakout_bootstrapped_dqn.png" alt="Breakout Bootstrapped DQN" width="800"/>
@@ -15,7 +15,7 @@ python3 coach.py -p Atari_Bootstrapped_DQN -lvl breakout
 ### Pong Bootstrapped DQN - single worker
 
 ```bash
-python3 coach.py -p Atari_Bootstrapped_DQN -lvl pong
+coach -p Atari_Bootstrapped_DQN -lvl pong
 ```
 
 <img src="pong_bootstrapped_dqn.png" alt="Pong Bootstrapped DQN" width="800"/>
@@ -24,7 +24,7 @@ python3 coach.py -p Atari_Bootstrapped_DQN -lvl pong
 ### Space Invaders Bootstrapped DQN - single worker
 
 ```bash
-python3 coach.py -p Atari_Bootstrapped_DQN -lvl space_invaders
+coach -p Atari_Bootstrapped_DQN -lvl space_invaders
 ```
 
 <img src="space_invaders_bootstrapped_dqn.png" alt="Space Invaders Bootstrapped DQN" width="800"/>

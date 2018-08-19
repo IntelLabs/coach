@@ -6,7 +6,7 @@ The parameters used for DDPG are the same parameters as described in the [origin
 ### Inverted Pendulum DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl inverted_pendulum
+coach -p Mujoco_DDPG -lvl inverted_pendulum
 ```
 
 <img src="inverted_pendulum_ddpg.png" alt="Inverted Pendulum DDPG" width="800"/>
@@ -15,7 +15,7 @@ python3 coach.py -p Mujoco_DDPG -lvl inverted_pendulum
 ### Inverted Double Pendulum DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl inverted_double_pendulum
+coach -p Mujoco_DDPG -lvl inverted_double_pendulum
 ```
 
 <img src="inverted_double_pendulum_ddpg.png" alt="Inverted Double Pendulum DDPG" width="800"/>
@@ -24,7 +24,7 @@ python3 coach.py -p Mujoco_DDPG -lvl inverted_double_pendulum
 ### Reacher DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl reacher
+coach -p Mujoco_DDPG -lvl reacher
 ```
 
 <img src="reacher_ddpg.png" alt="Reacher DDPG" width="800"/>
@@ -33,7 +33,7 @@ python3 coach.py -p Mujoco_DDPG -lvl reacher
 ### Hopper DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl hopper
+coach -p Mujoco_DDPG -lvl hopper
 ```
 
 <img src="hopper_ddpg.png" alt="Hopper DDPG" width="800"/>
@@ -42,7 +42,7 @@ python3 coach.py -p Mujoco_DDPG -lvl hopper
 ### Half Cheetah DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl half_cheetah
+coach -p Mujoco_DDPG -lvl half_cheetah
 ```
 
 <img src="half_cheetah_ddpg.png" alt="Half Cheetah DDPG" width="800"/>
@@ -51,7 +51,7 @@ python3 coach.py -p Mujoco_DDPG -lvl half_cheetah
 ### Walker 2D DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl walker2d
+coach -p Mujoco_DDPG -lvl walker2d
 ```
 
 <img src="walker2d_ddpg.png" alt="Walker 2D DDPG" width="800"/>
@@ -60,7 +60,7 @@ python3 coach.py -p Mujoco_DDPG -lvl walker2d
 ### Ant DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl ant
+coach -p Mujoco_DDPG -lvl ant
 ```
 
 <img src="ant_ddpg.png" alt="Ant DDPG" width="800"/>
@@ -69,7 +69,7 @@ python3 coach.py -p Mujoco_DDPG -lvl ant
 ### Swimmer DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl swimmer
+coach -p Mujoco_DDPG -lvl swimmer
 ```
 
 <img src="swimmer_ddpg.png" alt="Swimmer DDPG" width="800"/>
@@ -78,7 +78,7 @@ python3 coach.py -p Mujoco_DDPG -lvl swimmer
 ### Humanoid DDPG - single worker
 
 ```bash
-python3 coach.py -p Mujoco_DDPG -lvl humanoid
+coach -p Mujoco_DDPG -lvl humanoid
 ```
 
 <img src="humanoid_ddpg.png" alt="Humanoid DDPG" width="800"/>

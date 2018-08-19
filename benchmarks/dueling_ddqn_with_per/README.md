@@ -6,7 +6,7 @@ The parameters used for Dueling DDQN with PER are the same parameters as describ
 ### Breakout Dueling DDQN with PER - single worker
 
 ```bash
-python3 coach.py -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl breakout
+coach -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl breakout
 ```
 
 <img src="breakout_dueling_ddqn_with_per.png" alt="Breakout Dueling DDQN with PER" width="800"/>
@@ -15,7 +15,7 @@ python3 coach.py -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl breakout
 ### Pong Dueling DDQN with PER - single worker
 
 ```bash
-python3 coach.py -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl pong
+coach -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl pong
 ```
 
 <img src="pong_dueling_ddqn_with_per.png" alt="Pong Dueling DDQN with PER" width="800"/>
@@ -24,7 +24,7 @@ python3 coach.py -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl pong
 ### Space Invaders Dueling DDQN with PER - single worker
 
 ```bash
-python3 coach.py -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl space_invaders
+coach -p Atari_Dueling_DDQN_with_PER_OpenAI -lvl space_invaders
 ```
 
 <img src="space_invaders_dueling_ddqn_with_per.png" alt="Space Invaders Dueling DDQN with PER" width="800"/>

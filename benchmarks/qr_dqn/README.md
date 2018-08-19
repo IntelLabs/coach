@@ -6,7 +6,7 @@ The parameters used for QR-DQN are the same parameters as described in the [orig
 ### Breakout QR-DQN - single worker
 
 ```bash
-python3 coach.py -p Atari_QR_DQN -lvl breakout
+coach -p Atari_QR_DQN -lvl breakout
 ```
 
 <img src="breakout_qr_dqn.png" alt="Breakout QR-DQN" width="800"/>
@@ -15,7 +15,7 @@ python3 coach.py -p Atari_QR_DQN -lvl breakout
 ### Pong QR-DQN - single worker
 
 ```bash
-python3 coach.py -p Atari_QR_DQN -lvl pong
+coach -p Atari_QR_DQN -lvl pong
 ```
 
 <img src="pong_qr_dqn.png" alt="Pong QR-DQN" width="800"/>
