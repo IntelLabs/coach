@@ -426,8 +426,10 @@ class GraphManager(object):
     def save_checkpoint(self):
         # only the chief process saves checkpoints
         if self.task_parameters.save_checkpoint_secs \
-                and time.time() - self.last_checkpoint_saving_time >= self.task_parameters.save_checkpoint_secs\
-                and self.task_parameters.task_index == 0:
+                and time.time() - self.last_checkpoint_saving_time >= self.task_parameters.save_checkpoint_secs \
+                and (self.task_parameters.task_index == 0  # distributed
+                     or self.task_parameters.task_index is None  # single-worker
+                     ):
 
             checkpoint_path = os.path.join(self.task_parameters.save_checkpoint_dir,
                                            "{}_Step-{}.ckpt".format(
