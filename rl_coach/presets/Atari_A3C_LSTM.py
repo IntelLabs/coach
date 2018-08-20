@@ -30,8 +30,6 @@ agent_params.algorithm.beta_entropy = 0.05
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Medium,
                                                                                        number_of_lstm_cells=256)
-agent_params.input_filter = AtariInputFilter()
-agent_params.input_filter.remove_observation_filter('observation', 'stacking')
 agent_params.exploration = CategoricalParameters()
 
 ###############
@@ -48,7 +46,7 @@ vis_params.dump_mp4 = True
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-preset_validation_params.trace_test_levels = ['breakout', 'pong', 'alien']
+preset_validation_params.trace_test_levels = ['breakout', 'pong', 'space_invaders']
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,

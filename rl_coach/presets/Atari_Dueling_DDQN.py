@@ -45,7 +45,7 @@ vis_params.dump_mp4 = False
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-preset_validation_params.trace_test_levels = ['breakout', 'pong', 'alien']
+preset_validation_params.trace_test_levels = ['breakout', 'pong', 'space_invaders']
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,

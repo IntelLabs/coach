@@ -16,6 +16,7 @@
 
 import copy
 from typing import Union
+from collections import OrderedDict
 
 import numpy as np
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
@@ -84,8 +85,8 @@ class DDPGAgentParameters(AgentParameters):
         super().__init__(algorithm=DDPGAlgorithmParameters(),
                          exploration=OUProcessParameters(),
                          memory=EpisodicExperienceReplayParameters(),
-                         networks={"actor": DDPGActorNetworkParameters(),
-                                    "critic": DDPGCriticNetworkParameters()})
+                         networks=OrderedDict([("actor", DDPGActorNetworkParameters()),
+                                               ("critic", DDPGCriticNetworkParameters())]))
 
     @property
     def path(self):

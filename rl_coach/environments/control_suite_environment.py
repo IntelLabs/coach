@@ -75,7 +75,7 @@ class ControlSuiteEnvironment(Environment):
 
         # load and initialize environment
         domain_name, task_name = self.env_id.split(":")
-        self.env = suite.load(domain_name=domain_name, task_name=task_name)
+        self.env = suite.load(domain_name=domain_name, task_name=task_name, task_kwargs={'random': seed})
 
         if observation_type != ObservationType.Measurements:
             self.env = pixels.Wrapper(self.env, pixels_only=observation_type == ObservationType.Image)

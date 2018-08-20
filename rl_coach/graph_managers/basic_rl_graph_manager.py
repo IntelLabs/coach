@@ -46,6 +46,7 @@ class BasicRLGraphManager(GraphManager):
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
         # environment loading
         self.env_params.seed = task_parameters.seed
+        self.env_params.experiment_path = task_parameters.experiment_path
         env = short_dynamic_import(self.env_params.path)(**self.env_params.__dict__,
                                                          visualization_parameters=self.visualization_parameters)
 

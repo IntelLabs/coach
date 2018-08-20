@@ -101,6 +101,7 @@ class EnvironmentParameters(Parameters):
         self.custom_reward_threshold = None
         self.default_input_filter = None
         self.default_output_filter = None
+        self.experiment_path = None
 
     @property
     def path(self):
