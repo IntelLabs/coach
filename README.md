@@ -17,7 +17,7 @@ Training an agent to solve an environment is as easy as running:
 coach -p CartPole_DQN -r
 ```
 
-<img src="img/fetch_slide.gif" alt="Fetch Slide"/> <img src="img/pendulum.gif" alt="Pendulum"/> <img src="img/starcraft.gif" alt="Starcraft"/>
+<img src="img/fetch_slide.gif" alt="Fetch Slide"/> <img src="img/pendulum.gif" alt="Pendulum"/> <img src="img/starcraft.gif" width = "280" height ="200" alt="Starcraft"/>
 <br>
 <img src="img/doom_deathmatch.gif" alt="Doom Deathmatch"/> <img src="img/carla.gif" alt="CARLA"/> <img src="img/montezuma.gif" alt="MontezumaRevenge"/>
 <br>
