@@ -15,8 +15,12 @@ from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = EnvironmentSteps(6250000)
-schedule_params.steps_between_evaluation_periods = EnvironmentSteps(62500)
-schedule_params.evaluation_steps = EnvironmentSteps(6250)
+# original paper evaluates according to these. But, this preset converges significantly faster - can be evaluated
+# much often.
+# schedule_params.steps_between_evaluation_periods = EnvironmentSteps(62500)
+# schedule_params.evaluation_steps = EnvironmentSteps(6250)
+schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(5)
+schedule_params.evaluation_steps = EnvironmentEpisodes(1)
 
 # There is no heatup for DFP. heatup length is determined according to batch size. See below.
 
@@ -30,6 +34,9 @@ agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.exploration.epsilon_schedule = LinearSchedule(0.5, 0, 10000)
 agent_params.exploration.evaluation_epsilon = 0
 agent_params.algorithm.goal_vector = [1]  # health
+
+# this works better than the default which is set to 8 (while running with 8 workers)
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1)
 
 # scale observation and measurements to be -0.5 <-> 0.5
 agent_params.network_wrappers['main'].input_embedders_parameters['measurements'].input_rescaling['vector'] = 100.

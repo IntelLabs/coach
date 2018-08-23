@@ -32,7 +32,7 @@ import time
 from rl_coach.logger import screen
 
 
-def read_csv_paths(test_path, filename_pattern, read_csv_tries=50):
+def read_csv_paths(test_path, filename_pattern, read_csv_tries=100):
     csv_paths = []
     tries_counter = 0
     while not csv_paths:
