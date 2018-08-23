@@ -90,14 +90,14 @@ if __name__ == "__main__":
     gpu_list = force_list(gpu)
     curr_gpu_idx = 0
     for level in levels:
+        if dir_prefix != "":
+            dir_prefix += "_"
         for seed in range(num_seeds):
             # select the next gpu for this run
             set_gpu(gpu_list[curr_gpu_idx])
 
             command = ['python3', 'rl_coach/coach.py', '-ns', '-p', '{}'.format(preset),
                         '--seed', '{}'.format(seed), '-n', '{}'.format(num_workers)]
-            if dir_prefix != "":
-                dir_prefix += "_"
             if args.use_cpu:
                 command.append("-c")
             if args.evaluation_worker:
