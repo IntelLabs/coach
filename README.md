@@ -17,11 +17,11 @@ Training an agent to solve an environment is as easy as running:
 coach -p CartPole_DQN -r
 ```
 
-<img src="img/fetch_slide.gif" alt="Fetch Slide"/> <img src="img/pendulum.gif" alt="Pendulum"/> <img src="img/starcraft.gif" width = "280" height ="200" alt="Starcraft"/>
+<img src="img/fetch_slide.gif" alt="Fetch Slide"/> <img src="img/pendulum.gif" alt="Pendulum"/> <img src="img/starcraft.gif" width = "281" height ="200" alt="Starcraft"/>
 <br>
-<img src="img/doom_deathmatch.gif" alt="Doom Deathmatch"/> <img src="img/carla.gif" alt="CARLA"/> <img src="img/montezuma.gif" alt="MontezumaRevenge"/>
+<img src="img/doom_deathmatch.gif" alt="Doom Deathmatch"/> <img src="img/carla.gif" alt="CARLA"/> <img src="img/montezuma.gif" alt="MontezumaRevenge" width = "164" height ="200"/>
 <br>
-<img src="img/doom_health.gif" alt="Doom Health Gathering"/><img src="img/minitaur.gif" alt="PyBullet Minitaur"/> <img src="img/ant.gif" alt="Gym Extensions Ant"/>
+<img src="img/doom_health.gif" alt="Doom Health Gathering"/> <img src="img/minitaur.gif" alt="PyBullet Minitaur" width = "249" height ="200"/> <img src="img/ant.gif" alt="Gym Extensions Ant"/>
 <br><br>
 
 Blog posts from the Intel® AI website:
@@ -34,6 +34,7 @@ Contacting the Coach development team is also possible through the email [coach@
 
 - [Coach](#coach)
   * [Overview](#overview)
+  * [Benchmarks](#benchmarks)
   * [Documentation](#documentation)
   * [Installation](#installation)
     + [Coach Installer](#coach-installer)
@@ -45,6 +46,10 @@ Contacting the Coach development team is also possible through the email [coach@
   * [Supported Algorithms](#supported-algorithms)
   * [Citation](#citation)
   * [Disclaimer](#disclaimer)
+
+## Benchmarks
+
+One of the main challenges when building a research project, or a solution based on a published algorithm, is getting a concrete and reliable baseline that reproduces the algorithm's results, as reported by its authors. To address this problem, we are releasing a set of [benchmarks](benchmarks) that shows Coach reliably reproduces many state of the art algorithm results.
 
 ## Documentation
 
@@ -285,7 +290,6 @@ dashboard
 * Truncated Normal Noise ([code](rl_coach/exploration_policies/truncated_normal.py))
 * [Bootstrapped Deep Q Network](https://arxiv.org/abs/1602.04621)  ([code](rl_coach/agents/bootstrapped_dqn_agent.py))
 * [UCB Exploration via Q-Ensembles (UCB)](https://arxiv.org/abs/1706.01502) ([code](rl_coach/exploration_policies/ucb.py))
-
 
 ## Citation
 
