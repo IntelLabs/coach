@@ -61,14 +61,6 @@ vis_params = VisualizationParameters()
 vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
 vis_params.dump_mp4 = False
 
-########
-# Test #
-########
-preset_validation_params = PresetValidationParameters()
-preset_validation_params.test = True
-preset_validation_params.min_reward_threshold = 1600
-preset_validation_params.max_episodes_to_achieve_reward = 70
-
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,
                                     preset_validation_params=preset_validation_params)

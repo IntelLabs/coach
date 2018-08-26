@@ -290,7 +290,7 @@ def main():
                         action='store_true')
     parser.add_argument('-tl', '--time_limit',
                         help="time limit for each test in minutes",
-                        default=40,  # setting time limit to be so high due to DDPG being very slow - its tests are long
+                        default=60,  # setting time limit to be so high due to DDPG being very slow - its tests are long
                         type=int)
     parser.add_argument('-np', '--no_progress_bar',
                         help="(flag) Don't print the progress bar (makes jenkins logs more readable)",
