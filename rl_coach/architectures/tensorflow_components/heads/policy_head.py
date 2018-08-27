@@ -17,6 +17,7 @@
 import numpy as np
 import tensorflow as tf
 
+from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer, HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
@@ -27,14 +28,17 @@ from rl_coach.utils import eps
 
 
 class PolicyHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params'):
-        super().__init__(parameterized_class=PolicyHead, activation_function=activation_function, name=name)
+    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params', dense_layer=Dense):
+        super().__init__(parameterized_class=PolicyHead, activation_function=activation_function, name=name,
+                         dense_layer=dense_layer)
 
 
 class PolicyHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh'):
-        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function)
+                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh',
+                 dense_layer=Dense):
+        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
+                         dense_layer=dense_layer)
         self.name = 'policy_values_head'
         self.return_type = ActionProbabilities
         self.beta = None
@@ -90,7 +94,7 @@ class PolicyHead(Head):
         num_actions = len(action_space.actions)
         self.actions.append(tf.placeholder(tf.int32, [None], name="actions"))
 
-        policy_values = tf.layers.dense(input_layer, num_actions, name='fc')
+        policy_values = self.dense_layer(num_actions)(input_layer, name='fc')
         self.policy_probs = tf.nn.softmax(policy_values, name="policy")
 
         # define the distributions for the policy and the old policy
@@ -114,7 +118,7 @@ class PolicyHead(Head):
             self.continuous_output_activation = None
 
         # mean
-        pre_activation_policy_values_mean = tf.layers.dense(input_layer, num_actions, name='fc_mean')
+        pre_activation_policy_values_mean = self.dense_layer(num_actions)(input_layer, name='fc_mean')
         policy_values_mean = self.continuous_output_activation(pre_activation_policy_values_mean)
         self.policy_mean = tf.multiply(policy_values_mean, self.output_scale, name='output_mean')
 
@@ -123,8 +127,9 @@ class PolicyHead(Head):
         # standard deviation
         if isinstance(self.exploration_policy, ContinuousEntropyParameters):
             # the stdev is an output of the network and uses a softplus activation as defined in A3C
-            policy_values_std = tf.layers.dense(input_layer, num_actions,
-                                                kernel_initializer=normalized_columns_initializer(0.01), name='fc_std')
+            policy_values_std = self.dense_layer(num_actions)(input_layer,
+                                                              kernel_initializer=normalized_columns_initializer(0.01),
+                                                              name='fc_std')
             self.policy_std = tf.nn.softplus(policy_values_std, name='output_variance') + eps
 
             self.output.append(self.policy_std)

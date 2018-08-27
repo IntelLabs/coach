@@ -1,9 +1,9 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
-from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, InputEmbedderParameters, \
-    PresetValidationParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
+from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod, SingleLevelSelection
 from rl_coach.environments.gym_environment import Mujoco, MujocoInputFilter, fetch_v1
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters

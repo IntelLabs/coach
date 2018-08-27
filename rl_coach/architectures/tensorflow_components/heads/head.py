@@ -18,8 +18,8 @@ from typing import Type
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.losses.losses_impl import Reduction
-
-from rl_coach.base_parameters import AgentParameters, Parameters
+from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.base_parameters import AgentParameters, Parameters, NetworkComponentParameters
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list
 
@@ -33,9 +33,10 @@ def normalized_columns_initializer(std=1.0):
     return _initializer
 
 
-class HeadParameters(Parameters):
-    def __init__(self, parameterized_class: Type['Head'], activation_function: str = 'relu', name: str= 'head'):
-        super().__init__()
+class HeadParameters(NetworkComponentParameters):
+    def __init__(self, parameterized_class: Type['Head'], activation_function: str = 'relu', name: str= 'head',
+                 dense_layer=Dense):
+        super().__init__(dense_layer=dense_layer)
         self.activation_function = activation_function
         self.name = name
         self.parameterized_class_name = parameterized_class.__name__
@@ -48,7 +49,8 @@ class Head(object):
     an assigned loss function. The heads are algorithm dependent.
     """
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int=0, loss_weight: float=1., is_local: bool=True, activation_function: str='relu'):
+                 head_idx: int=0, loss_weight: float=1., is_local: bool=True, activation_function: str='relu',
+                 dense_layer=Dense):
         self.head_idx = head_idx
         self.network_name = network_name
         self.network_parameters = agent_parameters.network_wrappers[self.network_name]
@@ -66,6 +68,7 @@ class Head(object):
         self.spaces = spaces
         self.return_type = None
         self.activation_function = activation_function
+        self.dense_layer = dense_layer
 
     def __call__(self, input_layer):
         """

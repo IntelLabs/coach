@@ -199,7 +199,7 @@ class NetworkParameters(Parameters):
         self.learning_rate_decay_steps = 0
 
         # structure
-        self.input_embedders_parameters = []
+        self.input_embedders_parameters = {}
         self.embedding_merger_type = EmbeddingMergerType.Concat
         self.middleware_parameters = None
         self.heads_parameters = []
@@ -220,32 +220,9 @@ class NetworkParameters(Parameters):
         self.tensorflow_support = True
 
 
-class InputEmbedderParameters(Parameters):
-    def __init__(self, activation_function: str='relu', scheme: Union[List, EmbedderScheme]=EmbedderScheme.Medium,
-                 batchnorm: bool=False, dropout=False, name: str='embedder', input_rescaling=None, input_offset=None,
-                 input_clipping=None):
-        super().__init__()
-        self.activation_function = activation_function
-        self.scheme = scheme
-        self.batchnorm = batchnorm
-        self.dropout = dropout
-
-        if input_rescaling is None:
-            input_rescaling = {'image': 255.0, 'vector': 1.0}
-        if input_offset is None:
-            input_offset = {'image': 0.0, 'vector': 0.0}
-
-        self.input_rescaling = input_rescaling
-        self.input_offset = input_offset
-        self.input_clipping = input_clipping
-        self.name = name
-
-    @property
-    def path(self):
-        return {
-            "image": 'image_embedder:ImageEmbedder',
-            "vector": 'vector_embedder:VectorEmbedder'
-        }
+class NetworkComponentParameters(Parameters):
+    def __init__(self, dense_layer):
+        self.dense_layer = dense_layer
 
 
 class VisualizationParameters(Parameters):
@@ -287,7 +264,7 @@ class AgentParameters(Parameters):
         self.input_filter = None
         self.output_filter = None
         self.pre_network_filter = NoInputFilter()
-        self.full_name_id = None  # TODO: do we really want to hold this parameters here?
+        self.full_name_id = None  # TODO: do we really want to hold this parameter here?
         self.name = None
         self.is_a_highest_level_agent = True
         self.is_a_lowest_level_agent = True

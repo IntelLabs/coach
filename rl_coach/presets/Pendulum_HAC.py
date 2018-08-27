@@ -2,8 +2,9 @@ import numpy as np
 
 from rl_coach.agents.hac_ddpg_agent import HACDDPGAgentParameters
 from rl_coach.architectures.tensorflow_components.architecture import Dense
-from rl_coach.base_parameters import VisualizationParameters, EmbeddingMergerType, EmbedderScheme, \
-    InputEmbedderParameters
+from rl_coach.base_parameters import VisualizationParameters, EmbeddingMergerType, EmbedderScheme
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, RunPhase, TrainingSteps
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod
 from rl_coach.environments.gym_environment import Mujoco

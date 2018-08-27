@@ -19,9 +19,38 @@ from typing import List, Union
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout
-from rl_coach.base_parameters import EmbedderScheme
+from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
+from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
+
 from rl_coach.core_types import InputEmbedding
+
+
+class InputEmbedderParameters(NetworkComponentParameters):
+    def __init__(self, activation_function: str='relu', scheme: Union[List, EmbedderScheme]=EmbedderScheme.Medium,
+                 batchnorm: bool=False, dropout=False, name: str='embedder', input_rescaling=None, input_offset=None,
+                 input_clipping=None, dense_layer=Dense):
+        super().__init__(dense_layer=dense_layer)
+        self.activation_function = activation_function
+        self.scheme = scheme
+        self.batchnorm = batchnorm
+        self.dropout = dropout
+
+        if input_rescaling is None:
+            input_rescaling = {'image': 255.0, 'vector': 1.0}
+        if input_offset is None:
+            input_offset = {'image': 0.0, 'vector': 0.0}
+
+        self.input_rescaling = input_rescaling
+        self.input_offset = input_offset
+        self.input_clipping = input_clipping
+        self.name = name
+
+    @property
+    def path(self):
+        return {
+            "image": 'image_embedder:ImageEmbedder',
+            "vector": 'vector_embedder:VectorEmbedder'
+        }
 
 
 class InputEmbedder(object):
@@ -32,7 +61,7 @@ class InputEmbedder(object):
     """
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
                  scheme: EmbedderScheme=None, batchnorm: bool=False, dropout: bool=False,
-                 name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None):
+                 name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense):
         self.name = name
         self.input_size = input_size
         self.activation_function = activation_function
@@ -47,6 +76,7 @@ class InputEmbedder(object):
         self.input_rescaling = input_rescaling
         self.input_offset = input_offset
         self.input_clipping = input_clipping
+        self.dense_layer = dense_layer
 
     def __call__(self, prev_input_placeholder=None):
         with tf.variable_scope(self.get_name()):

@@ -18,9 +18,11 @@ from typing import Union
 
 import numpy as np
 
-from rl_coach.agents.dqn_agent import DQNAgentParameters, DQNNetworkParameters
+from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
+from rl_coach.base_parameters import AgentParameters
 from rl_coach.exploration_policies.bootstrapped import BootstrappedParameters
+from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
 
 
 class BootstrappedDQNNetworkParameters(DQNNetworkParameters):
@@ -30,11 +32,12 @@ class BootstrappedDQNNetworkParameters(DQNNetworkParameters):
         self.rescale_gradient_from_head_by_factor = [1.0/self.num_output_head_copies]*self.num_output_head_copies
 
 
-class BootstrappedDQNAgentParameters(DQNAgentParameters):
+class BootstrappedDQNAgentParameters(AgentParameters):
     def __init__(self):
-        super().__init__()
-        self.network_wrappers = {"main": BootstrappedDQNNetworkParameters()}
-        self.exploration = BootstrappedParameters()
+        super().__init__(algorithm=DQNAlgorithmParameters(),
+                         exploration=BootstrappedParameters(),
+                         memory=ExperienceReplayParameters(),
+                         networks={"main": BootstrappedDQNNetworkParameters()})
 
     @property
     def path(self):

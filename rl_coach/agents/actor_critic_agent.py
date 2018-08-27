@@ -24,11 +24,12 @@ from rl_coach.architectures.tensorflow_components.heads.policy_head import Polic
 from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
-    AgentParameters, InputEmbedderParameters
+    AgentParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
 from rl_coach.spaces import DiscreteActionSpace
 from rl_coach.utils import last_sample
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 
 class ActorCriticAlgorithmParameters(AlgorithmParameters):

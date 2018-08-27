@@ -29,36 +29,40 @@ class VectorEmbedder(InputEmbedder):
     An input embedder that is intended for inputs that can be represented as vectors.
     The embedder flattens the input, applies several dense layers to it and returns the output.
     """
-    schemes = {
-        EmbedderScheme.Empty:
-            [],
-
-        EmbedderScheme.Shallow:
-            [
-                Dense([128])
-            ],
-
-        # dqn
-        EmbedderScheme.Medium:
-            [
-                Dense([256])
-            ],
-
-        # carla
-        EmbedderScheme.Deep: \
-            [
-                Dense([128]),
-                Dense([128]),
-                Dense([128])
-            ]
-    }
 
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
                  scheme: EmbedderScheme=EmbedderScheme.Medium, batchnorm: bool=False, dropout: bool=False,
-                 name: str= "embedder", input_rescaling: float=1.0, input_offset:float=0.0, input_clipping=None):
+                 name: str= "embedder", input_rescaling: float=1.0, input_offset:float=0.0, input_clipping=None,
+                 dense_layer=Dense):
         super().__init__(input_size, activation_function, scheme, batchnorm, dropout, name,
-                         input_rescaling, input_offset, input_clipping)
+                         input_rescaling, input_offset, input_clipping, dense_layer=dense_layer)
 
         self.return_type = InputVectorEmbedding
         if len(self.input_size) != 1 and scheme != EmbedderScheme.Empty:
             raise ValueError("The input size of a vector embedder must contain only a single dimension")
+
+    @property
+    def schemes(self):
+        return {
+            EmbedderScheme.Empty:
+                [],
+
+            EmbedderScheme.Shallow:
+                [
+                    self.dense_layer([128])
+                ],
+
+            # dqn
+            EmbedderScheme.Medium:
+                [
+                    self.dense_layer([256])
+                ],
+
+            # carla
+            EmbedderScheme.Deep: \
+                [
+                    self.dense_layer([128]),
+                    self.dense_layer([128]),
+                    self.dense_layer([128])
+                ]
+        }

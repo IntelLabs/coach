@@ -22,11 +22,12 @@ import numpy as np
 
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.agent import Agent
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.architectures.tensorflow_components.heads.ddpg_actor_head import DDPGActorHeadParameters
 from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
-    AgentParameters, InputEmbedderParameters, EmbedderScheme
+    AgentParameters, EmbedderScheme
 from rl_coach.core_types import ActionInfo, EnvironmentSteps
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters

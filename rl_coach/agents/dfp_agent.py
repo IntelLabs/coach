@@ -26,8 +26,9 @@ from rl_coach.architectures.tensorflow_components.heads.measurements_prediction_
     MeasurementsPredictionHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, NetworkParameters, \
-    InputEmbedderParameters, MiddlewareScheme
+     MiddlewareScheme
 from rl_coach.core_types import ActionInfo, EnvironmentSteps, RunPhase
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.memories.memory import MemoryGranularity

@@ -16,6 +16,8 @@
 
 import tensorflow as tf
 
+from rl_coach.architectures.tensorflow_components.architecture import Dense
+
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer, HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
@@ -23,14 +25,17 @@ from rl_coach.spaces import SpacesDefinition
 
 
 class PPOVHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='relu', name: str='ppo_v_head_params'):
-        super().__init__(parameterized_class=PPOVHead, activation_function=activation_function, name=name)
+    def __init__(self, activation_function: str ='relu', name: str='ppo_v_head_params', dense_layer=Dense):
+        super().__init__(parameterized_class=PPOVHead, activation_function=activation_function, name=name,
+                         dense_layer=dense_layer)
 
 
 class PPOVHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu'):
-        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function)
+                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
+                 dense_layer=Dense):
+        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
+                         dense_layer=dense_layer)
         self.name = 'ppo_v_head'
         self.clip_likelihood_ratio_using_epsilon = agent_parameters.algorithm.clip_likelihood_ratio_using_epsilon
         self.return_type = ActionProbabilities
@@ -38,7 +43,7 @@ class PPOVHead(Head):
     def _build_module(self, input_layer):
         self.old_policy_value = tf.placeholder(tf.float32, [None], "old_policy_values")
         self.input = [self.old_policy_value]
-        self.output = tf.layers.dense(input_layer, 1, name='output',
+        self.output = self.dense_layer(1)(input_layer, name='output',
                                             kernel_initializer=normalized_columns_initializer(1.0))
         self.target = self.total_return = tf.placeholder(tf.float32, [None], name="total_return")
 

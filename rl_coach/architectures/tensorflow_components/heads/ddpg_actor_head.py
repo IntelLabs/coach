@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout
+from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
@@ -24,16 +24,19 @@ from rl_coach.spaces import SpacesDefinition
 
 
 class DDPGActorHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params', batchnorm: bool=True):
-        super().__init__(parameterized_class=DDPGActor, activation_function=activation_function, name=name)
+    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params', batchnorm: bool=True,
+                 dense_layer=Dense):
+        super().__init__(parameterized_class=DDPGActor, activation_function=activation_function, name=name,
+                         dense_layer=dense_layer)
         self.batchnorm = batchnorm
 
 
 class DDPGActor(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh',
-                 batchnorm: bool=True):
-        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function)
+                 batchnorm: bool=True, dense_layer=Dense):
+        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
+                         dense_layer=dense_layer)
         self.name = 'ddpg_actor_head'
         self.return_type = ActionProbabilities
 
@@ -50,7 +53,7 @@ class DDPGActor(Head):
 
     def _build_module(self, input_layer):
         # mean
-        pre_activation_policy_values_mean = tf.layers.dense(input_layer, self.num_actions, name='fc_mean')
+        pre_activation_policy_values_mean = self.dense_layer(self.num_actions)(input_layer, name='fc_mean')
         policy_values_mean = batchnorm_activation_dropout(pre_activation_policy_values_mean, self.batchnorm,
                                                           self.activation_function,
                                                           False, 0, 0)[-1]

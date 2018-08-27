@@ -22,7 +22,8 @@ from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.architectures.tensorflow_components.heads.q_head import QHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, AgentParameters, \
-    InputEmbedderParameters, MiddlewareScheme
+    MiddlewareScheme
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import EnvironmentSteps
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters

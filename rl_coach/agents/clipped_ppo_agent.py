@@ -27,7 +27,8 @@ from rl_coach.architectures.tensorflow_components.heads.ppo_head import PPOHeadP
 from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
-    AgentParameters, InputEmbedderParameters
+    AgentParameters
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import EnvironmentSteps, Batch, EnvResponse, StateType
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.logger import screen

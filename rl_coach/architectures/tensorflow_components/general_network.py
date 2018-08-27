@@ -20,10 +20,11 @@ from typing import Dict
 import numpy as np
 import tensorflow as tf
 
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import MiddlewareParameters
-from rl_coach.base_parameters import AgentParameters, InputEmbedderParameters, EmbeddingMergerType
+from rl_coach.base_parameters import AgentParameters, EmbeddingMergerType
 from rl_coach.core_types import PredictionType
 from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params

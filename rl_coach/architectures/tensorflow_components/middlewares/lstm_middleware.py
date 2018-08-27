@@ -18,7 +18,7 @@
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout
+from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_LSTM_Embedding
@@ -28,43 +28,19 @@ class LSTMMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu', number_of_lstm_cells=256,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_lstm_embedder"):
+                 name="middleware_lstm_embedder", dense_layer=Dense):
         super().__init__(parameterized_class=LSTMMiddleware, activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name)
+                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer)
         self.number_of_lstm_cells = number_of_lstm_cells
 
 
 class LSTMMiddleware(Middleware):
-    schemes = {
-        MiddlewareScheme.Empty:
-            [],
-
-        # ppo
-        MiddlewareScheme.Shallow:
-            [
-                [64]
-            ],
-
-        # dqn
-        MiddlewareScheme.Medium:
-            [
-                [512]
-            ],
-
-        MiddlewareScheme.Deep: \
-            [
-                [128],
-                [128],
-                [128]
-            ]
-    }
-
     def __init__(self, activation_function=tf.nn.relu, number_of_lstm_cells: int=256,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_lstm_embedder"):
+                 name="middleware_lstm_embedder", dense_layer=Dense):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
-                         dropout=dropout, scheme=scheme, name=name)
+                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer)
         self.return_type = Middleware_LSTM_Embedding
         self.number_of_lstm_cells = number_of_lstm_cells
         self.layers = []
@@ -83,7 +59,7 @@ class LSTMMiddleware(Middleware):
 
         # optionally insert some dense layers before the LSTM
         if isinstance(self.scheme, MiddlewareScheme):
-            layers_params = LSTMMiddleware.schemes[self.scheme]
+            layers_params = self.schemes[self.scheme]
         else:
             layers_params = self.scheme
         for idx, layer_params in enumerate(layers_params):
@@ -111,3 +87,30 @@ class LSTMMiddleware(Middleware):
         lstm_c, lstm_h = lstm_state
         self.state_out = (lstm_c[:1, :], lstm_h[:1, :])
         self.output = tf.reshape(lstm_outputs, [-1, self.number_of_lstm_cells])
+
+    @property
+    def schemes(self):
+        return {
+            MiddlewareScheme.Empty:
+                [],
+
+            # ppo
+            MiddlewareScheme.Shallow:
+                [
+                    [64]
+                ],
+
+            # dqn
+            MiddlewareScheme.Medium:
+                [
+                    [512]
+                ],
+
+            MiddlewareScheme.Deep: \
+                [
+                    [128],
+                    [128],
+                    [128]
+                ]
+        }
+

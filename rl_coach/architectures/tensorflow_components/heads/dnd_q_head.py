@@ -15,6 +15,7 @@
 #
 import tensorflow as tf
 
+from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters
 from rl_coach.architectures.tensorflow_components.heads.q_head import QHead
 from rl_coach.base_parameters import AgentParameters
@@ -23,14 +24,17 @@ from rl_coach.spaces import SpacesDefinition
 
 
 class DNDQHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='relu', name: str='dnd_q_head_params'):
-        super().__init__(parameterized_class=DNDQHead, activation_function=activation_function, name=name)
+    def __init__(self, activation_function: str ='relu', name: str='dnd_q_head_params', dense_layer=Dense):
+        super().__init__(parameterized_class=DNDQHead, activation_function=activation_function, name=name,
+                         dense_layer=dense_layer)
 
 
 class DNDQHead(QHead):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu'):
-        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function)
+                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
+                 dense_layer=Dense):
+        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
+                         dense_layer=dense_layer)
         self.name = 'dnd_q_values_head'
         self.DND_size = agent_parameters.algorithm.dnd_size
         self.DND_key_error_threshold = agent_parameters.algorithm.DND_key_error_threshold

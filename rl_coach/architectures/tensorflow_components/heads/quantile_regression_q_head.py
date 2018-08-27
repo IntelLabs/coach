@@ -16,6 +16,8 @@
 
 import tensorflow as tf
 
+from rl_coach.architectures.tensorflow_components.architecture import Dense
+
 from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
@@ -23,15 +25,18 @@ from rl_coach.spaces import SpacesDefinition
 
 
 class QuantileRegressionQHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='relu', name: str='quantile_regression_q_head_params'):
+    def __init__(self, activation_function: str ='relu', name: str='quantile_regression_q_head_params',
+                 dense_layer=Dense):
         super().__init__(parameterized_class=QuantileRegressionQHead, activation_function=activation_function,
-                         name=name)
+                         name=name, dense_layer=dense_layer)
 
 
 class QuantileRegressionQHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu'):
-        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function)
+                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
+                 dense_layer=Dense):
+        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
+                         dense_layer=dense_layer)
         self.name = 'quantile_regression_dqn_head'
         self.num_actions = len(self.spaces.action.actions)
         self.num_atoms = agent_parameters.algorithm.atoms  # we use atom / quantile interchangeably
@@ -44,7 +49,7 @@ class QuantileRegressionQHead(Head):
         self.input = [self.actions, self.quantile_midpoints]
 
         # the output of the head is the N unordered quantile locations {theta_1, ..., theta_N}
-        quantiles_locations = tf.layers.dense(input_layer, self.num_actions * self.num_atoms, name='output')
+        quantiles_locations = self.dense_layer(self.num_actions * self.num_atoms)(input_layer, name='output')
         quantiles_locations = tf.reshape(quantiles_locations, (tf.shape(quantiles_locations)[0], self.num_actions, self.num_atoms))
         self.output = quantiles_locations
 

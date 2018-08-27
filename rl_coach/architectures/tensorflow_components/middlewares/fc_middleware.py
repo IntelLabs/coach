@@ -27,42 +27,18 @@ class FCMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu',
                  scheme: Union[List, MiddlewareScheme] = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_fc_embedder"):
+                 name="middleware_fc_embedder", dense_layer=Dense):
         super().__init__(parameterized_class=FCMiddleware, activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name)
+                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer)
 
 
 class FCMiddleware(Middleware):
-    schemes = {
-        MiddlewareScheme.Empty:
-            [],
-
-        # ppo
-        MiddlewareScheme.Shallow:
-            [
-                Dense([64])
-            ],
-
-        # dqn
-        MiddlewareScheme.Medium:
-            [
-                Dense([512])
-            ],
-
-        MiddlewareScheme.Deep: \
-            [
-                Dense([128]),
-                Dense([128]),
-                Dense([128])
-            ]
-    }
-
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_fc_embedder"):
+                 name="middleware_fc_embedder", dense_layer=Dense):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
-                         dropout=dropout, scheme=scheme, name=name)
+                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer)
         self.return_type = Middleware_FC_Embedding
         self.layers = []
 
@@ -70,7 +46,7 @@ class FCMiddleware(Middleware):
         self.layers.append(self.input)
 
         if isinstance(self.scheme, MiddlewareScheme):
-            layers_params = FCMiddleware.schemes[self.scheme]
+            layers_params = self.schemes[self.scheme]
         else:
             layers_params = self.scheme
         for idx, layer_params in enumerate(layers_params):
@@ -83,4 +59,30 @@ class FCMiddleware(Middleware):
                                                             self.dropout_rate, idx))
 
         self.output = self.layers[-1]
+
+    @property
+    def schemes(self):
+        return {
+            MiddlewareScheme.Empty:
+                [],
+
+            # ppo
+            MiddlewareScheme.Shallow:
+                [
+                    self.dense_layer([64])
+                ],
+
+            # dqn
+            MiddlewareScheme.Medium:
+                [
+                    self.dense_layer([512])
+                ],
+
+            MiddlewareScheme.Deep: \
+                [
+                    self.dense_layer([128]),
+                    self.dense_layer([128]),
+                    self.dense_layer([128])
+                ]
+        }
 

@@ -17,6 +17,7 @@
 import numpy as np
 import tensorflow as tf
 
+from rl_coach.architectures.tensorflow_components.architecture import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters, normalized_columns_initializer
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
@@ -26,14 +27,17 @@ from rl_coach.utils import eps
 
 
 class PPOHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='tanh', name: str='ppo_head_params'):
-        super().__init__(parameterized_class=PPOHead, activation_function=activation_function, name=name)
+    def __init__(self, activation_function: str ='tanh', name: str='ppo_head_params', dense_layer=Dense):
+        super().__init__(parameterized_class=PPOHead, activation_function=activation_function, name=name,
+                         dense_layer=dense_layer)
 
 
 class PPOHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh'):
-        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function)
+                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh',
+                 dense_layer=Dense):
+        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
+                         dense_layer=dense_layer)
         self.name = 'ppo_head'
         self.return_type = ActionProbabilities
 
@@ -110,7 +114,7 @@ class PPOHead(Head):
 
         # Policy Head
         self.input = [self.actions, self.old_policy_mean]
-        policy_values = tf.layers.dense(input_layer, num_actions, name='policy_fc')
+        policy_values = self.dense_layer(num_actions)(input_layer, name='policy_fc')
         self.policy_mean = tf.nn.softmax(policy_values, name="policy")
 
         # define the distributions for the policy and the old policy
@@ -127,7 +131,7 @@ class PPOHead(Head):
         self.old_policy_std = tf.placeholder(tf.float32, [None, num_actions], "old_policy_std")
 
         self.input = [self.actions, self.old_policy_mean, self.old_policy_std]
-        self.policy_mean = tf.layers.dense(input_layer, num_actions, name='policy_mean',
+        self.policy_mean = self.dense_layer(num_actions)(input_layer, name='policy_mean',
                                            kernel_initializer=normalized_columns_initializer(0.01))
         if self.is_local:
             self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32',

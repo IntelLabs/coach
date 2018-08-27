@@ -1,7 +1,7 @@
 from rl_coach.agents.dfp_agent import DFPAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, MiddlewareScheme, \
     PresetValidationParameters
-from rl_coach.core_types import EnvironmentSteps, RunPhase
+from rl_coach.core_types import EnvironmentSteps, RunPhase, EnvironmentEpisodes
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager

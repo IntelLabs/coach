@@ -18,6 +18,7 @@ import random
 import sys
 from os import path, environ
 
+from rl_coach.filters.action.partial_discrete_action_space_map import PartialDiscreteActionSpaceMap
 from rl_coach.filters.observation.observation_rgb_to_y_filter import ObservationRGBToYFilter
 from rl_coach.filters.observation.observation_to_uint8_filter import ObservationToUInt8Filter
 
@@ -208,7 +209,6 @@ class CarlaEnvironment(Environment):
                                 [self.gas_strength, self.steering_strength],
                                 [self.brake_strength, -self.steering_strength],
                                 [self.brake_strength, self.steering_strength]],
-                target_action_space=self.action_space,
                 descriptions=['NO-OP', 'TURN_LEFT', 'TURN_RIGHT', 'GAS', 'BRAKE',
                               'GAS_AND_TURN_LEFT', 'GAS_AND_TURN_RIGHT',
                               'BRAKE_AND_TURN_LEFT', 'BRAKE_AND_TURN_RIGHT']

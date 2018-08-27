@@ -18,7 +18,7 @@ from typing import Union
 
 import numpy as np
 
-from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters
+from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters, DQNAgentParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.architectures.tensorflow_components.heads.categorical_q_head import CategoricalQHeadParameters
 from rl_coach.base_parameters import AgentParameters
@@ -49,12 +49,12 @@ class CategoricalDQNExplorationParameters(EGreedyParameters):
         self.evaluation_epsilon = 0.001
 
 
-class CategoricalDQNAgentParameters(AgentParameters):
+class CategoricalDQNAgentParameters(DQNAgentParameters):
     def __init__(self):
-        super().__init__(algorithm=CategoricalDQNAlgorithmParameters(),
-                         exploration=CategoricalDQNExplorationParameters(),
-                         memory=ExperienceReplayParameters(),
-                         networks={"main": CategoricalDQNNetworkParameters()})
+        super().__init__()
+        self.algorithm = CategoricalDQNAlgorithmParameters()
+        self.exploration = CategoricalDQNExplorationParameters()
+        self.network_wrappers = {"main": CategoricalDQNNetworkParameters()}
 
     @property
     def path(self):

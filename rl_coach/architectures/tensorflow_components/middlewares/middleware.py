@@ -17,16 +17,16 @@ from typing import Type, Union, List
 
 import tensorflow as tf
 
-from rl_coach.base_parameters import MiddlewareScheme, Parameters
+from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.base_parameters import MiddlewareScheme, Parameters, NetworkComponentParameters
 from rl_coach.core_types import MiddlewareEmbedding
 
 
-class MiddlewareParameters(Parameters):
+class MiddlewareParameters(NetworkComponentParameters):
     def __init__(self, parameterized_class: Type['Middleware'],
                  activation_function: str='relu', scheme: Union[List, MiddlewareScheme]=MiddlewareScheme.Medium,
-                 batchnorm: bool=False, dropout: bool=False,
-                 name='middleware'):
-        super().__init__()
+                 batchnorm: bool=False, dropout: bool=False, name='middleware', dense_layer=Dense):
+        super().__init__(dense_layer=dense_layer)
         self.activation_function = activation_function
         self.scheme = scheme
         self.batchnorm = batchnorm
@@ -43,7 +43,7 @@ class Middleware(object):
     """
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False, name="middleware_embedder"):
+                 batchnorm: bool = False, dropout: bool = False, name="middleware_embedder", dense_layer=Dense):
         self.name = name
         self.input = None
         self.output = None
@@ -53,6 +53,7 @@ class Middleware(object):
         self.dropout_rate = 0
         self.scheme = scheme
         self.return_type = MiddlewareEmbedding
+        self.dense_layer = dense_layer
 
     def __call__(self, input_layer):
         with tf.variable_scope(self.get_name()):
@@ -66,3 +67,8 @@ class Middleware(object):
 
     def get_name(self):
         return self.name
+
+    @property
+    def schemes(self):
+        raise NotImplementedError("Inheriting middleware must define schemes matching its allowed default "
+                                  "configurations.")
