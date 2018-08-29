@@ -118,6 +118,9 @@ def parse_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
             args.preset = "{}.py:graph_manager".format(os.path.join(get_base_dir(), 'presets', args.preset))
         else:
             args.preset = "{}".format(args.preset)
+            # if a graph manager variable was not specified, try the default of :graph_manager
+            if len(args.preset.split(":")) == 1:
+                args.preset += ":graph_manager"
 
         # verify that the preset exists
         preset_path = args.preset.split(":")[0]

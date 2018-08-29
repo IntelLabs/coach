@@ -29,7 +29,7 @@ class EpisodicHRLHindsightExperienceReplayParameters(EpisodicHindsightExperience
 
     @property
     def path(self):
-        return 'memories.episodic.episodic_hrl_hindsight_experience_replay:EpisodicHRLHindsightExperienceReplay'
+        return 'rl_coach.memories.episodic.episodic_hrl_hindsight_experience_replay:EpisodicHRLHindsightExperienceReplay'
 
 
 class EpisodicHRLHindsightExperienceReplay(EpisodicHindsightExperienceReplay):

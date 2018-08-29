@@ -59,7 +59,7 @@ class SingleLevelSelection(LevelSelection):
         if self.selected_level is None:
             logger.screen.error("No level has been selected. Please select a level using the -lvl command line flag, "
                                 "or change the level in the preset. \nThe available levels are: \n{}"
-                                .format(', '.join(self.levels.keys())), crash=True)
+                                .format(', '.join(sorted(self.levels.keys()))), crash=True)
         if self.selected_level not in self.levels.keys():
             logger.screen.error("The selected level ({}) is not part of the available levels ({})"
                                 .format(self.selected_level, ', '.join(self.levels.keys())), crash=True)
