@@ -15,7 +15,7 @@ schedule_params = ScheduleParameters()
 schedule_params.improve_steps = EnvironmentSteps(50000000)
 schedule_params.steps_between_evaluation_periods = EnvironmentSteps(250000)
 schedule_params.evaluation_steps = EnvironmentSteps(135000)
-schedule_params.heatup_steps = EnvironmentSteps(500)
+schedule_params.heatup_steps = EnvironmentSteps(50000)
 
 #########
 # Agent #

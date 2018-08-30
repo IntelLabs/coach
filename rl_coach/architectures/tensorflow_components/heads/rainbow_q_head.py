@@ -43,12 +43,14 @@ class RainbowQHead(Head):
     def _build_module(self, input_layer):
         # state value tower - V
         with tf.variable_scope("state_value"):
-            state_value = self.dense_layer(self.num_atoms)(input_layer, name='fc1')
+            state_value = self.dense_layer(512)(input_layer, activation=self.activation_function, name='fc1')
+            state_value = self.dense_layer(self.num_atoms)(state_value, name='fc2')
             state_value = tf.expand_dims(state_value, axis=1)
 
         # action advantage tower - A
         with tf.variable_scope("action_advantage"):
-            action_advantage = self.dense_layer(self.num_actions * self.num_atoms)(input_layer, name='fc1')
+            action_advantage = self.dense_layer(512)(input_layer, activation=self.activation_function, name='fc1')
+            action_advantage = self.dense_layer(self.num_actions * self.num_atoms)(action_advantage, name='fc2')
             action_advantage = tf.reshape(action_advantage, (tf.shape(input_layer)[0], self.num_actions,
                                                              self.num_atoms))
             action_mean = tf.reduce_mean(action_advantage, axis=1, keepdims=True)
