@@ -17,34 +17,46 @@
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.architecture import Dense
-
-from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters
+from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters, Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition
 
 
-class CategoricalQHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='relu', name: str='categorical_q_head_params', dense_layer=Dense):
-        super().__init__(parameterized_class=CategoricalQHead, activation_function=activation_function, name=name,
+class RainbowQHeadParameters(HeadParameters):
+    def __init__(self, activation_function: str ='relu', name: str='rainbow_q_head_params', dense_layer=Dense):
+        super().__init__(parameterized_class=RainbowQHead, activation_function=activation_function, name=name,
                          dense_layer=dense_layer)
 
 
-class CategoricalQHead(Head):
+class RainbowQHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str ='relu',
+                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
                  dense_layer=Dense):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
                          dense_layer=dense_layer)
-        self.name = 'categorical_dqn_head'
         self.num_actions = len(self.spaces.action.actions)
         self.num_atoms = agent_parameters.algorithm.atoms
         self.return_type = QActionStateValue
+        self.name = 'rainbow_q_values_head'
 
     def _build_module(self, input_layer):
-        values_distribution = self.dense_layer(self.num_actions * self.num_atoms)(input_layer, name='output')
-        values_distribution = tf.reshape(values_distribution, (tf.shape(values_distribution)[0], self.num_actions,
-                                                               self.num_atoms))
+        # state value tower - V
+        with tf.variable_scope("state_value"):
+            state_value = self.dense_layer(self.num_atoms)(input_layer, name='fc1')
+            state_value = tf.expand_dims(state_value, axis=1)
+
+        # action advantage tower - A
+        with tf.variable_scope("action_advantage"):
+            action_advantage = self.dense_layer(self.num_actions * self.num_atoms)(input_layer, name='fc1')
+            action_advantage = tf.reshape(action_advantage, (tf.shape(input_layer)[0], self.num_actions,
+                                                             self.num_atoms))
+            action_mean = tf.reduce_mean(action_advantage, axis=1, keepdims=True)
+            action_advantage = action_advantage - action_mean
+
+        # merge to state-action value function Q
+        values_distribution = tf.add(state_value, action_advantage, name='output')
+
         # softmax on atoms dimension
         self.output = tf.nn.softmax(values_distribution)
 
@@ -54,3 +66,4 @@ class CategoricalQHead(Head):
         self.target = self.distributions
         self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.target, logits=values_distribution)
         tf.losses.add_loss(self.loss)
+

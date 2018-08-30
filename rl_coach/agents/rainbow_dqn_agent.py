@@ -18,25 +18,20 @@ from typing import Union
 
 import numpy as np
 
-from rl_coach.agents.categorical_dqn_agent import CategoricalDQNNetworkParameters, CategoricalDQNAlgorithmParameters, \
+from rl_coach.agents.categorical_dqn_agent import CategoricalDQNAlgorithmParameters, \
     CategoricalDQNAgent, CategoricalDQNAgentParameters
-from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters
-from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.categorical_q_head import CategoricalQHeadParameters
-from rl_coach.base_parameters import AgentParameters
+from rl_coach.agents.dqn_agent import DQNNetworkParameters
+from rl_coach.architectures.tensorflow_components.heads.rainbow_q_head import RainbowQHeadParameters
+
 from rl_coach.exploration_policies.parameter_noise import ParameterNoiseParameters
-from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplayParameters, \
     PrioritizedExperienceReplay
-from rl_coach.schedules import LinearSchedule
-
-from rl_coach.core_types import StateType
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 
 
-class RainbowDQNNetworkParameters(CategoricalDQNNetworkParameters):
+class RainbowDQNNetworkParameters(DQNNetworkParameters):
     def __init__(self):
         super().__init__()
+        self.heads_parameters = [RainbowQHeadParameters()]
 
 
 class RainbowDQNAlgorithmParameters(CategoricalDQNAlgorithmParameters):
@@ -68,10 +63,11 @@ class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
 # 2. C51
 # 3. Prioritized ER
 # 4. DDQN
+# 5. Dueling DQN
 #
 # still missing:
 # 1. N-Step
-# 2. Dueling DQN
+
 class RainbowDQNAgent(CategoricalDQNAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
