@@ -27,6 +27,7 @@ coach -p CartPole_DQN -r
 Blog posts from the Intel® AI website:
 * [Release 0.8.0](https://ai.intel.com/reinforcement-learning-coach-intel/) (initial release)
 * [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/)
+* [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/) (current release)
 
 Contacting the Coach development team is also possible through the email [coach@intel.com](coach@intel.com)
 
