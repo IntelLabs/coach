@@ -38,8 +38,6 @@ Contacting the Coach development team is also possible through the email [coach@
   * [Benchmarks](#benchmarks)
   * [Documentation](#documentation)
   * [Installation](#installation)
-    + [Coach Installer](#coach-installer)
-    + [TensorFlow GPU Support](#tensorflow-gpu-support)
   * [Usage](#usage)
     + [Running Coach](#running-coach)
     + [Running Coach Dashboard (Visualization)](#running-coach-dashboard-visualization)
