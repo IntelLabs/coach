@@ -22,7 +22,8 @@ from rl_coach.agents.categorical_dqn_agent import CategoricalDQNAlgorithmParamet
     CategoricalDQNAgent, CategoricalDQNAgentParameters
 from rl_coach.agents.dqn_agent import DQNNetworkParameters
 from rl_coach.architectures.tensorflow_components.heads.rainbow_q_head import RainbowQHeadParameters
-
+from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.exploration_policies.parameter_noise import ParameterNoiseParameters
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplayParameters, \
     PrioritizedExperienceReplay
@@ -32,6 +33,7 @@ class RainbowDQNNetworkParameters(DQNNetworkParameters):
     def __init__(self):
         super().__init__()
         self.heads_parameters = [RainbowQHeadParameters()]
+        self.middleware_parameters = FCMiddlewareParameters(scheme=MiddlewareScheme.Empty)
 
 
 class RainbowDQNAlgorithmParameters(CategoricalDQNAlgorithmParameters):
@@ -42,6 +44,11 @@ class RainbowDQNAlgorithmParameters(CategoricalDQNAlgorithmParameters):
 class RainbowDQNExplorationParameters(ParameterNoiseParameters):
     def __init__(self, agent_params):
         super().__init__(agent_params)
+
+
+class RainbowDQNMemoryParameters(PrioritizedExperienceReplayParameters):
+    def __init__(self):
+        super().__init__()
 
 
 class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
@@ -58,8 +65,8 @@ class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
 
 
 # Rainbow Deep Q Network - https://arxiv.org/abs/1710.02298
-# Agent implementation is WIP. Currently has:
-# 1. DQN
+# Agent implementation is WIP. Currently is composed of:
+# 1. NoisyNets
 # 2. C51
 # 3. Prioritized ER
 # 4. DDQN
