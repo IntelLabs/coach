@@ -18,70 +18,69 @@ from typing import Union
 
 import numpy as np
 
-from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters, DQNAgentParameters
+from rl_coach.agents.categorical_dqn_agent import CategoricalDQNNetworkParameters, CategoricalDQNAlgorithmParameters, \
+    CategoricalDQNAgent, CategoricalDQNAgentParameters
+from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.architectures.tensorflow_components.heads.categorical_q_head import CategoricalQHeadParameters
 from rl_coach.base_parameters import AgentParameters
-from rl_coach.core_types import StateType
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
+from rl_coach.exploration_policies.parameter_noise import ParameterNoiseParameters
 from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
-from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplay
+from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplayParameters, \
+    PrioritizedExperienceReplay
 from rl_coach.schedules import LinearSchedule
 
+from rl_coach.core_types import StateType
+from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 
-class CategoricalDQNNetworkParameters(DQNNetworkParameters):
+
+class RainbowDQNNetworkParameters(CategoricalDQNNetworkParameters):
     def __init__(self):
         super().__init__()
-        self.heads_parameters = [CategoricalQHeadParameters()]
 
 
-class CategoricalDQNAlgorithmParameters(DQNAlgorithmParameters):
+class RainbowDQNAlgorithmParameters(CategoricalDQNAlgorithmParameters):
     def __init__(self):
         super().__init__()
-        self.v_min = -10.0
-        self.v_max = 10.0
-        self.atoms = 51
 
 
-class CategoricalDQNExplorationParameters(EGreedyParameters):
+class RainbowDQNExplorationParameters(ParameterNoiseParameters):
+    def __init__(self, agent_params):
+        super().__init__(agent_params)
+
+
+class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
     def __init__(self):
         super().__init__()
-        self.epsilon_schedule = LinearSchedule(1, 0.01, 1000000)
-        self.evaluation_epsilon = 0.001
-
-
-class CategoricalDQNAgentParameters(DQNAgentParameters):
-    def __init__(self):
-        super().__init__()
-        self.algorithm = CategoricalDQNAlgorithmParameters()
-        self.exploration = CategoricalDQNExplorationParameters()
-        self.network_wrappers = {"main": CategoricalDQNNetworkParameters()}
+        self.algorithm = RainbowDQNAlgorithmParameters()
+        self.exploration = RainbowDQNExplorationParameters(self)
+        self.memory = PrioritizedExperienceReplayParameters()
+        self.network_wrappers = {"main": RainbowDQNNetworkParameters()}
 
     @property
     def path(self):
-        return 'rl_coach.agents.categorical_dqn_agent:CategoricalDQNAgent'
+        return 'rl_coach.agents.rainbow_dqn_agent:RainbowDQNAgent'
 
 
-# Categorical Deep Q Network - https://arxiv.org/pdf/1707.06887.pdf
-class CategoricalDQNAgent(ValueOptimizationAgent):
+# Rainbow Deep Q Network - https://arxiv.org/abs/1710.02298
+# Agent implementation is WIP. Currently has:
+# 1. DQN
+# 2. C51
+# 3. Prioritized ER
+# 4. DDQN
+#
+# still missing:
+# 1. N-Step
+# 2. Dueling DQN
+class RainbowDQNAgent(CategoricalDQNAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
-        self.z_values = np.linspace(self.ap.algorithm.v_min, self.ap.algorithm.v_max, self.ap.algorithm.atoms)
-
-    def distribution_prediction_to_q_values(self, prediction):
-        return np.dot(prediction, self.z_values)
-
-    # prediction's format is (batch,actions,atoms)
-    def get_all_q_values_for_states(self, states: StateType):
-        if self.exploration_policy.requires_action_values():
-            prediction = self.get_prediction(states)
-            q_values = self.distribution_prediction_to_q_values(prediction)
-        else:
-            q_values = None
-        return q_values
 
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+
+        ddqn_selected_actions = np.argmax(self.distribution_prediction_to_q_values(
+            self.networks['main'].online_network.predict(batch.next_states(network_keys))), axis=1)
 
         # for the action we actually took, the error is calculated by the atoms distribution
         # for all other actions, the error is 0
@@ -90,8 +89,8 @@ class CategoricalDQNAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
-        # only update the action that we have actually done in this transition
-        target_actions = np.argmax(self.distribution_prediction_to_q_values(distributed_q_st_plus_1), axis=1)
+        # only update the action that we have actually done in this transition (using the Double-DQN selected actions)
+        target_actions = ddqn_selected_actions
         m = np.zeros((self.ap.network_wrappers['main'].batch_size, self.z_values.size))
 
         batches = np.arange(self.ap.network_wrappers['main'].batch_size)
