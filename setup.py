@@ -75,7 +75,7 @@ setup(
     author='Intel AI Lab',
     author_email='coach@intel.com',
     packages=find_packages(),
-    python_requires="==3.5.*",
+    python_requires=">=3.5.*",
     install_requires=install_requires,
     package_data={'rl_coach': ['dashboard_components/*.css',
                                'environments/doom/*.cfg',
