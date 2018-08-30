@@ -1,7 +1,7 @@
 # A3C
 
 Each experiment uses 3 seeds.
-The parameters used for Clipped PPO are the same parameters as described in the [original paper](https://arxiv.org/abs/1707.06347).
+The parameters used for A3C are the same parameters as described in the [original paper](https://arxiv.org/abs/1602.01783).
 
 ### Inverted Pendulum A3C - 1/2/4/8/16 workers
 
