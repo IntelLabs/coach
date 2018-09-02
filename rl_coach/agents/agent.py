@@ -431,8 +431,13 @@ class Agent(AgentInterface):
         if self.phase != RunPhase.TEST or self.ap.task_parameters.evaluate_only:
             self.current_episode += 1
 
-        if self.phase != RunPhase.TEST and isinstance(self.memory, EpisodicExperienceReplay):
-            self.call_memory('store_episode', self.current_episode_buffer)
+        if self.phase != RunPhase.TEST:
+            if isinstance(self.memory, EpisodicExperienceReplay):
+                self.call_memory('store_episode', self.current_episode_buffer)
+            elif self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
+                self.current_episode_buffer.update_returns()
+                for transition in self.current_episode_buffer.transitions:
+                    self.call_memory('store', transition)
 
         if self.phase == RunPhase.TEST:
             self.accumulated_rewards_across_evaluation_episodes += self.total_reward_in_current_episode
@@ -728,9 +733,9 @@ class Agent(AgentInterface):
             if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
                 # for episodic memories we keep the transitions in a local buffer until the episode is ended.
                 # for regular memories we insert the transitions directly to the memory
-                if isinstance(self.memory, EpisodicExperienceReplay):
-                    self.current_episode_buffer.insert(transition)
-                else:
+                self.current_episode_buffer.insert(transition)
+                if not isinstance(self.memory, EpisodicExperienceReplay) \
+                        and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
                     self.call_memory('store', transition)
 
             if self.ap.visualization.dump_in_episode_signals:

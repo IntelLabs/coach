@@ -141,6 +141,7 @@ class AlgorithmParameters(Parameters):
         self.rate_for_copying_weights_to_target = 1.0
         self.load_memory_from_file_path = None
         self.collect_new_data = True
+        self.store_transitions_only_when_episodes_are_terminated = False
 
         # HRL / HER related params
         self.in_action_space = None

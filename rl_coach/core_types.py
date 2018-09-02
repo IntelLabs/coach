@@ -621,6 +621,8 @@ class Episode(object):
     def insert(self, transition):
         self.transitions.append(transition)
         self._length += 1
+        if transition.game_over:
+            self.is_complete = True
 
     def is_empty(self):
         return self.length() == 0
