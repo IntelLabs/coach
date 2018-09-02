@@ -687,3 +687,6 @@ class Episode(object):
         for i in range(self.length()):
             batch.append(self.get_transition(i))
         return batch
+
+    def __getitem__(self, sliced):
+        return self.transitions[sliced]
