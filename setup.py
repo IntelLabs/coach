@@ -58,12 +58,14 @@ out = p.communicate()[0].decode('UTF-8')
 using_GPU = out != ''
 
 if not using_GPU:
-    subprocess.check_call(['pip install '
-                           'https://anaconda.org/intel/tensorflow/1.6.0/download/tensorflow-1.6.0-cp35-cp35m-linux_x86_64.whl'],
-                          shell=True)
-    install_requires.append('tensorflow==1.6.0')
+    # For linux wth no GPU, we install the Intel optimized version of TensorFlow
+    if sys.platform == "linux" or sys.platform == "linux2":
+        subprocess.check_call(['pip install '
+                               'https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.10.0-cp35-cp35m-linux_x86_64.whl'],
+                              shell=True)
+    install_requires.append('tensorflow==1.10.0')
 else:
-    install_requires.append('tensorflow-gpu==1.9.0')
+    install_requires.append('tensorflow-gpu==1.10.0')
 
 setup(
     name='rl-coach',
@@ -73,7 +75,7 @@ setup(
     author='Intel AI Lab',
     author_email='coach@intel.com',
     packages=find_packages(),
-    python_requires="==3.5.*",
+    python_requires=">=3.5.*",
     install_requires=install_requires,
     package_data={'rl_coach': ['dashboard_components/*.css',
                                'environments/doom/*.cfg',
