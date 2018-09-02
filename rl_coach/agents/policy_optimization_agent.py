@@ -82,13 +82,8 @@ class PolicyOptimizationAgent(Agent):
         self.mean_discounted_return = np.mean(episode_discounted_returns)
         self.std_discounted_return = np.std(episode_discounted_returns)
 
-    def get_current_episode(self):
-        # we get the episode most of the time from the current episode buffer and only in the last transition from the
-        # "memory" (where is was stored in the end of the episode)
-        return self.memory.get_episode(0) or self.current_episode_buffer
-
     def train(self):
-        episode = self.get_current_episode()
+        episode = self.current_episode_buffer
 
         # check if we should calculate gradients or skip
         episode_ended = episode.is_complete
@@ -133,7 +128,6 @@ class PolicyOptimizationAgent(Agent):
             # we need to remove the episode, because the next training iteration will be called before storing any
             # additional transitions in the memory (we don't store a transition for the first call to observe), so the
             # length of the memory won't be enforced and the old episode won't be removed
-            self.call_memory('remove_episode', 0)
             self.last_gradient_update_step_idx = 0
 
         return total_loss
