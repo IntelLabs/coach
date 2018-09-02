@@ -23,7 +23,9 @@ several parts, each testing the framework in different areas and strictness.
     There are currently tens of tests and we keep adding new ones. We use pytest in order to run the tests, using
     the following command:
     
-    `python3 -m pytest rl_coach/tests -m unit_test`
+    ```
+    python3 -m pytest rl_coach/tests -m unit_test
+    ```
 
 * **Integration tests** -
     
@@ -31,7 +33,9 @@ several parts, each testing the framework in different areas and strictness.
     performance at all. It only checks that the preset can start running with no import error or other bugs.
     To run the integration tests, use the following command:
     
-    `python3 -m pytest rl_coach/tests -m integration_test`
+    ```
+    python3 -m pytest rl_coach/tests -m integration_test
+    ```
 
 * **Golden tests** -
     
@@ -40,7 +44,9 @@ several parts, each testing the framework in different areas and strictness.
     tested are presets that can be run in a short amount of time, and the requirements for passing are quite weak.
     The golden tests can be run using the following command:
     
-    `python3 rl_coach/tests/golden_tests.py`
+    ```
+    python3 rl_coach/tests/golden_tests.py
+    ```
 
 * **Trace tests** -
     
@@ -49,4 +55,6 @@ several parts, each testing the framework in different areas and strictness.
     in the csv file should match the golden csv file exactly. The trace tests can be run in parallel to shorten the
     testing time. To run the tests in parallel use the following command:
     
-    `python3 rl_coach/tests/trace_tests.py -prl`
+    ```
+    python3 rl_coach/tests/trace_tests.py -prl
+    ```
