@@ -70,7 +70,7 @@ class LevelManager(EnvironmentInterface):
         self.should_reset_agent_state_after_time_limit_passes = should_reset_agent_state_after_time_limit_passes
         self.full_name_id = self.name = name
         self._phase = RunPhase.HEATUP
-        self.level_was_reset = True
+        self.reset_required = False
 
         # set self as the parent for all the composite agents
         for agent in self.agents.values():
@@ -104,7 +104,7 @@ class LevelManager(EnvironmentInterface):
         :return: the environment response as returned in get_last_env_response
         """
         [agent.reset_internal_state() for agent in self.agents.values()]
-        self.level_was_reset = True
+        self.reset_required = False
         if self.real_environment.current_episode_steps_counter == 0:
             self.last_env_response = self.real_environment.last_env_response
         return self.last_env_response
@@ -203,6 +203,9 @@ class LevelManager(EnvironmentInterface):
             for agent_name, agent in self.agents.items():
                 agent.set_incoming_directive(action)
 
+        if self.reset_required:
+            self.reset_internal_state()
+
         # get last response or initial response from the environment
         env_response = copy.copy(self.environment.last_env_response)
 
@@ -238,7 +241,7 @@ class LevelManager(EnvironmentInterface):
             # this is the agent's only opportunity to observe this transition - he will not get another one
             acting_agent.observe(env_response)  # TODO: acting agent? maybe all of the agents in the layer?
             self.handle_episode_ended()
-            self.reset_internal_state()
+            self.reset_required = True
 
         return env_response_for_upper_level
 
