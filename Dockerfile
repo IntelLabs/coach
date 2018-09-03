@@ -1,4 +1,4 @@
-FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
+FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 
 # https://github.com/NVIDIA/nvidia-docker/issues/619
 RUN rm /etc/apt/sources.list.d/cuda.list
@@ -56,10 +56,18 @@ RUN apt-get install build-essential zlib1g-dev libsdl2-dev libjpeg-dev \
 RUN apt-get clean autoclean && \
     apt-get autoremove -y
 
+############################
+# Install Pip Requirements #
+############################
+
 RUN pip3 install --upgrade pip
 
 RUN pip3 install pytest
 
+# initial installation of coach, so that the docker build won't install everything from scratch
+RUN pip3 install rl_coach>=0.10.0
+
+# install additional environments
 RUN pip3 install gym[atari]==0.10.5
 RUN pip3 install mujoco_py==1.50.1.56
 RUN pip3 install vizdoom==1.1.6
