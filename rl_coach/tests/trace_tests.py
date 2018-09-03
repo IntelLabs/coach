@@ -112,10 +112,14 @@ def wait_and_check(args, processes, force=False):
         trace_path = os.path.join('./rl_coach', 'traces', test_name[13:])
         if not os.path.exists(trace_path):
             screen.log('No trace found, creating new trace in: {}'.format(trace_path))
-            os.makedirs(os.path.dirname(trace_path))
+            if not os.path.exists(os.path.dirname(trace_path)):
+                os.makedirs(os.path.dirname(trace_path))
             df = pd.read_csv(csv_paths[0])
             df = clean_df(df)
-            df.to_csv(os.path.join(trace_path, 'trace.csv'), index=False)
+            try:
+                df.to_csv(os.path.join(trace_path, 'trace.csv'), index=False)
+            except:
+                pass
             screen.success("Successfully created new trace.")
             test_passed = True
         else:
