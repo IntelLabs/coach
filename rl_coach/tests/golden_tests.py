@@ -67,24 +67,21 @@ def perform_reward_based_tests(args, preset_validation_params, preset_name):
     # run the experiment in a separate thread
     screen.log_title("Running test {}".format(preset_name))
     log_file_name = 'test_log_{preset_name}.txt'.format(preset_name=preset_name)
-    cmd = (
-        'python3 rl_coach/coach.py '
-        '-p {preset_name} '
-        '-e {test_name} '
-        '-n {num_workers} '
-        '--seed 0 '
-        '-c '
-        '{level} '
-        '&> {log_file_name} '
-    ).format(
-        preset_name=preset_name,
-        test_name=test_name,
-        num_workers=preset_validation_params.num_workers,
-        log_file_name=log_file_name,
-        level='-lvl ' + preset_validation_params.reward_test_level if preset_validation_params.reward_test_level else ''
-    )
+    cmd = [
+        'python3',
+        'rl_coach/coach.py',
+        '-p', '{preset_name}'.format(preset_name=preset_name),
+        '-e', '{test_name}'.format(test_name=test_name),
+        '-n', '{num_workers}'.format(num_workers=preset_validation_params.num_workers),
+        '--seed', '0',
+        '-c'
+    ]
+    if preset_validation_params.reward_test_level:
+        cmd += ['-lvl', '{level}'.format(level=preset_validation_params.reward_test_level)]
 
-    p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", preexec_fn=os.setsid)
+    stdout = open(log_file_name, 'w')
+
+    p = subprocess.Popen(cmd, stdout=stdout, stderr=stdout)
 
     start_time = time.time()
 
@@ -148,7 +145,8 @@ def perform_reward_based_tests(args, preset_validation_params, preset_name):
             time.sleep(1)
 
     # kill test and print result
-    os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+    # os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+    p.kill()
     screen.log('')
     if test_passed:
         screen.success("Passed successfully")

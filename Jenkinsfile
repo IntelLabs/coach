@@ -84,19 +84,6 @@ timestamps {
                     //    }
                     //}
 
-                    // Golden tests - long tests which test for performance in terms of score and sample efficiency
-                    stage('Golden Tests') {
-                        try {
-                            sh 'docker run\
-                                  -e http_proxy="http://proxy-chain.intel.com:911"\
-                                  -e https_proxy="http://proxy-chain.intel.com:912"\
-                                  -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/golden_tests.py -np'
-                        } catch (err) {
-                            echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
-                            currentBuild.result = 'FAILURE'
-                        }
-                    }
-
                     // Trace tests - long tests which test for equality to known output
                     stage('Trace Tests') {
                         try {
@@ -104,7 +91,20 @@ timestamps {
                                   -e http_proxy="http://proxy-chain.intel.com:911"\
                                   -e https_proxy="http://proxy-chain.intel.com:912"\
                                   -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/trace_tests.py -prl\
-                                  -ip Doom_Basic_BC,MontezumaRevenge_BC,Carla_3_Cameras_DDPG,Carla_DDPG,Carla_Dueling_DDQN,Starcraft_CollectMinerals_A3C,Starcraft_CollectMinerals_Dueling_DDQN
+                                  -ip Doom_Basic_BC,MontezumaRevenge_BC,Carla_3_Cameras_DDPG,Carla_DDPG,Carla_Dueling_DDQN,Starcraft_CollectMinerals_A3C,Starcraft_CollectMinerals_Dueling_DDQN'
+                        } catch (err) {
+                            echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
+                            currentBuild.result = 'FAILURE'
+                        }
+                    }
+
+                    // Golden tests - long tests which test for performance in terms of score and sample efficiency
+                    stage('Golden Tests') {
+                        try {
+                            sh 'docker run\
+                                  -e http_proxy="http://proxy-chain.intel.com:911"\
+                                  -e https_proxy="http://proxy-chain.intel.com:912"\
+                                  -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/golden_tests.py -np'
                         } catch (err) {
                             echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
                             currentBuild.result = 'FAILURE'
