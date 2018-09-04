@@ -61,7 +61,10 @@ timestamps {
                     // Unit tests - short and contained functionality tests that take up to 1 minute.
                     stage('Unit Tests') {
                         try {
-                            sh 'docker run -e MUJOCO_KEY=\$MUJOCO_KEY coach pytest rl_coach/tests -m unit_test'
+                            sh 'docker run
+                                -e http_proxy="http://proxy-chain.intel.com:911"
+                                -e https_proxy="http://proxy-chain.intel.com:912"
+                                -e MUJOCO_KEY=\$MUJOCO_KEY coach pytest rl_coach/tests -m unit_test'
                         } catch (err) {
                             echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
                             currentBuild.result = 'FAILURE'
@@ -71,7 +74,10 @@ timestamps {
                     // Integration tests - long functionality tests which can take up to 1 hour.
                     //stage('Integration Tests') {
                     //    try {
-                    //        sh 'docker run -e MUJOCO_KEY=\$MUJOCO_KEY coach pytest rl_coach/tests -m integration_test -s'
+                    //        sh 'docker run
+                    //              -e http_proxy="http://proxy-chain.intel.com:911"
+                    //              -e https_proxy="http://proxy-chain.intel.com:912"
+                    //              -e MUJOCO_KEY=\$MUJOCO_KEY coach pytest rl_coach/tests -m integration_test -s'
                     //    } catch (err) {
                     //        echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
                     //        currentBuild.result = 'FAILURE'
@@ -81,7 +87,10 @@ timestamps {
                     // Golden tests - long tests which test for performance in terms of score and sample efficiency
                     stage('Golden Tests') {
                         try {
-                            sh 'docker run -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/golden_tests.py -np'
+                            sh 'docker run
+                                  -e http_proxy="http://proxy-chain.intel.com:911"
+                                  -e https_proxy="http://proxy-chain.intel.com:912"
+                                  -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/golden_tests.py -np'
                         } catch (err) {
                             echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
                             currentBuild.result = 'FAILURE'
@@ -91,7 +100,11 @@ timestamps {
                     // Trace tests - long tests which test for equality to known output
                     stage('Trace Tests') {
                         try {
-                            sh 'docker run -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/trace_tests.py -prl -ip Doom_Basic_BC,MontezumaRevenge_BC,Carla_3_Cameras_DDPG,Carla_DDPG,Carla_Dueling_DDQN,Atari_NEC,CartPole_NEC,Doom_Health_DFP,Doom_Health_MMC,Doom_Health_Supreme_DFP'
+                            sh 'docker run
+                                  -e http_proxy="http://proxy-chain.intel.com:911"
+                                  -e https_proxy="http://proxy-chain.intel.com:912"
+                                  -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/trace_tests.py -prl
+                                  -ip Doom_Basic_BC,MontezumaRevenge_BC,Carla_3_Cameras_DDPG,Carla_DDPG,Carla_Dueling_DDQN,Atari_NEC,CartPole_NEC,Doom_Health_DFP,Doom_Health_MMC,Doom_Health_Supreme_DFP'
                         } catch (err) {
                             echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
                             currentBuild.result = 'FAILURE'
