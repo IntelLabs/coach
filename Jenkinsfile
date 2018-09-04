@@ -103,7 +103,7 @@ timestamps {
                             sh 'docker run\
                                   -e http_proxy="http://proxy-chain.intel.com:911"\
                                   -e https_proxy="http://proxy-chain.intel.com:912"\
-                                  -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/trace_tests.py -prl
+                                  -e MUJOCO_KEY=\$MUJOCO_KEY coach python3 rl_coach/tests/trace_tests.py -prl\
                                   -ip Doom_Basic_BC,MontezumaRevenge_BC,Carla_3_Cameras_DDPG,Carla_DDPG,Carla_Dueling_DDQN,Atari_NEC,CartPole_NEC,Doom_Health_DFP,Doom_Health_MMC,Doom_Health_Supreme_DFP'
                         } catch (err) {
                             echo "${ansiColorMap['FAILURE']} BUILD FAILURE - Caught Exception: ${err} ${ansiColorMap['END']}"
