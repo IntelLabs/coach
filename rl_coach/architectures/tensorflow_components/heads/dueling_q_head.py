@@ -46,7 +46,7 @@ class DuelingQHead(QHead):
         with tf.variable_scope("action_advantage"):
             self.action_advantage = self.dense_layer(512)(input_layer, activation=self.activation_function, name='fc1')
             self.action_advantage = self.dense_layer(self.num_actions)(self.action_advantage, name='fc2')
-            self.action_mean = tf.reduce_mean(self.action_advantage, axis=1, keep_dims=True)
+            self.action_mean = tf.reduce_mean(self.action_advantage, axis=1, keepdims=True)
             self.action_advantage = self.action_advantage - self.action_mean
 
         # merge to state-action value function Q

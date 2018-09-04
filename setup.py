@@ -65,7 +65,7 @@ if not using_GPU:
                               shell=True)
     install_requires.append('tensorflow==1.6.0')
 else:
-    install_requires.append('tensorflow-gpu==1.10.0')
+    install_requires.append('tensorflow-gpu==1.9.0')
 
 setup(
     name='rl-coach',

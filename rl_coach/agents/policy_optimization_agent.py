@@ -82,19 +82,13 @@ class PolicyOptimizationAgent(Agent):
         self.mean_discounted_return = np.mean(episode_discounted_returns)
         self.std_discounted_return = np.std(episode_discounted_returns)
 
-    def get_current_episode(self):
-        # we get the episode most of the time from the current episode buffer and only in the last transition from the
-        # "memory" (where is was stored in the end of the episode)
-        return self.memory.get_episode(0) or self.current_episode_buffer
-
     def train(self):
-        episode = self.get_current_episode()
+        episode = self.current_episode_buffer
 
         # check if we should calculate gradients or skip
-        episode_ended = episode.is_complete
         num_steps_passed_since_last_update = episode.length() - self.last_gradient_update_step_idx
         is_t_max_steps_passed = num_steps_passed_since_last_update >= self.ap.algorithm.num_steps_between_gradient_updates
-        if not (is_t_max_steps_passed or episode_ended):
+        if not (is_t_max_steps_passed or episode.is_complete):
             return 0
 
         total_loss = 0
@@ -105,14 +99,15 @@ class PolicyOptimizationAgent(Agent):
 
             # get t_max transitions or less if the we got to a terminal state
             # will be used for both actor-critic and vanilla PG.
-            # # In order to get full episodes, Vanilla PG will set the end_idx to a very big value.
-            transitions = []
-            start_idx = self.last_gradient_update_step_idx
-            end_idx = episode.length()
+            # In order to get full episodes, Vanilla PG will set the end_idx to a very big value.
+            transitions = episode[self.last_gradient_update_step_idx:]
+            batch = Batch(transitions)
 
-            for idx in range(start_idx, end_idx):
-                transitions.append(episode.get_transition(idx))
-            self.last_gradient_update_step_idx = end_idx
+            # move the pointer for the last update step
+            if episode.is_complete:
+                self.last_gradient_update_step_idx = 0
+            else:
+                self.last_gradient_update_step_idx = episode.length()
 
             # update the statistics for the variance reduction techniques
             if self.policy_gradient_rescaler in \
@@ -120,21 +115,17 @@ class PolicyOptimizationAgent(Agent):
                      PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_TIMESTEP]:
                 self.update_episode_statistics(episode)
 
-            # accumulate the gradients and apply them once in every apply_gradients_every_x_episodes episodes
-            batch = Batch(transitions)
+            # accumulate the gradients
             total_loss, losses, unclipped_grads = self.learn_from_batch(batch)
+
+            # apply the gradients once in every apply_gradients_every_x_episodes episodes
             if self.current_episode % self.ap.algorithm.apply_gradients_every_x_episodes == 0:
                 for network in self.networks.values():
                     network.apply_gradients_and_sync_networks()
             self.training_iteration += 1
 
-        # move the pointer to the next episode start and discard the episode.
-        if episode_ended:
-            # we need to remove the episode, because the next training iteration will be called before storing any
-            # additional transitions in the memory (we don't store a transition for the first call to observe), so the
-            # length of the memory won't be enforced and the old episode won't be removed
-            self.call_memory('remove_episode', 0)
-            self.last_gradient_update_step_idx = 0
+            # run additional commands after the training is done
+            self.post_training_commands()
 
         return total_loss
 

@@ -621,6 +621,8 @@ class Episode(object):
     def insert(self, transition):
         self.transitions.append(transition)
         self._length += 1
+        if transition.game_over:
+            self.is_complete = True
 
     def is_empty(self):
         return self.length() == 0
@@ -639,19 +641,21 @@ class Episode(object):
 
     def update_returns(self):
         if self.n_step == -1 or self.n_step > self.length():
-            self.n_step = self.length()
+            curr_n_step = self.length()
+        else:
+            curr_n_step = self.n_step
         rewards = np.array([t.reward for t in self.transitions])
         rewards = rewards.astype('float')
         total_return = rewards.copy()
         current_discount = self.discount
-        for i in range(1, self.n_step):
+        for i in range(1, curr_n_step):
             total_return += current_discount * np.pad(rewards[i:], (0, i), 'constant', constant_values=0)
             current_discount *= self.discount
 
         # calculate the bootstrapped returns
         if self.bootstrap_total_return_from_old_policy:
-            bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[self.n_step:]])
-            bootstrapped_return = total_return + current_discount * np.pad(bootstraps, (0, self.n_step), 'constant',
+            bootstraps = np.array([np.squeeze(t.info['max_action_value']) for t in self.transitions[curr_n_step:]])
+            bootstrapped_return = total_return + current_discount * np.pad(bootstraps, (0, curr_n_step), 'constant',
                                                                            constant_values=0)
             total_return = bootstrapped_return
 
@@ -685,3 +689,6 @@ class Episode(object):
         for i in range(self.length()):
             batch.append(self.get_transition(i))
         return batch
+
+    def __getitem__(self, sliced):
+        return self.transitions[sliced]

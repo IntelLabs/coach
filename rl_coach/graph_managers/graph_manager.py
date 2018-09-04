@@ -74,6 +74,7 @@ class GraphManager(object):
         self.task_parameters = None
         self._phase = self.phase = RunPhase.UNDEFINED
         self.preset_validation_params = PresetValidationParameters()
+        self.reset_required = False
 
         # timers
         self.graph_initialization_time = time.time()
@@ -275,7 +276,7 @@ class GraphManager(object):
         self.total_steps_counters[self.phase][EnvironmentEpisodes] += 1
 
         # TODO: we should disentangle ending the episode from resetting the internal state
-        self.reset_internal_state()
+        # self.reset_internal_state()
 
     def train(self, steps: TrainingSteps) -> None:
         """
@@ -299,6 +300,7 @@ class GraphManager(object):
                                         lives available
         :return: None
         """
+        self.reset_required = False
         [environment.reset_internal_state(force_environment_reset) for environment in self.environments]
         [manager.reset_internal_state() for manager in self.level_managers]
 
@@ -324,6 +326,10 @@ class GraphManager(object):
         #  takes place (i.e. an episode ends)
         # TODO - The counter of frames is not updated correctly. need to fix that.
         while self.total_steps_counters[self.phase][steps.__class__] < count_end or hold_until_a_full_episode:
+            # reset the environment if the previous episode was terminated
+            if self.reset_required:
+                self.reset_internal_state()
+
             current_steps = self.environments[0].total_steps_counter
 
             result = self.top_level_manager.step(None)
@@ -341,6 +347,7 @@ class GraphManager(object):
             if result.game_over:
                 hold_until_a_full_episode = False
                 self.handle_episode_ended()
+                self.reset_required = True
                 if keep_networks_in_sync:
                     self.sync_graph()
                 if return_on_game_over:
