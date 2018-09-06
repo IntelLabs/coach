@@ -253,9 +253,11 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                         else:
                             # if we use a single network with multiple embedders, then the head type is the current head idx
                             head_type_idx = head_idx
+
+                        # create output head and add it to the output heads list
                         self.output_heads.append(
                             self.get_output_head(self.network_parameters.heads_parameters[head_type_idx],
-                                                 head_copy_idx,
+                                                 head_idx*self.network_parameters.num_output_head_copies + head_copy_idx,
                                                  self.network_parameters.loss_weights[head_type_idx])
                         )
 

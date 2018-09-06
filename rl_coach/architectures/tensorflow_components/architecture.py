@@ -61,7 +61,7 @@ class Conv2d(object):
         """
         self.params = params
 
-    def __call__(self, input_layer, name: str):
+    def __call__(self, input_layer, name: str=None):
         """
         returns a tensorflow conv2d layer
         :param input_layer: previous layer
@@ -79,7 +79,7 @@ class Dense(object):
         """
         self.params = force_list(params)
 
-    def __call__(self, input_layer, name: str, kernel_initializer=None, activation=None):
+    def __call__(self, input_layer, name: str=None, kernel_initializer=None, activation=None):
         """
         returns a tensorflow dense layer
         :param input_layer: previous layer

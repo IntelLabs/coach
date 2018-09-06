@@ -18,6 +18,7 @@ import random
 import sys
 from os import path, environ
 
+from rl_coach.logger import screen
 from rl_coach.filters.action.partial_discrete_action_space_map import PartialDiscreteActionSpaceMap
 from rl_coach.filters.observation.observation_rgb_to_y_filter import ObservationRGBToYFilter
 from rl_coach.filters.observation.observation_to_uint8_filter import ObservationToUInt8Filter
@@ -25,6 +26,8 @@ from rl_coach.filters.observation.observation_to_uint8_filter import Observation
 try:
     if 'CARLA_ROOT' in environ:
         sys.path.append(path.join(environ.get('CARLA_ROOT'), 'PythonClient'))
+    else:
+        screen.error("CARLA_ROOT was not defined. Please set it to point to the CARLA root directory and try again.")
     from carla.client import CarlaClient
     from carla.settings import CarlaSettings
     from carla.tcp import TCPConnectionError
@@ -237,25 +240,28 @@ class CarlaEnvironment(Environment):
         # add a front facing camera
         if CameraTypes.FRONT in cameras:
             camera = Camera(CameraTypes.FRONT.value)
+            camera.set(FOV=100)
             camera.set_image_size(camera_width, camera_height)
-            camera.set_position(0.2, 0, 1.3)
-            camera.set_rotation(8, 0, 0)
+            camera.set_position(2.0, 0, 1.4)
+            camera.set_rotation(-15.0, 0, 0)
             settings.add_sensor(camera)
 
         # add a left facing camera
         if CameraTypes.LEFT in cameras:
             camera = Camera(CameraTypes.LEFT.value)
+            camera.set(FOV=100)
             camera.set_image_size(camera_width, camera_height)
-            camera.set_position(0.2, 0, 1.3)
-            camera.set_rotation(8, -30, 0)
+            camera.set_position(2.0, 0, 1.4)
+            camera.set_rotation(-15.0, -30, 0)
             settings.add_sensor(camera)
 
         # add a right facing camera
         if CameraTypes.RIGHT in cameras:
             camera = Camera(CameraTypes.RIGHT.value)
+            camera.set(FOV=100)
             camera.set_image_size(camera_width, camera_height)
-            camera.set_position(0.2, 0, 1.3)
-            camera.set_rotation(8, 30, 0)
+            camera.set_position(2.0, 0, 1.4)
+            camera.set_rotation(-15.0, 30, 0)
             settings.add_sensor(camera)
 
         # add a front facing depth camera

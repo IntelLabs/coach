@@ -59,8 +59,8 @@ class Head(object):
         self.loss = []
         self.loss_type = []
         self.regularizations = []
-        # self.loss_weight = force_list(loss_weight)
-        self.loss_weight = tf.Variable(force_list(loss_weight), trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
+        self.loss_weight = tf.Variable([float(w) for w in force_list(loss_weight)],
+                                       trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
         self.loss_weight_placeholder = tf.placeholder("float")
         self.set_loss_weight = tf.assign(self.loss_weight, self.loss_weight_placeholder)
         self.target = []

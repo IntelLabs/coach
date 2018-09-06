@@ -32,6 +32,7 @@ from rl_coach.core_types import ActionInfo
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
+from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
 
 
 class HumanAlgorithmParameters(AlgorithmParameters):
@@ -57,7 +58,7 @@ class HumanAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=HumanAlgorithmParameters(),
                          exploration=EGreedyParameters(),
-                         memory=EpisodicExperienceReplayParameters(),
+                         memory=ExperienceReplayParameters(),
                          networks={"main": BCNetworkParameters()})
 
     @property
@@ -103,7 +104,7 @@ class HumanAgent(Agent):
     def save_replay_buffer_and_exit(self):
         replay_buffer_path = os.path.join(self.agent_logger.experiments_path, 'replay_buffer.p')
         self.memory.tp = None
-        to_pickle(self.memory, replay_buffer_path)
+        self.memory.save(replay_buffer_path)
         screen.log_title("Replay buffer was stored in {}".format(replay_buffer_path))
         exit()
 

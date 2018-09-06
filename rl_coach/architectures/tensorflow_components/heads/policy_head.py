@@ -49,7 +49,7 @@ class PolicyHead(Head):
         # a scalar weight that penalizes low entropy values to encourage exploration
         if hasattr(agent_parameters.algorithm, 'beta_entropy'):
             # we set the beta value as a tf variable so it can be updated later if needed
-            self.beta = tf.Variable(agent_parameters.algorithm.beta_entropy,
+            self.beta = tf.Variable(float(agent_parameters.algorithm.beta_entropy),
                                     trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
             self.beta_placeholder = tf.placeholder('float')
             self.set_beta = tf.assign(self.beta, self.beta_placeholder)
