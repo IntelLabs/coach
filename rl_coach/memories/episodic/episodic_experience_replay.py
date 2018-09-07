@@ -273,23 +273,6 @@ class EpisodicExperienceReplay(Memory):
         """
         self.remove_episode(episode_index)
 
-    def update_last_transition_info(self, info: Dict[str, Any]) -> None:
-        """
-        Update the info of the last transition stored in the memory
-        :param info: the new info to append to the existing info
-        :return: None
-        """
-        self.reader_writer_lock.lock_writing_and_reading()
-
-        episode = self._buffer[-1]
-        if episode.length() == 0:
-            if len(self._buffer) < 2:
-                return
-            episode = self._buffer[-2]
-        episode.transitions[-1].info.update(info)
-
-        self.reader_writer_lock.release_writing_and_reading()
-
     def clean(self) -> None:
         """
         Clean the memory by removing all the episodes

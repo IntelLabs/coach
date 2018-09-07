@@ -182,20 +182,6 @@ class ExperienceReplay(Memory):
         """
         self.remove_transition(transition_index, lock)
 
-    def update_last_transition_info(self, info: Dict[str, Any]) -> None:
-        """
-        Update the info of the last transition stored in the memory
-        :param info: the new info to append to the existing info
-        :return: None
-        """
-        self.reader_writer_lock.lock_writing_and_reading()
-
-        if self.length() == 0:
-            raise ValueError("There are no transition in the replay buffer")
-        self.transitions[-1].info.update(info)
-
-        self.reader_writer_lock.release_writing_and_reading()
-
     def clean(self, lock: bool=True) -> None:
         """
         Clean the memory by removing all the episodes
