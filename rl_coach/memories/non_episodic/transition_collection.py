@@ -22,7 +22,8 @@ class TransitionCollection(object):
     def __del__(self, range: slice):
         # NOTE: the only slice used is the form: slice(None, n)
         # NOTE: if it is easier, what we really want here is the ability to
-        # constrain the size of the collection.
+        # constrain the size of the collection. as new transitions are added,
+        # old transitions can be removed to maintain a maximum collection size.
         pass
 
     def __getitem__(self, key: int):

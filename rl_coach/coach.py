@@ -333,7 +333,7 @@ def main():
     # Single-threaded runs
     if args.num_workers == 1:
         # Start the training or evaluation
-        task_parameters = TaskParameters(framework_type="tensorflow",  # TODO: tensorflow should'nt be hardcoded
+        task_parameters = TaskParameters(framework_type="tensorflow",  # TODO: tensorflow shouldn't be hardcoded
                                          evaluate_only=args.evaluate,
                                          experiment_path=args.experiment_path,
                                          seed=args.seed,
