@@ -25,3 +25,4 @@ datasets
 .pytest_cache
 core
 trace_test*
+.DS_Store
