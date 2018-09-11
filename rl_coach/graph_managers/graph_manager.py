@@ -288,8 +288,7 @@ class GraphManager(object):
         count_end = self.total_steps_counters[RunPhase.TRAIN][TrainingSteps] + steps.num_steps
         while self.total_steps_counters[RunPhase.TRAIN][TrainingSteps] < count_end:
             self.total_steps_counters[RunPhase.TRAIN][TrainingSteps] += 1
-            losses = [manager.train() for manager in self.level_managers]
-            # self.loss.add_sample(loss)
+            [manager.train() for manager in self.level_managers]
 
     def reset_internal_state(self, force_environment_reset=False) -> None:
         """
