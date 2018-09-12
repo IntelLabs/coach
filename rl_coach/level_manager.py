@@ -223,11 +223,13 @@ class LevelManager(EnvironmentInterface):
                 # get action
                 action_info = acting_agent.act()
 
-                # step environment
-                env_response = self.environment.step(action_info.action)
+                # imitation agents will return no action since they don't play during training
+                if action_info:
+                    # step environment
+                    env_response = self.environment.step(action_info.action)
 
-                # accumulate rewards such that the master policy will see the total reward during the step phase
-                accumulated_reward += env_response.reward
+                    # accumulate rewards such that the master policy will see the total reward during the step phase
+                    accumulated_reward += env_response.reward
 
         # update the env response that will be exposed to the parent agent
         env_response_for_upper_level = copy.copy(env_response)

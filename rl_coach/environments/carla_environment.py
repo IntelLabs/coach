@@ -344,7 +344,7 @@ class CarlaEnvironment(Environment):
             #                                                                      str(is_collision)))
             self.done = True
 
-        self.state['measurements'] = self.measurements
+        self.state['measurements'] = np.array(self.measurements)
 
     def _take_action(self, action):
         self.control = VehicleControl()

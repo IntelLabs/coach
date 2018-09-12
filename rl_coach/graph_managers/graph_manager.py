@@ -340,9 +340,11 @@ class GraphManager(object):
                 break
 
             # add the diff between the total steps before and after stepping, such that environment initialization steps
-            # (like in Atari) will not be counted
+            # (like in Atari) will not be counted.
+            # We add at least one step so that even if no steps were made (in case no actions are taken in the training
+            # phase), the loop will end eventually.
             self.total_steps_counters[self.phase][EnvironmentSteps] += \
-                self.environments[0].total_steps_counter - current_steps
+                max(1, self.environments[0].total_steps_counter - current_steps)
 
             if result.game_over:
                 hold_until_a_full_episode = False
