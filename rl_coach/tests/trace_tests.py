@@ -224,21 +224,22 @@ def main():
 
             preset_validation_params = preset.graph_manager.preset_validation_params
             num_env_steps = preset_validation_params.trace_max_env_steps
-            if preset_validation_params.trace_test_levels:
-                for level in preset_validation_params.trace_test_levels:
+            if preset_validation_params.test_using_a_trace_test:
+                if preset_validation_params.trace_test_levels:
+                    for level in preset_validation_params.trace_test_levels:
+                        test_count += 1
+                        test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, level)
+                        processes.append((test_path, log_file, p))
+                        test_passed = wait_and_check(args, processes)
+                        if test_passed is not None and not test_passed:
+                            fail_count += 1
+                else:
                     test_count += 1
-                    test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, level)
+                    test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps)
                     processes.append((test_path, log_file, p))
                     test_passed = wait_and_check(args, processes)
                     if test_passed is not None and not test_passed:
                         fail_count += 1
-            else:
-                test_count += 1
-                test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps)
-                processes.append((test_path, log_file, p))
-                test_passed = wait_and_check(args, processes)
-                if test_passed is not None and not test_passed:
-                    fail_count += 1
 
     while len(processes) > 0:
         test_passed = wait_and_check(args, processes, force=True)

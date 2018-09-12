@@ -1,5 +1,5 @@
 from rl_coach.agents.bc_agent import BCAgentParameters
-from rl_coach.base_parameters import VisualizationParameters
+from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -38,5 +38,12 @@ agent_params.memory.load_memory_from_file_path = 'datasets/doom_basic.p'
 env_params = DoomEnvironmentParameters()
 env_params.level = 'basic'
 
+########
+# Test #
+########
+preset_validation_params = PresetValidationParameters()
+preset_validation_params.test_using_a_trace_test = False
+
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=VisualizationParameters())
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
+                                    preset_validation_params=preset_validation_params)

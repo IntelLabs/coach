@@ -45,7 +45,7 @@ vis_params.dump_mp4 = False
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-
+preset_validation_params.test_using_a_trace_test = False
 # disabling this test for now, as it takes too long to converge
 # preset_validation_params.test = True
 # preset_validation_params.min_reward_threshold = 1000

@@ -68,6 +68,7 @@ preset_validation_params.test = True
 # reward threshold was set to 1000 since otherwise the test takes about an hour
 preset_validation_params.min_reward_threshold = 1000
 preset_validation_params.max_episodes_to_achieve_reward = 70
+preset_validation_params.test_using_a_trace_test = False
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,

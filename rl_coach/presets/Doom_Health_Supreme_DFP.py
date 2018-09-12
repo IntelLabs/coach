@@ -1,5 +1,6 @@
 from rl_coach.agents.dfp_agent import DFPAgentParameters
-from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, MiddlewareScheme
+from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, MiddlewareScheme, \
+    PresetValidationParameters
 from rl_coach.core_types import EnvironmentSteps, RunPhase, EnvironmentEpisodes
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
@@ -59,6 +60,12 @@ vis_params = VisualizationParameters()
 vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
 vis_params.dump_mp4 = False
 
+########
+# Test #
+########
+preset_validation_params = PresetValidationParameters()
+preset_validation_params.test_using_a_trace_test = False
+
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,
-                                    )
+                                    preset_validation_params=preset_validation_params)

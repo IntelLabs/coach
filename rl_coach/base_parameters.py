@@ -167,6 +167,7 @@ class PresetValidationParameters(Parameters):
         self.max_episodes_to_achieve_reward = 1
         self.num_workers = 1
         self.reward_test_level = None
+        self.test_using_a_trace_test = True
         self.trace_test_levels = None
         self.trace_max_env_steps = 5000
 
