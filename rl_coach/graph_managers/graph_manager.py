@@ -479,7 +479,7 @@ class GraphManager(object):
             checkpoint = tf.train.get_checkpoint_state(checkpoint_dir)
             screen.log_title("Loading checkpoint: {}".format(checkpoint.model_checkpoint_path))
             variables = {}
-            for var_name, _ in tf.contrib.framework.list_variables(self.task_parameters.checkpoint_restore_dir):
+            for var_name, _ in tf.contrib.framework.list_variables(checkpoint_dir):
                 # Load the variable
                 var = tf.contrib.framework.load_variable(checkpoint_dir, var_name)
 
