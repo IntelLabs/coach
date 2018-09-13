@@ -378,7 +378,7 @@ class CarlaEnvironment(Environment):
         self.control.brake = np.abs(np.clip(action[0], -1, 0))
 
         # prevent braking
-        if not self.allow_braking:
+        if not self.allow_braking or self.control.brake < 0.1:
             self.control.brake = 0
 
         # prevent over speeding

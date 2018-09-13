@@ -22,8 +22,9 @@ import time
 import numpy as np
 
 from rl_coach.core_types import Transition
+from rl_coach.logger import screen
 from rl_coach.memories.memory import Memory, MemoryGranularity, MemoryParameters
-from rl_coach.utils import ReaderWriterLock
+from rl_coach.utils import ReaderWriterLock, ProgressBar
 
 
 class ExperienceReplayParameters(MemoryParameters):
@@ -239,15 +240,17 @@ class ExperienceReplay(Memory):
         with open(file_path, 'rb') as file:
             transitions = pickle.load(file)
             num_transitions = len(transitions)
-            start_time = time.time()
+            if num_transitions > self.max_size[1]:
+                screen.warning("Warning! The number of transition to load into the replay buffer ({}) is "
+                               "bigger than the max size of the replay buffer ({}). The excessive transitions will "
+                               "not be stored.".format(num_transitions, self.max_size[1]))
+
+            progress_bar = ProgressBar(num_transitions)
             for transition_idx, transition in enumerate(transitions):
                 self.store(transition)
 
                 # print progress
                 if transition_idx % 100 == 0:
-                    percentage = int((100 * transition_idx) / num_transitions)
-                    sys.stdout.write("\rProgress: ({}/{})".format(transition_idx, num_transitions))
-                    sys.stdout.write(' Time (sec): {}'.format(round(time.time() - start_time, 2)))
-                    sys.stdout.write(' {}%|{}{}|  '.format(percentage, '#' * int(percentage / 10),
-                                     ' ' * (10 - int(percentage / 10))))
-                    sys.stdout.flush()
+                    progress_bar.update(transition_idx)
+
+            progress_bar.close()

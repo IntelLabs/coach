@@ -20,6 +20,7 @@ import inspect
 import json
 import os
 import signal
+import sys
 import threading
 import time
 from multiprocessing import Manager
@@ -549,3 +550,23 @@ class ReaderWriterLock(object):
         self.num_readers_lock.acquire()
         self.num_readers -= 1
         self.num_readers_lock.release()
+
+
+class ProgressBar(object):
+    def __init__(self, max_value):
+        self.start_time = time.time()
+        self.max_value = max_value
+        self.current_value = 0
+
+    def update(self, current_value):
+        self.current_value = current_value
+        percentage = int((100 * current_value) / self.max_value)
+        sys.stdout.write("\rProgress: ({}/{}) Time: {} sec {}%|{}{}|  "
+                         .format(current_value, self.max_value,
+                                 round(time.time() - self.start_time, 2),
+                                 percentage, '#' * int(percentage / 10),
+                                 ' ' * (10 - int(percentage / 10))))
+        sys.stdout.flush()
+
+    def close(self):
+        print("")
