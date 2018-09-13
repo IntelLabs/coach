@@ -558,14 +558,15 @@ class ProgressBar(object):
         self.max_value = max_value
         self.current_value = 0
 
-    def update(self, current_value):
+    def update(self, current_value, additional_info=""):
         self.current_value = current_value
         percentage = int((100 * current_value) / self.max_value)
-        sys.stdout.write("\rProgress: ({}/{}) Time: {} sec {}%|{}{}|  "
+        sys.stdout.write("\rProgress: ({}/{}) Time: {} sec {}%|{}{}|  {}"
                          .format(current_value, self.max_value,
                                  round(time.time() - self.start_time, 2),
                                  percentage, '#' * int(percentage / 10),
-                                 ' ' * (10 - int(percentage / 10))))
+                                 ' ' * (10 - int(percentage / 10)),
+                                 additional_info))
         sys.stdout.flush()
 
     def close(self):
