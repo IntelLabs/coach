@@ -34,6 +34,7 @@ try:
     from carla.sensor import Camera
     from carla.client import VehicleControl
     from carla.planner.planner import Planner
+    from carla.driving_benchmark.experiment_suites.experiment_suite import ExperimentSuite
 except ImportError:
     from rl_coach.logger import failed_imports
     failed_imports.append("CARLA")
@@ -103,7 +104,8 @@ class CarlaEnvironmentParameters(EnvironmentParameters):
         self.server_width = 720
         self.camera_height = 128
         self.camera_width = 180
-        self.config = None #'environments/CarlaSettings.ini'  # TODO: remove the config to prevent confusion
+        self.experiment_suite = None  # an optional CARLA experiment suite to use
+        self.config = None
         self.level = 'town1'
         self.quality = self.Quality.LOW
         self.cameras = [CameraTypes.FRONT]
@@ -126,7 +128,7 @@ class CarlaEnvironment(Environment):
                  seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float],
                  visualization_parameters: VisualizationParameters,
                  server_height: int, server_width: int, camera_height: int, camera_width: int,
-                 verbose: bool, config: str, episode_max_time: int,
+                 verbose: bool, experiment_suite: ExperimentSuite, config: str, episode_max_time: int,
                  allow_braking: bool, quality: CarlaEnvironmentParameters.Quality,
                  cameras: List[CameraTypes], weather_id: List[int], experiment_path: str,
                  num_speedup_steps: int, max_speed: float, **kwargs):
@@ -161,6 +163,7 @@ class CarlaEnvironment(Environment):
                 high=255)
 
         # setup server settings
+        self.experiment_suite = experiment_suite
         self.config = config
         if self.config:
             # load settings from file
@@ -191,12 +194,17 @@ class CarlaEnvironment(Environment):
         # open the client
         self.game = CarlaClient(self.host, self.port, timeout=99999999)
         self.game.connect()
-        scene = self.game.load_settings(self.settings)
+        if self.experiment_suite:
+            self.current_experiment = self.experiment_suite.get_experiments()[0]
+            scene = self.game.load_settings(self.current_experiment.conditions)
+        else:
+            scene = self.game.load_settings(self.settings)
 
         # get available start positions
         self.positions = scene.player_start_spots
-        self.num_pos = len(self.positions)
-        self.iterator_start_positions = 0
+        self.num_positions = len(self.positions)
+        self.current_start_position_idx = 0
+        self.current_pose = 0
 
         # action space
         self.action_space = BoxActionSpace(shape=2, low=np.array([-1, -1]), high=np.array([1, 1]))
@@ -391,18 +399,24 @@ class CarlaEnvironment(Environment):
         self.game.send_control(self.control)
 
     def _restart_environment_episode(self, force_environment_reset=False):
-        self.iterator_start_positions += 1
-        if self.iterator_start_positions >= self.num_pos:
-            self.iterator_start_positions = 0
+        # select start and end positions
+        if self.experiment_suite:
+            # if an expeirent suite is available, follow its given poses
+            self.current_start_position_idx = self.current_experiment.poses[self.current_pose][0]
+            self.current_goal = self.current_experiment.poses[self.current_pose][1]
+            self.current_pose += 1
+        else:
+            # go over all the possible positions in a cyclic manner
+            self.current_start_position_idx = (self.current_start_position_idx + 1) % self.num_positions
+
+            # choose a random goal destination TODO: follow the CoRL destinations and start positions
+            self.current_goal = random.choice(self.positions)
 
         try:
-            self.game.start_episode(self.iterator_start_positions)
+            self.game.start_episode(self.current_start_position_idx)
         except:
             self.game.connect()
-            self.game.start_episode(self.iterator_start_positions)
-
-        # choose a random goal destination TODO: follow the CoRL destinations and start positions
-        self.current_goal = random.choice(self.positions)
+            self.game.start_episode(self.current_start_position_idx)
 
         # start the game with some initial speed
         for i in range(self.num_speedup_steps):
