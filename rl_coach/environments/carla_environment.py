@@ -33,6 +33,7 @@ try:
     from carla.tcp import TCPConnectionError
     from carla.sensor import Camera
     from carla.client import VehicleControl
+    from carla.planner.planner import Planner
 except ImportError:
     from rl_coach.logger import failed_imports
     failed_imports.append("CARLA")
@@ -56,8 +57,8 @@ import numpy as np
 
 # enum of the available levels and their path
 class CarlaLevel(Enum):
-    TOWN1 = "/Game/Maps/Town01"
-    TOWN2 = "/Game/Maps/Town02"
+    TOWN1 = {"map_name": "Town01", "map_path": "/Game/Maps/Town01"}
+    TOWN2 = {"map_name": "Town02", "map_path": "/Game/Maps/Town02"}
 
 key_map = {
     'BRAKE': (274,),  # down arrow
@@ -110,6 +111,8 @@ class CarlaEnvironmentParameters(EnvironmentParameters):
         self.verbose = True
         self.episode_max_time = 100000  # miliseconds for each episode
         self.allow_braking = False
+        self.num_speedup_steps = 30
+        self.max_speed = 35.0  # km/h
         self.default_input_filter = CarlaInputFilter
         self.default_output_filter = CarlaOutputFilter
 
@@ -125,7 +128,8 @@ class CarlaEnvironment(Environment):
                  server_height: int, server_width: int, camera_height: int, camera_width: int,
                  verbose: bool, config: str, episode_max_time: int,
                  allow_braking: bool, quality: CarlaEnvironmentParameters.Quality,
-                 cameras: List[CameraTypes], weather_id: List[int], experiment_path: str, **kwargs):
+                 cameras: List[CameraTypes], weather_id: List[int], experiment_path: str,
+                 num_speedup_steps: int, max_speed: float, **kwargs):
         super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters)
 
         # server configuration
@@ -133,7 +137,8 @@ class CarlaEnvironment(Environment):
         self.server_width = server_width
         self.port = get_open_port()
         self.host = 'localhost'
-        self.map = self.env_id
+        self.map_name = CarlaLevel[level.upper()].value['map_name']
+        self.map_path = CarlaLevel[level.upper()].value['map_path']
         self.experiment_path = experiment_path
 
         # client configuration
@@ -189,8 +194,8 @@ class CarlaEnvironment(Environment):
         scene = self.game.load_settings(self.settings)
 
         # get available start positions
-        positions = scene.player_start_spots
-        self.num_pos = len(positions)
+        self.positions = scene.player_start_spots
+        self.num_pos = len(self.positions)
         self.iterator_start_positions = 0
 
         # action space
@@ -223,10 +228,12 @@ class CarlaEnvironment(Environment):
                     if action == key:
                         self.key_to_action[key_map[key]] = idx
 
-        self.num_speedup_steps = 30
+        self.num_speedup_steps = num_speedup_steps
+        self.max_speed = max_speed
 
         # measurements
         self.autopilot = None
+        self.planner = Planner(self.map_name)
 
         # env initialization
         self.reset_internal_state(True)
@@ -284,13 +291,28 @@ class CarlaEnvironment(Environment):
 
         return settings
 
+    def _get_directions(self, current_point, end_point):
+        """
+        Class that should return the directions to reach a certain goal
+        """
+
+        directions = self.planner.get_next_command(
+            (current_point.location.x,
+             current_point.location.y, 0.22),
+            (current_point.orientation.x,
+             current_point.orientation.y,
+             current_point.orientation.z),
+            (end_point.location.x, end_point.location.y, 0.22),
+            (end_point.orientation.x, end_point.orientation.y, end_point.orientation.z))
+        return directions
+
     def _open_server(self):
         log_path = path.join(self.experiment_path if self.experiment_path is not None else '.', 'logs',
                              "CARLA_LOG_{}.txt".format(self.port))
         if not os.path.exists(os.path.dirname(log_path)):
             os.makedirs(os.path.dirname(log_path))
         with open(log_path, "wb") as out:
-            cmd = [path.join(environ.get('CARLA_ROOT'), 'CarlaUE4.sh'), self.map,
+            cmd = [path.join(environ.get('CARLA_ROOT'), 'CarlaUE4.sh'), self.map_path,
                    "-benchmark", "-carla-server", "-fps={}".format(30 / self.frame_skip),
                    "-world-port={}".format(self.port),
                    "-windowed -ResX={} -ResY={}".format(self.server_width, self.server_height),
@@ -336,8 +358,9 @@ class CarlaEnvironment(Environment):
         self.measurements = [measurements.player_measurements.forward_speed] + self.location
         self.autopilot = measurements.player_measurements.autopilot_control
 
-        # action_p = ['%.2f' % member for member in [self.control.throttle, self.control.steer]]
-        # screen.success('REWARD: %.2f, ACTIONS: %s' % (self.reward, action_p))
+        # The directions to reach the goal (0 Follow lane, 1 Left, 2 Right, 3 Straight)
+        directions = int(self._get_directions(measurements.player_measurements.transform, self.current_goal) - 2)
+        self.state['high_level_command'] = directions
 
         if (measurements.game_timestamp >= self.episode_max_time) or is_collision:
             # screen.success('EPISODE IS DONE. GameTime: {}, Collision: {}'.format(str(measurements.game_timestamp),
@@ -348,11 +371,20 @@ class CarlaEnvironment(Environment):
 
     def _take_action(self, action):
         self.control = VehicleControl()
+
+        # transform the 2 value action (throttle - brake, steer) into a 3 value action (throttle, brake, steer)
         self.control.throttle = np.clip(action[0], 0, 1)
         self.control.steer = np.clip(action[1], -1, 1)
         self.control.brake = np.abs(np.clip(action[0], -1, 0))
+
+        # prevent braking
         if not self.allow_braking:
             self.control.brake = 0
+
+        # prevent over speeding
+        if hasattr(self, 'measurements') and self.measurements[0] * 3.6 > self.max_speed and self.control.brake == 0:
+            self.control.throttle = 0.0
+
         self.control.hand_brake = False
         self.control.reverse = False
 
@@ -368,6 +400,9 @@ class CarlaEnvironment(Environment):
         except:
             self.game.connect()
             self.game.start_episode(self.iterator_start_positions)
+
+        # choose a random goal destination TODO: follow the CoRL destinations and start positions
+        self.current_goal = random.choice(self.positions)
 
         # start the game with some initial speed
         for i in range(self.num_speedup_steps):
