@@ -47,10 +47,11 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires=[
-        'annoy==1.8.3', 'Pillow==4.3.0', 'matplotlib==2.0.2', 'numpy==1.14.5', 'pandas==0.22.0',
-        'pygame==1.9.3', 'PyOpenGL==3.1.0', 'scipy==0.19.0', 'scikit-image==0.13.0',
-        'box2d==2.3.2', 'gym==0.10.5', 'bokeh==0.13.0', 'futures==3.1.1', 'wxPython==4.0.1']
+install_requires = list()
+
+with open(path.join(here, 'requirements.txt'), 'r') as f:
+    for line in f:
+        install_requires.append(line.strip())
 
 # check if system has CUDA enabled GPU
 p = subprocess.Popen(['command -v nvidia-smi'], stdout=subprocess.PIPE, shell=True)

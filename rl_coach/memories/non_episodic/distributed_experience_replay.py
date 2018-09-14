@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from typing import List, Tuple, Union, Dict, Any
+from typing import List, Tuple, Union
 
 import numpy as np
 import redis
@@ -23,7 +23,6 @@ import pickle
 
 from rl_coach.core_types import Transition
 from rl_coach.memories.memory import Memory, MemoryGranularity, MemoryParameters
-from rl_coach.utils import ReaderWriterLock
 
 
 class DistributedExperienceReplayParameters(MemoryParameters):
@@ -31,6 +30,9 @@ class DistributedExperienceReplayParameters(MemoryParameters):
         super().__init__()
         self.max_size = (MemoryGranularity.Transitions, 1000000)
         self.allow_duplicates_in_batch_sampling = True
+        self.redis_ip = 'localhost'
+        self.redis_port = 6379
+        self.redis_db = 0
 
     @property
     def path(self):
@@ -41,19 +43,19 @@ class DistributedExperienceReplay(Memory):
     """
     A regular replay buffer which stores transition without any additional structure
     """
-    def __init__(self, max_size: Tuple[MemoryGranularity, int], allow_duplicates_in_batch_sampling: bool=True, 
-                 redis_ip = 'localhost', redis_port = 6379, db = 0):
+    def __init__(self, max_size: Tuple[MemoryGranularity, int], allow_duplicates_in_batch_sampling: bool=True,
+                 redis_ip='localhost', redis_port=6379, redis_db=0):
         """
         :param max_size: the maximum number of transitions or episodes to hold in the memory
         :param allow_duplicates_in_batch_sampling: allow having the same transition multiple times in a batch
         """
-        
+
         super().__init__(max_size)
         if max_size[0] != MemoryGranularity.Transitions:
             raise ValueError("Experience replay size can only be configured in terms of transitions")
         self.allow_duplicates_in_batch_sampling = allow_duplicates_in_batch_sampling
 
-        self.db = db
+        self.db = redis_db
         self.redis_connection = redis.Redis(redis_ip, redis_port, self.db)
 
     def length(self) -> int:
@@ -67,7 +69,7 @@ class DistributedExperienceReplay(Memory):
         Get the number of transitions in the ER
         """
         return self.redis_connection.info(section='keyspace')['db{}'.format(self.db)]['keys']
-        
+
     def sample(self, size: int) -> List[Transition]:
         """
         Sample a batch of transitions form the replay buffer. If the requested size is larger than the number
@@ -75,7 +77,7 @@ class DistributedExperienceReplay(Memory):
         :param size: the size of the batch to sample
         :param beta: the beta parameter used for importance sampling
         :return: a batch (list) of selected transitions from the replay buffer
-        """        
+        """
         transition_idx = dict()
         if self.allow_duplicates_in_batch_sampling:
             while len(transition_idx) != size:
@@ -129,7 +131,7 @@ class DistributedExperienceReplay(Memory):
         :return: the corresponding transition
         """
         return pickle.loads(self.redis_connection.get(transition_index))
-        
+
     def remove_transition(self, transition_index: int, lock: bool=True) -> None:
         """
         Remove the transition in the given index.
@@ -140,7 +142,7 @@ class DistributedExperienceReplay(Memory):
         :return: None
         """
         self.redis_connection.delete(transition_index)
-        
+
     # for API compatibility
     def get(self, transition_index: int, lock: bool=True) -> Union[None, Transition]:
         """
@@ -173,5 +175,5 @@ class DistributedExperienceReplay(Memory):
         :return: the mean reward
         """
         mean = np.mean([pickle.loads(self.redis_connection.get(key)).reward for key in self.redis_connection.keys()])
-        
+
         return mean

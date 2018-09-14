@@ -20,6 +20,7 @@ def rollout_worker(graph_manager, checkpoint_dir):
     task_parameters = TaskParameters()
     task_parameters.__dict__['checkpoint_restore_dir'] = checkpoint_dir
     graph_manager.create_graph(task_parameters)
+    
     graph_manager.phase = RunPhase.TRAIN
     graph_manager.act(EnvironmentEpisodes(num_steps=10))
     graph_manager.phase = RunPhase.UNDEFINED
@@ -43,6 +44,7 @@ def main():
         graph_manager=graph_manager,
         checkpoint_dir=args.checkpoint_dir,
     )
+
 
 if __name__ == '__main__':
     main()
