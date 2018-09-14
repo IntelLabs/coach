@@ -40,6 +40,9 @@ def main():
 
     graph_manager = short_dynamic_import(expand_preset(args.preset), ignore_module_case=True)
 
+    graph_manager.agent_parameters.memory.redis_ip = args.redis_ip
+    graph_manager.agent_params.memory.redis_port = args.redis_port
+
     rollout_worker(
         graph_manager=graph_manager,
         checkpoint_dir=args.checkpoint_dir,
