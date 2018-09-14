@@ -29,4 +29,4 @@ RUN pip3 install -e .
 # RUN pip3 install rl_coach
 
 # CMD ["coach", "-p", "CartPole_PG", "-e", "cartpole"]
-CMD python3 rl_coach/rollout_worker.py
+CMD python3 rl_coach/rollout_worker.py --preset CartPole_PG

@@ -15,6 +15,7 @@ endif
 
 RUN_ARGUMENTS+=--rm
 RUN_ARGUMENTS+=--net host
+RUN_ARGUMENTS+=-v /tmp/checkpoint:/checkpoint
 
 CONTEXT = $(realpath ..)
 
@@ -24,6 +25,7 @@ endif
 
 build:
 	${DOCKER} build -f=Dockerfile -t=${IMAGE} ${BUILD_ARGUMENTS} ${CONTEXT}
+	mkdir -p /tmp/checkpoint
 
 shell: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} /bin/bash
@@ -33,6 +35,12 @@ test: build
 
 run: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE}
+
+run_training_worker: build
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/training_worker.py --preset CartPole_PG
+
+run_rollout_worker: build
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/rollout_worker.py --preset CartPole_PG
 
 push:
 	docker push ${IMAGE}
