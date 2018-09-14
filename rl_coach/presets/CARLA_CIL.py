@@ -40,7 +40,7 @@ agent_params = CILAgentParameters()
 
 # forward camera and measurements input
 agent_params.network_wrappers['main'].input_embedders_parameters = {
-    'forward_camera': InputEmbedderParameters(scheme=[Conv2d([32, 5, 2]),
+    'CameraRGB': InputEmbedderParameters(scheme=[Conv2d([32, 5, 2]),
                                     Conv2d([32, 3, 1]),
                                     Conv2d([64, 3, 2]),
                                     Conv2d([64, 3, 1]),
@@ -80,13 +80,13 @@ agent_params.network_wrappers['main'].learning_rate = 0.0002
 
 # crop and rescale the image + use only the forward speed measurement
 agent_params.input_filter = InputFilter()
-agent_params.input_filter.add_observation_filter('forward_camera', 'cropping',
+agent_params.input_filter.add_observation_filter('CameraRGB', 'cropping',
                                                  ObservationCropFilter(crop_low=np.array([115, 0, 0]),
                                                                        crop_high=np.array([510, -1, -1])))
-agent_params.input_filter.add_observation_filter('forward_camera', 'rescale',
+agent_params.input_filter.add_observation_filter('CameraRGB', 'rescale',
                                                  ObservationRescaleToSizeFilter(
                                                      ImageObservationSpace(np.array([88, 200, 3]), high=255)))
-agent_params.input_filter.add_observation_filter('forward_camera', 'to_uint8', ObservationToUInt8Filter(0, 255))
+agent_params.input_filter.add_observation_filter('CameraRGB', 'to_uint8', ObservationToUInt8Filter(0, 255))
 agent_params.input_filter.add_observation_filter(
     'measurements', 'select_speed',
     ObservationReductionBySubPartsNameFilter(
@@ -113,7 +113,7 @@ agent_params.memory.num_classes = 4
 ###############
 env_params = CarlaEnvironmentParameters()
 env_params.level = 'town1'
-env_params.cameras = [CameraTypes.FRONT]
+env_params.cameras = ['CameraRGB']
 env_params.camera_height = 600
 env_params.camera_width = 800
 env_params.allow_braking = False

@@ -58,7 +58,7 @@ if __name__ == "__main__":
         for transition_idx in range(file_length):
             transition = Transition(
                 state={
-                    'forward_camera': observations[transition_idx],
+                    'CameraRGB': observations[transition_idx],
                     'measurements': measurements[transition_idx],
                     'high_level_command': high_level_commands[transition_idx]
                 },

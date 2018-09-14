@@ -153,15 +153,6 @@ class CarlaEnvironment(Environment):
         self.camera_width = camera_width
         self.camera_height = camera_height
 
-        # state space
-        self.state_space = StateSpace({
-            "measurements": VectorObservationSpace(4, measurements_names=["forward_speed", "x", "y", "z"])
-        })
-        for camera in self.cameras:
-            self.state_space[camera.value] = ImageObservationSpace(
-                shape=np.array([self.camera_height, self.camera_width, 3]),
-                high=255)
-
         # setup server settings
         self.experiment_suite = experiment_suite
         self.config = config
@@ -195,16 +186,26 @@ class CarlaEnvironment(Environment):
         self.game = CarlaClient(self.host, self.port, timeout=99999999)
         self.game.connect()
         if self.experiment_suite:
-            self.current_experiment = self.experiment_suite.get_experiments()[0]
-            scene = self.game.load_settings(self.current_experiment.conditions)
+            self.current_experiment_idx = 0
+            self.current_experiment = self.experiment_suite.get_experiments()[self.current_experiment_idx]
+            self.scene = self.game.load_settings(self.current_experiment.conditions)
         else:
-            scene = self.game.load_settings(self.settings)
+            self.scene = self.game.load_settings(self.settings)
 
         # get available start positions
-        self.positions = scene.player_start_spots
+        self.positions = self.scene.player_start_spots
         self.num_positions = len(self.positions)
         self.current_start_position_idx = 0
         self.current_pose = 0
+
+        # state space
+        self.state_space = StateSpace({
+            "measurements": VectorObservationSpace(4, measurements_names=["forward_speed", "x", "y", "z"])
+        })
+        for camera in self.scene.sensors:
+            self.state_space[camera.name] = ImageObservationSpace(
+                shape=np.array([self.camera_height, self.camera_width, 3]),
+                high=255)
 
         # action space
         self.action_space = BoxActionSpace(shape=2, low=np.array([-1, -1]), high=np.array([1, 1]))
@@ -342,8 +343,8 @@ class CarlaEnvironment(Environment):
             measurements, sensor_data = self.game.read_data()
         self.state = {}
 
-        for camera in self.cameras:
-            self.state[camera.value] = sensor_data[camera.value].data
+        for camera in self.scene.sensors:
+            self.state[camera.name] = sensor_data[camera.name].data
 
         self.location = [measurements.player_measurements.transform.location.x,
                          measurements.player_measurements.transform.location.y,
@@ -398,12 +399,25 @@ class CarlaEnvironment(Environment):
 
         self.game.send_control(self.control)
 
+    def _load_experiment(self, experiment_idx):
+        self.current_experiment = self.experiment_suite.get_experiments()[experiment_idx]
+        self.scene = self.game.load_settings(self.current_experiment.conditions)
+        self.positions = self.scene.player_start_spots
+        self.num_positions = len(self.positions)
+        self.current_start_position_idx = 0
+        self.current_pose = 0
+
     def _restart_environment_episode(self, force_environment_reset=False):
         # select start and end positions
         if self.experiment_suite:
             # if an expeirent suite is available, follow its given poses
+            if self.current_pose >= len(self.current_experiment.poses):
+                # load a new experiment
+                self.current_experiment_idx = (self.current_experiment_idx + 1) % len(self.experiment_suite.get_experiments())
+                self._load_experiment(self.current_experiment_idx)
+
             self.current_start_position_idx = self.current_experiment.poses[self.current_pose][0]
-            self.current_goal = self.current_experiment.poses[self.current_pose][1]
+            self.current_goal = self.positions[self.current_experiment.poses[self.current_pose][1]]
             self.current_pose += 1
         else:
             # go over all the possible positions in a cyclic manner
@@ -428,6 +442,6 @@ class CarlaEnvironment(Environment):
         This can be different from the observation. For example, mujoco's observation is a measurements vector.
         :return: numpy array containing the image that will be rendered to the screen
         """
-        image = [self.state[camera.value] for camera in self.cameras]
+        image = [self.state[camera.name] for camera in self.scene.sensors]
         image = np.vstack(image)
         return image
