@@ -20,7 +20,7 @@ def rollout_worker(graph_manager, checkpoint_dir):
     task_parameters = TaskParameters()
     task_parameters.__dict__['checkpoint_restore_dir'] = checkpoint_dir
     graph_manager.create_graph(task_parameters)
-    
+
     graph_manager.phase = RunPhase.TRAIN
     graph_manager.act(EnvironmentEpisodes(num_steps=10))
     graph_manager.phase = RunPhase.UNDEFINED
@@ -36,11 +36,19 @@ def main():
                         help='(string) Path to a folder containing a checkpoint to restore the model from.',
                         type=str,
                         default='/checkpoint')
+    parser.add_argument('-r', '--redis_ip',
+                        help="(string) IP or host for the redis server",
+                        default='localhost',
+                        type=str)
+    parser.add_argument('-rp', '--redis_port',
+                        help="(int) Port of the redis server",
+                        default=6379,
+                        type=int)
     args = parser.parse_args()
 
     graph_manager = short_dynamic_import(expand_preset(args.preset), ignore_module_case=True)
 
-    graph_manager.agent_parameters.memory.redis_ip = args.redis_ip
+    graph_manager.agent_params.memory.redis_ip = args.redis_ip
     graph_manager.agent_params.memory.redis_port = args.redis_port
 
     rollout_worker(

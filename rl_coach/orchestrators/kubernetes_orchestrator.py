@@ -42,7 +42,7 @@ class Kubernetes(Deploy):
                 print("Failed to setup redis")
                 return False
 
-        self.deploy_parameters.command += ['-r', self.deploy_parameters.redis_ip, '-p', '{}'.format(self.deploy_parameters.redis_port)]
+        self.deploy_parameters.command += ['--redis_ip', self.deploy_parameters.redis_ip, '--redis_port', '{}'.format(self.deploy_parameters.redis_port)]
 
         return True
 
