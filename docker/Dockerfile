@@ -18,6 +18,7 @@ RUN pip3 install --upgrade pip
 
 RUN mkdir /root/src
 COPY setup.py /root/src/.
+COPY requirements.txt /root/src/.
 COPY README.md /root/src/.
 WORKDIR /root/src
 RUN pip3 install -e .
