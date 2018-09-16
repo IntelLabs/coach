@@ -27,6 +27,7 @@ from multiprocessing import Manager
 from subprocess import Popen
 from typing import List, Tuple
 
+import atexit
 import numpy as np
 
 killed_processes = []
@@ -571,3 +572,14 @@ class ProgressBar(object):
 
     def close(self):
         print("")
+
+
+def start_shell_command_and_wait(command):
+    p = Popen(command, shell=True, preexec_fn=os.setsid)
+
+    def cleanup():
+        os.killpg(os.getpgid(p.pid), 15)
+
+    atexit.register(cleanup)
+    p.wait()
+    atexit.unregister(cleanup)

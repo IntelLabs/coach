@@ -1,4 +1,6 @@
 import numpy as np
+import os
+from logger import screen
 
 # make sure you have $CARLA_ROOT/PythonClient in your PYTHONPATH
 from carla.driving_benchmark.experiment_suites import CoRL2017
@@ -23,6 +25,8 @@ from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import ConstantSchedule
 from rl_coach.spaces import ImageObservationSpace
+from rl_coach.utilities.carla_dataset_to_replay_buffer import create_dataset
+
 
 ####################
 # Graph Scheduling #
@@ -100,13 +104,22 @@ agent_params.exploration.evaluation_noise_percentage = 0
 # no playing during the training phase
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 
-# the CARLA dataset should be downloaded through the following repository:
-#   https://github.com/carla-simulator/imitation-learning
-# the dataset should then be converted to the Coach format using the script utils/carla_dataset_to_replay_buffer.py
-# the path to the converted dataset should be updated below
+# use the following command line to download and extract the CARLA dataset:
+# python rl_coach/utilities/carla_dataset_to_replay_buffer.py
 agent_params.memory.load_memory_from_file_path = "./datasets/carla_train_set_replay_buffer.p"
 agent_params.memory.state_key_with_the_class_index = 'high_level_command'
 agent_params.memory.num_classes = 4
+
+# download dataset if it doesn't exist
+if not os.path.exists(agent_params.memory.load_memory_from_file_path):
+    screen.log_title("The CARLA dataset is not present in the following path: {}"
+                     .format(agent_params.memory.load_memory_from_file_path))
+    result = screen.ask_yes_no("Do you want to download it now?")
+    if result:
+        create_dataset(None, "./datasets/carla_train_set_replay_buffer.p")
+    else:
+        screen.error("Please update the path to the CARLA dataset in the CARLA_CIL preset", crash=True)
+
 
 ###############
 # Environment #
@@ -116,12 +129,13 @@ env_params.level = 'town1'
 env_params.cameras = ['CameraRGB']
 env_params.camera_height = 600
 env_params.camera_width = 800
-env_params.allow_braking = False
+env_params.separate_actions_for_throttle_and_brake = True
+env_params.allow_braking = True
 env_params.quality = CarlaEnvironmentParameters.Quality.EPIC
 env_params.experiment_suite = CoRL2017('Town01')
 
 vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
+vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST)]
 vis_params.dump_mp4 = True
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,

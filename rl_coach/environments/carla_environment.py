@@ -113,6 +113,7 @@ class CarlaEnvironmentParameters(EnvironmentParameters):
         self.verbose = True
         self.episode_max_time = 100000  # miliseconds for each episode
         self.allow_braking = False
+        self.separate_actions_for_throttle_and_brake = False
         self.num_speedup_steps = 30
         self.max_speed = 35.0  # km/h
         self.default_input_filter = CarlaInputFilter
@@ -131,6 +132,7 @@ class CarlaEnvironment(Environment):
                  verbose: bool, experiment_suite: ExperimentSuite, config: str, episode_max_time: int,
                  allow_braking: bool, quality: CarlaEnvironmentParameters.Quality,
                  cameras: List[CameraTypes], weather_id: List[int], experiment_path: str,
+                 separate_actions_for_throttle_and_brake: bool,
                  num_speedup_steps: int, max_speed: float, **kwargs):
         super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters)
 
@@ -150,6 +152,7 @@ class CarlaEnvironment(Environment):
         self.weather_id = weather_id
         self.episode_max_time = episode_max_time
         self.allow_braking = allow_braking
+        self.separate_actions_for_throttle_and_brake = separate_actions_for_throttle_and_brake
         self.camera_width = camera_width
         self.camera_height = camera_height
 
@@ -208,7 +211,12 @@ class CarlaEnvironment(Environment):
                 high=255)
 
         # action space
-        self.action_space = BoxActionSpace(shape=2, low=np.array([-1, -1]), high=np.array([1, 1]))
+        if self.separate_actions_for_throttle_and_brake:
+            self.action_space = BoxActionSpace(shape=3, low=np.array([-1, 0, 0]), high=np.array([1, 1, 1]),
+                                               descriptions=["steer", "gas", "brake"])
+        else:
+            self.action_space = BoxActionSpace(shape=2, low=np.array([-1, -1]), high=np.array([1, 1]),
+                                               descriptions=["steer", "gas_and_brake"])
 
         # human control
         if self.human_control:
@@ -216,6 +224,7 @@ class CarlaEnvironment(Environment):
             self.steering_strength = 0.5
             self.gas_strength = 1.0
             self.brake_strength = 0.5
+            # TODO: reverse order of actions
             self.action_space = PartialDiscreteActionSpaceMap(
                 target_actions=[[0., 0.],
                                 [0., -self.steering_strength],
@@ -381,13 +390,18 @@ class CarlaEnvironment(Environment):
     def _take_action(self, action):
         self.control = VehicleControl()
 
-        # transform the 2 value action (throttle - brake, steer) into a 3 value action (throttle, brake, steer)
-        self.control.throttle = np.clip(action[0], 0, 1)
-        self.control.steer = np.clip(action[1], -1, 1)
-        self.control.brake = np.abs(np.clip(action[0], -1, 0))
+        if self.separate_actions_for_throttle_and_brake:
+            self.control.steer = np.clip(action[0], -1, 1)
+            self.control.throttle = np.clip(action[1], 0, 1)
+            self.control.brake = np.clip(action[2], 0, 1)
+        else:
+            # transform the 2 value action (steer, throttle - brake) into a 3 value action (steer, throttle, brake)
+            self.control.steer = np.clip(action[0], -1, 1)
+            self.control.throttle = np.clip(action[1], 0, 1)
+            self.control.brake = np.abs(np.clip(action[1], -1, 0))
 
         # prevent braking
-        if not self.allow_braking or self.control.brake < 0.1:
+        if not self.allow_braking or self.control.brake < 0.1 or self.control.throttle > self.control.brake:
             self.control.brake = 0
 
         # prevent over speeding
@@ -423,7 +437,7 @@ class CarlaEnvironment(Environment):
             # go over all the possible positions in a cyclic manner
             self.current_start_position_idx = (self.current_start_position_idx + 1) % self.num_positions
 
-            # choose a random goal destination TODO: follow the CoRL destinations and start positions
+            # choose a random goal destination
             self.current_goal = random.choice(self.positions)
 
         try:
@@ -434,7 +448,8 @@ class CarlaEnvironment(Environment):
 
         # start the game with some initial speed
         for i in range(self.num_speedup_steps):
-            self._take_action([1.0, 0])
+            self.control = VehicleControl(throttle=1.0, brake=0, steer=0, hand_brake=False, reverse=False)
+            self.game.send_control(VehicleControl())
 
     def get_rendered_image(self) -> np.ndarray:
         """
