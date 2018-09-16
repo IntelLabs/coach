@@ -20,3 +20,4 @@ rl_coach.egg*
 contrib
 test_log_*
 dist
+datasets

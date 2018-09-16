@@ -29,11 +29,11 @@ from rl_coach.logger import screen
 
 
 def maybe_download(dataset_root):
-    if not dataset_root or not os.path.exists(dataset_root):
+    if not dataset_root or not os.path.exists(os.path.join(dataset_root, "AgentHuman")):
         screen.log_title("Downloading the CARLA dataset. This might take a while.")
 
         google_drive_download_id = "1hloAeyamYn-H6MfV1dRtY1gJPhkR55sY"
-        filename_to_save = "datasets/CARLA_dataset.tar.gz"
+        filename_to_save = "datasets/CORL2017ImitationLearningData.tar.gz"
         download_command = 'wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=' \
                            '$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies ' \
                            '--no-check-certificate \"https://docs.google.com/uc?export=download&id={}\" -O- | ' \
@@ -44,16 +44,19 @@ def maybe_download(dataset_root):
         start_shell_command_and_wait(download_command)
 
         screen.log_title("Unzipping the dataset")
-        unzip_command = 'tar -xzf {}'.format(filename_to_save)
+        unzip_command = 'tar -xzf {} --checkpoint=.10000'.format(filename_to_save)
         if dataset_root is not None:
             unzip_command += " -C {}".format(dataset_root)
 
+        if not os.path.exists(dataset_root):
+            os.makedirs(dataset_root)
         start_shell_command_and_wait(unzip_command)
 
 
 def create_dataset(dataset_root, output_path):
     maybe_download(dataset_root)
 
+    dataset_root = os.path.join(dataset_root, 'AgentHuman')
     train_set_root = os.path.join(dataset_root, 'SeqTrain')
     validation_set_root = os.path.join(dataset_root, 'SeqVal')
 
