@@ -359,6 +359,9 @@ class CarlaEnvironment(Environment):
                          measurements.player_measurements.transform.location.y,
                          measurements.player_measurements.transform.location.z]
 
+        self.distance_from_goal = np.linalg.norm(np.array(self.location[:2]) -
+                                                 [self.current_goal.location.x, self.current_goal.location.y])
+
         is_collision = measurements.player_measurements.collision_vehicles != 0 \
                        or measurements.player_measurements.collision_pedestrians != 0 \
                        or measurements.player_measurements.collision_other != 0
@@ -381,8 +384,6 @@ class CarlaEnvironment(Environment):
         self.state['high_level_command'] = directions
 
         if (measurements.game_timestamp >= self.episode_max_time) or is_collision:
-            # screen.success('EPISODE IS DONE. GameTime: {}, Collision: {}'.format(str(measurements.game_timestamp),
-            #                                                                      str(is_collision)))
             self.done = True
 
         self.state['measurements'] = np.array(self.measurements)

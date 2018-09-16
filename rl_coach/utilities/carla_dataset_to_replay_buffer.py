@@ -71,10 +71,6 @@ def create_dataset(dataset_root, output_path):
         observations = train_set['rgb'][:]  # forward camera
         measurements = np.expand_dims(train_set['targets'][:, 10], -1)  # forward speed
         actions = train_set['targets'][:, :3]  # steer, gas, brake
-        # actions[:, :2] = actions[:, 1:3]
-        # actions[:, 2] = train_set['targets'][:, 0]                           # gas, brake, steer
-        # actions[:, 1] -= actions[:, 2]
-        # actions = actions[:, :2][:, ::-1]
 
         high_level_commands = train_set['targets'][:, 24].astype('int') - 2  # follow lane, left, right, straight
 

@@ -21,3 +21,7 @@ contrib
 test_log_*
 dist
 datasets
+.cache
+.pytest_cache
+core
+trace_test*
