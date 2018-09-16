@@ -161,7 +161,7 @@ class Environment(EnvironmentInterface):
         self.human_control = human_control
         self.wait_for_explicit_human_action = False
         self.is_rendered = visualization_parameters.render or self.human_control
-        self.native_rendering = visualization_parameters.native_rendering or self.human_control
+        self.native_rendering = visualization_parameters.native_rendering and not self.human_control
         self.visualization_parameters = visualization_parameters
         if not self.native_rendering:
             self.renderer = Renderer()
