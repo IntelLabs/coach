@@ -26,6 +26,7 @@ endif
 build:
 	${DOCKER} build -f=Dockerfile -t=${IMAGE} ${BUILD_ARGUMENTS} ${CONTEXT}
 	mkdir -p /tmp/checkpoint
+	rm -rf /tmp/checkpoint/*
 
 shell: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} /bin/bash
@@ -37,10 +38,10 @@ run: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE}
 
 run_training_worker: build
-	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/training_worker.py --preset CartPole_PG
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/training_worker.py --preset CartPole_DQN_distributed
 
 run_rollout_worker: build
-	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/rollout_worker.py --preset CartPole_PG
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/rollout_worker.py --preset CartPole_DQN_distributed
 
 push:
 	docker push ${IMAGE}

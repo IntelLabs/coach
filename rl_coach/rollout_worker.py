@@ -40,7 +40,11 @@ def wait_for_checkpoint(checkpoint_dir, timeout=10):
     if has_checkpoint(checkpoint_dir):
         return
 
-    raise ValueError('checkpoint never found in {checkpoint_dir}'.format(
+    raise ValueError((
+        'Waited {timeout} seconds, but checkpoint never found in'
+        ' {checkpoint_dir}'
+    ).format(
+        timeout=timeout,
         checkpoint_dir=checkpoint_dir,
     ))
 
@@ -82,9 +86,8 @@ def main():
 
     graph_manager = short_dynamic_import(expand_preset(args.preset), ignore_module_case=True)
 
-    # TODO: get this working, this expects that memory already has a redis ip and port
-    # graph_manager.agent_params.memory.redis_ip = args.redis_ip
-    # graph_manager.agent_params.memory.redis_port = args.redis_port
+    graph_manager.agent_params.memory.redis_ip = args.redis_ip
+    graph_manager.agent_params.memory.redis_port = args.redis_port
 
     rollout_worker(
         graph_manager=graph_manager,
