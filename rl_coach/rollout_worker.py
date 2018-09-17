@@ -41,8 +41,8 @@ def wait_for_checkpoint(checkpoint_dir, timeout=10):
         return
 
     raise ValueError((
-        'Waited {timeout} seconds, but checkpoint never found in'
-        ' {checkpoint_dir}'
+        'Waited {timeout} seconds, but checkpoint never found in '
+        '{checkpoint_dir}'
     ).format(
         timeout=timeout,
         checkpoint_dir=checkpoint_dir,

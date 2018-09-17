@@ -1,3 +1,4 @@
+REGISTRY=nervana-dockrepo01.fm.intel.com:5001/
 IMAGE=zdwiel/coach
 # IMAGE=gcr.io/deep-greens/inference:v5
 
@@ -43,5 +44,9 @@ run_training_worker: build
 run_rollout_worker: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/rollout_worker.py --preset CartPole_DQN_distributed
 
-push:
-	docker push ${IMAGE}
+kubernetes: build push
+	kubectl run -i --tty --attach --image=${IMAGE} --restart=Never date -- python3 rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE}
+
+push: build
+	${DOCKER} tag ${IMAGE} ${REGISTRY}${IMAGE}
+	${DOCKER} push ${REGISTRY}${IMAGE}
