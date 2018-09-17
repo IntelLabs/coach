@@ -9,6 +9,7 @@ this rollout worker:
 
 import argparse
 import time
+import os
 
 from rl_coach.base_parameters import TaskParameters
 from rl_coach.coach import expand_preset
@@ -39,7 +40,9 @@ def wait_for_checkpoint(checkpoint_dir, timeout=10):
     if has_checkpoint(checkpoint_dir):
         return
 
-    raise ValueError(f'checkpoint never found in {checkpoint_dir}')
+    raise ValueError('checkpoint never found in {checkpoint_dir}'.format(
+        checkpoint_dir=checkpoint_dir,
+    ))
 
 
 def rollout_worker(graph_manager, checkpoint_dir):
@@ -79,8 +82,9 @@ def main():
 
     graph_manager = short_dynamic_import(expand_preset(args.preset), ignore_module_case=True)
 
-    graph_manager.agent_params.memory.redis_ip = args.redis_ip
-    graph_manager.agent_params.memory.redis_port = args.redis_port
+    # TODO: get this working, this expects that memory already has a redis ip and port
+    # graph_manager.agent_params.memory.redis_ip = args.redis_ip
+    # graph_manager.agent_params.memory.redis_port = args.redis_port
 
     rollout_worker(
         graph_manager=graph_manager,
