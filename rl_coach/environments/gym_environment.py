@@ -329,6 +329,8 @@ class GymEnvironment(Environment):
             self.key_to_action = {}
             if hasattr(self.env.unwrapped, 'get_keys_to_action'):
                 self.key_to_action = self.env.unwrapped.get_keys_to_action()
+            else:
+                screen.error("Error: Environment {} does not support human control.".format(self.env), crash=True)
 
         # initialize the state by getting a new state from the environment
         self.reset_internal_state(True)
