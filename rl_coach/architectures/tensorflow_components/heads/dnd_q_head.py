@@ -15,7 +15,7 @@
 #
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters
 from rl_coach.architectures.tensorflow_components.heads.q_head import QHead
 from rl_coach.base_parameters import AgentParameters

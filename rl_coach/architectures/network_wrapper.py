@@ -199,6 +199,16 @@ class NetworkWrapper(object):
         global_variables = [v for v in tf.global_variables() if self.global_network.name in v.name]
         return global_variables
 
+    def set_is_training(self, state: bool):
+        """
+        Set the phase of the network between training and testing
+        :param state: The current state (True = Training, False = Testing)
+        :return: None
+        """
+        self.online_network.set_is_training(state)
+        if self.has_target:
+            self.target_network.set_is_training(state)
+
     def set_session(self, sess):
         self.sess = sess
         self.online_network.set_session(sess)

@@ -26,6 +26,7 @@ from rl_coach.base_parameters import AgentParameters, AlgorithmParameters, Netwo
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
 
 
 class BCAlgorithmParameters(AlgorithmParameters):
@@ -51,7 +52,7 @@ class BCAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=BCAlgorithmParameters(),
                          exploration=EGreedyParameters(),
-                         memory=EpisodicExperienceReplayParameters(),
+                         memory=ExperienceReplayParameters(),
                          networks={"main": BCNetworkParameters()})
 
     @property

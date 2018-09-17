@@ -80,6 +80,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             return ret_dict
 
         self.available_return_types = fill_return_types()
+        self.is_training = None
 
     def predict_with_prediction_type(self, states: Dict[str, np.ndarray],
                                      prediction_type: PredictionType) -> Dict[str, np.ndarray]:
@@ -194,6 +195,11 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         if len(self.network_parameters.heads_parameters) != len(self.network_parameters.loss_weights):
             raise ValueError("Number of loss weights should match the number of output types")
+
+        # ops for defining the training / testing phase
+        self.is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
+        self.is_training_placeholder = tf.placeholder("bool")
+        self.assign_is_training = tf.assign(self.is_training, self.is_training_placeholder)
 
         for network_idx in range(self.num_networks):
             with tf.variable_scope('network_{}'.format(network_idx)):

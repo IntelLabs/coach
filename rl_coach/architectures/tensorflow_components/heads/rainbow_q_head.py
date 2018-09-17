@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters, Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue

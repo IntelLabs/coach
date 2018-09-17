@@ -1,5 +1,5 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.control_suite_environment import ControlSuiteEnvironmentParameters, control_suite_envs
@@ -27,10 +27,10 @@ agent_params.network_wrappers['actor'].input_embedders_parameters['measurements'
     agent_params.network_wrappers['actor'].input_embedders_parameters.pop('observation')
 agent_params.network_wrappers['critic'].input_embedders_parameters['measurements'] = \
     agent_params.network_wrappers['critic'].input_embedders_parameters.pop('observation')
-agent_params.network_wrappers['actor'].input_embedders_parameters['measurements'].scheme = [Dense([300])]
-agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense([200])]
-agent_params.network_wrappers['critic'].input_embedders_parameters['measurements'].scheme = [Dense([400])]
-agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense([300])]
+agent_params.network_wrappers['actor'].input_embedders_parameters['measurements'].scheme = [Dense(300)]
+agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense(200)]
+agent_params.network_wrappers['critic'].input_embedders_parameters['measurements'].scheme = [Dense(400)]
+agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(300)]
 agent_params.network_wrappers['critic'].input_embedders_parameters['action'].scheme = EmbedderScheme.Empty
 agent_params.input_filter = MujocoInputFilter()
 agent_params.input_filter.add_reward_filter("rescale", RewardRescaleFilter(1/10.))

@@ -1,5 +1,5 @@
 from rl_coach.agents.naf_agent import NAFAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase, GradientClippingMethod
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
@@ -20,8 +20,8 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 # Agent #
 #########
 agent_params = NAFAgentParameters()
-agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense([200])]
-agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense([200])]
+agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(200)]
+agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(200)]
 agent_params.network_wrappers['main'].clip_gradients = 1000
 agent_params.network_wrappers['main'].gradients_clipping_method = GradientClippingMethod.ClipByValue
 

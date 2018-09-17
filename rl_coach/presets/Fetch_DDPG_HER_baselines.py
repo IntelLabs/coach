@@ -1,5 +1,5 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
@@ -44,7 +44,7 @@ actor_network.input_embedders_parameters = {
     'observation': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     'desired_goal': InputEmbedderParameters(scheme=EmbedderScheme.Empty)
 }
-actor_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense([256]), Dense([256]), Dense([256])])
+actor_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense(256), Dense(256), Dense(256)])
 actor_network.heads_parameters[0].batchnorm = False
 
 # critic
@@ -59,7 +59,7 @@ critic_network.input_embedders_parameters = {
     'desired_goal': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     'observation': InputEmbedderParameters(scheme=EmbedderScheme.Empty)
 }
-critic_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense([256]), Dense([256]), Dense([256])])
+critic_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense(256), Dense(256), Dense(256)])
 
 agent_params.algorithm.discount = 0.98
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(1)

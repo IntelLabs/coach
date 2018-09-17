@@ -17,28 +17,30 @@ from typing import Union, List
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_FC_Embedding
+from rl_coach.utils import force_list
 
 
 class FCMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu',
                  scheme: Union[List, MiddlewareScheme] = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_fc_embedder", dense_layer=Dense):
+                 name="middleware_fc_embedder", dense_layer=Dense, is_training=False):
         super().__init__(parameterized_class=FCMiddleware, activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer)
+                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer,
+                         is_training=is_training)
 
 
 class FCMiddleware(Middleware):
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_fc_embedder", dense_layer=Dense):
+                 name="middleware_fc_embedder", dense_layer=Dense, is_training=False):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
-                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer)
+                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer, is_training=is_training)
         self.return_type = Middleware_FC_Embedding
         self.layers = []
 
@@ -50,13 +52,15 @@ class FCMiddleware(Middleware):
         else:
             layers_params = self.scheme
         for idx, layer_params in enumerate(layers_params):
-            self.layers.append(
-                layer_params(self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx))
-            )
+            self.layers.extend(force_list(
+                layer_params(self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
+                             is_training=self.is_training)
+            ))
 
             self.layers.extend(batchnorm_activation_dropout(self.layers[-1], self.batchnorm,
                                                             self.activation_function, self.dropout,
-                                                            self.dropout_rate, idx))
+                                                            self.dropout_rate, self.is_training,
+                                                            name='BatchnnormActivationDropout_{}'.format(idx)))
 
         self.output = self.layers[-1]
 
@@ -69,20 +73,20 @@ class FCMiddleware(Middleware):
             # ppo
             MiddlewareScheme.Shallow:
                 [
-                    self.dense_layer([64])
+                    self.dense_layer(64)
                 ],
 
             # dqn
             MiddlewareScheme.Medium:
                 [
-                    self.dense_layer([512])
+                    self.dense_layer(512)
                 ],
 
             MiddlewareScheme.Deep: \
                 [
-                    self.dense_layer([128]),
-                    self.dense_layer([128]),
-                    self.dense_layer([128])
+                    self.dense_layer(128),
+                    self.dense_layer(128),
+                    self.dense_layer(128)
                 ]
         }
 

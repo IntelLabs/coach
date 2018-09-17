@@ -19,7 +19,7 @@ from typing import List, Dict
 import numpy as np
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import NoisyNetDense
+from rl_coach.architectures.tensorflow_components.layers import NoisyNetDense
 from rl_coach.base_parameters import AgentParameters, NetworkParameters
 from rl_coach.spaces import ActionSpace, BoxActionSpace, DiscreteActionSpace
 

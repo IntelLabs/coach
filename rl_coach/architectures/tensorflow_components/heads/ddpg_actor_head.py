@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
@@ -56,7 +56,7 @@ class DDPGActor(Head):
         pre_activation_policy_values_mean = self.dense_layer(self.num_actions)(input_layer, name='fc_mean')
         policy_values_mean = batchnorm_activation_dropout(pre_activation_policy_values_mean, self.batchnorm,
                                                           self.activation_function,
-                                                          False, 0, 0)[-1]
+                                                          False, 0, is_training=False, name="BatchnormActivationDropout_0")[-1]
         self.policy_mean = tf.multiply(policy_values_mean, self.output_scale, name='output_mean')
 
         if self.is_local:

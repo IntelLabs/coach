@@ -1,5 +1,5 @@
 from rl_coach.agents.n_step_q_agent import NStepQAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Conv2d, Dense
+from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SingleLevelSelection, SelectedPhaseOnlyDumpMethod, MaxDumpMethod
@@ -22,9 +22,9 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 agent_params = NStepQAgentParameters()
 
 agent_params.network_wrappers['main'].learning_rate = 0.0001
-agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Conv2d([16, 8, 4]),
-                                                                                          Conv2d([32, 4, 2])]
-agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense([256])]
+agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Conv2d(16, 8, 4),
+                                                                                          Conv2d(32, 4, 2)]
+agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(256)]
 
 ###############
 # Environment #

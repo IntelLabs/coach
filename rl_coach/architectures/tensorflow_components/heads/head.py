@@ -18,7 +18,7 @@ from typing import Type
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.losses.losses_impl import Reduction
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import AgentParameters, Parameters, NetworkComponentParameters
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list

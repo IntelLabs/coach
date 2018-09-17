@@ -1,5 +1,5 @@
 from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, \
     PresetValidationParameters
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
@@ -28,7 +28,7 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 agent_params = DQNAgentParameters()
 agent_params.network_wrappers['main'].learning_rate = 0.001
 agent_params.network_wrappers['main'].batch_size = 128
-agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense([256])]
+agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(256)]
 agent_params.network_wrappers['main'].input_embedders_parameters = {
     'state': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     'desired_goal': InputEmbedderParameters(scheme=EmbedderScheme.Empty)

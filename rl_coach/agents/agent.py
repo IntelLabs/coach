@@ -543,6 +543,9 @@ class Agent(AgentInterface):
         """
         loss = 0
         if self._should_train():
+            for network in self.networks.values():
+                network.set_is_training(True)
+
             for training_step in range(self.ap.algorithm.num_consecutive_training_steps):
                 # TODO: this should be network dependent
                 network_parameters = list(self.ap.network_wrappers.values())[0]
@@ -586,8 +589,13 @@ class Agent(AgentInterface):
                     if self.imitation:
                         self.log_to_screen()
 
+            for network in self.networks.values():
+                network.set_is_training(False)
+
             # run additional commands after the training is done
             self.post_training_commands()
+
+
 
         return loss
 

@@ -1,5 +1,5 @@
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
@@ -28,8 +28,8 @@ agent_params = ClippedPPOAgentParameters()
 
 agent_params.network_wrappers['main'].learning_rate = 0.0003
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].activation_function = 'tanh'
-agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense([64])]
-agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense([64])]
+agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(64)]
+agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(64)]
 agent_params.network_wrappers['main'].middleware_parameters.activation_function = 'tanh'
 agent_params.network_wrappers['main'].batch_size = 64
 agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5

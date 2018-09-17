@@ -4,9 +4,11 @@ from logger import screen
 
 # make sure you have $CARLA_ROOT/PythonClient in your PYTHONPATH
 from carla.driving_benchmark.experiment_suites import CoRL2017
+import tensorflow as tf
+
 
 from rl_coach.agents.cil_agent import CILAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Conv2d, Dense
+from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense, BatchnormActivationDropout
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.architectures.tensorflow_components.heads.cil_head import RegressionHeadParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
@@ -44,38 +46,66 @@ agent_params = CILAgentParameters()
 
 # forward camera and measurements input
 agent_params.network_wrappers['main'].input_embedders_parameters = {
-    'CameraRGB': InputEmbedderParameters(scheme=[Conv2d([32, 5, 2]),
-                                    Conv2d([32, 3, 1]),
-                                    Conv2d([64, 3, 2]),
-                                    Conv2d([64, 3, 1]),
-                                    Conv2d([128, 3, 2]),
-                                    Conv2d([128, 3, 1]),
-                                    Conv2d([256, 3, 1]),
-                                    Conv2d([256, 3, 1]),
-                                    Dense([512]),
-                                    Dense([512])],
-                            dropout=True,
-                            batchnorm=True),
-     'measurements': InputEmbedderParameters(scheme=[Dense([128]),
-                                    Dense([128])])
+    'CameraRGB': InputEmbedderParameters(
+        scheme=[
+            Conv2d(32, 5, 2),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Conv2d(32, 3, 1),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Conv2d(64, 3, 2),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Conv2d(64, 3, 1),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Conv2d(128, 3, 2),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Conv2d(128, 3, 1),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Conv2d(256, 3, 1),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Conv2d(256, 3, 1),
+            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            Dense(512),
+            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.3),
+            Dense(512),
+            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.3)
+        ],
+        activation_function='none'  # we define the activation function for each layer explicitly
+    ),
+    'measurements': InputEmbedderParameters(
+         scheme=[
+            Dense(128),
+            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5),
+            Dense(128),
+            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5)
+         ],
+         activation_function='none'  # we define the activation function for each layer explicitly
+    )
 }
 
-# TODO: batch norm is currently applied to the fc layers which is not desired
-# TODO: dropout should be configured differenetly per layer [1.0] * 8 + [0.7] * 2 + [0.5] * 2 + [0.5] * 1 + [0.5, 1.] * 5
-
 # simple fc middleware
-agent_params.network_wrappers['main'].middleware_parameters = FCMiddlewareParameters(scheme=[Dense([512])])
+agent_params.network_wrappers['main'].middleware_parameters = \
+    FCMiddlewareParameters(
+        scheme=[
+            Dense(512),
+            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5)
+        ],
+        activation_function='none'
+    )
 
 # output branches
 agent_params.network_wrappers['main'].heads_parameters = [
-    RegressionHeadParameters(),
-    RegressionHeadParameters(),
-    RegressionHeadParameters(),
-    RegressionHeadParameters()
+    RegressionHeadParameters(
+        scheme=[
+            Dense(256),
+            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5),
+            Dense(256),
+            BatchnormActivationDropout(activation_function=tf.tanh)
+        ]
+    )
 ]
-# agent_params.network_wrappers['main'].num_output_head_copies = 4  # follow lane, left, right, straight
-agent_params.network_wrappers['main'].rescale_gradient_from_head_by_factor = [1, 1, 1, 1]
-agent_params.network_wrappers['main'].loss_weights = [1, 1, 1, 1]
+agent_params.network_wrappers['main'].num_output_head_copies = 4  # follow lane, left, right, straight
+agent_params.network_wrappers['main'].rescale_gradient_from_head_by_factor = [1] * 4
+agent_params.network_wrappers['main'].loss_weights = [1]
 # TODO: there should be another head predicting the speed which is connected directly to the forward camera embedding
 
 agent_params.network_wrappers['main'].batch_size = 120

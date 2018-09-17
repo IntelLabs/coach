@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import math
 import time
-from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
@@ -25,135 +23,6 @@ from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import GradientClippingMethod
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list, squeeze_list
-
-
-def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout, dropout_rate, layer_idx):
-    layers = [input_layer]
-
-    # batchnorm
-    if batchnorm:
-        layers.append(
-            tf.layers.batch_normalization(layers[-1], name="batchnorm{}".format(layer_idx))
-        )
-
-    # activation
-    if activation_function:
-        layers.append(
-            activation_function(layers[-1], name="activation{}".format(layer_idx))
-        )
-
-    # dropout
-    if dropout:
-        layers.append(
-            tf.layers.dropout(layers[-1], dropout_rate, name="dropout{}".format(layer_idx))
-        )
-
-    # remove the input layer from the layers list
-    del layers[0]
-
-    return layers
-
-
-class Conv2d(object):
-    def __init__(self, params: List):
-        """
-        :param params: list of [num_filters, kernel_size, strides]
-        """
-        self.params = params
-
-    def __call__(self, input_layer, name: str=None):
-        """
-        returns a tensorflow conv2d layer
-        :param input_layer: previous layer
-        :param name: layer name
-        :return: conv2d layer
-        """
-        return tf.layers.conv2d(input_layer, filters=self.params[0], kernel_size=self.params[1], strides=self.params[2],
-                                data_format='channels_last', name=name)
-
-
-class Dense(object):
-    def __init__(self, params: Union[List, int]):
-        """
-        :param params: list of [num_output_neurons]
-        """
-        self.params = force_list(params)
-
-    def __call__(self, input_layer, name: str=None, kernel_initializer=None, activation=None):
-        """
-        returns a tensorflow dense layer
-        :param input_layer: previous layer
-        :param name: layer name
-        :return: dense layer
-        """
-        return tf.layers.dense(input_layer, self.params[0], name=name, kernel_initializer=kernel_initializer,
-                               activation=activation)
-
-
-class NoisyNetDense(object):
-    """
-    A factorized Noisy Net layer
-
-    https://arxiv.org/abs/1706.10295.
-    """
-
-    def __init__(self, params: List):
-        """
-        :param params: list of [num_output_neurons]
-        """
-        self.params = force_list(params)
-        self.sigma0 = 0.5
-
-    def __call__(self, input_layer, name: str, kernel_initializer=None, activation=None):
-        """
-        returns a NoisyNet dense layer
-        :param input_layer: previous layer
-        :param name: layer name
-        :param kernel_initializer: initializer for kernels. Default is to use Gaussian noise that preserves stddev.
-        :param activation: the activation function
-        :return: dense layer
-        """
-        #TODO: noise sampling should be externally controlled. DQN is fine with sampling noise for every
-        #      forward (either act or train, both for online and target networks).
-        #      A3C, on the other hand, should sample noise only when policy changes (i.e. after every t_max steps)
-        
-        num_inputs = input_layer.get_shape()[-1].value
-        num_outputs = self.params[0]
-
-        stddev = 1 / math.sqrt(num_inputs)
-        activation = activation if activation is not None else (lambda x: x)
-
-        if kernel_initializer is None:
-            kernel_mean_initializer = tf.random_uniform_initializer(-stddev, stddev)
-            kernel_stddev_initializer = tf.random_uniform_initializer(-stddev * self.sigma0, stddev * self.sigma0)
-        else:
-            kernel_mean_initializer = kernel_stddev_initializer = kernel_initializer
-        with tf.variable_scope(None, default_name=name):
-            weight_mean = tf.get_variable('weight_mean', shape=(num_inputs, num_outputs),
-                                          initializer=kernel_mean_initializer)
-            bias_mean = tf.get_variable('bias_mean', shape=(num_outputs,), initializer=tf.zeros_initializer())
-
-            weight_stddev = tf.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
-                                            initializer=kernel_stddev_initializer)
-            bias_stddev = tf.get_variable('bias_stddev', shape=(num_outputs,),
-                                          initializer=kernel_stddev_initializer)
-            bias_noise = self.f(tf.random_normal((num_outputs,)))
-            weight_noise = self.factorized_noise(num_inputs, num_outputs)
-
-        bias = bias_mean + bias_stddev * bias_noise
-        weight = weight_mean + weight_stddev * weight_noise
-        return activation(tf.matmul(input_layer, weight) + bias)
-
-    def factorized_noise(self, inputs, outputs):
-        # TODO: use factorized noise only for compute intensive algos (e.g. DQN).
-        #      lighter algos (e.g. DQN) should not use it
-        noise1 = self.f(tf.random_normal((inputs, 1)))
-        noise2 = self.f(tf.random_normal((1, outputs)))
-        return tf.matmul(noise1, noise2)
-
-    @staticmethod
-    def f(values):
-        return tf.sqrt(tf.abs(values)) * tf.sign(values)
 
 
 def variable_summaries(var):
@@ -719,6 +588,14 @@ class TensorFlowArchitecture(Architecture):
         :param placeholder: a placeholder to hold the given value for injecting it into the variable
         """
         self.sess.run(assign_op, feed_dict={placeholder: value})
+
+    def set_is_training(self, state: bool):
+        """
+        Set the phase of the network between training and testing
+        :param state: The current state (True = Training, False = Testing)
+        :return: None
+        """
+        self.set_variable_value(self.assign_is_training, state, self.is_training_placeholder)
 
     def reset_internal_memory(self):
         """

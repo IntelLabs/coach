@@ -1,5 +1,5 @@
 from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.lstm_middleware import LSTMMiddlewareParameters
 from rl_coach.base_parameters import VisualizationParameters, MiddlewareScheme, PresetValidationParameters
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
@@ -30,7 +30,7 @@ agent_params.algorithm.num_steps_between_gradient_updates = 20
 agent_params.algorithm.beta_entropy = 0.005
 agent_params.network_wrappers['main'].learning_rate = 0.00002
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'] = \
-    InputEmbedderParameters(scheme=[Dense([200])])
+    InputEmbedderParameters(scheme=[Dense(200)])
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
                                                                                        number_of_lstm_cells=128)
 

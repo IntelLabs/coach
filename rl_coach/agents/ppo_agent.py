@@ -313,6 +313,9 @@ class PPOAgent(ActorCriticAgent):
     def train(self):
         loss = 0
         if self._should_train(wait_for_full_episode=True):
+            for network in self.networks.values():
+                network.set_is_training(True)
+
             for training_step in range(self.ap.algorithm.num_consecutive_training_steps):
                 self.networks['actor'].sync()
                 self.networks['critic'].sync()
@@ -329,6 +332,9 @@ class PPOAgent(ActorCriticAgent):
 
                 self.value_loss.add_sample(value_loss)
                 self.policy_loss.add_sample(policy_loss)
+
+            for network in self.networks.values():
+                network.set_is_training(False)
 
             self.post_training_commands()
             self.training_iteration += 1

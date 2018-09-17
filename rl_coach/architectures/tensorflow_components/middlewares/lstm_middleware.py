@@ -18,19 +18,21 @@
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_LSTM_Embedding
+from rl_coach.utils import force_list
 
 
 class LSTMMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu', number_of_lstm_cells=256,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_lstm_embedder", dense_layer=Dense):
+                 name="middleware_lstm_embedder", dense_layer=Dense, is_training=False):
         super().__init__(parameterized_class=LSTMMiddleware, activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer)
+                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer,
+                         is_training=is_training)
         self.number_of_lstm_cells = number_of_lstm_cells
 
 
@@ -38,9 +40,9 @@ class LSTMMiddleware(Middleware):
     def __init__(self, activation_function=tf.nn.relu, number_of_lstm_cells: int=256,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_lstm_embedder", dense_layer=Dense):
+                 name="middleware_lstm_embedder", dense_layer=Dense, is_training=False):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
-                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer)
+                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer, is_training=is_training)
         self.return_type = Middleware_LSTM_Embedding
         self.number_of_lstm_cells = number_of_lstm_cells
         self.layers = []
@@ -63,13 +65,15 @@ class LSTMMiddleware(Middleware):
         else:
             layers_params = self.scheme
         for idx, layer_params in enumerate(layers_params):
-            self.layers.append(
-                tf.layers.dense(self.layers[-1], layer_params[0], name='fc{}'.format(idx))
-            )
+            self.layers.extend(force_list(
+                layer_params(self.layers[-1], name='fc{}'.format(idx),
+                             is_training=self.is_training)
+            ))
 
             self.layers.extend(batchnorm_activation_dropout(self.layers[-1], self.batchnorm,
                                                             self.activation_function, self.dropout,
-                                                            self.dropout_rate, idx))
+                                                            self.dropout_rate, is_training=self.is_training,
+                                                            name='BatchnnormActivationDropout_{}'.format(idx)))
 
         # add the LSTM layer
         lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.number_of_lstm_cells, state_is_tuple=True)
@@ -97,20 +101,20 @@ class LSTMMiddleware(Middleware):
             # ppo
             MiddlewareScheme.Shallow:
                 [
-                    [64]
+                    self.dense_layer(64)
                 ],
 
             # dqn
             MiddlewareScheme.Medium:
                 [
-                    [512]
+                    self.dense_layer(512)
                 ],
 
             MiddlewareScheme.Deep: \
                 [
-                    [128],
-                    [128],
-                    [128]
+                    self.dense_layer(128),
+                    self.dense_layer(128),
+                    self.dense_layer(128)
                 ]
         }
 

@@ -1,5 +1,5 @@
 from rl_coach.agents.ppo_agent import PPOAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
@@ -25,10 +25,10 @@ agent_params = PPOAgentParameters()
 agent_params.network_wrappers['actor'].learning_rate = 0.001
 agent_params.network_wrappers['critic'].learning_rate = 0.001
 
-agent_params.network_wrappers['actor'].input_embedders_parameters['observation'].scheme = [Dense([64])]
-agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense([64])]
-agent_params.network_wrappers['critic'].input_embedders_parameters['observation'].scheme = [Dense([64])]
-agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense([64])]
+agent_params.network_wrappers['actor'].input_embedders_parameters['observation'].scheme = [Dense(64)]
+agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense(64)]
+agent_params.network_wrappers['critic'].input_embedders_parameters['observation'].scheme = [Dense(64)]
+agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(64)]
 
 agent_params.input_filter = MujocoInputFilter()
 agent_params.input_filter.add_observation_filter('observation', 'normalize', ObservationNormalizationFilter())
