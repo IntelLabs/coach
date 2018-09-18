@@ -10,6 +10,13 @@ from rl_coach.utils import short_dynamic_import
 # Q: specify alternative distributed memory, or should this go in the preset?
 # A: preset must define distributed memory to be used. we aren't going to take a non-distributed preset and automatically distribute it.
 
+
+def heatup(graph_manager):
+    num_steps = graph_manager.schedule_params.heatup_steps.num_steps
+    while len(graph_manager.agent_params.memory) < num_steps:
+        time.sleep(1)
+
+
 def training_worker(graph_manager, checkpoint_dir):
     """
     restore a checkpoint then perform rollouts using the restored model
@@ -22,11 +29,12 @@ def training_worker(graph_manager, checkpoint_dir):
     # save randomly initialized graph
     graph_manager.save_checkpoint()
 
-    # TODO: critical: wait for minimum number of rollouts in memory before training
     # TODO: Q: training steps passed into graph_manager.train ignored?
     # TODO: specify training steps between checkpoints (in preset?)
-    # TODO: replace while true with what? number of steps, convergence, time, ...
-    # TODO: low: move evaluate out of this process
+    # TODO: replace outer training loop with something general
+    # TODO: low priority: move evaluate out of this process
+
+    heatup(graph_manager)
 
     # training loop
     for _ in range(10):
