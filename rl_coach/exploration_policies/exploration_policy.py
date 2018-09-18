@@ -52,7 +52,12 @@ class ExplorationPolicy(object):
         :param action_values: A list of action values
         :return: The chosen action
         """
-        pass
+        if self.__class__ == ExplorationPolicy:
+            raise ValueError("The ExplorationPolicy class is an abstract class and should not be used directly. "
+                             "Please set the exploration parameters to point to an inheriting class like EGreedy or "
+                             "AdditiveNoise")
+        else:
+            raise ValueError("The get_action function should be overridden in the inheriting exploration class")
 
     def change_phase(self, phase):
         """

@@ -194,7 +194,9 @@ class ClippedPPOAgent(ActorCriticAgent):
                 for input_index, input in enumerate(old_policy_distribution):
                     inputs['output_1_{}'.format(input_index + 1)] = input
 
-                inputs['output_1_3'] = self.ap.algorithm.clipping_decay_schedule.current_value
+                # update the clipping decay schedule value
+                inputs['output_1_{}'.format(len(old_policy_distribution)+1)] = \
+                    self.ap.algorithm.clipping_decay_schedule.current_value
 
                 total_loss, losses, unclipped_grads, fetch_result = \
                     self.networks['main'].train_and_sync_networks(
