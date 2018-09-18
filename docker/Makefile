@@ -45,7 +45,7 @@ run_rollout_worker: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/rollout_worker.py --preset CartPole_DQN_distributed
 
 kubernetes: build push
-	kubectl run -i --tty --attach --image=${IMAGE} --restart=Never date -- python3 rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE}
+	kubectl run -i --tty --attach --image=${REGISTRY}${IMAGE} --restart=Never distributed-coach -- python3 rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE}
 
 push: build
 	${DOCKER} tag ${IMAGE} ${REGISTRY}${IMAGE}
