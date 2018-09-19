@@ -29,11 +29,6 @@ def training_worker(graph_manager, checkpoint_dir):
     # save randomly initialized graph
     graph_manager.save_checkpoint()
 
-    # TODO: Q: training steps passed into graph_manager.train ignored?
-    # TODO: specify training steps between checkpoints (in preset?)
-    # TODO: replace outer training loop with something general
-    # TODO: low priority: move evaluate out of this process
-
     heatup(graph_manager)
 
     # training loop
@@ -57,9 +52,20 @@ def main():
                         help='(string) Path to a folder containing a checkpoint to write the model to.',
                         type=str,
                         default='/checkpoint')
+    parser.add_argument('-r', '--redis_ip',
+                        help="(string) IP or host for the redis server",
+                        default='localhost',
+                        type=str)
+    parser.add_argument('-rp', '--redis_port',
+                        help="(int) Port of the redis server",
+                        default=6379,
+                        type=int)
     args = parser.parse_args()
 
     graph_manager = short_dynamic_import(expand_preset(args.preset), ignore_module_case=True)
+
+    graph_manager.agent_params.memory.redis_ip = args.redis_ip
+    graph_manager.agent_params.memory.redis_port = args.redis_port
 
     training_worker(
         graph_manager=graph_manager,

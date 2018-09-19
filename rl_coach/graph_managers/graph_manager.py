@@ -511,7 +511,7 @@ class GraphManager(object):
                      ):
              self.save_checkpoint()
 
-    def _log_save_checkpoint(self):
+    def save_checkpoint(self):
         checkpoint_path = os.path.join(self.task_parameters.save_checkpoint_dir,
                                        "{}_Step-{}.ckpt".format(
                                            self.checkpoint_id,
@@ -521,18 +521,15 @@ class GraphManager(object):
         else:
             saved_checkpoint_path = checkpoint_path
 
+        # this is required in order for agents to save additional information like a DND for example
+        [manager.save_checkpoint(self.checkpoint_id) for manager in self.level_managers]
+
         screen.log_dict(
             OrderedDict([
                 ("Saving in path", saved_checkpoint_path),
             ]),
             prefix="Checkpoint"
         )
-
-    def save_checkpoint(self):
-        # this is required in order for agents to save additional information like a DND for example
-        [manager.save_checkpoint(self.checkpoint_id) for manager in self.level_managers]
-
-        self._log_save_checkpoint()
 
         self.checkpoint_id += 1
         self.last_checkpoint_saving_time = time.time()
