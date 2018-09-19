@@ -13,6 +13,15 @@ from rl_coach.memories.memory import MemoryGranularity
 # Q: specify alternative distributed memory, or should this go in the preset?
 # A: preset must define distributed memory to be used. we aren't going to take a non-distributed preset and automatically distribute it.
 
+def heatup(graph_manager):
+    memory = DistributedExperienceReplay(max_size=(MemoryGranularity.Transitions, 1000000),
+                                         redis_ip=graph_manager.agent_params.memory.redis_ip,
+                                         redis_port=graph_manager.agent_params.memory.redis_port)
+
+    num_steps = graph_manager.schedule_params.heatup_steps.num_steps
+    while(memory.num_transitions() < num_steps):
+        time.sleep(10)
+
 
 def training_worker(graph_manager, checkpoint_dir):
     """
@@ -26,17 +35,8 @@ def training_worker(graph_manager, checkpoint_dir):
     # save randomly initialized graph
     graph_manager.save_checkpoint()
 
-    memory = DistributedExperienceReplay(max_size=(MemoryGranularity.Transitions, 1000000),
-                                         redis_ip=graph_manager.agent_params.memory.redis_ip,
-                                         redis_port=graph_manager.agent_params.memory.redis_port)
-
-    while(memory.num_transitions() < 100):
-        time.sleep(10)
-    # TODO: critical: wait for minimum number of rollouts in memory before training
-    # TODO: Q: training steps passed into graph_manager.train ignored?
-    # TODO: specify training steps between checkpoints (in preset?)
-    # TODO: replace while true with what? number of steps, convergence, time, ...
-    # TODO: low: move evaluate out of this process
+    # optionally wait for a specific number of transitions to be in memory before training
+    heatup(graph_manager)
 
     # training loop
     for _ in range(40):
