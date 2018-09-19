@@ -68,7 +68,10 @@ class DistributedExperienceReplay(Memory):
         """
         Get the number of transitions in the ER
         """
-        return self.redis_connection.info(section='keyspace')['db{}'.format(self.db)]['keys']
+        try:
+            return self.redis_connection.info(section='keyspace')['db{}'.format(self.db)]['keys']
+        except Exception as e:
+            return 0
 
     def sample(self, size: int) -> List[Transition]:
         """
