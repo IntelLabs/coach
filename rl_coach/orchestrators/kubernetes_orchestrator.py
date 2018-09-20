@@ -1,4 +1,4 @@
-
+import os
 import uuid
 from rl_coach.orchestrators.deploy import Deploy, DeployParameters
 from kubernetes import client, config
@@ -40,6 +40,9 @@ class Kubernetes(Deploy):
             _, current_context = config.list_kube_config_contexts()
             self.deploy_parameters.namespace = current_context['context']['namespace']
         self.nfs_pvc_name = 'nfs-checkpoint-pvc'
+
+        if os.environ.get('http_proxy'):
+            client.Configuration._default.proxy = os.environ.get('http_proxy')
 
     def setup(self) -> bool:
 
