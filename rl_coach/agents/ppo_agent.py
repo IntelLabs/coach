@@ -31,9 +31,10 @@ from rl_coach.architectures.tensorflow_components.embedders.embedder import Inpu
 
 from rl_coach.core_types import EnvironmentSteps, Batch
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
+from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
-from rl_coach.spaces import DiscreteActionSpace
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 from rl_coach.utils import force_list
 
 
@@ -43,7 +44,6 @@ class PPOCriticNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(activation_function='tanh')}
         self.middleware_parameters = FCMiddlewareParameters(activation_function='tanh')
         self.heads_parameters = [VHeadParameters()]
-        self.loss_weights = [1.0]
         self.async_training = True
         self.l2_regularization = 0
         self.create_target_network = True
@@ -57,7 +57,6 @@ class PPOActorNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters(activation_function='tanh')
         self.heads_parameters = [PPOHeadParameters()]
         self.optimizer_type = 'Adam'
-        self.loss_weights = [1.0]
         self.async_training = True
         self.l2_regularization = 0
         self.create_target_network = True
@@ -84,7 +83,8 @@ class PPOAlgorithmParameters(AlgorithmParameters):
 class PPOAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=PPOAlgorithmParameters(),
-                         exploration=AdditiveNoiseParameters(),
+                         exploration={DiscreteActionSpace: CategoricalParameters(),
+                                      BoxActionSpace: AdditiveNoiseParameters()},
                          memory=EpisodicExperienceReplayParameters(),
                          networks={"critic": PPOCriticNetworkParameters(), "actor": PPOActorNetworkParameters()})
 

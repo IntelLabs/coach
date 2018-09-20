@@ -278,6 +278,14 @@ class Agent(AgentInterface):
         :return: None
         """
         # initialize exploration policy
+        if isinstance(self.ap.exploration, dict):
+            if self.spaces.action.__class__ in self.ap.exploration.keys():
+                self.ap.exploration = self.ap.exploration[self.spaces.action.__class__]
+            else:
+                raise ValueError("The exploration parameters were defined as a mapping between action space types and "
+                                 "exploration types, but the action space used by the environment ({}) was not part of "
+                                 "the exploration parameters dictionary keys ({})"
+                                 .format(self.spaces.action.__class__, list(self.ap.exploration.keys())))
         self.ap.exploration.action_space = self.spaces.action
         self.exploration_policy = dynamic_import_and_instantiate_module_from_params(self.ap.exploration)
 

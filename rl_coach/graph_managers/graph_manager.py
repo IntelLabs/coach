@@ -51,6 +51,15 @@ class HumanPlayScheduleParameters(ScheduleParameters):
         self.improve_steps = TrainingSteps(10000000000)
 
 
+class SimpleSchedule(ScheduleParameters):
+    def __init__(self):
+        super().__init__()
+        self.heatup_steps = EnvironmentSteps(0)
+        self.evaluation_steps = EnvironmentEpisodes(5)
+        self.steps_between_evaluation_periods = EnvironmentEpisodes(50)
+        self.improve_steps = TrainingSteps(10000000000)
+
+
 class GraphManager(object):
     """
     A graph manager is responsible for creating and initializing a graph of agents, including all its internal

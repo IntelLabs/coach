@@ -31,10 +31,11 @@ from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import EnvironmentSteps, Batch, EnvResponse, StateType
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
+from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.schedules import ConstantSchedule
-from rl_coach.spaces import DiscreteActionSpace
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 
 
 class ClippedPPONetworkParameters(NetworkParameters):
@@ -74,7 +75,8 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
 class ClippedPPOAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=ClippedPPOAlgorithmParameters(),
-                         exploration=AdditiveNoiseParameters(),
+                         exploration={DiscreteActionSpace: CategoricalParameters(),
+                                      BoxActionSpace: AdditiveNoiseParameters()},
                          memory=EpisodicExperienceReplayParameters(),
                          networks={"main": ClippedPPONetworkParameters()})
 
@@ -96,7 +98,6 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.kl_divergence = self.register_signal('KL Divergence')
         self.likelihood_ratio = self.register_signal('Likelihood Ratio')
         self.clipped_likelihood_ratio = self.register_signal('Clipped Likelihood Ratio')
-
 
     def set_session(self, sess):
         super().set_session(sess)

@@ -25,9 +25,11 @@ from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParam
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
     AgentParameters
+from rl_coach.exploration_policies.categorical import CategoricalParameters
+from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
-from rl_coach.spaces import DiscreteActionSpace
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 from rl_coach.utils import last_sample
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
@@ -57,8 +59,8 @@ class ActorCriticNetworkParameters(NetworkParameters):
 class ActorCriticAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=ActorCriticAlgorithmParameters(),
-                         exploration=None, #TODO this should be different for continuous (ContinuousEntropyExploration)
-                                           #  and discrete (CategoricalExploration) action spaces.
+                         exploration={DiscreteActionSpace: CategoricalParameters(),
+                                      BoxActionSpace: ContinuousEntropyParameters()},
                          memory=SingleEpisodeBufferParameters(),
                          networks={"main": ActorCriticNetworkParameters()})
 

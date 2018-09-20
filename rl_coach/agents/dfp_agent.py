@@ -69,7 +69,6 @@ class DFPNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters(activation_function='leaky_relu',
                                                             scheme=MiddlewareScheme.Empty)
         self.heads_parameters = [MeasurementsPredictionHeadParameters(activation_function='leaky_relu')]
-        self.loss_weights = [1.0]
         self.async_training = False
         self.batch_size = 64
         self.adam_optimizer_beta1 = 0.95
