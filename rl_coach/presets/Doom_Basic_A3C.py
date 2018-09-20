@@ -4,7 +4,7 @@ from rl_coach.base_parameters import VisualizationParameters, PresetValidationPa
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
-from rl_coach.environments.gym_environment import MujocoInputFilter
+from rl_coach.filters.filter import InputFilter
 from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -27,7 +27,7 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 agent_params = ActorCriticAgentParameters()
 agent_params.algorithm.policy_gradient_rescaler = PolicyGradientRescaler.GAE
 agent_params.network_wrappers['main'].learning_rate = 0.0001
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/100.))
 agent_params.algorithm.num_steps_between_gradient_updates = 30
 agent_params.algorithm.apply_gradients_every_x_episodes = 1

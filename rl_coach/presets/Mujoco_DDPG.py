@@ -3,7 +3,7 @@ from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters, EmbedderScheme
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, mujoco_v2
+from rl_coach.environments.gym_environment import VectorEnvironment, mujoco_v2
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 
@@ -30,7 +30,7 @@ agent_params.network_wrappers['critic'].input_embedders_parameters['action'].sch
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = SingleLevelSelection(mujoco_v2)
 
 vis_params = VisualizationParameters()

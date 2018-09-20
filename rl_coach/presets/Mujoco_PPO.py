@@ -3,7 +3,8 @@ from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
+from rl_coach.environments.gym_environment import VectorEnvironment, mujoco_v2
+from rl_coach.filters.filter import InputFilter
 from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -30,7 +31,7 @@ agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense(64)
 agent_params.network_wrappers['critic'].input_embedders_parameters['observation'].scheme = [Dense(64)]
 agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(64)]
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_observation_filter('observation', 'normalize', ObservationNormalizationFilter())
 
 agent_params.exploration = ContinuousEntropyParameters()
@@ -38,7 +39,7 @@ agent_params.exploration = ContinuousEntropyParameters()
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = SingleLevelSelection(mujoco_v2)
 
 vis_params = VisualizationParameters()

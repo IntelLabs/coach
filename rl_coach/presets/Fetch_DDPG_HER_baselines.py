@@ -5,7 +5,8 @@ from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, Pr
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, MujocoInputFilter, fetch_v1
+from rl_coach.environments.gym_environment import VectorEnvironment, fetch_v1
+from rl_coach.filters.filter import InputFilter
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.filters.observation.observation_clipping_filter import ObservationClippingFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
@@ -90,10 +91,10 @@ agent_params.exploration.evaluation_epsilon = 0
 agent_params.exploration.continuous_exploration_policy_parameters.noise_percentage_schedule = ConstantSchedule(0.1)
 agent_params.exploration.continuous_exploration_policy_parameters.evaluation_noise_percentage = 0
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_observation_filter('observation', 'clipping', ObservationClippingFilter(-200, 200))
 
-agent_params.pre_network_filter = MujocoInputFilter()
+agent_params.pre_network_filter = InputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
                                                        ObservationNormalizationFilter(name='normalize_observation'))
 agent_params.pre_network_filter.add_observation_filter('achieved_goal', 'normalize_achieved_goal',
@@ -104,7 +105,7 @@ agent_params.pre_network_filter.add_observation_filter('desired_goal', 'normaliz
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = SingleLevelSelection(fetch_v1)
 env_params.custom_reward_threshold = -49
 

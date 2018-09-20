@@ -2,7 +2,8 @@ from rl_coach.agents.policy_gradients_agent import PolicyGradientsAgentParameter
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod
-from rl_coach.environments.gym_environment import Mujoco, MujocoInputFilter
+from rl_coach.environments.gym_environment import VectorEnvironment
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -25,7 +26,7 @@ agent_params.algorithm.apply_gradients_every_x_episodes = 5
 agent_params.algorithm.num_steps_between_gradient_updates = 20000
 agent_params.network_wrappers['main'].learning_rate = 0.0005
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/20.))
 agent_params.input_filter.add_observation_filter('observation', 'normalize', ObservationNormalizationFilter())
 
@@ -33,7 +34,7 @@ agent_params.input_filter.add_observation_filter('observation', 'normalize', Obs
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = "InvertedPendulum-v2"
 
 vis_params = VisualizationParameters()

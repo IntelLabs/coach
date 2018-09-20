@@ -3,7 +3,8 @@ from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
+from rl_coach.environments.gym_environment import VectorEnvironment, mujoco_v2
+from rl_coach.filters.filter import InputFilter
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -43,16 +44,16 @@ agent_params.algorithm.discount = 0.99
 agent_params.algorithm.optimization_epochs = 10
 agent_params.algorithm.estimate_state_value_using_gae = True
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.exploration = AdditiveNoiseParameters()
-agent_params.pre_network_filter = MujocoInputFilter()
+agent_params.pre_network_filter = InputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
                                                        ObservationNormalizationFilter(name='normalize_observation'))
 
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = SingleLevelSelection(mujoco_v2)
 
 vis_params = VisualizationParameters()

@@ -92,9 +92,9 @@ class CustomWrapper(object):
 
 
 class EnvironmentParameters(Parameters):
-    def __init__(self):
+    def __init__(self, level=None):
         super().__init__()
-        self.level = None
+        self.level = level
         self.frame_skip = 4
         self.seed = None
         self.human_control = False

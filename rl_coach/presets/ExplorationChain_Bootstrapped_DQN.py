@@ -1,7 +1,7 @@
 from rl_coach.agents.bootstrapped_dqn_agent import BootstrappedDQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
-from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.environments.gym_environment import VectorEnvironment
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -40,7 +40,7 @@ agent_params.output_filter = NoOutputFilter()
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = 'rl_coach.environments.toy_problems.exploration_chain:ExplorationChain'
 
 env_params.additional_simulator_parameters = {'chain_length': N, 'max_steps': N+7}

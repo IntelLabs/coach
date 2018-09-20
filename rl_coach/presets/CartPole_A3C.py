@@ -3,7 +3,8 @@ from rl_coach.agents.policy_optimization_agent import PolicyGradientRescaler
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
-from rl_coach.environments.gym_environment import MujocoInputFilter, Mujoco
+from rl_coach.environments.gym_environment import VectorEnvironment
+from rl_coach.filters.filter import InputFilter
 from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -33,7 +34,7 @@ agent_params.algorithm.beta_entropy = 0.01
 agent_params.network_wrappers['main'].optimizer_type = 'Adam'
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/200.))
 
 agent_params.exploration = CategoricalParameters()
@@ -41,7 +42,7 @@ agent_params.exploration = CategoricalParameters()
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = 'CartPole-v0'
 
 vis_params = VisualizationParameters()

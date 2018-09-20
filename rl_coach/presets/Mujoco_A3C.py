@@ -2,7 +2,8 @@ from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
+from rl_coach.environments.gym_environment import VectorEnvironment, mujoco_v2
+from rl_coach.filters.filter import InputFilter
 from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
@@ -27,7 +28,7 @@ agent_params.algorithm.num_steps_between_gradient_updates = 10000000
 agent_params.algorithm.beta_entropy = 0.0001
 agent_params.network_wrappers['main'].learning_rate = 0.00001
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/20.))
 agent_params.input_filter.add_observation_filter('observation', 'normalize', ObservationNormalizationFilter())
 
@@ -36,7 +37,7 @@ agent_params.exploration = ContinuousEntropyParameters()
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = SingleLevelSelection(mujoco_v2)
 
 vis_params = VisualizationParameters()

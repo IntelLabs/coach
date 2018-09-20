@@ -7,7 +7,7 @@ from rl_coach.architectures.tensorflow_components.embedders.embedder import Inpu
 
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, RunPhase, TrainingSteps
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod
-from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.environments.gym_environment import VectorEnvironment
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -128,7 +128,7 @@ agents_params = [top_agent_params, bottom_agent_params]
 ###############
 time_limit = 1000
 
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = "rl_coach.environments.mujoco.pendulum_with_goals:PendulumWithGoals"
 env_params.additional_simulator_parameters = {"time_limit": time_limit,
                                               "random_goals_instead_of_standing_goal": False,

@@ -2,7 +2,7 @@ from rl_coach.agents.dfp_agent import DFPAgentParameters, HandlingTargetsAfterEp
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
-from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.environments.gym_environment import VectorEnvironment
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
@@ -37,7 +37,7 @@ agent_params.algorithm.handling_targets_after_episode_end = HandlingTargetsAfter
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = 'CartPole-v0'
 
 vis_params = VisualizationParameters()

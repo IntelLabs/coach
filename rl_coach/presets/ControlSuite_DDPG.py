@@ -4,7 +4,7 @@ from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, Pr
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.control_suite_environment import ControlSuiteEnvironmentParameters, control_suite_envs
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import MujocoInputFilter
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -32,7 +32,7 @@ agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense(200
 agent_params.network_wrappers['critic'].input_embedders_parameters['measurements'].scheme = [Dense(400)]
 agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(300)]
 agent_params.network_wrappers['critic'].input_embedders_parameters['action'].scheme = EmbedderScheme.Empty
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter("rescale", RewardRescaleFilter(1/10.))
 
 ###############

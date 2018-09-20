@@ -2,7 +2,8 @@ from rl_coach.agents.nec_agent import NECAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
-from rl_coach.environments.gym_environment import Atari, MujocoInputFilter
+from rl_coach.environments.gym_environment import Atari
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -30,7 +31,7 @@ agent_params.exploration.epsilon_schedule = LinearSchedule(0.5, 0.1, 1000)
 agent_params.exploration.evaluation_epsilon = 0
 agent_params.algorithm.discount = 0.99
 agent_params.memory.max_size = (MemoryGranularity.Episodes, 200)
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/200.))
 
 ###############

@@ -2,7 +2,7 @@ from rl_coach.agents.dqn_agent import DQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
-from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.environments.gym_environment import VectorEnvironment
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
@@ -41,7 +41,7 @@ agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 10000)
 ################
 #  Environment #
 ################
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = 'CartPole-v0'
 
 vis_params = VisualizationParameters()

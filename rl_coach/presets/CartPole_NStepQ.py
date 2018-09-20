@@ -2,7 +2,8 @@ from rl_coach.agents.n_step_q_agent import NStepQAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
-from rl_coach.environments.gym_environment import MujocoInputFilter, Mujoco
+from rl_coach.environments.gym_environment import VectorEnvironment
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -24,13 +25,13 @@ agent_params = NStepQAgentParameters()
 agent_params.algorithm.discount = 0.99
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(100)
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/200.))
 
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = 'CartPole-v0'
 
 vis_params = VisualizationParameters()

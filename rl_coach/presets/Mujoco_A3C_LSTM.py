@@ -5,7 +5,8 @@ from rl_coach.base_parameters import VisualizationParameters, MiddlewareScheme, 
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
 from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
+from rl_coach.environments.gym_environment import VectorEnvironment, mujoco_v2
+from rl_coach.filters.filter import InputFilter
 from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
@@ -34,7 +35,7 @@ agent_params.network_wrappers['main'].input_embedders_parameters['observation'] 
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
                                                                                        number_of_lstm_cells=128)
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/20.))
 agent_params.input_filter.add_observation_filter('observation', 'normalize', ObservationNormalizationFilter())
 
@@ -43,7 +44,7 @@ agent_params.exploration = ContinuousEntropyParameters()
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = SingleLevelSelection(mujoco_v2)
 
 vis_params = VisualizationParameters()

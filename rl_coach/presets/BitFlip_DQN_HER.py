@@ -4,7 +4,7 @@ from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, \
     PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.environments.gym_environment import VectorEnvironment
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.episodic.episodic_hindsight_experience_replay import \
@@ -55,7 +55,7 @@ agent_params.memory.goals_space = GoalsSpace(goal_name='state',
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
+env_params = VectorEnvironment()
 env_params.level = 'rl_coach.environments.toy_problems.bit_flip:BitFlip'
 env_params.additional_simulator_parameters = {'bit_length': bit_length, 'mean_zero': True}
 env_params.custom_reward_threshold = -bit_length + 1
