@@ -43,8 +43,6 @@ class ClippedPPONetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(activation_function='tanh')}
         self.middleware_parameters = FCMiddlewareParameters(activation_function='tanh')
         self.heads_parameters = [VHeadParameters(), PPOHeadParameters()]
-        self.loss_weights = [1.0, 1.0]
-        self.rescale_gradient_from_head_by_factor = [1, 1]
         self.batch_size = 64
         self.optimizer_type = 'Adam'
         self.clip_gradients = None

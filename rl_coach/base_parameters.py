@@ -205,9 +205,6 @@ class NetworkParameters(Parameters):
         self.embedding_merger_type = EmbeddingMergerType.Concat
         self.middleware_parameters = None
         self.heads_parameters = []
-        self.num_output_head_copies = 1
-        self.loss_weights = []
-        self.rescale_gradient_from_head_by_factor = [1]
         self.use_separate_networks_per_head = False
         self.optimizer_type = 'Adam'
         self.optimizer_epsilon = 0.0001

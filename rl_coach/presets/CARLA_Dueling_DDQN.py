@@ -26,9 +26,9 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 #########
 agent_params = DDQNAgentParameters()
 agent_params.network_wrappers['main'].learning_rate = 0.00025
-agent_params.network_wrappers['main'].heads_parameters = [DuelingQHeadParameters()]
+agent_params.network_wrappers['main'].heads_parameters = \
+    [DuelingQHeadParameters(rescale_gradient_from_head_by_factor=1/math.sqrt(2))]
 agent_params.network_wrappers['main'].middleware_parameters.scheme = MiddlewareScheme.Empty
-agent_params.network_wrappers['main'].rescale_gradient_from_head_by_factor = [1/math.sqrt(2), 1/math.sqrt(2)]
 agent_params.network_wrappers['main'].clip_gradients = 10
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(4)
 agent_params.network_wrappers['main'].input_embedders_parameters['forward_camera'] = \

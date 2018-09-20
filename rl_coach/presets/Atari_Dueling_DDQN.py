@@ -26,8 +26,8 @@ agent_params = DDQNAgentParameters()
 # since we are using Adam instead of RMSProp, we adjust the learning rate as well
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].middleware_parameters.scheme = MiddlewareScheme.Empty
-agent_params.network_wrappers['main'].heads_parameters = [DuelingQHeadParameters()]
-agent_params.network_wrappers['main'].rescale_gradient_from_head_by_factor = [1/math.sqrt(2)]
+agent_params.network_wrappers['main'].heads_parameters = \
+    [DuelingQHeadParameters(rescale_gradient_from_head_by_factor=1/math.sqrt(2))]
 agent_params.network_wrappers['main'].clip_gradients = 10
 
 ###############

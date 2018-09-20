@@ -48,9 +48,7 @@ class ActorCriticNetworkParameters(NetworkParameters):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
-        self.heads_parameters = [VHeadParameters(), PolicyHeadParameters()]
-        self.loss_weights = [0.5, 1.0]
-        self.rescale_gradient_from_head_by_factor = [1, 1]
+        self.heads_parameters = [VHeadParameters(loss_weight=0.5), PolicyHeadParameters(loss_weight=1.0)]
         self.optimizer_type = 'Adam'
         self.clip_gradients = 40.0
         self.async_training = True

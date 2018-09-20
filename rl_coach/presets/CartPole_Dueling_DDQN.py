@@ -34,8 +34,8 @@ agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1)
 # NN configuration
 agent_params.network_wrappers['main'].learning_rate = 0.00025
 agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
-agent_params.network_wrappers['main'].heads_parameters = [DuelingQHeadParameters()]
-agent_params.network_wrappers['main'].rescale_gradient_from_head_by_factor = [1/math.sqrt(2), 1/math.sqrt(2)]
+agent_params.network_wrappers['main'].heads_parameters = \
+    [DuelingQHeadParameters(rescale_gradient_from_head_by_factor=1/math.sqrt(2))]
 
 # ER size
 agent_params.memory.max_size = (MemoryGranularity.Transitions, 40000)

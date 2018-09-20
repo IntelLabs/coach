@@ -25,9 +25,13 @@ from rl_coach.spaces import SpacesDefinition
 
 
 class CategoricalQHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='relu', name: str='categorical_q_head_params', dense_layer=Dense):
+    def __init__(self, activation_function: str ='relu', name: str='categorical_q_head_params',
+                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
+                 loss_weight: float = 1.0, dense_layer=Dense):
         super().__init__(parameterized_class=CategoricalQHead, activation_function=activation_function, name=name,
-                         dense_layer=dense_layer)
+                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
+                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
+                         loss_weight=loss_weight)
 
 
 class CategoricalQHead(Head):

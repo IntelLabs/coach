@@ -100,12 +100,10 @@ agent_params.network_wrappers['main'].heads_parameters = [
             BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5),
             Dense(256),
             BatchnormActivationDropout(activation_function=tf.tanh)
-        ]
+        ],
+        num_output_head_copies=4  # follow lane, left, right, straight
     )
 ]
-agent_params.network_wrappers['main'].num_output_head_copies = 4  # follow lane, left, right, straight
-agent_params.network_wrappers['main'].rescale_gradient_from_head_by_factor = [1] * 4
-agent_params.network_wrappers['main'].loss_weights = [1]
 # TODO: there should be another head predicting the speed which is connected directly to the forward camera embedding
 
 agent_params.network_wrappers['main'].batch_size = 120
