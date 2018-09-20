@@ -1,9 +1,8 @@
 from rl_coach.agents.dfp_agent import DFPAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, MiddlewareScheme, \
     PresetValidationParameters
-from rl_coach.core_types import EnvironmentSteps, RunPhase, EnvironmentEpisodes
+from rl_coach.core_types import EnvironmentSteps, EnvironmentEpisodes
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters
-from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
@@ -54,11 +53,8 @@ agent_params.algorithm.scale_measurements_targets['GameVariable.HEALTH'] = 30.0
 ###############
 # Environment #
 ###############
-env_params = DoomEnvironmentParameters()
-env_params.level = 'HEALTH_GATHERING_SUPREME_COACH_LOCAL'
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
+env_params = DoomEnvironmentParameters(level='HEALTH_GATHERING_SUPREME_COACH_LOCAL')
+
 
 ########
 # Test #
@@ -67,5 +63,5 @@ preset_validation_params = PresetValidationParameters()
 preset_validation_params.test_using_a_trace_test = False
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)

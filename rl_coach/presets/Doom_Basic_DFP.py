@@ -1,8 +1,7 @@
 from rl_coach.agents.dfp_agent import DFPAgentParameters, HandlingTargetsAfterEpisodeEnd
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters
-from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
@@ -39,12 +38,8 @@ agent_params.algorithm.handling_targets_after_episode_end = HandlingTargetsAfter
 ###############
 # Environment #
 ###############
-env_params = DoomEnvironmentParameters()
-env_params.level = 'basic'
+env_params = DoomEnvironmentParameters(level='basic')
 
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
 
 ########
 # Test #
@@ -53,5 +48,5 @@ preset_validation_params = PresetValidationParameters()
 preset_validation_params.trace_max_env_steps = 2000
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)

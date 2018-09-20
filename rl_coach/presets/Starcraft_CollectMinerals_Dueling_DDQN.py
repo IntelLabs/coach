@@ -1,12 +1,10 @@
 from collections import OrderedDict
 
 from rl_coach.agents.ddqn_agent import DDQNAgentParameters
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.architectures.tensorflow_components.heads.dueling_q_head import DuelingQHeadParameters
 from rl_coach.base_parameters import VisualizationParameters
-from rl_coach.core_types import RunPhase
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
-from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod
 from rl_coach.environments.starcraft2_environment import StarCraft2EnvironmentParameters
 from rl_coach.filters.action.box_discretization import BoxDiscretization
 from rl_coach.filters.filter import OutputFilter
@@ -51,15 +49,10 @@ agent_params.output_filter = \
 # Environment #
 ###############
 
-env_params = StarCraft2EnvironmentParameters()
-env_params.level = 'CollectMineralShards'
+env_params = StarCraft2EnvironmentParameters(level='CollectMineralShards')
 env_params.feature_screen_maps_to_use = [5]
 env_params.feature_minimap_maps_to_use = [5]
 
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
-# vis_params.dump_in_episode_signals = True
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params)
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters())

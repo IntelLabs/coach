@@ -1,9 +1,8 @@
 from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 from rl_coach.architectures.tensorflow_components.heads.dueling_q_head import DuelingQHeadParameters
 from rl_coach.base_parameters import VisualizationParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters
-from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
@@ -36,12 +35,8 @@ agent_params.network_wrappers['main'].heads_parameters = [DuelingQHeadParameters
 ###############
 # Environment #
 ###############
-env_params = DoomEnvironmentParameters()
-env_params.level = 'basic'
+env_params = DoomEnvironmentParameters(level='basic')
 
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params)
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters())

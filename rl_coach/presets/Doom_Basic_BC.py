@@ -35,8 +35,7 @@ agent_params.memory.load_memory_from_file_path = 'datasets/doom_basic.p'
 ###############
 # Environment #
 ###############
-env_params = DoomEnvironmentParameters()
-env_params.level = 'basic'
+env_params = DoomEnvironmentParameters(level='basic')
 
 ########
 # Test #

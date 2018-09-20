@@ -51,13 +51,25 @@ class HumanPlayScheduleParameters(ScheduleParameters):
         self.improve_steps = TrainingSteps(10000000000)
 
 
-class SimpleSchedule(ScheduleParameters):
-    def __init__(self):
+class SimpleScheduleWithoutEvaluation(ScheduleParameters):
+    def __init__(self, improve_steps=TrainingSteps(10000000000)):
         super().__init__()
         self.heatup_steps = EnvironmentSteps(0)
-        self.evaluation_steps = EnvironmentEpisodes(5)
-        self.steps_between_evaluation_periods = EnvironmentEpisodes(50)
-        self.improve_steps = TrainingSteps(10000000000)
+        self.evaluation_steps = EnvironmentEpisodes(0)
+        self.steps_between_evaluation_periods = improve_steps
+        self.improve_steps = improve_steps
+
+
+class SimpleSchedule(ScheduleParameters):
+    def __init__(self,
+                 improve_steps=TrainingSteps(10000000000),
+                 steps_between_evaluation_periods=EnvironmentEpisodes(50),
+                 evaluation_steps=EnvironmentEpisodes(5)):
+        super().__init__()
+        self.heatup_steps = EnvironmentSteps(0)
+        self.evaluation_steps = evaluation_steps
+        self.steps_between_evaluation_periods = steps_between_evaluation_periods
+        self.improve_steps = improve_steps
 
 
 class GraphManager(object):

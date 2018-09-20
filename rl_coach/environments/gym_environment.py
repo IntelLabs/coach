@@ -70,7 +70,7 @@ class GymEnvironmentParameters(EnvironmentParameters):
 
 
 # Generic parameters for vector environments such as mujoco, roboschool, bullet, etc.
-class VectorEnvironment(GymEnvironmentParameters):
+class GymVectorEnvironment(GymEnvironmentParameters):
     def __init__(self, level=None):
         super().__init__(level=level)
         self.frame_skip = 1

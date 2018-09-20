@@ -1,11 +1,11 @@
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import VectorEnvironment, mujoco_v2
-from rl_coach.filters.filter import InputFilter
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
+from rl_coach.environments.environment import SingleLevelSelection
+from rl_coach.environments.gym_environment import GymVectorEnvironment, mujoco_v2
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -53,12 +53,7 @@ agent_params.pre_network_filter.add_observation_filter('observation', 'normalize
 ###############
 # Environment #
 ###############
-env_params = VectorEnvironment()
-env_params.level = SingleLevelSelection(mujoco_v2)
-
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
+env_params = GymVectorEnvironment(level=SingleLevelSelection(mujoco_v2))
 
 ########
 # Test #
@@ -71,7 +66,7 @@ preset_validation_params.reward_test_level = 'inverted_pendulum'
 preset_validation_params.trace_test_levels = ['inverted_pendulum', 'hopper']
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)
 
 

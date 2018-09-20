@@ -85,8 +85,8 @@ StarcraftNormalizingOutputFilter.add_action_filter(
 
 
 class StarCraft2EnvironmentParameters(EnvironmentParameters):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, level=None):
+        super().__init__(level=level)
         self.screen_size = 84
         self.minimap_size = 64
         self.feature_minimap_maps_to_use = range(7)

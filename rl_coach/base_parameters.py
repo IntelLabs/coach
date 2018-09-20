@@ -22,7 +22,8 @@ from collections import OrderedDict
 from enum import Enum
 from typing import Dict, List, Union
 
-from rl_coach.core_types import TrainingSteps, EnvironmentSteps, GradientClippingMethod
+from rl_coach.core_types import TrainingSteps, EnvironmentSteps, GradientClippingMethod, RunPhase
+# from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod
 from rl_coach.filters.filter import NoInputFilter
 
 
@@ -224,6 +225,7 @@ class NetworkComponentParameters(Parameters):
         self.dense_layer = dense_layer
 
 
+
 class VisualizationParameters(Parameters):
     def __init__(self):
         super().__init__()
@@ -242,6 +244,13 @@ class VisualizationParameters(Parameters):
         self.video_dump_methods = []  # a list of dump methods which will be checked one after the other until the first
                                       # dump method that returns false for should_dump()
         self.add_rendered_image_to_env_response = False
+
+
+# class DumpMP4ForMaxScoreTestEpisodes(VisualizationParameters):
+#     def __init__(self):
+#         super().__init__()
+#         self.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
+#         self.dump_mp4 = True
 
 
 class AgentParameters(Parameters):

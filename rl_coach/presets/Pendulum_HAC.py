@@ -1,13 +1,11 @@
 import numpy as np
 
 from rl_coach.agents.hac_ddpg_agent import HACDDPGAgentParameters
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbeddingMergerType, EmbedderScheme
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-
-from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, RunPhase, TrainingSteps
-from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod
-from rl_coach.environments.gym_environment import VectorEnvironment
+from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps
+from rl_coach.environments.gym_environment import GymVectorEnvironment
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -128,8 +126,7 @@ agents_params = [top_agent_params, bottom_agent_params]
 ###############
 time_limit = 1000
 
-env_params = VectorEnvironment()
-env_params.level = "rl_coach.environments.mujoco.pendulum_with_goals:PendulumWithGoals"
+env_params = GymVectorEnvironment(level="rl_coach.environments.mujoco.pendulum_with_goals:PendulumWithGoals")
 env_params.additional_simulator_parameters = {"time_limit": time_limit,
                                               "random_goals_instead_of_standing_goal": False,
                                               "polar_coordinates": polar_coordinates,
@@ -138,8 +135,6 @@ env_params.frame_skip = 10
 env_params.custom_reward_threshold = -time_limit + 1
 
 vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST)]
-vis_params.dump_mp4 = False
 vis_params.native_rendering = False
 
 graph_manager = HACGraphManager(agents_params=agents_params, env_params=env_params,
