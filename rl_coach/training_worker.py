@@ -18,9 +18,8 @@ def heatup(graph_manager):
                                          redis_ip=graph_manager.agent_params.memory.redis_ip,
                                          redis_port=graph_manager.agent_params.memory.redis_port)
 
-    num_steps = graph_manager.schedule_params.heatup_steps.num_steps
-    while(memory.num_transitions() < num_steps):
-        time.sleep(10)
+    while(memory.num_transitions() < graph_manager.heatup_steps.num_steps):
+        time.sleep(1)
 
 
 def training_worker(graph_manager, checkpoint_dir):
@@ -48,6 +47,7 @@ def training_worker(graph_manager, checkpoint_dir):
 
         graph_manager.save_checkpoint()
 
+    # TODO: signal to workers that training is done
 
 def main():
     parser = argparse.ArgumentParser()
