@@ -1,4 +1,6 @@
-REGISTRY=nervana-dockrepo01.fm.intel.com:5001/
+# REGISTRY=nervana-dockrepo01.fm.intel.com:5001/
+# REGISTRY=gcr.io/
+REGISTRY=docker.io/
 IMAGE=zdwiel/coach
 # IMAGE=gcr.io/deep-greens/inference:v5
 
@@ -44,8 +46,17 @@ run_training_worker: build
 run_rollout_worker: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/rollout_worker.py --preset CartPole_DQN_distributed
 
-kubernetes: build push
-	kubectl run -i --tty --attach --image=${REGISTRY}${IMAGE} --restart=Never distributed-coach -- python3 rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE}
+bootstrap_kubernetes: build push
+	kubectl run -i --tty --attach --image=${REGISTRY}${IMAGE} --restart=Never distributed-coach -- python3 rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE} -ns 10.63.249.182 -np /
+
+stop_kubernetes:
+	kubectl delete service --ignore-not-found redis-service
+	kubectl delete pv --ignore-not-found nfs-checkpoint-pv
+	kubectl delete pvc --ignore-not-found nfs-checkpoint-pvc
+	kubectl delete deployment --ignore-not-found redis-server
+
+kubernetes: stop_kubernetes
+	python3 ${CONTEXT}/rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE} -ns 10.63.249.182 -np /
 
 push: build
 	${DOCKER} tag ${IMAGE} ${REGISTRY}${IMAGE}
