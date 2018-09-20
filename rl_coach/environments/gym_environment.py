@@ -18,6 +18,7 @@ import gym
 import numpy as np
 import scipy.ndimage
 
+from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.utils import lower_under_to_upper, short_dynamic_import
 
 try:
@@ -40,7 +41,7 @@ except ImportError:
     failed_imports.append("PyBullet")
 
 from typing import Dict, Any, Union
-from rl_coach.core_types import RunPhase
+from rl_coach.core_types import RunPhase, EnvironmentSteps
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace, ImageObservationSpace, VectorObservationSpace, \
     StateSpace, RewardSpace
@@ -132,6 +133,14 @@ gym_atari_envs = ['air_raid', 'alien', 'amidar', 'assault', 'asterix', 'asteroid
                   'venture', 'video_pinball', 'wizard_of_wor', 'yars_revenge', 'zaxxon']
 atari_deterministic_v4 = {e: "{}".format(lower_under_to_upper(e) + 'Deterministic-v4') for e in gym_atari_envs}
 atari_no_frameskip_v4 = {e: "{}".format(lower_under_to_upper(e) + 'NoFrameskip-v4') for e in gym_atari_envs}
+
+
+# default atari schedule used in the DeepMind papers
+atari_schedule = ScheduleParameters()
+atari_schedule.improve_steps = EnvironmentSteps(50000000)
+atari_schedule.steps_between_evaluation_periods = EnvironmentSteps(250000)
+atari_schedule.evaluation_steps = EnvironmentSteps(135000)
+atari_schedule.heatup_steps = EnvironmentSteps(50000)
 
 
 class MaxOverFramesAndFrameskipEnvWrapper(gym.Wrapper):

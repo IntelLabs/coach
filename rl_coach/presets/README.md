@@ -1,7 +1,7 @@
 # Defining Presets
 
 In Coach, we use a Preset mechanism in order to define reproducible experiments.
-A Preset defines all the parameters of an experiment in a single file, and can be executed from within the command
+A Preset defines all the parameters of an experiment in a single file, and can be executed from the command
 line using the file name.
 Presets can be very simple by using the default parameters of the algorithm and environment.
 They can also be explicit and define all the parameters in order to avoid hidden logic.
@@ -25,5 +25,5 @@ graph_manager = BasicRLGraphManager(
 )
 ```
 
-Most presets in Coach are much more explicit than this. The motivation behind this is to bbe as transparent as
-possible on all the changes needed relative to the basic parameters defined in the algorithm paper.
+Most presets in Coach are much more explicit than this. The motivation behind this is to be as transparent as
+possible regarding all the changes needed relative to the basic parameters defined in the algorithm paper.
