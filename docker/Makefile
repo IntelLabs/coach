@@ -54,6 +54,8 @@ stop_kubernetes:
 	kubectl delete pv --ignore-not-found nfs-checkpoint-pv
 	kubectl delete pvc --ignore-not-found nfs-checkpoint-pvc
 	kubectl delete deployment --ignore-not-found redis-server
+	kubectl get jobs | grep train | awk "{print $\1}" | xargs kubectl delete jobs
+	kubectl get jobs | grep worker | awk "{print $\1}" | xargs kubectl delete jobs
 
 kubernetes: stop_kubernetes
 	python3 ${CONTEXT}/rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE} -ns 10.63.249.182 -np /

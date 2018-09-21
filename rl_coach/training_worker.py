@@ -22,6 +22,23 @@ def heatup(graph_manager):
         time.sleep(1)
 
 
+class StepsLoop(object):
+    """StepsLoop facilitates a simple while loop"""
+    def __init__(self, steps_counters, phase, steps):
+        super(StepsLoop, self).__init__()
+        self.steps_counters = steps_counters
+        self.phase = phase
+        self.steps = steps
+
+        self.step_end = self._step_count() + steps.num_steps
+
+    def _step_count(self):
+        return self.steps_counters[self.phase][self.steps.__class__]
+
+    def continue(self):
+        return self._step_count() < count_end:
+
+
 def training_worker(graph_manager, checkpoint_dir):
     """
     restore a checkpoint then perform rollouts using the restored model
@@ -38,7 +55,8 @@ def training_worker(graph_manager, checkpoint_dir):
     heatup(graph_manager)
 
     # training loop
-    for _ in range(40):
+    stepper = StepsLoop(graph_manager.total_steps_counters, RunPhase.TRAIN, graph_manager.improve_steps)
+    while stepper.continue():
         graph_manager.phase = core_types.RunPhase.TRAIN
         graph_manager.train(core_types.TrainingSteps(1))
         graph_manager.phase = core_types.RunPhase.UNDEFINED
