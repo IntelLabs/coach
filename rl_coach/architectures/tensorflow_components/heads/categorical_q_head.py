@@ -58,3 +58,12 @@ class CategoricalQHead(Head):
         self.target = self.distributions
         self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.target, logits=values_distribution)
         tf.losses.add_loss(self.loss)
+
+    def __str__(self):
+        result = [
+            "Dense (num outputs = {})".format(self.num_actions * self.num_atoms),
+            "Reshape (output size = {} x {})".format(self.num_actions, self.num_atoms),
+            "Softmax"
+        ]
+        return '\n'.join(result)
+

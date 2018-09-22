@@ -75,3 +75,14 @@ class Middleware(object):
     def schemes(self):
         raise NotImplementedError("Inheriting middleware must define schemes matching its allowed default "
                                   "configurations.")
+
+    def __str__(self):
+        if isinstance(self.scheme, MiddlewareScheme):
+            scheme = self.schemes[self.scheme]
+        else:
+            scheme = self.scheme
+
+        if scheme:
+            return '\n'.join([str(l) for l in scheme])
+        else:
+            return 'No layers'

@@ -69,3 +69,9 @@ class DDPGActor(Head):
                     [self.action_penalty * tf.reduce_mean(tf.square(pre_activation_policy_values_mean))]
 
         self.output = [self.policy_mean]
+
+    def __str__(self):
+        result = [
+            'Dense (num outputs = {})'.format(self.num_actions)
+        ]
+        return '\n'.join(result)

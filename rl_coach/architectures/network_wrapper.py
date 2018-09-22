@@ -217,3 +217,18 @@ class NetworkWrapper(object):
         if self.target_network:
             self.target_network.set_session(sess)
 
+    def __str__(self):
+        sub_networks = []
+        if self.global_network:
+            sub_networks.append("global network")
+        if self.online_network:
+            sub_networks.append("online network")
+        if self.target_network:
+            sub_networks.append("target network")
+
+        result = []
+        result.append("Network: {}, Copies: {} ({})".format(self.name, len(sub_networks), ' | '.join(sub_networks)))
+        result.append("-"*len(result[-1]))
+        result.append(str(self.online_network))
+        result.append("")
+        return '\n'.join(result)

@@ -269,7 +269,12 @@ class Agent(AgentInterface):
                                                     spaces=self.spaces,
                                                     replicated_device=self.replicated_device,
                                                     worker_device=self.worker_device)
+        # self.print_network(networks)
         return networks
+
+    def print_network(self, networks):
+        for network in networks.values():
+            print(network)
 
     def init_environment_dependent_modules(self) -> None:
         """

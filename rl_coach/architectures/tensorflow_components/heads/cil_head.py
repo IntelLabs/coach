@@ -61,7 +61,12 @@ class RegressionHead(Head):
                 layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx))
             ))
 
-        self.output = self.dense_layer(self.num_actions)(self.layers[-1], name='output')
+        self.layers.append(self.dense_layer(self.num_actions)(self.layers[-1], name='output'))
+        self.output = self.layers[-1]
 
-
+    def __str__(self):
+        result = []
+        for layer in self.layers:
+            result.append(str(layer))
+        return '\n'.join(result)
 

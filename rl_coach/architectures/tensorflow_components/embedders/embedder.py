@@ -147,3 +147,14 @@ class InputEmbedder(object):
 
     def get_name(self):
         return self.name
+
+    def __str__(self):
+        if isinstance(self.scheme, EmbedderScheme):
+            scheme = self.schemes[self.scheme]
+        else:
+            scheme = self.scheme
+
+        if scheme:
+            return '\n'.join([str(l) for l in scheme])
+        else:
+            return 'No layers'

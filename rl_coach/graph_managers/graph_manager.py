@@ -99,6 +99,7 @@ class GraphManager(object):
 
         # timers
         self.graph_initialization_time = time.time()
+        self.graph_creation_time = None
         self.heatup_start_time = None
         self.training_start_time = None
         self.last_evaluation_start_time = None
@@ -115,7 +116,8 @@ class GraphManager(object):
         self.checkpoint_saver = None
         self.graph_logger = Logger()
 
-    def create_graph(self, task_parameters: TaskParameters):
+    def create_graph(self, task_parameters: TaskParameters=TaskParameters()):
+        self.graph_creation_time = time.time()
         self.task_parameters = task_parameters
 
         if isinstance(task_parameters, DistributedTaskParameters):
@@ -149,6 +151,8 @@ class GraphManager(object):
         self._phase = self.phase = RunPhase.UNDEFINED
 
         self.setup_logger()
+
+        return self
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
         """
@@ -416,6 +420,8 @@ class GraphManager(object):
         :param keep_networks_in_sync: sync the network parameters with the global network before each episode
         :return: None
         """
+        self.verify_graph_was_created()
+
         if steps.num_steps > 0:
             self.phase = RunPhase.TEST
             self.last_evaluation_start_time = time.time()
@@ -494,6 +500,7 @@ class GraphManager(object):
             2.2. Evaluate
         :return: None
         """
+        self.verify_graph_was_created()
 
         # initialize the network parameters from the global network
         self.sync_graph()
@@ -511,6 +518,14 @@ class GraphManager(object):
         while self.total_steps_counters[RunPhase.TRAIN][self.improve_steps.__class__] < count_end:
             self.train_and_act(self.steps_between_evaluation_periods)
             self.evaluate(self.evaluation_steps)
+
+    def verify_graph_was_created(self):
+        """
+        Verifies that the graph was already created, and if not, it creates it with the default task parameters
+        :return: None
+        """
+        if self.graph_creation_time is None:
+            self.create_graph()
 
     def __str__(self):
         result = ""

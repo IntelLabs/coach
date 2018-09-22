@@ -49,6 +49,10 @@ class Conv2d(object):
         return tf.layers.conv2d(input_layer, filters=self.num_filters, kernel_size=self.kernel_size,
                                 strides=self.strides, data_format='channels_last', name=name)
 
+    def __str__(self):
+        return "Convolution (num filters = {}, kernel size = {}, stride = {})"\
+            .format(self.num_filters, self.kernel_size, self.strides)
+
 
 class BatchnormActivationDropout(object):
     def __init__(self, batchnorm: bool=False, activation_function=None, dropout_rate: float=0):
@@ -68,6 +72,16 @@ class BatchnormActivationDropout(object):
                                             dropout=self.dropout_rate > 0, dropout_rate=self.dropout_rate,
                                             is_training=is_training, name=name)
 
+    def __str__(self):
+        result = []
+        if self.batchnorm:
+            result += ["Batch Normalization"]
+        if self.activation_function:
+            result += ["Activation (type = {})".format(self.activation_function)]
+        if self.dropout_rate > 0:
+            result += ["Dropout (rate = {})".format(self.dropout_rate)]
+        return "\n".join(result)
+
 
 class Dense(object):
     def __init__(self, units: int):
@@ -82,6 +96,9 @@ class Dense(object):
         """
         return tf.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
                                activation=activation)
+
+    def __str__(self):
+        return "Dense (num outputs = {})".format(self.units)
 
 
 class NoisyNetDense(object):
@@ -145,3 +162,6 @@ class NoisyNetDense(object):
     @staticmethod
     def f(values):
         return tf.sqrt(tf.abs(values)) * tf.sign(values)
+
+    def __str__(self):
+        return "Noisy Dense (num outputs = {})".format(self.units)

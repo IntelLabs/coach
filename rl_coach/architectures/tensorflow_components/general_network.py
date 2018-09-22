@@ -27,7 +27,7 @@ from rl_coach.architectures.tensorflow_components.middlewares.middleware import 
 from rl_coach.base_parameters import AgentParameters, EmbeddingMergerType
 from rl_coach.core_types import PredictionType
 from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace
-from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params
+from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
@@ -343,4 +343,21 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             else:
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
+    def __str__(self):
+        result = []
 
+        for embedder in self.input_embedders:
+            result.append("Input Embedder: {}".format(embedder.name))
+            result.append(indent_string(str(embedder)))
+
+        result.append("{} ({})".format(self.network_parameters.embedding_merger_type.name,
+                                       ", ".join(["{} embedding".format(e.name) for e in self.input_embedders])))
+
+        result.append("Middleware:")
+        result.append(indent_string(str(self.middleware)))
+
+        for head in self.output_heads:
+            result.append("Output Head: {}".format(head.name))
+
+        result = '\n'.join(result)
+        return result

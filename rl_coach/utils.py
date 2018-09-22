@@ -583,3 +583,7 @@ def start_shell_command_and_wait(command):
     atexit.register(cleanup)
     p.wait()
     atexit.unregister(cleanup)
+
+
+def indent_string(string):
+    return '\t' + string.replace('\n', '\n\t')

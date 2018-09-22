@@ -284,13 +284,14 @@ class AgentParameters(Parameters):
 
 
 class TaskParameters(Parameters):
-    def __init__(self, framework_type: str, evaluate_only: bool=False, use_cpu: bool=False, experiment_path=None,
-                 seed=None):
+    def __init__(self, framework_type: str="tensorflow", evaluate_only: bool=False, use_cpu: bool=False,
+                 experiment_path="./experiments/test/", seed=None, save_checkpoint_secs=None):
         """
         :param framework_type: deep learning framework type. currently only tensorflow is supported
         :param evaluate_only: the task will be used only for evaluating the model
         :param use_cpu: use the cpu for this task
         :param experiment_path: the path to the directory which will store all the experiment outputs
+        :param save_checkpoint_secs: the number of seconds between each checkpoint saving
         :param seed: a seed to use for the random numbers generator
         """
         self.framework_type = framework_type
@@ -298,6 +299,7 @@ class TaskParameters(Parameters):
         self.evaluate_only = evaluate_only
         self.use_cpu = use_cpu
         self.experiment_path = experiment_path
+        self.save_checkpoint_secs = save_checkpoint_secs
         self.seed = seed
 
 
