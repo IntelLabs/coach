@@ -77,7 +77,7 @@ class BatchnormActivationDropout(object):
         if self.batchnorm:
             result += ["Batch Normalization"]
         if self.activation_function:
-            result += ["Activation (type = {})".format(self.activation_function)]
+            result += ["Activation (type = {})".format(self.activation_function.__name__)]
         if self.dropout_rate > 0:
             result += ["Dropout (rate = {})".format(self.dropout_rate)]
         return "\n".join(result)

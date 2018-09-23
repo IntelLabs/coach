@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import copy
 from typing import Type, Union, List
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.base_parameters import MiddlewareScheme, Parameters, NetworkComponentParameters
+from rl_coach.architectures.tensorflow_components.layers import Dense, BatchnormActivationDropout
+from rl_coach.base_parameters import MiddlewareScheme, NetworkComponentParameters
 from rl_coach.core_types import MiddlewareEmbedding
 
 
@@ -58,6 +59,22 @@ class Middleware(object):
         self.dense_layer = dense_layer
         self.is_training = is_training
 
+        # layers order is conv -> batchnorm -> activation -> dropout
+        if isinstance(self.scheme, MiddlewareScheme):
+            self.layers_params = copy.copy(self.schemes[self.scheme])
+        else:
+            self.layers_params = copy.copy(self.scheme)
+
+        # we allow adding batchnorm, dropout or activation functions after each layer.
+        # The motivation is to simplify the transition between a network with batchnorm and a network without
+        # batchnorm to a single flag (the same applies to activation function and dropout)
+        if self.batchnorm or self.activation_function or self.dropout:
+            for layer_idx in reversed(range(len(self.layers_params))):
+                self.layers_params.insert(layer_idx+1,
+                                          BatchnormActivationDropout(batchnorm=self.batchnorm,
+                                                                     activation_function=self.activation_function,
+                                                                     dropout_rate=self.dropout_rate))
+
     def __call__(self, input_layer):
         with tf.variable_scope(self.get_name()):
             self.input = input_layer
@@ -77,12 +94,8 @@ class Middleware(object):
                                   "configurations.")
 
     def __str__(self):
-        if isinstance(self.scheme, MiddlewareScheme):
-            scheme = self.schemes[self.scheme]
-        else:
-            scheme = self.scheme
-
-        if scheme:
-            return '\n'.join([str(l) for l in scheme])
+        result = [str(l) for l in self.layers_params]
+        if self.layers_params:
+            return '\n'.join(result)
         else:
             return 'No layers'

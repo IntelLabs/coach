@@ -15,11 +15,13 @@
 #
 
 from typing import List, Union
+import copy
 
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense, \
+    BatchnormActivationDropout
 from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
 
 from rl_coach.core_types import InputEmbedding
@@ -75,12 +77,29 @@ class InputEmbedder(object):
         self.output = None
         self.scheme = scheme
         self.return_type = InputEmbedding
+        self.layers_params = []
         self.layers = []
         self.input_rescaling = input_rescaling
         self.input_offset = input_offset
         self.input_clipping = input_clipping
         self.dense_layer = dense_layer
         self.is_training = is_training
+
+        # layers order is conv -> batchnorm -> activation -> dropout
+        if isinstance(self.scheme, EmbedderScheme):
+            self.layers_params = copy.copy(self.schemes[self.scheme])
+        else:
+            self.layers_params = copy.copy(self.scheme)
+
+        # we allow adding batchnorm, dropout or activation functions after each layer.
+        # The motivation is to simplify the transition between a network with batchnorm and a network without
+        # batchnorm to a single flag (the same applies to activation function and dropout)
+        if self.batchnorm or self.activation_function or self.dropout:
+            for layer_idx in reversed(range(len(self.layers_params))):
+                self.layers_params.insert(layer_idx+1,
+                                          BatchnormActivationDropout(batchnorm=self.batchnorm,
+                                                                     activation_function=self.activation_function,
+                                                                     dropout_rate=self.dropout_rate))
 
     def __call__(self, prev_input_placeholder=None):
         with tf.variable_scope(self.get_name()):
@@ -106,21 +125,11 @@ class InputEmbedder(object):
 
         self.layers.append(input_layer)
 
-        # layers order is conv -> batchnorm -> activation -> dropout
-        if isinstance(self.scheme, EmbedderScheme):
-            layers_params = self.schemes[self.scheme]
-        else:
-            layers_params = self.scheme
-        for idx, layer_params in enumerate(layers_params):
+        for idx, layer_params in enumerate(self.layers_params):
             self.layers.extend(force_list(
                 layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
                              is_training=self.is_training)
             ))
-
-            self.layers.extend(batchnorm_activation_dropout(self.layers[-1], self.batchnorm,
-                                                            self.activation_function, self.dropout,
-                                                            self.dropout_rate, self.is_training,
-                                                            name='BatchnnormActivationDropout_{}'.format(idx)))
 
         self.output = tf.contrib.layers.flatten(self.layers[-1])
 
@@ -149,12 +158,11 @@ class InputEmbedder(object):
         return self.name
 
     def __str__(self):
-        if isinstance(self.scheme, EmbedderScheme):
-            scheme = self.schemes[self.scheme]
-        else:
-            scheme = self.scheme
-
-        if scheme:
-            return '\n'.join([str(l) for l in scheme])
+        result = []
+        if self.input_rescaling != 1.0 or self.input_offset != 0.0:
+            result.append('Input Normalization (scale = {}, offset = {})'.format(self.input_rescaling, self.input_offset))
+        result.extend([str(l) for l in self.layers_params])
+        if self.layers_params:
+            return '\n'.join(result)
         else:
             return 'No layers'

@@ -47,20 +47,11 @@ class FCMiddleware(Middleware):
     def _build_module(self):
         self.layers.append(self.input)
 
-        if isinstance(self.scheme, MiddlewareScheme):
-            layers_params = self.schemes[self.scheme]
-        else:
-            layers_params = self.scheme
-        for idx, layer_params in enumerate(layers_params):
+        for idx, layer_params in enumerate(self.layers_params):
             self.layers.extend(force_list(
                 layer_params(self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
                              is_training=self.is_training)
             ))
-
-            self.layers.extend(batchnorm_activation_dropout(self.layers[-1], self.batchnorm,
-                                                            self.activation_function, self.dropout,
-                                                            self.dropout_rate, self.is_training,
-                                                            name='BatchnnormActivationDropout_{}'.format(idx)))
 
         self.output = self.layers[-1]
 

@@ -59,21 +59,12 @@ class LSTMMiddleware(Middleware):
 
         self.layers.append(self.input)
 
-        # optionally insert some dense layers before the LSTM
-        if isinstance(self.scheme, MiddlewareScheme):
-            layers_params = self.schemes[self.scheme]
-        else:
-            layers_params = self.scheme
-        for idx, layer_params in enumerate(layers_params):
+        # optionally insert some layers before the LSTM
+        for idx, layer_params in enumerate(self.layers_params):
             self.layers.extend(force_list(
                 layer_params(self.layers[-1], name='fc{}'.format(idx),
                              is_training=self.is_training)
             ))
-
-            self.layers.extend(batchnorm_activation_dropout(self.layers[-1], self.batchnorm,
-                                                            self.activation_function, self.dropout,
-                                                            self.dropout_rate, is_training=self.is_training,
-                                                            name='BatchnnormActivationDropout_{}'.format(idx)))
 
         # add the LSTM layer
         lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.number_of_lstm_cells, state_is_tuple=True)

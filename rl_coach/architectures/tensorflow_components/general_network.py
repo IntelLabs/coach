@@ -346,18 +346,43 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
     def __str__(self):
         result = []
 
-        for embedder in self.input_embedders:
-            result.append("Input Embedder: {}".format(embedder.name))
-            result.append(indent_string(str(embedder)))
+        for network in range(self.num_networks):
+            network_structure = []
 
-        result.append("{} ({})".format(self.network_parameters.embedding_merger_type.name,
-                                       ", ".join(["{} embedding".format(e.name) for e in self.input_embedders])))
+            # embedder
+            for embedder in self.input_embedders:
+                network_structure.append("Input Embedder: {}".format(embedder.name))
+                network_structure.append(indent_string(str(embedder)))
 
-        result.append("Middleware:")
-        result.append(indent_string(str(self.middleware)))
+            if len(self.input_embedders) > 1:
+                network_structure.append("{} ({})".format(self.network_parameters.embedding_merger_type.name,
+                                               ", ".join(["{} embedding".format(e.name) for e in self.input_embedders])))
 
-        for head in self.output_heads:
-            result.append("Output Head: {}".format(head.name))
+            # middleware
+            network_structure.append("Middleware:")
+            network_structure.append(indent_string(str(self.middleware)))
+
+            # head
+            if self.network_parameters.use_separate_networks_per_head:
+                heads = range(network, network+1)
+            else:
+                heads = range(0, len(self.output_heads))
+
+            for head_idx in heads:
+                head = self.output_heads[head_idx]
+                head_params = self.network_parameters.heads_parameters[head_idx]
+                if head_params.num_output_head_copies > 1:
+                    network_structure.append("Output Head: {} (num copies = {})".format(head.name, head_params.num_output_head_copies))
+                else:
+                    network_structure.append("Output Head: {}".format(head.name))
+                    network_structure.append(indent_string(str(head)))
+
+            # finalize network
+            if self.num_networks > 1:
+                result.append("Sub-network for head: {}".format(self.output_heads[network].name))
+                result.append(indent_string('\n'.join(network_structure)))
+            else:
+                result.append('\n'.join(network_structure))
 
         result = '\n'.join(result)
         return result
