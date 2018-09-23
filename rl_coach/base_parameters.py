@@ -230,7 +230,7 @@ class VisualizationParameters(Parameters):
     def __init__(self):
         super().__init__()
         # Visualization parameters
-        self.print_summary = True
+        self.print_networks_summary = False
         self.dump_csv = True
         self.dump_gifs = False
         self.dump_mp4 = False
