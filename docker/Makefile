@@ -34,8 +34,17 @@ build:
 shell: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} /bin/bash
 
-test: build
-	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} py.test tests
+unit_tests: build
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 -m pytest rl_coach/tests -m unit_test -n 8
+
+integration_tests: build
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 -m pytest rl_coach/tests -m integration_test -n auto
+
+golden_tests: build
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/tests/golden_tests.py
+
+trace_tests: build
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/tests/trace_tests.py -prl
 
 run: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE}
