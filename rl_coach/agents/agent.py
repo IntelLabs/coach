@@ -157,6 +157,10 @@ class Agent(AgentInterface):
         if self.ap.task_parameters.seed is not None:
             random.seed(self.ap.task_parameters.seed)
             np.random.seed(self.ap.task_parameters.seed)
+        else:
+            # we need to seed the RNG since the different processes are initialized with the same parent seed
+            random.seed()
+            np.random.seed()
 
     @property
     def parent(self):
