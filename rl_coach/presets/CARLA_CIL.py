@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 # make sure you have $CARLA_ROOT/PythonClient in your PYTHONPATH
 from carla.driving_benchmark.experiment_suites import CoRL2017
-from logger import screen
+from rl_coach.logger import screen
 
 from rl_coach.agents.cil_agent import CILAgentParameters
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
