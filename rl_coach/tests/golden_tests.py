@@ -178,6 +178,13 @@ def perform_reward_based_tests(args, preset_validation_params, preset_name):
     return test_passed
 
 
+def all_presets():
+    return [
+        f[:-3] for f in os.listdir(os.path.join('rl_coach', 'presets'))
+        if f[-3:] == '.py' and not f == '__init__.py'
+    ]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--preset',
@@ -206,8 +213,7 @@ def main():
     if args.preset is not None:
         presets_lists = [args.preset]
     else:
-        presets_lists = [f[:-3] for f in os.listdir(os.path.join('rl_coach', 'presets')) if
-                         f[-3:] == '.py' and not f == '__init__.py']
+        presets_lists = all_presets()
 
     fail_count = 0
     test_count = 0
