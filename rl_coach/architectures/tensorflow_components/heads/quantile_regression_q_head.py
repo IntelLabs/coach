@@ -82,3 +82,11 @@ class QuantileRegressionQHead(Head):
         quantile_regression_loss = tf.reduce_sum(quantile_huber_loss) / float(self.num_atoms)
         self.loss = quantile_regression_loss
         tf.losses.add_loss(self.loss)
+
+    def __str__(self):
+        result = [
+            "Dense (num outputs = {})".format(self.num_actions * self.num_atoms),
+            "Reshape (new size = {} x {})".format(self.num_actions, self.num_atoms)
+        ]
+        return '\n'.join(result)
+

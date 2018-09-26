@@ -59,3 +59,9 @@ class PPOVHead(Head):
         self.vf_loss = tf.reduce_mean(tf.maximum(value_loss_1, value_loss_2))
         self.loss = self.vf_loss
         tf.losses.add_loss(self.loss)
+
+    def __str__(self):
+        result = [
+            "Dense (num outputs = 1)"
+        ]
+        return '\n'.join(result)

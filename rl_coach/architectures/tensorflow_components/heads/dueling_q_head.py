@@ -55,3 +55,16 @@ class DuelingQHead(QHead):
 
         # merge to state-action value function Q
         self.output = tf.add(self.state_value, self.action_advantage, name='output')
+
+    def __str__(self):
+        result = [
+            "State Value Stream - V",
+            "\tDense (num outputs = 512)",
+            "\tDense (num outputs = 1)",
+            "Action Advantage Stream - A",
+            "\tDense (num outputs = 512)",
+            "\tDense (num outputs = {})".format(self.num_actions),
+            "\tSubtract(A, Mean(A))".format(self.num_actions),
+            "Add (V, A)"
+        ]
+        return '\n'.join(result)

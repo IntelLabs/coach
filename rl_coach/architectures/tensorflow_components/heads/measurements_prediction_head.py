@@ -71,3 +71,17 @@ class MeasurementsPredictionHead(Head):
         targets_nonan = tf.where(tf.is_nan(self.target), self.output, self.target)
         self.loss = tf.reduce_sum(tf.reduce_mean(tf.square(targets_nonan - self.output), reduction_indices=0))
         tf.losses.add_loss(self.loss_weight[0] * self.loss)
+
+    def __str__(self):
+        result = [
+            "State Value Stream - V",
+            "\tDense (num outputs = 256)",
+            "\tDense (num outputs = {})".format(self.multi_step_measurements_size),
+            "Action Advantage Stream - A",
+            "\tDense (num outputs = 256)",
+            "\tDense (num outputs = {})".format(self.num_actions * self.multi_step_measurements_size),
+            "\tReshape (new size = {} x {})".format(self.num_actions, self.multi_step_measurements_size),
+            "\tSubtract(A, Mean(A))".format(self.num_actions),
+            "Add (V, A)"
+        ]
+        return '\n'.join(result)

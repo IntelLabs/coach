@@ -55,5 +55,10 @@ class QHead(Head):
         # Standard Q Network
         self.output = self.dense_layer(self.num_actions)(input_layer, name='output')
 
+    def __str__(self):
+        result = [
+            "Dense (num outputs = {})".format(self.num_actions)
+        ]
+        return '\n'.join(result)
 
 

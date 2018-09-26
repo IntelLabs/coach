@@ -150,3 +150,15 @@ class PPOHead(Head):
         self.old_policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.old_policy_mean, self.old_policy_std + eps)
 
         self.output = [self.policy_mean, self.policy_std]
+
+    def __str__(self):
+        action_head_mean_result = []
+        if isinstance(self.spaces.action, DiscreteActionSpace):
+            # create a discrete action network (softmax probabilities output)
+            action_head_mean_result.append("Dense (num outputs = {})".format(len(self.spaces.action.actions)))
+            action_head_mean_result.append("Softmax")
+        elif isinstance(self.spaces.action, BoxActionSpace):
+            # create a continuous action network (bounded mean and stdev outputs)
+            action_head_mean_result.append("Dense (num outputs = {})".format(self.spaces.action.shape))
+
+        return '\n'.join(action_head_mean_result)

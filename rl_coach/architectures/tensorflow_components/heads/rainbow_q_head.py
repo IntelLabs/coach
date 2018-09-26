@@ -73,3 +73,17 @@ class RainbowQHead(Head):
         self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.target, logits=values_distribution)
         tf.losses.add_loss(self.loss)
 
+    def __str__(self):
+        result = [
+            "State Value Stream - V",
+            "\tDense (num outputs = 512)",
+            "\tDense (num outputs = {})".format(self.num_atoms),
+            "Action Advantage Stream - A",
+            "\tDense (num outputs = 512)",
+            "\tDense (num outputs = {})".format(self.num_actions * self.num_atoms),
+            "\tReshape (new size = {} x {})".format(self.num_actions, self.num_atoms),
+            "\tSubtract(A, Mean(A))".format(self.num_actions),
+            "Add (V, A)",
+            "Softmax"
+        ]
+        return '\n'.join(result)

@@ -94,3 +94,21 @@ class NAFHead(Head):
         self.Q = tf.add(self.V, self.A, name='Q')
 
         self.output = self.Q
+
+    def __str__(self):
+        result = [
+            "State Value Stream - V",
+            "\tDense (num outputs = 1)",
+            "Action Advantage Stream - A",
+            "\tDense (num outputs = {})".format((self.num_actions * (self.num_actions + 1)) / 2),
+            "\tReshape to lower triangular matrix L (new size = {} x {})".format(self.num_actions, self.num_actions),
+            "\tP = L*L^T",
+            "\tA = -1/2 * (u - mu)^T * P * (u - mu)",
+            "Action Stream - mu",
+            "\tDense (num outputs = {})".format(self.num_actions),
+            "\tActivation (type = {})".format(self.activation_function.__name__),
+            "\tMultiply (factor = {})".format(self.output_scale),
+            "State-Action Value Stream - Q",
+            "\tAdd (V, A)"
+        ]
+        return '\n'.join(result)

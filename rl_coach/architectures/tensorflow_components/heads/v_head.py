@@ -52,3 +52,9 @@ class VHead(Head):
         # Standard V Network
         self.output = self.dense_layer(1)(input_layer, name='output',
                                           kernel_initializer=normalized_columns_initializer(1.0))
+
+    def __str__(self):
+        result = [
+            "Dense (num outputs = 1)"
+        ]
+        return '\n'.join(result)

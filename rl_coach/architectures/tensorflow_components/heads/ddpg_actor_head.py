@@ -72,6 +72,6 @@ class DDPGActor(Head):
 
     def __str__(self):
         result = [
-            'Dense (num outputs = {})'.format(self.num_actions)
+            'Dense (num outputs = {})'.format(self.num_actions[0])
         ]
         return '\n'.join(result)

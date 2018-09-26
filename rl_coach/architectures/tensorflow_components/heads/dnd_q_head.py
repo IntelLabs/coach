@@ -93,3 +93,9 @@ class DNDQHead(QHead):
         # DND gradients
         self.dnd_embeddings_grad = tf.gradients(self.loss[0], self.dnd_embeddings)
         self.dnd_values_grad = tf.gradients(self.loss[0], self.dnd_values)
+
+    def __str__(self):
+        result = [
+            "DND fetch (num outputs = {})".format(self.num_actions)
+        ]
+        return '\n'.join(result)
