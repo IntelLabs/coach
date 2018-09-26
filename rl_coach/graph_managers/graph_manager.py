@@ -311,6 +311,7 @@ class GraphManager(object):
             self.reset_internal_state(force_environment_reset=True)
 
             # act on the environment
+            # act for at least steps, though don't interrupt an episode
             while steps_copy.num_steps > 0:
                 steps_done, _ = self.act(steps_copy, continue_until_game_over=True, return_on_game_over=True)
                 steps_copy.num_steps -= steps_done
@@ -473,6 +474,7 @@ class GraphManager(object):
             self.reset_internal_state(force_environment_reset=True)
             self.sync_graph()
 
+            # act for at least `steps`, though don't interrupt an episode
             count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
             while self.total_steps_counters[self.phase][steps.__class__] < count_end:
                 steps_done, _ = self.act(steps, continue_until_game_over=True, return_on_game_over=True,
@@ -561,6 +563,7 @@ class GraphManager(object):
         else:
             screen.log_title("Starting to improve {}".format(self.name))
         self.training_start_time = time.time()
+
         count_end = self.improve_steps.num_steps
         while self.total_steps_counters[RunPhase.TRAIN][self.improve_steps.__class__] < count_end:
             self.train_and_act(self.steps_between_evaluation_periods)
