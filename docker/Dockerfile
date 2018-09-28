@@ -18,37 +18,61 @@ WORKDIR /root
 ################################
 
 # General
-RUN apt-get install python3-pip cmake zlib1g-dev python3-tk python-opencv -y
+RUN apt-get update && \
+    apt-get install -y python3-pip cmake zlib1g-dev python3-tk python-opencv && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
 
 # Boost libraries
-RUN apt-get install libboost-all-dev -y
+RUN apt-get update && \
+    apt-get install -y libboost-all-dev && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
 
 # Scipy requirements
-RUN apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran -y
+RUN apt-get update && \
+    apt-get install -y libblas-dev liblapack-dev libatlas-base-dev gfortran && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
 
 # Pygame requirements
-RUN apt-get install libsdl-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev -y
-RUN apt-get install libsmpeg-dev libportmidi-dev libavformat-dev libswscale-dev -y
+RUN apt-get update && \
+    apt-get install -y libsdl-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
+RUN apt-get update && \
+    apt-get install -y libsmpeg-dev libportmidi-dev libavformat-dev libswscale-dev && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
 
 # Dashboard
-RUN apt-get install dpkg-dev build-essential python3.5-dev libjpeg-dev  libtiff-dev libsdl1.2-dev libnotify-dev \
+RUN apt-get update && \
+    apt-get install -y dpkg-dev build-essential python3.5-dev libjpeg-dev  libtiff-dev libsdl1.2-dev libnotify-dev \
     freeglut3 freeglut3-dev libsm-dev libgtk2.0-dev libgtk-3-dev libwebkitgtk-dev libgtk-3-dev \
-    libwebkitgtk-3.0-dev libgstreamer-plugins-base1.0-dev -y
+    libwebkitgtk-3.0-dev libgstreamer-plugins-base1.0-dev && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
 
 # Gym
-RUN apt-get install libav-tools libsdl2-dev swig cmake -y
+RUN apt-get update && \
+    apt-get install -y libav-tools libsdl2-dev swig cmake && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
 
 # Mujoco_py
-RUN apt-get install curl libgl1-mesa-dev libgl1-mesa-glx libglew-dev libosmesa6-dev software-properties-common -y
+RUN apt-get update && \
+    apt-get install -y curl libgl1-mesa-dev libgl1-mesa-glx libglew-dev libosmesa6-dev software-properties-common && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y
 
 # ViZDoom
-RUN apt-get install build-essential zlib1g-dev libsdl2-dev libjpeg-dev \
+RUN apt-get update && \
+    apt-get install -y build-essential zlib1g-dev libsdl2-dev libjpeg-dev \
     nasm tar libbz2-dev libgtk2.0-dev cmake git libfluidsynth-dev libgme-dev \
-    libopenal-dev timidity libwildmidi-dev unzip wget -y
-
-# cleanup apt-get
-RUN apt-get clean autoclean && \
+    libopenal-dev timidity libwildmidi-dev unzip wget && \
+    apt-get clean autoclean && \
     apt-get autoremove -y
+
 ############################
 # Install Pip Requirements #
 ############################
