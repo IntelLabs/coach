@@ -336,20 +336,7 @@ class GraphManager(object):
         """
         self.verify_graph_was_created()
 
-        # perform several steps of training interleaved with acting
-        count_end = self.total_steps_counters[RunPhase.TRAIN][TrainingSteps] + steps.num_steps
-        while self.total_steps_counters[RunPhase.TRAIN][TrainingSteps] < count_end:
-            self.total_steps_counters[RunPhase.TRAIN][TrainingSteps] += 1
-            [manager.train() for manager in self.level_managers]
-
-        # # option 1
-        # for _ in StepsLoop(self.total_steps_counters, RunPhase.TRAIN, steps):
-        #     [manager.train() for manager in self.level_managers]
-        #
-        # # option 2
-        # steps_loop = StepsLoop(self.total_steps_counters, RunPhase.TRAIN, steps)
-        # while steps_loop or other:
-        #     [manager.train() for manager in self.level_managers]
+        [manager.train() for manager in self.level_managers]
 
 
     def reset_internal_state(self, force_environment_reset=False) -> None:
@@ -383,21 +370,21 @@ class GraphManager(object):
         # perform several steps of playing
         result = None
 
-        hold_until_a_full_episode = True if continue_until_game_over else False
         initial_count = self.total_steps_counters[self.phase][steps.__class__]
         count_end = initial_count + steps.num_steps
 
         # The assumption here is that the total_steps_counters are each updated when an event
         #  takes place (i.e. an episode ends)
         # TODO - The counter of frames is not updated correctly. need to fix that.
-        while self.total_steps_counters[self.phase][steps.__class__] < count_end or hold_until_a_full_episode:
+        while self.total_steps_counters[self.phase][steps.__class__] < count_end or continue_until_game_over:
             # reset the environment if the previous episode was terminated
             if self.reset_required:
                 self.reset_internal_state()
 
-            current_steps = self.environments[0].total_steps_counter
-
+            steps_begin = self.environments[0].total_steps_counter
             result = self.top_level_manager.step(None)
+            steps_end = self.environments[0].total_steps_counter
+
             # result will be None if at least one level_manager decided not to play (= all of his agents did not play)
             # causing the rest of the level_managers down the stack not to play either, and thus the entire graph did
             # not act
@@ -408,11 +395,10 @@ class GraphManager(object):
             # (like in Atari) will not be counted.
             # We add at least one step so that even if no steps were made (in case no actions are taken in the training
             # phase), the loop will end eventually.
-            self.total_steps_counters[self.phase][EnvironmentSteps] += \
-                max(1, self.environments[0].total_steps_counter - current_steps)
+            self.total_steps_counters[self.phase][EnvironmentSteps] += max(1, steps_end - steps_begin)
 
             if result.game_over:
-                hold_until_a_full_episode = False
+                continue_until_game_over = False
                 self.handle_episode_ended()
                 # TODO: why not just reset right now?
                 self.reset_required = True
