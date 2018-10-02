@@ -360,8 +360,6 @@ class GraphManager(object):
         :param return_on_game_over: finish acting if an episode is finished
         :param continue_until_game_over: continue playing until an episode was completed
         :param keep_networks_in_sync: sync the network parameters with the global network before each episode
-        :return: the actual number of steps done, a boolean value that represent if the episode was done when finishing
-                 the function call
         """
         self.verify_graph_was_created()
 
@@ -408,13 +406,7 @@ class GraphManager(object):
                 if keep_networks_in_sync:
                     self.sync_graph()
                 if return_on_game_over:
-                    return self.total_steps_counters[self.phase][EnvironmentSteps] - initial_count, True
-
-        # return the game over status
-        if result:
-            return self.total_steps_counters[self.phase][EnvironmentSteps] - initial_count, result.game_over
-        else:
-            return self.total_steps_counters[self.phase][EnvironmentSteps] - initial_count, False
+                    return
 
     def train_and_act(self, steps: StepMethod) -> None:
         """
@@ -466,8 +458,8 @@ class GraphManager(object):
             # act for at least `steps`, though don't interrupt an episode
             count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
             while self.total_steps_counters[self.phase][steps.__class__] < count_end:
-                steps_done, _ = self.act(steps, continue_until_game_over=True, return_on_game_over=True,
-                                         keep_networks_in_sync=keep_networks_in_sync)
+                self.act(steps, continue_until_game_over=True, return_on_game_over=True,
+                         keep_networks_in_sync=keep_networks_in_sync)
 
             self.phase = RunPhase.UNDEFINED
 
