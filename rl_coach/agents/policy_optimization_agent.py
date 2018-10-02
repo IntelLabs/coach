@@ -93,6 +93,8 @@ class PolicyOptimizationAgent(Agent):
 
         total_loss = 0
         if num_steps_passed_since_last_update > 0:
+            for network in self.networks.values():
+                network.set_is_training(True)
 
             # we need to update the returns of the episode until now
             episode.update_returns()
@@ -123,6 +125,9 @@ class PolicyOptimizationAgent(Agent):
                 for network in self.networks.values():
                     network.apply_gradients_and_sync_networks()
             self.training_iteration += 1
+
+            for network in self.networks.values():
+                network.set_is_training(False)
 
             # run additional commands after the training is done
             self.post_training_commands()

@@ -39,8 +39,6 @@ class NECNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [DNDQHeadParameters()]
-        self.loss_weights = [1.0]
-        self.rescale_gradient_from_head_by_factor = [1]
         self.optimizer_type = 'Adam'
 
 

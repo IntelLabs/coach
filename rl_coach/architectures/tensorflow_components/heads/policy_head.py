@@ -17,20 +17,25 @@
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer, HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace, CompoundActionSpace
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import eps
+from rl_coach.utils import eps, indent_string
 
 
 class PolicyHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params', dense_layer=Dense):
+    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params',
+                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
+                 loss_weight: float = 1.0, dense_layer=Dense):
         super().__init__(parameterized_class=PolicyHead, activation_function=activation_function, name=name,
-                         dense_layer=dense_layer)
+                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
+                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
+                         loss_weight=loss_weight)
+
 
 
 class PolicyHead(Head):
@@ -112,7 +117,7 @@ class PolicyHead(Head):
         self.actions.append(tf.placeholder(tf.float32, [None, num_actions], name="actions"))
 
         # output activation function
-        if np.all(self.spaces.action.max_abs_range < np.inf):
+        if np.all(action_space.max_abs_range < np.inf):
             # bounded actions
             self.output_scale = action_space.max_abs_range
             self.continuous_output_activation = self.activation_function
@@ -158,3 +163,45 @@ class PolicyHead(Head):
             if self.action_penalty and self.action_penalty != 0:
                 self.regularizations += [
                     self.action_penalty * tf.reduce_mean(tf.square(pre_activation_policy_values_mean))]
+
+    def __str__(self):
+        action_spaces = [self.spaces.action]
+        if isinstance(self.spaces.action, CompoundActionSpace):
+            action_spaces = self.spaces.action.sub_action_spaces
+
+        result = []
+        for action_space_idx, action_space in enumerate(action_spaces):
+            action_head_mean_result = []
+            if isinstance(action_space, DiscreteActionSpace):
+                # create a discrete action network (softmax probabilities output)
+                action_head_mean_result.append("Dense (num outputs = {})".format(len(action_space.actions)))
+                action_head_mean_result.append("Softmax")
+            elif isinstance(action_space, BoxActionSpace):
+                # create a continuous action network (bounded mean and stdev outputs)
+                action_head_mean_result.append("Dense (num outputs = {})".format(action_space.shape))
+                if np.all(action_space.max_abs_range < np.inf):
+                    # bounded actions
+                    action_head_mean_result.append("Activation (type = {})".format(self.activation_function.__name__))
+                    action_head_mean_result.append("Multiply (factor = {})".format(action_space.max_abs_range))
+
+            action_head_stdev_result = []
+            if isinstance(self.exploration_policy, ContinuousEntropyParameters):
+                action_head_stdev_result.append("Dense (num outputs = {})".format(action_space.shape))
+                action_head_stdev_result.append("Softplus")
+
+            action_head_result = []
+            if action_head_stdev_result:
+                action_head_result.append("Mean Stream")
+                action_head_result.append(indent_string('\n'.join(action_head_mean_result)))
+                action_head_result.append("Stdev Stream")
+                action_head_result.append(indent_string('\n'.join(action_head_stdev_result)))
+            else:
+                action_head_result.append('\n'.join(action_head_mean_result))
+
+            if len(action_spaces) > 1:
+                result.append("Action head {}".format(action_space_idx))
+                result.append(indent_string('\n'.join(action_head_result)))
+            else:
+                result.append('\n'.join(action_head_result))
+
+        return '\n'.join(result)

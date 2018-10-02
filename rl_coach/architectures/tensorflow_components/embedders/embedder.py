@@ -15,20 +15,23 @@
 #
 
 from typing import List, Union
+import copy
 
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense, \
+    BatchnormActivationDropout
 from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
 
 from rl_coach.core_types import InputEmbedding
+from rl_coach.utils import force_list
 
 
 class InputEmbedderParameters(NetworkComponentParameters):
     def __init__(self, activation_function: str='relu', scheme: Union[List, EmbedderScheme]=EmbedderScheme.Medium,
                  batchnorm: bool=False, dropout=False, name: str='embedder', input_rescaling=None, input_offset=None,
-                 input_clipping=None, dense_layer=Dense):
+                 input_clipping=None, dense_layer=Dense, is_training=False):
         super().__init__(dense_layer=dense_layer)
         self.activation_function = activation_function
         self.scheme = scheme
@@ -44,6 +47,7 @@ class InputEmbedderParameters(NetworkComponentParameters):
         self.input_offset = input_offset
         self.input_clipping = input_clipping
         self.name = name
+        self.is_training = is_training
 
     @property
     def path(self):
@@ -61,7 +65,8 @@ class InputEmbedder(object):
     """
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
                  scheme: EmbedderScheme=None, batchnorm: bool=False, dropout: bool=False,
-                 name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense):
+                 name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense,
+                 is_training=False):
         self.name = name
         self.input_size = input_size
         self.activation_function = activation_function
@@ -72,11 +77,29 @@ class InputEmbedder(object):
         self.output = None
         self.scheme = scheme
         self.return_type = InputEmbedding
+        self.layers_params = []
         self.layers = []
         self.input_rescaling = input_rescaling
         self.input_offset = input_offset
         self.input_clipping = input_clipping
         self.dense_layer = dense_layer
+        self.is_training = is_training
+
+        # layers order is conv -> batchnorm -> activation -> dropout
+        if isinstance(self.scheme, EmbedderScheme):
+            self.layers_params = copy.copy(self.schemes[self.scheme])
+        else:
+            self.layers_params = copy.copy(self.scheme)
+
+        # we allow adding batchnorm, dropout or activation functions after each layer.
+        # The motivation is to simplify the transition between a network with batchnorm and a network without
+        # batchnorm to a single flag (the same applies to activation function and dropout)
+        if self.batchnorm or self.activation_function or self.dropout:
+            for layer_idx in reversed(range(len(self.layers_params))):
+                self.layers_params.insert(layer_idx+1,
+                                          BatchnormActivationDropout(batchnorm=self.batchnorm,
+                                                                     activation_function=self.activation_function,
+                                                                     dropout_rate=self.dropout_rate))
 
     def __call__(self, prev_input_placeholder=None):
         with tf.variable_scope(self.get_name()):
@@ -102,19 +125,11 @@ class InputEmbedder(object):
 
         self.layers.append(input_layer)
 
-        # layers order is conv -> batchnorm -> activation -> dropout
-        if isinstance(self.scheme, EmbedderScheme):
-            layers_params = self.schemes[self.scheme]
-        else:
-            layers_params = self.scheme
-        for idx, layer_params in enumerate(layers_params):
-            self.layers.append(
-                layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx))
-            )
-
-            self.layers.extend(batchnorm_activation_dropout(self.layers[-1], self.batchnorm,
-                                                            self.activation_function, self.dropout,
-                                                            self.dropout_rate, idx))
+        for idx, layer_params in enumerate(self.layers_params):
+            self.layers.extend(force_list(
+                layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
+                             is_training=self.is_training)
+            ))
 
         self.output = tf.contrib.layers.flatten(self.layers[-1])
 
@@ -141,3 +156,13 @@ class InputEmbedder(object):
 
     def get_name(self):
         return self.name
+
+    def __str__(self):
+        result = []
+        if self.input_rescaling != 1.0 or self.input_offset != 0.0:
+            result.append('Input Normalization (scale = {}, offset = {})'.format(self.input_rescaling, self.input_offset))
+        result.extend([str(l) for l in self.layers_params])
+        if self.layers_params:
+            return '\n'.join(result)
+        else:
+            return 'No layers'

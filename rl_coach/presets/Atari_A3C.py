@@ -1,10 +1,9 @@
 from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.environments.environment import SingleLevelSelection, SelectedPhaseOnlyDumpMethod, MaxDumpMethod
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
+from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.environments.gym_environment import Atari, atari_deterministic_v4
-from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 
@@ -29,17 +28,10 @@ agent_params.algorithm.beta_entropy = 0.05
 agent_params.network_wrappers['main'].middleware_parameters = FCMiddlewareParameters()
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 
-agent_params.exploration = CategoricalParameters()
-
 ###############
 # Environment #
 ###############
-env_params = Atari()
-env_params.level = SingleLevelSelection(atari_deterministic_v4)
-
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
+env_params = Atari(level=SingleLevelSelection(atari_deterministic_v4))
 
 ########
 # Test #
@@ -48,5 +40,5 @@ preset_validation_params = PresetValidationParameters()
 preset_validation_params.trace_test_levels = ['breakout', 'pong', 'space_invaders']
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)

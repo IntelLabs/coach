@@ -41,8 +41,6 @@ class DDPGCriticNetworkParameters(NetworkParameters):
                                             'action': InputEmbedderParameters(scheme=EmbedderScheme.Shallow)}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [VHeadParameters()]
-        self.loss_weights = [1.0]
-        self.rescale_gradient_from_head_by_factor = [1]
         self.optimizer_type = 'Adam'
         self.batch_size = 64
         self.async_training = False
@@ -58,8 +56,6 @@ class DDPGActorNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=True)}
         self.middleware_parameters = FCMiddlewareParameters(batchnorm=True)
         self.heads_parameters = [DDPGActorHeadParameters()]
-        self.loss_weights = [1.0]
-        self.rescale_gradient_from_head_by_factor = [1]
         self.optimizer_type = 'Adam'
         self.batch_size = 64
         self.async_training = False

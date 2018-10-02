@@ -26,9 +26,10 @@ from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
+from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
-from rl_coach.spaces import DiscreteActionSpace
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 
 
 class PolicyGradientNetworkParameters(NetworkParameters):
@@ -37,7 +38,6 @@ class PolicyGradientNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [PolicyHeadParameters()]
-        self.loss_weights = [1.0]
         self.async_training = True
 
 
@@ -53,7 +53,8 @@ class PolicyGradientAlgorithmParameters(AlgorithmParameters):
 class PolicyGradientsAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=PolicyGradientAlgorithmParameters(),
-                         exploration=AdditiveNoiseParameters(),
+                         exploration={DiscreteActionSpace: CategoricalParameters(),
+                                      BoxActionSpace: AdditiveNoiseParameters()},
                          memory=SingleEpisodeBufferParameters(),
                          networks={"main": PolicyGradientNetworkParameters()})
 

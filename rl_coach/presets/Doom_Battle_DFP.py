@@ -1,8 +1,7 @@
 from rl_coach.agents.dfp_agent import DFPAgentParameters
 from rl_coach.base_parameters import VisualizationParameters
-from rl_coach.core_types import EnvironmentSteps, RunPhase
+from rl_coach.core_types import EnvironmentSteps
 from rl_coach.environments.doom_environment import DoomEnvironmentParameters, DoomEnvironment
-from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
@@ -44,13 +43,9 @@ agent_params.network_wrappers['main'].input_embedders_parameters['observation'].
 ###############
 # Environment #
 ###############
-env_params = DoomEnvironmentParameters()
-env_params.level = 'BATTLE_COACH_LOCAL'
+env_params = DoomEnvironmentParameters(level='BATTLE_COACH_LOCAL')
 env_params.cameras = [DoomEnvironment.CameraTypes.OBSERVATION]
 
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params)
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters())

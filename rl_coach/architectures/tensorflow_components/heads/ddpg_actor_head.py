@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
@@ -25,9 +25,12 @@ from rl_coach.spaces import SpacesDefinition
 
 class DDPGActorHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='tanh', name: str='policy_head_params', batchnorm: bool=True,
-                 dense_layer=Dense):
+                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
+                 loss_weight: float = 1.0, dense_layer=Dense):
         super().__init__(parameterized_class=DDPGActor, activation_function=activation_function, name=name,
-                         dense_layer=dense_layer)
+                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
+                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
+                         loss_weight=loss_weight)
         self.batchnorm = batchnorm
 
 
@@ -56,7 +59,7 @@ class DDPGActor(Head):
         pre_activation_policy_values_mean = self.dense_layer(self.num_actions)(input_layer, name='fc_mean')
         policy_values_mean = batchnorm_activation_dropout(pre_activation_policy_values_mean, self.batchnorm,
                                                           self.activation_function,
-                                                          False, 0, 0)[-1]
+                                                          False, 0, is_training=False, name="BatchnormActivationDropout_0")[-1]
         self.policy_mean = tf.multiply(policy_values_mean, self.output_scale, name='output_mean')
 
         if self.is_local:
@@ -66,3 +69,9 @@ class DDPGActor(Head):
                     [self.action_penalty * tf.reduce_mean(tf.square(pre_activation_policy_values_mean))]
 
         self.output = [self.policy_mean]
+
+    def __str__(self):
+        result = [
+            'Dense (num outputs = {})'.format(self.num_actions[0])
+        ]
+        return '\n'.join(result)

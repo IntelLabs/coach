@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 
 from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters
 from rl_coach.base_parameters import AgentParameters
@@ -26,9 +26,12 @@ from rl_coach.spaces import SpacesDefinition
 
 class MeasurementsPredictionHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='relu', name: str='measurements_prediction_head_params',
-                 dense_layer=Dense):
-        super().__init__(parameterized_class=MeasurementsPredictionHead,
-                         activation_function=activation_function, name=name, dense_layer=dense_layer)
+                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
+                 loss_weight: float = 1.0, dense_layer=Dense):
+        super().__init__(parameterized_class=MeasurementsPredictionHead, activation_function=activation_function, name=name,
+                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
+                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
+                         loss_weight=loss_weight)
 
 
 class MeasurementsPredictionHead(Head):
@@ -68,3 +71,17 @@ class MeasurementsPredictionHead(Head):
         targets_nonan = tf.where(tf.is_nan(self.target), self.output, self.target)
         self.loss = tf.reduce_sum(tf.reduce_mean(tf.square(targets_nonan - self.output), reduction_indices=0))
         tf.losses.add_loss(self.loss_weight[0] * self.loss)
+
+    def __str__(self):
+        result = [
+            "State Value Stream - V",
+            "\tDense (num outputs = 256)",
+            "\tDense (num outputs = {})".format(self.multi_step_measurements_size),
+            "Action Advantage Stream - A",
+            "\tDense (num outputs = 256)",
+            "\tDense (num outputs = {})".format(self.num_actions * self.multi_step_measurements_size),
+            "\tReshape (new size = {} x {})".format(self.num_actions, self.multi_step_measurements_size),
+            "\tSubtract(A, Mean(A))".format(self.num_actions),
+            "Add (V, A)"
+        ]
+        return '\n'.join(result)

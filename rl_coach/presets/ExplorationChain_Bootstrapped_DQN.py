@@ -1,7 +1,7 @@
 from rl_coach.agents.bootstrapped_dqn_agent import BootstrappedDQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
-from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.environments.gym_environment import GymVectorEnvironment
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -29,8 +29,8 @@ agent_params.network_wrappers['main'].learning_rate = 0.00025
 agent_params.memory.max_size = (MemoryGranularity.Transitions, 1000000)
 agent_params.algorithm.discount = 0.99
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(4)
-agent_params.network_wrappers['main'].num_output_head_copies = num_output_head_copies
-agent_params.network_wrappers['main'].rescale_gradient_from_head_by_factor = [1.0/num_output_head_copies]*num_output_head_copies
+agent_params.network_wrappers['main'].heads_parameters[0].num_output_head_copies = num_output_head_copies
+agent_params.network_wrappers['main'].heads_parameters[0].rescale_gradient_from_head_by_factor = 1.0/num_output_head_copies
 agent_params.exploration.bootstrapped_data_sharing_probability = 1.0
 agent_params.exploration.architecture_num_q_heads = num_output_head_copies
 agent_params.exploration.epsilon_schedule = ConstantSchedule(0)
@@ -40,26 +40,9 @@ agent_params.output_filter = NoOutputFilter()
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
-env_params.level = 'rl_coach.environments.toy_problems.exploration_chain:ExplorationChain'
-
+env_params = GymVectorEnvironment(level='rl_coach.environments.toy_problems.exploration_chain:ExplorationChain')
 env_params.additional_simulator_parameters = {'chain_length': N, 'max_steps': N+7}
-
-vis_params = VisualizationParameters()
-
-
-########
-# Test #
-########
-
-# currently no test here as bootstrapped_dqn seems to be broken
-
-# preset_validation_params = PresetValidationParameters()
-# preset_validation_params.test = True
-# preset_validation_params.min_reward_threshold = 1600
-# preset_validation_params.max_episodes_to_achieve_reward = 70
 
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,)
-                                    # preset_validation_params=preset_validation_params)
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters())

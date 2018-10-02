@@ -37,7 +37,6 @@ class NAFNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [NAFHeadParameters()]
-        self.loss_weights = [1.0]
         self.optimizer_type = 'Adam'
         self.learning_rate = 0.001
         self.async_training = True

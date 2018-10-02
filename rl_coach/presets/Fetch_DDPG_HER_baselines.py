@@ -1,12 +1,13 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps, RunPhase
-from rl_coach.environments.environment import SelectedPhaseOnlyDumpMethod, MaxDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, MujocoInputFilter, fetch_v1
+from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps
+from rl_coach.environments.environment import SingleLevelSelection
+from rl_coach.environments.gym_environment import GymVectorEnvironment, fetch_v1
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.observation.observation_clipping_filter import ObservationClippingFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -44,7 +45,7 @@ actor_network.input_embedders_parameters = {
     'observation': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     'desired_goal': InputEmbedderParameters(scheme=EmbedderScheme.Empty)
 }
-actor_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense([256]), Dense([256]), Dense([256])])
+actor_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense(256), Dense(256), Dense(256)])
 actor_network.heads_parameters[0].batchnorm = False
 
 # critic
@@ -59,7 +60,7 @@ critic_network.input_embedders_parameters = {
     'desired_goal': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     'observation': InputEmbedderParameters(scheme=EmbedderScheme.Empty)
 }
-critic_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense([256]), Dense([256]), Dense([256])])
+critic_network.middleware_parameters = FCMiddlewareParameters(scheme=[Dense(256), Dense(256), Dense(256)])
 
 agent_params.algorithm.discount = 0.98
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(1)
@@ -90,10 +91,10 @@ agent_params.exploration.evaluation_epsilon = 0
 agent_params.exploration.continuous_exploration_policy_parameters.noise_percentage_schedule = ConstantSchedule(0.1)
 agent_params.exploration.continuous_exploration_policy_parameters.evaluation_noise_percentage = 0
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_observation_filter('observation', 'clipping', ObservationClippingFilter(-200, 200))
 
-agent_params.pre_network_filter = MujocoInputFilter()
+agent_params.pre_network_filter = InputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
                                                        ObservationNormalizationFilter(name='normalize_observation'))
 agent_params.pre_network_filter.add_observation_filter('achieved_goal', 'normalize_achieved_goal',
@@ -104,27 +105,17 @@ agent_params.pre_network_filter.add_observation_filter('desired_goal', 'normaliz
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
-env_params.level = SingleLevelSelection(fetch_v1)
+env_params = GymVectorEnvironment(level=SingleLevelSelection(fetch_v1))
 env_params.custom_reward_threshold = -49
-
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
-
 
 ########
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-# preset_validation_params.test = True
-# preset_validation_params.min_reward_threshold = 200
-# preset_validation_params.max_episodes_to_achieve_reward = 600
-# preset_validation_params.reward_test_level = 'inverted_pendulum'
 preset_validation_params.trace_test_levels = ['slide', 'pick_and_place', 'push', 'reach']
 
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)
 

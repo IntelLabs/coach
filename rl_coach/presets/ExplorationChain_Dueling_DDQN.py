@@ -38,18 +38,8 @@ agent_params.output_filter = NoOutputFilter()
 ###############
 # Environment #
 ###############
-env_params = GymEnvironmentParameters()
-env_params.level = 'rl_coach.environments.toy_problems.exploration_chain:ExplorationChain'
+env_params = GymEnvironmentParameters(level='rl_coach.environments.toy_problems.exploration_chain:ExplorationChain')
 env_params.additional_simulator_parameters = {'chain_length': N, 'max_steps': N+7}
 
-vis_params = VisualizationParameters()
-
-
-# preset_validation_params = PresetValidationParameters()
-# preset_validation_params.test = True
-# preset_validation_params.min_reward_threshold = 1600
-# preset_validation_params.max_episodes_to_achieve_reward = 70
-
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,)
-                                    # preset_validation_params=preset_validation_params)
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters())

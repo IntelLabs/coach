@@ -38,7 +38,6 @@ class CILNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters(scheme=MiddlewareScheme.Medium)
         self.heads_parameters = [RegressionHeadParameters()]
-        self.loss_weights = [1.0]
         self.optimizer_type = 'Adam'
         self.batch_size = 32
         self.replace_mse_with_huber_loss = False

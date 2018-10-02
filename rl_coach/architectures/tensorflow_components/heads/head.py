@@ -18,7 +18,7 @@ from typing import Type
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.losses.losses_impl import Reduction
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import AgentParameters, Parameters, NetworkComponentParameters
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list
@@ -35,10 +35,14 @@ def normalized_columns_initializer(std=1.0):
 
 class HeadParameters(NetworkComponentParameters):
     def __init__(self, parameterized_class: Type['Head'], activation_function: str = 'relu', name: str= 'head',
-                 dense_layer=Dense):
+                 num_output_head_copies: int=1, rescale_gradient_from_head_by_factor: float=1.0,
+                 loss_weight: float=1.0, dense_layer=Dense):
         super().__init__(dense_layer=dense_layer)
         self.activation_function = activation_function
         self.name = name
+        self.num_output_head_copies = num_output_head_copies
+        self.rescale_gradient_from_head_by_factor = rescale_gradient_from_head_by_factor
+        self.loss_weight = loss_weight
         self.parameterized_class_name = parameterized_class.__name__
 
 

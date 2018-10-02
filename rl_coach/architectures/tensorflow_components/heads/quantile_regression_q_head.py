@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 
 from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters
 from rl_coach.base_parameters import AgentParameters
@@ -26,9 +26,12 @@ from rl_coach.spaces import SpacesDefinition
 
 class QuantileRegressionQHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='relu', name: str='quantile_regression_q_head_params',
-                 dense_layer=Dense):
-        super().__init__(parameterized_class=QuantileRegressionQHead, activation_function=activation_function,
-                         name=name, dense_layer=dense_layer)
+                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
+                 loss_weight: float = 1.0, dense_layer=Dense):
+        super().__init__(parameterized_class=QuantileRegressionQHead, activation_function=activation_function, name=name,
+                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
+                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
+                         loss_weight=loss_weight)
 
 
 class QuantileRegressionQHead(Head):
@@ -79,3 +82,11 @@ class QuantileRegressionQHead(Head):
         quantile_regression_loss = tf.reduce_sum(quantile_huber_loss) / float(self.num_atoms)
         self.loss = quantile_regression_loss
         tf.losses.add_loss(self.loss)
+
+    def __str__(self):
+        result = [
+            "Dense (num outputs = {})".format(self.num_actions * self.num_atoms),
+            "Reshape (new size = {} x {})".format(self.num_actions, self.num_atoms)
+        ]
+        return '\n'.join(result)
+

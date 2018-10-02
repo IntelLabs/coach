@@ -28,8 +28,8 @@ from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayPar
 class BootstrappedDQNNetworkParameters(DQNNetworkParameters):
     def __init__(self):
         super().__init__()
-        self.num_output_head_copies = 10
-        self.rescale_gradient_from_head_by_factor = [1.0/self.num_output_head_copies]*self.num_output_head_copies
+        self.heads_parameters[0].num_output_head_copies = 10
+        self.heads_parameters[0].rescale_gradient_from_head_by_factor = 1.0/self.heads_parameters[0].num_output_head_copies
 
 
 class BootstrappedDQNAgentParameters(AgentParameters):

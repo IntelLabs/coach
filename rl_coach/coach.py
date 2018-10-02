@@ -77,6 +77,7 @@ def get_graph_manager_from_args(args: argparse.Namespace) -> 'GraphManager':
     graph_manager.visualization_parameters.dump_mp4 = graph_manager.visualization_parameters.dump_mp4 or args.dump_mp4
     graph_manager.visualization_parameters.render = args.render
     graph_manager.visualization_parameters.tensorboard = args.tensorboard
+    graph_manager.visualization_parameters.print_networks_summary = args.print_networks_summary
 
     # update the custom parameters
     if args.custom_parameter is not None:
@@ -291,8 +292,8 @@ def main():
                              "\"visualization.render=False; num_training_iterations=500; optimizer='rmsprop'\"",
                         default=None,
                         type=str)
-    parser.add_argument('--print_parameters',
-                        help="(flag) Print tuning_parameters to stdout",
+    parser.add_argument('--print_networks_summary',
+                        help="(flag) Print network summary to stdout",
                         action='store_true')
     parser.add_argument('-tb', '--tensorboard',
                         help="(flag) When using the TensorFlow backend, enable TensorBoard log dumps. ",
@@ -336,7 +337,8 @@ def main():
                                          evaluate_only=args.evaluate,
                                          experiment_path=args.experiment_path,
                                          seed=args.seed,
-                                         use_cpu=args.use_cpu)
+                                         use_cpu=args.use_cpu,
+                                         save_checkpoint_secs=args.save_checkpoint_secs)
         task_parameters.__dict__ = add_items_to_dict(task_parameters.__dict__, args.__dict__)
 
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)

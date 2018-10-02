@@ -1,10 +1,10 @@
 from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, \
     PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.environments.gym_environment import Mujoco
+from rl_coach.environments.gym_environment import GymVectorEnvironment
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.episodic.episodic_hindsight_experience_replay import \
@@ -30,7 +30,7 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 agent_params = DQNAgentParameters()
 agent_params.network_wrappers['main'].learning_rate = 0.001
 agent_params.network_wrappers['main'].batch_size = 128
-agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense([256])]
+agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(256)]
 agent_params.network_wrappers['main'].input_embedders_parameters = {
     'state': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     'desired_goal': InputEmbedderParameters(scheme=EmbedderScheme.Empty)}
@@ -55,12 +55,9 @@ agent_params.memory.goals_space = GoalsSpace(goal_name='state',
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
-env_params.level = 'rl_coach.environments.toy_problems.bit_flip:BitFlip'
+env_params = GymVectorEnvironment(level='rl_coach.environments.toy_problems.bit_flip:BitFlip')
 env_params.additional_simulator_parameters = {'bit_length': bit_length, 'mean_zero': True}
 env_params.custom_reward_threshold = -bit_length + 1
-
-vis_params = VisualizationParameters()
 
 # currently no tests for this preset as the max reward can be accidently achieved. will be fixed with trace based tests.
 
@@ -73,7 +70,7 @@ preset_validation_params.min_reward_threshold = -15
 preset_validation_params.max_episodes_to_achieve_reward = 10000
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)
 
 

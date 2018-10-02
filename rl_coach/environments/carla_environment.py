@@ -97,8 +97,8 @@ class CarlaEnvironmentParameters(EnvironmentParameters):
         LOW = "Low"
         EPIC = "Epic"
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, level="town1"):
+        super().__init__(level=level)
         self.frame_skip = 3  # the frame skip affects the fps of the server directly. fps = 30 / frameskip
         self.server_height = 512
         self.server_width = 720
@@ -106,7 +106,7 @@ class CarlaEnvironmentParameters(EnvironmentParameters):
         self.camera_width = 180
         self.experiment_suite = None  # an optional CARLA experiment suite to use
         self.config = None
-        self.level = 'town1'
+        self.level = level
         self.quality = self.Quality.LOW
         self.cameras = [CameraTypes.FRONT]
         self.weather_id = [1]

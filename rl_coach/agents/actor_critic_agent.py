@@ -25,14 +25,38 @@ from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParam
 from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
     AgentParameters
+from rl_coach.exploration_policies.categorical import CategoricalParameters
+from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
-from rl_coach.spaces import DiscreteActionSpace
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 from rl_coach.utils import last_sample
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 
 class ActorCriticAlgorithmParameters(AlgorithmParameters):
+    """
+    :param policy_gradient_rescaler: (PolicyGradientRescaler)
+    The value that will be used to rescale the policy gradient
+
+    :param apply_gradients_every_x_episodes: (int)
+    The number of episodes to wait before applying the accumulated gradients to the network.
+    The training iterations only accumulate gradients without actually applying them.
+
+    :param beta_entropy: (float)
+    The weight that will be given to the entropy regularization which is used in order to improve exploration.
+
+    :param num_steps_between_gradient_updates: (int)
+    Every num_steps_between_gradient_updates transitions will be considered as a single batch and use for
+    accumulating gradients. This is also the number of steps used for bootstrapping according to the n-step formulation.
+
+    :param gae_lambda: (float)
+    If the policy gradient rescaler was defined as PolicyGradientRescaler.GAE, the generalized advantage estimation
+    scheme will be used, in which case the lambda value controls the decay for the different n-step lengths.
+
+    :param estimate_state_value_using_gae: (bool)
+    If set to True, the state value targets for the V head will be estimated using the GAE scheme.
+    """
     def __init__(self):
         super().__init__()
         self.policy_gradient_rescaler = PolicyGradientRescaler.A_VALUE
@@ -48,9 +72,7 @@ class ActorCriticNetworkParameters(NetworkParameters):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
-        self.heads_parameters = [VHeadParameters(), PolicyHeadParameters()]
-        self.loss_weights = [0.5, 1.0]
-        self.rescale_gradient_from_head_by_factor = [1, 1]
+        self.heads_parameters = [VHeadParameters(loss_weight=0.5), PolicyHeadParameters(loss_weight=1.0)]
         self.optimizer_type = 'Adam'
         self.clip_gradients = 40.0
         self.async_training = True
@@ -59,8 +81,8 @@ class ActorCriticNetworkParameters(NetworkParameters):
 class ActorCriticAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=ActorCriticAlgorithmParameters(),
-                         exploration=None, #TODO this should be different for continuous (ContinuousEntropyExploration)
-                                           #  and discrete (CategoricalExploration) action spaces.
+                         exploration={DiscreteActionSpace: CategoricalParameters(),
+                                      BoxActionSpace: ContinuousEntropyParameters()},
                          memory=SingleEpisodeBufferParameters(),
                          networks={"main": ActorCriticNetworkParameters()})
 

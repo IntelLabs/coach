@@ -1,12 +1,12 @@
 from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.lstm_middleware import LSTMMiddlewareParameters
 from rl_coach.base_parameters import VisualizationParameters, MiddlewareScheme, PresetValidationParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
-from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
+from rl_coach.environments.environment import SingleLevelSelection
+from rl_coach.environments.gym_environment import GymVectorEnvironment, mujoco_v2
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -30,25 +30,18 @@ agent_params.algorithm.num_steps_between_gradient_updates = 20
 agent_params.algorithm.beta_entropy = 0.005
 agent_params.network_wrappers['main'].learning_rate = 0.00002
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'] = \
-    InputEmbedderParameters(scheme=[Dense([200])])
+    InputEmbedderParameters(scheme=[Dense(200)])
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
                                                                                        number_of_lstm_cells=128)
 
-agent_params.input_filter = MujocoInputFilter()
+agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/20.))
 agent_params.input_filter.add_observation_filter('observation', 'normalize', ObservationNormalizationFilter())
-
-agent_params.exploration = ContinuousEntropyParameters()
 
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
-env_params.level = SingleLevelSelection(mujoco_v2)
-
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
+env_params = GymVectorEnvironment(level=SingleLevelSelection(mujoco_v2))
 
 ########
 # Test #
@@ -62,7 +55,7 @@ preset_validation_params.reward_test_level = 'inverted_pendulum'
 preset_validation_params.trace_test_levels = ['inverted_pendulum', 'hopper']
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)
 
 

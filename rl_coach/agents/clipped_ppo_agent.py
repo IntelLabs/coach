@@ -31,10 +31,11 @@ from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import EnvironmentSteps, Batch, EnvResponse, StateType
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
+from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.schedules import ConstantSchedule
-from rl_coach.spaces import DiscreteActionSpace
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 
 
 class ClippedPPONetworkParameters(NetworkParameters):
@@ -43,8 +44,6 @@ class ClippedPPONetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(activation_function='tanh')}
         self.middleware_parameters = FCMiddlewareParameters(activation_function='tanh')
         self.heads_parameters = [VHeadParameters(), PPOHeadParameters()]
-        self.loss_weights = [1.0, 1.0]
-        self.rescale_gradient_from_head_by_factor = [1, 1]
         self.batch_size = 64
         self.optimizer_type = 'Adam'
         self.clip_gradients = None
@@ -79,7 +78,8 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
 class ClippedPPOAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=ClippedPPOAlgorithmParameters(),
-                         exploration=AdditiveNoiseParameters(),
+                         exploration={DiscreteActionSpace: CategoricalParameters(),
+                                      BoxActionSpace: AdditiveNoiseParameters()},
                          memory=EpisodicExperienceReplayParameters(),
                          networks={"main": ClippedPPONetworkParameters()})
 
@@ -253,6 +253,9 @@ class ClippedPPOAgent(ActorCriticAgent):
 
     def train(self):
         if self._should_train(wait_for_full_episode=True):
+            for network in self.networks.values():
+                network.set_is_training(True)
+
             dataset = self.memory.transitions
             dataset = self.pre_network_filter.filter(dataset, deep_copy=False)
             batch = Batch(dataset)
@@ -268,6 +271,9 @@ class ClippedPPOAgent(ActorCriticAgent):
                 batch = Batch(dataset)
 
                 self.train_network(batch, self.ap.algorithm.optimization_epochs)
+
+            for network in self.networks.values():
+                network.set_is_training(False)
 
             self.post_training_commands()
             self.training_iteration += 1

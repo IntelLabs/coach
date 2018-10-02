@@ -37,7 +37,6 @@ class NStepQNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [QHeadParameters()]
-        self.loss_weights = [1.0]
         self.optimizer_type = 'Adam'
         self.async_training = True
         self.shared_optimizer = True

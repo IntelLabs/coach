@@ -104,8 +104,8 @@ DoomOutputFilter.add_action_filter('to_discrete', FullDiscreteActionSpaceMap())
 
 
 class DoomEnvironmentParameters(EnvironmentParameters):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, level=None):
+        super().__init__(level=level)
         self.default_input_filter = DoomInputFilter
         self.default_output_filter = DoomOutputFilter
         self.cameras = [DoomEnvironment.CameraTypes.OBSERVATION]

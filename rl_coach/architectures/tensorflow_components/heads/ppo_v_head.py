@@ -16,7 +16,7 @@
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer, HeadParameters
 from rl_coach.base_parameters import AgentParameters
@@ -25,9 +25,13 @@ from rl_coach.spaces import SpacesDefinition
 
 
 class PPOVHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='relu', name: str='ppo_v_head_params', dense_layer=Dense):
+    def __init__(self, activation_function: str ='relu', name: str='ppo_v_head_params',
+                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
+                 loss_weight: float = 1.0, dense_layer=Dense):
         super().__init__(parameterized_class=PPOVHead, activation_function=activation_function, name=name,
-                         dense_layer=dense_layer)
+                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
+                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
+                         loss_weight=loss_weight)
 
 
 class PPOVHead(Head):
@@ -55,3 +59,9 @@ class PPOVHead(Head):
         self.vf_loss = tf.reduce_mean(tf.maximum(value_loss_1, value_loss_2))
         self.loss = self.vf_loss
         tf.losses.add_loss(self.loss)
+
+    def __str__(self):
+        result = [
+            "Dense (num outputs = 1)"
+        ]
+        return '\n'.join(result)
