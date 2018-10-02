@@ -20,6 +20,7 @@ import time
 from collections import OrderedDict
 from distutils.dir_util import copy_tree, remove_tree
 from typing import List, Tuple
+import contextlib
 
 from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, \
     VisualizationParameters, \
@@ -285,6 +286,13 @@ class GraphManager(object):
         for environment in self.environments:
             environment.phase = val
 
+    @contextlib.contextmanager
+    def phase_context(self, phase):
+        old_phase = self.phase
+        self.phase = phase
+        yield
+        self.phase = old_phase
+
     def set_session(self, sess) -> None:
         """
         Set the deep learning framework session for all the modules in the graph
@@ -301,20 +309,17 @@ class GraphManager(object):
         self.verify_graph_was_created()
 
         if steps.num_steps > 0:
-            self.phase = RunPhase.HEATUP
-            screen.log_title("{}: Starting heatup".format(self.name))
-            self.heatup_start_time = time.time()
+            with self.phase_context(RunPhase.HEATUP):
+                screen.log_title("{}: Starting heatup".format(self.name))
+                self.heatup_start_time = time.time()
 
-            # reset all the levels before starting to heatup
-            self.reset_internal_state(force_environment_reset=True)
+                # reset all the levels before starting to heatup
+                self.reset_internal_state(force_environment_reset=True)
 
-            # act for at least steps, though don't interrupt an episode
-            count_end = self.total_steps_counters[self.phase][EnvironmentSteps] + steps.num_steps
-            while self.total_steps_counters[self.phase][steps.__class__] < count_end:
-                self.act(steps, continue_until_game_over=True, return_on_game_over=True)
-
-            # training phase
-            self.phase = RunPhase.UNDEFINED
+                # act for at least steps, though don't interrupt an episode
+                count_end = self.total_steps_counters[self.phase][EnvironmentSteps] + steps.num_steps
+                while self.total_steps_counters[self.phase][steps.__class__] < count_end:
+                    self.act(steps, continue_until_game_over=True, return_on_game_over=True)
 
     def handle_episode_ended(self) -> None:
         """
@@ -333,8 +338,8 @@ class GraphManager(object):
         """
         self.verify_graph_was_created()
 
-        [manager.train() for manager in self.level_managers]
-
+        with self.phase_context(RunPhase.TRAIN):
+            [manager.train() for manager in self.level_managers]
 
     def reset_internal_state(self, force_environment_reset=False) -> None:
         """
@@ -417,18 +422,17 @@ class GraphManager(object):
 
         # perform several steps of training interleaved with acting
         if steps.num_steps > 0:
-            self.phase = RunPhase.TRAIN
-            self.reset_internal_state(force_environment_reset=True)
-            # TODO - the below while loop should end with full episodes, so to avoid situations where we have partial
-            #  episodes in memory
-            count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
-            while self.total_steps_counters[self.phase][steps.__class__] < count_end:
-                # The actual steps being done on the environment are decided by the agents themselves.
-                # This is just an high-level controller.
-                self.act(EnvironmentSteps(1))
-                self.train()
-                self.occasionally_save_checkpoint()
-            self.phase = RunPhase.UNDEFINED
+            with self.phase_context(RunPhase.TRAIN):
+                self.reset_internal_state(force_environment_reset=True)
+                #TODO - the below while loop should end with full episodes, so to avoid situations where we have partial
+                #  episodes in memory
+                count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
+                while self.total_steps_counters[self.phase][steps.__class__] < count_end:
+                    # The actual steps being done on the environment are decided by the agents themselves.
+                    # This is just an high-level controller.
+                    self.act(EnvironmentSteps(1))
+                    self.train()
+                    self.occasionally_save_checkpoint()
 
     def sync_graph(self) -> None:
         """

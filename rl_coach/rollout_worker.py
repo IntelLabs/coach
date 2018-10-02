@@ -89,36 +89,33 @@ def rollout_worker(graph_manager, checkpoint_dir, data_store, num_workers, polic
     task_parameters.__dict__['checkpoint_restore_dir'] = checkpoint_dir
     time.sleep(30)
     graph_manager.create_graph(task_parameters)
-    graph_manager.phase = RunPhase.TRAIN
+    with graph_manager.phase_context(RunPhase.TRAIN):
+        error_compensation = 100
 
-    error_compensation = 100
+        last_checkpoint = 0
 
-    last_checkpoint = 0
+        act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps + error_compensation)/num_workers)
 
-    act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps + error_compensation)/num_workers)
+        for i in range(int(graph_manager.improve_steps.num_steps/act_steps)):
 
-    for i in range(int(graph_manager.improve_steps.num_steps/act_steps)):
+            graph_manager.act(EnvironmentSteps(num_steps=act_steps))
 
-        graph_manager.act(EnvironmentSteps(num_steps=act_steps))
+            new_checkpoint = get_latest_checkpoint(checkpoint_dir)
 
-        new_checkpoint = get_latest_checkpoint(checkpoint_dir)
+            if policy_type == 'ON':
+                while new_checkpoint < last_checkpoint + 1:
+                    if data_store:
+                        data_store.load_from_store()
+                    new_checkpoint = get_latest_checkpoint(checkpoint_dir)
 
-        if policy_type == 'ON':
-            while new_checkpoint < last_checkpoint + 1:
-                if data_store:
-                    data_store.load_from_store()
-                new_checkpoint = get_latest_checkpoint(checkpoint_dir)
-
-            graph_manager.restore_checkpoint()
-
-        if policy_type == "OFF":
-
-            if new_checkpoint > last_checkpoint:
                 graph_manager.restore_checkpoint()
 
-        last_checkpoint = new_checkpoint
+            if policy_type == "OFF":
 
-    graph_manager.phase = RunPhase.UNDEFINED
+                if new_checkpoint > last_checkpoint:
+                    graph_manager.restore_checkpoint()
+
+            last_checkpoint = new_checkpoint
 
 
 def main():
