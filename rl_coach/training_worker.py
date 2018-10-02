@@ -42,7 +42,7 @@ def training_worker(graph_manager, checkpoint_dir, policy_type):
             steps += 1
 
             graph_manager.phase = core_types.RunPhase.TRAIN
-            graph_manager.train(core_types.TrainingSteps(1))
+            graph_manager.train()
             graph_manager.phase = core_types.RunPhase.UNDEFINED
 
             if steps * graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps > graph_manager.steps_between_evaluation_periods.num_steps * eval_offset:

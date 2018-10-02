@@ -325,7 +325,7 @@ class GraphManager(object):
 
         [environment.handle_episode_ended() for environment in self.environments]
 
-    def train(self, steps: TrainingSteps) -> None:
+    def train(self) -> None:
         """
         Perform several training iterations for all the levels in the hierarchy
         :param steps: number of training iterations to perform
@@ -426,7 +426,7 @@ class GraphManager(object):
                 # The actual steps being done on the environment are decided by the agents themselves.
                 # This is just an high-level controller.
                 self.act(EnvironmentSteps(1))
-                self.train(TrainingSteps(1))
+                self.train()
                 self.occasionally_save_checkpoint()
             self.phase = RunPhase.UNDEFINED
 
