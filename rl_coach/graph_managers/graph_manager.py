@@ -102,7 +102,6 @@ class GraphManager(object):
         self.graph_initialization_time = time.time()
         self.graph_creation_time = None
         self.heatup_start_time = None
-        self.training_start_time = None
         self.last_evaluation_start_time = None
         self.last_checkpoint_saving_time = time.time()
 
@@ -548,7 +547,6 @@ class GraphManager(object):
             screen.log_title("Starting to improve {} task index {}".format(self.name, self.task_parameters.task_index))
         else:
             screen.log_title("Starting to improve {}".format(self.name))
-        self.training_start_time = time.time()
 
         count_end = self.improve_steps.num_steps
         while self.total_steps_counters[RunPhase.TRAIN][self.improve_steps.__class__] < count_end:
