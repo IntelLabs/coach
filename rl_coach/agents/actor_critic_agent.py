@@ -35,6 +35,28 @@ from rl_coach.architectures.tensorflow_components.embedders.embedder import Inpu
 
 
 class ActorCriticAlgorithmParameters(AlgorithmParameters):
+    """
+    :param policy_gradient_rescaler: (PolicyGradientRescaler)
+    The value that will be used to rescale the policy gradient
+
+    :param apply_gradients_every_x_episodes: (int)
+    The number of episodes to wait before applying the accumulated gradients to the network.
+    The training iterations only accumulate gradients without actually applying them.
+
+    :param beta_entropy: (float)
+    The weight that will be given to the entropy regularization which is used in order to improve exploration.
+
+    :param num_steps_between_gradient_updates: (int)
+    Every num_steps_between_gradient_updates transitions will be considered as a single batch and use for
+    accumulating gradients. This is also the number of steps used for bootstrapping according to the n-step formulation.
+
+    :param gae_lambda: (float)
+    If the policy gradient rescaler was defined as PolicyGradientRescaler.GAE, the generalized advantage estimation
+    scheme will be used, in which case the lambda value controls the decay for the different n-step lengths.
+
+    :param estimate_state_value_using_gae: (bool)
+    If set to True, the state value targets for the V head will be estimated using the GAE scheme.
+    """
     def __init__(self):
         super().__init__()
         self.policy_gradient_rescaler = PolicyGradientRescaler.A_VALUE

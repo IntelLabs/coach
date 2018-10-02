@@ -16,7 +16,8 @@ pages:
         - 'Control Flow' : design/control_flow.md
         - 'Network' : design/network.md
         - 'Filters' : design/filters.md
-
+- API Reference:
+        - 'Agent Parameters' : api_reference/agent_parameters/agent_parameters.md
 - Algorithms:
         - 'DQN' : algorithms/value_optimization/dqn.md
         - 'Double DQN' : algorithms/value_optimization/double_dqn.md
