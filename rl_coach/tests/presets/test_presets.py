@@ -14,10 +14,10 @@ from rl_coach.logger import screen
 FAILING_PRESETS = [
     'Fetch_DDPG_HER_baselines',
     'MontezumaRevenge_BC',
-    'CARLA_CIL',
     'ControlSuite_DDPG',
-    'CARLA_DDPG',
     'Doom_Basic_BC',
+    'CARLA_CIL',
+    'CARLA_DDPG',
     'CARLA_Dueling_DDQN',
     'CARLA_3_Cameras_DDPG',
     'Starcraft_CollectMinerals_A3C',
