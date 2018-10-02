@@ -189,7 +189,7 @@ def main():
                         help="(flag) run tests in parallel",
                         action='store_true')
     parser.add_argument('-mt', '--max_threads',
-                        help="(string) Name of a preset(s) to ignore (comma separated, and as configured in presets.py)",
+                        help="(int) maximum number of threads to run in parallel",
                         default=multiprocessing.cpu_count()-2,
                         type=int)
 
@@ -210,6 +210,7 @@ def main():
         presets_to_ignore = args.ignore_presets.split(',')
     else:
         presets_to_ignore = []
+
     for idx, preset_name in enumerate(sorted(presets_lists)):
         if args.stop_after_first_failure and fail_count > 0:
             break
