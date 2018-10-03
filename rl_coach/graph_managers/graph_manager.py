@@ -375,8 +375,7 @@ class GraphManager(object):
         # perform several steps of playing
         result = None
 
-        initial_count = self.total_steps_counters[self.phase][EnvironmentSteps]
-        count_end = initial_count + steps.num_steps
+        count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
 
         # The assumption here is that the total_steps_counters are each updated when an event
         #  takes place (i.e. an episode ends)
