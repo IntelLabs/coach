@@ -10,11 +10,14 @@ this rollout worker:
 import argparse
 import time
 import os
+import json
 
 from rl_coach.base_parameters import TaskParameters
 from rl_coach.coach import expand_preset
 from rl_coach.core_types import EnvironmentEpisodes, RunPhase
 from rl_coach.utils import short_dynamic_import
+from rl_coach.memories.backend.memory_impl import construct_memory_params
+
 
 # Q: specify alternative distributed memory, or should this go in the preset?
 # A: preset must define distributed memory to be used. we aren't going to take
@@ -58,9 +61,12 @@ def rollout_worker(graph_manager, checkpoint_dir):
     task_parameters = TaskParameters()
     task_parameters.__dict__['checkpoint_restore_dir'] = checkpoint_dir
     graph_manager.create_graph(task_parameters)
-
     graph_manager.phase = RunPhase.TRAIN
-    graph_manager.act(EnvironmentEpisodes(num_steps=10))
+
+    for i in range(10000000):
+        graph_manager.act(EnvironmentEpisodes(num_steps=10))
+        graph_manager.restore_checkpoint()
+
     graph_manager.phase = RunPhase.UNDEFINED
 
 
@@ -82,13 +88,19 @@ def main():
                         help="(int) Port of the redis server",
                         default=6379,
                         type=int)
+    parser.add_argument('--memory_backend_params',
+                        help="(string) JSON string of the memory backend params",
+                        type=str)
+
     args = parser.parse_args()
 
     graph_manager = short_dynamic_import(expand_preset(args.preset), ignore_module_case=True)
 
-    graph_manager.agent_params.memory.redis_ip = args.redis_ip
-    graph_manager.agent_params.memory.redis_port = args.redis_port
-
+    if args.memory_backend_params:
+        args.memory_backend_params = json.loads(args.memory_backend_params)
+        if 'run_type' not in args.memory_backend_params:
+            args.memory_backend_params['run_type'] = 'worker'
+        graph_manager.agent_params.memory.register_var('memory_backend_params', construct_memory_params(args.memory_backend_params))
     rollout_worker(
         graph_manager=graph_manager,
         checkpoint_dir=args.checkpoint_dir,

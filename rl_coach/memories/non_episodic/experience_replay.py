@@ -90,7 +90,6 @@ class ExperienceReplay(Memory):
         batch = [self.transitions[i] for i in transitions_idx]
 
         self.reader_writer_lock.release_writing()
-
         return batch
 
     def _enforce_max_length(self) -> None:
@@ -115,6 +114,8 @@ class ExperienceReplay(Memory):
                      locks and then calls store with lock = True
         :return: None
         """
+        # Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.
+        super().store(transition)
         if lock:
             self.reader_writer_lock.lock_writing_and_reading()
 

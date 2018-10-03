@@ -267,6 +267,9 @@ class PrioritizedExperienceReplay(ExperienceReplay):
         :param transition: a transition to store
         :return: None
         """
+        # Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.
+        super().store(transition)
+
         self.reader_writer_lock.lock_writing_and_reading()
 
         transition_priority = self.maximal_priority

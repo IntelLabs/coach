@@ -59,6 +59,10 @@ class EpisodicHRLHindsightExperienceReplay(EpisodicHindsightExperienceReplay):
         # for a layer producing sub-goals, we will replace in hindsight the action (sub-goal) given to the lower
         # level with the actual achieved goal. the achieved goal (and observation) seen is assumed to be the same
         # for all levels - we can use this level's achieved goal instead of the lower level's one
+
+        # Calling super.store() so that in case a memory backend is used, the memory backend can store this episode.
+        super().store_episode(episode)
+
         for transition in episode.transitions:
             new_achieved_goal = transition.next_state[self.goals_space.goal_name]
             transition.action = new_achieved_goal

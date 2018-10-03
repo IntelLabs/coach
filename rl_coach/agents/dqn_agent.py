@@ -27,7 +27,6 @@ from rl_coach.architectures.tensorflow_components.embedders.embedder import Inpu
 from rl_coach.core_types import EnvironmentSteps
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
-from rl_coach.memories.non_episodic.distributed_experience_replay import DistributedExperienceReplayParameters
 from rl_coach.schedules import LinearSchedule
 
 
@@ -49,20 +48,6 @@ class DQNNetworkParameters(NetworkParameters):
         self.batch_size = 32
         self.replace_mse_with_huber_loss = True
         self.create_target_network = True
-
-
-class DQNAgentParametersDistributed(AgentParameters):
-    def __init__(self):
-        super().__init__(algorithm=DQNAlgorithmParameters(),
-                         exploration=EGreedyParameters(),
-                         memory=DistributedExperienceReplayParameters(),
-                         networks={"main": DQNNetworkParameters()})
-        self.exploration.epsilon_schedule = LinearSchedule(1, 0.1, 1000000)
-        self.exploration.evaluation_epsilon = 0.05
-
-    @property
-    def path(self):
-        return 'rl_coach.agents.dqn_agent:DQNAgent'
 
 
 class DQNAgentParameters(AgentParameters):

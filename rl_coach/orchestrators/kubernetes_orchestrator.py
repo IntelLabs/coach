@@ -1,29 +1,46 @@
 import os
 import uuid
+import json
+import time
+from typing import List
 from rl_coach.orchestrators.deploy import Deploy, DeployParameters
 from kubernetes import client, config
+from rl_coach.memories.backend.memory import MemoryBackendParameters
+from rl_coach.memories.backend.memory_impl import get_memory_backend
+
+
+class RunTypeParameters():
+
+    def __init__(self, image: str, command: list(), arguments: list() = None,
+                 run_type: str = "trainer", checkpoint_dir: str = "/checkpoint",
+                 num_replicas: int = 1, orchestration_params: dict=None):
+        self.image = image
+        self.command = command
+        if not arguments:
+            arguments = list()
+        self.arguments = arguments
+        self.run_type = run_type
+        self.checkpoint_dir = checkpoint_dir
+        self.num_replicas = num_replicas
+        if not orchestration_params:
+            orchestration_params = dict()
+        self.orchestration_params = orchestration_params
 
 
 class KubernetesParameters(DeployParameters):
 
-    def __init__(self, name: str, image: str, command: list(), arguments: list() = list(),  synchronized: bool = False,
-                 num_workers: int = 1, kubeconfig: str = None, namespace: str = None, redis_ip: str = None,
-                 redis_port: int = None, redis_db: int = 0, nfs_server: str = None, nfs_path: str = None,
-                 checkpoint_dir: str = '/checkpoint'):
-        self.image = image
-        self.synchronized = synchronized
-        self.command = command
-        self.arguments = arguments
+    def __init__(self, run_type_params: List[RunTypeParameters], kubeconfig: str = None, namespace: str = "", nfs_server: str = None,
+                 nfs_path: str = None, checkpoint_dir: str = '/checkpoint', memory_backend_parameters: MemoryBackendParameters = None):
+
+        self.run_type_params = {}
+        for run_type_param in run_type_params:
+            self.run_type_params[run_type_param.run_type] = run_type_param
         self.kubeconfig = kubeconfig
-        self.num_workers = num_workers
         self.namespace = namespace
-        self.redis_ip = redis_ip
-        self.redis_port = redis_port
-        self.redis_db = redis_db
         self.nfs_server = nfs_server
         self.nfs_path = nfs_path
         self.checkpoint_dir = checkpoint_dir
-        self.name = name
+        self.memory_backend_parameters = memory_backend_parameters
 
 
 class Kubernetes(Deploy):
@@ -44,17 +61,14 @@ class Kubernetes(Deploy):
         if os.environ.get('http_proxy'):
             client.Configuration._default.proxy = os.environ.get('http_proxy')
 
+        self.deploy_parameters.memory_backend_parameters.orchestrator_params = {'namespace': self.deploy_parameters.namespace}
+        self.memory_backend = get_memory_backend(self.deploy_parameters.memory_backend_parameters)
+
     def setup(self) -> bool:
 
-        if not self.deploy_parameters.redis_ip:
-            # Need to spin up a redis service and a deployment.
-            if not self.deploy_redis():
-                print("Failed to setup redis")
-                return False
-
+        self.memory_backend.deploy()
         if not self.create_nfs_resources():
             return False
-
         return True
 
     def create_nfs_resources(self):
@@ -107,87 +121,24 @@ class Kubernetes(Deploy):
             return False
         return True
 
-    def deploy_redis(self) -> bool:
-        container = client.V1Container(
-            name="redis-server",
-            image='redis:4-alpine',
-        )
-        template = client.V1PodTemplateSpec(
-            metadata=client.V1ObjectMeta(labels={'app': 'redis-server'}),
-            spec=client.V1PodSpec(
-                containers=[container]
-            )
-        )
-        deployment_spec = client.V1DeploymentSpec(
-            replicas=1,
-            template=template,
-            selector=client.V1LabelSelector(
-                match_labels={'app': 'redis-server'}
-            )
-        )
+    def deploy_trainer(self) -> bool:
 
-        deployment = client.V1Deployment(
-            api_version='apps/v1',
-            kind='Deployment',
-            metadata=client.V1ObjectMeta(name='redis-server', labels={'app': 'redis-server'}),
-            spec=deployment_spec
-        )
-
-        api_client = client.AppsV1Api()
-        try:
-            api_client.create_namespaced_deployment(self.deploy_parameters.namespace, deployment)
-        except client.rest.ApiException as e:
-            print("Got exception: %s\n while creating redis-server", e)
+        trainer_params = self.deploy_parameters.run_type_params.get('trainer', None)
+        if not trainer_params:
             return False
 
-        core_v1_api = client.CoreV1Api()
-
-        service = client.V1Service(
-            api_version='v1',
-            kind='Service',
-            metadata=client.V1ObjectMeta(
-                name='redis-service'
-            ),
-            spec=client.V1ServiceSpec(
-                selector={'app': 'redis-server'},
-                ports=[client.V1ServicePort(
-                    protocol='TCP',
-                    port=6379,
-                    target_port=6379
-                )]
-            )
-        )
-
-        try:
-            core_v1_api.create_namespaced_service(self.deploy_parameters.namespace, service)
-            self.deploy_parameters.redis_ip = 'redis-service.{}.svc'.format(self.deploy_parameters.namespace)
-            self.deploy_parameters.redis_port = 6379
-            return True
-        except client.rest.ApiException as e:
-            print("Got exception: %s\n while creating a service for redis-server", e)
-            return False
-
-    def deploy(self) -> bool:
-
-        self.deploy_parameters.command += ['--redis_ip', self.deploy_parameters.redis_ip, '--redis_port', '{}'.format(self.deploy_parameters.redis_port)]
-
-        if self.deploy_parameters.synchronized:
-            return self.create_k8s_deployment()
-        else:
-            return self.create_k8s_job()
-
-    def create_k8s_deployment(self) -> bool:
-        name = "{}-{}".format(self.deploy_parameters.name, uuid.uuid4())
+        trainer_params.command += ['--memory_backend_params', json.dumps(self.deploy_parameters.memory_backend_parameters.__dict__)]
+        name = "{}-{}".format(trainer_params.run_type, uuid.uuid4())
 
         container = client.V1Container(
             name=name,
-            image=self.deploy_parameters.image,
-            command=self.deploy_parameters.command,
-            args=self.deploy_parameters.arguments,
+            image=trainer_params.image,
+            command=trainer_params.command,
+            args=trainer_params.arguments,
             image_pull_policy='Always',
             volume_mounts=[client.V1VolumeMount(
                 name='nfs-pvc',
-                mount_path=self.deploy_parameters.checkpoint_dir
+                mount_path=trainer_params.checkpoint_dir
             )]
         )
         template = client.V1PodTemplateSpec(
@@ -203,7 +154,7 @@ class Kubernetes(Deploy):
             ),
         )
         deployment_spec = client.V1DeploymentSpec(
-            replicas=self.deploy_parameters.num_workers,
+            replicas=trainer_params.num_replicas,
             template=template,
             selector=client.V1LabelSelector(
                 match_labels={'app': name}
@@ -220,23 +171,30 @@ class Kubernetes(Deploy):
         api_client = client.AppsV1Api()
         try:
             api_client.create_namespaced_deployment(self.deploy_parameters.namespace, deployment)
+            trainer_params.orchestration_params['deployment_name'] = name
             return True
         except client.rest.ApiException as e:
             print("Got exception: %s\n while creating deployment", e)
             return False
 
-    def create_k8s_job(self):
-        name = "{}-{}".format(self.deploy_parameters.name, uuid.uuid4())
+    def deploy_worker(self):
+
+        worker_params = self.deploy_parameters.run_type_params.get('worker', None)
+        if not worker_params:
+            return False
+
+        worker_params.command += ['--memory_backend_params', json.dumps(self.deploy_parameters.memory_backend_parameters.__dict__)]
+        name = "{}-{}".format(worker_params.run_type, uuid.uuid4())
 
         container = client.V1Container(
             name=name,
-            image=self.deploy_parameters.image,
-            command=self.deploy_parameters.command,
-            args=self.deploy_parameters.arguments,
+            image=worker_params.image,
+            command=worker_params.command,
+            args=worker_params.arguments,
             image_pull_policy='Always',
             volume_mounts=[client.V1VolumeMount(
                 name='nfs-pvc',
-                mount_path=self.deploy_parameters.checkpoint_dir
+                mount_path=worker_params.checkpoint_dir
             )]
         )
         template = client.V1PodTemplateSpec(
@@ -249,27 +207,104 @@ class Kubernetes(Deploy):
                         claim_name=self.nfs_pvc_name
                     )
                 )],
-                restart_policy='Never'
             ),
         )
 
-        job_spec = client.V1JobSpec(
-            parallelism=self.deploy_parameters.num_workers,
+        deployment_spec = client.V1DeploymentSpec(
+            replicas=worker_params.num_replicas,
             template=template,
-            completions=2147483647
+            selector=client.V1LabelSelector(
+                match_labels={'app': name}
+            )
         )
-
-        job = client.V1Job(
-            api_version='batch/v1',
-            kind='Job',
+        deployment = client.V1Deployment(
+            api_version='apps/v1',
+            kind="Deployment",
             metadata=client.V1ObjectMeta(name=name),
-            spec=job_spec
+            spec=deployment_spec
         )
 
-        api_client = client.BatchV1Api()
+        api_client = client.AppsV1Api()
         try:
-            api_client.create_namespaced_job(self.deploy_parameters.namespace, job)
+            api_client.create_namespaced_deployment(self.deploy_parameters.namespace, deployment)
+            worker_params.orchestration_params['deployment_name'] = name
             return True
         except client.rest.ApiException as e:
             print("Got exception: %s\n while creating deployment", e)
             return False
+
+    def worker_logs(self):
+        pass
+
+    def trainer_logs(self):
+        trainer_params = self.deploy_parameters.run_type_params.get('trainer', None)
+        if not trainer_params:
+            return
+
+        api_client = client.CoreV1Api()
+        pod = None
+        try:
+            pods = api_client.list_namespaced_pod(self.deploy_parameters.namespace, label_selector='app={}'.format(
+                trainer_params.orchestration_params['deployment_name']
+            ))
+
+            pod = pods.items[0]
+        except client.rest.ApiException as e:
+            print("Got exception: %s\n while reading pods", e)
+            return
+
+        if not pod:
+            return
+
+        self.tail_log(pod.metadata.name, api_client)
+
+    def tail_log(self, pod_name, corev1_api):
+        while True:
+            time.sleep(10)
+            # Try to tail the pod logs
+            try:
+                print(corev1_api.read_namespaced_pod_log(
+                    pod_name, self.deploy_parameters.namespace, follow=True
+                ), flush=True)
+            except client.rest.ApiException as e:
+                pass
+
+            # This part will get executed if the pod is one of the following phases: not ready, failed or terminated.
+            # Check if the pod has errored out, else just try again.
+            # Get the pod
+            try:
+                pod = corev1_api.read_namespaced_pod(pod_name, self.deploy_parameters.namespace)
+            except client.rest.ApiException as e:
+                continue
+
+            if not hasattr(pod, 'status') or not pod.status:
+                continue
+            if not hasattr(pod.status, 'container_statuses') or not pod.status.container_statuses:
+                continue
+
+            for container_status in pod.status.container_statuses:
+                if container_status.state.waiting is not None:
+                    if container_status.state.waiting.reason == 'Error' or \
+                       container_status.state.waiting.reason == 'CrashLoopBackOff' or \
+                       container_status.state.waiting.reason == 'ImagePullBackOff' or \
+                       container_status.state.waiting.reason == 'ErrImagePull':
+                        return
+                if container_status.state.terminated is not None:
+                    return
+
+    def undeploy(self):
+        trainer_params = self.deploy_parameters.run_type_params.get('trainer', None)
+        api_client = client.AppsV1Api()
+        delete_options = client.V1DeleteOptions()
+        if trainer_params:
+            try:
+                api_client.delete_namespaced_deployment(trainer_params.orchestration_params['deployment_name'], self.deploy_parameters.namespace, delete_options)
+            except client.rest.ApiException as e:
+                print("Got exception: %s\n while deleting trainer", e)
+        worker_params = self.deploy_parameters.run_type_params.get('worker', None)
+        if worker_params:
+            try:
+                api_client.delete_namespaced_deployment(worker_params.orchestration_params['deployment_name'], self.deploy_parameters.namespace, delete_options)
+            except client.rest.ApiException as e:
+                print("Got exception: %s\n while deleting workers", e)
+        self.memory_backend.undeploy()

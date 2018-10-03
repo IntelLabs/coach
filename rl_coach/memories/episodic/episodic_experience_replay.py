@@ -160,6 +160,8 @@ class EpisodicExperienceReplay(Memory):
         :param transition: a transition to store
         :return: None
         """
+        # Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.
+        super().store(transition)
         self.reader_writer_lock.lock_writing_and_reading()
 
         if len(self._buffer) == 0:
@@ -181,6 +183,9 @@ class EpisodicExperienceReplay(Memory):
         :param episode: the new episode to store
         :return: None
         """
+        # Calling super.store() so that in case a memory backend is used, the memory backend can store this episode.
+        super().store(episode)
+
         if lock:
             self.reader_writer_lock.lock_writing_and_reading()
 
