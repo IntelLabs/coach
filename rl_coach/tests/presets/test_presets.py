@@ -61,7 +61,7 @@ def test_preset_runs(preset):
     if level != "":
         params += ["-lvl", level]
 
-    p = Popen(params, stdout=DEVNULL)
+    p = Popen(params)
 
     # wait 10 seconds overhead of initialization etc.
     time.sleep(10)
