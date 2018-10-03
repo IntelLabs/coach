@@ -298,7 +298,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # Losses
         self.losses = tf.losses.get_losses(self.full_name)
         self.losses += tf.losses.get_regularization_losses(self.full_name)
-        self.total_loss = tf.losses.compute_weighted_loss(self.losses, scope=self.full_name)
+        self.total_loss = tf.reduce_sum(self.losses)
         # tf.summary.scalar('total_loss', self.total_loss)
 
         # Learning rate
