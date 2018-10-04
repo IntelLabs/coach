@@ -26,3 +26,7 @@ datasets
 core
 trace_test*
 .DS_Store
+*.swp
+*.swo
+.cache/
+*.pyc
