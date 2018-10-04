@@ -352,8 +352,6 @@ class GraphManager(object):
         """
         Do several steps of acting on the environment
         :param steps: the number of steps as a tuple of steps time and steps count
-        :param return_on_game_over: finish acting if an episode is finished
-        :param continue_until_game_over: continue playing until an episode was completed
         :param keep_networks_in_sync: sync the network parameters with the global network before each episode
         """
         self.verify_graph_was_created()
