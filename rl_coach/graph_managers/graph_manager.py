@@ -309,7 +309,7 @@ class GraphManager(object):
                 self.reset_internal_state(force_environment_reset=True)
 
                 # act for at least steps, though don't interrupt an episode
-                count_end = self.total_steps_counters[self.phase][EnvironmentSteps] + steps.num_steps
+                count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
                 while self.total_steps_counters[self.phase][steps.__class__] < count_end:
                     self.act(EnvironmentEpisodes(1))
 
