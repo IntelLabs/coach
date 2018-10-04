@@ -99,13 +99,6 @@ class GraphManager(object):
         self.preset_validation_params = PresetValidationParameters()
         self.reset_required = False
 
-        # timers
-        self.graph_initialization_time = time.time()
-        self.graph_creation_time = None
-        self.heatup_start_time = None
-        self.last_evaluation_start_time = None
-        self.last_checkpoint_saving_time = time.time()
-
         # counters
         self.total_steps_counters = {
             RunPhase.HEATUP: TotalStepsCounter(),
@@ -311,7 +304,6 @@ class GraphManager(object):
         if steps.num_steps > 0:
             with self.phase_context(RunPhase.HEATUP):
                 screen.log_title("{}: Starting heatup".format(self.name))
-                self.heatup_start_time = time.time()
 
                 # reset all the levels before starting to heatup
                 self.reset_internal_state(force_environment_reset=True)
@@ -439,8 +431,6 @@ class GraphManager(object):
 
         if steps.num_steps > 0:
             with self.phase_context(RunPhase.TEST):
-                self.last_evaluation_start_time = time.time()
-
                 # reset all the levels before starting to evaluate
                 self.reset_internal_state(force_environment_reset=True)
                 self.sync_graph()
