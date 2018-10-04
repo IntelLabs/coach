@@ -386,7 +386,7 @@ class GraphManager(object):
 
             if result.game_over:
                 self.handle_episode_ended()
-                # TODO: why not just reset right now?
+                
                 self.reset_required = True
                 if keep_networks_in_sync:
                     self.sync_graph()
