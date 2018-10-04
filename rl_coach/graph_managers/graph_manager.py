@@ -30,7 +30,12 @@ from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, T
 from rl_coach.environments.environment import Environment
 from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen, Logger
+<<<<<<< HEAD
 from rl_coach.utils import set_cpu, start_shell_command_and_wait
+=======
+from rl_coach.utils import set_cpu
+from rl_coach.data_stores.data_store_impl import get_data_store
+>>>>>>> Make distributed coach work end-to-end.
 
 
 class ScheduleParameters(Parameters):
@@ -367,6 +372,11 @@ class GraphManager(object):
         """
         self.verify_graph_was_created()
 
+        if hasattr(self, 'data_store_params') and hasattr(self.agent_params.memory, 'memory_backend_params'):
+            if self.agent_params.memory.memory_backend_params.run_type == "worker":
+                data_store = get_data_store(self.data_store_params)
+                data_store.load_from_store()
+                
         # perform several steps of playing
         result = None
 
@@ -521,6 +531,11 @@ class GraphManager(object):
 
         self.checkpoint_id += 1
         self.last_checkpoint_saving_time = time.time()
+
+        if hasattr(self, 'data_store_params'):
+            data_store = get_data_store(self.data_store_params)
+            data_store.save_to_store()
+
 
     def improve(self):
         """

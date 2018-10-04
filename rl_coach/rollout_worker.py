@@ -12,11 +12,14 @@ import time
 import os
 import json
 
+from threading import Thread
+
 from rl_coach.base_parameters import TaskParameters
 from rl_coach.coach import expand_preset
 from rl_coach.core_types import EnvironmentEpisodes, RunPhase
 from rl_coach.utils import short_dynamic_import
 from rl_coach.memories.backend.memory_impl import construct_memory_params
+from rl_coach.data_stores.data_store_impl import get_data_store, construct_data_store_params
 
 
 # Q: specify alternative distributed memory, or should this go in the preset?
@@ -27,17 +30,23 @@ def has_checkpoint(checkpoint_dir):
     """
     True if a checkpoint is present in checkpoint_dir
     """
-    return len(os.listdir(checkpoint_dir)) > 0
+    if os.path.isdir(checkpoint_dir):
+        if len(os.listdir(checkpoint_dir)) > 0:
+            return os.path.isfile(os.path.join(checkpoint_dir, "checkpoint"))
 
+    return False
 
-def wait_for_checkpoint(checkpoint_dir, timeout=10):
+def wait_for_checkpoint(checkpoint_dir, data_store=None, timeout=10):
     """
     block until there is a checkpoint in checkpoint_dir
     """
     for i in range(timeout):
+        if data_store:
+            data_store.load_from_store()
+
         if has_checkpoint(checkpoint_dir):
             return
-        time.sleep(1)
+        time.sleep(10)
 
     # one last time
     if has_checkpoint(checkpoint_dir):
@@ -52,20 +61,26 @@ def wait_for_checkpoint(checkpoint_dir, timeout=10):
     ))
 
 
+def data_store_ckpt_load(data_store):
+    while True:
+        data_store.load_from_store()
+        time.sleep(10)
+
 def rollout_worker(graph_manager, checkpoint_dir):
     """
-    restore a checkpoint then perform rollouts using the restored model
+    wait for first checkpoint then perform rollouts using the model
     """
     wait_for_checkpoint(checkpoint_dir)
 
     task_parameters = TaskParameters()
     task_parameters.__dict__['checkpoint_restore_dir'] = checkpoint_dir
+    time.sleep(30)
     graph_manager.create_graph(task_parameters)
     graph_manager.phase = RunPhase.TRAIN
 
     for i in range(10000000):
-        graph_manager.act(EnvironmentEpisodes(num_steps=10))
         graph_manager.restore_checkpoint()
+        graph_manager.act(EnvironmentEpisodes(num_steps=10))
 
     graph_manager.phase = RunPhase.UNDEFINED
 
@@ -91,6 +106,9 @@ def main():
     parser.add_argument('--memory_backend_params',
                         help="(string) JSON string of the memory backend params",
                         type=str)
+    parser.add_argument('--data_store_params',
+                        help="(string) JSON string of the data store params",
+                        type=str)
 
     args = parser.parse_args()
 
@@ -98,9 +116,20 @@ def main():
 
     if args.memory_backend_params:
         args.memory_backend_params = json.loads(args.memory_backend_params)
-        if 'run_type' not in args.memory_backend_params:
-            args.memory_backend_params['run_type'] = 'worker'
+        print(args.memory_backend_params)
+        args.memory_backend_params['run_type'] = 'worker'
+        print(construct_memory_params(args.memory_backend_params))
         graph_manager.agent_params.memory.register_var('memory_backend_params', construct_memory_params(args.memory_backend_params))
+
+    if args.data_store_params:
+        data_store_params = construct_data_store_params(json.loads(args.data_store_params))
+        data_store_params.checkpoint_dir = args.checkpoint_dir
+        graph_manager.data_store_params = data_store_params
+        data_store = get_data_store(data_store_params)
+        wait_for_checkpoint(checkpoint_dir=args.checkpoint_dir, data_store=data_store)
+        # thread = Thread(target = data_store_ckpt_load, args = [data_store])
+        # thread.start()
+
     rollout_worker(
         graph_manager=graph_manager,
         checkpoint_dir=args.checkpoint_dir,

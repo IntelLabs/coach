@@ -46,6 +46,7 @@ class S3DataStore(DataStore):
 
     def save_to_store(self):
         try:
+            print("saving to s3")
             for root, dirs, files in os.walk(self.params.checkpoint_dir):
                 for filename in files:
                     abs_name = os.path.abspath(os.path.join(root, filename))
@@ -56,6 +57,7 @@ class S3DataStore(DataStore):
 
     def load_from_store(self):
         try:
+            print("loading from s3")
             objects = self.mc.list_objects_v2(self.params.bucket_name, recursive=True)
             for obj in objects:
                 filename = os.path.abspath(os.path.join(self.params.checkpoint_dir, obj.object_name))
