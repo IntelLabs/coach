@@ -372,8 +372,6 @@ class GraphManager(object):
                 data_store.load_from_store()
 
         # perform several steps of playing
-        result = None
-
         count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
 
         # The assumption here is that the total_steps_counters are each updated when an event
@@ -387,12 +385,6 @@ class GraphManager(object):
             steps_begin = self.environments[0].total_steps_counter
             result = self.top_level_manager.step(None)
             steps_end = self.environments[0].total_steps_counter
-
-            # result will be None if at least one level_manager decided not to play (= all of his agents did not play)
-            # causing the rest of the level_managers down the stack not to play either, and thus the entire graph did
-            # not act
-            if result is None:
-                break
 
             # add the diff between the total steps before and after stepping, such that environment initialization steps
             # (like in Atari) will not be counted.
