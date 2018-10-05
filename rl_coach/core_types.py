@@ -596,6 +596,12 @@ class TotalStepsCounter(object):
         """
         self.counters[key] = item
 
+    def __add__(self, other: Type[StepMethod]) -> Type[StepMethod]:
+        return other.__class__(self.counters[other.__class__] + other.num_steps)
+
+    def __lt__(self, other: Type[StepMethod]):
+        return self.counters[other.__class__] < other.num_steps
+
 
 class GradientClippingMethod(Enum):
     ClipByGlobalNorm = 0
