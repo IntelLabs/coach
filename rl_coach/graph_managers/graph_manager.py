@@ -591,3 +591,6 @@ class GraphManager(object):
             result += "{}: \n{}\n".format(key, params)
 
         return result
+
+    def should_train(self) -> bool:
+        return any([manager.should_train() for manager in self.level_managers])

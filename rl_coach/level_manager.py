@@ -260,3 +260,6 @@ class LevelManager(EnvironmentInterface):
         :return:
         """
         [agent.sync() for agent in self.agents.values()]
+
+    def should_train(self) -> bool:
+        return any([agent._should_train_helper() for agent in self.agents.values()])
