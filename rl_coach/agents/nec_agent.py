@@ -171,5 +171,5 @@ class NECAgent(ValueOptimizationAgent):
                                                                          actions, returns)
 
     def save_checkpoint(self, checkpoint_id):
-        with open(os.path.join(self.ap.task_parameters.save_checkpoint_dir, str(checkpoint_id) + '.dnd'), 'wb') as f:
+        with open(os.path.join(self.ap.task_parameters.checkpoint_save_dir, str(checkpoint_id) + '.dnd'), 'wb') as f:
             pickle.dump(self.networks['main'].online_network.output_heads[0].DND, f, pickle.HIGHEST_PROTOCOL)

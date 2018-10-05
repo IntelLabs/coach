@@ -203,7 +203,7 @@ class GraphManager(object):
                     remove_tree(checkpoint_dir)
                 copy_tree(task_parameters.checkpoint_restore_dir, checkpoint_dir)
             else:
-                checkpoint_dir = task_parameters.save_checkpoint_dir
+                checkpoint_dir = task_parameters.checkpoint_save_dir
 
             self.sess = create_monitored_session(target=task_parameters.worker_target,
                                                  task_index=task_parameters.task_index,
@@ -498,7 +498,7 @@ class GraphManager(object):
              self.save_checkpoint()
 
     def save_checkpoint(self):
-        checkpoint_path = os.path.join(self.task_parameters.save_checkpoint_dir,
+        checkpoint_path = os.path.join(self.task_parameters.checkpoint_save_dir,
                                        "{}_Step-{}.ckpt".format(
                                            self.checkpoint_id,
                                            self.total_steps_counters[RunPhase.TRAIN][EnvironmentSteps]))
