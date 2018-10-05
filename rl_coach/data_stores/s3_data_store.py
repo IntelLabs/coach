@@ -5,7 +5,7 @@ from minio.error import ResponseError
 from configparser import ConfigParser, Error
 from google.protobuf import text_format
 from tensorflow.python.training.checkpoint_state_pb2 import CheckpointState
-from minio.error import ResponseError
+
 import os
 import time
 import io
@@ -71,6 +71,8 @@ class S3DataStore(DataStore):
 
             abs_name = os.path.abspath(os.path.join(checkpoint_file[0], checkpoint_file[1]))
             rel_name = os.path.relpath(abs_name, self.params.checkpoint_dir)
+            self.mc.fput_object(self.params.bucket_name, rel_name, abs_name)
+
             print("Deleting lock file")
             self.mc.remove_object(self.params.bucket_name, self.params.lock_file)
 
@@ -88,7 +90,7 @@ class S3DataStore(DataStore):
                 if next(objects, None) is None:
                     try:
                         self.mc.fget_object(self.params.bucket_name, "checkpoint", filename)
-                    except ResponseError as e:
+                    except Exception as e:
                         continue
                     break
                 time.sleep(10)
