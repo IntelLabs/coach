@@ -208,7 +208,7 @@ class GraphManager(object):
             self.sess = create_monitored_session(target=task_parameters.worker_target,
                                                  task_index=task_parameters.task_index,
                                                  checkpoint_dir=checkpoint_dir,
-                                                 save_checkpoint_secs=task_parameters.save_checkpoint_secs,
+                                                 checkpoint_save_secs=task_parameters.checkpoint_save_secs,
                                                  config=config)
             # set the session for all the modules
             self.set_session(self.sess)
@@ -490,8 +490,8 @@ class GraphManager(object):
 
     def occasionally_save_checkpoint(self):
         # only the chief process saves checkpoints
-        if self.task_parameters.save_checkpoint_secs \
-                and time.time() - self.last_checkpoint_saving_time >= self.task_parameters.save_checkpoint_secs \
+        if self.task_parameters.checkpoint_save_secs \
+                and time.time() - self.last_checkpoint_saving_time >= self.task_parameters.checkpoint_save_secs \
                 and (self.task_parameters.task_index == 0  # distributed
                      or self.task_parameters.task_index is None  # single-worker
                      ):

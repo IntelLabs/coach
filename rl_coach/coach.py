@@ -176,7 +176,7 @@ def parse_arguments(parser: argparse.ArgumentParser) -> argparse.Namespace:
     args.framework = Frameworks[args.framework.lower()]
 
     # checkpoints
-    args.checkpoint_save_dir = os.path.join(args.experiment_path, 'checkpoint') if args.save_checkpoint_secs is not None else None
+    args.checkpoint_save_dir = os.path.join(args.experiment_path, 'checkpoint') if args.checkpoint_save_secs is not None else None
 
     return args
 
@@ -257,7 +257,7 @@ def main():
                         help="(flag) TensorFlow verbosity level",
                         default=3,
                         type=int)
-    parser.add_argument('-s', '--save_checkpoint_secs',
+    parser.add_argument('-s', '--checkpoint_save_secs',
                         help="(int) Time in seconds between saving checkpoints of the model.",
                         default=None,
                         type=int)
