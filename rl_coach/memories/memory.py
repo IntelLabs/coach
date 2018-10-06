@@ -53,8 +53,7 @@ class Memory(object):
 
     def store_episode(self, episode):
         if self.memory_backend:
-            for transition in episode:
-                self.memory_backend.store(transition)
+            self.memory_backend.store(episode)
 
     def get(self, index):
         raise NotImplementedError("")

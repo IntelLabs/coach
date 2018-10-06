@@ -184,7 +184,7 @@ class EpisodicExperienceReplay(Memory):
         :return: None
         """
         # Calling super.store() so that in case a memory backend is used, the memory backend can store this episode.
-        super().store(episode)
+        super().store_episode(episode)
 
         if lock:
             self.reader_writer_lock.lock_writing_and_reading()

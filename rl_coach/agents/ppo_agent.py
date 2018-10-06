@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -309,6 +309,9 @@ class PPOAgent(ActorCriticAgent):
 
         # clean memory
         self.call_memory('clean')
+
+    def _should_train_helper(self):
+        return super()._should_train_helper(True)
 
     def train(self):
         loss = 0

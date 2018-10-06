@@ -251,6 +251,9 @@ class ClippedPPOAgent(ActorCriticAgent):
         # clean memory
         self.call_memory('clean')
 
+    def _should_train_helper(self, wait_for_full_episode=True):
+        return super()._should_train_helper(True)
+
     def train(self):
         if self._should_train(wait_for_full_episode=True):
             for network in self.networks.values():
