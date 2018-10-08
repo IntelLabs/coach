@@ -124,22 +124,14 @@ def main():
                         help="(string) Name of a preset to run (class name from the 'presets' directory.)",
                         type=str,
                         required=True)
-    parser.add_argument('--checkpoint_dir',
+    parser.add_argument('--checkpoint-dir',
                         help='(string) Path to a folder containing a checkpoint to restore the model from.',
                         type=str,
                         default='/checkpoint')
-    parser.add_argument('-r', '--redis_ip',
-                        help="(string) IP or host for the redis server",
-                        default='localhost',
-                        type=str)
-    parser.add_argument('-rp', '--redis_port',
-                        help="(int) Port of the redis server",
-                        default=6379,
-                        type=int)
-    parser.add_argument('--memory_backend_params',
+    parser.add_argument('--memory-backend-params',
                         help="(string) JSON string of the memory backend params",
                         type=str)
-    parser.add_argument('--data_store_params',
+    parser.add_argument('--data-store-params',
                         help="(string) JSON string of the data store params",
                         type=str)
 

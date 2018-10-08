@@ -563,9 +563,12 @@ class Agent(AgentInterface):
 
         if step_method.__class__ == EnvironmentEpisodes:
             should_update = (self.current_episode - self.last_training_phase_step) >= step_method.num_steps
+            should_update = should_update and self.call_memory('length') > 0
 
         elif step_method.__class__ == EnvironmentSteps:
             should_update = (self.total_steps_counter - self.last_training_phase_step) >= step_method.num_steps
+            should_update = should_update and self.call_memory('num_transitions') > 0
+
             if wait_for_full_episode:
                 should_update = should_update and self.current_episode_buffer.is_complete
         else:

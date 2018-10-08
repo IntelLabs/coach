@@ -77,19 +77,19 @@ if __name__ == '__main__':
     parser.add_argument('-ns', '--nfs-server',
                         help="(string) Addresss of the nfs server.",
                         type=str,
-                        required=True)
+                        required=False)
     parser.add_argument('-np', '--nfs-path',
                         help="(string) Exported path for the nfs server.",
                         type=str,
-                        required=True)
+                        required=False)
     parser.add_argument('--s3-end-point',
                         help="(string) S3 endpoint to use when S3 data store is used.",
                         type=str,
-                        required=True)
+                        required=False)
     parser.add_argument('--s3-bucket-name',
                         help="(string) S3 bucket name to use when S3 data store is used.",
                         type=str,
-                        required=True)
+                        required=False)
     parser.add_argument('--num-workers',
                         help="(string) Number of rollout workers",
                         type=int,

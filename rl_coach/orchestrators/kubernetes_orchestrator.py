@@ -3,6 +3,7 @@ import uuid
 import json
 import time
 from typing import List
+from configparser import ConfigParser, Error
 from rl_coach.orchestrators.deploy import Deploy, DeployParameters
 from kubernetes import client as k8sclient, config as k8sconfig
 from rl_coach.memories.backend.memory import MemoryBackendParameters
@@ -100,8 +101,8 @@ class Kubernetes(Deploy):
         if not trainer_params:
             return False
 
-        trainer_params.command += ['--memory_backend_params', json.dumps(self.params.memory_backend_parameters.__dict__)]
-        trainer_params.command += ['--data_store_params', json.dumps(self.params.data_store_params.__dict__)]
+        trainer_params.command += ['--memory-backend-params', json.dumps(self.params.memory_backend_parameters.__dict__)]
+        trainer_params.command += ['--data-store-params', json.dumps(self.params.data_store_params.__dict__)]
 
         name = "{}-{}".format(trainer_params.run_type, uuid.uuid4())
 
@@ -176,8 +177,8 @@ class Kubernetes(Deploy):
         if not worker_params:
             return False
 
-        worker_params.command += ['--memory_backend_params', json.dumps(self.params.memory_backend_parameters.__dict__)]
-        worker_params.command += ['--data_store_params', json.dumps(self.params.data_store_params.__dict__)]
+        worker_params.command += ['--memory-backend-params', json.dumps(self.params.memory_backend_parameters.__dict__)]
+        worker_params.command += ['--data-store-params', json.dumps(self.params.data_store_params.__dict__)]
 
         name = "{}-{}".format(worker_params.run_type, uuid.uuid4())
 
