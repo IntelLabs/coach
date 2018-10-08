@@ -31,8 +31,10 @@ def training_worker(graph_manager, checkpoint_dir):
     graph_manager.save_checkpoint()
 
     # training loop
-    while True:
+    steps = 0
+    while(steps < graph_manager.improve_steps.num_steps):
         if graph_manager.should_train():
+            steps += 1
             graph_manager.phase = core_types.RunPhase.TRAIN
             graph_manager.train(core_types.TrainingSteps(1))
             graph_manager.phase = core_types.RunPhase.UNDEFINED

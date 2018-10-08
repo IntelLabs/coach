@@ -52,13 +52,10 @@ class S3DataStore(DataStore):
 
     def save_to_store(self):
         try:
-            print("Writing lock file")
-
             self.mc.remove_object(self.params.bucket_name, self.params.lock_file)
 
             self.mc.put_object(self.params.bucket_name, self.params.lock_file, io.BytesIO(b''), 0)
 
-            print("saving to s3")
             checkpoint_file = None
             for root, dirs, files in os.walk(self.params.checkpoint_dir):
                 for filename in files:
@@ -73,7 +70,6 @@ class S3DataStore(DataStore):
             rel_name = os.path.relpath(abs_name, self.params.checkpoint_dir)
             self.mc.fput_object(self.params.bucket_name, rel_name, abs_name)
 
-            print("Deleting lock file")
             self.mc.remove_object(self.params.bucket_name, self.params.lock_file)
 
         except ResponseError as e:
@@ -81,7 +77,6 @@ class S3DataStore(DataStore):
 
     def load_from_store(self):
         try:
-
             filename = os.path.abspath(os.path.join(self.params.checkpoint_dir, "checkpoint"))
 
             while True:
@@ -94,8 +89,6 @@ class S3DataStore(DataStore):
                         continue
                     break
                 time.sleep(10)
-
-            print("loading from s3")
 
             ckpt = CheckpointState()
             if os.path.exists(filename):
