@@ -7,6 +7,7 @@ from kubernetes import client
 
 from rl_coach.memories.backend.memory import MemoryBackend, MemoryBackendParameters
 from rl_coach.core_types import Transition, Episode
+from rl_coach.core_types import RunPhase
 
 
 class RedisPubSubMemoryBackendParameters(MemoryBackendParameters):
@@ -148,7 +149,9 @@ class RedisSub(threading.Thread):
 
     def run(self):
         for message in self.pubsub.listen():
-            if message and 'data' in message:
+            if message and 'data' in message and self.agent.phase != RunPhase.TEST or self.agent.ap.task_parameters.evaluate_only:
+                if self.agent.phase == RunPhase.TEST:
+                    print(self.agent.phase)
                 try:
                     obj = pickle.loads(message['data'])
                     if type(obj) == Transition:

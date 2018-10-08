@@ -376,7 +376,7 @@ class GraphManager(object):
             if self.agent_params.memory.memory_backend_params.run_type == "worker":
                 data_store = get_data_store(self.data_store_params)
                 data_store.load_from_store()
-                
+
         # perform several steps of playing
         result = None
 
@@ -435,7 +435,7 @@ class GraphManager(object):
         if steps.num_steps > 0:
             self.phase = RunPhase.TRAIN
             self.reset_internal_state(force_environment_reset=True)
-            #TODO - the below while loop should end with full episodes, so to avoid situations where we have partial
+            # TODO - the below while loop should end with full episodes, so to avoid situations where we have partial
             #  episodes in memory
             count_end = self.total_steps_counters[self.phase][steps.__class__] + steps.num_steps
             while self.total_steps_counters[self.phase][steps.__class__] < count_end:

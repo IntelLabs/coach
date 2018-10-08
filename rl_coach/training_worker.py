@@ -38,7 +38,6 @@ def training_worker(graph_manager, checkpoint_dir):
             graph_manager.phase = core_types.RunPhase.UNDEFINED
             graph_manager.evaluate(graph_manager.evaluation_steps)
             graph_manager.save_checkpoint()
-        time.sleep(10)
 
 
 def main():
