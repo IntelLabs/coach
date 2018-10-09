@@ -25,7 +25,7 @@ def training_worker(graph_manager, checkpoint_dir, policy_type):
     # initialize graph
     task_parameters = TaskParameters()
     task_parameters.__dict__['save_checkpoint_dir'] = checkpoint_dir
-    task_parameters.__dict__['save_checkpoint_secs'] = 60
+    task_parameters.__dict__['save_checkpoint_secs'] = 20
     graph_manager.create_graph(task_parameters)
 
     # save randomly initialized graph

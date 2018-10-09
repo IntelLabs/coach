@@ -9,7 +9,7 @@ from rl_coach.data_stores.nfs_data_store import NFSDataStoreParameters
 
 def main(preset: str, image: str='ajaysudh/testing:coach', num_workers: int=1, nfs_server: str=None, nfs_path: str=None,
          memory_backend: str=None, data_store: str=None, s3_end_point: str=None, s3_bucket_name: str=None,
-         policy_type: str="OFF"):
+         s3_creds_file: str=None, policy_type: str="OFF"):
     rollout_command = ['python3', 'rl_coach/rollout_worker.py', '-p', preset, '--policy-type', policy_type]
     training_command = ['python3', 'rl_coach/training_worker.py', '-p', preset, '--policy-type', policy_type]
 
@@ -21,7 +21,7 @@ def main(preset: str, image: str='ajaysudh/testing:coach', num_workers: int=1, n
     if data_store == "s3":
         ds_params = DataStoreParameters("s3", "", "")
         ds_params_instance = S3DataStoreParameters(ds_params=ds_params, end_point=s3_end_point, bucket_name=s3_bucket_name,
-                                                   checkpoint_dir="/checkpoint")
+                                                   creds_file=s3_creds_file, checkpoint_dir="/checkpoint")
     elif data_store == "nfs":
         ds_params = DataStoreParameters("nfs", "kubernetes", {"namespace": "default"})
         ds_params_instance = NFSDataStoreParameters(ds_params)
@@ -70,16 +70,18 @@ if __name__ == '__main__':
     parser.add_argument('--memory-backend',
                         help="(string) Memory backend to use.",
                         type=str,
+                        choices=['redispubsub'],
                         default="redispubsub")
-    parser.add_argument('-ds', '--data-store',
+    parser.add_argument('--data-store',
                         help="(string) Data store to use.",
                         type=str,
+                        choices=['s3', 'nfs'],
                         default="s3")
-    parser.add_argument('-ns', '--nfs-server',
+    parser.add_argument('--nfs-server',
                         help="(string) Addresss of the nfs server.",
                         type=str,
                         required=False)
-    parser.add_argument('-np', '--nfs-path',
+    parser.add_argument('--nfs-path',
                         help="(string) Exported path for the nfs server.",
                         type=str,
                         required=False)
@@ -91,14 +93,19 @@ if __name__ == '__main__':
                         help="(string) S3 bucket name to use when S3 data store is used.",
                         type=str,
                         required=False)
+    parser.add_argument('--s3-creds-file',
+                        help="(string) S3 credentials file to use when S3 data store is used.",
+                        type=str,
+                        required=False)
     parser.add_argument('--num-workers',
-                        help="(string) Number of rollout workers",
+                        help="(string) Number of rollout workers.",
                         type=int,
                         required=False,
                         default=1)
     parser.add_argument('--policy-type',
-                        help="(string) The type of policy: OFF/ON",
+                        help="(string) The type of policy: OFF/ON.",
                         type=str,
+                        choices=['ON', 'OFF'],
                         default='OFF')
 
     # parser.add_argument('--checkpoint_dir',
@@ -109,4 +116,5 @@ if __name__ == '__main__':
 
     main(preset=args.preset, image=args.image, nfs_server=args.nfs_server, nfs_path=args.nfs_path,
          memory_backend=args.memory_backend, data_store=args.data_store, s3_end_point=args.s3_end_point,
-         s3_bucket_name=args.s3_bucket_name, num_workers=args.num_workers, policy_type=args.policy_type)
+         s3_bucket_name=args.s3_bucket_name, s3_creds_file=args.s3_creds_file, num_workers=args.num_workers,
+         policy_type=args.policy_type)

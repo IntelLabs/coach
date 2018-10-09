@@ -62,8 +62,6 @@ class Kubernetes(Deploy):
             _, current_context = k8sconfig.list_kube_config_contexts()
             self.params.namespace = current_context['context']['namespace']
 
-        self.nfs_pvc_name = 'nfs-checkpoint-pvc'
-
         if os.environ.get('http_proxy'):
             k8sclient.Configuration._default.proxy = os.environ.get('http_proxy')
 
@@ -93,6 +91,8 @@ class Kubernetes(Deploy):
         self.memory_backend.deploy()
         if not self.data_store.deploy():
             return False
+        if self.params.data_store_params.store_type == "nfs":
+            self.nfs_pvc = self.data_store.get_info()
         return True
 
     def deploy_trainer(self) -> bool:
@@ -124,9 +124,7 @@ class Kubernetes(Deploy):
                     containers=[container],
                     volumes=[k8sclient.V1Volume(
                         name="nfs-pvc",
-                        persistent_volume_claim=k8sclient.V1PersistentVolumeClaimVolumeSource(
-                            claim_name=self.nfs_pvc_name
-                        )
+                        persistent_volume_claim=self.nfs_pvc
                     )]
                 ),
             )
@@ -179,7 +177,7 @@ class Kubernetes(Deploy):
 
         worker_params.command += ['--memory-backend-params', json.dumps(self.params.memory_backend_parameters.__dict__)]
         worker_params.command += ['--data-store-params', json.dumps(self.params.data_store_params.__dict__)]
-        worker_params.command += ['--num-workers', worker_params.num_replicas]
+        worker_params.command += ['--num-workers', '{}'.format(worker_params.num_replicas)]
 
         name = "{}-{}".format(worker_params.run_type, uuid.uuid4())
 
@@ -201,9 +199,7 @@ class Kubernetes(Deploy):
                     containers=[container],
                     volumes=[k8sclient.V1Volume(
                         name="nfs-pvc",
-                        persistent_volume_claim=k8sclient.V1PersistentVolumeClaimVolumeSource(
-                            claim_name=self.nfs_pvc_name
-                        )
+                        persistent_volume_claim=self.nfs_pvc
                     )],
                 ),
             )

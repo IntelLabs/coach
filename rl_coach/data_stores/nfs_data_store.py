@@ -1,3 +1,5 @@
+import uuid
+
 from rl_coach.data_stores.data_store import DataStore, DataStoreParameters
 from kubernetes import client as k8sclient
 
@@ -61,15 +63,33 @@ class NFSDataStore(DataStore):
             name=name,
             image="k8s.gcr.io/volume-nfs:0.8",
             ports=[k8sclient.V1ContainerPort(
-                name="nfs",
-                container_port=2049,
-                protocol="TCP"
-            )]
+                    name="nfs",
+                    container_port=2049,
+                    protocol="TCP"
+                   ),
+                   k8sclient.V1ContainerPort(
+                    name="rpcbind",
+                    container_port=111
+                   ),
+                   k8sclient.V1ContainerPort(
+                    name="mountd",
+                    container_port=20048
+                   ),
+            ],
+            volume_mounts=[k8sclient.V1VolumeMount(
+                name='nfs-host-path',
+                mount_path='/exports'
+            )],
+            security_context=k8sclient.V1SecurityContext(privileged=True)
         )
         template = k8sclient.V1PodTemplateSpec(
             metadata=k8sclient.V1ObjectMeta(labels={'app': 'nfs-server'}),
             spec=k8sclient.V1PodSpec(
-                containers=[container]
+                containers=[container],
+                volumes=[k8sclient.V1Volume(
+                    name="nfs-host-path",
+                    host_path=k8sclient.V1HostPathVolumeSource(path='/tmp/nfsexports-{}'.format(uuid.uuid4()))
+                )]
             )
         )
         deployment_spec = k8sclient.V1DeploymentSpec(
@@ -117,7 +137,7 @@ class NFSDataStore(DataStore):
         try:
             k8s_core_v1_api_client.create_namespaced_service(self.params.namespace, service)
             self.params.svc_name = svc_name
-            self.params.server = 'nfs-service.{}.svc'.format(self.params.namespace)
+            self.params.server = 'nfs-service.{}.svc.cluster.local'.format(self.params.namespace)
         except k8sclient.rest.ApiException as e:
             print("Got exception: %s\n while creating a service for nfs-server", e)
             return False
