@@ -8,9 +8,10 @@ from rl_coach.data_stores.nfs_data_store import NFSDataStoreParameters
 
 
 def main(preset: str, image: str='ajaysudh/testing:coach', num_workers: int=1, nfs_server: str=None, nfs_path: str=None,
-         memory_backend: str=None, data_store: str=None, s3_end_point: str=None, s3_bucket_name: str=None):
-    rollout_command = ['python3', 'rl_coach/rollout_worker.py', '-p', preset]
-    training_command = ['python3', 'rl_coach/training_worker.py', '-p', preset]
+         memory_backend: str=None, data_store: str=None, s3_end_point: str=None, s3_bucket_name: str=None,
+         policy_type: str="OFF"):
+    rollout_command = ['python3', 'rl_coach/rollout_worker.py', '-p', preset, '--policy-type', policy_type]
+    training_command = ['python3', 'rl_coach/training_worker.py', '-p', preset, '--policy-type', policy_type]
 
     memory_backend_params = None
     if memory_backend == "redispubsub":
@@ -95,6 +96,10 @@ if __name__ == '__main__':
                         type=int,
                         required=False,
                         default=1)
+    parser.add_argument('--policy-type',
+                        help="(string) The type of policy: OFF/ON",
+                        type=str,
+                        default='OFF')
 
     # parser.add_argument('--checkpoint_dir',
     #                     help='(string) Path to a folder containing a checkpoint to write the model to.',
@@ -104,4 +109,4 @@ if __name__ == '__main__':
 
     main(preset=args.preset, image=args.image, nfs_server=args.nfs_server, nfs_path=args.nfs_path,
          memory_backend=args.memory_backend, data_store=args.data_store, s3_end_point=args.s3_end_point,
-         s3_bucket_name=args.s3_bucket_name, num_workers=args.num_workers)
+         s3_bucket_name=args.s3_bucket_name, num_workers=args.num_workers, policy_type=args.policy_type)

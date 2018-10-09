@@ -179,6 +179,7 @@ class Kubernetes(Deploy):
 
         worker_params.command += ['--memory-backend-params', json.dumps(self.params.memory_backend_parameters.__dict__)]
         worker_params.command += ['--data-store-params', json.dumps(self.params.data_store_params.__dict__)]
+        worker_params.command += ['--num-workers', worker_params.num_replicas]
 
         name = "{}-{}".format(worker_params.run_type, uuid.uuid4())
 
