@@ -638,6 +638,9 @@ class Episode(object):
     def length(self):
         return self._length
 
+    def __len__(self):
+        return self.length()
+
     def get_transition(self, transition_idx):
         return self.transitions[transition_idx]
 
