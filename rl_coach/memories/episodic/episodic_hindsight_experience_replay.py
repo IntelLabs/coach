@@ -106,10 +106,6 @@ class EpisodicHindsightExperienceReplay(EpisodicExperienceReplay):
         ]
 
     def store_episode(self, episode: Episode, lock: bool=True) -> None:
-
-        # Calling super.store() so that in case a memory backend is used, the memory backend can store this episode.
-        super().store_episode(episode)
-
         # generate hindsight transitions only when an episode is finished
         last_episode_transitions = copy.copy(episode.transitions)
 

@@ -94,4 +94,4 @@ def test_update_episode(her):
         else:
             assert not transition.game_over
 
-test_update_episode(her())
+# test_update_episode(her())
