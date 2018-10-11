@@ -58,9 +58,9 @@ agent_params.pre_network_filter.add_observation_filter('observation', 'normalize
 env_params = Mujoco()
 env_params.level = 'CartPole-v0'
 
-vis_params = VisualizationParameters()
-vis_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-vis_params.dump_mp4 = False
+visualization_params = VisualizationParameters()
+visualization_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
+visualization_params.dump_mp4 = False
 
 ########
 # Test #
@@ -71,5 +71,5 @@ preset_validation_params.min_reward_threshold = 150
 preset_validation_params.max_episodes_to_achieve_reward = 250
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    schedule_params=schedule_params, visualization_params=visualization_params,
                                     preset_validation_params=preset_validation_params)
