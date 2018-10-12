@@ -353,7 +353,7 @@ class GraphManager(object):
         [environment.reset_internal_state(force_environment_reset) for environment in self.environments]
         [manager.reset_internal_state() for manager in self.level_managers]
 
-    def act(self, steps: PlayingStepsType) -> (int, bool):
+    def act(self, steps: PlayingStepsType) -> None:
         """
         Do several steps of acting on the environment
         :param steps: the number of steps as a tuple of steps time and steps count
