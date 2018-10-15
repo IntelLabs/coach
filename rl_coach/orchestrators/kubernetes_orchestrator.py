@@ -116,7 +116,9 @@ class Kubernetes(Deploy):
                 volume_mounts=[k8sclient.V1VolumeMount(
                     name='nfs-pvc',
                     mount_path=trainer_params.checkpoint_dir
-                )]
+                )],
+                stdin=True,
+                tty=True
             )
             template = k8sclient.V1PodTemplateSpec(
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
@@ -136,7 +138,9 @@ class Kubernetes(Deploy):
                 args=trainer_params.arguments,
                 image_pull_policy='Always',
                 env=[k8sclient.V1EnvVar("ACCESS_KEY_ID", self.s3_access_key),
-                     k8sclient.V1EnvVar("SECRET_ACCESS_KEY", self.s3_secret_key)]
+                     k8sclient.V1EnvVar("SECRET_ACCESS_KEY", self.s3_secret_key)],
+                stdin=True,
+                tty=True
             )
             template = k8sclient.V1PodTemplateSpec(
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
@@ -191,7 +195,9 @@ class Kubernetes(Deploy):
                 volume_mounts=[k8sclient.V1VolumeMount(
                     name='nfs-pvc',
                     mount_path=worker_params.checkpoint_dir
-                )]
+                )],
+                stdin=True,
+                tty=True
             )
             template = k8sclient.V1PodTemplateSpec(
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
@@ -211,7 +217,9 @@ class Kubernetes(Deploy):
                 args=worker_params.arguments,
                 image_pull_policy='Always',
                 env=[k8sclient.V1EnvVar("ACCESS_KEY_ID", self.s3_access_key),
-                     k8sclient.V1EnvVar("SECRET_ACCESS_KEY", self.s3_secret_key)]
+                     k8sclient.V1EnvVar("SECRET_ACCESS_KEY", self.s3_secret_key)],
+                stdin=True,
+                tty=True
             )
             template = k8sclient.V1PodTemplateSpec(
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
@@ -273,9 +281,11 @@ class Kubernetes(Deploy):
             time.sleep(10)
             # Try to tail the pod logs
             try:
-                print(corev1_api.read_namespaced_pod_log(
-                    pod_name, self.params.namespace, follow=True
-                ), flush=True)
+                for line in corev1_api.read_namespaced_pod_log(
+                            pod_name, self.params.namespace, follow=True,
+                            _preload_content=False
+                        ):
+                    print(line.decode('utf-8'), flush=True, end='')
             except k8sclient.rest.ApiException as e:
                 pass
 

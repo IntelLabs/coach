@@ -161,7 +161,6 @@ class Agent(AgentInterface):
         self.discounted_return = self.register_signal('Discounted Return')
         if isinstance(self.in_action_space, GoalsSpace):
             self.distance_from_goal = self.register_signal('Distance From Goal', dump_one_value_per_step=True)
-
         # use seed
         if self.ap.task_parameters.seed is not None:
             random.seed(self.ap.task_parameters.seed)

@@ -144,7 +144,6 @@ class NFSDataStore(DataStore):
 
         return True
 
-
     def create_k8s_nfs_resources(self) -> bool:
         pv_name = "nfs-ckpt-pv"
         persistent_volume = k8sclient.V1PersistentVolume(
@@ -218,7 +217,6 @@ class NFSDataStore(DataStore):
             return False
 
         return True
-
 
     def delete_k8s_nfs_resources(self) -> bool:
         del_options = k8sclient.V1DeleteOptions()

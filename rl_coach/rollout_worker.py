@@ -144,7 +144,6 @@ def main():
                         default='OFF')
 
     args = parser.parse_args()
-
     graph_manager = short_dynamic_import(expand_preset(args.preset), ignore_module_case=True)
 
     data_store = None

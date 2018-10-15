@@ -44,13 +44,11 @@ class EpisodicExperienceReplay(Memory):
         :param max_size: the maximum number of transitions or episodes to hold in the memory
         """
         super().__init__(max_size)
-
         self._buffer = [Episode()]  # list of episodes
         self.transitions = []
         self._length = 1  # the episodic replay buffer starts with a single empty episode
         self._num_transitions = 0
         self._num_transitions_in_complete_episodes = 0
-
         self.reader_writer_lock = ReaderWriterLock()
 
     def length(self, lock: bool=False) -> int:
