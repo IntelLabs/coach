@@ -150,9 +150,7 @@ class RedisSub(threading.Thread):
         self.subscriber = None
         self.agent = agent
         self.channel = channel
-        print('Before subscribe')
         self.subscriber = self.pubsub.subscribe(self.channel)
-        print('After subscribe')
 
     def run(self):
         for message in self.pubsub.listen():
