@@ -22,6 +22,8 @@ from typing import List, Union, Dict, Any, Type
 
 import numpy as np
 
+from rl_coach.utils import force_list
+
 ActionType = Union[int, float, np.ndarray, List]
 GoalType = Union[None, np.ndarray]
 ObservationType = np.ndarray
@@ -692,3 +694,79 @@ class Episode(object):
 
     def __getitem__(self, sliced):
         return self.transitions[sliced]
+
+
+"""
+Video Dumping Methods
+"""
+
+
+class VideoDumpFilter(object):
+    """
+    Method used to decide when to dump videos
+    """
+    def should_dump(self, episode_terminated=False, **kwargs):
+        raise NotImplementedError("")
+
+
+class AlwaysDumpFilter(VideoDumpFilter):
+    """
+    Dump video for every episode
+    """
+    def __init__(self):
+        super().__init__()
+
+    def should_dump(self, episode_terminated=False, **kwargs):
+        return True
+
+
+class MaxDumpFilter(VideoDumpFilter):
+    """
+    Dump video every time a new max total reward has been achieved
+    """
+    def __init__(self):
+        super().__init__()
+        self.max_reward_achieved = -np.inf
+
+    def should_dump(self, episode_terminated=False, **kwargs):
+        # if the episode has not finished yet we want to be prepared for dumping a video
+        if not episode_terminated:
+            return True
+        if kwargs['total_reward_in_current_episode'] > self.max_reward_achieved:
+            self.max_reward_achieved = kwargs['total_reward_in_current_episode']
+            return True
+        else:
+            return False
+
+
+class EveryNEpisodesDumpFilter(object):
+    """
+    Dump videos once in every N episodes
+    """
+    def __init__(self, num_episodes_between_dumps: int):
+        super().__init__()
+        self.num_episodes_between_dumps = num_episodes_between_dumps
+        self.last_dumped_episode = 0
+        if num_episodes_between_dumps < 1:
+            raise ValueError("the number of episodes between dumps should be a positive number")
+
+    def should_dump(self, episode_terminated=False, **kwargs):
+        if kwargs['episode_idx'] >= self.last_dumped_episode + self.num_episodes_between_dumps - 1:
+            self.last_dumped_episode = kwargs['episode_idx']
+            return True
+        else:
+            return False
+
+
+class SelectedPhaseOnlyDumpFilter(object):
+    """
+    Dump videos when the phase of the environment matches a predefined phase
+    """
+    def __init__(self, run_phases: Union[RunPhase, List[RunPhase]]):
+        self.run_phases = force_list(run_phases)
+
+    def should_dump(self, episode_terminated=False, **kwargs):
+        if kwargs['_phase'] in self.run_phases:
+            return True
+        else:
+            return False

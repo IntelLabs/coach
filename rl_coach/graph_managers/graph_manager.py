@@ -325,8 +325,7 @@ class GraphManager(object):
         """
         self.total_steps_counters[self.phase][EnvironmentEpisodes] += 1
 
-        # TODO: we should disentangle ending the episode from resetting the internal state
-        # self.reset_internal_state()
+        [environment.handle_episode_ended() for environment in self.environments]
 
     def train(self, steps: TrainingSteps) -> None:
         """
