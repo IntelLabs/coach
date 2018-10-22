@@ -111,7 +111,6 @@ RUN mkdir -p ~/.mujoco \
     && wget https://www.roboti.us/download/mjpro150_linux.zip -O mujoco.zip \
     && unzip mujoco.zip -d ~/.mujoco \
     && rm mujoco.zip
-COPY ./README.md ./mjkey.txt /root/.mujoco/
 ENV LD_LIBRARY_PATH /root/.mujoco/mjpro150/bin:$LD_LIBRARY_PATH
 
 RUN curl -o /usr/local/bin/patchelf https://s3-us-west-2.amazonaws.com/openai-sci-artifacts/manual-builds/patchelf_0.9_amd64.elf \
