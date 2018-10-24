@@ -1,9 +1,8 @@
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
-from rl_coach.architectures.tensorflow_components.architecture import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, RunPhase
-from rl_coach.environments.environment import MaxDumpMethod, SelectedPhaseOnlyDumpMethod, SingleLevelSelection
-from rl_coach.environments.gym_environment import Mujoco, mujoco_v2, MujocoInputFilter
+from rl_coach.environments.gym_environment import GymVectorEnvironment, mujoco_v2
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
@@ -29,8 +28,8 @@ agent_params = ClippedPPOAgentParameters()
 
 agent_params.network_wrappers['main'].learning_rate = 0.0003
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].activation_function = 'tanh'
-agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense([64])]
-agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense([64])]
+agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(64)]
+agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(64)]
 agent_params.network_wrappers['main'].middleware_parameters.activation_function = 'tanh'
 agent_params.network_wrappers['main'].batch_size = 64
 agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
@@ -45,22 +44,15 @@ agent_params.algorithm.optimization_epochs = 10
 agent_params.algorithm.estimate_state_value_using_gae = True
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(2048)
 
-# agent_params.input_filter = MujocoInputFilter()
 agent_params.exploration = EGreedyParameters()
 agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 10000)
-# agent_params.pre_network_filter = MujocoInputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
                                                        ObservationNormalizationFilter(name='normalize_observation'))
 
 ###############
 # Environment #
 ###############
-env_params = Mujoco()
-env_params.level = 'CartPole-v0'
-
-visualization_params = VisualizationParameters()
-visualization_params.video_dump_methods = [SelectedPhaseOnlyDumpMethod(RunPhase.TEST), MaxDumpMethod()]
-visualization_params.dump_mp4 = False
+env_params = GymVectorEnvironment(level='CartPole-v0')
 
 ########
 # Test #
@@ -71,5 +63,5 @@ preset_validation_params.min_reward_threshold = 150
 preset_validation_params.max_episodes_to_achieve_reward = 250
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, visualization_params=visualization_params,
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)
