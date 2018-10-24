@@ -89,15 +89,33 @@ The output filters only process the actions.
   a crop window of size 20x20 to attend to in the image. AttentionDiscretization allows discretizing the possible crop
   windows to choose into a finite number of options, and map a discrete action space into those crop windows.
 
+<p style="text-align: center;">
+
+<img src="../../img/attention_discretization.png" alt="Attention Discretization"/>
+
+</p>
+
 * **BoxDiscretization** - Discretizes a continuous action space into a discrete action space, allowing the usage of
   agents such as DQN for continuous environments such as MuJoCo. Given the number of bins to discretize into, the
   original continuous action space is uniformly separated into the given number of bins, each mapped to a discrete
   action index. For example, if the original actions space is between -1 and 1 and 5 bins were selected, the new action
   space will consist of 5 actions mapped to -1, -0.5, 0, 0.5 and 1.
 
+<p style="text-align: center;">
+
+<img src="../../img/box_discretization.png" alt="Box Discretization"/>
+
+</p>
+
 * **BoxMasking** - Masks part of the action space to enforce the agent to work in a defined space. For example,
   if the original action space is between -1 and 1, then this filter can be used in order to constrain the agent actions
   to the range 0 and 1 instead. This essentially masks the range -1 and 0 from the agent.
+
+<p style="text-align: center;">
+
+<img src="../../img/box_masking.png" alt="Box Masking"/>
+
+</p>
 
 * **PartialDiscreteActionSpaceMap** - Partial map of two countable action spaces. For example, consider an environment
   with a MultiSelect action space (select multiple actions at the same time, such as jump and go right), with 8 actual
@@ -105,12 +123,31 @@ The output filters only process the actions.
   map a discrete action space with 5 actions into the 5 selected MultiSelect actions. This will both allow the agent to
   use regular discrete actions, and mask 3 of the actions from the agent.
 
+<p style="text-align: center;">
+
+<img src="../../img/partial_discrete_action_space_map.png" alt="Partial Discrete Action Space Map"/>
+
+</p>
+
 * **FullDiscreteActionSpaceMap** - Full map of two countable action spaces. This works in a similar way to the
   PartialDiscreteActionSpaceMap, but maps the entire source action space into the entire target action space, without
   masking any actions.
+
+<p style="text-align: center;">
+
+<img src="../../img/full_discrete_action_space_map.png" alt="Full Discrete Action Space Map"/>
+
+</p>
 
 * **LinearBoxToBoxMap** - A linear mapping of two box action spaces. For example, if the action space of the
   environment consists of continuous actions between 0 and 1, and we want the agent to choose actions between -1 and 1,
   the LinearBoxToBoxMap can be used to map the range -1 and 1 to the range 0 and 1 in a linear way. This means that the
   action -1 will be mapped to 0, the action 1 will be mapped to 1, and the rest of the actions will be linearly mapped
   between those values.
+
+
+<p style="text-align: center;">
+
+<img src="../../img/linear_box_to_box_map.png" alt="Linear Box To Box Map"/>
+
+</p>

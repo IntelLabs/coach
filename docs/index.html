@@ -7,25 +7,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Reinforcement Learning Coach by Intel Nervana.">
   
-  <link rel="shortcut icon" href="./img/favicon.ico">
+  <link rel="shortcut icon" href="img/favicon.ico">
   <title>Home - Reinforcement Learning Coach</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="./css/highlight.css">
-  <link href="./extra.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="extra.css" rel="stylesheet">
   
   <script>
     // Current page data
     var mkdocs_page_name = "Home";
     var mkdocs_page_input_path = "index.md";
-    var mkdocs_page_url = "/";
+    var mkdocs_page_url = null;
   </script>
   
-  <script src="./js/jquery-2.1.1.min.js"></script>
-  <script src="./js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
 
@@ -39,7 +40,7 @@
         <a href="." class="icon icon-home"> Reinforcement Learning Coach</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
@@ -93,6 +94,17 @@
                 <li class="">
                     
     <a class="" href="design/filters/">Filters</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">API Reference</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="api_reference/agent_parameters/agent_parameters/">Agent Parameters</a>
                 </li>
     </ul>
 	    </li>
@@ -276,15 +288,14 @@ Coach collects statistics from the training process and supports advanced visual
     </span>
 </div>
     <script>var base_url = '.';</script>
-    <script src="./js/theme.js"></script>
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-      <script src="./search/require.js"></script>
-      <script src="./search/search.js"></script>
+    <script src="js/theme.js" defer></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" defer></script>
+      <script src="search/main.js" defer></script>
 
 </body>
 </html>
 
 <!--
-MkDocs version : 0.17.5
-Build Date UTC : 2018-08-09 12:14:19
+MkDocs version : 1.0.4
+Build Date UTC : 2018-10-24 19:40:45
 -->
