@@ -34,9 +34,8 @@ Contacting the Coach development team is also possible through the email [coach@
 ## Table of Contents
 
 - [Coach](#coach)
-  * [Overview](#overview)
   * [Benchmarks](#benchmarks)
-  * [Documentation](#documentation)
+  * [Documentation and Tutorials](#documentation-and-tutorials)
   * [Installation](#installation)
   * [Usage](#usage)
     + [Running Coach](#running-coach)
@@ -50,9 +49,12 @@ Contacting the Coach development team is also possible through the email [coach@
 
 One of the main challenges when building a research project, or a solution based on a published algorithm, is getting a concrete and reliable baseline that reproduces the algorithm's results, as reported by its authors. To address this problem, we are releasing a set of [benchmarks](benchmarks) that shows Coach reliably reproduces many state of the art algorithm results.
 
-## Documentation
 
-Framework documentation, algorithm description and instructions on how to contribute a new agent/environment can be found [here](https://nervanasystems.github.io/coach/).
+## Documentation and Tutorials
+
+If you are new to Coach, we highly recommend starting by going through the [Jupyter notebook tutorials](tutorials).
+
+Additional framework documentation, algorithm description and instructions on how to contribute a new agent/environment can be found [here](https://nervanasystems.github.io/coach/).
 
 
 ## Installation
