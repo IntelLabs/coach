@@ -350,7 +350,7 @@ def main():
                                          experiment_path=args.experiment_path,
                                          seed=args.seed,
                                          use_cpu=args.use_cpu,
-                                         save_checkpoint_secs=args.save_checkpoint_secs)
+                                         checkpoint_save_secs=args.checkpoint_save_secs)
         task_parameters.__dict__ = add_items_to_dict(task_parameters.__dict__, args.__dict__)
 
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
