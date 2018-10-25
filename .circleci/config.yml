@@ -1,0 +1,136 @@
+aliases:
+  - &executor_prep
+    docker:
+      - image: circleci/python:3.7.0-stretch
+    working_directory: ~/repo
+  - &remote_docker
+    # ensure layers of constructed docker containers are cached for reuse between jobs.
+    setup_remote_docker:
+      docker_layer_caching: true
+  - &restore_cache
+    restore_cache:
+      keys:
+        - v1-dependencies-{{ checksum "requirements.txt" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
+  - &save_cache
+    save_cache:
+      paths:
+        - ./venv
+      key: v1-dependencies-{{ checksum "requirements.txt" }}
+  - &aws_prep
+    run:
+      name: Prepare aws cli
+      command: |
+        sudo pip install awscli pytest kubernetes==8.0.0b1
+        export AWS_ACCESS_KEY_ID=`echo ${AWS_ACCESS_KEY_ID} | base64 --decode`
+        export AWS_SECRET_ACCESS_KEY=`echo ${AWS_SECRET_ACCESS_KEY} | base64 --decode`
+
+        $(aws ecr get-login --no-include-email --region us-west-2)
+        sudo curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
+        sudo chmod a+x /usr/local/bin/aws-iam-authenticator
+        aws eks update-kubeconfig --name coach-aws-cicd
+
+version: 2
+jobs:
+  build:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: Build and push container
+          command: |
+            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
+            TAG=$(git describe --tags --always --dirty)
+
+            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
+            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-base:${TAG} -f docker/Dockerfile.base .
+
+            docker push ${REGISTRY}/coach-base:${TAG}
+
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+
+            docker build -t ${REGISTRY}/coach:${TAG} -f docker/Dockerfile .
+            docker push ${REGISTRY}/coach:${TAG}
+          no_output_timeout: 30m
+
+  unit_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run unit tests
+          command: |
+            export AWS_ACCESS_KEY_ID=`echo ${AWS_ACCESS_KEY_ID} | base64 --decode`
+            export AWS_SECRET_ACCESS_KEY=`echo ${AWS_SECRET_ACCESS_KEY} | base64 --decode`
+            python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn unit-test -tc 'make unit_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+
+  integration_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run integration tests
+          command: |
+            export AWS_ACCESS_KEY_ID=`echo ${AWS_ACCESS_KEY_ID} | base64 --decode`
+            export AWS_SECRET_ACCESS_KEY=`echo ${AWS_SECRET_ACCESS_KEY} | base64 --decode`
+            python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn integration-test -tc 'make integration_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+
+  golden_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run golden tests
+          command: |
+            export AWS_ACCESS_KEY_ID=`echo ${AWS_ACCESS_KEY_ID} | base64 --decode`
+            export AWS_SECRET_ACCESS_KEY=`echo ${AWS_SECRET_ACCESS_KEY} | base64 --decode`
+            python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn golden-test -tc 'make golden_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+
+  trace_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run trace tests
+          command: |
+            export AWS_ACCESS_KEY_ID=`echo ${AWS_ACCESS_KEY_ID} | base64 --decode`
+            export AWS_SECRET_ACCESS_KEY=`echo ${AWS_SECRET_ACCESS_KEY} | base64 --decode`
+            python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test -tc 'make trace_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - unit_tests:
+          requires:
+            - build
+      - integration_tests:
+          requires:
+            - build
+      - e2e_approval:
+          type: approval
+          requires:
+            - build
+      - golden_tests:
+          requires:
+            - e2e_approval
+      - trace_tests:
+          requires:
+            - e2e_approval

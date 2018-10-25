@@ -20,6 +20,11 @@ RUN_ARGUMENTS+=--rm
 RUN_ARGUMENTS+=--net host
 RUN_ARGUMENTS+=-v /tmp/checkpoint:/checkpoint
 
+UNIT_TESTS=python3 -m pytest rl_coach/tests -m unit_test
+INTEGRATION_TESTS=python3 -m pytest rl_coach/tests -m integration_test -n auto --tb=short
+GOLDEN_TESTS=python3 -m pytest rl_coach/tests -m golden_test -n auto
+TRACE_TESTS=python3 rl_coach/tests/trace_tests.py -prl
+
 CONTEXT = $(realpath ..)
 
 ifndef DOCKER
@@ -35,17 +40,16 @@ shell: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} /bin/bash
 
 unit_tests: build
-	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 -m pytest rl_coach/tests -m unit_test -n 8
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} ${UNIT_TESTS} -n 8
 
 integration_tests: build
-	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 -m pytest rl_coach/tests -m integration_test -n auto --tb=short
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} ${INTEGRATION_TESTS}
 
 golden_tests: build
-	# ${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/tests/golden_tests.py
-	time ${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 -m pytest rl_coach/tests -m golden_test -n auto
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} ${GOLDEN_TESTS}
 
 trace_tests: build
-	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} python3 rl_coach/tests/trace_tests.py -prl
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} ${TRACE_TESTS}
 
 run: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE}
@@ -73,3 +77,15 @@ kubernetes: stop_kubernetes
 push: build
 	${DOCKER} tag ${IMAGE} ${REGISTRY}${IMAGE}
 	${DOCKER} push ${REGISTRY}${IMAGE}
+
+unit_tests_without_docker:
+	cd .. && ${UNIT_TESTS}
+
+integration_tests_without_docker:
+	cd .. && ${INTEGRATION_TESTS}
+
+golden_tests_without_docker:
+	cd .. && ${GOLDEN_TESTS}
+
+trace_tests_without_docker:
+	cd .. && ${TRACE_TESTS}

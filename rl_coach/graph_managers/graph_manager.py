@@ -364,7 +364,6 @@ class GraphManager(object):
             if self.agent_params.memory.memory_backend_params.run_type == "worker":
                 data_store = get_data_store(self.data_store_params)
                 data_store.load_from_store()
-
         # perform several steps of playing
         count_end = self.current_step_counter + steps
         while self.current_step_counter < count_end:

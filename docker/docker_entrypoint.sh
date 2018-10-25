@@ -16,6 +16,4 @@ set -e
 
 export VIZDOOM_ROOT=`pip show vizdoom 2>/dev/null | awk '/Location/{print $2}'`/vizdoom
 
-cd /root/src/
-
-exec "$@"
+bash -c "$@"

@@ -20,12 +20,12 @@ rl_coach.egg*
 contrib
 test_log_*
 dist
+.DS_Store
 datasets
 .cache
 .pytest_cache
 core
 trace_test*
-.DS_Store
 *.swp
 *.swo
 .cache/
