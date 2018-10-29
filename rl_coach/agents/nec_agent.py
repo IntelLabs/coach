@@ -21,10 +21,10 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.dnd_q_head import DNDQHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import DNDQHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, AgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.core_types import RunPhase, EnvironmentSteps, Episode, StateType
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters

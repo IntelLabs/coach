@@ -20,9 +20,9 @@ import numpy as np
 import scipy.signal
 
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent, PolicyGradientRescaler
-from rl_coach.architectures.tensorflow_components.heads.policy_head import PolicyHeadParameters
-from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import PolicyHeadParameters, VHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
     AgentParameters
 from rl_coach.exploration_policies.categorical import CategoricalParameters
@@ -31,7 +31,6 @@ from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 from rl_coach.utils import last_sample
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 
 class ActorCriticAlgorithmParameters(AlgorithmParameters):

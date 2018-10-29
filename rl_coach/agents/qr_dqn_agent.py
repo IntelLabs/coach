@@ -20,8 +20,7 @@ import numpy as np
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters, DQNNetworkParameters, DQNAlgorithmParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.quantile_regression_q_head import \
-    QuantileRegressionQHeadParameters
+from rl_coach.architectures.head_parameters import QuantileRegressionQHeadParameters
 from rl_coach.core_types import StateType
 from rl_coach.schedules import LinearSchedule
 

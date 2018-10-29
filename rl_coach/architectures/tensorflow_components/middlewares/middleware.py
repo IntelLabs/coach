@@ -14,27 +14,12 @@
 # limitations under the License.
 #
 import copy
-from typing import Type, Union, List
 
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import Dense, BatchnormActivationDropout
 from rl_coach.base_parameters import MiddlewareScheme, NetworkComponentParameters
 from rl_coach.core_types import MiddlewareEmbedding
-
-
-class MiddlewareParameters(NetworkComponentParameters):
-    def __init__(self, parameterized_class: Type['Middleware'],
-                 activation_function: str='relu', scheme: Union[List, MiddlewareScheme]=MiddlewareScheme.Medium,
-                 batchnorm: bool=False, dropout: bool=False, name='middleware', dense_layer=Dense, is_training=False):
-        super().__init__(dense_layer=dense_layer)
-        self.activation_function = activation_function
-        self.scheme = scheme
-        self.batchnorm = batchnorm
-        self.dropout = dropout
-        self.name = name
-        self.is_training = is_training
-        self.parameterized_class_name = parameterized_class.__name__
 
 
 class Middleware(object):
@@ -57,6 +42,8 @@ class Middleware(object):
         self.scheme = scheme
         self.return_type = MiddlewareEmbedding
         self.dense_layer = dense_layer
+        if self.dense_layer is None:
+            self.dense_layer = Dense
         self.is_training = is_training
 
         # layers order is conv -> batchnorm -> activation -> dropout

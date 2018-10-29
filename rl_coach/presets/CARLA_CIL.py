@@ -7,10 +7,10 @@ from carla.driving_benchmark.experiment_suites import CoRL2017
 from rl_coach.logger import screen
 
 from rl_coach.agents.cil_agent import CILAgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.architectures.tensorflow_components.heads.cil_head import RegressionHeadParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import RegressionHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense, BatchnormActivationDropout
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.carla_environment import CarlaEnvironmentParameters

@@ -21,14 +21,13 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.agent import Agent
+from rl_coach.architectures.head_parameters import MeasurementsPredictionHeadParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense
-from rl_coach.architectures.tensorflow_components.heads.measurements_prediction_head import \
-    MeasurementsPredictionHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, NetworkParameters, \
      MiddlewareScheme
 from rl_coach.core_types import ActionInfo, EnvironmentSteps, RunPhase
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.memories.memory import MemoryGranularity

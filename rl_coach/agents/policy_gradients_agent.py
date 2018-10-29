@@ -19,11 +19,11 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent, PolicyGradientRescaler
-from rl_coach.architectures.tensorflow_components.heads.policy_head import PolicyHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import PolicyHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.categorical import CategoricalParameters

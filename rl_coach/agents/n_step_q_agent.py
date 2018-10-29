@@ -20,10 +20,10 @@ import numpy as np
 
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.q_head import QHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import QHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, NetworkParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.core_types import EnvironmentSteps
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters

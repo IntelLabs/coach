@@ -28,35 +28,6 @@ from rl_coach.core_types import InputEmbedding
 from rl_coach.utils import force_list
 
 
-class InputEmbedderParameters(NetworkComponentParameters):
-    def __init__(self, activation_function: str='relu', scheme: Union[List, EmbedderScheme]=EmbedderScheme.Medium,
-                 batchnorm: bool=False, dropout=False, name: str='embedder', input_rescaling=None, input_offset=None,
-                 input_clipping=None, dense_layer=Dense, is_training=False):
-        super().__init__(dense_layer=dense_layer)
-        self.activation_function = activation_function
-        self.scheme = scheme
-        self.batchnorm = batchnorm
-        self.dropout = dropout
-
-        if input_rescaling is None:
-            input_rescaling = {'image': 255.0, 'vector': 1.0}
-        if input_offset is None:
-            input_offset = {'image': 0.0, 'vector': 0.0}
-
-        self.input_rescaling = input_rescaling
-        self.input_offset = input_offset
-        self.input_clipping = input_clipping
-        self.name = name
-        self.is_training = is_training
-
-    @property
-    def path(self):
-        return {
-            "image": 'image_embedder:ImageEmbedder',
-            "vector": 'vector_embedder:VectorEmbedder'
-        }
-
-
 class InputEmbedder(object):
     """
     An input embedder is the first part of the network, which takes the input from the state and produces a vector
@@ -83,6 +54,8 @@ class InputEmbedder(object):
         self.input_offset = input_offset
         self.input_clipping = input_clipping
         self.dense_layer = dense_layer
+        if self.dense_layer is None:
+            self.dense_layer = Dense
         self.is_training = is_training
 
         # layers order is conv -> batchnorm -> activation -> dropout

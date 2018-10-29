@@ -20,7 +20,7 @@ import numpy as np
 
 from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters, DQNAgentParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.categorical_q_head import CategoricalQHeadParameters
+from rl_coach.architectures.head_parameters import CategoricalQHeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import StateType
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters

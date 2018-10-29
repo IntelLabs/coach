@@ -19,21 +19,10 @@ import numpy as np
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
-from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
+from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_LSTM_Embedding
 from rl_coach.utils import force_list
-
-
-class LSTMMiddlewareParameters(MiddlewareParameters):
-    def __init__(self, activation_function='relu', number_of_lstm_cells=256,
-                 scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_lstm_embedder", dense_layer=Dense, is_training=False):
-        super().__init__(parameterized_class=LSTMMiddleware, activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer,
-                         is_training=is_training)
-        self.number_of_lstm_cells = number_of_lstm_cells
 
 
 class LSTMMiddleware(Middleware):

@@ -1,5 +1,5 @@
 from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, \
     PresetValidationParameters

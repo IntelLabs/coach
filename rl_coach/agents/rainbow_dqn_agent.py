@@ -21,8 +21,8 @@ import numpy as np
 from rl_coach.agents.categorical_dqn_agent import CategoricalDQNAlgorithmParameters, \
     CategoricalDQNAgent, CategoricalDQNAgentParameters
 from rl_coach.agents.dqn_agent import DQNNetworkParameters
-from rl_coach.architectures.tensorflow_components.heads.rainbow_q_head import RainbowQHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.head_parameters import RainbowQHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.exploration_policies.parameter_noise import ParameterNoiseParameters
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplayParameters, \
