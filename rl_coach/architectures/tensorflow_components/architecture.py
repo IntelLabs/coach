@@ -146,6 +146,14 @@ class TensorFlowArchitecture(Architecture):
             # set the fetches for training
             self._set_initial_fetch_list()
 
+    def get_model(self) -> None:
+        """
+        Constructs the model using `network_parameters` and sets `input_embedders`, `middleware`,
+        `output_heads`, `outputs`, `losses`, `total_loss`, `adaptive_learning_rate_scheme`,
+        `current_learning_rate`, and `optimizer`
+        """
+        raise NotImplementedError
+
     def _set_initial_fetch_list(self):
         """
         Create an initial list of tensors to fetch in each training iteration
