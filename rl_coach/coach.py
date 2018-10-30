@@ -93,11 +93,10 @@ def get_graph_manager_from_args(args: argparse.Namespace) -> 'GraphManager':
 
 def display_all_presets_and_exit():
     # list available presets
-    if args.list:
-        screen.log_title("Available Presets:")
-        for preset in sorted(list_all_presets()):
-            print(preset)
-        sys.exit(0)
+    screen.log_title("Available Presets:")
+    for preset in sorted(list_all_presets()):
+        print(preset)
+    sys.exit(0)
 
 def expand_preset(preset):
     if preset.lower() in [p.lower() for p in list_all_presets()]:
