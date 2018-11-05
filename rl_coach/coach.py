@@ -408,6 +408,9 @@ def main():
                         help="(flag) TensorFlow verbosity level",
                         default=3,
                         type=int)
+    parser.add_argument('--nocolor',
+                        help="(flag) Turn off color-codes in screen logging.  Ascii text only",
+                        action='store_true')
     parser.add_argument('-s', '--checkpoint_save_secs',
                         help="(int) Time in seconds between saving checkpoints of the model.",
                         default=None,
@@ -494,6 +497,9 @@ def main():
                         choices=list(RunType))
 
     args = parse_arguments(parser)
+
+    if args.nocolor:
+        screen.set_use_colors(False)
 
     graph_manager = get_graph_manager_from_args(args)
 

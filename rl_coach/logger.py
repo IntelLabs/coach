@@ -57,8 +57,26 @@ class Colors(object):
 
 # prints to screen with a prefix identifying the origin of the print
 class ScreenLogger(object):
-    def __init__(self, name):
+    def __init__(self, name, use_colors=True):
         self.name = name
+        self.set_use_colors(use_colors)
+
+    def set_use_colors(self, use_colors):
+        self._use_colors = use_colors
+        if use_colors:
+            self._prefix_success = Colors.GREEN
+            self._prefix_warning = Colors.YELLOW
+            self._prefix_error = Colors.RED
+            self._prefix_title = Colors.BG_CYAN
+            self._prefix_ask = Colors.BG_CYAN
+            self._suffix = Colors.END
+        else:
+            self._prefix_success = ""
+            self._prefix_warning = "!! "
+            self._prefix_error = "!!!! "
+            self._prefix_title = "## "
+            self._prefix_ask = ""
+            self._suffix = ""
 
     def separator(self):
         print("")
@@ -68,29 +86,35 @@ class ScreenLogger(object):
     def log(self, data):
         print(data)
 
-    def log_dict(self, dict, prefix=""):
-        str = "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
-        for k, v in dict.items():
-            str += "{}{}: {}{} ".format(Colors.BLUE, k, Colors.END, v)
-        print(str)
+    def log_dict(self, data, prefix=""):
+        if self._use_colors:
+            str = "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
+            for k, v in data.items():
+                str += "{}{}: {}{} ".format(Colors.BLUE, k, Colors.END, v)
+            print(str)
+        else:
+            logentries = []
+            for k, v in data.items():
+                logentries.append("{}={}".format(k, v))
+            logline = "{}> {}".format(prefix, ", ".join(logentries))
+            print(logline)
 
     def log_title(self, title):
-        print("{}{}{}".format(Colors.BG_CYAN, title, Colors.END))
+        print("{}{}{}".format(self._prefix_title, title, self._suffix))
 
     def success(self, text):
-        print("{}{}{}".format(Colors.GREEN, text, Colors.END))
+        print("{}{}{}".format(self._prefix_success, text, self._suffix))
 
     def warning(self, text):
-        print("{}{}{}".format(Colors.YELLOW, text, Colors.END))
+        print("{}{}{}".format(self._prefix_warning, text, self._suffix))
 
     def error(self, text, crash=True):
-        print("{}{}{}".format(Colors.RED, text, Colors.END))
+        print("{}{}{}".format(self._prefix_error, text, self._suffix))
         if crash:
-            atexit.unregister(summarize_experiment)
             exit(1)
 
     def ask_input(self, title):
-        return input("{}{}{}".format(Colors.BG_CYAN, title, Colors.END))
+        return input("{}{}{}".format(self._prefix_ask, title, self._suffix))
 
     def ask_input_with_timeout(self, title, timeout, msg_if_timeout='Timeout expired.'):
         class TimeoutExpired(Exception):
@@ -125,7 +149,7 @@ class ScreenLogger(object):
             default_answer = 'y/N'
 
         while True:
-            answer = input("{}{}{} ({})".format(Colors.BG_CYAN, title, Colors.END, default_answer))
+            answer = input("{}{}{} ({})".format(self._prefix_ask, title, self._suffix, default_answer))
             if answer == "yes" or answer == "YES" or answer == "y" or answer == "Y":
                 return True
             elif answer == "no" or answer == "NO" or answer == "n" or answer == "N":
@@ -140,7 +164,10 @@ class ScreenLogger(object):
         :param title: The new title
         :return: None
         """
-        print("\x1b]2;{}\x07".format(title))
+        if self._use_colors:
+            print("\x1b]2;{}\x07".format(title))
+        else:
+            print("Title: %s" % title)
 
 
 class BaseLogger(object):
@@ -396,6 +423,7 @@ def get_experiment_path(experiment_name, create_path=True):
             if create_path:
                 os.makedirs(experiment_path)
             return experiment_path
+
 
 global screen
 screen = ScreenLogger("")
