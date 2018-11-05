@@ -23,12 +23,15 @@ import signal
 import sys
 import threading
 import time
+import traceback
 from multiprocessing import Manager
 from subprocess import Popen
 from typing import List, Tuple
 
 import atexit
 import numpy as np
+
+from rl_coach.logger import screen
 
 killed_processes = []
 

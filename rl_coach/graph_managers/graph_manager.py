@@ -33,6 +33,7 @@ from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen, Logger
 from rl_coach.utils import set_cpu, start_shell_command_and_wait
 from rl_coach.data_stores.data_store_impl import get_data_store
+from rl_coach.orchestrators.kubernetes_orchestrator import RunType
 
 
 class ScheduleParameters(Parameters):
@@ -361,9 +362,10 @@ class GraphManager(object):
         self.verify_graph_was_created()
 
         if hasattr(self, 'data_store_params') and hasattr(self.agent_params.memory, 'memory_backend_params'):
-            if self.agent_params.memory.memory_backend_params.run_type == "worker":
+            if self.agent_params.memory.memory_backend_params.run_type == str(RunType.ROLLOUT_WORKER):
                 data_store = get_data_store(self.data_store_params)
                 data_store.load_from_store()
+
         # perform several steps of playing
         count_end = self.current_step_counter + steps
         while self.current_step_counter < count_end:

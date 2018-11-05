@@ -53,6 +53,18 @@ class EmbeddingMergerType(Enum):
     #Multiply = 3
 
 
+# DistributedCoachSynchronizationType provides the synchronization type for distributed Coach.
+# The default value is None, which means the algorithm or preset cannot be used with distributed Coach.
+class DistributedCoachSynchronizationType(Enum):
+    # In SYNC mode, the trainer waits for all the experiences to be gathered from distributed rollout workers before
+    # training a new policy and the rollout workers wait for a new policy before gathering experiences.
+    SYNC = "sync"
+
+    # In ASYNC mode, the trainer doesn't wait for any set of experiences to be gathered from distributed rollout workers
+    # and the rollout workers continously gather experiences loading new policies, whenever they become available.
+    ASYNC = "async"
+
+
 def iterable_to_items(obj):
     if isinstance(obj, dict) or isinstance(obj, OrderedDict) or isinstance(obj, types.MappingProxyType):
         items = obj.items()
@@ -153,6 +165,9 @@ class AlgorithmParameters(Parameters):
 
         # intrinsic reward
         self.scale_external_reward_by_intrinsic_reward_value = False
+
+        # Distributed Coach params
+        self.distributed_coach_synchronization_type = None
 
 
 class PresetValidationParameters(Parameters):

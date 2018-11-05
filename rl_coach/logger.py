@@ -18,7 +18,9 @@ import datetime
 import os
 import re
 import shutil
+import signal
 import time
+import uuid
 from subprocess import Popen, PIPE
 from typing import Union
 
@@ -89,6 +91,23 @@ class ScreenLogger(object):
 
     def ask_input(self, title):
         return input("{}{}{}".format(Colors.BG_CYAN, title, Colors.END))
+
+    def ask_input_with_timeout(self, title, timeout, msg_if_timeout='Timeout expired.'):
+        class TimeoutExpired(Exception):
+            pass
+
+        def timeout_alarm_handler(signum, frame):
+            raise TimeoutExpired
+
+        signal.signal(signal.SIGALRM, timeout_alarm_handler)
+        signal.alarm(timeout)
+
+        try:
+            return input("{}{}{}".format(Colors.BG_CYAN, title, Colors.END))
+        except TimeoutExpired:
+            self.warning(msg_if_timeout)
+        finally:
+            signal.alarm(0)
 
     def ask_yes_no(self, title: str, default: Union[None, bool] = None):
         """
@@ -333,9 +352,13 @@ def get_experiment_name(initial_experiment_name=''):
     match = None
     while match is None:
         if initial_experiment_name == '':
-            experiment_name = screen.ask_input("Please enter an experiment name: ")
+            msg_if_timeout = "Timeout waiting for experiement name."
+            experiment_name = screen.ask_input_with_timeout("Please enter an experiment name: ", 60, msg_if_timeout)
         else:
             experiment_name = initial_experiment_name
+
+        if not experiment_name:
+            experiment_name = ''
 
         experiment_name = experiment_name.replace(" ", "_")
         match = re.match("^$|^[\w -/]{1,1000}$", experiment_name)
