@@ -14,10 +14,11 @@
 # limitations under the License.
 #
 import copy
+from typing import Union
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import Dense, BatchnormActivationDropout
+from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
 from rl_coach.base_parameters import MiddlewareScheme, NetworkComponentParameters
 from rl_coach.core_types import MiddlewareEmbedding
 
@@ -50,7 +51,9 @@ class Middleware(object):
         if isinstance(self.scheme, MiddlewareScheme):
             self.layers_params = copy.copy(self.schemes[self.scheme])
         else:
-            self.layers_params = copy.copy(self.scheme)
+            # if scheme is specified directly, convert to TF layer if it's not a callable object
+            # NOTE: if layer object is callable, it must return a TF tensor when invoked
+            self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
 
         # we allow adding batchnorm, dropout or activation functions after each layer.
         # The motivation is to simplify the transition between a network with batchnorm and a network without

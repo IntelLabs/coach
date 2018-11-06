@@ -20,8 +20,7 @@ import copy
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense, \
-    BatchnormActivationDropout
+from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
 from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
 
 from rl_coach.core_types import InputEmbedding
@@ -62,7 +61,9 @@ class InputEmbedder(object):
         if isinstance(self.scheme, EmbedderScheme):
             self.layers_params = copy.copy(self.schemes[self.scheme])
         else:
-            self.layers_params = copy.copy(self.scheme)
+            # if scheme is specified directly, convert to TF layer if it's not a callable object
+            # NOTE: if layer object is callable, it must return a TF tensor when invoked
+            self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
 
         # we allow adding batchnorm, dropout or activation functions after each layer.
         # The motivation is to simplify the transition between a network with batchnorm and a network without

@@ -1,5 +1,5 @@
 from rl_coach.agents.ppo_agent import PPOAgentParameters
-from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.architectures.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection
