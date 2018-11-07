@@ -139,7 +139,7 @@ class EpisodicHindsightExperienceReplay(EpisodicExperienceReplay):
                 hindsight_transition.reward, hindsight_transition.game_over = \
                     self.goals_space.get_reward_for_goal_and_state(goal, hindsight_transition.next_state)
 
-                hindsight_transition.total_return = None
+                hindsight_transition.n_step_discounted_rewards = None
                 episode.insert(hindsight_transition)
 
         super().store_episode(episode)

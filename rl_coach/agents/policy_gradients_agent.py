@@ -74,7 +74,7 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
         # batch contains a list of episodes to learn from
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
-        total_returns = batch.total_returns()
+        total_returns = batch.n_step_discounted_rewards()
         for i in reversed(range(batch.size)):
             if self.policy_gradient_rescaler == PolicyGradientRescaler.TOTAL_RETURN:
                 total_returns[i] = total_returns[0]

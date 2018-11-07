@@ -98,10 +98,10 @@ class NECAgent(ValueOptimizationAgent):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
         TD_targets = self.networks['main'].online_network.predict(batch.states(network_keys))
-
+        bootstrapped_return_from_old_policy = batch.n_step_discounted_rewards()
         #  only update the action that we have actually done in this transition
         for i in range(self.ap.network_wrappers['main'].batch_size):
-            TD_targets[i, batch.actions()[i]] = batch.total_returns()[i]
+            TD_targets[i, batch.actions()[i]] = bootstrapped_return_from_old_policy[i]
 
         # set the gradients to fetch for the DND update
         fetches = []
@@ -165,10 +165,10 @@ class NECAgent(ValueOptimizationAgent):
         episode = self.call_memory('get_last_complete_episode')
         if episode is not None and self.phase != RunPhase.TEST:
             assert len(self.current_episode_state_embeddings) == episode.length()
-            returns = episode.get_transitions_attribute('total_return')
+            discounted_rewards = episode.get_transitions_attribute('n_step_discounted_rewards')
             actions = episode.get_transitions_attribute('action')
             self.networks['main'].online_network.output_heads[0].DND.add(self.current_episode_state_embeddings,
-                                                                         actions, returns)
+                                                                         actions, discounted_rewards)
 
     def save_checkpoint(self, checkpoint_id):
         with open(os.path.join(self.ap.task_parameters.checkpoint_save_dir, str(checkpoint_id) + '.dnd'), 'wb') as f:
