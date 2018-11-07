@@ -94,7 +94,7 @@ def create_monitored_session(target: tf.train.Server, task_index: int,
         is_chief=is_chief,
         hooks=[],
         checkpoint_dir=checkpoint_dir,
-        checkpoint_save_secs=checkpoint_save_secs,
+        save_checkpoint_secs=checkpoint_save_secs,
         config=config
     )
 

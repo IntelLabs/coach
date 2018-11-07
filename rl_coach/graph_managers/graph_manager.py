@@ -100,6 +100,8 @@ class GraphManager(object):
         self.preset_validation_params = PresetValidationParameters()
         self.reset_required = False
 
+        # timers
+        self.graph_creation_time = None
         self.last_checkpoint_saving_time = time.time()
 
         # counters
@@ -520,6 +522,8 @@ class GraphManager(object):
             self.save_checkpoint()
 
     def save_checkpoint(self):
+        if self.task_parameters.checkpoint_save_dir is None:
+            self.task_parameters.checkpoint_save_dir = os.path.join(self.task_parameters.experiment_path, 'checkpoint')
         checkpoint_path = os.path.join(self.task_parameters.checkpoint_save_dir,
                                        "{}_Step-{}.ckpt".format(
                                            self.checkpoint_id,
