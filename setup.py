@@ -68,6 +68,17 @@ if not using_GPU:
 else:
     install_requires.append('tensorflow-gpu==1.9.0')
 
+# Framework-specific dependencies.
+extras = {
+  'mxnet': ['mxnet-cu90mkl>=1.3.0']
+}
+
+all_deps = []
+for group_name in extras:
+    all_deps += extras[group_name]
+extras['all'] = all_deps
+
+
 setup(
     name='rl-coach',
     version='0.10.0',
@@ -78,6 +89,7 @@ setup(
     packages=find_packages(),
     python_requires=">=3.5.*",
     install_requires=install_requires,
+    extras_require=extras,
     package_data={'rl_coach': ['dashboard_components/*.css',
                                'environments/doom/*.cfg',
                                'environments/doom/*.wad',

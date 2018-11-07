@@ -49,8 +49,8 @@ agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoach
 
 agent_params.exploration = EGreedyParameters()
 agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 10000)
-agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
-                                                       ObservationNormalizationFilter(name='normalize_observation'))
+# agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
+#                                                        ObservationNormalizationFilter(name='normalize_observation'))
 
 ###############
 # Environment #
