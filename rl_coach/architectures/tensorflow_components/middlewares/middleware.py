@@ -31,15 +31,14 @@ class Middleware(object):
     """
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False, name="middleware_embedder", dense_layer=Dense,
+                 batchnorm: bool = False, dropout_rate: float = 0.0, name="middleware_embedder", dense_layer=Dense,
                  is_training=False):
         self.name = name
         self.input = None
         self.output = None
         self.activation_function = activation_function
         self.batchnorm = batchnorm
-        self.dropout = dropout
-        self.dropout_rate = 0
+        self.dropout_rate = dropout_rate
         self.scheme = scheme
         self.return_type = MiddlewareEmbedding
         self.dense_layer = dense_layer
@@ -58,7 +57,7 @@ class Middleware(object):
         # we allow adding batchnorm, dropout or activation functions after each layer.
         # The motivation is to simplify the transition between a network with batchnorm and a network without
         # batchnorm to a single flag (the same applies to activation function and dropout)
-        if self.batchnorm or self.activation_function or self.dropout:
+        if self.batchnorm or self.activation_function or self.dropout_rate > 0:
             for layer_idx in reversed(range(len(self.layers_params))):
                 self.layers_params.insert(layer_idx+1,
                                           BatchnormActivationDropout(batchnorm=self.batchnorm,

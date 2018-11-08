@@ -34,15 +34,14 @@ class InputEmbedder(object):
     can be multiple embedders in a single network
     """
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
-                 scheme: EmbedderScheme=None, batchnorm: bool=False, dropout: bool=False,
+                 scheme: EmbedderScheme=None, batchnorm: bool=False, dropout_rate: float=0.0,
                  name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense,
                  is_training=False):
         self.name = name
         self.input_size = input_size
         self.activation_function = activation_function
         self.batchnorm = batchnorm
-        self.dropout = dropout
-        self.dropout_rate = 0
+        self.dropout_rate = dropout_rate
         self.input = None
         self.output = None
         self.scheme = scheme
@@ -68,7 +67,7 @@ class InputEmbedder(object):
         # we allow adding batchnorm, dropout or activation functions after each layer.
         # The motivation is to simplify the transition between a network with batchnorm and a network without
         # batchnorm to a single flag (the same applies to activation function and dropout)
-        if self.batchnorm or self.activation_function or self.dropout:
+        if self.batchnorm or self.activation_function or self.dropout_rate > 0:
             for layer_idx in reversed(range(len(self.layers_params))):
                 self.layers_params.insert(layer_idx+1,
                                           BatchnormActivationDropout(batchnorm=self.batchnorm,

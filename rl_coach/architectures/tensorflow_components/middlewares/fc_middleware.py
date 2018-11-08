@@ -27,10 +27,11 @@ from rl_coach.utils import force_list
 class FCMiddleware(Middleware):
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False,
+                 batchnorm: bool = False, dropout_rate: float = 0.0,
                  name="middleware_fc_embedder", dense_layer=Dense, is_training=False):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
-                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer, is_training=is_training)
+                         dropout_rate=dropout_rate, scheme=scheme, name=name, dense_layer=dense_layer,
+                         is_training=is_training)
         self.return_type = Middleware_FC_Embedding
         self.layers = []
 

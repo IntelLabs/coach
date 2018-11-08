@@ -39,8 +39,8 @@ class InputEmbedder(nn.HybridBlock):
                     self.net.add(nn.BatchNorm())
                 if params.activation_function:
                     self.net.add(nn.Activation(params.activation_function))
-                if params.dropout:
-                    self.net.add(nn.Dropout(rate=params.dropout))
+                if params.dropout_rate:
+                    self.net.add(nn.Dropout(rate=params.dropout_rate))
 
     @property
     def schemes(self) -> dict:

@@ -22,12 +22,12 @@ from rl_coach.base_parameters import MiddlewareScheme, NetworkComponentParameter
 class MiddlewareParameters(NetworkComponentParameters):
     def __init__(self, parameterized_class_name: str,
                  activation_function: str='relu', scheme: Union[List, MiddlewareScheme]=MiddlewareScheme.Medium,
-                 batchnorm: bool=False, dropout: bool=False, name='middleware', dense_layer=None, is_training=False):
+                 batchnorm: bool=False, dropout_rate: float=0.0, name='middleware', dense_layer=None, is_training=False):
         super().__init__(dense_layer=dense_layer)
         self.activation_function = activation_function
         self.scheme = scheme
         self.batchnorm = batchnorm
-        self.dropout = dropout
+        self.dropout_rate = dropout_rate
         self.name = name
         self.is_training = is_training
         self.parameterized_class_name = parameterized_class_name
@@ -36,19 +36,19 @@ class MiddlewareParameters(NetworkComponentParameters):
 class FCMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu',
                  scheme: Union[List, MiddlewareScheme] = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False,
+                 batchnorm: bool = False, dropout_rate: float = 0.0,
                  name="middleware_fc_embedder", dense_layer=None, is_training=False):
         super().__init__(parameterized_class_name="FCMiddleware", activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer,
+                         scheme=scheme, batchnorm=batchnorm, dropout_rate=dropout_rate, name=name, dense_layer=dense_layer,
                          is_training=is_training)
 
 
 class LSTMMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu', number_of_lstm_cells=256,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False,
+                 batchnorm: bool = False, dropout_rate: float = 0.0,
                  name="middleware_lstm_embedder", dense_layer=None, is_training=False):
         super().__init__(parameterized_class_name="LSTMMiddleware", activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer,
+                         scheme=scheme, batchnorm=batchnorm, dropout_rate=dropout_rate, name=name, dense_layer=dense_layer,
                          is_training=is_training)
         self.number_of_lstm_cells = number_of_lstm_cells
