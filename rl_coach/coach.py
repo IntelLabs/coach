@@ -535,7 +535,8 @@ def main():
             use_cpu=args.use_cpu,
             checkpoint_save_secs=args.checkpoint_save_secs,
             checkpoint_restore_dir=args.checkpoint_restore_dir,
-            checkpoint_save_dir=args.checkpoint_save_dir
+            checkpoint_save_dir=args.checkpoint_save_dir,
+            export_onnx_graph=args.export_onnx_graph
         )
 
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
@@ -574,7 +575,8 @@ def main():
                 seed=args.seed+task_index if args.seed is not None else None,  # each worker gets a different seed
                 checkpoint_save_secs=args.checkpoint_save_secs,
                 checkpoint_restore_dir=args.checkpoint_restore_dir,
-                checkpoint_save_dir=args.checkpoint_save_dir
+                checkpoint_save_dir=args.checkpoint_save_dir,
+                export_onnx_graph=args.export_onnx_graph
             )
 
             # we assume that only the evaluation workers are rendering
