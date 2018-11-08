@@ -195,7 +195,7 @@ class GraphManager(object):
     @staticmethod
     def create_worker_or_parameters_server(task_parameters: DistributedTaskParameters):
         if task_parameters.framework_type == Frameworks.tensorflow:
-            GraphManager._create_worker_or_parameters_server_tf(task_parameters)
+            return GraphManager._create_worker_or_parameters_server_tf(task_parameters)
         elif task_parameters.framework_type == Frameworks.mxnet:
             raise NotImplementedError('Distributed training not implemented for MXNet')
         else:
