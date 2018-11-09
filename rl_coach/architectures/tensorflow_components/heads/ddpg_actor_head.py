@@ -46,9 +46,12 @@ class DDPGActor(Head):
     def _build_module(self, input_layer):
         # mean
         pre_activation_policy_values_mean = self.dense_layer(self.num_actions)(input_layer, name='fc_mean')
-        policy_values_mean = batchnorm_activation_dropout(pre_activation_policy_values_mean, self.batchnorm,
-                                                          self.activation_function,
-                                                          False, 0, is_training=False, name="BatchnormActivationDropout_0")[-1]
+        policy_values_mean = batchnorm_activation_dropout(input_layer=pre_activation_policy_values_mean,
+                                                          batchnorm=self.batchnorm,
+                                                          activation_function=self.activation_function,
+                                                          dropout_rate=0,
+                                                          is_training=False,
+                                                          name="BatchnormActivationDropout_0")[-1]
         self.policy_mean = tf.multiply(policy_values_mean, self.output_scale, name='output_mean')
 
         if self.is_local:
