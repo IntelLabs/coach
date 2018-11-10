@@ -18,7 +18,12 @@ import os
 import pickle
 
 import numpy as np
-from annoy import AnnoyIndex
+try:
+    import annoy
+    from annoy import AnnoyIndex
+except ImportError:
+    from rl_coach.logger import failed_imports
+    failed_imports.append("annoy")
 
 
 class AnnoyDictionary(object):
