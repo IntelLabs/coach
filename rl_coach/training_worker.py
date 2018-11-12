@@ -40,8 +40,9 @@ def training_worker(graph_manager, checkpoint_dir):
             graph_manager.phase = core_types.RunPhase.UNDEFINED
 
             if steps * graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps > graph_manager.steps_between_evaluation_periods.num_steps * eval_offset:
-                graph_manager.evaluate(graph_manager.evaluation_steps)
                 eval_offset += 1
+                if graph_manager.evaluate(graph_manager.evaluation_steps):
+                    break
 
             if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
                 graph_manager.save_checkpoint()

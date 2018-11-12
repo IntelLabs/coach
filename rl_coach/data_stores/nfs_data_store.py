@@ -58,7 +58,7 @@ class NFSDataStore(DataStore):
         pass
 
     def deploy_k8s_nfs(self) -> bool:
-        name = "nfs-server"
+        name = "nfs-server-{}".format(uuid.uuid4())
         container = k8sclient.V1Container(
             name=name,
             image="k8s.gcr.io/volume-nfs:0.8",
@@ -83,7 +83,7 @@ class NFSDataStore(DataStore):
             security_context=k8sclient.V1SecurityContext(privileged=True)
         )
         template = k8sclient.V1PodTemplateSpec(
-            metadata=k8sclient.V1ObjectMeta(labels={'app': 'nfs-server'}),
+            metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
             spec=k8sclient.V1PodSpec(
                 containers=[container],
                 volumes=[k8sclient.V1Volume(
@@ -96,14 +96,14 @@ class NFSDataStore(DataStore):
             replicas=1,
             template=template,
             selector=k8sclient.V1LabelSelector(
-                match_labels={'app': 'nfs-server'}
+                match_labels={'app': name}
             )
         )
 
         deployment = k8sclient.V1Deployment(
             api_version='apps/v1',
             kind='Deployment',
-            metadata=k8sclient.V1ObjectMeta(name=name, labels={'app': 'nfs-server'}),
+            metadata=k8sclient.V1ObjectMeta(name=name, labels={'app': name}),
             spec=deployment_spec
         )
 
@@ -117,7 +117,7 @@ class NFSDataStore(DataStore):
 
         k8s_core_v1_api_client = k8sclient.CoreV1Api()
 
-        svc_name = "nfs-service"
+        svc_name = "nfs-service-{}".format(uuid.uuid4())
         service = k8sclient.V1Service(
             api_version='v1',
             kind='Service',
@@ -145,7 +145,7 @@ class NFSDataStore(DataStore):
         return True
 
     def create_k8s_nfs_resources(self) -> bool:
-        pv_name = "nfs-ckpt-pv"
+        pv_name = "nfs-ckpt-pv-{}".format(uuid.uuid4())
         persistent_volume = k8sclient.V1PersistentVolume(
             api_version="v1",
             kind="PersistentVolume",
@@ -171,7 +171,7 @@ class NFSDataStore(DataStore):
             print("Got exception: %s\n while creating the NFS PV", e)
             return False
 
-        pvc_name = "nfs-ckpt-pvc"
+        pvc_name = "nfs-ckpt-pvc-{}".format(uuid.uuid4())
         persistent_volume_claim = k8sclient.V1PersistentVolumeClaim(
             api_version="v1",
             kind="PersistentVolumeClaim",

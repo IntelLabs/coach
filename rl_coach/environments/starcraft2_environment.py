@@ -107,14 +107,14 @@ class StarCraft2EnvironmentParameters(EnvironmentParameters):
 # Environment
 class StarCraft2Environment(Environment):
     def __init__(self, level: LevelSelection, frame_skip: int, visualization_parameters: VisualizationParameters,
-                 seed: Union[None, int]=None, human_control: bool=False,
+                 target_success_rate: float=1.0, seed: Union[None, int]=None, human_control: bool=False,
                  custom_reward_threshold: Union[int, float]=None,
                  screen_size: int=84, minimap_size: int=64,
                  feature_minimap_maps_to_use: List=range(7), feature_screen_maps_to_use: List=range(17),
                  observation_type: StarcraftObservationType=StarcraftObservationType.Features,
                  disable_fog: bool=False, auto_select_all_army: bool=True,
                  use_full_action_space: bool=False, **kwargs):
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters)
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
 
         self.screen_size = screen_size
         self.minimap_size = minimap_size
@@ -163,11 +163,11 @@ class StarCraft2Environment(Environment):
 
         """
         feature_screen:  [height_map, visibility_map, creep, power, player_id, player_relative, unit_type, selected,
-                          unit_hit_points, unit_hit_points_ratio, unit_energy, unit_energy_ratio, unit_shields, 
+                          unit_hit_points, unit_hit_points_ratio, unit_energy, unit_energy_ratio, unit_shields,
                           unit_shields_ratio, unit_density, unit_density_aa, effects]
         feature_minimap: [height_map, visibility_map, creep, camera, player_id, player_relative, selecte
         d]
-        player:          [player_id, minerals, vespene, food_cap, food_army, food_workers, idle_worker_dount, 
+        player:          [player_id, minerals, vespene, food_cap, food_army, food_workers, idle_worker_dount,
                           army_count, warp_gate_count, larva_count]
         """
         self.screen_shape = np.array(self.env.observation_spec()[0]['feature_screen'])
@@ -191,6 +191,8 @@ class StarCraft2Environment(Environment):
         else:
             self.action_space = BoxActionSpace(2, 0, self.screen_size - 1, ["X-Axis, Y-Axis"],
                                                default_action=np.array([self.screen_size/2, self.screen_size/2]))
+
+        self.target_success_rate = target_success_rate
 
     def _update_state(self):
         timestep = 0
@@ -244,3 +246,6 @@ class StarCraft2Environment(Environment):
         self.env._run_config.replay_dir = experiment_path
         self.env.save_replay('replays')
         super().dump_video_of_last_episode()
+
+    def get_target_success_rate(self):
+        return self.target_success_rate

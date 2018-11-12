@@ -133,8 +133,8 @@ class CarlaEnvironment(Environment):
                  allow_braking: bool, quality: CarlaEnvironmentParameters.Quality,
                  cameras: List[CameraTypes], weather_id: List[int], experiment_path: str,
                  separate_actions_for_throttle_and_brake: bool,
-                 num_speedup_steps: int, max_speed: float, **kwargs):
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters)
+                 num_speedup_steps: int, max_speed: float, target_success_rate: float = 1.0, **kwargs):
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
 
         # server configuration
         self.server_height = server_height
@@ -260,6 +260,8 @@ class CarlaEnvironment(Environment):
         if self.is_rendered:
             image = self.get_rendered_image()
             self.renderer.create_screen(image.shape[1], image.shape[0])
+
+        self.target_success_rate = target_success_rate
 
     def _add_cameras(self, settings, cameras, camera_width, camera_height):
         # add a front facing camera
@@ -461,3 +463,6 @@ class CarlaEnvironment(Environment):
         image = [self.state[camera.name] for camera in self.scene.sensors]
         image = np.vstack(image)
         return image
+
+    def get_target_success_rate(self) -> float:
+        return self.target_success_rate

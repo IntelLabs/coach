@@ -103,6 +103,9 @@ class EnvironmentParameters(Parameters):
         self.default_output_filter = None
         self.experiment_path = None
 
+        # Set target reward and target_success if present
+        self.target_success_rate = 1.0
+
     @property
     def path(self):
         return 'rl_coach.environments.environment:Environment'
@@ -111,7 +114,7 @@ class EnvironmentParameters(Parameters):
 class Environment(EnvironmentInterface):
     def __init__(self, level: LevelSelection, seed: int, frame_skip: int, human_control: bool,
                  custom_reward_threshold: Union[int, float], visualization_parameters: VisualizationParameters,
-                 **kwargs):
+                 target_success_rate: float=1.0, **kwargs):
         """
         :param level: The environment level. Each environment can have multiple levels
         :param seed: a seed for the random number generator of the environment
@@ -165,6 +168,9 @@ class Environment(EnvironmentInterface):
         self.visualization_parameters = visualization_parameters
         if not self.native_rendering:
             self.renderer = Renderer()
+
+        # Set target reward and target_success if present
+        self.target_success_rate = target_success_rate
 
     @property
     def action_space(self) -> Union[List[ActionSpace], ActionSpace]:
@@ -469,3 +475,5 @@ class Environment(EnvironmentInterface):
         """
         return np.transpose(self.state['observation'], [1, 2, 0])
 
+    def get_target_success_rate(self) -> float:
+        return self.target_success_rate

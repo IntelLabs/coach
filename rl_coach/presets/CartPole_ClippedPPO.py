@@ -56,6 +56,10 @@ agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 10000)
 # Environment #
 ###############
 env_params = GymVectorEnvironment(level='CartPole-v0')
+env_params.custom_reward_threshold = 200
+# Set the target success
+env_params.target_success_rate = 1.0
+
 
 ########
 # Test #

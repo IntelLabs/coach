@@ -263,3 +263,6 @@ class LevelManager(EnvironmentInterface):
 
     def should_train(self) -> bool:
         return any([agent._should_train_helper() for agent in self.agents.values()])
+
+    def should_stop(self) -> bool:
+        return all([agent.get_success_rate() >= self.environment.get_target_success_rate() for agent in self.agents.values()])

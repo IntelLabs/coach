@@ -842,7 +842,5 @@ class Agent(AgentInterface):
         for network in self.networks.values():
             network.sync()
 
-
-
-
-
+    def get_success_rate(self) -> float:
+        return self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed

@@ -168,7 +168,7 @@ class AlgorithmParameters(Parameters):
 
         # n-step returns
         self.n_step = -1  # calculate the total return (no bootstrap, by default)
-      
+
         # Distributed Coach params
         self.distributed_coach_synchronization_type = None
 

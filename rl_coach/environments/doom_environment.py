@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -124,8 +124,8 @@ class DoomEnvironment(Environment):
 
     def __init__(self, level: LevelSelection, seed: int, frame_skip: int, human_control: bool,
                  custom_reward_threshold: Union[int, float], visualization_parameters: VisualizationParameters,
-                 cameras: List[CameraTypes], **kwargs):
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters)
+                 cameras: List[CameraTypes], target_success_rate: float=1.0, **kwargs):
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
 
         self.cameras = cameras
 
@@ -196,6 +196,8 @@ class DoomEnvironment(Environment):
             image = self.get_rendered_image()
             self.renderer.create_screen(image.shape[1], image.shape[0])
 
+        self.target_success_rate = target_success_rate
+
     def _update_state(self):
         # extract all data from the current state
         state = self.game.get_state()
@@ -227,3 +229,6 @@ class DoomEnvironment(Environment):
         image = [self.state[camera.value[0]] for camera in self.cameras]
         image = np.vstack(image)
         return image
+
+    def get_target_success_rate(self) -> float:
+        return self.target_success_rate
