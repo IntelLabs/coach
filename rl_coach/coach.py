@@ -663,6 +663,10 @@ class CoachLauncher(object):
             evaluation_worker.terminate()
 
 
-if __name__ == "__main__":
+def main():
     launcher = CoachLauncher()
     launcher.launch()
+
+
+if __name__ == "__main__":
+    main()
