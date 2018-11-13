@@ -310,7 +310,7 @@ class PPOAgent(ActorCriticAgent):
         # clean memory
         self.call_memory('clean')
 
-    def _should_train_helper(self):
+    def _should_train_helper(self, wait_for_full_episode=True):
         return super()._should_train_helper(True)
 
     def train(self):

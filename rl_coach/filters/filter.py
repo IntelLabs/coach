@@ -46,10 +46,11 @@ class Filter(object):
         """
         raise NotImplementedError("")
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None) -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
+        :param memory_backend_params: parameters associated with the memory backend
         :return: None
         """
         pass
@@ -84,13 +85,13 @@ class OutputFilter(Filter):
         duplicate.i_am_a_reference_filter = False
         return duplicate
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None) -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
         :return: None
         """
-        [f.set_device(device) for f in self.action_filters.values()]
+        [f.set_device(device, memory_backend_params) for f in self.action_filters.values()]
 
     def set_session(self, sess) -> None:
         """
@@ -225,14 +226,14 @@ class InputFilter(Filter):
         duplicate.i_am_a_reference_filter = False
         return duplicate
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None) -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
         :return: None
         """
-        [f.set_device(device) for f in self.reward_filters.values()]
-        [[f.set_device(device) for f in filters.values()] for filters in self.observation_filters.values()]
+        [f.set_device(device, memory_backend_params) for f in self.reward_filters.values()]
+        [[f.set_device(device, memory_backend_params) for f in filters.values()] for filters in self.observation_filters.values()]
 
     def set_session(self, sess) -> None:
         """

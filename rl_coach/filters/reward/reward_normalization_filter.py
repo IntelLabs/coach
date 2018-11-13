@@ -38,13 +38,14 @@ class RewardNormalizationFilter(RewardFilter):
         self.clip_max = clip_max
         self.running_rewards_stats = None
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None) -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
         :return: None
         """
-        self.running_rewards_stats = SharedRunningStats(device, name='rewards_stats')
+        self.running_rewards_stats = SharedRunningStats(device, name='rewards_stats',
+                                                        pubsub_params=memory_backend_params)
 
     def set_session(self, sess) -> None:
         """

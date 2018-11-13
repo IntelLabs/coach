@@ -41,13 +41,14 @@ class ObservationNormalizationFilter(ObservationFilter):
         self.supports_batching = True
         self.observation_space = None
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None) -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
         :return: None
         """
-        self.running_observation_stats = SharedRunningStats(device, name=self.name, create_ops=False)
+        self.running_observation_stats = SharedRunningStats(device, name=self.name, create_ops=False,
+                                                            pubsub_params=memory_backend_params)
 
     def set_session(self, sess) -> None:
         """

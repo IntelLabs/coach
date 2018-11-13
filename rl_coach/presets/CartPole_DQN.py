@@ -1,5 +1,5 @@
 from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters, DistributedCoachSynchronizationType
+from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.gym_environment import GymVectorEnvironment
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager

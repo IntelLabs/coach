@@ -5,7 +5,6 @@ from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentS
 from rl_coach.environments.gym_environment import GymVectorEnvironment, mujoco_v2
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
-from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
@@ -49,8 +48,6 @@ agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoach
 
 agent_params.exploration = EGreedyParameters()
 agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 10000)
-# agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
-#                                                        ObservationNormalizationFilter(name='normalize_observation'))
 
 ###############
 # Environment #

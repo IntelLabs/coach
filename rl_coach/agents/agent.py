@@ -112,9 +112,14 @@ class Agent(AgentInterface):
         self.output_filter = self.ap.output_filter
         self.pre_network_filter = self.ap.pre_network_filter
         device = self.replicated_device if self.replicated_device else self.worker_device
-        self.input_filter.set_device(device)
-        self.output_filter.set_device(device)
-        self.pre_network_filter.set_device(device)
+        if hasattr(self.ap.memory, 'memory_backend_params') and self.ap.algorithm.distributed_coach_synchronization_type:
+            self.input_filter.set_device(device, memory_backend_params=self.ap.memory.memory_backend_params)
+            self.output_filter.set_device(device, memory_backend_params=self.ap.memory.memory_backend_params)
+            self.pre_network_filter.set_device(device, memory_backend_params=self.ap.memory.memory_backend_params)
+        else:
+            self.input_filter.set_device(device)
+            self.output_filter.set_device(device)
+            self.pre_network_filter.set_device(device)
 
         # initialize all internal variables
         self._phase = RunPhase.HEATUP
