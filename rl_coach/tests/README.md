@@ -9,11 +9,12 @@ several parts, each testing the framework in different areas and strictness.
 * **Docker** -
     
     The docker image we supply checks Coach in terms of installation process, and verifies that all the components
-    are installed correctly. To build the Docke, use the command:
+    are installed correctly. To build the Docker image, use the command:
     
     ```
-    docker build . -t coach
-    docker run -it coach /bin/bash
+    cd docker
+    make build_base && make build
+    make run
     ```
     
 
@@ -45,7 +46,7 @@ several parts, each testing the framework in different areas and strictness.
     The golden tests can be run using the following command:
     
     ```
-    python3 rl_coach/tests/golden_tests.py
+    python3 rl_coach/tests/test_golden.py
     ```
 
 * **Trace tests** -

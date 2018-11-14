@@ -132,8 +132,12 @@ class DoomEnvironment(Environment):
         # load the emulator with the required level
         self.level = DoomLevel[level.upper()]
         local_scenarios_path = path.join(os.path.dirname(os.path.realpath(__file__)), 'doom')
-        self.scenarios_dir = local_scenarios_path if 'COACH_LOCAL' in level \
-            else path.join(environ.get('VIZDOOM_ROOT'), 'scenarios')
+        if 'COACH_LOCAL' in level:
+            self.scenarios_dir = local_scenarios_path
+        elif 'VIZDOOM_ROOT' in environ:
+            self.scenarios_dir = path.join(environ.get('VIZDOOM_ROOT'), 'scenarios')
+        else:
+            self.scenarios_dir = path.join(os.path.dirname(os.path.realpath(vizdoom.__file__)), 'scenarios')
 
         self.game = vizdoom.DoomGame()
         self.game.load_config(path.join(self.scenarios_dir, self.level.value))

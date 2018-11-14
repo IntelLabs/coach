@@ -1,5 +1,6 @@
 # Coach
 
+[![CircleCI](https://circleci.com/gh/IntelAI/coach-aws.svg?style=svg&circle-token=e2b3ca534b4956baff8b66459faf0f796117e803)](https://circleci.com/gh/IntelAI/coach-aws)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/NervanaSystems/coach/blob/master/LICENSE)
 [![Docs](https://readthedocs.org/projects/carla/badge/?version=latest)](https://nervanasystems.github.io/coach/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)

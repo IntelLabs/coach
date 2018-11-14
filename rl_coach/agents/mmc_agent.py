@@ -64,7 +64,7 @@ class MixedMonteCarloAgent(ValueOptimizationAgent):
             one_step_target = batch.rewards()[i] + \
                               (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * \
                               q_st_plus_1[i][selected_actions[i]]
-            monte_carlo_target = total_returns()[i]
+            monte_carlo_target = total_returns[i]
             TD_targets[i, batch.actions()[i]] = (1 - self.mixing_rate) * one_step_target + \
                                                 self.mixing_rate * monte_carlo_target
 

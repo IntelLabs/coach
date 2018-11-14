@@ -94,14 +94,13 @@ def collect_presets():
             yield preset_name
 
 
-print(list(collect_presets()))
 @pytest.fixture(params=list(collect_presets()))
 def preset_name(request):
     return request.param
 
 
 @pytest.mark.golden_test
-def test_preset_reward(preset_name, no_progress_bar=False, time_limit=60 * 60):
+def test_preset_reward(preset_name, no_progress_bar=False, time_limit=60 * 60, verbose=False):
     preset_validation_params = validation_params(preset_name)
 
     win_size = 10
@@ -200,12 +199,12 @@ def test_preset_reward(preset_name, no_progress_bar=False, time_limit=60 * 60):
     else:
         if time.time() - start_time > time_limit:
             screen.error("Failed due to exceeding time limit", crash=False)
-            if args.verbose:
+            if verbose:
                 screen.error("command exitcode: {}".format(p.returncode), crash=False)
                 screen.error(open(log_file_name).read(), crash=False)
         elif csv_paths:
             screen.error("Failed due to insufficient reward", crash=False)
-            if args.verbose:
+            if verbose:
                 screen.error("command exitcode: {}".format(p.returncode), crash=False)
                 screen.error(open(log_file_name).read(), crash=False)
             screen.error("preset_validation_params.max_episodes_to_achieve_reward: {}".format(
@@ -216,7 +215,7 @@ def test_preset_reward(preset_name, no_progress_bar=False, time_limit=60 * 60):
             screen.error("episode number: {}".format(csv['Episode #'].values[-1]), crash=False)
         else:
             screen.error("csv file never found", crash=False)
-            if args.verbose:
+            if verbose:
                 screen.error("command exitcode: {}".format(p.returncode), crash=False)
                 screen.error(open(log_file_name).read(), crash=False)
 
@@ -227,12 +226,12 @@ def test_preset_reward(preset_name, no_progress_bar=False, time_limit=60 * 60):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--preset',
-                        help="(string) Name of a preset to run (as configured in presets.py)",
+    parser.add_argument('-p', '--preset', '--presets',
+                        help="(string) Name of preset(s) to run (comma separated, and as configured in presets.py)",
                         default=None,
                         type=str)
     parser.add_argument('-ip', '--ignore_presets',
-                        help="(string) Name of a preset(s) to ignore (comma separated, and as configured in presets.py)",
+                        help="(string) Name of preset(s) to ignore (comma separated, and as configured in presets.py)",
                         default=None,
                         type=str)
     parser.add_argument('-v', '--verbose',
@@ -251,7 +250,7 @@ def main():
 
     args = parser.parse_args()
     if args.preset is not None:
-        presets_lists = [args.preset]
+        presets_lists = args.preset.split(',')
     else:
         presets_lists = all_presets()
 
@@ -268,6 +267,7 @@ def main():
         if args.stop_after_first_failure and fail_count > 0:
             break
         if preset_name not in presets_to_ignore:
+            print("Attempting to run Preset: %s" % preset_name)
             if not importable(preset_name):
                 screen.error("Failed to load preset <{}>".format(preset_name), crash=False)
                 fail_count += 1
@@ -278,7 +278,7 @@ def main():
                 continue
 
             test_count += 1
-            test_passed = test_preset_reward(preset_name, args.no_progress_bar, args.time_limit)
+            test_passed = test_preset_reward(preset_name, args.no_progress_bar, args.time_limit, args.verbose)
             if not test_passed:
                 fail_count += 1
 

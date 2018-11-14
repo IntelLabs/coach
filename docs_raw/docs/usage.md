@@ -12,7 +12,7 @@ This is the most common case. Just choose a preset using the `-p` flag and press
 
 ### Multi-threaded Algorithms
 
-Multi-threaded algorithms are very common this days.
+Multi-threaded algorithms are very common these days.
 They typically achieve the best results, and scale gracefully with the number of threads.
 In Coach, running such algorithms is done by selecting a suitable preset, and choosing the number of threads to run using the `-n` flag.
 

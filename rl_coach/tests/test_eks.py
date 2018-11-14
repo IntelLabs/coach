@@ -37,6 +37,7 @@ class EKSHandler():
         container = client.V1Container(
             name=self.test_name,
             image=self.image,
+            command=['/bin/bash', '-c'],
             args=[self.test_command],
             image_pull_policy='Always',
             working_dir=self.working_dir,
