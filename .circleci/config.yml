@@ -315,11 +315,11 @@ jobs:
             TAG=$(git describe --tags --always --dirty)
 
             docker pull ${REGISTRY}/coach-base:${TAG}
-            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:${MASTER_BRANCH}
+            docker tag ${REGISTRY}/coach-base:${TAG} ${REGISTRY}/coach-base:${MASTER_BRANCH}
             docker push ${REGISTRY}/coach-base:${MASTER_BRANCH}
 
             docker pull ${REGISTRY}/coach:${TAG}
-            docker tag ${REGISTRY}/coach:${TAG} coach:${MASTER_BRANCH}
+            docker tag ${REGISTRY}/coach:${TAG} ${REGISTRY}/coach:${MASTER_BRANCH}
             docker push ${REGISTRY}/coach:${MASTER_BRANCH}
 
 workflows:

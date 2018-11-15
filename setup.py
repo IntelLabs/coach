@@ -63,13 +63,13 @@ if not using_GPU:
     # For linux wth no GPU, we install the Intel optimized version of TensorFlow
     if sys.platform == "linux" or sys.platform == "linux2":
         subprocess.check_call(['pip install '
-                               'https://anaconda.org/intel/tensorflow/1.6.0/download/tensorflow-1.6.0-cp35-cp35m-linux_x86_64.whl'],
+                               'https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.11.0-cp35-cp35m-linux_x86_64.whl'],
                               shell=True)
-    install_requires.append('tensorflow==1.6.0')
-    extras['mxnet'] = ['mxnet-cu90mkl>=1.3.0']
-else:
-    install_requires.append('tensorflow-gpu==1.9.0')
+    install_requires.append('tensorflow>=1.9.0')
     extras['mxnet'] = ['mxnet-mkl>=1.3.0']
+else:
+    install_requires.append('tensorflow-gpu>=1.9.0')
+    extras['mxnet'] = ['mxnet-cu90mkl>=1.3.0']
 
 all_deps = []
 for group_name in extras:
