@@ -36,7 +36,7 @@ def training_worker(graph_manager, checkpoint_dir):
     while(steps < graph_manager.improve_steps.num_steps):
 
         graph_manager.phase = core_types.RunPhase.TRAIN
-        graph_manager.fetch_from_worker(num_steps=graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)
+        graph_manager.fetch_from_worker(graph_manager.agent_params.algorithm.num_consecutive_playing_steps)
         graph_manager.phase = core_types.RunPhase.UNDEFINED
 
         if graph_manager.should_train():

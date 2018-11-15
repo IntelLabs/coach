@@ -659,9 +659,9 @@ class GraphManager(object):
                 self.handle_episode_ended()
                 self.reset_required = True
 
-    def fetch_from_worker(self, num_steps=0):
+    def fetch_from_worker(self, num_consecutive_playing_steps=None):
         if hasattr(self, 'memory_backend'):
-            for transition in self.memory_backend.fetch(num_steps):
+            for transition in self.memory_backend.fetch(num_consecutive_playing_steps):
                 self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
 
     def setup_memory_backend(self) -> None:

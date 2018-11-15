@@ -95,7 +95,7 @@ def rollout_worker(graph_manager, checkpoint_dir, data_store, num_workers):
                 break
 
             if type(graph_manager.agent_params.algorithm.num_consecutive_playing_steps) == EnvironmentSteps:
-                graph_manager.act(EnvironmentSteps(num_steps=act_steps), wait_for_full_episode=graph_manager.agent_params.algorithm.act_for_full_episodes)
+                graph_manager.act(EnvironmentSteps(num_steps=act_steps), wait_for_full_episodes=graph_manager.agent_params.algorithm.act_for_full_episodes)
             elif type(graph_manager.agent_params.algorithm.num_consecutive_playing_steps) == EnvironmentEpisodes:
                 graph_manager.act(EnvironmentEpisodes(num_steps=act_steps))
 
