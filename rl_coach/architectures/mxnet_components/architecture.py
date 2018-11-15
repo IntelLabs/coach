@@ -299,8 +299,7 @@ class MxnetArchitecture(Architecture):
         assert outputs is None, "outputs must be None"
 
         output = self._predict(inputs)
-
-        output = tuple(o.asnumpy() for o in output)
+        output = list(o.asnumpy() for o in output)
         if squeeze_output:
             output = squeeze_list(output)
         return output

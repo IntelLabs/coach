@@ -28,7 +28,7 @@ class MultivariateNormalDist:
                  sigma: nd_sym_type,
                  F: ModuleType=mx.nd) -> None:
         """
-        Distribution object for Multivariate Normal. Works with batches.
+        Distribution object for Multivariate Normal. Works with batches. 
         Optionally works with batches and time steps, but be consistent in usage: i.e. if using time_step,
         mean, sigma and data for log_prob must all include a time_step dimension.
 
@@ -264,12 +264,12 @@ class ContinuousPPOHead(nn.HybridBlock):
             # but since we assume the action probability variables are independent,
             # only the diagonal entries of the covariance matrix are specified.
             self.log_std = self.params.get('log_std',
-                                           shape=num_actions,
+                                           shape=(num_actions,),
                                            init=mx.init.Zero(),
                                            allow_deferred_init=True)
         # todo: is_local?
 
-    def hybrid_forward(self, F: ModuleType, x: nd_sym_type, log_std: nd_sym_type) -> List[nd_sym_type]:
+    def hybrid_forward(self, F: ModuleType, x: nd_sym_type, log_std: nd_sym_type) -> Tuple[nd_sym_type, nd_sym_type]:
         """
         Used for forward pass through head network.
 
@@ -282,8 +282,8 @@ class ContinuousPPOHead(nn.HybridBlock):
             of shape (batch_size, time_step, action_mean).
         """
         policy_means = self.dense(x)
-        policy_std = log_std.exp()
-        return [policy_means, policy_std]
+        policy_std = log_std.exp().expand_dims(0).broadcast_like(policy_means)
+        return policy_means, policy_std
 
 
 class ClippedPPOLossDiscrete(HeadLoss):
@@ -490,8 +490,8 @@ class ClippedPPOLossContinuous(HeadLoss):
             of shape (batch_size, num_actions) or
             of shape (batch_size, time_step, num_actions).
         :param actions: true actions taken during rollout,
-            of shape (batch_size) or
-            of shape (batch_size, time_step).
+            of shape (batch_size, num_actions) or
+            of shape (batch_size, time_step, num_actions).
         :param old_policy_means: action means for previous policy,
             of shape (batch_size, num_actions) or
             of shape (batch_size, time_step, num_actions).
@@ -500,20 +500,24 @@ class ClippedPPOLossContinuous(HeadLoss):
             of shape (batch_size, time_step, num_actions).
         :param clip_param_rescaler: scales epsilon to use for likelihood ratio clipping.
         :param advantages: change in state value after taking action (a.k.a advantage)
-            of shape (batch_size) or
+            of shape (batch_size,) or
             of shape (batch_size, time_step).
         :param kl_coefficient: loss coefficient applied kl divergence loss (also see high_kl_penalty_coefficient).
         :return: loss, of shape (batch_size).
         """
-        old_var = old_policy_stds ** 2
-        # sets diagonal in (batch size and time step) covariance matrices
-        old_covar = mx.nd.eye(N=self.num_actions) * (old_var + eps).broadcast_like(old_policy_means).expand_dims(-2)
+
+        def diagonal_covariance(stds, size):
+            vars = stds ** 2
+            # sets diagonal in (batch size and time step) covariance matrices
+            vars_tiled = vars.expand_dims(2).tile((1, 1, size))
+            covars = F.broadcast_mul(vars_tiled, F.eye(size))
+            return covars
+
+        old_covar = diagonal_covariance(stds=old_policy_stds, size=self.num_actions)
         old_policy_dist = MultivariateNormalDist(self.num_actions, old_policy_means, old_covar, F=F)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
 
-        new_var = new_policy_stds ** 2
-        # sets diagonal in (batch size and time step) covariance matrices
-        new_covar = mx.nd.eye(N=self.num_actions) * (new_var + eps).broadcast_like(new_policy_means).expand_dims(-2)
+        new_covar = diagonal_covariance(stds=new_policy_stds, size=self.num_actions)
         new_policy_dist = MultivariateNormalDist(self.num_actions, new_policy_means, new_covar, F=F)
         action_probs_wrt_new_policy = new_policy_dist.log_prob(actions)
 
@@ -607,7 +611,7 @@ class PPOHead(Head):
         if isinstance(self.spaces.action, DiscreteActionSpace):
             self.net = DiscretePPOHead(num_actions=len(self.spaces.action.actions))
         elif isinstance(self.spaces.action, BoxActionSpace):
-            self.net = ContinuousPPOHead(num_actions=len(self.spaces.action.actions))
+            self.net = ContinuousPPOHead(num_actions=self.spaces.action.shape[0])
         else:
             raise ValueError("Only discrete or continuous action spaces are supported for PPO.")
 
@@ -635,7 +639,7 @@ class PPOHead(Head):
                                           self.kl_cutoff, self.high_kl_penalty_coefficient,
                                           self.loss_weight)
         elif isinstance(self.spaces.action, BoxActionSpace):
-            loss = ClippedPPOLossContinuous(len(self.spaces.action.actions),
+            loss = ClippedPPOLossContinuous(self.spaces.action.shape[0],
                                             self.clip_likelihood_ratio_using_epsilon,
                                             self.beta,
                                             self.use_kl_regularization, self.initial_kl_coefficient,

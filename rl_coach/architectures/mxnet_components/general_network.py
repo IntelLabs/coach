@@ -412,7 +412,10 @@ class SingleModel(HybridBlock):
         # Head
         outputs = tuple()
         for head in self._output_heads:
-            outputs += (head(state_embedding),)
+            out = head(state_embedding)
+            if not isinstance(out, tuple):
+                out = (out,)
+            outputs += out
 
         return outputs
 
