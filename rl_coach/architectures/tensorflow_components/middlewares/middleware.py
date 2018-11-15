@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 import copy
-from typing import Union
+from typing import Union, Tuple
 
 import tensorflow as tf
 
@@ -64,17 +64,33 @@ class Middleware(object):
                                                                      activation_function=self.activation_function,
                                                                      dropout_rate=self.dropout_rate))
 
-    def __call__(self, input_layer):
+    def __call__(self, input_layer: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+        """
+        Wrapper for building the module graph including scoping and loss creation
+        :param input_layer: the input to the graph
+        :return: the input placeholder and the output of the last layer
+        """
         with tf.variable_scope(self.get_name()):
             self.input = input_layer
             self._build_module()
 
         return self.input, self.output
 
-    def _build_module(self):
+    def _build_module(self) -> None:
+        """
+        Builds the graph of the module
+        This method is called early on from __call__. It is expected to store the graph
+        in self.output.
+        :param input_layer: the input to the graph
+        :return: None
+        """
         pass
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """
+        Get a formatted name for the module
+        :return: the formatted name
+        """
         return self.name
 
     @property

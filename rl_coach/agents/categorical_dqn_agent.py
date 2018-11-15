@@ -33,6 +33,19 @@ class CategoricalDQNNetworkParameters(DQNNetworkParameters):
 
 
 class CategoricalDQNAlgorithmParameters(DQNAlgorithmParameters):
+    """
+    :param v_min: (float)
+        The minimal value that will be represented in the network output for predicting the Q value.
+        Corresponds to :math:`v_{min}` in the paper.
+
+    :param v_max: (float)
+        The maximum value that will be represented in the network output for predicting the Q value.
+        Corresponds to :math:`v_{max}` in the paper.
+
+    :param atoms: (int)
+        The number of atoms that will be used to discretize the range between v_min and v_max.
+        For the C51 algorithm described in the paper, the number of atoms is 51.
+    """
     def __init__(self):
         super().__init__()
         self.v_min = -10.0

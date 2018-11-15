@@ -504,6 +504,8 @@ class GraphManager(object):
         :return: None
         """
 
+        self.verify_graph_was_created()
+
         # initialize the network parameters from the global network
         self.sync()
 

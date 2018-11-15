@@ -24,6 +24,11 @@ from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperi
 
 
 class MixedMonteCarloAlgorithmParameters(DQNAlgorithmParameters):
+    """
+    :param monte_carlo_mixing_rate: (float)
+        The mixing rate is used for setting the amount of monte carlo estimate (full return) that will be mixes into
+        the single-step bootstrapped targets.
+    """
     def __init__(self):
         super().__init__()
         self.monte_carlo_mixing_rate = 0.1

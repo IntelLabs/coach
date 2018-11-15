@@ -24,6 +24,19 @@ from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperi
 
 
 class PALAlgorithmParameters(DQNAlgorithmParameters):
+    """
+    :param pal_alpha: (float)
+        A factor that weights the amount by which the advantage learning update will be taken into account.
+
+    :param persistent_advantage_learning: (bool)
+        If set to True, the persistent mode of advantage learning will be used, which encourages the agent to take
+        the same actions one after the other instead of changing actions.
+
+    :param monte_carlo_mixing_rate: (float)
+        The amount of monte carlo values to mix into the targets of the network. The monte carlo values are just the
+        total discounted returns, and they can help reduce the time it takes for the network to update to the newly
+        seen values, since it is not based on bootstrapping the current network values.
+    """
     def __init__(self):
         super().__init__()
         self.pal_alpha = 0.9

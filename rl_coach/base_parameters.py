@@ -154,7 +154,6 @@ class AlgorithmParameters(Parameters):
         self.num_steps_between_copying_online_weights_to_target = TrainingSteps(0)
         self.rate_for_copying_weights_to_target = 1.0
         self.load_memory_from_file_path = None
-        self.collect_new_data = True
         self.store_transitions_only_when_episodes_are_terminated = False
 
         # HRL / HER related params
@@ -174,7 +173,38 @@ class AlgorithmParameters(Parameters):
 
 
 class PresetValidationParameters(Parameters):
-    def __init__(self):
+    def __init__(self,
+                 test=False,
+                 min_reward_threshold=0,
+                 max_episodes_to_achieve_reward=1,
+                 num_workers=1,
+                 reward_test_level=None,
+                 test_using_a_trace_test=True,
+                 trace_test_levels=None,
+                 trace_max_env_steps=5000):
+        """
+        :param test:
+            A flag which specifies if the preset should be tested as part of the validation process.
+        :param min_reward_threshold:
+            The minimum reward that the agent should pass after max_episodes_to_achieve_reward episodes when the
+            preset is run.
+        :param max_episodes_to_achieve_reward:
+            The maximum number of episodes that the agent should train using the preset in order to achieve the
+            reward specified by min_reward_threshold.
+        :param num_workers:
+            The number of workers that should be used when running this preset in the test suite for validation.
+        :param reward_test_level:
+            The environment level or levels, given by a list of strings, that should be tested as part of the
+            reward tests suite.
+        :param test_using_a_trace_test:
+            A flag that specifies if the preset should be run as part of the trace tests suite.
+        :param trace_test_levels:
+            The environment level or levels, given by a list of strings, that should be tested as part of the
+            trace tests suite.
+        :param trace_max_env_steps:
+            An integer representing the maximum number of environment steps to run when running this preset as part
+            of the trace tests suite.
+        """
         super().__init__()
 
         # setting a seed will only work for non-parallel algorithms. Parallel algorithms add uncontrollable noise in
@@ -182,42 +212,42 @@ class PresetValidationParameters(Parameters):
         # time from the OS.
 
         # Testing parameters
-        self.test = False
-        self.min_reward_threshold = 0
-        self.max_episodes_to_achieve_reward = 1
-        self.num_workers = 1
-        self.reward_test_level = None
-        self.test_using_a_trace_test = True
-        self.trace_test_levels = None
-        self.trace_max_env_steps = 5000
+        self.test = test
+        self.min_reward_threshold = min_reward_threshold
+        self.max_episodes_to_achieve_reward = max_episodes_to_achieve_reward
+        self.num_workers = num_workers
+        self.reward_test_level = reward_test_level
+        self.test_using_a_trace_test = test_using_a_trace_test
+        self.trace_test_levels = trace_test_levels
+        self.trace_max_env_steps = trace_max_env_steps
 
 
 class NetworkParameters(Parameters):
     def __init__(self,
-                 force_cpu = False,
-                 async_training = False,
-                 shared_optimizer = True,
-                 scale_down_gradients_by_number_of_workers_for_sync_training = True,
-                 clip_gradients = None,
-                 gradients_clipping_method = GradientClippingMethod.ClipByGlobalNorm,
-                 l2_regularization = 0,
-                 learning_rate = 0.00025,
-                 learning_rate_decay_rate = 0,
-                 learning_rate_decay_steps = 0,
-                 input_embedders_parameters = {},
-                 embedding_merger_type = EmbeddingMergerType.Concat,
-                 middleware_parameters = None,
-                 heads_parameters = [],
-                 use_separate_networks_per_head = False,
-                 optimizer_type = 'Adam',
-                 optimizer_epsilon = 0.0001,
-                 adam_optimizer_beta1 = 0.9,
-                 adam_optimizer_beta2 = 0.99,
-                 rms_prop_optimizer_decay = 0.9,
-                 batch_size = 32,
-                 replace_mse_with_huber_loss = False,
-                 create_target_network = False,
-                 tensorflow_support = True):
+                 force_cpu=False,
+                 async_training=False,
+                 shared_optimizer=True,
+                 scale_down_gradients_by_number_of_workers_for_sync_training=True,
+                 clip_gradients=None,
+                 gradients_clipping_method=GradientClippingMethod.ClipByGlobalNorm,
+                 l2_regularization=0,
+                 learning_rate=0.00025,
+                 learning_rate_decay_rate=0,
+                 learning_rate_decay_steps=0,
+                 input_embedders_parameters={},
+                 embedding_merger_type=EmbeddingMergerType.Concat,
+                 middleware_parameters=None,
+                 heads_parameters=[],
+                 use_separate_networks_per_head=False,
+                 optimizer_type='Adam',
+                 optimizer_epsilon=0.0001,
+                 adam_optimizer_beta1=0.9,
+                 adam_optimizer_beta2=0.99,
+                 rms_prop_optimizer_decay=0.9,
+                 batch_size=32,
+                 replace_mse_with_huber_loss=False,
+                 create_target_network=False,
+                 tensorflow_support=True):
         """
         :param force_cpu:
             Force the neural networks to run on the CPU even if a GPU is available
@@ -240,63 +270,106 @@ class NetworkParameters(Parameters):
             gradients of the network. This will only be used if the clip_gradients value is defined as a value other
             than None.
         :param l2_regularization:
+            A L2 regularization weight that will be applied to the network weights while calculating the loss function
         :param learning_rate:
+            The learning rate for the network
         :param learning_rate_decay_rate:
+            If this value is larger than 0, an exponential decay will be applied to the network learning rate.
+            The rate of the decay is defined by this parameter, and the number of training steps the decay will be
+            applied is defined by learning_rate_decay_steps. Notice that both parameters should be defined in order
+            for this to work correctly.
         :param learning_rate_decay_steps:
+            If the learning_rate_decay_rate of the network is larger than 0, an exponential decay will be applied to
+            the network learning rate. The number of steps the decay will be applied is defined by this parameter.
+            Notice that both this parameter, as well as learning_rate_decay_rate should be defined in order for the
+            learning rate decay to work correctly.
         :param input_embedders_parameters:
+            A dictionary mapping between input names and input embedders (InputEmbedderParameters) to use for the
+            network. Each of the keys is an input name as returned from the environment in the state.
+            For example, if the environment returns a state containing 'observation' and 'measurements', then
+            the keys for the input embedders dictionary can be either 'observation' to use the observation as input,
+            'measurements' to use the measurements as input, or both.
+            The embedder type will be automatically selected according to the input type. Vector inputs will
+            produce a fully connected embedder, and image inputs will produce a convolutional embedder.
         :param embedding_merger_type:
+            The type of embedding merging to use, given by one of the EmbeddingMergerType enum values.
+            This will be used to merge the outputs of all the input embedders into a single embbeding.
         :param middleware_parameters:
+            The parameters of the middleware to use, given by a MiddlewareParameters object.
+            Each network will have only a single middleware embedder which will take the merged embeddings from the
+            input embedders and pass them through more neural network layers.
         :param heads_parameters:
+            A list of heads for the network given by their corresponding HeadParameters.
+            Each network can have one or multiple network heads, where each one will take the output of the middleware
+            and make some additional computation on top of it. Additionally, each head calculates a weighted loss value,
+            and the loss values from all the heads will be summed later on.
         :param use_separate_networks_per_head:
+            A flag that allows using different copies of the input embedders and middleware for each one of the heads.
+            Regularly, the heads will have a shared input, but in the case where use_separate_networks_per_head is set
+            to True, each one of the heads will get a different input.
         :param optimizer_type:
+            A string specifying the optimizer type to use for updating the network. The available optimizers are
+            Adam, RMSProp and LBFGS.
         :param optimizer_epsilon:
+            An internal optimizer parameter used for Adam and RMSProp.
         :param adam_optimizer_beta1:
+            An beta1 internal optimizer parameter used for Adam. It will be used only if Adam was selected as the
+            optimizer for the network.
         :param adam_optimizer_beta2:
+            An beta2 internal optimizer parameter used for Adam. It will be used only if Adam was selected as the
+            optimizer for the network.
         :param rms_prop_optimizer_decay:
+            The decay value for the RMSProp optimizer, which will be used only in case the RMSProp optimizer was
+            selected for this network.
         :param batch_size:
+            The batch size to use when updating the network.
         :param replace_mse_with_huber_loss:
         :param create_target_network:
+            If this flag is set to True, an additional copy of the network will be created and initialized with the
+            same weights as the online network. It can then be queried, and its weights can be synced from the
+            online network at will.
         :param tensorflow_support:
+            A flag which specifies if the network is supported by the TensorFlow framework.
         """
         super().__init__()
         self.framework = Frameworks.tensorflow
         self.sess = None
 
         # hardware parameters
-        self.force_cpu = False
+        self.force_cpu = force_cpu
 
         # distributed training options
-        self.async_training = False
-        self.shared_optimizer = True
-        self.scale_down_gradients_by_number_of_workers_for_sync_training = True
+        self.async_training = async_training
+        self.shared_optimizer = shared_optimizer
+        self.scale_down_gradients_by_number_of_workers_for_sync_training = scale_down_gradients_by_number_of_workers_for_sync_training
 
         # regularization
-        self.clip_gradients = None
-        self.gradients_clipping_method = GradientClippingMethod.ClipByGlobalNorm
-        self.l2_regularization = 0
+        self.clip_gradients = clip_gradients
+        self.gradients_clipping_method = gradients_clipping_method
+        self.l2_regularization = l2_regularization
 
         # learning rate
-        self.learning_rate = 0.00025
-        self.learning_rate_decay_rate = 0
-        self.learning_rate_decay_steps = 0
+        self.learning_rate = learning_rate
+        self.learning_rate_decay_rate = learning_rate_decay_rate
+        self.learning_rate_decay_steps = learning_rate_decay_steps
 
         # structure
-        self.input_embedders_parameters = {}
-        self.embedding_merger_type = EmbeddingMergerType.Concat
-        self.middleware_parameters = None
-        self.heads_parameters = []
-        self.use_separate_networks_per_head = False
-        self.optimizer_type = 'Adam'
-        self.optimizer_epsilon = 0.0001
-        self.adam_optimizer_beta1 = 0.9
-        self.adam_optimizer_beta2 = 0.99
-        self.rms_prop_optimizer_decay = 0.9
-        self.batch_size = 32
-        self.replace_mse_with_huber_loss = False
-        self.create_target_network = False
+        self.input_embedders_parameters = input_embedders_parameters
+        self.embedding_merger_type = embedding_merger_type
+        self.middleware_parameters = middleware_parameters
+        self.heads_parameters = heads_parameters
+        self.use_separate_networks_per_head = use_separate_networks_per_head
+        self.optimizer_type = optimizer_type
+        self.optimizer_epsilon = optimizer_epsilon
+        self.adam_optimizer_beta1 = adam_optimizer_beta1
+        self.adam_optimizer_beta2 = adam_optimizer_beta2
+        self.rms_prop_optimizer_decay = rms_prop_optimizer_decay
+        self.batch_size = batch_size
+        self.replace_mse_with_huber_loss = replace_mse_with_huber_loss
+        self.create_target_network = create_target_network
 
         # Framework support
-        self.tensorflow_support = True
+        self.tensorflow_support = tensorflow_support
 
 
 class NetworkComponentParameters(Parameters):

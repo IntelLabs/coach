@@ -260,6 +260,7 @@ class EnvResponse(object):
         """
         An env response is a collection containing the information returning from the environment after a single action
         has been performed on it.
+
         :param next_state: The new state that the environment has transitioned into. Assumed to be a dictionary where the
                           observation is located at state['observation']
         :param reward: The reward received from the environment
@@ -350,11 +351,13 @@ class ActionInfo(object):
 
 
 class Batch(object):
+    """
+    A wrapper around a list of transitions that helps extracting batches of parameters from it.
+    For example, one can extract a list of states corresponding to the list of transitions.
+    The class uses lazy evaluation in order to return each of the available parameters.
+    """
     def __init__(self, transitions: List[Transition]):
         """
-        A wrapper around a list of transitions that helps extracting batches of parameters from it.
-        For example, one can extract a list of states corresponding to the list of transitions.
-        The class uses lazy evaluation in order to return each of the available parameters.
         :param transitions: a list of transitions to extract the batch from
         """
         self.transitions = transitions
@@ -370,6 +373,7 @@ class Batch(object):
     def slice(self, start, end) -> None:
         """
         Keep a slice from the batch and discard the rest of the batch
+
         :param start: the start index in the slice
         :param end: the end index in the slice
         :return: None
@@ -396,6 +400,7 @@ class Batch(object):
     def shuffle(self) -> None:
         """
         Shuffle all the transitions in the batch
+
         :return: None
         """
         batch_order = list(range(self.size))
@@ -432,6 +437,7 @@ class Batch(object):
         """
         follow the keys in fetches to extract the corresponding items from the states in the batch
         if these keys were not already extracted before. return only the values corresponding to those keys
+
         :param fetches: the keys of the state dictionary to extract
         :param expand_dims: add an extra dimension to each of the value batches
         :return: a dictionary containing a batch of values correponding to each of the given fetches keys
@@ -452,6 +458,7 @@ class Batch(object):
     def actions(self, expand_dims=False) -> np.ndarray:
         """
         if the actions were not converted to a batch before, extract them to a batch and then return the batch
+
         :param expand_dims: add an extra dimension to the actions batch
         :return: a numpy array containing all the actions of the batch
         """
@@ -464,6 +471,7 @@ class Batch(object):
     def rewards(self, expand_dims=False) -> np.ndarray:
         """
         if the rewards were not converted to a batch before, extract them to a batch and then return the batch
+
         :param expand_dims: add an extra dimension to the rewards batch
         :return: a numpy array containing all the rewards of the batch
         """
@@ -491,6 +499,7 @@ class Batch(object):
     def game_overs(self, expand_dims=False) -> np.ndarray:
         """
         if the game_overs were not converted to a batch before, extract them to a batch and then return the batch
+
         :param expand_dims: add an extra dimension to the game_overs batch
         :return: a numpy array containing all the game over flags of the batch
         """
@@ -504,6 +513,7 @@ class Batch(object):
         """
         follow the keys in fetches to extract the corresponding items from the next states in the batch
         if these keys were not already extracted before. return only the values corresponding to those keys
+
         :param fetches: the keys of the state dictionary to extract
         :param expand_dims: add an extra dimension to each of the value batches
         :return: a dictionary containing a batch of values correponding to each of the given fetches keys
@@ -526,6 +536,7 @@ class Batch(object):
         """
         if the goals were not converted to a batch before, extract them to a batch and then return the batch
         if the goal was not filled, this will raise an exception
+
         :param expand_dims: add an extra dimension to the goals batch
         :return: a numpy array containing all the goals of the batch
         """
@@ -549,6 +560,7 @@ class Batch(object):
         """
         if the given info dictionary key was not converted to a batch before, extract it to a batch and then return the
         batch. if the key is not part of the keys in the info dictionary, this will raise an exception
+
         :param expand_dims: add an extra dimension to the info batch
         :return: a numpy array containing all the info values of the batch corresponding to the given key
         """
@@ -568,6 +580,7 @@ class Batch(object):
     def __getitem__(self, key):
         """
         get an item from the transitions list
+
         :param key: index of the transition in the batch
         :return: the transition corresponding to the given index
         """
@@ -576,6 +589,7 @@ class Batch(object):
     def __setitem__(self, key, item):
         """
         set an item in the transition list
+
         :param key: index of the transition in the batch
         :param item: the transition to place in the given index
         :return: None
@@ -598,6 +612,7 @@ class TotalStepsCounter(object):
     def __getitem__(self, key: Type[StepMethod]) -> int:
         """
         get counter value
+
         :param key: counter type
         :return: the counter value
         """
@@ -606,6 +621,7 @@ class TotalStepsCounter(object):
     def __setitem__(self, key: StepMethod, item: int) -> None:
         """
         set an item in the transition list
+
         :param key: counter type
         :param item: an integer representing the new counter value
         :return: None
@@ -626,6 +642,9 @@ class GradientClippingMethod(Enum):
 
 
 class Episode(object):
+    """
+    An Episode represents a set of sequential transitions, that end with a terminal state.
+    """
     def __init__(self, discount: float=0.99, bootstrap_total_return_from_old_policy: bool=False, n_step: int=-1):
         """
         :param discount: the discount factor to use when calculating total returns
@@ -634,38 +653,78 @@ class Episode(object):
         :param n_step: the number of future steps to sum the reward over before bootstrapping
         """
         self.transitions = []
-        # a num_transitions x num_transitions table with the n step return in the n'th row
         self._length = 0
         self.discount = discount
         self.bootstrap_total_return_from_old_policy = bootstrap_total_return_from_old_policy
         self.n_step = n_step
         self.is_complete = False
 
-    def insert(self, transition):
+    def insert(self, transition: Transition) -> None:
+        """
+        Insert a new transition to the episode. If the game_over flag in the transition is set to True,
+        the episode will be marked as complete.
+
+        :param transition: The new transition to insert to the episode
+        :return: None
+        """
         self.transitions.append(transition)
         self._length += 1
         if transition.game_over:
             self.is_complete = True
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
+        """
+        Check if the episode is empty
+
+        :return: A boolean value determining if the episode is empty or not
+        """
         return self.length() == 0
 
-    def length(self):
+    def length(self) -> int:
+        """
+        Return the length of the episode, which is the number of transitions it holds.
+
+        :return: The number of transitions in the episode
+        """
         return self._length
 
     def __len__(self):
         return self.length()
 
-    def get_transition(self, transition_idx):
+    def get_transition(self, transition_idx: int) -> Transition:
+        """
+        Get a specific transition by its index.
+
+        :param transition_idx: The index of the transition to get
+        :return: The transition which is stored in the given index
+        """
         return self.transitions[transition_idx]
 
-    def get_last_transition(self):
+    def get_last_transition(self) -> Transition:
+        """
+        Get the last transition in the episode, or None if there are no transition available
+
+        :return: The last transition in the episode
+        """
         return self.get_transition(-1) if self.length() > 0 else None
 
-    def get_first_transition(self):
+    def get_first_transition(self) -> Transition:
+        """
+        Get the first transition in the episode, or None if there are no transitions available
+
+        :return: The first transition in the episode
+        """
         return self.get_transition(0) if self.length() > 0 else None
 
     def update_discounted_rewards(self):
+        """
+        Update the discounted returns for all the transitions in the episode.
+        The returns will be calculated according to the rewards of each transition, together with the number of steps
+        to bootstrap from and the discount factor, as defined by n_step and discount respectively when initializing
+        the episode.
+
+        :return: None
+        """
         if self.n_step == -1 or self.n_step > self.length():
             curr_n_step = self.length()
         else:
@@ -708,27 +767,23 @@ class Episode(object):
 
         self.update_discounted_rewards()
 
-    def update_actions_probabilities(self):
-        probability_product = 1
-        for transition_idx, transition in enumerate(self.transitions):
-            if 'action_probabilities' in transition.info.keys():
-                probability_product *= transition.info['action_probabilities']
-        for transition_idx, transition in enumerate(self.transitions):
-            transition.info['probability_product'] = probability_product
 
-    def get_transitions_attribute(self, attribute_name):
+
+    def get_transitions_attribute(self, attribute_name: str) -> List[Any]:
+        """
+        Get the values for some transition attribute from all the transitions in the episode.
+        For example, this allows getting the rewards for all the transitions as a list by calling
+        get_transitions_attribute('reward')
+
+        :param attribute_name: The name of the attribute to extract from all the transitions
+        :return: A list of values from all the transitions according to the attribute given in attribute_name
+        """
         if len(self.transitions) > 0 and hasattr(self.transitions[0], attribute_name):
             return [getattr(t, attribute_name) for t in self.transitions]
         elif len(self.transitions) == 0:
             return []
         else:
             raise ValueError("The transitions have no such attribute name")
-
-    def to_batch(self):
-        batch = []
-        for i in range(self.length()):
-            batch.append(self.get_transition(i))
-        return batch
 
     def __getitem__(self, sliced):
         return self.transitions[sliced]

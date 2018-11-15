@@ -57,7 +57,7 @@ class Architecture(object):
         :param initial_feed_dict: a dictionary of extra inputs for forward pass.
         :return: predictions of action or value of shape (batch_size, action_space_size) for action predictions)
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def parallel_predict(sess: Any,
@@ -68,7 +68,7 @@ class Architecture(object):
         :param network_input_tuples: tuple of network and corresponding input
         :return: list or tuple of outputs from all networks
         """
-        pass
+        raise NotImplementedError
 
     def train_on_batch(self,
                        inputs: Dict[str, np.ndarray],
@@ -102,7 +102,7 @@ class Architecture(object):
             norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
             fetched_tensors: all values for additional_fetches
         """
-        pass
+        raise NotImplementedError
 
     def get_weights(self) -> List[np.ndarray]:
         """
@@ -110,7 +110,7 @@ class Architecture(object):
 
         :return: list weights as ndarray
         """
-        pass
+        raise NotImplementedError
 
     def set_weights(self, weights: List[np.ndarray], rate: float=1.0) -> None:
         """
@@ -121,7 +121,7 @@ class Architecture(object):
             i.e. new_weight = rate * given_weight + (1 - rate) * old_weight
         :return: None
         """
-        pass
+        raise NotImplementedError
 
     def reset_accumulated_gradients(self) -> None:
         """
@@ -130,7 +130,7 @@ class Architecture(object):
         Once gradients are reset, they must be accessible by `accumulated_gradients` property of this class,
         which must return a list of numpy ndarrays. Child class must ensure that `accumulated_gradients` is set.
         """
-        pass
+        raise NotImplementedError
 
     def accumulate_gradients(self,
                              inputs: Dict[str, np.ndarray],
@@ -166,7 +166,7 @@ class Architecture(object):
             norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
             fetched_tensors: all values for additional_fetches
         """
-        pass
+        raise NotImplementedError
 
     def apply_and_reset_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
         """
@@ -177,7 +177,7 @@ class Architecture(object):
             of an identical network (either self or another identical network)
         :param scaler: A scaling factor that allows rescaling the gradients before applying them
         """
-        pass
+        raise NotImplementedError
 
     def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
         """
@@ -188,7 +188,7 @@ class Architecture(object):
             of an identical network (either self or another identical network)
         :param scaler: A scaling factor that allows rescaling the gradients before applying them
         """
-        pass
+        raise NotImplementedError
 
     def get_variable_value(self, variable: Any) -> np.ndarray:
         """
@@ -199,7 +199,7 @@ class Architecture(object):
         :param variable: variable of interest
         :return: value of the specified variable
         """
-        pass
+        raise NotImplementedError
 
     def set_variable_value(self, assign_op: Any, value: np.ndarray, placeholder: Any):
         """
@@ -212,4 +212,4 @@ class Architecture(object):
         :param value: value of the specified variable used for update
         :param placeholder: a placeholder for binding the value to assign_op.
         """
-        pass
+        raise NotImplementedError

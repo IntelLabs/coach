@@ -26,9 +26,12 @@ from rl_coach.memories.non_episodic.balanced_experience_replay import BalancedEx
 
 
 class CILAlgorithmParameters(AlgorithmParameters):
+    """
+    :param state_key_with_the_class_index: (str)
+        The key of the state dictionary which corresponds to the value that will be used to control the class index.
+    """
     def __init__(self):
         super().__init__()
-        self.collect_new_data = False
         self.state_key_with_the_class_index = 'high_level_command'
 
 

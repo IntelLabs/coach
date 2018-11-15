@@ -25,8 +25,9 @@ from rl_coach.spaces import ObservationSpace
 
 class ObservationNormalizationFilter(ObservationFilter):
     """
-    Normalize the observation with a running standard deviation and mean of the observations seen so far
-    If there is more than a single worker, the statistics of the observations are shared between all the workers
+    Normalizes the observation values with a running mean and standard deviation of
+    all the observations seen so far. The normalization is performed element-wise. Additionally, when working with
+    multiple workers, the statistics used for the normalization operation are accumulated over all the workers.
     """
     def __init__(self, clip_min: float=-5.0, clip_max: float=5.0, name='observation_stats'):
         """

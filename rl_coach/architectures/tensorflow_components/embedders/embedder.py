@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from typing import List, Union
+from typing import List, Union, Tuple
 import copy
 
 import numpy as np
@@ -74,7 +74,12 @@ class InputEmbedder(object):
                                                                      activation_function=self.activation_function,
                                                                      dropout_rate=self.dropout_rate))
 
-    def __call__(self, prev_input_placeholder=None):
+    def __call__(self, prev_input_placeholder: tf.placeholder=None) -> Tuple[tf.Tensor, tf.Tensor]:
+        """
+        Wrapper for building the module graph including scoping and loss creation
+        :param prev_input_placeholder: the input to the graph
+        :return: the input placeholder and the output of the last layer
+        """
         with tf.variable_scope(self.get_name()):
             if prev_input_placeholder is None:
                 self.input = tf.placeholder("float", shape=[None] + self.input_size, name=self.get_name())
@@ -84,7 +89,13 @@ class InputEmbedder(object):
 
         return self.input, self.output
 
-    def _build_module(self):
+    def _build_module(self) -> None:
+        """
+        Builds the graph of the module
+        This method is called early on from __call__. It is expected to store the graph
+        in self.output.
+        :return: None
+        """
         # NOTE: for image inputs, we expect the data format to be of type uint8, so to be memory efficient. we chose not
         #  to implement the rescaling as an input filters.observation.observation_filter, as this would have caused the
         #  input to the network to be float, which is 4x more expensive in memory.
@@ -127,7 +138,11 @@ class InputEmbedder(object):
         raise NotImplementedError("Inheriting embedder must define schemes matching its allowed default "
                                   "configurations.")
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """
+        Get a formatted name for the module
+        :return: the formatted name
+        """
         return self.name
 
     def __str__(self):

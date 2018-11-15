@@ -24,7 +24,9 @@ from rl_coach.spaces import ObservationSpace
 
 class ObservationCropFilter(ObservationFilter):
     """
-    Crops the current state observation to a given shape
+    Crops the size of the observation to a given crop window. For example, in Atari, the
+    observations are images with a shape of 210x160. Usually, we will want to crop the size of the observation to a
+    square of 160x160 before rescaling them.
     """
     def __init__(self, crop_low: np.ndarray=None, crop_high: np.ndarray=None):
         """

@@ -21,7 +21,8 @@ from rl_coach.spaces import RewardSpace
 
 class RewardRescaleFilter(RewardFilter):
     """
-    Rescales the reward by multiplying with some factor
+    Rescales the reward by a given factor. Rescaling the rewards of the environment has been
+    observed to have a large effect (negative or positive) on the behavior of the learning process.
     """
     def __init__(self, rescale_factor: float):
         """

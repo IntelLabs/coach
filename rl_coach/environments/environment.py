@@ -176,6 +176,7 @@ class Environment(EnvironmentInterface):
     def action_space(self) -> Union[List[ActionSpace], ActionSpace]:
         """
         Get the action space of the environment
+
         :return: the action space
         """
         return self._action_space
@@ -184,6 +185,7 @@ class Environment(EnvironmentInterface):
     def action_space(self, val: Union[List[ActionSpace], ActionSpace]):
         """
         Set the action space of the environment
+
         :return: None
         """
         self._action_space = val
@@ -192,6 +194,7 @@ class Environment(EnvironmentInterface):
     def state_space(self) -> Union[List[StateSpace], StateSpace]:
         """
         Get the state space of the environment
+
         :return: the observation space
         """
         return self._state_space
@@ -200,6 +203,7 @@ class Environment(EnvironmentInterface):
     def state_space(self, val: Union[List[StateSpace], StateSpace]):
         """
         Set the state space of the environment
+
         :return: None
         """
         self._state_space = val
@@ -208,6 +212,7 @@ class Environment(EnvironmentInterface):
     def goal_space(self) -> Union[List[ObservationSpace], ObservationSpace]:
         """
         Get the state space of the environment
+
         :return: the observation space
         """
         return self._goal_space
@@ -216,6 +221,7 @@ class Environment(EnvironmentInterface):
     def goal_space(self, val: Union[List[ObservationSpace], ObservationSpace]):
         """
         Set the goal space of the environment
+
         :return: None
         """
         self._goal_space = val
@@ -223,6 +229,7 @@ class Environment(EnvironmentInterface):
     def get_action_from_user(self) -> ActionType:
         """
         Get an action from the user keyboard
+
         :return: action index
         """
         if self.wait_for_explicit_human_action:
@@ -250,6 +257,7 @@ class Environment(EnvironmentInterface):
     def last_env_response(self) -> Union[List[EnvResponse], EnvResponse]:
         """
         Get the last environment response
+
         :return: a dictionary that contains the state, reward, etc.
         """
         return squeeze_list(self._last_env_response)
@@ -258,6 +266,7 @@ class Environment(EnvironmentInterface):
     def last_env_response(self, val: Union[List[EnvResponse], EnvResponse]):
         """
         Set the last environment response
+
         :param val: the last environment response
         """
         self._last_env_response = force_list(val)
@@ -265,6 +274,7 @@ class Environment(EnvironmentInterface):
     def step(self, action: ActionType) -> EnvResponse:
         """
         Make a single step in the environment using the given action
+
         :param action: an action to use for stepping the environment. Should follow the definition of the action space.
         :return: the environment response as returned in get_last_env_response
         """
@@ -317,6 +327,8 @@ class Environment(EnvironmentInterface):
     def render(self) -> None:
         """
         Call the environment function for rendering to the screen
+
+        :return: None
         """
         if self.native_rendering:
             self._render()
@@ -326,6 +338,7 @@ class Environment(EnvironmentInterface):
     def handle_episode_ended(self) -> None:
         """
         End an episode
+
         :return: None
         """
         self.dump_video_of_last_episode_if_needed()
@@ -333,6 +346,7 @@ class Environment(EnvironmentInterface):
     def reset_internal_state(self, force_environment_reset=False) -> EnvResponse:
         """
         Reset the environment and all the variable of the wrapper
+
         :param force_environment_reset: forces environment reset even when the game did not end
         :return: A dictionary containing the observation, reward, done flag, action and measurements
         """
@@ -368,6 +382,7 @@ class Environment(EnvironmentInterface):
     def get_random_action(self) -> ActionType:
         """
         Returns an action picked uniformly from the available actions
+
         :return: a numpy array with a random action
         """
         return self.action_space.sample()
@@ -375,6 +390,7 @@ class Environment(EnvironmentInterface):
     def get_available_keys(self) -> List[Tuple[str, ActionType]]:
         """
         Return a list of tuples mapping between action names and the keyboard key that triggers them
+
         :return: a list of tuples mapping between action names and the keyboard key that triggers them
         """
         available_keys = []
@@ -391,6 +407,7 @@ class Environment(EnvironmentInterface):
     def get_goal(self) -> GoalType:
         """
         Get the current goal that the agents needs to achieve in the environment
+
         :return: The goal
         """
         return self.goal
@@ -398,6 +415,7 @@ class Environment(EnvironmentInterface):
     def set_goal(self, goal: GoalType) -> None:
         """
         Set the current goal that the agent needs to achieve in the environment
+
         :param goal: the goal that needs to be achieved
         :return: None
         """
@@ -424,14 +442,6 @@ class Environment(EnvironmentInterface):
         if self.visualization_parameters.dump_mp4:
             logger.create_mp4(self.last_episode_images[::frame_skipping], name=file_name, fps=fps)
 
-    def log_to_screen(self):
-        # log to screen
-        log = OrderedDict()
-        log["Episode"] = self.episode_idx
-        log["Total reward"] = np.round(self.total_reward_in_current_episode, 2)
-        log["Steps"] = self.total_steps_counter
-        screen.log_dict(log, prefix=self.phase.value)
-
     # The following functions define the interaction with the environment.
     # Any new environment that inherits the Environment class should use these signatures.
     # Some of these functions are optional - please read their description for more details.
@@ -439,6 +449,7 @@ class Environment(EnvironmentInterface):
     def _take_action(self, action_idx: ActionType) -> None:
         """
         An environment dependent function that sends an action to the simulator.
+
         :param action_idx: the action to perform on the environment
         :return: None
         """
@@ -448,6 +459,7 @@ class Environment(EnvironmentInterface):
         """
         Updates the state from the environment.
         Should update self.observation, self.reward, self.done, self.measurements and self.info
+
         :return: None
         """
         raise NotImplementedError("")
@@ -455,6 +467,7 @@ class Environment(EnvironmentInterface):
     def _restart_environment_episode(self, force_environment_reset=False) -> None:
         """
         Restarts the simulator episode
+
         :param force_environment_reset: Force the environment to reset even if the episode is not done yet.
         :return: None
         """
@@ -463,6 +476,7 @@ class Environment(EnvironmentInterface):
     def _render(self) -> None:
         """
         Renders the environment using the native simulator renderer
+
         :return: None
         """
         pass
@@ -471,6 +485,7 @@ class Environment(EnvironmentInterface):
         """
         Return a numpy array containing the image that will be rendered to the screen.
         This can be different from the observation. For example, mujoco's observation is a measurements vector.
+
         :return: numpy array containing the image that will be rendered to the screen
         """
         return np.transpose(self.state['observation'], [1, 2, 0])

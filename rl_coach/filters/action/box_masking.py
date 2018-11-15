@@ -25,12 +25,10 @@ from rl_coach.spaces import BoxActionSpace
 
 class BoxMasking(ActionFilter):
     """
-    Masks a box action space by allowing only selecting a subset of the space
-    For example,
-    - the target action space has actions of shape 1 with values between 10 and 32
-    - we mask the target action space so that only the action 20 to 25 can be chosen
-    The actions will be between 0 to 5 and the mapping will add an offset of 20 to the incoming actions
-    The shape of the source and target action spaces is always the same
+    Masks part of the action space to enforce the agent to work in a defined space. For example,
+    if the original action space is between -1 and 1, then this filter can be used in order to constrain the agent actions
+    to the range 0 and 1 instead. This essentially masks the range -1 and 0 from the agent.
+    The resulting action space will be shifted and will always start from 0 and have the size of the unmasked area.
     """
     def __init__(self,
                  masked_target_space_low: Union[None, int, float, np.ndarray],

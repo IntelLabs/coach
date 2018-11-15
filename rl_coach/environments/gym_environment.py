@@ -140,7 +140,7 @@ atari_schedule = ScheduleParameters()
 atari_schedule.improve_steps = EnvironmentSteps(50000000)
 atari_schedule.steps_between_evaluation_periods = EnvironmentSteps(250000)
 atari_schedule.evaluation_steps = EnvironmentSteps(135000)
-atari_schedule.heatup_steps = EnvironmentSteps(50000)
+atari_schedule.heatup_steps = EnvironmentSteps(1)
 
 
 class MaxOverFramesAndFrameskipEnvWrapper(gym.Wrapper):
@@ -181,6 +181,41 @@ class GymEnvironment(Environment):
                  target_success_rate: float=1.0, additional_simulator_parameters: Dict[str, Any] = {}, seed: Union[None, int]=None,
                  human_control: bool=False, custom_reward_threshold: Union[int, float]=None,
                  random_initialization_steps: int=1, max_over_num_frames: int=1, **kwargs):
+        """
+        :param level: (str)
+            A string representing the gym level to run. This can also be a LevelSelection object.
+            For example, BreakoutDeterministic-v0
+
+        :param frame_skip: (int)
+            The number of frames to skip between any two actions given by the agent. The action will be repeated
+            for all the skipped frames.
+
+        :param visualization_parameters: (VisualizationParameters)
+            The parameters used for visualizing the environment, such as the render flag, storing videos etc.
+
+        :param additional_simulator_parameters: (Dict[str, Any])
+            Any additional parameters that the user can pass to the Gym environment. These parameters should be
+            accepted by the __init__ function of the implemented Gym environment.
+
+        :param seed: (int)
+            A seed to use for the random number generator when running the environment.
+
+        :param human_control: (bool)
+            A flag that allows controlling the environment using the keyboard keys.
+
+        :param custom_reward_threshold: (float)
+            Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.
+            If not set, this value will be taken from the Gym environment definition.
+
+        :param random_initialization_steps: (int)
+            The number of random steps that will be taken in the environment after each reset.
+            This is a feature presented in the DQN paper, which improves the variability of the episodes the agent sees.
+
+        :param max_over_num_frames: (int)
+            This value will be used for merging multiple frames into a single frame by taking the maximum value for each
+            of the pixels in the frame. This is particularly used in Atari games, where the frames flicker, and objects
+            can be seen in one frame but disappear in the next.
+        """
         super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                          visualization_parameters, target_success_rate)
 

@@ -39,6 +39,17 @@ class BootstrappedParameters(EGreedyParameters):
 
 
 class Bootstrapped(EGreedy):
+    """
+    Bootstrapped exploration policy is currently only used for discrete action spaces along with the
+    Bootstrapped DQN agent. It assumes that there is an ensemble of network heads, where each one predicts the
+    values for all the possible actions. For each episode, a single head is selected to lead the agent, according
+    to its value predictions. In evaluation, the action is selected using a majority vote over all the heads
+    predictions.
+
+    .. note::
+       This exploration policy will only work for Discrete action spaces with Bootstrapped DQN style agents,
+       since it requires the agent to have a network with multiple heads.
+    """
     def __init__(self, action_space: ActionSpace, epsilon_schedule: Schedule, evaluation_epsilon: float,
                  architecture_num_q_heads: int,
                  continuous_exploration_policy_parameters: ExplorationParameters = AdditiveNoiseParameters(),):

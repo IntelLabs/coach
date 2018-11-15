@@ -30,3 +30,5 @@ trace_test*
 *.swo
 .cache/
 *.pyc
+coachenv
+

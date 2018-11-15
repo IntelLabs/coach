@@ -24,4 +24,15 @@ class ContinuousEntropyParameters(AdditiveNoiseParameters):
 
 
 class ContinuousEntropy(AdditiveNoise):
+    """
+    Continuous entropy is an exploration policy that is actually implemented as part of the network.
+    The exploration policy class is only a placeholder for choosing this policy. The exploration policy is
+    implemented by adding a regularization factor to the network loss, which regularizes the entropy of the action.
+    This exploration policy is only intended for continuous action spaces, and assumes that the entire calculation
+    is implemented as part of the head.
+
+    .. warning::
+       This exploration policy expects the agent or the network to implement the exploration functionality.
+       There are only a few heads that actually are relevant and implement the entropy regularization factor.
+    """
     pass

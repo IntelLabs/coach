@@ -23,11 +23,17 @@ from rl_coach.spaces import DiscreteActionSpace, ActionSpace
 
 class PartialDiscreteActionSpaceMap(ActionFilter):
     """
-    Maps the given actions from the output space to discrete actions in the action space.
-    For example, if there are 10 multiselect actions in the output space, the actions 0-9 will be mapped to those
-    multiselect actions.
+    Partial map of two countable action spaces. For example, consider an environment
+    with a MultiSelect action space (select multiple actions at the same time, such as jump and go right), with 8 actual
+    MultiSelect actions. If we want the agent to be able to select only 5 of those actions by their index (0-4), we can
+    map a discrete action space with 5 actions into the 5 selected MultiSelect actions. This will both allow the agent to
+    use regular discrete actions, and mask 3 of the actions from the agent.
     """
     def __init__(self, target_actions: List[ActionType]=None, descriptions: List[str]=None):
+        """
+        :param target_actions: A partial list of actions from the target space to map to.
+        :param descriptions: a list of descriptions of each of the actions
+        """
         self.target_actions = target_actions
         self.descriptions = descriptions
         super().__init__()

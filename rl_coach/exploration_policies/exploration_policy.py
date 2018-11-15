@@ -31,6 +31,10 @@ class ExplorationParameters(Parameters):
 
 
 class ExplorationPolicy(object):
+    """
+    An exploration policy takes the predicted actions or action values from the agent, and selects the action to
+    actually apply to the environment using some predefined algorithm.
+    """
     def __init__(self, action_space: ActionSpace):
         """
         :param action_space: the action space used by the environment

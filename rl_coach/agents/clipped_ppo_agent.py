@@ -58,6 +58,47 @@ class ClippedPPONetworkParameters(NetworkParameters):
 
 
 class ClippedPPOAlgorithmParameters(AlgorithmParameters):
+    """
+    :param policy_gradient_rescaler: (PolicyGradientRescaler)
+        This represents how the critic will be used to update the actor. The critic value function is typically used
+        to rescale the gradients calculated by the actor. There are several ways for doing this, such as using the
+        advantage of the action, or the generalized advantage estimation (GAE) value.
+
+    :param gae_lambda: (float)
+        The :math:`\lambda` value is used within the GAE function in order to weight different bootstrap length
+        estimations. Typical values are in the range 0.9-1, and define an exponential decay over the different
+        n-step estimations.
+
+    :param clip_likelihood_ratio_using_epsilon: (float)
+        If not None, the likelihood ratio between the current and new policy in the PPO loss function will be
+        clipped to the range [1-clip_likelihood_ratio_using_epsilon, 1+clip_likelihood_ratio_using_epsilon].
+        This is typically used in the Clipped PPO version of PPO, and should be set to None in regular PPO
+        implementations.
+
+    :param value_targets_mix_fraction: (float)
+        The targets for the value network are an exponential weighted moving average which uses this mix fraction to
+        define how much of the new targets will be taken into account when calculating the loss.
+        This value should be set to the range (0,1], where 1 means that only the new targets will be taken into account.
+
+    :param estimate_state_value_using_gae: (bool)
+        If set to True, the state value will be estimated using the GAE technique.
+
+    :param use_kl_regularization: (bool)
+        If set to True, the loss function will be regularized using the KL diveregence between the current and new
+        policy, to bound the change of the policy during the network update.
+
+    :param beta_entropy: (float)
+        An entropy regulaization term can be added to the loss function in order to control exploration. This term
+        is weighted using the :math:`\beta` value defined by beta_entropy.
+
+    :param optimization_epochs: (int)
+        For each training phase, the collected dataset will be used for multiple epochs, which are defined by the
+        optimization_epochs value.
+
+    :param optimization_epochs: (Schedule)
+        Can be used to define a schedule over the clipping of the likelihood ratio.
+
+    """
     def __init__(self):
         super().__init__()
         self.num_episodes_in_experience_replay = 1000000
@@ -66,7 +107,6 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
         self.use_kl_regularization = False
         self.clip_likelihood_ratio_using_epsilon = 0.2
         self.estimate_state_value_using_gae = True
-        self.step_until_collecting_full_episodes = True
         self.beta_entropy = 0.01  # should be 0 for mujoco
         self.num_consecutive_playing_steps = EnvironmentSteps(2048)
         self.optimization_epochs = 10

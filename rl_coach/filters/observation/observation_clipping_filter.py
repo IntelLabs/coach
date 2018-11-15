@@ -24,7 +24,10 @@ from rl_coach.spaces import ObservationSpace
 
 class ObservationClippingFilter(ObservationFilter):
     """
-    Clip the observation values using the given ranges
+    Clips the observation values to a given range of values.
+    For example, if the observation consists of measurements in an arbitrary range,
+    and we want to control the minimum and maximum values of these observations,
+    we can define a range and clip the values of the measurements.
     """
     def __init__(self, clipping_low: float=-np.inf, clipping_high: float=np.inf):
         """

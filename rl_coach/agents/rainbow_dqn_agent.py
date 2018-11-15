@@ -37,6 +37,17 @@ class RainbowDQNNetworkParameters(DQNNetworkParameters):
 
 
 class RainbowDQNAlgorithmParameters(CategoricalDQNAlgorithmParameters):
+    """
+    :param n_step: (int)
+        The number of steps to bootstrap the network over. The first N-1 steps actual rewards will be accumulated
+        using an exponentially growing discount factor, and the Nth step will be bootstrapped from the network
+        prediction.
+
+    :param store_transitions_only_when_episodes_are_terminated: (bool)
+        If set to True, the transitions will be stored in an Episode object until the episode ends, and just then
+        written to the memory. This is useful since we want to calculate the N-step discounted rewards before saving the
+        transitions into the memory, and to do so we need the entire episode first.
+    """
     def __init__(self):
         super().__init__()
         self.n_step = 3

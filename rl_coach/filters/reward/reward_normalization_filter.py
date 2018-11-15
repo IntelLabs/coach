@@ -25,8 +25,9 @@ from rl_coach.spaces import RewardSpace
 
 class RewardNormalizationFilter(RewardFilter):
     """
-    Normalize the reward with a running standard deviation and mean of the rewards seen so far
-    If there is more than a single worker, the statistics of the rewards are shared between all the workers
+    Normalizes the reward values with a running mean and standard deviation of
+    all the rewards seen so far. When working with multiple workers, the statistics used for the normalization operation
+    are accumulated over all the workers.
     """
     def __init__(self, clip_min: float=-5.0, clip_max: float=5.0):
         """

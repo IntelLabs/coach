@@ -30,6 +30,11 @@ class GreedyParameters(ExplorationParameters):
 
 
 class Greedy(ExplorationPolicy):
+    """
+    The Greedy exploration policy is intended for both discrete and continuous action spaces.
+    For discrete action spaces, it always selects the action with the maximum value, as given by the agent.
+    For continuous action spaces, it always return the exact action, as it was given by the agent.
+    """
     def __init__(self, action_space: ActionSpace):
         """
         :param action_space: the action space used by the environment

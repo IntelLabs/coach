@@ -40,6 +40,11 @@ class OUProcessParameters(ExplorationParameters):
 
 # Ornstein-Uhlenbeck process
 class OUProcess(ExplorationPolicy):
+    """
+    OUProcess exploration policy is intended for continuous action spaces, and selects the action according to
+    an Ornstein-Uhlenbeck process. The Ornstein-Uhlenbeck process implements the action as a Gaussian process, where
+    the samples are correlated between consequent time steps.
+    """
     def __init__(self, action_space: ActionSpace, mu: float=0, theta: float=0.15, sigma: float=0.2, dt: float=0.01):
         """
         :param action_space: the action space used by the environment

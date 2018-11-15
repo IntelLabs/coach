@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="network.html">Network Design</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>&lt;no title&gt;</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/design/horizontal_scaling.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p># Scaling out rollout workers</p>
+<p>This document contains some options for how we could implement horizontal scaling of rollout workers in coach, though most details are not specific to coach. A few options are laid out, my current suggestion would be to start with Option 1, and move on to Option 1a or Option 1b as required.</p>
+<p>## Off Policy Algorithms</p>
+<p>### Option 1 - master polls file system</p>
+<ul>
+<li><p class="first">one master process samples memories and updates the policy</p>
+</li>
+<li><p class="first">many worker processes execute rollouts</p>
+</li>
+<li><p class="first">coordinate using a single shared networked file system: nfs, ceph, dat, s3fs, etc.</p>
+</li>
+<li><p class="first">policy sync communication method:
+- master process occasionally writes policy to shared file system
+- worker processes occasionally read policy from shared file system
+- prevent workers from reading a policy which has not been completely written to disk using either:</p>
+<blockquote>
+<div><ul class="simple">
+<li>redis lock</li>
+<li>write to temporary files and then rename</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">rollout memories:
+- sync communication method:</p>
+<blockquote>
+<div><ul class="simple">
+<li>worker processes write rollout memories as they are generated to shared filesystem</li>
+<li>master process occasionally reads rollout memories from shared file system</li>
+<li>master process must be resilient to corrupted or incompletely written memories</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li>sampling method:
+- master process keeps all rollouts in memory utilizing existing coach memory classes</li>
+</ul>
+</li>
+<li><p class="first">control flow:
+- master:</p>
+<blockquote>
+<div><ul class="simple">
+<li>run training updates interleaved with loading of any newly available rollouts in memory</li>
+<li>periodically write policy to disk</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li>workers:
+- periodically read policy from disk
+- evaluate rollouts and write them to disk</li>
+</ul>
+</li>
+<li><p class="first">ops:
+- kubernetes yaml, kml, docker compose, etc
+- a default shared file system can be provided, while allowing the user to specify something else if desired
+- a default method of launching the workers and master (in kubernetes, gce, aws, etc) can be provided</p>
+</li>
+</ul>
+<p>#### Pros</p>
+<ul class="simple">
+<li>very simple to implement, infrastructure already available in ai-lab-kubernetes</li>
+<li>fast enough for proof of concept and iteration of interface design</li>
+<li>rollout memories are durable and can be easily reused in later off policy training</li>
+<li>if designed properly, there is a clear path towards:
+- decreasing latency using in-memory store (option 1a/b)
+- increasing rollout memory size using distributed sampling methods (option 1c)</li>
+</ul>
+<p>#### Cons</p>
+<ul class="simple">
+<li>file system interface incurs additional latency. rollout memories must be written to disk, and later read from disk, instead of going directly from memory to memory.</li>
+<li>will require modifying standard control flow. there will be an impact on algorithms which expect particular training regimens. Specifically, algorithms which are sensitive to the number of update steps between target/online network updates</li>
+<li>will not be particularly efficient in strictly on policy algorithms where each rollout must use the most recent policy available</li>
+</ul>
+<p>### Option 1a - master polls (redis) list</p>
+<ul class="simple">
+<li>instead of using a file system as in Option 1, redis lists can be used</li>
+<li>policy is stored as a single key/value pair (locking no longer necessary)</li>
+<li>rollout memory communication:
+- workers: redis list push
+- master: redis list len, redis list range</li>
+<li>note: many databases are interchangeable with redis protocol: google memorystore, aws elasticache, etc.</li>
+<li>note: many databases can implement this interface with minimal glue: SQL, any objectstore, etc.</li>
+</ul>
+<p>#### Pros</p>
+<ul class="simple">
+<li>lower latency than disk since it is all in memory</li>
+<li>clear path toward scaling to large number of workers</li>
+<li>no concern about reading partially written rollouts</li>
+<li>no synchronization or additional threads necessary, though an additional thread would be helpful for concurrent reads from redis and training</li>
+<li>will be slightly more efficient in the case of strictly on policy algorithms</li>
+</ul>
+<p>#### Cons</p>
+<ul class="simple">
+<li>more complex to set up, especially if you are concerned about rollout memory durability</li>
+</ul>
+<p>### Option 1b - master subscribes to (redis) pub sub</p>
+<ul class="simple">
+<li>instead of using a file system as in Option 1, redis pub sub can be used</li>
+<li>policy is stored as a single key/value pair (locking no longer necessary)</li>
+<li>rollout memory communication:
+- workers: redis publish
+- master: redis subscribe</li>
+<li>no synchronization necessary, however an additional thread would be necessary?
+- it looks like the python client might handle this already, would need further investigation</li>
+<li>note: many possible pub sub systems could be used with different characteristics under specific contexts: kafka, google pub/sub, aws kinesis, etc</li>
+</ul>
+<p>#### Pros</p>
+<ul class="simple">
+<li>lower latency than disk since it is all in memory</li>
+<li>clear path toward scaling to large number of workers</li>
+<li>no concern about reading partially written rollouts</li>
+<li>will be slightly more efficient in the case of strictly on policy algorithms</li>
+</ul>
+<p>#### Cons</p>
+<ul class="simple">
+<li>more complex to set up then shared file system</li>
+<li>on its own, does not persist worker rollouts for future off policy training</li>
+</ul>
+<p>### Option 1c - distributed rollout memory sampling</p>
+<ul class="simple">
+<li>if rollout memories do not fit in memory of a single machine, a distributed storage and sampling method would be necessary</li>
+<li>for example:
+- rollout memory store: redis set add
+- rollout memory sample: redis set randmember</li>
+</ul>
+<p>#### Pros</p>
+<ul class="simple">
+<li>capable of taking advantage of rollout memory larger than the available memory of a single machine</li>
+<li>reduce resource constraints on training machine</li>
+</ul>
+<p>#### Cons</p>
+<ul class="simple">
+<li>distributed versions of each memory type/sampling method need to be custom built</li>
+<li>off-the-shelf implementations may not be available for complex memory types/sampling methods</li>
+</ul>
+<p>### Option 2 - master listens to workers</p>
+<ul class="simple">
+<li>rollout memories:
+- workers send memories directly to master via: mpi, 0mq, etc
+- master policy thread listens for new memories and stores them in shared memory</li>
+<li>policy sync communication memory:
+- master policy occasionally sends policies directly to workers via: mpi, 0mq, etc
+- master and workers must synchronize so that all workers are listening when the master is ready to send a new policy</li>
+</ul>
+<p>#### Pros</p>
+<ul class="simple">
+<li>lower latency than option 1 (for a small number of workers)</li>
+<li>will potentially be the optimal choice in the case of strictly on policy algorithms with relatively small number of worker nodes (small enough that more complex communication typologies would be necessary: rings, p2p, etc)</li>
+</ul>
+<p>#### Cons</p>
+<ul class="simple">
+<li>much less robust and more difficult to debug requiring lots of synchronization</li>
+<li>much more difficult to be resiliency worker failure</li>
+<li>more custom communication/synchronization code</li>
+<li>as the number of workers scale up, a larger and larger fraction of time will be spent waiting and synchronizing</li>
+</ul>
+<p>### Option 3 - Ray</p>
+<p>#### Pros</p>
+<ul class="simple">
+<li>Ray would allow us to easily convert our current algorithms to distributed versions, with minimal change to our code.</li>
+</ul>
+<p>#### Cons</p>
+<ul class="simple">
+<li>performance from naïve/simple use would be very similar to Option 2</li>
+<li>nontrivial to replace with a higher performance system if desired. Additional performance will require significant code changes.</li>
+</ul>
+<p>## On Policy Algorithms</p>
+<p>TODO</p>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

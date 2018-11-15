@@ -32,7 +32,6 @@ from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayPar
 class BCAlgorithmParameters(AlgorithmParameters):
     def __init__(self):
         super().__init__()
-        self.collect_new_data = False
 
 
 class BCNetworkParameters(NetworkParameters):

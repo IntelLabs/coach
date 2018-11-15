@@ -23,10 +23,15 @@ from rl_coach.spaces import ObservationSpace
 
 class ObservationToUInt8Filter(ObservationFilter):
     """
-    Converts the observation values to be uint8 values between 0 and 255.
-    It first scales the observation values to fit in the range and then converts them to uint8.
+    Converts a floating point observation into an unsigned int 8 bit observation. This is
+    mostly useful for reducing memory consumption and is usually used for image observations. The filter will first
+    spread the observation values over the range 0-255 and then discretize them into integer values.
     """
     def __init__(self, input_low: float, input_high: float):
+        """
+        :param input_low: The lowest value currently present in the observation
+        :param input_high: The highest value currently present in the observation
+        """
         super().__init__()
         self.input_low = input_low
         self.input_high = input_high
