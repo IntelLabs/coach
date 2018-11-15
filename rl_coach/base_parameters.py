@@ -171,6 +171,9 @@ class AlgorithmParameters(Parameters):
         # Distributed Coach params
         self.distributed_coach_synchronization_type = None
 
+        # Should the workers wait for full episode
+        self.act_for_full_episodes = False
+
 
 class PresetValidationParameters(Parameters):
     def __init__(self,

@@ -80,9 +80,7 @@ class Agent(AgentInterface):
             if hasattr(self.ap.memory, 'memory_backend_params'):
                 self.memory_backend = get_memory_backend(self.ap.memory.memory_backend_params)
 
-                if self.ap.memory.memory_backend_params.run_type == 'trainer':
-                    self.memory_backend.subscribe(self)
-                else:
+                if self.ap.memory.memory_backend_params.run_type != 'trainer':
                     self.memory.set_memory_backend(self.memory_backend)
 
             if agent_parameters.memory.load_memory_from_file_path:
@@ -583,14 +581,14 @@ class Agent(AgentInterface):
                              "EnvironmentSteps or TrainingSteps. Instead it is {}".format(step_method.__class__))
         return should_update
 
-    def _should_train(self, wait_for_full_episode=False) -> bool:
+    def _should_train(self):
         """
         Determine if we should start a training phase according to the number of steps passed since the last training
 
         :return:  boolean: True if we should start a training phase
         """
 
-        should_update = self._should_train_helper(wait_for_full_episode=wait_for_full_episode)
+        should_update = self._should_train_helper()
 
         step_method = self.ap.algorithm.num_consecutive_playing_steps
 
@@ -602,8 +600,8 @@ class Agent(AgentInterface):
 
         return should_update
 
-    def _should_train_helper(self, wait_for_full_episode=False):
-
+    def _should_train_helper(self):
+        wait_for_full_episode = self.ap.algorithm.act_for_full_episodes
         step_method = self.ap.algorithm.num_consecutive_playing_steps
 
         if step_method.__class__ == EnvironmentEpisodes:
@@ -921,6 +919,67 @@ class Agent(AgentInterface):
         """
         for network in self.networks.values():
             network.sync()
+
+    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
+    #               an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
+    def emulate_observe_on_trainer(self, transition: Transition) -> bool:
+        """
+        This emulates the observe using the transition obtained from the rollout worker on the training worker
+        in case of distributed training.
+        Given a response from the environment, distill the observation from it and store it for later use.
+        The response should be a dictionary containing the performed action, the new observation and measurements,
+        the reward, a game over flag and any additional information necessary.
+        :return:
+        """
+
+        # if we are in the first step in the episode, then we don't have a a next state and a reward and thus no
+        # transition yet, and therefore we don't need to store anything in the memory.
+        # also we did not reach the goal yet.
+        if self.current_episode_steps_counter == 0:
+            # initialize the current state
+            return transition.game_over
+        else:
+            # sum up the total shaped reward
+            self.total_shaped_reward_in_current_episode += transition.reward
+            self.total_reward_in_current_episode += transition.reward
+            self.shaped_reward.add_sample(transition.reward)
+            self.reward.add_sample(transition.reward)
+
+            # create and store the transition
+            if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
+                # for episodic memories we keep the transitions in a local buffer until the episode is ended.
+                # for regular memories we insert the transitions directly to the memory
+                self.current_episode_buffer.insert(transition)
+                if not isinstance(self.memory, EpisodicExperienceReplay) \
+                        and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
+                    self.call_memory('store', transition)
+
+            if self.ap.visualization.dump_in_episode_signals:
+                self.update_step_in_episode_log()
+
+            return transition.game_over
+
+    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
+    #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
+    def emulate_act_on_trainer(self, transition: Transition) -> ActionInfo:
+        """
+        This emulates the act using the transition obtained from the rollout worker on the training worker
+        in case of distributed training.
+        Given the agents current knowledge, decide on the next action to apply to the environment
+        :return: an action and a dictionary containing any additional info from the action decision process
+        """
+        if self.phase == RunPhase.TRAIN and self.ap.algorithm.num_consecutive_playing_steps.num_steps == 0:
+            # This agent never plays  while training (e.g. behavioral cloning)
+            return None
+
+        # count steps (only when training or if we are in the evaluation worker)
+        if self.phase != RunPhase.TEST or self.ap.task_parameters.evaluate_only:
+            self.total_steps_counter += 1
+        self.current_episode_steps_counter += 1
+
+        self.last_action_info = transition.action
+
+        return self.last_action_info
 
     def get_success_rate(self) -> float:
         return self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed

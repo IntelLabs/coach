@@ -121,6 +121,7 @@ class PPOAlgorithmParameters(AlgorithmParameters):
         self.use_kl_regularization = True
         self.beta_entropy = 0.01
         self.num_consecutive_playing_steps = EnvironmentSteps(5000)
+        self.act_for_full_episodes = True
 
 
 class PPOAgentParameters(AgentParameters):
@@ -354,12 +355,9 @@ class PPOAgent(ActorCriticAgent):
         # clean memory
         self.call_memory('clean')
 
-    def _should_train_helper(self, wait_for_full_episode=True):
-        return super()._should_train_helper(True)
-
     def train(self):
         loss = 0
-        if self._should_train(wait_for_full_episode=True):
+        if self._should_train():
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -391,3 +389,4 @@ class PPOAgent(ActorCriticAgent):
     def get_prediction(self, states):
         tf_input_state = self.prepare_batch_for_inference(states, "actor")
         return self.networks['actor'].online_network.predict(tf_input_state)
+

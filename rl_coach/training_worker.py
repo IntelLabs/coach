@@ -31,7 +31,14 @@ def training_worker(graph_manager, checkpoint_dir):
     # evaluation offset
     eval_offset = 1
 
+    graph_manager.setup_memory_backend()
+
     while(steps < graph_manager.improve_steps.num_steps):
+
+        graph_manager.phase = core_types.RunPhase.TRAIN
+        graph_manager.fetch_from_worker(num_steps=graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)
+        graph_manager.phase = core_types.RunPhase.UNDEFINED
+
         if graph_manager.should_train():
             steps += 1
 

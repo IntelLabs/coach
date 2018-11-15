@@ -12,7 +12,7 @@ import os
 import math
 
 from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchronizationType
-from rl_coach.core_types import EnvironmentSteps, RunPhase
+from rl_coach.core_types import EnvironmentSteps, RunPhase, EnvironmentEpisodes
 from google.protobuf import text_format
 from tensorflow.python.training.checkpoint_state_pb2 import CheckpointState
 from rl_coach.data_stores.data_store import SyncFiles
@@ -81,21 +81,23 @@ def rollout_worker(graph_manager, checkpoint_dir, data_store, num_workers):
 
     task_parameters = TaskParameters()
     task_parameters.__dict__['checkpoint_restore_dir'] = checkpoint_dir
-    time.sleep(30)
+
     graph_manager.create_graph(task_parameters)
     with graph_manager.phase_context(RunPhase.TRAIN):
-        error_compensation = 100
 
         last_checkpoint = 0
 
-        act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps + error_compensation)/num_workers)
+        act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)/num_workers)
 
         for i in range(int(graph_manager.improve_steps.num_steps/act_steps)):
 
             if should_stop(checkpoint_dir):
                 break
 
-            graph_manager.act(EnvironmentSteps(num_steps=act_steps))
+            if type(graph_manager.agent_params.algorithm.num_consecutive_playing_steps) == EnvironmentSteps:
+                graph_manager.act(EnvironmentSteps(num_steps=act_steps), wait_for_full_episode=graph_manager.agent_params.algorithm.act_for_full_episodes)
+            elif type(graph_manager.agent_params.algorithm.num_consecutive_playing_steps) == EnvironmentEpisodes:
+                graph_manager.act(EnvironmentEpisodes(num_steps=act_steps))
 
             new_checkpoint = get_latest_checkpoint(checkpoint_dir)
 

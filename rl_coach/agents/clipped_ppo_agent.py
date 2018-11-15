@@ -112,6 +112,7 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
         self.optimization_epochs = 10
         self.normalization_stats = None
         self.clipping_decay_schedule = ConstantSchedule(1)
+        self.act_for_full_episodes = True
 
 
 class ClippedPPOAgentParameters(AgentParameters):
@@ -294,11 +295,8 @@ class ClippedPPOAgent(ActorCriticAgent):
         # clean memory
         self.call_memory('clean')
 
-    def _should_train_helper(self, wait_for_full_episode=True):
-        return super()._should_train_helper(True)
-
     def train(self):
-        if self._should_train(wait_for_full_episode=True):
+        if self._should_train():
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -334,3 +332,4 @@ class ClippedPPOAgent(ActorCriticAgent):
     def choose_action(self, curr_state):
         self.ap.algorithm.clipping_decay_schedule.step()
         return super().choose_action(curr_state)
+

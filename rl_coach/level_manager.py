@@ -17,7 +17,7 @@ import copy
 from typing import Union, Dict
 
 from rl_coach.agents.composite_agent import CompositeAgent
-from rl_coach.core_types import EnvResponse, ActionInfo, RunPhase, ActionType, EnvironmentSteps
+from rl_coach.core_types import EnvResponse, ActionInfo, RunPhase, ActionType, EnvironmentSteps, Transition
 from rl_coach.environments.environment import Environment
 from rl_coach.environments.environment_interface import EnvironmentInterface
 from rl_coach.spaces import ActionSpace, SpacesDefinition
@@ -263,6 +263,32 @@ class LevelManager(EnvironmentInterface):
 
     def should_train(self) -> bool:
         return any([agent._should_train_helper() for agent in self.agents.values()])
+
+    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
+    #               an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
+    def emulate_step_on_trainer(self, transition: Transition) -> None:
+        """
+        This emulates a step using the transition obtained from the rollout worker on the training worker
+        in case of distributed training.
+        Run a single step of following the behavioral scheme set for this environment.
+        :param action: the action to apply to the agents held in this level, before beginning following
+                       the scheme.
+        :return: None
+        """
+
+        if self.reset_required:
+            self.reset_internal_state()
+
+        acting_agent = list(self.agents.values())[0]
+
+        # for i in range(self.steps_limit.num_steps):
+        # let the agent observe the result and decide if it wants to terminate the episode
+        done = acting_agent.emulate_observe_on_trainer(transition)
+        acting_agent.emulate_act_on_trainer(transition)
+
+        if done:
+            self.handle_episode_ended()
+            self.reset_required = True
 
     def should_stop(self) -> bool:
         return all([agent.get_success_rate() >= self.environment.get_target_success_rate() for agent in self.agents.values()])

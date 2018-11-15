@@ -287,15 +287,15 @@ class CoachLauncher(object):
     def get_config_args(self, parser: argparse.ArgumentParser) -> argparse.Namespace:
         """
         Returns a Namespace object with all the user-specified configuration options needed to launch.
-        This implementation uses argparse to take arguments from the CLI, but this can be over-ridden by 
+        This implementation uses argparse to take arguments from the CLI, but this can be over-ridden by
         another method that gets its configuration from elsewhere.  An equivalent method however must
         return an identically structured Namespace object, which conforms to the structure defined by
         get_argument_parser.
 
-        This method parses the arguments that the user entered, does some basic validation, and 
+        This method parses the arguments that the user entered, does some basic validation, and
         modification of user-specified values in short form to be more explicit.
 
-        :param parser: a parser object which implicitly defines the format of the Namespace that 
+        :param parser: a parser object which implicitly defines the format of the Namespace that
                        is expected to be returned.
         :return: the parsed arguments as a Namespace
         """
@@ -333,26 +333,26 @@ class CoachLauncher(object):
                 args.s3_creds_file = coach_config.get('coach', 's3_creds_file')
             except Error as e:
                 screen.error("Error when reading distributed Coach config file: {}".format(e))
-    
+
             if args.image == '':
                 screen.error("Image cannot be empty.")
-    
+
             data_store_choices = ['s3']
             if args.data_store not in data_store_choices:
                 screen.warning("{} data store is unsupported.".format(args.data_store))
                 screen.error("Supported data stores are {}.".format(data_store_choices))
-    
+
             memory_backend_choices = ['redispubsub']
             if args.memory_backend not in memory_backend_choices:
                 screen.warning("{} memory backend is not supported.".format(args.memory_backend))
                 screen.error("Supported memory backends are {}.".format(memory_backend_choices))
-    
+
             if args.s3_bucket_name == '':
                 screen.error("S3 bucket name cannot be empty.")
-    
+
             if args.s3_creds_file == '':
                 args.s3_creds_file = None
-    
+
         if args.play and args.distributed_coach:
             screen.error("Playing is not supported in distributed Coach.")
 

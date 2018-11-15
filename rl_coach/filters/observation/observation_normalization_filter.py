@@ -70,6 +70,7 @@ class ObservationNormalizationFilter(ObservationFilter):
         return self.running_observation_stats.normalize(observations)
 
     def get_filtered_observation_space(self, input_observation_space: ObservationSpace) -> ObservationSpace:
+
         self.running_observation_stats.create_ops(shape=input_observation_space.shape,
                                                   clip_values=(self.clip_min, self.clip_max))
         return input_observation_space
