@@ -135,9 +135,9 @@ class NFSDataStore(DataStore):
         )
 
         try:
-            k8s_core_v1_api_client.create_namespaced_service(self.params.namespace, service)
+            svc_response = k8s_core_v1_api_client.create_namespaced_service(self.params.namespace, service)
             self.params.svc_name = svc_name
-            self.params.server = 'nfs-service.{}.svc.cluster.local'.format(self.params.namespace)
+            self.params.server = svc_response.spec.cluster_ip
         except k8sclient.rest.ApiException as e:
             print("Got exception: %s\n while creating a service for nfs-server", e)
             return False

@@ -68,6 +68,8 @@ def get_latest_checkpoint(checkpoint_dir):
         rel_path = os.path.relpath(ckpt.model_checkpoint_path, checkpoint_dir)
         return int(rel_path.split('_Step')[0])
 
+    return 0
+
 
 def should_stop(checkpoint_dir):
     return os.path.exists(os.path.join(checkpoint_dir, SyncFiles.FINISHED.value))
