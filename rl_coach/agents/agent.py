@@ -367,9 +367,9 @@ class Agent(AgentInterface):
             # we write to the next episode, because it could be that the current episode was already written
             # to disk and then we won't write it again
             self.agent_logger.set_current_time(self.current_episode + 1)
+            evaluation_reward = self.accumulated_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
-                'Evaluation Reward',
-                self.accumulated_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed)
+                'Evaluation Reward', evaluation_reward)
             self.agent_logger.create_signal_value(
                 'Shaped Evaluation Reward',
                 self.accumulated_shaped_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed)
@@ -379,8 +379,8 @@ class Agent(AgentInterface):
                 success_rate
             )
             if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
-                screen.log_title("{}: Finished evaluation phase. Success rate = {}"
-                             .format(self.name, np.round(success_rate, 2)))
+                screen.log_title("{}: Finished evaluation phase. Success rate = {}, Avg Total Reward = {}"
+                                 .format(self.name, np.round(success_rate, 2), np.round(evaluation_reward, 2)))
 
     def call_memory(self, func, args=()):
         """
