@@ -4,7 +4,8 @@ from types import ModuleType
 import mxnet as mx
 from mxnet.gluon.loss import Loss, HuberLoss, L2Loss
 from mxnet.gluon import nn
-from rl_coach.architectures.mxnet_components.heads.head import Head, HeadLoss, LossInputSchema
+from rl_coach.architectures.mxnet_components.heads.head import Head, HeadLoss, LossInputSchema,\
+    NormalizedRSSInitializer
 from rl_coach.architectures.mxnet_components.heads.head import LOSS_OUT_TYPE_LOSS
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import VStateValue
@@ -79,7 +80,7 @@ class VHead(Head):
         self.loss_type = loss_type
         self.return_type = VStateValue
         with self.name_scope():
-            self.dense = nn.Dense(units=1)
+            self.dense = nn.Dense(units=1, weight_initializer=NormalizedRSSInitializer(1.0))
 
     def loss(self) -> Loss:
         """

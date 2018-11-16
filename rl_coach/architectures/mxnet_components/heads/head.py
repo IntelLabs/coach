@@ -1,5 +1,7 @@
 from typing import Dict, List, Union, Tuple
 
+import mxnet as mx
+from mxnet.initializer import Initializer, register
 from mxnet.gluon import nn, loss
 from mxnet.ndarray import NDArray
 from mxnet.symbol import Symbol
@@ -9,6 +11,26 @@ from rl_coach.spaces import SpacesDefinition
 
 LOSS_OUT_TYPE_LOSS = 'loss'
 LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
+
+
+@register
+class NormalizedRSSInitializer(Initializer):
+    """
+    Standardizes Root Sum of Squares along the input channel dimension.
+    Used for Dense layer weight matrices only (ie. do not use on Convolution kernels).
+    MXNet Dense layer weight matrix is of shape (out_ch, in_ch), so standardize across axis 1.
+    Root Sum of Squares set to `rss`, which is 1.0 by default.
+    Called `normalized_columns_initializer` in TensorFlow backend (but we work with rows instead of columns for MXNet).
+    """
+    def __init__(self, rss=1.0):
+        super(NormalizedRSSInitializer, self).__init__(rss=rss)
+        self.rss = float(rss)
+
+    def _init_weight(self, name, arr):
+        mx.nd.random.normal(0, 1, out=arr)
+        sample_rss = arr.square().sum(axis=1).sqrt()
+        scalers = self.rss / sample_rss
+        arr *= scalers.expand_dims(1)
 
 
 class LossInputSchema(object):

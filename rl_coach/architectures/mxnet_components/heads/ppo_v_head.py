@@ -3,7 +3,8 @@ from types import ModuleType
 
 import mxnet as mx
 from mxnet.gluon import nn
-from rl_coach.architectures.mxnet_components.heads.head import Head, HeadLoss, LossInputSchema
+from rl_coach.architectures.mxnet_components.heads.head import Head, HeadLoss, LossInputSchema,\
+    NormalizedRSSInitializer
 from rl_coach.architectures.mxnet_components.heads.head import LOSS_OUT_TYPE_LOSS
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
@@ -102,7 +103,7 @@ class PPOVHead(Head):
         self.clip_likelihood_ratio_using_epsilon = agent_parameters.algorithm.clip_likelihood_ratio_using_epsilon
         self.return_type = ActionProbabilities
         with self.name_scope():
-            self.dense = nn.Dense(units=1)
+            self.dense = nn.Dense(units=1, weight_initializer=NormalizedRSSInitializer(1.0))
 
     def hybrid_forward(self, F: ModuleType, x: nd_sym_type) -> nd_sym_type:
         """
