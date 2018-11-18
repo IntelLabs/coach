@@ -78,7 +78,7 @@ def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'
 
     # let the adventure begin
     if task_parameters.evaluate_only:
-        graph_manager.evaluate(EnvironmentSteps(sys.maxsize), keep_networks_in_sync=True)
+        graph_manager.evaluate(EnvironmentSteps(sys.maxsize))
     else:
         graph_manager.improve()
 

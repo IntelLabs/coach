@@ -17,10 +17,11 @@
 
 import numpy as np
 
-from rl_coach.architectures.tensorflow_components.shared_variables import SharedRunningStats
+from rl_coach.architectures.tensorflow_components.shared_variables import TFSharedRunningStats
 from rl_coach.core_types import RewardType
 from rl_coach.filters.reward.reward_filter import RewardFilter
 from rl_coach.spaces import RewardSpace
+from rl_coach.utilities.shared_running_stats import NumpySharedRunningStats
 
 
 class RewardNormalizationFilter(RewardFilter):
@@ -39,14 +40,19 @@ class RewardNormalizationFilter(RewardFilter):
         self.clip_max = clip_max
         self.running_rewards_stats = None
 
-    def set_device(self, device, memory_backend_params=None) -> None:
+    def set_device(self, device, memory_backend_params=None, mode='numpy') -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
         :return: None
         """
-        self.running_rewards_stats = SharedRunningStats(device, name='rewards_stats',
-                                                        pubsub_params=memory_backend_params)
+
+        if mode == 'tf':
+            self.running_rewards_stats = TFSharedRunningStats(device, name='rewards_stats', create_ops=False,
+                                                            pubsub_params=memory_backend_params)
+        elif mode == 'numpy':
+            self.running_rewards_stats = NumpySharedRunningStats(name='rewards_stats',
+                                                          pubsub_params=memory_backend_params)
 
     def set_session(self, sess) -> None:
         """

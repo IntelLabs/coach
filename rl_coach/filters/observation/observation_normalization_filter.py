@@ -17,10 +17,11 @@ from typing import List
 
 import numpy as np
 
-from rl_coach.architectures.tensorflow_components.shared_variables import SharedRunningStats
+from rl_coach.architectures.tensorflow_components.shared_variables import SharedRunningStats, TFSharedRunningStats
 from rl_coach.core_types import ObservationType
 from rl_coach.filters.observation.observation_filter import ObservationFilter
 from rl_coach.spaces import ObservationSpace
+from rl_coach.utilities.shared_running_stats import NumpySharedRunningStats, NumpySharedRunningStats
 
 
 class ObservationNormalizationFilter(ObservationFilter):
@@ -42,14 +43,20 @@ class ObservationNormalizationFilter(ObservationFilter):
         self.supports_batching = True
         self.observation_space = None
 
-    def set_device(self, device, memory_backend_params=None) -> None:
+    def set_device(self, device, memory_backend_params=None, mode='numpy') -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
+        :memory_backend_params: if not None, holds params for a memory backend for sharing data (e.g. Redis)
+        :param mode: the arithmetic module to use {'tf' | 'numpy'}
         :return: None
         """
-        self.running_observation_stats = SharedRunningStats(device, name=self.name, create_ops=False,
+        if mode == 'tf':
+            self.running_observation_stats = TFSharedRunningStats(device, name=self.name, create_ops=False,
                                                             pubsub_params=memory_backend_params)
+        elif mode == 'numpy':
+            self.running_observation_stats = NumpySharedRunningStats(name=self.name,
+                                                                     pubsub_params=memory_backend_params)
 
     def set_session(self, sess) -> None:
         """
@@ -66,11 +73,9 @@ class ObservationNormalizationFilter(ObservationFilter):
             self.last_mean = self.running_observation_stats.mean
             self.last_stdev = self.running_observation_stats.std
 
-        # TODO: make sure that a batch is given here
         return self.running_observation_stats.normalize(observations)
 
     def get_filtered_observation_space(self, input_observation_space: ObservationSpace) -> ObservationSpace:
-
-        self.running_observation_stats.create_ops(shape=input_observation_space.shape,
+        self.running_observation_stats.set_params(shape=input_observation_space.shape,
                                                   clip_values=(self.clip_min, self.clip_max))
         return input_observation_space

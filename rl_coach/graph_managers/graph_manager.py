@@ -462,11 +462,10 @@ class GraphManager(object):
         """
         [manager.sync() for manager in self.level_managers]
 
-    def evaluate(self, steps: PlayingStepsType, keep_networks_in_sync: bool=False) -> bool:
+    def evaluate(self, steps: PlayingStepsType) -> bool:
         """
         Perform evaluation for several steps
         :param steps: the number of steps as a tuple of steps time and steps count
-        :param keep_networks_in_sync: sync the network parameters with the global network before each episode
         :return: bool, True if the target reward and target success has been reached
         """
         self.verify_graph_was_created()
