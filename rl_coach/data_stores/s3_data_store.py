@@ -1,5 +1,4 @@
 from rl_coach.data_stores.data_store import DataStore, DataStoreParameters
-from kubernetes import client as k8sclient
 from minio import Minio
 from minio.error import ResponseError
 from configparser import ConfigParser, Error

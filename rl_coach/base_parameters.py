@@ -52,6 +52,14 @@ class EmbeddingMergerType(Enum):
     #ConcatDepthWise = 2
     #Multiply = 3
 
+class RunType(Enum):
+    ORCHESTRATOR = "orchestrator"
+    TRAINER = "trainer"
+    ROLLOUT_WORKER = "rollout-worker"
+
+    def __str__(self):
+        return self.value
+
 
 # DistributedCoachSynchronizationType provides the synchronization type for distributed Coach.
 # The default value is None, which means the algorithm or preset cannot be used with distributed Coach.

@@ -20,7 +20,6 @@ import pickle
 import redis
 import numpy as np
 
-from rl_coach.memories.backend.memory_impl import get_memory_backend
 
 
 class SharedRunningStatsSubscribe(threading.Thread):
@@ -49,6 +48,7 @@ class SharedRunningStats(ABC):
         self.pubsub = None
         if pubsub_params:
             self.channel = "channel-srs-{}".format(self.name)
+            from rl_coach.memories.backend.memory_impl import get_memory_backend
             self.pubsub = get_memory_backend(pubsub_params)
             subscribe_thread = SharedRunningStatsSubscribe(self)
             subscribe_thread.daemon = True

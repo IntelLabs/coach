@@ -3,7 +3,6 @@ import redis
 import pickle
 import uuid
 import time
-from kubernetes import client
 
 from rl_coach.memories.backend.memory import MemoryBackend, MemoryBackendParameters
 from rl_coach.core_types import Transition, Episode, EnvironmentSteps, EnvironmentEpisodes
@@ -48,6 +47,7 @@ class RedisPubSubBackend(MemoryBackend):
 
         if 'namespace' not in self.params.orchestrator_params:
             self.params.orchestrator_params['namespace'] = "default"
+        from kubernetes import client
 
         container = client.V1Container(
             name=self.redis_server_name,

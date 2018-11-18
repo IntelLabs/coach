@@ -24,7 +24,7 @@ import contextlib
 
 from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, Frameworks, \
     VisualizationParameters, \
-    Parameters, PresetValidationParameters
+    Parameters, PresetValidationParameters, RunType
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
     EnvironmentSteps, \
     StepMethod, Transition
@@ -33,7 +33,6 @@ from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen, Logger
 from rl_coach.utils import set_cpu, start_shell_command_and_wait
 from rl_coach.data_stores.data_store_impl import get_data_store
-from rl_coach.orchestrators.kubernetes_orchestrator import RunType
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.data_stores.data_store import SyncFiles
 

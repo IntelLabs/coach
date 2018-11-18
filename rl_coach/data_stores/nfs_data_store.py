@@ -1,7 +1,6 @@
 import uuid
 
 from rl_coach.data_stores.data_store import DataStore, DataStoreParameters
-from kubernetes import client as k8sclient
 
 
 class NFSDataStoreParameters(DataStoreParameters):
@@ -37,6 +36,8 @@ class NFSDataStore(DataStore):
         return True
 
     def get_info(self):
+        from kubernetes import client as k8sclient
+
         return k8sclient.V1PersistentVolumeClaimVolumeSource(
                 claim_name=self.params.pvc_name
         )
@@ -58,6 +59,8 @@ class NFSDataStore(DataStore):
         pass
 
     def deploy_k8s_nfs(self) -> bool:
+        from kubernetes import client as k8sclient
+
         name = "nfs-server-{}".format(uuid.uuid4())
         container = k8sclient.V1Container(
             name=name,
@@ -145,6 +148,8 @@ class NFSDataStore(DataStore):
         return True
 
     def create_k8s_nfs_resources(self) -> bool:
+        from kubernetes import client as k8sclient
+
         pv_name = "nfs-ckpt-pv-{}".format(uuid.uuid4())
         persistent_volume = k8sclient.V1PersistentVolume(
             api_version="v1",
@@ -200,6 +205,8 @@ class NFSDataStore(DataStore):
         return True
 
     def undeploy_k8s_nfs(self) -> bool:
+        from kubernetes import client as k8sclient
+
         del_options = k8sclient.V1DeleteOptions()
 
         k8s_apps_v1_api_client = k8sclient.AppsV1Api()
@@ -219,6 +226,8 @@ class NFSDataStore(DataStore):
         return True
 
     def delete_k8s_nfs_resources(self) -> bool:
+        from kubernetes import client as k8sclient
+
         del_options = k8sclient.V1DeleteOptions()
         k8s_api_client = k8sclient.CoreV1Api()
 

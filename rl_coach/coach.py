@@ -28,7 +28,8 @@ import atexit
 import time
 import sys
 import json
-from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskParameters, DistributedTaskParameters
+from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskParameters, DistributedTaskParameters, \
+    RunType
 from multiprocessing import Process
 from multiprocessing.managers import BaseManager
 import subprocess
@@ -37,7 +38,6 @@ from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port
 from rl_coach.agents.human_agent import HumanAgentParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.environments.environment import SingleLevelSelection
-from rl_coach.orchestrators.kubernetes_orchestrator import KubernetesParameters, Kubernetes, RunType, RunTypeParameters
 from rl_coach.memories.backend.redis import RedisPubSubMemoryBackendParameters
 from rl_coach.memories.backend.memory_impl import construct_memory_params
 from rl_coach.data_stores.data_store import DataStoreParameters
@@ -119,6 +119,9 @@ def handle_distributed_coach_tasks(graph_manager, args):
 
 
 def handle_distributed_coach_orchestrator(graph_manager, args):
+    from rl_coach.orchestrators.kubernetes_orchestrator import KubernetesParameters, Kubernetes, \
+        RunTypeParameters
+
     ckpt_inside_container = "/checkpoint"
     rollout_command = ['python3', 'rl_coach/coach.py', '--distributed_coach_run_type', str(RunType.ROLLOUT_WORKER)] + sys.argv[1:]
     trainer_command = ['python3', 'rl_coach/coach.py', '--distributed_coach_run_type', str(RunType.TRAINER)] + sys.argv[1:]

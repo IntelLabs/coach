@@ -5,21 +5,14 @@ import time
 from enum import Enum
 from typing import List
 from configparser import ConfigParser, Error
+
+from rl_coach.base_parameters import RunType
 from rl_coach.orchestrators.deploy import Deploy, DeployParameters
 from kubernetes import client as k8sclient, config as k8sconfig
 from rl_coach.memories.backend.memory import MemoryBackendParameters
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.data_stores.data_store import DataStoreParameters
 from rl_coach.data_stores.data_store_impl import get_data_store
-
-
-class RunType(Enum):
-    ORCHESTRATOR = "orchestrator"
-    TRAINER = "trainer"
-    ROLLOUT_WORKER = "rollout-worker"
-
-    def __str__(self):
-        return self.value
 
 
 class RunTypeParameters():
