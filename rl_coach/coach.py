@@ -541,6 +541,11 @@ class CoachLauncher(object):
                             type=RunType,
                             default=RunType.ORCHESTRATOR,
                             choices=list(RunType))
+        parser.add_argument('-asc', '--apply_stop_condition',
+                            help="(flag) If set, this will apply a stop condition on the run, defined by reaching a" 
+                                 "target success rate as set by the environment or a custom success rate as defined "
+                                 "in the preset. ",
+                            action='store_true')
 
         return parser
 
@@ -590,7 +595,8 @@ class CoachLauncher(object):
             checkpoint_save_secs=args.checkpoint_save_secs,
             checkpoint_restore_dir=args.checkpoint_restore_dir,
             checkpoint_save_dir=args.checkpoint_save_dir,
-            export_onnx_graph=args.export_onnx_graph
+            export_onnx_graph=args.export_onnx_graph,
+            apply_stop_condition=args.apply_stop_condition
         )
 
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
@@ -629,7 +635,8 @@ class CoachLauncher(object):
                 checkpoint_save_secs=args.checkpoint_save_secs,
                 checkpoint_restore_dir=args.checkpoint_restore_dir,
                 checkpoint_save_dir=args.checkpoint_save_dir,
-                export_onnx_graph=args.export_onnx_graph
+                export_onnx_graph=args.export_onnx_graph,
+                apply_stop_condition=args.apply_stop_condition
             )
             # we assume that only the evaluation workers are rendering
             graph_manager.visualization_parameters.render = args.render and evaluation_worker
