@@ -2,6 +2,7 @@
 REGISTRY=docker.io
 ORGANIZATION=nervana
 IMAGE=coach
+CONTEXT = $(realpath ..)
 
 BUILD_ARGUMENTS=
 RUN_ARGUMENTS=
@@ -14,6 +15,14 @@ ifdef https_proxy
 	BUILD_ARGUMENTS+=--build-arg https_proxy=$(https_proxy)
 	RUN_ARGUMENTS+=--env https_proxy=$(https_proxy)
 endif
+
+ifndef MUJOCO_KEY
+KEY_NAME=${CONTEXT}/mjkey.txt
+ifneq ("$(wildcard ${KEY_NAME})", "")
+MUJOCO_KEY:=$(shell cat ${KEY_NAME} | base64 -w 0)
+endif
+endif
+
 ifdef MUJOCO_KEY
 	BUILD_ARGUMENTS+=--build-arg MUJOCO_KEY=$(MUJOCO_KEY)
 endif
@@ -27,12 +36,10 @@ INTEGRATION_TESTS=python3 -m pytest rl_coach/tests -m integration_test --tb=shor
 ifdef PRESETS
 	PRESETS := -p $(PRESETS)
 else
-	PRESETS := 
+	PRESETS :=
 endif
 GOLDEN_TESTS=python3 rl_coach/tests/test_golden.py ${PRESETS}
 TRACE_TESTS=python3 rl_coach/tests/trace_tests.py -prl ${PRESETS}
-
-CONTEXT = $(realpath ..)
 
 ifndef DOCKER
 	DOCKER = docker
