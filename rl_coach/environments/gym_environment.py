@@ -83,7 +83,7 @@ class GymVectorEnvironment(GymEnvironmentParameters):
 gym_roboschool_envs = ['inverted_pendulum', 'inverted_pendulum_swingup', 'inverted_double_pendulum', 'reacher',
                        'hopper', 'walker2d', 'half_cheetah', 'ant', 'humanoid', 'humanoid_flagrun',
                        'humanoid_flagrun_harder', 'pong']
-roboschool_v0 = {e: "{}".format(lower_under_to_upper(e) + '-v0') for e in gym_roboschool_envs}
+roboschool_v1 = {e: "Roboschool{}".format(lower_under_to_upper(e) + '-v1') for e in gym_roboschool_envs}
 
 # Mujoco
 gym_mujoco_envs = ['inverted_pendulum', 'inverted_double_pendulum', 'reacher', 'hopper', 'walker2d', 'half_cheetah',
@@ -280,6 +280,7 @@ class GymEnvironment(Environment):
         # frame skip and max between consecutive frames
         self.is_robotics_env = 'robotics' in str(self.env.unwrapped.__class__)
         self.is_mujoco_env = 'mujoco' in str(self.env.unwrapped.__class__)
+        self.is_roboschool_env = 'roboschool' in str(self.env.unwrapped.__class__)
         self.is_atari_env = 'Atari' in str(self.env.unwrapped.__class__)
         self.timelimit_env_wrapper = self.env
         if self.is_atari_env:
@@ -443,8 +444,7 @@ class GymEnvironment(Environment):
         :param camera_idx: The index of the camera to use. Should be defined in the model
         :return: None
         """
-        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx and\
-                self.env.unwrapped.viewer._ncam > camera_idx:
+        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx:
             from mujoco_py.generated import const
             self.env.unwrapped.viewer.cam.type = const.CAMERA_FIXED
             self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
@@ -458,7 +458,7 @@ class GymEnvironment(Environment):
     def _render(self):
         self.env.render(mode='human')
         # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env:
+        if self.is_mujoco_env and not self.is_roboschool_env:
             self._set_mujoco_camera(0)
 
     def get_rendered_image(self):
@@ -468,7 +468,7 @@ class GymEnvironment(Environment):
         else:
             image = self.env.render(mode='rgb_array')
         # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env:
+        if self.is_mujoco_env and not self.is_roboschool_env:
             self._set_mujoco_camera(0)
         return image
 
