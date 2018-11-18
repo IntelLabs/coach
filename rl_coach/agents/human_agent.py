@@ -18,7 +18,9 @@ import os
 from collections import OrderedDict
 from typing import Union
 
-import pygame
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
 from pandas import to_pickle
 
 from rl_coach.agents.agent import Agent
