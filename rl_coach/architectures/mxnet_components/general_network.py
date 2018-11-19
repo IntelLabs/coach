@@ -33,12 +33,12 @@ from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadPara
 from rl_coach.architectures.middleware_parameters import MiddlewareParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.mxnet_components.architecture import MxnetArchitecture
-from rl_coach.architectures.mxnet_components.embedders import ImageEmbedder, VectorEmbedder
+from rl_coach.architectures.mxnet_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.mxnet_components.heads import Head, HeadLoss, PPOHead, PPOVHead, VHead, QHead
 from rl_coach.architectures.mxnet_components.middlewares import FCMiddleware, LSTMMiddleware
 from rl_coach.architectures.mxnet_components import utils
 from rl_coach.base_parameters import AgentParameters, EmbeddingMergerType
-from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace
+from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, TensorObservationSpace
 
 
 class GeneralMxnetNetwork(MxnetArchitecture):
@@ -172,7 +172,9 @@ def _get_input_embedder(spaces: SpacesDefinition,
                          .format(input_name, allowed_inputs.keys()))
 
     type = "vector"
-    if isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
+    if isinstance(allowed_inputs[input_name], TensorObservationSpace):
+        type = "tensor"
+    elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
         type = "image"
 
     def sanitize_params(params: InputEmbedderParameters):
@@ -187,8 +189,10 @@ def _get_input_embedder(spaces: SpacesDefinition,
         module = VectorEmbedder(embedder_params)
     elif type == 'image':
         module = ImageEmbedder(embedder_params)
+    elif type == 'tensor':
+        module = TensorEmbedder(embedder_params)
     else:
-        raise KeyError('Unsupported embedder  type: {}'.format(type))
+        raise KeyError('Unsupported embedder type: {}'.format(type))
     return module
 
 

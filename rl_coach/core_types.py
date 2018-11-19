@@ -114,6 +114,10 @@ class InputVectorEmbedding(InputEmbedding):
     pass
 
 
+class InputTensorEmbedding(InputEmbedding):
+    pass
+
+
 class Middleware_FC_Embedding(MiddlewareEmbedding):
     pass
 

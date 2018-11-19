@@ -183,7 +183,7 @@ class ObservationSpace(Space):
 class VectorObservationSpace(ObservationSpace):
     """
     An observation space which is defined as a vector of elements. This can be particularly useful for environments
-    which return measurements, such as in robotic environmnets.
+    which return measurements, such as in robotic environments.
     """
     def __init__(self, shape: int, low: Union[None, int, float, np.ndarray]=-np.inf,
                  high: Union[None, int, float, np.ndarray]=np.inf, measurements_names: List[str]=None):
@@ -194,6 +194,16 @@ class VectorObservationSpace(ObservationSpace):
                 len(measurements_names), shape))
 
         self.measurements_names = measurements_names
+        super().__init__(shape, low, high)
+
+
+class TensorObservationSpace(ObservationSpace):
+    """
+    An observation space which defines observations with arbitrary shape. This can be particularly useful for
+    environments with non image input.
+    """
+    def __init__(self, shape: np.ndarray, low: -np.inf,
+                 high: np.inf):
         super().__init__(shape, low, high)
 
 

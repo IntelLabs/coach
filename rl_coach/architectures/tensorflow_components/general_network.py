@@ -27,7 +27,7 @@ from rl_coach.architectures.tensorflow_components.architecture import TensorFlow
 from rl_coach.architectures.tensorflow_components import utils
 from rl_coach.base_parameters import AgentParameters, EmbeddingMergerType
 from rl_coach.core_types import PredictionType
-from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace
+from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, TensorObservationSpace
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
 
@@ -116,10 +116,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
                              .format(input_name, allowed_inputs.keys()))
 
-        mod_names = {'image': 'ImageEmbedder', 'vector': 'VectorEmbedder'}
+        mod_names = {'image': 'ImageEmbedder', 'vector': 'VectorEmbedder', 'tensor': 'TensorEmbedder'}
 
         emb_type = "vector"
-        if isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
+        if isinstance(allowed_inputs[input_name], TensorObservationSpace):
+            emb_type = "tensor"
+        elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
             emb_type = "image"
 
         embedder_path = 'rl_coach.architectures.tensorflow_components.embedders:' + mod_names[emb_type]
