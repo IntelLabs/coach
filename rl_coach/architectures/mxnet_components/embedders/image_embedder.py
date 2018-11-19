@@ -70,7 +70,6 @@ class ImageEmbedder(InputEmbedder):
         :param x: image representing environment state, of shape (batch_size, in_channels, height, width).
         :return: embedding of environment state, of shape (batch_size, channels).
         """
-        if len(x.shape) != 4 and self.scheme != EmbedderScheme.Empty:
-            raise ValueError("Image embedders expect the input size to have 4 dimensions. The given size is: {}"
-                             .format(x.shape))
+        # convert from NHWC to NCHW (default for MXNet Convolutions)
+        x = x.transpose((0,3,1,2))
         return super(ImageEmbedder, self).hybrid_forward(F, x, *args, **kwargs)
