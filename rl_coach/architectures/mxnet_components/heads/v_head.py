@@ -98,4 +98,4 @@ class VHead(Head):
         :param x: middleware state representation, of shape (batch_size, in_channels).
         :return: final output of value network, of shape (batch_size).
         """
-        return self.dense(x).squeeze()
+        return self.dense(x).squeeze(axis=1)

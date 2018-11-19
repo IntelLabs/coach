@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 
 from rl_coach.base_parameters import AgentParameters
+from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
 
 
@@ -211,5 +212,14 @@ class Architecture(object):
         :param assign_op: a parameter representing the operation for assigning value to a specific variable
         :param value: value of the specified variable used for update
         :param placeholder: a placeholder for binding the value to assign_op.
+        """
+        raise NotImplementedError
+
+    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+        """
+        Collection of all savers for the network (typically only one saver for network and one for ONNX export)
+        :param parent_path_suffix: path suffix of the parent of the network
+            (e.g. could be name of level manager plus name of agent)
+        :return: saver collection for the network
         """
         raise NotImplementedError

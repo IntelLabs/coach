@@ -25,6 +25,7 @@ from rl_coach.agents.agent_interface import AgentInterface
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters
 from rl_coach.core_types import ActionInfo, EnvResponse, ActionType, RunPhase
 from rl_coach.filters.observation.observation_crop_filter import ObservationCropFilter
+from rl_coach.saver import SaverCollection
 from rl_coach.spaces import ActionSpace
 from rl_coach.spaces import AgentSelection, AttentionActionSpace, SpacesDefinition
 from rl_coach.utils import short_dynamic_import
@@ -412,3 +413,16 @@ class CompositeAgent(AgentInterface):
         :return:
         """
         [agent.sync() for agent in self.agents.values()]
+
+    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+        """
+        Collect all of agent's network savers
+        :param parent_path_suffix: path suffix of the parent of the agent
+            (could be name of level manager or composite agent)
+        :return: collection of all agent savers
+        """
+        savers = SaverCollection()
+        for agent in self.agents.values():
+            savers.update(agent.collect_savers(
+                parent_path_suffix="{}.{}".format(parent_path_suffix, self.name)))
+        return savers

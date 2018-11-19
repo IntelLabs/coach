@@ -19,6 +19,7 @@ from typing import Union, List, Dict
 import numpy as np
 
 from rl_coach.core_types import EnvResponse, ActionInfo, RunPhase, PredictionType, ActionType, Transition
+from rl_coach.saver import SaverCollection
 
 
 class AgentInterface(object):
@@ -153,3 +154,12 @@ class AgentInterface(object):
         :return: A tuple containing the actual action and additional info on the action
         """
         raise NotImplementedError("")
+
+    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+        """
+        Collect all of agent savers
+        :param parent_path_suffix: path suffix of the parent of the agent
+            (could be name of level manager or composite agent)
+        :return: collection of all agent savers
+        """
+        raise NotImplementedError

@@ -30,6 +30,7 @@ from rl_coach.core_types import RunPhase, PredictionType, EnvironmentEpisodes, A
 from rl_coach.core_types import Transition, ActionInfo, TrainingSteps, EnvironmentSteps, EnvResponse
 from rl_coach.logger import screen, Logger, EpisodeLogger
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplay
+from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition, VectorObservationSpace, GoalsSpace, AttentionActionSpace
 from rl_coach.utils import Signal, force_list
 from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
@@ -996,3 +997,16 @@ class Agent(AgentInterface):
 
     def get_success_rate(self) -> float:
         return self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed
+
+    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+        """
+        Collect all of agent's network savers
+        :param parent_path_suffix: path suffix of the parent of the agent
+            (could be name of level manager or composite agent)
+        :return: collection of all agent savers
+        """
+        parent_path_suffix = "{}.{}".format(parent_path_suffix, self.name)
+        savers = SaverCollection()
+        for network in self.networks.values():
+            savers.update(network.collect_savers(parent_path_suffix))
+        return savers

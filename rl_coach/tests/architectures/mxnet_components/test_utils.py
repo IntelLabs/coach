@@ -142,3 +142,42 @@ def test_hybrid_clip():
     b = mx.nd.array((2,))
     clipped = hybrid_clip(F=mx.nd, x=x, clip_lower=a, clip_upper=b)
     assert (np.isclose(a= clipped.asnumpy(), b=(1, 1.5, 2))).all()
+
+
+@pytest.mark.unit_test
+def test_scoped_onxx_enable():
+    class Counter(object):
+        def __init__(self):
+            self._count = 0
+
+        def increment(self):
+            self._count += 1
+
+        @property
+        def count(self):
+            return self._count
+
+    class TempBlock(gluon.HybridBlock, OnnxHandlerBlock):
+        def __init__(self, counter: Counter):
+            super(TempBlock, self).__init__()
+            OnnxHandlerBlock.__init__(self)
+            self._counter = counter
+
+        def hybrid_forward(self, F, x, *args, **kwargs):
+            if self._onnx:
+                self._counter.increment()
+            return x
+
+    counter = Counter()
+    net = gluon.nn.HybridSequential()
+    for _ in range(10):
+        net.add(TempBlock(counter))
+
+    # ONNX disabled
+    net(nd.zeros((1,)))
+    assert counter.count == 0
+
+    # ONNX enabled
+    with ScopedOnnxEnable(net):
+        net(nd.zeros((1,)))
+    assert counter.count == 10
