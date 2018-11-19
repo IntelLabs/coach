@@ -425,7 +425,7 @@ class CoachLauncher(object):
                             help="(flag) Render environment",
                             action='store_true')
         parser.add_argument('-f', '--framework',
-                            help="(string) Neural network framework. Available values: tensorflow",
+                            help="(string) Neural network framework. Available values: tensorflow, mxnet",
                             default='tensorflow',
                             type=str)
         parser.add_argument('-n', '--num_workers',
