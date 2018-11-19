@@ -40,6 +40,7 @@ import subprocess
 # 3. Run `python setup.py sdist`
 # 4. Run `twine upload dist/*`
 
+slim_package = False  # if true build aws package with partial dependencies, otherwise, build full package
 
 here = path.abspath(path.dirname(__file__))
 
@@ -49,10 +50,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 install_requires = list()
 extras = dict()
+excluded_packages = ['wxPython', 'kubernetes', 'tensorflow'] if slim_package else []
 
 with open(path.join(here, 'requirements.txt'), 'r') as f:
     for line in f:
-        install_requires.append(line.strip())
+        package = line.strip()
+        if any(p in package for p in excluded_packages):
+            continue
+        install_requires.append(package)
 
 # check if system has CUDA enabled GPU
 p = subprocess.Popen(['command -v nvidia-smi'], stdout=subprocess.PIPE, shell=True)
@@ -60,15 +65,17 @@ out = p.communicate()[0].decode('UTF-8')
 using_GPU = out != ''
 
 if not using_GPU:
-    # For linux wth no GPU, we install the Intel optimized version of TensorFlow
-    if sys.platform == "linux" or sys.platform == "linux2":
-        subprocess.check_call(['pip install '
-                               'https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.11.0-cp35-cp35m-linux_x86_64.whl'],
-                              shell=True)
-    install_requires.append('tensorflow>=1.9.0')
+    if not slim_package:
+        # For linux wth no GPU, we install the Intel optimized version of TensorFlow
+        if sys.platform == "linux" or sys.platform == "linux2":
+            subprocess.check_call(['pip install '
+                                   'https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.11.0-cp35-cp35m-linux_x86_64.whl'],
+                                  shell=True)
+        install_requires.append('tensorflow>=1.9.0')
     extras['mxnet'] = ['mxnet-mkl>=1.3.0']
 else:
-    install_requires.append('tensorflow-gpu>=1.9.0')
+    if not slim_package:
+        install_requires.append('tensorflow-gpu>=1.9.0')
     extras['mxnet'] = ['mxnet-cu90mkl>=1.3.0']
 
 all_deps = []
@@ -78,8 +85,8 @@ extras['all'] = all_deps
 
 
 setup(
-    name='rl-coach',
-    version='0.10.0',
+    name='rl-coach' if not slim_package else 'rl-coach-slim',
+    version='0.11.0',
     description='Reinforcement Learning Coach enables easy experimentation with state of the art Reinforcement Learning algorithms.',
     url='https://github.com/NervanaSystems/coach',
     author='Intel AI Lab',
