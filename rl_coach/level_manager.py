@@ -255,6 +255,13 @@ class LevelManager(EnvironmentInterface):
         """
         [agent.save_checkpoint(checkpoint_id) for agent in self.agents.values()]
 
+    def restore_checkpoint(self, checkpoint_dir: str) -> None:
+        """
+        Restores checkpoints of the networks of all agents
+        :return: None
+        """
+        [agent.restore_checkpoint(checkpoint_dir) for agent in self.agents.values()]
+
     def sync(self) -> None:
         """
         Sync the networks of the agents with the global network parameters

@@ -506,7 +506,7 @@ class AgentParameters(Parameters):
         self.input_filter = None
         self.output_filter = None
         self.pre_network_filter = NoInputFilter()
-        self.full_name_id = None  # TODO: do we really want to hold this parameter here?
+        self.full_name_id = None
         self.name = None
         self.is_a_highest_level_agent = True
         self.is_a_lowest_level_agent = True

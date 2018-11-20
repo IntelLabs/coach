@@ -118,7 +118,7 @@ def handle_distributed_coach_tasks(graph_manager, args):
         )
 
 
-def handle_distributed_coach_orchestrator(graph_manager, args):
+def handle_distributed_coach_orchestrator(args):
     from rl_coach.orchestrators.kubernetes_orchestrator import KubernetesParameters, Kubernetes, \
         RunTypeParameters
 

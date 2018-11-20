@@ -128,3 +128,11 @@ class TFSharedRunningStats(SharedRunningStats):
             return self.sess.run(self.clipped_obs, feed_dict={self.raw_obs: batch})
         else:
             return self.sess.run(self.normalized_obs, feed_dict={self.raw_obs: batch})
+
+    def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_id: int):
+        # the stats are part of the TF graph - no need to explicitly save anything
+        pass
+
+    def restore_state_from_checkpoint(self, checkpoint_dir: str):
+        # the stats are part of the TF graph - no need to explicitly restore anything
+        pass

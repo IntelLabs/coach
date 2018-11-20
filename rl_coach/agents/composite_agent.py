@@ -392,6 +392,9 @@ class CompositeAgent(AgentInterface):
     def save_checkpoint(self, checkpoint_id: int) -> None:
         [agent.save_checkpoint(checkpoint_id) for agent in self.agents.values()]
 
+    def restore_checkpoint(self, checkpoint_dir: str) -> None:
+        [agent.restore_checkpoint(checkpoint_dir) for agent in self.agents.values()]
+
     def set_incoming_directive(self, action: ActionType) -> None:
         self.incoming_action = action
         if isinstance(self.decision_policy, SingleDecider) and isinstance(self.in_action_space, AgentSelection):

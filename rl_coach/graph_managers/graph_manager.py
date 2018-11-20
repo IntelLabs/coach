@@ -565,7 +565,7 @@ class GraphManager(object):
         self.verify_graph_was_created()
 
         # TODO: find better way to load checkpoints that were saved with a global network into the online network
-        if hasattr(self.task_parameters, 'checkpoint_restore_dir') and self.task_parameters.checkpoint_restore_dir:
+        if self.task_parameters.checkpoint_restore_dir:
 
             checkpoint = get_checkpoint_state(self.task_parameters.checkpoint_restore_dir)
             screen.log_title("Loading checkpoint: {}".format(checkpoint.model_checkpoint_path))
@@ -576,6 +576,8 @@ class GraphManager(object):
                 self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
             else:
                 raise ValueError('Invalid framework {}'.format(self.task_parameters.framework_type))
+
+            [manager.restore_checkpoint(self.task_parameters.checkpoint_restore_dir) for manager in self.level_managers]
 
     def occasionally_save_checkpoint(self):
         # only the chief process saves checkpoints

@@ -5,6 +5,7 @@ from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentS
 from rl_coach.environments.gym_environment import GymVectorEnvironment, mujoco_v2
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
+from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -47,6 +48,7 @@ agent_params.algorithm.num_steps_between_copying_online_weights_to_target = Envi
 # Distributed Coach synchronization type.
 agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
 
+agent_params.pre_network_filter = InputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
                                                         ObservationNormalizationFilter(name='normalize_observation'))
 

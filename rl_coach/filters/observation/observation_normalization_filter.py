@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import pickle
 from typing import List
 
 import numpy as np
@@ -79,3 +81,12 @@ class ObservationNormalizationFilter(ObservationFilter):
         self.running_observation_stats.set_params(shape=input_observation_space.shape,
                                                   clip_values=(self.clip_min, self.clip_max))
         return input_observation_space
+
+    def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_id: int):
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)
+
+        self.running_observation_stats.save_state_to_checkpoint(checkpoint_dir, checkpoint_id)
+
+    def restore_state_from_checkpoint(self, checkpoint_dir: str):
+        self.running_observation_stats.restore_state_from_checkpoint(checkpoint_dir)

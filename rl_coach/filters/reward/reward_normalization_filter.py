@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import os
 
 import numpy as np
 
@@ -74,3 +74,9 @@ class RewardNormalizationFilter(RewardFilter):
 
     def get_filtered_reward_space(self, input_reward_space: RewardSpace) -> RewardSpace:
         return input_reward_space
+
+    def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_id: int):
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)
+
+        self.running_rewards_stats.save_state_to_checkpoint(checkpoint_dir, checkpoint_id)
