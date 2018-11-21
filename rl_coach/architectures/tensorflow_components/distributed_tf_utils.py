@@ -95,7 +95,8 @@ def create_monitored_session(target: tf.train.Server, task_index: int,
         hooks=[],
         checkpoint_dir=checkpoint_dir,
         save_checkpoint_secs=checkpoint_save_secs,
-        config=config
+        config=config,
+        log_step_count_steps=0  # disable logging of steps to avoid TF warning during inference
     )
 
     return sess

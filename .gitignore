@@ -17,6 +17,7 @@ docs/site
 coach_env
 build
 rl_coach.egg*
+rl_coach_slim.egg*
 contrib
 test_log_*
 dist
