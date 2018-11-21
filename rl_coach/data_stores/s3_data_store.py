@@ -110,7 +110,8 @@ class S3DataStore(DataStore):
                 objects = self.mc.list_objects_v2(self.params.bucket_name, prefix=rel_path, recursive=True)
                 for obj in objects:
                     filename = os.path.abspath(os.path.join(self.params.checkpoint_dir, obj.object_name))
-                    self.mc.fget_object(obj.bucket_name, obj.object_name, filename)
+                    if not os.path.exists(filename):
+                        self.mc.fget_object(obj.bucket_name, obj.object_name, filename)
 
         except ResponseError as e:
             print("Got exception: %s\n while loading from S3", e)
