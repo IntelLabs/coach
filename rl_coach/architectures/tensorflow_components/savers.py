@@ -11,6 +11,10 @@ class GlobalVariableSaver(Saver):
         # if graph is finalized, savers must have already already been added. This happens
         # in the case of a MonitoredSession
         self._variables = tf.global_variables()
+        
+        # target network is never saved or restored directly from checkpoint, so we are removing all its variables from the list
+        # the target network would be synched back from the online network in graph_manager.improve(...), at the beginning of the run flow.
+        self._variables = [v for v in self._variables if '/target' not in v.name]
         self._saver = tf.train.Saver(self._variables)
 
     @property
