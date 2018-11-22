@@ -687,3 +687,12 @@ class GraphManager(object):
             return self.data_store
 
         return data_store_creator(param)
+
+    def close(self) -> None:
+        """
+        Clean up to close environments.
+
+        :return: None
+        """
+        for env in self.environments:
+            env.close()

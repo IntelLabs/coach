@@ -492,3 +492,11 @@ class Environment(EnvironmentInterface):
 
     def get_target_success_rate(self) -> float:
         return self.target_success_rate
+
+    def close(self) -> None:
+        """
+        Clean up steps.
+
+        :return: None
+        """
+        pass

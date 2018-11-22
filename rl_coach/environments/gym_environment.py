@@ -515,3 +515,11 @@ class GymEnvironment(Environment):
 
     def get_target_success_rate(self) -> float:
         return self.target_success_rate
+
+    def close(self) -> None:
+        """
+        Clean up to close rendering windows.
+
+        :return: None
+        """
+        self.env.close()

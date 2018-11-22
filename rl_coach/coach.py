@@ -81,6 +81,7 @@ def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'
         graph_manager.evaluate(EnvironmentSteps(sys.maxsize))
     else:
         graph_manager.improve()
+    graph_manager.close()
 
 
 def handle_distributed_coach_tasks(graph_manager, args):
