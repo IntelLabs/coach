@@ -19,7 +19,6 @@ from typing import List
 
 import numpy as np
 
-from rl_coach.architectures.tensorflow_components.shared_variables import SharedRunningStats, TFSharedRunningStats
 from rl_coach.core_types import ObservationType
 from rl_coach.filters.observation.observation_filter import ObservationFilter
 from rl_coach.spaces import ObservationSpace
@@ -54,6 +53,7 @@ class ObservationNormalizationFilter(ObservationFilter):
         :return: None
         """
         if mode == 'tf':
+            from rl_coach.architectures.tensorflow_components.shared_variables import TFSharedRunningStats
             self.running_observation_stats = TFSharedRunningStats(device, name=self.name, create_ops=False,
                                                             pubsub_params=memory_backend_params)
         elif mode == 'numpy':

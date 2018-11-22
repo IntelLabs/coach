@@ -17,7 +17,6 @@ import os
 
 import numpy as np
 
-from rl_coach.architectures.tensorflow_components.shared_variables import TFSharedRunningStats
 from rl_coach.core_types import RewardType
 from rl_coach.filters.reward.reward_filter import RewardFilter
 from rl_coach.spaces import RewardSpace
@@ -48,6 +47,7 @@ class RewardNormalizationFilter(RewardFilter):
         """
 
         if mode == 'tf':
+            from rl_coach.architectures.tensorflow_components.shared_variables import TFSharedRunningStats
             self.running_rewards_stats = TFSharedRunningStats(device, name='rewards_stats', create_ops=False,
                                                             pubsub_params=memory_backend_params)
         elif mode == 'numpy':

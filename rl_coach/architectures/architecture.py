@@ -24,6 +24,18 @@ from rl_coach.spaces import SpacesDefinition
 
 
 class Architecture(object):
+    @staticmethod
+    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Architecture':
+        """
+        Construct a network class using the provided variable scope and on requested devices
+        :param variable_scope: string specifying variable scope under which to create network variables
+        :param devices: list of devices (can be list of Device objects, or string for TF distributed)
+        :param args: all other arguments for class initializer
+        :param kwargs: all other keyword arguments for class initializer
+        :return: an object which is a child of Architecture
+        """
+        raise NotImplementedError
+
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, name: str= ""):
         """
         Creates a neural network 'architecture', that can be trained and used for inference.
