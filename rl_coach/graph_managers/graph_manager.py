@@ -581,10 +581,13 @@ class GraphManager(object):
     def save_checkpoint(self):
         if self.task_parameters.checkpoint_save_dir is None:
             self.task_parameters.checkpoint_save_dir = os.path.join(self.task_parameters.experiment_path, 'checkpoint')
-        checkpoint_path = os.path.join(self.task_parameters.checkpoint_save_dir,
-                                       "{}_Step-{}.ckpt".format(
+
+        filename = "{}_Step-{}.ckpt".format(
                                            self.checkpoint_id,
-                                           self.total_steps_counters[RunPhase.TRAIN][EnvironmentSteps]))
+                                           self.total_steps_counters[RunPhase.TRAIN][EnvironmentSteps])
+
+        checkpoint_path = os.path.join(self.task_parameters.checkpoint_save_dir,
+                                       filename)
         if not os.path.exists(os.path.dirname(checkpoint_path)):
             os.mkdir(os.path.dirname(checkpoint_path))  # Create directory structure
         if not isinstance(self.task_parameters, DistributedTaskParameters):
@@ -593,7 +596,7 @@ class GraphManager(object):
             saved_checkpoint_path = checkpoint_path
 
         # this is required in order for agents to save additional information like a DND for example
-        [manager.save_checkpoint(self.checkpoint_id) for manager in self.level_managers]
+        [manager.save_checkpoint(filename) for manager in self.level_managers]
 
         # the ONNX graph will be stored only if checkpoints are stored and the -onnx flag is used
         if self.task_parameters.export_onnx_graph:

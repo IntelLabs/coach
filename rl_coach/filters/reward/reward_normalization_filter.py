@@ -75,8 +75,8 @@ class RewardNormalizationFilter(RewardFilter):
     def get_filtered_reward_space(self, input_reward_space: RewardSpace) -> RewardSpace:
         return input_reward_space
 
-    def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_id: int):
-        if not os.path.exists(checkpoint_dir):
-            os.makedirs(checkpoint_dir)
+    def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: str):
+        self.running_rewards_stats.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
 
-        self.running_rewards_stats.save_state_to_checkpoint(checkpoint_dir, checkpoint_id)
+    def restore_state_from_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: str):
+        self.running_rewards_stats.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)

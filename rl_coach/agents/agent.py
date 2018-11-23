@@ -925,30 +925,31 @@ class Agent(AgentInterface):
             self.input_filter.observation_filters['attention'].crop_high = action[1]
             self.output_filter.action_filters['masking'].set_masking(action[0], action[1])
 
-    def save_checkpoint(self, checkpoint_id: int) -> None:
+    def save_checkpoint(self, checkpoint_prefix: str) -> None:
         """
         Allows agents to store additional information when saving checkpoints.
 
-        :param checkpoint_id: the id of the checkpoint
+        :param checkpoint_prefix: The prefix of the checkpoint file to save
         :return: None
         """
-        checkpoint_dir = os.path.join(self.ap.task_parameters.checkpoint_save_dir,
-                                      *(self.full_name_id.split('/')))  # adds both level name and agent name
-        self.input_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_id)
-        self.output_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_id)
-        self.pre_network_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_id)
+        checkpoint_dir = self.ap.task_parameters.checkpoint_save_dir
+
+        checkpoint_prefix = '.'.join([checkpoint_prefix] + self.full_name_id.split('/'))  # adds both level name and agent name
+
+        self.input_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
+        self.output_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
+        self.pre_network_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
 
     def restore_checkpoint(self, checkpoint_dir: str) -> None:
         """
         Allows agents to store additional information when saving checkpoints.
 
-        :param checkpoint_id: the id of the checkpoint
+        :param checkpoint_dir: The checkpoint dir to restore from
         :return: None
         """
-        checkpoint_dir = os.path.join(checkpoint_dir,
-                                      *(self.full_name_id.split('/')))  # adds both level name and agent name
-        self.input_filter.restore_state_from_checkpoint(checkpoint_dir)
-        self.pre_network_filter.restore_state_from_checkpoint(checkpoint_dir)
+        checkpoint_prefix = '.'.join(self.full_name_id.split('/'))  # adds both level name and agent name
+        self.input_filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
+        self.pre_network_filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
 
         # no output filters currently have an internal state to restore
         # self.output_filter.restore_state_from_checkpoint(checkpoint_dir)

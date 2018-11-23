@@ -248,12 +248,13 @@ class LevelManager(EnvironmentInterface):
 
         return env_response_for_upper_level
 
-    def save_checkpoint(self, checkpoint_id: int) -> None:
+    def save_checkpoint(self, checkpoint_prefix: str) -> None:
         """
         Save checkpoints of the networks of all agents
+        :param: checkpoint_prefix: The prefix of the checkpoint file to save
         :return: None
         """
-        [agent.save_checkpoint(checkpoint_id) for agent in self.agents.values()]
+        [agent.save_checkpoint(checkpoint_prefix) for agent in self.agents.values()]
 
     def restore_checkpoint(self, checkpoint_dir: str) -> None:
         """

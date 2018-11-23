@@ -389,8 +389,8 @@ class CompositeAgent(AgentInterface):
         # probably better to only return the agents' goal_reached decisions.
         return episode_ended
 
-    def save_checkpoint(self, checkpoint_id: int) -> None:
-        [agent.save_checkpoint(checkpoint_id) for agent in self.agents.values()]
+    def save_checkpoint(self, checkpoint_prefix: str) -> None:
+        [agent.save_checkpoint(checkpoint_prefix) for agent in self.agents.values()]
 
     def restore_checkpoint(self, checkpoint_dir: str) -> None:
         [agent.restore_checkpoint(checkpoint_dir) for agent in self.agents.values()]

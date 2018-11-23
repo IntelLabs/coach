@@ -82,11 +82,8 @@ class ObservationNormalizationFilter(ObservationFilter):
                                                   clip_values=(self.clip_min, self.clip_max))
         return input_observation_space
 
-    def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_id: int):
-        if not os.path.exists(checkpoint_dir):
-            os.makedirs(checkpoint_dir)
+    def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: str):
+        self.running_observation_stats.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
 
-        self.running_observation_stats.save_state_to_checkpoint(checkpoint_dir, checkpoint_id)
-
-    def restore_state_from_checkpoint(self, checkpoint_dir: str):
-        self.running_observation_stats.restore_state_from_checkpoint(checkpoint_dir)
+    def restore_state_from_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: str):
+        self.running_observation_stats.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)

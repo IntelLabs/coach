@@ -66,19 +66,20 @@ class Filter(object):
         """
         pass
 
-    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_id)->None:
+    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
         """
         Save the filter's internal state to a checkpoint to file, so that it can be later restored.
-        :param checkpoint_dir: the directory in which to save the filter
-        :param checkpoint_id: the checkpoint's ID
+        :param checkpoint_dir: the directory in which to save the filter's state
+        :param checkpoint_prefix: the prefix of the checkpoint file to save
         :return: None
         """
         pass
 
-    def restore_state_from_checkpoint(self, checkpoint_dir)->None:
+    def restore_state_from_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
         """
         Save the filter's internal state to a checkpoint to file, so that it can be later restored.
-        :param checkpoint_dir: the directory in which to save the filter
+        :param checkpoint_dir: the directory from which to restore
+        :param checkpoint_prefix: the checkpoint prefix to look for
         :return: None
         """
         pass
@@ -221,14 +222,24 @@ class OutputFilter(Filter):
         """
         del self._action_filters[filter_name]
 
-    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_id):
+    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_prefix):
         """
         Currently not in use for OutputFilter.
-        :param checkpoint_dir:
-        :param checkpoint_id:
+        :param checkpoint_dir: the directory in which to save the filter's state
+        :param checkpoint_prefix: the prefix of the checkpoint file to save
         :return:
         """
         pass
+
+    def restore_state_from_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
+        """
+        Currently not in use for OutputFilter.
+        :param checkpoint_dir: the directory from which to restore
+        :param checkpoint_prefix: the checkpoint prefix to look for
+        :return: None
+        """
+        pass
+
 
 
 class NoOutputFilter(OutputFilter):
@@ -444,40 +455,45 @@ class InputFilter(Filter):
         """
         del self._reward_filters[filter_name]
 
-    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_id):
+    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_prefix):
         """
         Save the filter's internal state to a checkpoint to file, so that it can be later restored.
-        :param checkpoint_dir: the directory in which to save the filter
-        :param checkpoint_id: the checkpoint's ID
+        :param checkpoint_dir: the directory in which to save the filter's state
+        :param checkpoint_prefix: the prefix of the checkpoint file to save
         :return: None
         """
-        checkpoint_dir = os.path.join(checkpoint_dir, 'filters')
+        checkpoint_prefix = '.'.join([checkpoint_prefix, 'filters'])
         if self.name is not None:
-            checkpoint_dir = os.path.join(checkpoint_dir, self.name)
+            checkpoint_prefix = '.'.join([checkpoint_prefix, self.name])
         for filter_name, filter in self._reward_filters.items():
-            filter.save_state_to_checkpoint(os.path.join(checkpoint_dir, 'reward_filters', filter_name), checkpoint_id)
+            checkpoint_prefix = '.'.join([checkpoint_prefix, 'reward_filters', filter_name])
+            filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
 
         for observation_name, filters_dict in self._observation_filters.items():
             for filter_name, filter in filters_dict.items():
-                filter.save_state_to_checkpoint(os.path.join(checkpoint_dir, 'observation_filters', observation_name,
-                                                                 filter_name), checkpoint_id)
+                checkpoint_prefix = '.'.join([checkpoint_prefix, 'observation_filters', observation_name,
+                                                                 filter_name])
+                filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
 
-    def restore_state_from_checkpoint(self, checkpoint_dir)->None:
+    def restore_state_from_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
         """
         Save the filter's internal state to a checkpoint to file, so that it can be later restored.
-        :param checkpoint_dir: the directory in which to save the filter
+        :param checkpoint_dir: the directory from which to restore
+        :param checkpoint_prefix: the checkpoint prefix to look for
         :return: None
         """
-        checkpoint_dir = os.path.join(checkpoint_dir, 'filters')
+        checkpoint_prefix = '.'.join([checkpoint_prefix, 'filters'])
         if self.name is not None:
-            checkpoint_dir = os.path.join(checkpoint_dir, self.name)
+            checkpoint_prefix = '.'.join([checkpoint_prefix, self.name])
         for filter_name, filter in self._reward_filters.items():
-            filter.restore_state_from_checkpoint(os.path.join(checkpoint_dir, 'reward_filters', filter_name))
+            checkpoint_prefix = '.'.join([checkpoint_prefix, 'reward_filters', filter_name])
+            filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
 
         for observation_name, filters_dict in self._observation_filters.items():
             for filter_name, filter in filters_dict.items():
-                filter.restore_state_from_checkpoint(os.path.join(checkpoint_dir, 'observation_filters',
-                                                                      observation_name, filter_name))
+                checkpoint_prefix = '.'.join([checkpoint_prefix, 'observation_filters', observation_name,
+                                                                 filter_name])
+                filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
 
 
 class NoInputFilter(InputFilter):

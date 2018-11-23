@@ -98,10 +98,10 @@ class AgentInterface(object):
         """
         raise NotImplementedError("")
 
-    def save_checkpoint(self, checkpoint_id: int) -> None:
+    def save_checkpoint(self, checkpoint_prefix: str) -> None:
         """
         Save the model of the agent to the disk. This can contain the network parameters, the memory of the agent, etc.
-        :param checkpoint_id: the checkpoint id to use for saving
+        :param checkpoint_prefix: The prefix of the checkpoint file to save
         :return: None
         """
         raise NotImplementedError("")
