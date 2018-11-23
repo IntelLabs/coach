@@ -113,6 +113,8 @@ class RedisPubSubBackend(MemoryBackend):
     def undeploy(self):
         if self.params.deployed:
             return
+
+        from kubernetes import client
         api_client = client.AppsV1Api()
         delete_options = client.V1DeleteOptions()
         try:

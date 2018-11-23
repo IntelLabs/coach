@@ -579,7 +579,7 @@ class CoachLauncher(object):
             return
 
         if args.distributed_coach and args.distributed_coach_run_type == RunType.ORCHESTRATOR:
-            handle_distributed_coach_orchestrator(graph_manager, args)
+            handle_distributed_coach_orchestrator(args)
             return
 
         # Single-threaded runs
