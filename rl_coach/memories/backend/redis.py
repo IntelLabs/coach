@@ -111,6 +111,7 @@ class RedisPubSubBackend(MemoryBackend):
             return False
 
     def undeploy(self):
+        from kubernetes import client
         if self.params.deployed:
             return
 

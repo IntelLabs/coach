@@ -2,9 +2,11 @@ import os
 import uuid
 import json
 import time
+import sys
 from enum import Enum
 from typing import List
 from configparser import ConfigParser, Error
+from multiprocessing import Process
 
 from rl_coach.base_parameters import RunType
 from rl_coach.orchestrators.deploy import Deploy, DeployParameters
@@ -255,8 +257,35 @@ class Kubernetes(Deploy):
             print("Got exception: %s\n while creating Job", e)
             return False
 
-    def worker_logs(self):
-        pass
+    def worker_logs(self, path='./logs'):
+        worker_params = self.params.run_type_params.get(str(RunType.ROLLOUT_WORKER), None)
+        if not worker_params:
+            return
+
+        api_client = k8sclient.CoreV1Api()
+        pods = None
+        try:
+            pods = api_client.list_namespaced_pod(self.params.namespace, label_selector='app={}'.format(
+                worker_params.orchestration_params['job_name']
+            ))
+
+            # pod = pods.items[0]
+        except k8sclient.rest.ApiException as e:
+            print("Got exception: %s\n while reading pods", e)
+            return
+
+        if not pods or len(pods.items) == 0:
+            return
+
+        for pod in pods.items:
+            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path)).start()
+
+    def _tail_log_file(self, pod_name, api_client, namespace, path):
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        sys.stdout = open(os.path.join(path, pod_name), 'w')
+        self.tail_log(pod_name, api_client)
 
     def trainer_logs(self):
         trainer_params = self.params.run_type_params.get(str(RunType.TRAINER), None)

@@ -68,21 +68,17 @@ def get_latest_checkpoint(checkpoint_dir):
         rel_path = os.path.relpath(ckpt.model_checkpoint_path, checkpoint_dir)
         return int(rel_path.split('_Step')[0])
 
-    return 0
-
 
 def should_stop(checkpoint_dir):
     return os.path.exists(os.path.join(checkpoint_dir, SyncFiles.FINISHED.value))
 
 
-def rollout_worker(graph_manager, checkpoint_dir, data_store, num_workers):
+def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
     """
     wait for first checkpoint then perform rollouts using the model
     """
-    wait_for_checkpoint(checkpoint_dir)
-
-    task_parameters = TaskParameters()
-    task_parameters.__dict__['checkpoint_restore_dir'] = checkpoint_dir
+    checkpoint_dir = task_parameters.checkpoint_restore_dir
+    wait_for_checkpoint(checkpoint_dir, data_store)
 
     graph_manager.create_graph(task_parameters)
     with graph_manager.phase_context(RunPhase.TRAIN):

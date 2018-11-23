@@ -12,14 +12,11 @@ def data_store_ckpt_save(data_store):
         time.sleep(10)
 
 
-def training_worker(graph_manager, checkpoint_dir):
+def training_worker(graph_manager, task_parameters):
     """
     restore a checkpoint then perform rollouts using the restored model
     """
     # initialize graph
-    task_parameters = TaskParameters()
-    task_parameters.__dict__['checkpoint_save_dir'] = checkpoint_dir
-    task_parameters.__dict__['checkpoint_save_secs'] = 20
     graph_manager.create_graph(task_parameters)
 
     # save randomly initialized graph
