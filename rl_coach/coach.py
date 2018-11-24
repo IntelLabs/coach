@@ -96,6 +96,7 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
     data_store_params = None
     if args.data_store_params:
         data_store_params = construct_data_store_params(json.loads(args.data_store_params))
+        data_store_params.expt_dir = args.experiment_path
         data_store_params.checkpoint_dir = ckpt_inside_container
         graph_manager.data_store_params = data_store_params
 
@@ -151,7 +152,7 @@ def handle_distributed_coach_orchestrator(args):
     if args.data_store == "s3":
         ds_params = DataStoreParameters("s3", "", "")
         ds_params_instance = S3DataStoreParameters(ds_params=ds_params, end_point=args.s3_end_point, bucket_name=args.s3_bucket_name,
-                                                   creds_file=args.s3_creds_file, checkpoint_dir=ckpt_inside_container)
+                                                   creds_file=args.s3_creds_file, checkpoint_dir=ckpt_inside_container, expt_dir=args.experiment_path)
     elif args.data_store == "nfs":
         ds_params = DataStoreParameters("nfs", "kubernetes", "")
         ds_params_instance = NFSDataStoreParameters(ds_params)

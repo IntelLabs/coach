@@ -18,7 +18,10 @@ def construct_data_store_params(json: dict):
     if json['store_type'] == 'nfs':
         ds_params_instance = NFSDataStoreParameters(ds_params)
     elif json['store_type'] == 's3':
-        ds_params_instance = S3DataStoreParameters(ds_params=ds_params, end_point=json['end_point'],
-                                                   bucket_name=json['bucket_name'], checkpoint_dir=json['checkpoint_dir'])
+        ds_params_instance = S3DataStoreParameters(ds_params=ds_params,
+                                                   end_point=json['end_point'],
+                                                   bucket_name=json['bucket_name'],
+                                                   checkpoint_dir=json['checkpoint_dir'],
+                                                   expt_dir=json['expt_dir'])
 
     return ds_params_instance

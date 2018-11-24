@@ -12,13 +12,14 @@ import io
 
 class S3DataStoreParameters(DataStoreParameters):
     def __init__(self, ds_params, creds_file: str = None, end_point: str = None, bucket_name: str = None,
-                 checkpoint_dir: str = None):
+                 checkpoint_dir: str = None, expt_dir: str = None):
 
         super().__init__(ds_params.store_type, ds_params.orchestrator_type, ds_params.orchestrator_params)
         self.creds_file = creds_file
         self.end_point = end_point
         self.bucket_name = bucket_name
         self.checkpoint_dir = checkpoint_dir
+        self.expt_dir = expt_dir
 
 
 class S3DataStore(DataStore):
@@ -73,6 +74,18 @@ class S3DataStore(DataStore):
             # release lock
             self.mc.remove_object(self.params.bucket_name, SyncFiles.LOCKFILE.value)
 
+            if self.params.expt_dir and os.path.exists(self.params.expt_dir):
+                for filename in os.listdir(self.params.expt_dir):
+                    if filename.endswith((".csv", ".json")):
+                        self.mc.fput_object(self.params.bucket_name, filename, os.path.join(self.params.expt_dir, filename))
+
+            if self.params.expt_dir and os.path.exists(os.path.join(self.params.expt_dir, 'videos')):
+                for filename in os.listdir(os.path.join(self.params.expt_dir, 'videos')):
+                        self.mc.fput_object(self.params.bucket_name, filename, os.path.join(self.params.expt_dir, 'videos', filename))
+
+            if self.params.expt_dir and os.path.exists(os.path.join(self.params.expt_dir, 'gifs')):
+                for filename in os.listdir(os.path.join(self.params.expt_dir, 'gifs')):
+                        self.mc.fput_object(self.params.bucket_name, filename, os.path.join(self.params.expt_dir, 'gifs', filename))
         except ResponseError as e:
             print("Got exception: %s\n while saving to S3", e)
 
