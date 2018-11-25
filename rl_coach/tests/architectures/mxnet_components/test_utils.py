@@ -141,7 +141,14 @@ def test_hybrid_clip():
     a = mx.nd.array((1,))
     b = mx.nd.array((2,))
     clipped = hybrid_clip(F=mx.nd, x=x, clip_lower=a, clip_upper=b)
-    assert (np.isclose(a= clipped.asnumpy(), b=(1, 1.5, 2))).all()
+    assert (np.isclose(a=clipped.asnumpy(), b=(1, 1.5, 2))).all()
+
+
+@pytest.mark.unit_test
+def test_broadcast_like():
+    x = nd.ones((1, 2)) * 10
+    y = nd.ones((100, 100, 2)) * 20
+    assert mx.test_utils.almost_equal(x.broadcast_like(y).asnumpy(), broadcast_like(nd, x, y).asnumpy())
 
 
 @pytest.mark.unit_test
