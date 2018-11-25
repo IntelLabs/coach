@@ -29,7 +29,7 @@ import time
 import sys
 import json
 from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskParameters, DistributedTaskParameters, \
-    RunType
+    RunType, DistributedCoachSynchronizationType
 from multiprocessing import Process
 from multiprocessing.managers import BaseManager
 import subprocess
@@ -336,9 +336,6 @@ class CoachLauncher(object):
         if args.list:
             self.display_all_presets_and_exit()
 
-        if args.distributed_coach and not args.checkpoint_save_secs:
-            screen.error("Distributed coach requires --checkpoint_save_secs or -s")
-
         # Read args from config file for distributed Coach.
         if args.distributed_coach and args.distributed_coach_run_type == RunType.ORCHESTRATOR:
             coach_config = ConfigParser({
@@ -577,6 +574,12 @@ class CoachLauncher(object):
     def run_graph_manager(self, graph_manager: 'GraphManager', args: argparse.Namespace):
         if args.distributed_coach and not graph_manager.agent_params.algorithm.distributed_coach_synchronization_type:
             screen.error("{} algorithm is not supported using distributed Coach.".format(graph_manager.agent_params.algorithm))
+
+        if args.distributed_coach and args.checkpoint_save_secs and graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
+            screen.warning("The --checkpoint_save_secs or -s argument will be ignored as SYNC distributed coach sync type is used. Checkpoint will be saved every training iteration.")
+
+        if args.distributed_coach and not args.checkpoint_save_secs and graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.ASYNC:
+            screen.error("Distributed coach with ASYNC distributed coach sync type requires --checkpoint_save_secs or -s.")
 
         # Intel optimized TF seems to run significantly faster when limiting to a single OMP thread.
         # This will not affect GPU runs.
