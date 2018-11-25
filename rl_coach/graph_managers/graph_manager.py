@@ -546,7 +546,8 @@ class GraphManager(object):
 
         # TODO: find better way to load checkpoints that were saved with a global network into the online network
         if self.task_parameters.checkpoint_restore_dir:
-            if self.task_parameters.framework_type == Frameworks.tensorflow:
+            if self.task_parameters.framework_type == Frameworks.tensorflow and\
+                    'checkpoint' in os.listdir(self.task_parameters.checkpoint_restore_dir):
                 # TODO-fixme checkpointing
                 # MonitoredTrainingSession manages save/restore checkpoints autonomously. Doing so,
                 # it creates it own names for the saved checkpoints, which do not match the "{}_Step-{}.ckpt" filename
