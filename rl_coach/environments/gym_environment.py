@@ -65,6 +65,7 @@ class GymEnvironmentParameters(EnvironmentParameters):
         self.random_initialization_steps = 0
         self.max_over_num_frames = 1
         self.additional_simulator_parameters = {}
+        self.observation_space_type = None
 
     @property
     def path(self):
