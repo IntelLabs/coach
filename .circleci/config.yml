@@ -52,11 +52,17 @@ jobs:
             docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-base:${TAG} -f docker/Dockerfile.base .
 
             docker push ${REGISTRY}/coach-base:${TAG}
-
             docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
 
-            docker build --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach:${TAG} -f docker/Dockerfile .
+            docker pull ${REGISTRY}/coach:${MASTER_BRANCH}
+            docker pull ${REGISTRY}/coach:builder-${MASTER_BRANCH}
+
+            docker build --target builder --cache-from ${REGISTRY}/coach:${MASTER_BRANCH} --cache-from ${REGISTRY}/coach:builder-${MASTER_BRANCH} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach:builder-${TAG} -f docker/Dockerfile .
+            docker push ${REGISTRY}/coach:builder-${TAG}
+
+            docker build --cache-from ${REGISTRY}/coach:${MASTER_BRANCH} --cache-from ${REGISTRY}/coach:builder-${TAG} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach:${TAG} -f docker/Dockerfile .
             docker push ${REGISTRY}/coach:${TAG}
+
           no_output_timeout: 30m
 
   build_gym_env:
@@ -318,9 +324,14 @@ jobs:
             docker tag ${REGISTRY}/coach-base:${TAG} ${REGISTRY}/coach-base:${MASTER_BRANCH}
             docker push ${REGISTRY}/coach-base:${MASTER_BRANCH}
 
+            docker pull ${REGISTRY}/coach:builder-${TAG}
+            docker tag ${REGISTRY}/coach:builder-${TAG} ${REGISTRY}/coach:builder-${MASTER_BRANCH}
+            docker push ${REGISTRY}/coach:builder-${MASTER_BRANCH}
+
             docker pull ${REGISTRY}/coach:${TAG}
             docker tag ${REGISTRY}/coach:${TAG} ${REGISTRY}/coach:${MASTER_BRANCH}
             docker push ${REGISTRY}/coach:${MASTER_BRANCH}
+            
 
 workflows:
   version: 2
