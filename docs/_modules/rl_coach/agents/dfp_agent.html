@@ -1,0 +1,480 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.agents.dfp_agent &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.agents.dfp_agent</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.agents.dfp_agent</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.agents.agent</span> <span class="k">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.head_parameters</span> <span class="k">import</span> <span class="n">MeasurementsPredictionHeadParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.embedder_parameters</span> <span class="k">import</span> <span class="n">InputEmbedderParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.middleware_parameters</span> <span class="k">import</span> <span class="n">FCMiddlewareParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.tensorflow_components.layers</span> <span class="k">import</span> <span class="n">Conv2d</span><span class="p">,</span> <span class="n">Dense</span>
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">AlgorithmParameters</span><span class="p">,</span> <span class="n">AgentParameters</span><span class="p">,</span> <span class="n">NetworkParameters</span><span class="p">,</span> \
+     <span class="n">MiddlewareScheme</span>
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">ActionInfo</span><span class="p">,</span> <span class="n">EnvironmentSteps</span><span class="p">,</span> <span class="n">RunPhase</span>
+<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.e_greedy</span> <span class="k">import</span> <span class="n">EGreedyParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.memories.episodic.episodic_experience_replay</span> <span class="k">import</span> <span class="n">EpisodicExperienceReplayParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.memories.memory</span> <span class="k">import</span> <span class="n">MemoryGranularity</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">SpacesDefinition</span><span class="p">,</span> <span class="n">VectorObservationSpace</span>
+
+
+<span class="k">class</span> <span class="nc">HandlingTargetsAfterEpisodeEnd</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">LastStep</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">NAN</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="k">class</span> <span class="nc">DFPNetworkParameters</span><span class="p">(</span><span class="n">NetworkParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">activation_function</span><span class="o">=</span><span class="s1">&#39;leaky_relu&#39;</span><span class="p">),</span>
+                                            <span class="s1">&#39;measurements&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">activation_function</span><span class="o">=</span><span class="s1">&#39;leaky_relu&#39;</span><span class="p">),</span>
+                                            <span class="s1">&#39;goal&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">activation_function</span><span class="o">=</span><span class="s1">&#39;leaky_relu&#39;</span><span class="p">)}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="p">[</span><span class="s1">&#39;observation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Conv2d</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="n">Conv2d</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">Conv2d</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">Dense</span><span class="p">(</span><span class="mi">512</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+            <span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+            <span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">scheme</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+            <span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+            <span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">middleware_parameters</span> <span class="o">=</span> <span class="n">FCMiddlewareParameters</span><span class="p">(</span><span class="n">activation_function</span><span class="o">=</span><span class="s1">&#39;leaky_relu&#39;</span><span class="p">,</span>
+                                                            <span class="n">scheme</span><span class="o">=</span><span class="n">MiddlewareScheme</span><span class="o">.</span><span class="n">Empty</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">MeasurementsPredictionHeadParameters</span><span class="p">(</span><span class="n">activation_function</span><span class="o">=</span><span class="s1">&#39;leaky_relu&#39;</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">async_training</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adam_optimizer_beta1</span> <span class="o">=</span> <span class="mf">0.95</span>
+
+
+<span class="k">class</span> <span class="nc">DFPMemoryParameters</span><span class="p">(</span><span class="n">EpisodicExperienceReplayParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">MemoryGranularity</span><span class="o">.</span><span class="n">Transitions</span><span class="p">,</span> <span class="mi">20000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="DFPAlgorithmParameters"><a class="viewcode-back" href="../../../components/agents/other/dfp.html#rl_coach.agents.dfp_agent.DFPAlgorithmParameters">[docs]</a><span class="k">class</span> <span class="nc">DFPAlgorithmParameters</span><span class="p">(</span><span class="n">AlgorithmParameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param num_predicted_steps_ahead: (int)</span>
+<span class="sd">        Number of future steps to predict measurements for. The future steps won&#39;t be sequential, but rather jump</span>
+<span class="sd">        in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4</span>
+
+<span class="sd">    :param goal_vector: (List[float])</span>
+<span class="sd">        The goal vector will weight each of the measurements to form an optimization goal. The vector should have</span>
+<span class="sd">        the same length as the number of measurements, and it will be vector multiplied by the measurements.</span>
+<span class="sd">        Positive values correspond to trying to maximize the particular measurement, and negative values</span>
+<span class="sd">        correspond to trying to minimize the particular measurement.</span>
+
+<span class="sd">    :param future_measurements_weights: (List[float])</span>
+<span class="sd">        The future_measurements_weights weight the contribution of each of the predicted timesteps to the optimization</span>
+<span class="sd">        goal. For example, if there are 6 steps predicted ahead, and a future_measurements_weights vector with 3 values,</span>
+<span class="sd">        then only the 3 last timesteps will be taken into account, according to the weights in the</span>
+<span class="sd">        future_measurements_weights vector.</span>
+
+<span class="sd">    :param use_accumulated_reward_as_measurement: (bool)</span>
+<span class="sd">        If set to True, the accumulated reward from the beginning of the episode will be added as a measurement to</span>
+<span class="sd">        the measurements vector in the state. This van be useful in environments where the given measurements don&#39;t</span>
+<span class="sd">        include enough information for the particular goal the agent should achieve.</span>
+
+<span class="sd">    :param handling_targets_after_episode_end: (HandlingTargetsAfterEpisodeEnd)</span>
+<span class="sd">        Dictates how to handle measurements that are outside the episode length.</span>
+
+<span class="sd">    :param scale_measurements_targets: (Dict[str, float])</span>
+<span class="sd">        Allows rescaling the values of each of the measurements available. This van be useful when the measurements</span>
+<span class="sd">        have a different scale and you want to normalize them to the same scale.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_predicted_steps_ahead</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_vector</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">future_measurements_weights</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_accumulated_reward_as_measurement</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handling_targets_after_episode_end</span> <span class="o">=</span> <span class="n">HandlingTargetsAfterEpisodeEnd</span><span class="o">.</span><span class="n">NAN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_measurements_targets</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span> <span class="o">=</span> <span class="n">EnvironmentSteps</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">DFPAgentParameters</span><span class="p">(</span><span class="n">AgentParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="n">DFPAlgorithmParameters</span><span class="p">(),</span>
+                         <span class="n">exploration</span><span class="o">=</span><span class="n">EGreedyParameters</span><span class="p">(),</span>
+                         <span class="n">memory</span><span class="o">=</span><span class="n">DFPMemoryParameters</span><span class="p">(),</span>
+                         <span class="n">networks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;main&quot;</span><span class="p">:</span> <span class="n">DFPNetworkParameters</span><span class="p">()})</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.agents.dfp_agent:DFPAgent&#39;</span>
+
+
+<span class="c1"># Direct Future Prediction Agent - http://vladlen.info/papers/learning-to-act.pdf</span>
+<span class="k">class</span> <span class="nc">DFPAgent</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_parameters</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;LevelManager&#39;</span><span class="p">,</span> <span class="s1">&#39;CompositeAgent&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent_parameters</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">goal_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_measurements_scale_factors</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">learn_from_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="n">network_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="n">network_inputs</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">network_keys</span><span class="p">)</span>
+        <span class="n">network_inputs</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                                           <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># get the current outputs of the network</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">network_inputs</span><span class="p">)</span>
+
+        <span class="c1"># change the targets for the taken actions</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span><span class="p">):</span>
+            <span class="n">targets</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">actions</span><span class="p">()[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;future_measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">train_and_sync_networks</span><span class="p">(</span><span class="n">network_inputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span>
+        <span class="n">total_loss</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">unclipped_grads</span> <span class="o">=</span> <span class="n">result</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">total_loss</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">unclipped_grads</span>
+
+    <span class="k">def</span> <span class="nf">choose_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">curr_state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">requires_action_values</span><span class="p">():</span>
+            <span class="c1"># predict the future measurements</span>
+            <span class="n">tf_input_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_batch_for_inference</span><span class="p">(</span><span class="n">curr_state</span><span class="p">,</span> <span class="s1">&#39;main&#39;</span><span class="p">)</span>
+            <span class="n">tf_input_state</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">measurements_future_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">tf_input_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">action_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">actions</span><span class="p">))</span>
+            <span class="n">num_steps_used_for_objective</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">future_measurements_weights</span><span class="p">)</span>
+
+            <span class="c1"># calculate the score of each action by multiplying it&#39;s future measurements with the goal vector</span>
+            <span class="k">for</span> <span class="n">action_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">actions</span><span class="p">)):</span>
+                <span class="n">action_measurements</span> <span class="o">=</span> <span class="n">measurements_future_prediction</span><span class="p">[</span><span class="n">action_idx</span><span class="p">]</span>
+                <span class="n">action_measurements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">action_measurements</span><span class="p">,</span>
+                                                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_predicted_steps_ahead</span><span class="p">,</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">future_steps_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">action_measurements</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="p">)</span>
+                <span class="n">action_values</span><span class="p">[</span><span class="n">action_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">future_steps_values</span><span class="p">[</span><span class="o">-</span><span class="n">num_steps_used_for_objective</span><span class="p">:],</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">future_measurements_weights</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action_values</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># choose action according to the exploration policy and the current phase (evaluating or training the agent)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">get_action</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">action_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">action_values</span> <span class="o">=</span> <span class="n">action_values</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="n">action_info</span> <span class="o">=</span> <span class="n">ActionInfo</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">action_value</span><span class="o">=</span><span class="n">action_values</span><span class="p">[</span><span class="n">action</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action_info</span> <span class="o">=</span> <span class="n">ActionInfo</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">action_info</span>
+
+    <span class="k">def</span> <span class="nf">set_environment_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spaces</span><span class="p">:</span> <span class="n">SpacesDefinition</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">spaces</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="n">VectorObservationSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                                  <span class="n">measurements_names</span><span class="o">=</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">measurements_names</span><span class="p">)</span>
+
+        <span class="c1"># if the user has filled some scale values, check that he got the names right</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">measurements_names</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_measurements_targets</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span>\
+                <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_measurements_targets</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Some of the keys in parameter scale_measurements_targets (</span><span class="si">{}</span><span class="s2">)  are not defined in &quot;</span>
+                             <span class="s2">&quot;the measurements space </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_measurements_targets</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                                                                <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">measurements_names</span><span class="p">))</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_environment_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="p">)</span>
+
+        <span class="c1"># the below is done after calling the base class method, as it might add accumulated reward as a measurement</span>
+
+        <span class="c1"># fill out the missing measurements scale factors</span>
+        <span class="k">for</span> <span class="n">measurement_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">measurements_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">measurement_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_measurements_targets</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_measurements_targets</span><span class="p">[</span><span class="n">measurement_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_measurements_scale_factors</span> <span class="o">=</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_measurements_targets</span><span class="p">[</span><span class="n">measurement_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">measurement_name</span> <span class="ow">in</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">measurements_names</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">handle_episode_ended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">last_episode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]</span> <span class="ow">and</span> <span class="n">last_episode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_measurements_targets</span><span class="p">(</span><span class="n">last_episode</span><span class="p">,</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_predicted_steps_ahead</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">handle_episode_ended</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_update_measurements_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;measurements&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">episode</span><span class="o">.</span><span class="n">transitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">state</span> <span class="ow">or</span> <span class="n">episode</span><span class="o">.</span><span class="n">transitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Measurements are not present in the transitions of the last episode played. &quot;</span><span class="p">)</span>
+        <span class="n">measurements_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">transition_idx</span><span class="p">,</span> <span class="n">transition</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">episode</span><span class="o">.</span><span class="n">transitions</span><span class="p">):</span>
+            <span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;future_measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">measurements_size</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
+                <span class="n">offset_idx</span> <span class="o">=</span> <span class="n">transition_idx</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">step</span>
+
+                <span class="k">if</span> <span class="n">offset_idx</span> <span class="o">&gt;=</span> <span class="n">episode</span><span class="o">.</span><span class="n">length</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">handling_targets_after_episode_end</span> <span class="o">==</span> <span class="n">HandlingTargetsAfterEpisodeEnd</span><span class="o">.</span><span class="n">NAN</span><span class="p">:</span>
+                        <span class="c1"># the special MSE loss will ignore those entries so that the gradient will be 0 for these</span>
+                        <span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;future_measurements&#39;</span><span class="p">][</span><span class="n">step</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                        <span class="k">continue</span>
+
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">handling_targets_after_episode_end</span> <span class="o">==</span> <span class="n">HandlingTargetsAfterEpisodeEnd</span><span class="o">.</span><span class="n">LastStep</span><span class="p">:</span>
+                        <span class="n">offset_idx</span> <span class="o">=</span> <span class="o">-</span> <span class="mi">1</span>
+
+                <span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;future_measurements&#39;</span><span class="p">][</span><span class="n">step</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">target_measurements_scale_factors</span> <span class="o">*</span> \
+                    <span class="p">(</span><span class="n">episode</span><span class="o">.</span><span class="n">transitions</span><span class="p">[</span><span class="n">offset_idx</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">transition</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">])</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

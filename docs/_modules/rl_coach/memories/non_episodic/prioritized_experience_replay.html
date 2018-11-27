@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.memories.non_episodic.prioritized_experience_replay &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.memories.non_episodic.prioritized_experience_replay</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.memories.non_episodic.prioritized_experience_replay</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">Transition</span>
+<span class="kn">from</span> <span class="nn">rl_coach.memories.memory</span> <span class="k">import</span> <span class="n">MemoryGranularity</span>
+<span class="kn">from</span> <span class="nn">rl_coach.memories.non_episodic.experience_replay</span> <span class="k">import</span> <span class="n">ExperienceReplayParameters</span><span class="p">,</span> <span class="n">ExperienceReplay</span>
+<span class="kn">from</span> <span class="nn">rl_coach.schedules</span> <span class="k">import</span> <span class="n">Schedule</span><span class="p">,</span> <span class="n">ConstantSchedule</span>
+
+
+<span class="k">class</span> <span class="nc">PrioritizedExperienceReplayParameters</span><span class="p">(</span><span class="n">ExperienceReplayParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">MemoryGranularity</span><span class="o">.</span><span class="n">Transitions</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.6</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">ConstantSchedule</span><span class="p">(</span><span class="mf">0.4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.memories.non_episodic.prioritized_experience_replay:PrioritizedExperienceReplay&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">SegmentTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A tree which can be used as a min/max heap or a sum tree</span>
+<span class="sd">    Add or update item value - O(log N)</span>
+<span class="sd">    Sampling an item - O(log N)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">class</span> <span class="nc">Operation</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="n">MAX</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">,</span> <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)}</span>
+        <span class="n">MIN</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">,</span> <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)}</span>
+        <span class="n">SUM</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="s2">&quot;initial_value&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Operation</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_leaf_idx_to_write</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">size</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A segment tree size must be a positive power of 2. The given size is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operation</span> <span class="o">=</span> <span class="n">operation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;initial_value&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span>
+
+    <span class="k">def</span> <span class="nf">_propagate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Propagate an update of a node&#39;s value to its parent node</span>
+<span class="sd">        :param node_idx: the index of the node that was updated</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="p">(</span><span class="n">node_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;operator&#39;</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">parent</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">parent</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">parent</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_propagate</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_node_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span><span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the first node that has a value larger than val and is a child of the node at index idx</span>
+<span class="sd">        :param root_node_idx: the index of the root node to search from</span>
+<span class="sd">        :param val: the value to query for</span>
+<span class="sd">        :return: the index of the resulting node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">root_node_idx</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">left</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">root_node_idx</span>
+
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">left</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">val</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">left</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">total_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the total value of the tree according to the tree operation. For SUM for example, this will return</span>
+<span class="sd">        the total sum of the tree. for MIN, this will return the minimal value</span>
+<span class="sd">        :return: the total value of the tree</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new value to the tree with data assigned to it</span>
+<span class="sd">        :param val: the new value to add to the tree</span>
+<span class="sd">        :param data: the data that should be assigned to this value</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">next_leaf_idx_to_write</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next_leaf_idx_to_write</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_leaf_idx_to_write</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_leaf_idx_to_write</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next_leaf_idx_to_write</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaf_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">new_val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the value of the node at index idx</span>
+<span class="sd">        :param leaf_idx: the index of the node to update</span>
+<span class="sd">        :param new_val: the new value of the node</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node_idx</span> <span class="o">=</span> <span class="n">leaf_idx</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">node_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given left index (</span><span class="si">{}</span><span class="s2">) can not be found in the tree. The available leaves are: 0-</span><span class="si">{}</span><span class="s2">&quot;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">leaf_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_propagate</span><span class="p">(</span><span class="n">node_idx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_element_by_partial_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a value between 0 and the tree sum, return the object which this value is in it&#39;s range.</span>
+<span class="sd">        For example, if we have 3 leaves: 10, 20, 30, and val=35, this will return the 3rd leaf, by accumulating</span>
+<span class="sd">        leaves by their order until getting to 35. This allows sampling leaves according to their proportional</span>
+<span class="sd">        probability.</span>
+<span class="sd">        :param val: a value within the range 0 and the tree sum</span>
+<span class="sd">        :return: the index of the resulting leaf in the tree, its probability and</span>
+<span class="sd">                 the object itself</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="n">leaf_idx</span> <span class="o">=</span> <span class="n">node_idx</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">data_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">leaf_idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">leaf_idx</span><span class="p">,</span> <span class="n">data_value</span><span class="p">,</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="n">start</span><span class="p">:(</span><span class="n">start</span> <span class="o">+</span> <span class="n">size</span><span class="p">)])</span>
+            <span class="n">start</span> <span class="o">+=</span> <span class="n">size</span>
+            <span class="n">size</span> <span class="o">*=</span> <span class="mi">2</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="PrioritizedExperienceReplay"><a class="viewcode-back" href="../../../../components/memories/index.html#rl_coach.memories.non_episodic.PrioritizedExperienceReplay">[docs]</a><span class="k">class</span> <span class="nc">PrioritizedExperienceReplay</span><span class="p">(</span><span class="n">ExperienceReplay</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the proportional sampling variant of the prioritized experience replay as described</span>
+<span class="sd">    in https://arxiv.org/pdf/1511.05952.pdf.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">MemoryGranularity</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="n">Schedule</span><span class="o">=</span><span class="n">ConstantSchedule</span><span class="p">(</span><span class="mf">0.4</span><span class="p">),</span>
+                 <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">allow_duplicates_in_batch_sampling</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param max_size: the maximum number of transitions or episodes to hold in the memory</span>
+<span class="sd">        :param alpha: the alpha prioritization coefficient</span>
+<span class="sd">        :param beta: the beta parameter used for importance sampling</span>
+<span class="sd">        :param epsilon: a small value added to the priority of each transition</span>
+<span class="sd">        :param allow_duplicates_in_batch_sampling: allow having the same transition multiple times in a batch</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">max_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">MemoryGranularity</span><span class="o">.</span><span class="n">Transitions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Prioritized Experience Replay currently only support setting the memory size in &quot;</span>
+                             <span class="s2">&quot;transitions granularity.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span> <span class="o">&lt;</span> <span class="n">max_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span> <span class="o">*=</span> <span class="mi">2</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">((</span><span class="n">MemoryGranularity</span><span class="o">.</span><span class="n">Transitions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span><span class="p">),</span> <span class="n">allow_duplicates_in_batch_sampling</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span> <span class="o">=</span> <span class="n">SegmentTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span><span class="p">,</span> <span class="n">SegmentTree</span><span class="o">.</span><span class="n">Operation</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_tree</span> <span class="o">=</span> <span class="n">SegmentTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span><span class="p">,</span> <span class="n">SegmentTree</span><span class="o">.</span><span class="n">Operation</span><span class="o">.</span><span class="n">MIN</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_tree</span> <span class="o">=</span> <span class="n">SegmentTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span><span class="p">,</span> <span class="n">SegmentTree</span><span class="o">.</span><span class="n">Operation</span><span class="o">.</span><span class="n">MAX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="n">epsilon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximal_priority</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">def</span> <span class="nf">_update_priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaf_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the priority of a given transition, using its index in the tree and its error</span>
+<span class="sd">        :param leaf_idx: the index of the transition leaf in the tree</span>
+<span class="sd">        :param error: the new error value</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">error</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The priorities must be non-negative values&quot;</span><span class="p">)</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="p">(</span><span class="n">error</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">leaf_idx</span><span class="p">,</span> <span class="n">priority</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_tree</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">leaf_idx</span><span class="p">,</span> <span class="n">priority</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_tree</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">leaf_idx</span><span class="p">,</span> <span class="n">priority</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximal_priority</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_tree</span><span class="o">.</span><span class="n">total_value</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">update_priorities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">error_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the priorities of a batch of transitions using their indices and their new TD error terms</span>
+<span class="sd">        :param indices: the indices of the transitions to update</span>
+<span class="sd">        :param error_values: the new error values</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">lock_writing_and_reading</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">error_values</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of indexes requested for update don&#39;t match the number of error values given&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">transition_idx</span><span class="p">,</span> <span class="n">error</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">error_values</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_priority</span><span class="p">(</span><span class="n">transition_idx</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">release_writing_and_reading</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Transition</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample a batch of transitions form the replay buffer. If the requested size is larger than the number</span>
+<span class="sd">        of samples available in the replay buffer then the batch will return empty.</span>
+<span class="sd">        :param size: the size of the batch to sample</span>
+<span class="sd">        :return: a batch (list) of selected transitions from the replay buffer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">lock_writing</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_transitions</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">size</span><span class="p">:</span>
+            <span class="c1"># split the tree leaves to equal segments and sample one transition from each segment</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">segment_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span><span class="o">.</span><span class="n">total_value</span><span class="p">()</span> <span class="o">/</span> <span class="n">size</span>
+
+            <span class="c1"># get the maximum weight in the memory</span>
+            <span class="n">min_probability</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_tree</span><span class="o">.</span><span class="n">total_value</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span><span class="o">.</span><span class="n">total_value</span><span class="p">()</span>  <span class="c1"># min P(j) = min p^a / sum(p^a)</span>
+            <span class="n">max_weight</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_probability</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_transitions</span><span class="p">())</span> <span class="o">**</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">current_value</span>  <span class="c1"># max wi</span>
+
+            <span class="c1"># sample a batch</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+                <span class="n">segment_start</span> <span class="o">=</span> <span class="n">segment_size</span> <span class="o">*</span> <span class="n">i</span>
+                <span class="n">segment_end</span> <span class="o">=</span> <span class="n">segment_size</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># sample leaf and calculate its weight</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">segment_start</span><span class="p">,</span> <span class="n">segment_end</span><span class="p">)</span>
+                <span class="n">leaf_idx</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="n">transition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span><span class="o">.</span><span class="n">get_element_by_partial_sum</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">priority</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span><span class="o">.</span><span class="n">total_value</span><span class="p">()</span>   <span class="c1"># P(j) = p^a / sum(p^a)</span>
+                <span class="n">weight</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_transitions</span><span class="p">()</span> <span class="o">*</span> <span class="n">priority</span><span class="p">)</span> <span class="o">**</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">current_value</span>  <span class="c1"># (N * P(j)) ^ -beta</span>
+                <span class="n">normalized_weight</span> <span class="o">=</span> <span class="n">weight</span> <span class="o">/</span> <span class="n">max_weight</span>  <span class="c1"># wj = ((N * P(j)) ^ -beta) / max wi</span>
+
+                <span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">leaf_idx</span>
+                <span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_weight</span>
+
+                <span class="n">batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The replay buffer cannot be sampled since there are not enough transitions yet. &quot;</span>
+                             <span class="s2">&quot;There are currently </span><span class="si">{}</span><span class="s2"> transitions&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_transitions</span><span class="p">()))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">release_writing</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">batch</span>
+
+    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">:</span> <span class="n">Transition</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Store a new transition in the memory.</span>
+<span class="sd">        :param transition: a transition to store</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">lock_writing_and_reading</span><span class="p">()</span>
+
+        <span class="n">transition_priority</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximal_priority</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">transition_priority</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">transition_priority</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_tree</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">transition_priority</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">transition</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">release_writing_and_reading</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clean the memory by removing all the episodes</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">lock_writing_and_reading</span><span class="p">()</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">lock</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum_tree</span> <span class="o">=</span> <span class="n">SegmentTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span><span class="p">,</span> <span class="n">SegmentTree</span><span class="o">.</span><span class="n">Operation</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_tree</span> <span class="o">=</span> <span class="n">SegmentTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span><span class="p">,</span> <span class="n">SegmentTree</span><span class="o">.</span><span class="n">Operation</span><span class="o">.</span><span class="n">MIN</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_tree</span> <span class="o">=</span> <span class="n">SegmentTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_of_2_size</span><span class="p">,</span> <span class="n">SegmentTree</span><span class="o">.</span><span class="n">Operation</span><span class="o">.</span><span class="n">MAX</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reader_writer_lock</span><span class="o">.</span><span class="n">release_writing_and_reading</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

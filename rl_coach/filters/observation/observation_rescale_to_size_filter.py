@@ -37,7 +37,8 @@ class RescaleInterpolationType(Enum):
 
 class ObservationRescaleToSizeFilter(ObservationFilter):
     """
-    Scales the current state observation to a given shape
+    Rescales an image observation to a given size. The target size does not
+    necessarily keep the aspect ratio of the original observation.
     Warning: this requires the input observation to be of type uint8 due to scipy requirements!
     """
     def __init__(self, output_observation_space: PlanarMapsObservationSpace,

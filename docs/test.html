@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>test &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>test</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/test.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="test">
+<h1>test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h1>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">Its a note! in markdown!</p>
+</div>
+<dl class="class">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent">
+<em class="property">class </em><code class="descclassname">rl_coach.agents.dqn_agent.</code><code class="descname">DQNAgent</code><span class="sig-paren">(</span><em>agent_parameters</em>, <em>parent: Union[LevelManager</em>, <em>CompositeAgent] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rl_coach/agents/dqn_agent.html#DQNAgent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.act">
+<code class="descname">act</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.act" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the agents current knowledge, decide on the next action to apply to the environment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An ActionInfo object, which contains the action and any additional info from the action decision process</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.call_memory">
+<code class="descname">call_memory</code><span class="sig-paren">(</span><em>func</em>, <em>args=()</em><span class="sig-paren">)</span><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.call_memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is a wrapper to allow having the same calls for shared or unshared memories.
+It should be used instead of calling the memory directly in order to allow different algorithms to work
+both with a shared and a local memory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>func</strong> – the name of the memory function to call</li>
+<li><strong>args</strong> – the arguments to supply to the function</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the return value of the function</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.choose_action">
+<code class="descname">choose_action</code><span class="sig-paren">(</span><em>curr_state</em><span class="sig-paren">)</span><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.choose_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>choose an action to act with in the current episode being played. Different behavior might be exhibited when
+training or testing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>curr_state</strong> – the current state to act upon.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">chosen action, some action value describing the action (q-value, probability, etc)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.collect_savers">
+<code class="descname">collect_savers</code><span class="sig-paren">(</span><em>parent_path_suffix: str</em><span class="sig-paren">)</span> &#x2192; rl_coach.saver.SaverCollection<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.collect_savers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect all of agent’s network savers
+:param parent_path_suffix: path suffix of the parent of the agent</p>
+<blockquote>
+<div>(could be name of level manager or composite agent)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">collection of all agent savers</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.create_networks">
+<code class="descname">create_networks</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, rl_coach.architectures.network_wrapper.NetworkWrapper]<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.create_networks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create all the networks of the agent.
+The network creation will be done after setting the environment parameters for the agent, since they are needed
+for creating the network.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list containing all the networks</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.emulate_act_on_trainer">
+<code class="descname">emulate_act_on_trainer</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.emulate_act_on_trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This emulates the act using the transition obtained from the rollout worker on the training worker
+in case of distributed training.
+Given the agents current knowledge, decide on the next action to apply to the environment
+:return: an action and a dictionary containing any additional info from the action decision process</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.emulate_observe_on_trainer">
+<code class="descname">emulate_observe_on_trainer</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.emulate_observe_on_trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This emulates the observe using the transition obtained from the rollout worker on the training worker
+in case of distributed training.
+Given a response from the environment, distill the observation from it and store it for later use.
+The response should be a dictionary containing the performed action, the new observation and measurements,
+the reward, a game over flag and any additional information necessary.
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.get_predictions">
+<code class="descname">get_predictions</code><span class="sig-paren">(</span><em>states: List[Dict[str, numpy.ndarray]], prediction_type: rl_coach.core_types.PredictionType</em><span class="sig-paren">)</span><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.get_predictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a prediction from the agent with regard to the requested prediction_type.
+If the agent cannot predict this type of prediction_type, or if there is more than possible way to do so,
+raise a ValueException.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>states</strong> – The states to get a prediction for</li>
+<li><strong>prediction_type</strong> – The type of prediction to get for the states. For example, the state-value prediction.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the predicted values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.get_state_embedding">
+<code class="descname">get_state_embedding</code><span class="sig-paren">(</span><em>state: dict</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.get_state_embedding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a state, get the corresponding state embedding  from the main network</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> – a state dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy embedding vector</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.handle_episode_ended">
+<code class="descname">handle_episode_ended</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.handle_episode_ended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make any changes needed when each episode is ended.
+This includes incrementing counters, updating full episode dependent values, updating logs, etc.
+This function is called right after each episode is ended.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.init_environment_dependent_modules">
+<code class="descname">init_environment_dependent_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.init_environment_dependent_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize any modules that depend on knowing information about the environment such as the action space or
+the observation space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.learn_from_batch">
+<code class="descname">learn_from_batch</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/rl_coach/agents/dqn_agent.html#DQNAgent.learn_from_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.learn_from_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a batch of transitions, calculates their target values and updates the network.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – A list of transitions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total loss of the training, the loss per head and the unclipped gradients</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.log_to_screen">
+<code class="descname">log_to_screen</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.log_to_screen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write an episode summary line to the terminal</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.observe">
+<code class="descname">observe</code><span class="sig-paren">(</span><em>env_response: rl_coach.core_types.EnvResponse</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a response from the environment, distill the observation from it and store it for later use.
+The response should be a dictionary containing the performed action, the new observation and measurements,
+the reward, a game over flag and any additional information necessary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>env_response</strong> – result of call from environment.step(action)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a boolean value which determines if the agent has decided to terminate the episode after seeing the
+given observation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.parent">
+<code class="descname">parent</code><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the parent class of the agent</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the current phase</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.phase">
+<code class="descname">phase</code><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current running phase of the agent</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">RunPhase</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.post_training_commands">
+<code class="descname">post_training_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.post_training_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function which allows adding any functionality that is required to run right after the training phase ends.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.prepare_batch_for_inference">
+<code class="descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em>states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.core.multiarray.array]<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
+observations together, measurements together, etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>states</strong> – A list of environment states, where each one is a dict mapping from an observation name to its
+corresponding observation</li>
+<li><strong>network_name</strong> – The agent network name to prepare the batch for. this is needed in order to extract only
+the observation relevant for the network from the states.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary containing a list of values from all the given states for each of the observations</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.register_signal">
+<code class="descname">register_signal</code><span class="sig-paren">(</span><em>signal_name: str</em>, <em>dump_one_value_per_episode: bool = True</em>, <em>dump_one_value_per_step: bool = False</em><span class="sig-paren">)</span> &#x2192; rl_coach.utils.Signal<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.register_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a signal such that its statistics will be dumped and be viewable through dashboard</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>signal_name</strong> – the name of the signal as it will appear in dashboard</li>
+<li><strong>dump_one_value_per_episode</strong> – should the signal value be written for each episode?</li>
+<li><strong>dump_one_value_per_step</strong> – should the signal value be written for each step?</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the created signal</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.reset_evaluation_state">
+<code class="descname">reset_evaluation_state</code><span class="sig-paren">(</span><em>val: rl_coach.core_types.RunPhase</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.reset_evaluation_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform accumulators initialization when entering an evaluation phase, and signal dumping when exiting an
+evaluation phase. Entering or exiting the evaluation phase is determined according to the new phase given
+by val, and by the current phase set in self.phase.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – The new phase to change to</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.reset_internal_state">
+<code class="descname">reset_internal_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.reset_internal_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset all the episodic parameters. This function is called right before each episode starts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.restore_checkpoint">
+<code class="descname">restore_checkpoint</code><span class="sig-paren">(</span><em>checkpoint_dir: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.restore_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows agents to store additional information when saving checkpoints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_dir</strong> – The checkpoint dir to restore from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.run_pre_network_filter_for_inference">
+<code class="descname">run_pre_network_filter_for_inference</code><span class="sig-paren">(</span><em>state: Dict[str, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.run_pre_network_filter_for_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run filters which where defined for being applied right before using the state for inference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> – The state to run the filters on</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The filtered state</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.save_checkpoint">
+<code class="descname">save_checkpoint</code><span class="sig-paren">(</span><em>checkpoint_prefix: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.save_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows agents to store additional information when saving checkpoints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_prefix</strong> – The prefix of the checkpoint file to save</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.set_environment_parameters">
+<code class="descname">set_environment_parameters</code><span class="sig-paren">(</span><em>spaces: rl_coach.spaces.SpacesDefinition</em><span class="sig-paren">)</span><a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.set_environment_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the parameters that are environment dependent. As a side effect, initializes all the components that are
+dependent on those values, by calling init_environment_dependent_modules</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spaces</strong> – the environment spaces definition</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.set_incoming_directive">
+<code class="descname">set_incoming_directive</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.set_incoming_directive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows setting a directive for the agent to follow. This is useful in hierarchy structures, where the agent
+has another master agent that is controlling it. In such cases, the master agent can define the goals for the
+slave agent, define it’s observation, possible actions, etc. The directive type is defined by the agent
+in-action-space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – The action that should be set as the directive</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.set_session">
+<code class="descname">set_session</code><span class="sig-paren">(</span><em>sess</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.set_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the deep learning framework session for all the agents in the composite agent</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.setup_logger">
+<code class="descname">setup_logger</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.setup_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the logger for the agent</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.sync">
+<code class="descname">sync</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.sync" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sync the global network parameters to local networks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.train">
+<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a training phase should be done as configured by num_consecutive_playing_steps.
+If it should, then do several training steps as configured by num_consecutive_training_steps.
+A single training iteration: Sample a batch, train on it and update target networks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The total training loss during the training iterations.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.update_log">
+<code class="descname">update_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.update_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the episodic log file with all the signal values from the most recent episode.
+Additional signals for logging can be set by the creating a new signal using self.register_signal,
+and then updating it with some internal agent values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.update_step_in_episode_log">
+<code class="descname">update_step_in_episode_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.update_step_in_episode_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the in-episode log file with all the signal values from the most recent step.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.dqn_agent.DQNAgent.update_transition_before_adding_to_replay_buffer">
+<code class="descname">update_transition_before_adding_to_replay_buffer</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.update_transition_before_adding_to_replay_buffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows agents to update the transition just before adding it to the replay buffer.
+Can be useful for agents that want to tweak the reward, termination signal, etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>transition</strong> – the transition to update</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the updated transition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

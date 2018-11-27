@@ -1,0 +1,825 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Architectures &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Data Stores" href="../data_stores/index.html" />
+    <link rel="prev" title="Quantile Regression DQN" href="../agents/value_optimization/qr_dqn.html" />
+    <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/index.html">Agents</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architectures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#networkwrapper">NetworkWrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Architectures</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/components/architectures/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="architectures">
+<h1>Architectures<a class="headerlink" href="#architectures" title="Permalink to this headline">¶</a></h1>
+<p>Architectures contain all the classes that implement the neural network related stuff for the agent.
+Since Coach is intended to work with multiple neural network frameworks, each framework will implement its
+own components under a dedicated directory. For example, tensorflow components will contain all the neural network
+parts that are implemented using TensorFlow.</p>
+<dl class="class">
+<dt id="rl_coach.base_parameters.NetworkParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">NetworkParameters</code><span class="sig-paren">(</span><em>force_cpu=False</em>, <em>async_training=False</em>, <em>shared_optimizer=True</em>, <em>scale_down_gradients_by_number_of_workers_for_sync_training=True</em>, <em>clip_gradients=None</em>, <em>gradients_clipping_method=&lt;GradientClippingMethod.ClipByGlobalNorm: 0&gt;</em>, <em>l2_regularization=0</em>, <em>learning_rate=0.00025</em>, <em>learning_rate_decay_rate=0</em>, <em>learning_rate_decay_steps=0</em>, <em>input_embedders_parameters={}</em>, <em>embedding_merger_type=&lt;EmbeddingMergerType.Concat: 0&gt;</em>, <em>middleware_parameters=None</em>, <em>heads_parameters=[]</em>, <em>use_separate_networks_per_head=False</em>, <em>optimizer_type='Adam'</em>, <em>optimizer_epsilon=0.0001</em>, <em>adam_optimizer_beta1=0.9</em>, <em>adam_optimizer_beta2=0.99</em>, <em>rms_prop_optimizer_decay=0.9</em>, <em>batch_size=32</em>, <em>replace_mse_with_huber_loss=False</em>, <em>create_target_network=False</em>, <em>tensorflow_support=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/base_parameters.html#NetworkParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.NetworkParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>force_cpu</strong> – Force the neural networks to run on the CPU even if a GPU is available</li>
+<li><strong>async_training</strong> – If set to True, asynchronous training will be used, meaning that each workers will progress in its own
+speed, while not waiting for the rest of the workers to calculate their gradients.</li>
+<li><strong>shared_optimizer</strong> – If set to True, a central optimizer which will be shared with all the workers will be used for applying
+gradients to the network. Otherwise, each worker will have its own optimizer with its own internal
+parameters that will only be affected by the gradients calculated by that worker</li>
+<li><strong>scale_down_gradients_by_number_of_workers_for_sync_training</strong> – If set to True, in synchronous training, the gradients of each worker will be scaled down by the
+number of workers. This essentially means that the gradients applied to the network are the average
+of the gradients over all the workers.</li>
+<li><strong>clip_gradients</strong> – A value that will be used for clipping the gradients of the network. If set to None, no gradient clipping
+will be applied. Otherwise, the gradients will be clipped according to the gradients_clipping_method.</li>
+<li><strong>gradients_clipping_method</strong> – A gradient clipping method, defined by a GradientClippingMethod enum, and that will be used to clip the
+gradients of the network. This will only be used if the clip_gradients value is defined as a value other
+than None.</li>
+<li><strong>l2_regularization</strong> – A L2 regularization weight that will be applied to the network weights while calculating the loss function</li>
+<li><strong>learning_rate</strong> – The learning rate for the network</li>
+<li><strong>learning_rate_decay_rate</strong> – If this value is larger than 0, an exponential decay will be applied to the network learning rate.
+The rate of the decay is defined by this parameter, and the number of training steps the decay will be
+applied is defined by learning_rate_decay_steps. Notice that both parameters should be defined in order
+for this to work correctly.</li>
+<li><strong>learning_rate_decay_steps</strong> – If the learning_rate_decay_rate of the network is larger than 0, an exponential decay will be applied to
+the network learning rate. The number of steps the decay will be applied is defined by this parameter.
+Notice that both this parameter, as well as learning_rate_decay_rate should be defined in order for the
+learning rate decay to work correctly.</li>
+<li><strong>input_embedders_parameters</strong> – A dictionary mapping between input names and input embedders (InputEmbedderParameters) to use for the
+network. Each of the keys is an input name as returned from the environment in the state.
+For example, if the environment returns a state containing ‘observation’ and ‘measurements’, then
+the keys for the input embedders dictionary can be either ‘observation’ to use the observation as input,
+‘measurements’ to use the measurements as input, or both.
+The embedder type will be automatically selected according to the input type. Vector inputs will
+produce a fully connected embedder, and image inputs will produce a convolutional embedder.</li>
+<li><strong>embedding_merger_type</strong> – The type of embedding merging to use, given by one of the EmbeddingMergerType enum values.
+This will be used to merge the outputs of all the input embedders into a single embbeding.</li>
+<li><strong>middleware_parameters</strong> – The parameters of the middleware to use, given by a MiddlewareParameters object.
+Each network will have only a single middleware embedder which will take the merged embeddings from the
+input embedders and pass them through more neural network layers.</li>
+<li><strong>heads_parameters</strong> – A list of heads for the network given by their corresponding HeadParameters.
+Each network can have one or multiple network heads, where each one will take the output of the middleware
+and make some additional computation on top of it. Additionally, each head calculates a weighted loss value,
+and the loss values from all the heads will be summed later on.</li>
+<li><strong>use_separate_networks_per_head</strong> – A flag that allows using different copies of the input embedders and middleware for each one of the heads.
+Regularly, the heads will have a shared input, but in the case where use_separate_networks_per_head is set
+to True, each one of the heads will get a different input.</li>
+<li><strong>optimizer_type</strong> – A string specifying the optimizer type to use for updating the network. The available optimizers are
+Adam, RMSProp and LBFGS.</li>
+<li><strong>optimizer_epsilon</strong> – An internal optimizer parameter used for Adam and RMSProp.</li>
+<li><strong>adam_optimizer_beta1</strong> – An beta1 internal optimizer parameter used for Adam. It will be used only if Adam was selected as the
+optimizer for the network.</li>
+<li><strong>adam_optimizer_beta2</strong> – An beta2 internal optimizer parameter used for Adam. It will be used only if Adam was selected as the
+optimizer for the network.</li>
+<li><strong>rms_prop_optimizer_decay</strong> – The decay value for the RMSProp optimizer, which will be used only in case the RMSProp optimizer was
+selected for this network.</li>
+<li><strong>batch_size</strong> – The batch size to use when updating the network.</li>
+<li><strong>replace_mse_with_huber_loss</strong> – </li>
+<li><strong>create_target_network</strong> – If this flag is set to True, an additional copy of the network will be created and initialized with the
+same weights as the online network. It can then be queried, and its weights can be synced from the
+online network at will.</li>
+<li><strong>tensorflow_support</strong> – A flag which specifies if the network is supported by the TensorFlow framework.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="section" id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.architectures.architecture.Architecture">
+<em class="property">class </em><code class="descclassname">rl_coach.architectures.architecture.</code><code class="descname">Architecture</code><span class="sig-paren">(</span><em>agent_parameters: rl_coach.base_parameters.AgentParameters</em>, <em>spaces: rl_coach.spaces.SpacesDefinition</em>, <em>name: str = ''</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a neural network ‘architecture’, that can be trained and used for inference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>agent_parameters</strong> – the agent parameters</li>
+<li><strong>spaces</strong> – the spaces (observation, action, etc.) definition of the agent</li>
+<li><strong>name</strong> – the name of the network</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.accumulate_gradients">
+<code class="descname">accumulate_gradients</code><span class="sig-paren">(</span><em>inputs: Dict[str, numpy.ndarray], targets: List[numpy.ndarray], additional_fetches: list = None, importance_weights: numpy.ndarray = None, no_accumulation: bool = False</em><span class="sig-paren">)</span> &#x2192; Tuple[float, List[float], float, list]<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.accumulate_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.accumulate_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a batch of inputs (i.e. states) and targets (e.g. discounted rewards), computes and accumulates the
+gradients for model parameters. Will run forward and backward pass to compute gradients, clip the gradient
+values if required and then accumulate gradients from all learners. It does not update the model weights,
+that’s performed in <cite>apply_and_reset_gradients</cite> method.</p>
+<p>Once gradients are accumulated, they are accessed by <cite>accumulated_gradients</cite> property of this class.å</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – <p>typically the environment states (but can also contain other data for loss)
+(e.g. <cite>{‘observation’: numpy.ndarray}</cite> with <cite>observation</cite> of shape (batch_size, observation_space_size) or</p>
+<blockquote>
+<div>(batch_size, observation_space_size, stack_size) or</div></blockquote>
+<p><cite>{‘observation’: numpy.ndarray, ‘output_0_0’: numpy.ndarray}</cite> with <cite>output_0_0</cite> of shape (batch_size,))</p>
+</li>
+<li><strong>targets</strong> – targets for calculating loss. For example discounted rewards for value network
+for calculating the value-network loss would be a target. Length of list and order of arrays in
+the list matches that of network losses which are defined by network parameters</li>
+<li><strong>additional_fetches</strong> – list of additional values to fetch and return. The type of each list
+element is framework dependent.</li>
+<li><strong>importance_weights</strong> – ndarray of shape (batch_size,) to multiply with batch loss.</li>
+<li><strong>no_accumulation</strong> – if True, set gradient values to the new gradients, otherwise sum with previously
+calculated gradients</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
+total_loss (float): sum of all head losses
+losses (list of float): list of all losses. The order is list of target losses followed by list of</p>
+<blockquote>
+<div><p>regularization losses. The specifics of losses is dependant on the network parameters
+(number of heads, etc.)</p>
+</div></blockquote>
+<p>norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
+fetched_tensors: all values for additional_fetches</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.apply_and_reset_gradients">
+<code class="descname">apply_and_reset_gradients</code><span class="sig-paren">(</span><em>gradients: List[numpy.ndarray], scaler: float = 1.0</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.apply_and_reset_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.apply_and_reset_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the given gradients to the network weights and resets the gradient accumulations.
+Has the same impact as calling <cite>apply_gradients</cite>, then <cite>reset_accumulated_gradients</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>gradients</strong> – gradients for the parameter weights, taken from <cite>accumulated_gradients</cite> property
+of an identical network (either self or another identical network)</li>
+<li><strong>scaler</strong> – A scaling factor that allows rescaling the gradients before applying them</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.apply_gradients">
+<code class="descname">apply_gradients</code><span class="sig-paren">(</span><em>gradients: List[numpy.ndarray], scaler: float = 1.0</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.apply_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.apply_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the given gradients to the network weights.
+Will be performed sync or async depending on <cite>network_parameters.async_training</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>gradients</strong> – gradients for the parameter weights, taken from <cite>accumulated_gradients</cite> property
+of an identical network (either self or another identical network)</li>
+<li><strong>scaler</strong> – A scaling factor that allows rescaling the gradients before applying them</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.collect_savers">
+<code class="descname">collect_savers</code><span class="sig-paren">(</span><em>parent_path_suffix: str</em><span class="sig-paren">)</span> &#x2192; rl_coach.saver.SaverCollection<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.collect_savers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.collect_savers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collection of all savers for the network (typically only one saver for network and one for ONNX export)
+:param parent_path_suffix: path suffix of the parent of the network</p>
+<blockquote>
+<div>(e.g. could be name of level manager plus name of agent)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">saver collection for the network</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rl_coach.architectures.architecture.Architecture.construct">
+<em class="property">static </em><code class="descname">construct</code><span class="sig-paren">(</span><em>variable_scope: str, devices: List[str], *args, **kwargs</em><span class="sig-paren">)</span> &#x2192; rl_coach.architectures.architecture.Architecture<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.construct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.construct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a network class using the provided variable scope and on requested devices
+:param variable_scope: string specifying variable scope under which to create network variables
+:param devices: list of devices (can be list of Device objects, or string for TF distributed)
+:param args: all other arguments for class initializer
+:param kwargs: all other keyword arguments for class initializer
+:return: an object which is a child of Architecture</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.get_variable_value">
+<code class="descname">get_variable_value</code><span class="sig-paren">(</span><em>variable: Any</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.get_variable_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.get_variable_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets value of a specified variable. Type of variable is dependant on the framework.
+Example of a variable is head.kl_coefficient, which could be a symbol for evaluation
+or could be a string representing the value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variable</strong> – variable of interest</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">value of the specified variable</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.get_weights">
+<code class="descname">get_weights</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[numpy.ndarray]<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.get_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.get_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets model weights as a list of ndarrays. It is used for synchronizing weight between two identical networks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list weights as ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rl_coach.architectures.architecture.Architecture.parallel_predict">
+<em class="property">static </em><code class="descname">parallel_predict</code><span class="sig-paren">(</span><em>sess: Any, network_input_tuples: List[Tuple[Architecture, Dict[str, numpy.ndarray]]]</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, ...]<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.parallel_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.parallel_predict" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sess</strong> – active session to use for prediction</li>
+<li><strong>network_input_tuples</strong> – tuple of network and corresponding input</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list or tuple of outputs from all networks</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>inputs: Dict[str, numpy.ndarray], outputs: List[Any] = None, squeeze_output: bool = True, initial_feed_dict: Dict[Any, numpy.ndarray] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, ...]<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given input observations, use the model to make predictions (e.g. action or value).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – current state (i.e. observations, measurements, goals, etc.)
+(e.g. <cite>{‘observation’: numpy.ndarray}</cite> of shape (batch_size, observation_space_size))</li>
+<li><strong>outputs</strong> – list of outputs to return. Return all outputs if unspecified. Type of the list elements
+depends on the framework backend.</li>
+<li><strong>squeeze_output</strong> – call squeeze_list on output before returning if True</li>
+<li><strong>initial_feed_dict</strong> – a dictionary of extra inputs for forward pass.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">predictions of action or value of shape (batch_size, action_space_size) for action predictions)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.reset_accumulated_gradients">
+<code class="descname">reset_accumulated_gradients</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.reset_accumulated_gradients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.reset_accumulated_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets gradient of all parameters to 0.</p>
+<p>Once gradients are reset, they must be accessible by <cite>accumulated_gradients</cite> property of this class,
+which must return a list of numpy ndarrays. Child class must ensure that <cite>accumulated_gradients</cite> is set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.set_variable_value">
+<code class="descname">set_variable_value</code><span class="sig-paren">(</span><em>assign_op: Any</em>, <em>value: numpy.ndarray</em>, <em>placeholder: Any</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.set_variable_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.set_variable_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the value of a specified variable. Type of assign_op is dependant on the framework
+and is a unique identifier for assigning value to a variable. For example an agent may use
+head.assign_kl_coefficient. There is a one to one mapping between assign_op and placeholder
+(in the example above, placeholder would be head.kl_coefficient_ph).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>assign_op</strong> – a parameter representing the operation for assigning value to a specific variable</li>
+<li><strong>value</strong> – value of the specified variable used for update</li>
+<li><strong>placeholder</strong> – a placeholder for binding the value to assign_op.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.set_weights">
+<code class="descname">set_weights</code><span class="sig-paren">(</span><em>weights: List[numpy.ndarray], rate: float = 1.0</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.set_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.set_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets model weights for provided layer parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>weights</strong> – list of model weights in the same order as received in get_weights</li>
+<li><strong>rate</strong> – controls the mixture of given weight values versus old weight values.
+i.e. new_weight = rate * given_weight + (1 - rate) * old_weight</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.train_on_batch">
+<code class="descname">train_on_batch</code><span class="sig-paren">(</span><em>inputs: Dict[str, numpy.ndarray], targets: List[numpy.ndarray], scaler: float = 1.0, additional_fetches: list = None, importance_weights: numpy.ndarray = None</em><span class="sig-paren">)</span> &#x2192; Tuple[float, List[float], float, list]<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.train_on_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.train_on_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a batch of inputs (e.g. states) and targets (e.g. discounted rewards), takes a training step: i.e. runs a
+forward pass and backward pass of the network, accumulates the gradients and applies an optimization step to
+update the weights.
+Calls <cite>accumulate_gradients</cite> followed by <cite>apply_and_reset_gradients</cite>.
+Note: Currently an unused method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – typically the environment states (but can also contain other data necessary for loss).
+(e.g. <cite>{‘observation’: numpy.ndarray}</cite> with <cite>observation</cite> of shape (batch_size, observation_space_size) or
+(batch_size, observation_space_size, stack_size) or
+<cite>{‘observation’: numpy.ndarray, ‘output_0_0’: numpy.ndarray}</cite> with <cite>output_0_0</cite> of shape (batch_size,))</li>
+<li><strong>targets</strong> – target values of shape (batch_size, ). For example discounted rewards for value network
+for calculating the value-network loss would be a target. Length of list and order of arrays in
+the list matches that of network losses which are defined by network parameters</li>
+<li><strong>scaler</strong> – value to scale gradients by before optimizing network weights</li>
+<li><strong>additional_fetches</strong> – list of additional values to fetch and return. The type of each list
+element is framework dependent.</li>
+<li><strong>importance_weights</strong> – ndarray of shape (batch_size,) to multiply with batch loss.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p>tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
+total_loss (float): sum of all head losses
+losses (list of float): list of all losses. The order is list of target losses followed by list</p>
+<blockquote>
+<div><p>of regularization losses. The specifics of losses is dependant on the network parameters
+(number of heads, etc.)</p>
+</div></blockquote>
+<p>norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
+fetched_tensors: all values for additional_fetches</p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="networkwrapper">
+<h2>NetworkWrapper<a class="headerlink" href="#networkwrapper" title="Permalink to this headline">¶</a></h2>
+<a class="reference internal image-reference" href="../../_images/distributed.png"><img alt="../../_images/distributed.png" class="align-center" src="../../_images/distributed.png" style="width: 600px;" /></a>
+<dl class="class">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper">
+<em class="property">class </em><code class="descclassname">rl_coach.architectures.network_wrapper.</code><code class="descname">NetworkWrapper</code><span class="sig-paren">(</span><em>agent_parameters: rl_coach.base_parameters.AgentParameters</em>, <em>has_target: bool</em>, <em>has_global: bool</em>, <em>name: str</em>, <em>spaces: rl_coach.spaces.SpacesDefinition</em>, <em>replicated_device=None</em>, <em>worker_device=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>The network wrapper contains multiple copies of the same network, each one with a different set of weights which is
+updating in a different time scale. The network wrapper will always contain an online network.
+It will contain an additional slow updating target network if it was requested by the user,
+and it will contain a global network shared between different workers, if Coach is run in a single-node
+multi-process distributed mode. The network wrapper contains functionality for managing these networks and syncing
+between them.</p>
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_and_sync_networks">
+<code class="descname">apply_gradients_and_sync_networks</code><span class="sig-paren">(</span><em>reset_gradients=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.apply_gradients_and_sync_networks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_and_sync_networks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the gradients accumulated in the online network to the global network or to itself and syncs the
+networks if necessary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reset_gradients</strong> – If set to True, the accumulated gradients wont be reset to 0 after applying them to
+the network. this is useful when the accumulated gradients are overwritten instead
+if accumulated by the accumulate_gradients function. this allows reducing time
+complexity for this function by around 10%</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_to_global_network">
+<code class="descname">apply_gradients_to_global_network</code><span class="sig-paren">(</span><em>gradients=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.apply_gradients_to_global_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_to_global_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply gradients from the online network on the global network</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gradients</strong> – optional gradients that will be used instead of teh accumulated gradients</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_to_online_network">
+<code class="descname">apply_gradients_to_online_network</code><span class="sig-paren">(</span><em>gradients=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.apply_gradients_to_online_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_to_online_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply gradients from the online network on itself</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.collect_savers">
+<code class="descname">collect_savers</code><span class="sig-paren">(</span><em>parent_path_suffix: str</em><span class="sig-paren">)</span> &#x2192; rl_coach.saver.SaverCollection<a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.collect_savers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.collect_savers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect all of network’s savers for global or online network
+Note: global, online, and target network are all copies fo the same network which parameters that are</p>
+<blockquote>
+<div>updated at different rates. So we only need to save one of the networks; the one that holds the most
+recent parameters. target network is created for some agents and used for stabilizing training by
+updating parameters from online network at a slower rate. As a result, target network never contains
+the most recent set of parameters. In single-worker training, no global network is created and online
+network contains the most recent parameters. In vertical distributed training with more than one worker,
+global network is updated by all workers and contains the most recent parameters.
+Therefore preference is given to global network if it exists, otherwise online network is used
+for saving.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>parent_path_suffix</strong> – path suffix of the parent of the network wrapper
+(e.g. could be name of level manager plus name of agent)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">collection of all checkpoint objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.parallel_prediction">
+<code class="descname">parallel_prediction</code><span class="sig-paren">(</span><em>network_input_tuples: List[Tuple]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.parallel_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.parallel_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run several network prediction in parallel. Currently this only supports running each of the network once.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>network_input_tuples</strong> – a list of tuples where the first element is the network (online_network,
+target_network or global_network) and the second element is the inputs</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the outputs of all the networks in the same order as the inputs were given</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.set_is_training">
+<code class="descname">set_is_training</code><span class="sig-paren">(</span><em>state: bool</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.set_is_training"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.set_is_training" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the phase of the network between training and testing</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> – The current state (True = Training, False = Testing)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.sync">
+<code class="descname">sync</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.sync" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the weights of the networks to match each other</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.train_and_sync_networks">
+<code class="descname">train_and_sync_networks</code><span class="sig-paren">(</span><em>inputs</em>, <em>targets</em>, <em>additional_fetches=[]</em>, <em>importance_weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.train_and_sync_networks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.train_and_sync_networks" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generic training function that enables multi-threading training using a global network if necessary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>inputs</strong> – The inputs for the network.</li>
+<li><strong>targets</strong> – The targets corresponding to the given inputs</li>
+<li><strong>additional_fetches</strong> – Any additional tensor the user wants to fetch</li>
+<li><strong>importance_weights</strong> – A coefficient for each sample in the batch, which will be used to rescale the loss
+error of this sample. If it is not given, the samples losses won’t be scaled</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The loss of the training iteration</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.update_online_network">
+<code class="descname">update_online_network</code><span class="sig-paren">(</span><em>rate=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.update_online_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.update_online_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy weights: global network &gt;&gt;&gt; online network</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rate</strong> – the rate of copying the weights - 1 for copying exactly</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.update_target_network">
+<code class="descname">update_target_network</code><span class="sig-paren">(</span><em>rate=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.update_target_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.update_target_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy weights: online network &gt;&gt;&gt; target network</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rate</strong> – the rate of copying the weights - 1 for copying exactly</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../data_stores/index.html" class="btn btn-neutral float-right" title="Data Stores" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../agents/value_optimization/qr_dqn.html" class="btn btn-neutral" title="Quantile Regression DQN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

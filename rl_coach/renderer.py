@@ -15,7 +15,9 @@
 #
 
 import numpy as np
-import pygame
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
 from pygame.locals import HWSURFACE, DOUBLEBUF
 
 

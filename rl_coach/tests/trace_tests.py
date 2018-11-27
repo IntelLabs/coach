@@ -168,12 +168,12 @@ def wait_and_check(args, processes, force=False):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--preset',
-                        help="(string) Name of a preset to run (as configured in presets.py)",
+    parser.add_argument('-p', '--preset', '--presets',
+                        help="(string) Name of preset(s) to run (comma separated, as configured in presets.py)",
                         default=None,
                         type=str)
     parser.add_argument('-ip', '--ignore_presets',
-                        help="(string) Name of a preset(s) to ignore (comma separated, and as configured in presets.py)",
+                        help="(string) Name of preset(s) to ignore (comma separated, and as configured in presets.py)",
                         default=None,
                         type=str)
     parser.add_argument('-v', '--verbose',
@@ -198,7 +198,7 @@ def main():
         args.max_threads = 1
 
     if args.preset is not None:
-        presets_lists = [args.preset]
+        presets_lists = args.preset.split(',')
     else:
         presets_lists = [f[:-3] for f in os.listdir(os.path.join('rl_coach', 'presets')) if
                          f[-3:] == '.py' and not f == '__init__.py']

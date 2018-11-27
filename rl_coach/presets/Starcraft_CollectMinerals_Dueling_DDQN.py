@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
 from rl_coach.agents.ddqn_agent import DDQNAgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.architectures.tensorflow_components.heads.dueling_q_head import DuelingQHeadParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import DuelingQHeadParameters
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.starcraft2_environment import StarCraft2EnvironmentParameters

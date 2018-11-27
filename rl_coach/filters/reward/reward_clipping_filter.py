@@ -23,7 +23,8 @@ from rl_coach.spaces import RewardSpace
 
 class RewardClippingFilter(RewardFilter):
     """
-    Clips the reward to some range
+    Clips the reward values into a given range. For example, in DQN, the Atari rewards are
+    clipped into the range -1 and 1 in order to control the scale of the returns.
     """
     def __init__(self, clipping_low: float=-np.inf, clipping_high: float=np.inf):
         """

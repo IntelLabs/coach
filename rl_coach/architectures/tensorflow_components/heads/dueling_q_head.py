@@ -17,20 +17,10 @@
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters
 from rl_coach.architectures.tensorflow_components.heads.q_head import QHead
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition
 
-
-class DuelingQHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='relu', name: str='dueling_q_head_params',
-                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
-                 loss_weight: float = 1.0, dense_layer=Dense):
-        super().__init__(parameterized_class=DuelingQHead, activation_function=activation_function, name=name,
-                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
-                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight)
 
 class DuelingQHead(QHead):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,

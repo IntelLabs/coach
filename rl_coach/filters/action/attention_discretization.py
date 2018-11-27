@@ -25,11 +25,18 @@ from rl_coach.spaces import AttentionActionSpace, BoxActionSpace, DiscreteAction
 
 class AttentionDiscretization(PartialDiscreteActionSpaceMap):
     """
-    Given a box action space, this is used to discretize the space.
-    The discretization is achieved by creating a grid in the space with num_bins_per_dimension bins per dimension in the
-    space. Each discrete action is mapped to a single sub-box in the BoxActionSpace action space.
+    Discretizes an **AttentionActionSpace**. The attention action space defines the actions
+    as choosing sub-boxes in a given box. For example, consider an image of size 100x100, where the action is choosing
+    a crop window of size 20x20 to attend to in the image. AttentionDiscretization allows discretizing the possible crop
+    windows to choose into a finite number of options, and map a discrete action space into those crop windows.
+
+    Warning! this will currently only work for attention spaces with 2 dimensions.
     """
     def __init__(self, num_bins_per_dimension: Union[int, List[int]], force_int_bins=False):
+        """
+        :param num_bins_per_dimension: Number of discrete bins to use for each dimension of the action space
+        :param force_int_bins: If set to True, all the bins will represent integer coordinates in space.
+        """
         # we allow specifying either a single number for all dimensions, or a single number per dimension in the target
         # action space
         self.num_bins_per_dimension = num_bins_per_dimension

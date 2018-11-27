@@ -14,47 +14,17 @@
 # limitations under the License.
 #
 
-from typing import List, Union
+from typing import List, Union, Tuple
 import copy
 
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense, \
-    BatchnormActivationDropout
+from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
 from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
 
 from rl_coach.core_types import InputEmbedding
 from rl_coach.utils import force_list
-
-
-class InputEmbedderParameters(NetworkComponentParameters):
-    def __init__(self, activation_function: str='relu', scheme: Union[List, EmbedderScheme]=EmbedderScheme.Medium,
-                 batchnorm: bool=False, dropout=False, name: str='embedder', input_rescaling=None, input_offset=None,
-                 input_clipping=None, dense_layer=Dense, is_training=False):
-        super().__init__(dense_layer=dense_layer)
-        self.activation_function = activation_function
-        self.scheme = scheme
-        self.batchnorm = batchnorm
-        self.dropout = dropout
-
-        if input_rescaling is None:
-            input_rescaling = {'image': 255.0, 'vector': 1.0}
-        if input_offset is None:
-            input_offset = {'image': 0.0, 'vector': 0.0}
-
-        self.input_rescaling = input_rescaling
-        self.input_offset = input_offset
-        self.input_clipping = input_clipping
-        self.name = name
-        self.is_training = is_training
-
-    @property
-    def path(self):
-        return {
-            "image": 'image_embedder:ImageEmbedder',
-            "vector": 'vector_embedder:VectorEmbedder'
-        }
 
 
 class InputEmbedder(object):
@@ -64,15 +34,14 @@ class InputEmbedder(object):
     can be multiple embedders in a single network
     """
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
-                 scheme: EmbedderScheme=None, batchnorm: bool=False, dropout: bool=False,
+                 scheme: EmbedderScheme=None, batchnorm: bool=False, dropout_rate: float=0.0,
                  name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense,
                  is_training=False):
         self.name = name
         self.input_size = input_size
         self.activation_function = activation_function
         self.batchnorm = batchnorm
-        self.dropout = dropout
-        self.dropout_rate = 0
+        self.dropout_rate = dropout_rate
         self.input = None
         self.output = None
         self.scheme = scheme
@@ -83,25 +52,34 @@ class InputEmbedder(object):
         self.input_offset = input_offset
         self.input_clipping = input_clipping
         self.dense_layer = dense_layer
+        if self.dense_layer is None:
+            self.dense_layer = Dense
         self.is_training = is_training
 
         # layers order is conv -> batchnorm -> activation -> dropout
         if isinstance(self.scheme, EmbedderScheme):
             self.layers_params = copy.copy(self.schemes[self.scheme])
         else:
-            self.layers_params = copy.copy(self.scheme)
+            # if scheme is specified directly, convert to TF layer if it's not a callable object
+            # NOTE: if layer object is callable, it must return a TF tensor when invoked
+            self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
 
         # we allow adding batchnorm, dropout or activation functions after each layer.
         # The motivation is to simplify the transition between a network with batchnorm and a network without
         # batchnorm to a single flag (the same applies to activation function and dropout)
-        if self.batchnorm or self.activation_function or self.dropout:
+        if self.batchnorm or self.activation_function or self.dropout_rate > 0:
             for layer_idx in reversed(range(len(self.layers_params))):
                 self.layers_params.insert(layer_idx+1,
                                           BatchnormActivationDropout(batchnorm=self.batchnorm,
                                                                      activation_function=self.activation_function,
                                                                      dropout_rate=self.dropout_rate))
 
-    def __call__(self, prev_input_placeholder=None):
+    def __call__(self, prev_input_placeholder: tf.placeholder=None) -> Tuple[tf.Tensor, tf.Tensor]:
+        """
+        Wrapper for building the module graph including scoping and loss creation
+        :param prev_input_placeholder: the input to the graph
+        :return: the input placeholder and the output of the last layer
+        """
         with tf.variable_scope(self.get_name()):
             if prev_input_placeholder is None:
                 self.input = tf.placeholder("float", shape=[None] + self.input_size, name=self.get_name())
@@ -111,7 +89,13 @@ class InputEmbedder(object):
 
         return self.input, self.output
 
-    def _build_module(self):
+    def _build_module(self) -> None:
+        """
+        Builds the graph of the module
+        This method is called early on from __call__. It is expected to store the graph
+        in self.output.
+        :return: None
+        """
         # NOTE: for image inputs, we expect the data format to be of type uint8, so to be memory efficient. we chose not
         #  to implement the rescaling as an input filters.observation.observation_filter, as this would have caused the
         #  input to the network to be float, which is 4x more expensive in memory.
@@ -154,7 +138,11 @@ class InputEmbedder(object):
         raise NotImplementedError("Inheriting embedder must define schemes matching its allowed default "
                                   "configurations.")
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """
+        Get a formatted name for the module
+        :return: the formatted name
+        """
         return self.name
 
     def __str__(self):

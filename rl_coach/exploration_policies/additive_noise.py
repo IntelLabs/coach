@@ -37,6 +37,14 @@ class AdditiveNoiseParameters(ExplorationParameters):
 
 
 class AdditiveNoise(ExplorationPolicy):
+    """
+    AdditiveNoise is an exploration policy intended for continuous action spaces. It takes the action from the agent
+    and adds a Gaussian distributed noise to it. The amount of noise added to the action follows the noise amount that
+    can be given in two different ways:
+    1. Specified by the user as a noise schedule which is taken in percentiles out of the action space size
+    2. Specified by the agents action. In case the agents action is a list with 2 values, the 1st one is assumed to
+    be the mean of the action, and 2nd is assumed to be its standard deviation.
+    """
     def __init__(self, action_space: ActionSpace, noise_percentage_schedule: Schedule,
                  evaluation_noise_percentage: float):
         """

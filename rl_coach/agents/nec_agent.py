@@ -21,10 +21,10 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.dnd_q_head import DNDQHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import DNDQHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, AgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.core_types import RunPhase, EnvironmentSteps, Episode, StateType
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
@@ -43,6 +43,39 @@ class NECNetworkParameters(NetworkParameters):
 
 
 class NECAlgorithmParameters(AlgorithmParameters):
+    """
+    :param dnd_size: (int)
+        Defines the number of transitions that will be stored in each one of the DNDs. Note that the total number
+        of transitions that will be stored is dnd_size x num_actions.
+
+    :param l2_norm_added_delta: (float)
+        A small value that will be added when calculating the weight of each of the DND entries. This follows the
+        :math:`\delta` patameter defined in the paper.
+
+    :param new_value_shift_coefficient: (float)
+        In the case where a ew embedding that was added to the DND was already present, the value that will be stored
+        in the DND is a mix between the existing value and the new value. The mix rate is defined by
+        new_value_shift_coefficient.
+
+    :param number_of_knn: (int)
+        The number of neighbors that will be retrieved for each DND query.
+
+    :param DND_key_error_threshold: (float)
+        When the DND is queried for a specific embedding, this threshold will be used to determine if the embedding
+        exists in the DND, since exact matches of embeddings are very rare.
+
+    :param propagate_updates_to_DND: (bool)
+        If set to True, when the gradients of the network will be calculated, the gradients will also be
+        backpropagated through the keys of the DND. The keys will then be updated as well, as if they were regular
+        network weights.
+
+    :param n_step: (int)
+        The bootstrap length that will be used when calculating the state values to store in the DND.
+
+    :param bootstrap_total_return_from_old_policy: (bool)
+        If set to True, the bootstrap that will be used to calculate each state-action value, is the network value
+        when the state was first seen, and not the latest, most up-to-date network value.
+    """
     def __init__(self):
         super().__init__()
         self.dnd_size = 500000
@@ -98,10 +131,10 @@ class NECAgent(ValueOptimizationAgent):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
         TD_targets = self.networks['main'].online_network.predict(batch.states(network_keys))
-
+        bootstrapped_return_from_old_policy = batch.n_step_discounted_rewards()
         #  only update the action that we have actually done in this transition
         for i in range(self.ap.network_wrappers['main'].batch_size):
-            TD_targets[i, batch.actions()[i]] = batch.total_returns()[i]
+            TD_targets[i, batch.actions()[i]] = bootstrapped_return_from_old_policy[i]
 
         # set the gradients to fetch for the DND update
         fetches = []
@@ -165,11 +198,12 @@ class NECAgent(ValueOptimizationAgent):
         episode = self.call_memory('get_last_complete_episode')
         if episode is not None and self.phase != RunPhase.TEST:
             assert len(self.current_episode_state_embeddings) == episode.length()
-            returns = episode.get_transitions_attribute('total_return')
+            discounted_rewards = episode.get_transitions_attribute('n_step_discounted_rewards')
             actions = episode.get_transitions_attribute('action')
             self.networks['main'].online_network.output_heads[0].DND.add(self.current_episode_state_embeddings,
-                                                                         actions, returns)
+                                                                         actions, discounted_rewards)
 
-    def save_checkpoint(self, checkpoint_id):
-        with open(os.path.join(self.ap.task_parameters.save_checkpoint_dir, str(checkpoint_id) + '.dnd'), 'wb') as f:
+    def save_checkpoint(self, checkpoint_prefix):
+        super().save_checkpoint(checkpoint_prefix)
+        with open(os.path.join(self.ap.task_parameters.checkpoint_save_dir, str(checkpoint_prefix) + '.dnd'), 'wb') as f:
             pickle.dump(self.networks['main'].online_network.output_heads[0].DND, f, pickle.HIGHEST_PROTOCOL)

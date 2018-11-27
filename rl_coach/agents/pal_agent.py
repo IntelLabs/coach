@@ -24,6 +24,19 @@ from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperi
 
 
 class PALAlgorithmParameters(DQNAlgorithmParameters):
+    """
+    :param pal_alpha: (float)
+        A factor that weights the amount by which the advantage learning update will be taken into account.
+
+    :param persistent_advantage_learning: (bool)
+        If set to True, the persistent mode of advantage learning will be used, which encourages the agent to take
+        the same actions one after the other instead of changing actions.
+
+    :param monte_carlo_mixing_rate: (float)
+        The amount of monte carlo values to mix into the targets of the network. The monte carlo values are just the
+        total discounted returns, and they can help reduce the time it takes for the network to update to the newly
+        seen values, since it is not based on bootstrapping the current network values.
+    """
     def __init__(self):
         super().__init__()
         self.pal_alpha = 0.9
@@ -70,6 +83,7 @@ class PALAgent(ValueOptimizationAgent):
 
         # calculate TD error
         TD_targets = np.copy(q_st_online)
+        total_returns = batch.n_step_discounted_rewards()
         for i in range(self.ap.network_wrappers['main'].batch_size):
             TD_targets[i, batch.actions()[i]] = batch.rewards()[i] + \
                                         (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * \
@@ -83,7 +97,7 @@ class PALAgent(ValueOptimizationAgent):
                 TD_targets[i, batch.actions()[i]] -= self.alpha * advantage_learning_update
 
             # mixing monte carlo updates
-            monte_carlo_target = batch.total_returns()[i]
+            monte_carlo_target = total_returns[i]
             TD_targets[i, batch.actions()[i]] = (1 - self.monte_carlo_mixing_rate) * TD_targets[i, batch.actions()[i]] \
                                         + self.monte_carlo_mixing_rate * monte_carlo_target
 

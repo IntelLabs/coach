@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Adding a New Environment &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Agents" href="../components/agents/index.html" />
+    <link rel="prev" title="Adding a New Agent" href="add_agent.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Adding a New Environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-openai-gym-api">Using the OpenAI Gym API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-coach-api">Using the Coach API</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Adding a New Environment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/contributing/add_env.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="adding-a-new-environment">
+<h1>Adding a New Environment<a class="headerlink" href="#adding-a-new-environment" title="Permalink to this headline">¶</a></h1>
+<p>Adding a new environment to Coach is as easy as solving CartPole.</p>
+<p>There are essentially two ways to integrate new environments to Coach:</p>
+<div class="section" id="using-the-openai-gym-api">
+<h2>Using the OpenAI Gym API<a class="headerlink" href="#using-the-openai-gym-api" title="Permalink to this headline">¶</a></h2>
+<p>If your environment is already using the OpenAI Gym API, you are already good to go.
+When selecting the environment parameters in the preset, use <code class="code docutils literal notranslate"><span class="pre">GymEnvironmentParameters()</span></code>,
+and pass the path to your environment source code using the level parameter.
+You can specify additional parameters for your environment using the additional_simulator_parameters parameter.
+Take for example the definition used in the <code class="code docutils literal notranslate"><span class="pre">Pendulum_HAC</span></code> preset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">env_params</span> <span class="o">=</span> <span class="n">GymEnvironmentParameters</span><span class="p">()</span>
+<span class="n">env_params</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;rl_coach.environments.mujoco.pendulum_with_goals:PendulumWithGoals&quot;</span>
+<span class="n">env_params</span><span class="o">.</span><span class="n">additional_simulator_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;time_limit&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-the-coach-api">
+<h2>Using the Coach API<a class="headerlink" href="#using-the-coach-api" title="Permalink to this headline">¶</a></h2>
+<p>There are a few simple steps to follow, and we will walk through them one by one.
+As an alternative, we highly recommend following the corresponding
+<a class="reference external" href="https://github.com/NervanaSystems/coach/blob/master/tutorials/2.%20Adding%20an%20Environment.ipynb">tutorial</a>
+in the GitHub repo.</p>
+<ol class="arabic">
+<li><p class="first">Create a new class for your environment, and inherit the Environment class.</p>
+</li>
+<li><p class="first">Coach defines a simple API for implementing a new environment, which are defined in environment/environment.py.
+There are several functions to implement, but only some of them are mandatory.</p>
+<p>Here are the important ones:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_idx</span><span class="p">:</span> <span class="n">ActionType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An environment dependent function that sends an action to the simulator.</span>
+<span class="sd">    :param action_idx: the action to perform on the environment</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">_update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates the state from the environment.</span>
+<span class="sd">    Should update self.observation, self.reward, self.done, self.measurements and self.info</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">_restart_environment_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_environment_reset</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Restarts the simulator episode</span>
+<span class="sd">    :param force_environment_reset: Force the environment to reset even if the episode is not done yet.</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders the environment using the native simulator renderer</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">get_rendered_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a numpy array containing the image that will be rendered to the screen.</span>
+<span class="sd">    This can be different from the observation. For example, mujoco&#39;s observation is a measurements vector.</span>
+<span class="sd">    :return: numpy array containing the image that will be rendered to the screen</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create a new parameters class for your environment, which inherits the EnvironmentParameters class.
+In the __init__ of your class, define all the parameters you used in your Environment class.
+Additionally, fill the path property of the class with the path to your Environment class.
+For example, take a look at the EnvironmentParameters class used for Doom:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DoomEnvironmentParameters</span><span class="p">(</span><span class="n">EnvironmentParameters</span><span class="p">):</span>
+<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">default_input_filter</span> <span class="o">=</span> <span class="n">DoomInputFilter</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">default_output_filter</span> <span class="o">=</span> <span class="n">DoomOutputFilter</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cameras</span> <span class="o">=</span> <span class="p">[</span><span class="n">DoomEnvironment</span><span class="o">.</span><span class="n">CameraTypes</span><span class="o">.</span><span class="n">OBSERVATION</span><span class="p">]</span>
+
+<span class="nd">@property</span>
+<span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;rl_coach.environments.doom_environment:DoomEnvironment&#39;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">And that’s it, you’re done. Now just add a new preset with your newly created environment, and start training an agent on top of it.</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../components/agents/index.html" class="btn btn-neutral float-right" title="Agents" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="add_agent.html" class="btn btn-neutral" title="Adding a New Agent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

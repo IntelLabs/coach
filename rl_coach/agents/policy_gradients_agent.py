@@ -19,11 +19,11 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent, PolicyGradientRescaler
-from rl_coach.architectures.tensorflow_components.heads.policy_head import PolicyHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import PolicyHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.categorical import CategoricalParameters
@@ -42,6 +42,27 @@ class PolicyGradientNetworkParameters(NetworkParameters):
 
 
 class PolicyGradientAlgorithmParameters(AlgorithmParameters):
+    """
+    :param policy_gradient_rescaler: (PolicyGradientRescaler)
+        The rescaler type to use for the policy gradient loss. For policy gradients, we calculate log probability of
+        the action and then multiply it by the policy gradient rescaler. The most basic rescaler is the discounter
+        return, but there are other rescalers that are intended for reducing the variance of the updates.
+
+    :param apply_gradients_every_x_episodes: (int)
+        The number of episodes between applying the accumulated gradients to the network. After every
+        num_steps_between_gradient_updates steps, the agent will calculate the gradients for the collected data,
+        it will then accumulate it in internal accumulators, and will only apply them to the network once in every
+        apply_gradients_every_x_episodes episodes.
+
+    :param beta_entropy: (float)
+        A factor which defines the amount of entropy regularization to apply to the network. The entropy of the actions
+        will be added to the loss and scaled by the given beta factor.
+
+    :param num_steps_between_gradient_updates: (int)
+        The number of steps between calculating gradients for the collected data. In the A3C paper, this parameter is
+        called t_max. Since this algorithm is on-policy, only the steps collected between each two gradient calculations
+        are used in the batch.
+    """
     def __init__(self):
         super().__init__()
         self.policy_gradient_rescaler = PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_TIMESTEP
@@ -74,7 +95,7 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
         # batch contains a list of episodes to learn from
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
-        total_returns = batch.total_returns()
+        total_returns = batch.n_step_discounted_rewards()
         for i in reversed(range(batch.size)):
             if self.policy_gradient_rescaler == PolicyGradientRescaler.TOTAL_RETURN:
                 total_returns[i] = total_returns[0]

@@ -1,0 +1,701 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Core Types &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Spaces" href="spaces.html" />
+    <link rel="prev" title="Orchestrators" href="orchestrators/index.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#actioninfo">ActionInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#batch">Batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#envresponse">EnvResponse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#episode">Episode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transition">Transition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Core Types</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/core_types.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="core-types">
+<h1>Core Types<a class="headerlink" href="#core-types" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="actioninfo">
+<h2>ActionInfo<a class="headerlink" href="#actioninfo" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.core_types.ActionInfo">
+<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">ActionInfo</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List], action_probability: float = 0, action_value: float = 0.0, state_value: float = 0.0, max_action_value: float = None, action_intrinsic_reward: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#ActionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.ActionInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Action info is a class that holds an action and various additional information details about it</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>action</strong> – the action</li>
+<li><strong>action_probability</strong> – the probability that the action was given when selecting it</li>
+<li><strong>action_value</strong> – the state-action value (Q value) of the action</li>
+<li><strong>state_value</strong> – the state value (V value) of the state where the action was taken</li>
+<li><strong>max_action_value</strong> – in case this is an action that was selected randomly, this is the value of the action
+that received the maximum value. if no value is given, the action is assumed to be the
+action with the maximum value</li>
+<li><strong>action_intrinsic_reward</strong> – can contain any intrinsic reward that the agent wants to add to this action
+selection</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="batch">
+<h2>Batch<a class="headerlink" href="#batch" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.core_types.Batch">
+<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">Batch</code><span class="sig-paren">(</span><em>transitions: List[rl_coach.core_types.Transition]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around a list of transitions that helps extracting batches of parameters from it.
+For example, one can extract a list of states corresponding to the list of transitions.
+The class uses lazy evaluation in order to return each of the available parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>transitions</strong> – a list of transitions to extract the batch from</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.actions">
+<code class="descname">actions</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>if the actions were not converted to a batch before, extract them to a batch and then return the batch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expand_dims</strong> – add an extra dimension to the actions batch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy array containing all the actions of the batch</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.game_overs">
+<code class="descname">game_overs</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.game_overs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.game_overs" title="Permalink to this definition">¶</a></dt>
+<dd><p>if the game_overs were not converted to a batch before, extract them to a batch and then return the batch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expand_dims</strong> – add an extra dimension to the game_overs batch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy array containing all the game over flags of the batch</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.goals">
+<code class="descname">goals</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.goals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.goals" title="Permalink to this definition">¶</a></dt>
+<dd><p>if the goals were not converted to a batch before, extract them to a batch and then return the batch
+if the goal was not filled, this will raise an exception</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expand_dims</strong> – add an extra dimension to the goals batch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy array containing all the goals of the batch</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>key</em>, <em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>if the given info dictionary key was not converted to a batch before, extract it to a batch and then return the
+batch. if the key is not part of the keys in the info dictionary, this will raise an exception</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expand_dims</strong> – add an extra dimension to the info batch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy array containing all the info values of the batch corresponding to the given key</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.info_as_list">
+<code class="descname">info_as_list</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.info_as_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.info_as_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the info and store it internally as a list, if wasn’t stored before. return it as a list
+:param expand_dims: add an extra dimension to the info batch
+:return: a list containing all the info values of the batch corresponding to the given key</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.n_step_discounted_rewards">
+<code class="descname">n_step_discounted_rewards</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.n_step_discounted_rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.n_step_discounted_rewards" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>if the n_step_discounted_rewards were not converted to a batch before, extract them to a batch and then return</dt>
+<dd>the batch</dd>
+</dl>
+<p>if the n step discounted rewards were not filled, this will raise an exception
+:param expand_dims: add an extra dimension to the total_returns batch
+:return: a numpy array containing all the total return values of the batch</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.next_states">
+<code class="descname">next_states</code><span class="sig-paren">(</span><em>fetches: List[str], expand_dims=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.next_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.next_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>follow the keys in fetches to extract the corresponding items from the next states in the batch
+if these keys were not already extracted before. return only the values corresponding to those keys</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fetches</strong> – the keys of the state dictionary to extract</li>
+<li><strong>expand_dims</strong> – add an extra dimension to each of the value batches</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary containing a batch of values correponding to each of the given fetches keys</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.rewards">
+<code class="descname">rewards</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.rewards" title="Permalink to this definition">¶</a></dt>
+<dd><p>if the rewards were not converted to a batch before, extract them to a batch and then return the batch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>expand_dims</strong> – add an extra dimension to the rewards batch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy array containing all the rewards of the batch</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.shuffle">
+<code class="descname">shuffle</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.shuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shuffle all the transitions in the batch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rl_coach.core_types.Batch.size">
+<code class="descname">size</code><a class="headerlink" href="#rl_coach.core_types.Batch.size" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the size of the batch</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.slice">
+<code class="descname">slice</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keep a slice from the batch and discard the rest of the batch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start</strong> – the start index in the slice</li>
+<li><strong>end</strong> – the end index in the slice</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Batch.states">
+<code class="descname">states</code><span class="sig-paren">(</span><em>fetches: List[str], expand_dims=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.states" title="Permalink to this definition">¶</a></dt>
+<dd><p>follow the keys in fetches to extract the corresponding items from the states in the batch
+if these keys were not already extracted before. return only the values corresponding to those keys</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fetches</strong> – the keys of the state dictionary to extract</li>
+<li><strong>expand_dims</strong> – add an extra dimension to each of the value batches</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a dictionary containing a batch of values correponding to each of the given fetches keys</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="envresponse">
+<h2>EnvResponse<a class="headerlink" href="#envresponse" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.core_types.EnvResponse">
+<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">EnvResponse</code><span class="sig-paren">(</span><em>next_state: Dict[str, numpy.ndarray], reward: Union[int, float, numpy.ndarray], game_over: bool, info: Dict = None, goal: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#EnvResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.EnvResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>An env response is a collection containing the information returning from the environment after a single action
+has been performed on it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>next_state</strong> – The new state that the environment has transitioned into. Assumed to be a dictionary where the
+observation is located at state[‘observation’]</li>
+<li><strong>reward</strong> – The reward received from the environment</li>
+<li><strong>game_over</strong> – A boolean which should be True if the episode terminated after
+the execution of the action.</li>
+<li><strong>info</strong> – any additional info from the environment</li>
+<li><strong>goal</strong> – a goal defined by the environment</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="episode">
+<h2>Episode<a class="headerlink" href="#episode" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.core_types.Episode">
+<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">Episode</code><span class="sig-paren">(</span><em>discount: float = 0.99</em>, <em>bootstrap_total_return_from_old_policy: bool = False</em>, <em>n_step: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>An Episode represents a set of sequential transitions, that end with a terminal state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>discount</strong> – the discount factor to use when calculating total returns</li>
+<li><strong>bootstrap_total_return_from_old_policy</strong> – should the total return be bootstrapped from the values in the
+memory</li>
+<li><strong>n_step</strong> – the number of future steps to sum the reward over before bootstrapping</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.get_first_transition">
+<code class="descname">get_first_transition</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_first_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_first_transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the first transition in the episode, or None if there are no transitions available</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The first transition in the episode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.get_last_transition">
+<code class="descname">get_last_transition</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_last_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_last_transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the last transition in the episode, or None if there are no transition available</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The last transition in the episode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.get_transition">
+<code class="descname">get_transition</code><span class="sig-paren">(</span><em>transition_idx: int</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a specific transition by its index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>transition_idx</strong> – The index of the transition to get</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The transition which is stored in the given index</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.get_transitions_attribute">
+<code class="descname">get_transitions_attribute</code><span class="sig-paren">(</span><em>attribute_name: str</em><span class="sig-paren">)</span> &#x2192; List[Any]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_transitions_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_transitions_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the values for some transition attribute from all the transitions in the episode.
+For example, this allows getting the rewards for all the transitions as a list by calling
+get_transitions_attribute(‘reward’)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attribute_name</strong> – The name of the attribute to extract from all the transitions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of values from all the transitions according to the attribute given in attribute_name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a new transition to the episode. If the game_over flag in the transition is set to True,
+the episode will be marked as complete.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>transition</strong> – The new transition to insert to the episode</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.is_empty">
+<code class="descname">is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.is_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the episode is empty</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A boolean value determining if the episode is empty or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.length">
+<code class="descname">length</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the length of the episode, which is the number of transitions it holds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The number of transitions in the episode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.core_types.Episode.update_discounted_rewards">
+<code class="descname">update_discounted_rewards</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.update_discounted_rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.update_discounted_rewards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the discounted returns for all the transitions in the episode.
+The returns will be calculated according to the rewards of each transition, together with the number of steps
+to bootstrap from and the discount factor, as defined by n_step and discount respectively when initializing
+the episode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="transition">
+<h2>Transition<a class="headerlink" href="#transition" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.core_types.Transition">
+<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">Transition</code><span class="sig-paren">(</span><em>state: Dict[str</em>, <em>numpy.ndarray] = None</em>, <em>action: Union[int</em>, <em>float</em>, <em>numpy.ndarray</em>, <em>List] = None</em>, <em>reward: Union[int</em>, <em>float</em>, <em>numpy.ndarray] = None</em>, <em>next_state: Dict[str</em>, <em>numpy.ndarray] = None</em>, <em>game_over: bool = None</em>, <em>info: Dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>A transition is a tuple containing the information of a single step of interaction
+between the agent and the environment. The most basic version should contain the following values:
+(current state, action, reward, next state, game over)
+For imitation learning algorithms, if the reward, next state or game over is not known,
+it is sufficient to store the current state and action taken by the expert.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>state</strong> – The current state. Assumed to be a dictionary where the observation
+is located at state[‘observation’]</li>
+<li><strong>action</strong> – The current action that was taken</li>
+<li><strong>reward</strong> – The reward received from the environment</li>
+<li><strong>next_state</strong> – The next state of the environment after applying the action.
+The next state should be similar to the state in its structure.</li>
+<li><strong>game_over</strong> – A boolean which should be True if the episode terminated after
+the execution of the action.</li>
+<li><strong>info</strong> – A dictionary containing any additional information to be stored in the transition</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="spaces.html" class="btn btn-neutral float-right" title="Spaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="orchestrators/index.html" class="btn btn-neutral" title="Orchestrators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

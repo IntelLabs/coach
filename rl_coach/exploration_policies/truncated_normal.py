@@ -39,6 +39,16 @@ class TruncatedNormalParameters(ExplorationParameters):
 
 
 class TruncatedNormal(ExplorationPolicy):
+    """
+    The TruncatedNormal exploration policy is intended for continuous action spaces. It samples the action from a
+    normal distribution, where the mean action is given by the agent, and the standard deviation can be given in t
+    wo different ways:
+    1. Specified by the user as a noise schedule which is taken in percentiles out of the action space size
+    2. Specified by the agents action. In case the agents action is a list with 2 values, the 1st one is assumed to
+    be the mean of the action, and 2nd is assumed to be its standard deviation.
+    When the sampled action is outside of the action bounds given by the user, it is sampled again and again, until it
+    is within the bounds.
+    """
     def __init__(self, action_space: ActionSpace, noise_percentage_schedule: Schedule,
                  evaluation_noise_percentage: float, clip_low: float, clip_high: float):
         """

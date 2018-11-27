@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.environments.gym_environment &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.environments.gym_environment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.environments.gym_environment</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">gym</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">IntEnum</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.graph_managers.graph_manager</span> <span class="k">import</span> <span class="n">ScheduleParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">lower_under_to_upper</span><span class="p">,</span> <span class="n">short_dynamic_import</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">roboschool</span>
+    <span class="kn">from</span> <span class="nn">OpenGL</span> <span class="k">import</span> <span class="n">GL</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
+    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;RoboSchool&quot;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">rl_coach.gym_extensions.continuous</span> <span class="k">import</span> <span class="n">mujoco</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
+    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;GymExtensions&quot;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pybullet_envs</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
+    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PyBullet&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RunPhase</span><span class="p">,</span> <span class="n">EnvironmentSteps</span>
+<span class="kn">from</span> <span class="nn">rl_coach.environments.environment</span> <span class="k">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EnvironmentParameters</span><span class="p">,</span> <span class="n">LevelSelection</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">DiscreteActionSpace</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">ImageObservationSpace</span><span class="p">,</span> <span class="n">VectorObservationSpace</span><span class="p">,</span> \
+    <span class="n">PlanarMapsObservationSpace</span><span class="p">,</span> <span class="n">TensorObservationSpace</span><span class="p">,</span> <span class="n">StateSpace</span><span class="p">,</span> <span class="n">RewardSpace</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">NoInputFilter</span><span class="p">,</span> <span class="n">NoOutputFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.reward.reward_clipping_filter</span> <span class="k">import</span> <span class="n">RewardClippingFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rescale_to_size_filter</span> <span class="k">import</span> <span class="n">ObservationRescaleToSizeFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_stacking_filter</span> <span class="k">import</span> <span class="n">ObservationStackingFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rgb_to_y_filter</span> <span class="k">import</span> <span class="n">ObservationRGBToYFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_to_uint8_filter</span> <span class="k">import</span> <span class="n">ObservationToUInt8Filter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">InputFilter</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">VisualizationParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">screen</span>
+
+
+<span class="c1"># Parameters</span>
+<span class="k">class</span> <span class="nc">GymEnvironmentParameters</span><span class="p">(</span><span class="n">EnvironmentParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_initialization_steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_over_num_frames</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">additional_simulator_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.environments.gym_environment:GymEnvironment&#39;</span>
+
+
+<span class="c1"># Generic parameters for vector environments such as mujoco, roboschool, bullet, etc.</span>
+<span class="k">class</span> <span class="nc">GymVectorEnvironment</span><span class="p">(</span><span class="n">GymEnvironmentParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_input_filter</span> <span class="o">=</span> <span class="n">NoInputFilter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_output_filter</span> <span class="o">=</span> <span class="n">NoOutputFilter</span><span class="p">()</span>
+
+
+<span class="c1"># Roboschool</span>
+<span class="n">gym_roboschool_envs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;inverted_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;inverted_pendulum_swingup&#39;</span><span class="p">,</span> <span class="s1">&#39;inverted_double_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;reacher&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;hopper&#39;</span><span class="p">,</span> <span class="s1">&#39;walker2d&#39;</span><span class="p">,</span> <span class="s1">&#39;half_cheetah&#39;</span><span class="p">,</span> <span class="s1">&#39;ant&#39;</span><span class="p">,</span> <span class="s1">&#39;humanoid&#39;</span><span class="p">,</span> <span class="s1">&#39;humanoid_flagrun&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;humanoid_flagrun_harder&#39;</span><span class="p">,</span> <span class="s1">&#39;pong&#39;</span><span class="p">]</span>
+<span class="n">roboschool_v1</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="s2">&quot;Roboschool</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower_under_to_upper</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-v1&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gym_roboschool_envs</span><span class="p">}</span>
+
+<span class="c1"># Mujoco</span>
+<span class="n">gym_mujoco_envs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;inverted_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;inverted_double_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;reacher&#39;</span><span class="p">,</span> <span class="s1">&#39;hopper&#39;</span><span class="p">,</span> <span class="s1">&#39;walker2d&#39;</span><span class="p">,</span> <span class="s1">&#39;half_cheetah&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;ant&#39;</span><span class="p">,</span> <span class="s1">&#39;swimmer&#39;</span><span class="p">,</span> <span class="s1">&#39;humanoid&#39;</span><span class="p">,</span> <span class="s1">&#39;humanoid_standup&#39;</span><span class="p">,</span> <span class="s1">&#39;pusher&#39;</span><span class="p">,</span> <span class="s1">&#39;thrower&#39;</span><span class="p">,</span> <span class="s1">&#39;striker&#39;</span><span class="p">]</span>
+
+<span class="n">mujoco_v2</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower_under_to_upper</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-v2&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gym_mujoco_envs</span><span class="p">}</span>
+<span class="n">mujoco_v2</span><span class="p">[</span><span class="s1">&#39;walker2d&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Walker2d-v2&#39;</span>
+
+<span class="c1"># Fetch</span>
+<span class="n">gym_fetch_envs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;reach&#39;</span><span class="p">,</span> <span class="s1">&#39;slide&#39;</span><span class="p">,</span> <span class="s1">&#39;push&#39;</span><span class="p">,</span> <span class="s1">&#39;pick_and_place&#39;</span><span class="p">]</span>
+<span class="n">fetch_v1</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Fetch&#39;</span> <span class="o">+</span> <span class="n">lower_under_to_upper</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-v1&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gym_fetch_envs</span><span class="p">}</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Atari Environment Components</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">AtariInputFilter</span> <span class="o">=</span> <span class="n">InputFilter</span><span class="p">(</span><span class="n">is_a_reference_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">AtariInputFilter</span><span class="o">.</span><span class="n">add_reward_filter</span><span class="p">(</span><span class="s1">&#39;clipping&#39;</span><span class="p">,</span> <span class="n">RewardClippingFilter</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+<span class="n">AtariInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;observation&#39;</span><span class="p">,</span> <span class="s1">&#39;rescaling&#39;</span><span class="p">,</span>
+                                        <span class="n">ObservationRescaleToSizeFilter</span><span class="p">(</span><span class="n">ImageObservationSpace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+                                                                                             <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">)))</span>
+<span class="n">AtariInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;observation&#39;</span><span class="p">,</span> <span class="s1">&#39;to_grayscale&#39;</span><span class="p">,</span> <span class="n">ObservationRGBToYFilter</span><span class="p">())</span>
+<span class="n">AtariInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;observation&#39;</span><span class="p">,</span> <span class="s1">&#39;to_uint8&#39;</span><span class="p">,</span> <span class="n">ObservationToUInt8Filter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+<span class="n">AtariInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;observation&#39;</span><span class="p">,</span> <span class="s1">&#39;stacking&#39;</span><span class="p">,</span> <span class="n">ObservationStackingFilter</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">AtariOutputFilter</span> <span class="o">=</span> <span class="n">NoOutputFilter</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Atari</span><span class="p">(</span><span class="n">GymEnvironmentParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_over_num_frames</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_initialization_steps</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_input_filter</span> <span class="o">=</span> <span class="n">AtariInputFilter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_output_filter</span> <span class="o">=</span> <span class="n">AtariOutputFilter</span>
+
+
+<span class="n">gym_atari_envs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;air_raid&#39;</span><span class="p">,</span> <span class="s1">&#39;alien&#39;</span><span class="p">,</span> <span class="s1">&#39;amidar&#39;</span><span class="p">,</span> <span class="s1">&#39;assault&#39;</span><span class="p">,</span> <span class="s1">&#39;asterix&#39;</span><span class="p">,</span> <span class="s1">&#39;asteroids&#39;</span><span class="p">,</span> <span class="s1">&#39;atlantis&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;bank_heist&#39;</span><span class="p">,</span> <span class="s1">&#39;battle_zone&#39;</span><span class="p">,</span> <span class="s1">&#39;beam_rider&#39;</span><span class="p">,</span> <span class="s1">&#39;berzerk&#39;</span><span class="p">,</span> <span class="s1">&#39;bowling&#39;</span><span class="p">,</span> <span class="s1">&#39;boxing&#39;</span><span class="p">,</span> <span class="s1">&#39;breakout&#39;</span><span class="p">,</span> <span class="s1">&#39;carnival&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;centipede&#39;</span><span class="p">,</span> <span class="s1">&#39;chopper_command&#39;</span><span class="p">,</span> <span class="s1">&#39;crazy_climber&#39;</span><span class="p">,</span> <span class="s1">&#39;demon_attack&#39;</span><span class="p">,</span> <span class="s1">&#39;double_dunk&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;elevator_action&#39;</span><span class="p">,</span> <span class="s1">&#39;enduro&#39;</span><span class="p">,</span> <span class="s1">&#39;fishing_derby&#39;</span><span class="p">,</span> <span class="s1">&#39;freeway&#39;</span><span class="p">,</span> <span class="s1">&#39;frostbite&#39;</span><span class="p">,</span> <span class="s1">&#39;gopher&#39;</span><span class="p">,</span> <span class="s1">&#39;gravitar&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;hero&#39;</span><span class="p">,</span> <span class="s1">&#39;ice_hockey&#39;</span><span class="p">,</span> <span class="s1">&#39;jamesbond&#39;</span><span class="p">,</span> <span class="s1">&#39;journey_escape&#39;</span><span class="p">,</span> <span class="s1">&#39;kangaroo&#39;</span><span class="p">,</span> <span class="s1">&#39;krull&#39;</span><span class="p">,</span> <span class="s1">&#39;kung_fu_master&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;montezuma_revenge&#39;</span><span class="p">,</span> <span class="s1">&#39;ms_pacman&#39;</span><span class="p">,</span> <span class="s1">&#39;name_this_game&#39;</span><span class="p">,</span> <span class="s1">&#39;phoenix&#39;</span><span class="p">,</span> <span class="s1">&#39;pitfall&#39;</span><span class="p">,</span> <span class="s1">&#39;pong&#39;</span><span class="p">,</span> <span class="s1">&#39;pooyan&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;private_eye&#39;</span><span class="p">,</span> <span class="s1">&#39;qbert&#39;</span><span class="p">,</span> <span class="s1">&#39;riverraid&#39;</span><span class="p">,</span> <span class="s1">&#39;road_runner&#39;</span><span class="p">,</span> <span class="s1">&#39;robotank&#39;</span><span class="p">,</span> <span class="s1">&#39;seaquest&#39;</span><span class="p">,</span> <span class="s1">&#39;skiing&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;solaris&#39;</span><span class="p">,</span> <span class="s1">&#39;space_invaders&#39;</span><span class="p">,</span> <span class="s1">&#39;star_gunner&#39;</span><span class="p">,</span> <span class="s1">&#39;tennis&#39;</span><span class="p">,</span> <span class="s1">&#39;time_pilot&#39;</span><span class="p">,</span> <span class="s1">&#39;tutankham&#39;</span><span class="p">,</span> <span class="s1">&#39;up_n_down&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;venture&#39;</span><span class="p">,</span> <span class="s1">&#39;video_pinball&#39;</span><span class="p">,</span> <span class="s1">&#39;wizard_of_wor&#39;</span><span class="p">,</span> <span class="s1">&#39;yars_revenge&#39;</span><span class="p">,</span> <span class="s1">&#39;zaxxon&#39;</span><span class="p">]</span>
+<span class="n">atari_deterministic_v4</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower_under_to_upper</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;Deterministic-v4&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gym_atari_envs</span><span class="p">}</span>
+<span class="n">atari_no_frameskip_v4</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower_under_to_upper</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;NoFrameskip-v4&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gym_atari_envs</span><span class="p">}</span>
+
+
+<span class="c1"># default atari schedule used in the DeepMind papers</span>
+<span class="n">atari_schedule</span> <span class="o">=</span> <span class="n">ScheduleParameters</span><span class="p">()</span>
+<span class="n">atari_schedule</span><span class="o">.</span><span class="n">improve_steps</span> <span class="o">=</span> <span class="n">EnvironmentSteps</span><span class="p">(</span><span class="mi">50000000</span><span class="p">)</span>
+<span class="n">atari_schedule</span><span class="o">.</span><span class="n">steps_between_evaluation_periods</span> <span class="o">=</span> <span class="n">EnvironmentSteps</span><span class="p">(</span><span class="mi">250000</span><span class="p">)</span>
+<span class="n">atari_schedule</span><span class="o">.</span><span class="n">evaluation_steps</span> <span class="o">=</span> <span class="n">EnvironmentSteps</span><span class="p">(</span><span class="mi">135000</span><span class="p">)</span>
+<span class="n">atari_schedule</span><span class="o">.</span><span class="n">heatup_steps</span> <span class="o">=</span> <span class="n">EnvironmentSteps</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MaxOverFramesAndFrameskipEnvWrapper</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Wrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">frameskip</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">max_over_num_frames</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_over_num_frames</span> <span class="o">=</span> <span class="n">max_over_num_frames</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observations_stack</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frameskip</span> <span class="o">=</span> <span class="n">frameskip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_frame_to_max_over</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameskip</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_over_num_frames</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="n">total_reward</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observations_stack</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameskip</span><span class="p">):</span>
+            <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_frame_to_max_over</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">observations_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+            <span class="n">total_reward</span> <span class="o">+=</span> <span class="n">reward</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="c1"># deal with last state in episode</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations_stack</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">observations_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">observation</span><span class="p">)</span>
+                <span class="k">break</span>
+
+        <span class="n">max_over_frames_observation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observations_stack</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">max_over_frames_observation</span><span class="p">,</span> <span class="n">total_reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span>
+
+
+<span class="c1"># Environment</span>
+<span class="k">class</span> <span class="nc">ObservationSpaceType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">Tensor</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Image</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">Vector</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<div class="viewcode-block" id="GymEnvironment"><a class="viewcode-back" href="../../../components/environments/index.html#rl_coach.environments.gym_environment.GymEnvironment">[docs]</a><span class="k">class</span> <span class="nc">GymEnvironment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">level</span><span class="p">:</span> <span class="n">LevelSelection</span><span class="p">,</span>
+                 <span class="n">frame_skip</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">visualization_parameters</span><span class="p">:</span> <span class="n">VisualizationParameters</span><span class="p">,</span>
+                 <span class="n">target_success_rate</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">additional_simulator_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+                 <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">human_control</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">custom_reward_threshold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">random_initialization_steps</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">max_over_num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">observation_space_type</span><span class="p">:</span> <span class="n">ObservationSpaceType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param level: (str)</span>
+<span class="sd">            A string representing the gym level to run. This can also be a LevelSelection object.</span>
+<span class="sd">            For example, BreakoutDeterministic-v0</span>
+
+<span class="sd">        :param frame_skip: (int)</span>
+<span class="sd">            The number of frames to skip between any two actions given by the agent. The action will be repeated</span>
+<span class="sd">            for all the skipped frames.</span>
+
+<span class="sd">        :param visualization_parameters: (VisualizationParameters)</span>
+<span class="sd">            The parameters used for visualizing the environment, such as the render flag, storing videos etc.</span>
+
+<span class="sd">        :param additional_simulator_parameters: (Dict[str, Any])</span>
+<span class="sd">            Any additional parameters that the user can pass to the Gym environment. These parameters should be</span>
+<span class="sd">            accepted by the __init__ function of the implemented Gym environment.</span>
+
+<span class="sd">        :param seed: (int)</span>
+<span class="sd">            A seed to use for the random number generator when running the environment.</span>
+
+<span class="sd">        :param human_control: (bool)</span>
+<span class="sd">            A flag that allows controlling the environment using the keyboard keys.</span>
+
+<span class="sd">        :param custom_reward_threshold: (float)</span>
+<span class="sd">            Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.</span>
+<span class="sd">            If not set, this value will be taken from the Gym environment definition.</span>
+
+<span class="sd">        :param random_initialization_steps: (int)</span>
+<span class="sd">            The number of random steps that will be taken in the environment after each reset.</span>
+<span class="sd">            This is a feature presented in the DQN paper, which improves the variability of the episodes the agent sees.</span>
+
+<span class="sd">        :param max_over_num_frames: (int)</span>
+<span class="sd">            This value will be used for merging multiple frames into a single frame by taking the maximum value for each</span>
+<span class="sd">            of the pixels in the frame. This is particularly used in Atari games, where the frames flicker, and objects</span>
+<span class="sd">            can be seen in one frame but disappear in the next.</span>
+
+<span class="sd">        :param observation_space_type:</span>
+<span class="sd">            This value will be used for generating observation space. Allows a custom space. Should be one of</span>
+<span class="sd">            ObservationSpaceType. If not specified, observation space is inferred from the number of dimensions</span>
+<span class="sd">            of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, PlanarMaps space otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">,</span> <span class="n">human_control</span><span class="p">,</span> <span class="n">custom_reward_threshold</span><span class="p">,</span>
+                         <span class="n">visualization_parameters</span><span class="p">,</span> <span class="n">target_success_rate</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_initialization_steps</span> <span class="o">=</span> <span class="n">random_initialization_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_over_num_frames</span> <span class="o">=</span> <span class="n">max_over_num_frames</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">additional_simulator_parameters</span> <span class="o">=</span> <span class="n">additional_simulator_parameters</span>
+
+        <span class="c1"># hide warnings</span>
+        <span class="n">gym</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">set_level</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        load and initialize environment</span>
+<span class="sd">        environment ids can be defined in 3 ways:</span>
+<span class="sd">        1. Native gym environments like BreakoutDeterministic-v0 for example</span>
+<span class="sd">        2. Custom gym environments written and installed as python packages.</span>
+<span class="sd">           This environments should have a python module with a class inheriting gym.Env, implementing the</span>
+<span class="sd">           relevant functions (_reset, _step, _render) and defining the observation and action space</span>
+<span class="sd">           For example: my_environment_package:MyEnvironmentClass will run an environment defined in the</span>
+<span class="sd">           MyEnvironmentClass class</span>
+<span class="sd">        3. Custom gym environments written as an independent module which is not installed.</span>
+<span class="sd">           This environments should have a python module with a class inheriting gym.Env, implementing the</span>
+<span class="sd">           relevant functions (_reset, _step, _render) and defining the observation and action space.</span>
+<span class="sd">           For example: path_to_my_environment.sub_directory.my_module:MyEnvironmentClass will run an</span>
+<span class="sd">           environment defined in the MyEnvironmentClass class which is located in the module in the relative path</span>
+<span class="sd">           path_to_my_environment.sub_directory.my_module</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_id</span><span class="p">:</span>
+            <span class="c1"># custom environments</span>
+            <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_id</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_id</span><span class="p">:</span>
+                <span class="c1"># environment in a an absolute path module written as a unix path or in a relative path module</span>
+                <span class="c1"># written as a python import path</span>
+                <span class="n">env_class</span> <span class="o">=</span> <span class="n">short_dynamic_import</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env_id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># environment in a python package</span>
+                <span class="n">env_class</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">envs</span><span class="o">.</span><span class="n">registration</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env_id</span><span class="p">)</span>
+
+            <span class="c1"># instantiate the environment</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env_class</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">additional_simulator_parameters</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to instantiate Gym environment class </span><span class="si">%s</span><span class="s2"> with arguments </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">env_class</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_simulator_parameters</span><span class="p">),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env_id</span><span class="p">)</span>
+
+        <span class="c1"># for classic control we want to use the native renderer because otherwise we will get 2 renderer windows</span>
+        <span class="n">environment_to_always_use_with_native_rendering</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;classic_control&#39;</span><span class="p">,</span> <span class="s1">&#39;mujoco&#39;</span><span class="p">,</span> <span class="s1">&#39;robotics&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">native_rendering</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_rendering</span> <span class="ow">or</span> \
+                                <span class="nb">any</span><span class="p">([</span><span class="n">env</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">environment_to_always_use_with_native_rendering</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_rendering</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;renderer&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="c1"># seed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="c1"># frame skip and max between consecutive frames</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_robotics_env</span> <span class="o">=</span> <span class="s1">&#39;robotics&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span> <span class="o">=</span> <span class="s1">&#39;mujoco&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_roboschool_env</span> <span class="o">=</span> <span class="s1">&#39;roboschool&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span> <span class="o">=</span> <span class="s1">&#39;Atari&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timelimit_env_wrapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">frameskip</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># this accesses the atari env that is wrapped with a timelimit wrapper env</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_id</span> <span class="o">==</span> <span class="s2">&quot;SpaceInvadersDeterministic-v4&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">screen</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Warning: The frame-skip for Space Invaders was automatically updated from 4 to 3. &quot;</span>
+                               <span class="s2">&quot;This is following the DQN paper where it was noticed that a frame-skip of 3 makes the &quot;</span>
+                               <span class="s2">&quot;laser rays disappear. To force frame-skip of 4, please use SpaceInvadersNoFrameskip-v4.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">MaxOverFramesAndFrameskipEnvWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+                                                           <span class="n">frameskip</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span><span class="p">,</span>
+                                                           <span class="n">max_over_num_frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_over_num_frames</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">frameskip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span> <span class="o">=</span> <span class="n">StateSpace</span><span class="p">({})</span>
+
+        <span class="c1"># observations</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">dict_space</span><span class="o">.</span><span class="n">Dict</span><span class="p">):</span>
+            <span class="n">state_space</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">state_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">spaces</span>
+
+        <span class="k">for</span> <span class="n">observation_space_name</span><span class="p">,</span> <span class="n">observation_space</span> <span class="ow">in</span> <span class="n">state_space</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">observation_space_type</span> <span class="o">==</span> <span class="n">ObservationSpaceType</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+                <span class="c1"># we consider arbitrary input tensor which does not necessarily represent images</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">TensorObservationSpace</span><span class="p">(</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                    <span class="n">low</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                    <span class="n">high</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">high</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">observation_space_type</span> <span class="o">==</span> <span class="n">ObservationSpaceType</span><span class="o">.</span><span class="n">Image</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="c1"># we assume gym has image observations (with arbitrary number of channels) where their values are</span>
+                <span class="c1"># within 0-255, and where the channel dimension is the last dimension</span>
+                <span class="k">if</span> <span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ImageObservationSpace</span><span class="p">(</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                        <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+                        <span class="n">channels_axis</span><span class="o">=-</span><span class="mi">1</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># For any number of channels other than 1 or 3, use the generic PlanarMaps space</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">(</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                        <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+                        <span class="n">channels_axis</span><span class="o">=-</span><span class="mi">1</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">observation_space_type</span> <span class="o">==</span> <span class="n">ObservationSpaceType</span><span class="o">.</span><span class="n">Vector</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">VectorObservationSpace</span><span class="p">(</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">low</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                    <span class="n">high</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">high</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to instantiate Gym environment class </span><span class="si">%s</span><span class="s2"> with observation space type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">env_class</span><span class="p">,</span> <span class="n">observation_space_type</span><span class="p">),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;desired_goal&#39;</span> <span class="ow">in</span> <span class="n">state_space</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goal_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="s1">&#39;desired_goal&#39;</span><span class="p">]</span>
+
+        <span class="c1"># actions</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span> <span class="o">==</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">BoxActionSpace</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="n">low</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                <span class="n">high</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">high</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span> <span class="o">==</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">discrete</span><span class="o">.</span><span class="n">Discrete</span><span class="p">:</span>
+            <span class="n">actions_description</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="p">,</span> <span class="s1">&#39;get_action_meanings&#39;</span><span class="p">):</span>
+                <span class="n">actions_description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">get_action_meanings</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">DiscreteActionSpace</span><span class="p">(</span>
+                <span class="n">num_actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                <span class="n">descriptions</span><span class="o">=</span><span class="n">actions_description</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_control</span><span class="p">:</span>
+            <span class="c1"># TODO: add this to the action space</span>
+            <span class="c1"># map keyboard keys to actions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_to_action</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="p">,</span> <span class="s1">&#39;get_keys_to_action&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">key_to_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">get_keys_to_action</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error: Environment </span><span class="si">{}</span><span class="s2"> does not support human control.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># initialize the state by getting a new state from the environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_internal_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># render</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_rendered</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rendered_image</span><span class="p">()</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_control</span><span class="p">:</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_rendering</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">create_screen</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">scale</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">scale</span><span class="p">)</span>
+
+        <span class="c1"># measurements</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timestep_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">timestep_limit</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timestep_limit</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># the info is only updated after the first step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">default_action</span><span class="p">)</span><span class="o">.</span><span class="n">next_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VectorObservationSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">spec</span> <span class="ow">and</span> <span class="n">custom_reward_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reward_success_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">reward_threshold</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reward_space</span> <span class="o">=</span> <span class="n">RewardSpace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">reward_success_threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reward_success_threshold</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span> <span class="o">=</span> <span class="n">target_success_rate</span>
+
+    <span class="k">def</span> <span class="nf">_wrap_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">gym</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">state</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">_update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;current_ale_lives&#39;</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_ale_lives</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">ale</span><span class="o">.</span><span class="n">lives</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">:</span>
+                <span class="c1"># signal termination for life loss</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+                <span class="c1"># the episode is not terminated in evaluation, but we need to press fire again</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_press_fire</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ale_lives</span><span class="p">()</span>
+        <span class="c1"># TODO: update the measurements</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">and</span> <span class="s2">&quot;desired_goal&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;desired_goal&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span> <span class="o">==</span> <span class="n">BoxActionSpace</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">clip_action_to_space</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_random_noop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># simulate a random initial environment state by stepping for a random number of times between 0 and 30</span>
+        <span class="n">step_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">random_initialization_steps</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_initialization_steps</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">step_count</span> <span class="o">&lt;</span> <span class="n">random_initialization_steps</span><span class="p">):</span>
+            <span class="n">step_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">default_action</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_press_fire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fire_action</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">get_action_meanings</span><span class="p">()[</span><span class="n">fire_action</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;FIRE&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_ale_lives</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">ale</span><span class="o">.</span><span class="n">lives</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">fire_action</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_internal_state</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_update_ale_lives</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_ale_lives</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">ale</span><span class="o">.</span><span class="n">lives</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_restart_environment_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_environment_reset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># prevent reset of environment if there are ale lives left</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">ale</span><span class="o">.</span><span class="n">lives</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_environment_reset</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timelimit_env_wrapper</span><span class="o">.</span><span class="n">_past_limit</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">default_action</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_ale_lives</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_random_noop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_press_fire</span><span class="p">()</span>
+
+        <span class="c1"># initialize the number of lives</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_ale_lives</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_set_mujoco_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function can be used to set the camera for rendering the mujoco simulator</span>
+<span class="sd">        :param camera_idx: The index of the camera to use. Should be defined in the model</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">fixedcamid</span> <span class="o">!=</span> <span class="n">camera_idx</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">mujoco_py.generated</span> <span class="k">import</span> <span class="n">const</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">CAMERA_FIXED</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">fixedcamid</span> <span class="o">=</span> <span class="n">camera_idx</span>
+
+    <span class="k">def</span> <span class="nf">_get_robotics_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">_get_viewer</span><span class="p">()</span><span class="o">.</span><span class="n">read_pixels</span><span class="p">(</span><span class="mi">1600</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="kc">False</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">imresize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">270</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">image</span>
+
+    <span class="k">def</span> <span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;human&#39;</span><span class="p">)</span>
+        <span class="c1"># required for setting up a fixed camera for mujoco</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_roboschool_env</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_mujoco_camera</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_rendered_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_robotics_env</span><span class="p">:</span>
+            <span class="c1"># necessary for fetch since the rendered image is cropped to an irrelevant part of the simulator</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_robotics_image</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rgb_array&#39;</span><span class="p">)</span>
+        <span class="c1"># required for setting up a fixed camera for mujoco</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_roboschool_env</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_mujoco_camera</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span>
+
+    <span class="k">def</span> <span class="nf">get_target_success_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clean up to close rendering windows.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

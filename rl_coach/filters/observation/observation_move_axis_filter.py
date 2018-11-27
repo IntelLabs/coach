@@ -23,9 +23,14 @@ from rl_coach.spaces import ObservationSpace, PlanarMapsObservationSpace
 
 class ObservationMoveAxisFilter(ObservationFilter):
     """
-    Move an axis of the observation to a different place.
+    Reorders the axes of the observation. This can be useful when the observation is an
+    image, and we want to move the channel axis to be the last axis instead of the first axis.
     """
     def __init__(self, axis_origin: int = None, axis_target: int=None):
+        """
+        :param axis_origin: The axis to move
+        :param axis_target: Where to move the selected axis to
+        """
         super().__init__()
         self.axis_origin = axis_origin
         self.axis_target = axis_target

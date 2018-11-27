@@ -35,7 +35,8 @@ class RescaleInterpolationType(Enum):
 
 class ObservationRescaleSizeByFactorFilter(ObservationFilter):
     """
-    Scales the current state observation size by a given factor
+    Rescales an image observation by some factor. For example, the image size
+    can be reduced by a factor of 2.
     Warning: this requires the input observation to be of type uint8 due to scipy requirements!
     """
     def __init__(self, rescale_factor: float, rescaling_interpolation_type: RescaleInterpolationType):

@@ -1,6 +1,6 @@
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
-from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.architectures.layers import Dense
+from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters, DistributedCoachSynchronizationType
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.environments.gym_environment import GymVectorEnvironment, mujoco_v2
@@ -43,6 +43,8 @@ agent_params.algorithm.gae_lambda = 0.95
 agent_params.algorithm.discount = 0.99
 agent_params.algorithm.optimization_epochs = 10
 agent_params.algorithm.estimate_state_value_using_gae = True
+# Distributed Coach synchronization type.
+agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
 
 agent_params.input_filter = InputFilter()
 agent_params.exploration = AdditiveNoiseParameters()

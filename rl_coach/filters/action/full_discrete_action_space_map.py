@@ -20,7 +20,9 @@ from rl_coach.spaces import ActionSpace, DiscreteActionSpace
 
 class FullDiscreteActionSpaceMap(PartialDiscreteActionSpaceMap):
     """
-    Maps all the actions in the output space to discrete actions in the action space.
+    Full map of two countable action spaces. This works in a similar way to the
+    PartialDiscreteActionSpaceMap, but maps the entire source action space into the entire target action space, without
+    masking any actions.
     For example, if there are 10 multiselect actions in the output space, the actions 0-9 will be mapped to those
     multiselect actions.
     """

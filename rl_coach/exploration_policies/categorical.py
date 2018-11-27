@@ -30,6 +30,12 @@ class CategoricalParameters(ExplorationParameters):
 
 
 class Categorical(ExplorationPolicy):
+    """
+    Categorical exploration policy is intended for discrete action spaces. It expects the action values to
+    represent a probability distribution over the action, from which a single action will be sampled.
+    In evaluation, the action that has the highest probability will be selected. This is particularly useful for
+    actor-critic schemes, where the actors output is a probability distribution over the actions.
+    """
     def __init__(self, action_space: ActionSpace):
         """
         :param action_space: the action space used by the environment

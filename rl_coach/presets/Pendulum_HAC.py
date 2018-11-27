@@ -1,8 +1,8 @@
 import numpy as np
 
 from rl_coach.agents.hac_ddpg_agent import HACDDPGAgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbeddingMergerType, EmbedderScheme
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps
 from rl_coach.environments.gym_environment import GymVectorEnvironment

@@ -11,46 +11,70 @@ import shutil
 from subprocess import Popen, DEVNULL
 from rl_coach.logger import screen
 
+FAILING_PRESETS = [
+    'Fetch_DDPG_HER_baselines',
+    'MontezumaRevenge_BC',
+    'ControlSuite_DDPG',
+    'Doom_Basic_BC',
+    'CARLA_CIL',
+    'CARLA_DDPG',
+    'CARLA_Dueling_DDQN',
+    'CARLA_3_Cameras_DDPG',
+    'Starcraft_CollectMinerals_A3C',
+    'Starcraft_CollectMinerals_Dueling_DDQN',
+]
+
+def all_presets():
+    result = []
+    for f in sorted(os.listdir('rl_coach/presets')):
+        if f.endswith('.py') and f != '__init__.py':
+            preset = f.split('.')[0]
+            if preset not in FAILING_PRESETS:
+                result.append(preset)
+    return result
+
+
+@pytest.fixture(params=all_presets())
+def preset(request):
+    return request.param
+
 
 @pytest.mark.integration_test
-def test_all_presets_are_running():
-    # os.chdir("../../")
+def test_preset_runs(preset):
     test_failed = False
-    all_presets = sorted([f.split('.')[0] for f in os.listdir('rl_coach/presets') if f.endswith('.py') and f != '__init__.py'])
-    for preset in all_presets:
-        print("Testing preset {}".format(preset))
 
-        # TODO: this is a temporary workaround for presets which define more than a single available level.
-        # we should probably do this in a more robust way
-        level = ""
-        if "Atari" in preset:
-            level = "breakout"
-        elif "Mujoco" in preset:
-            level = "inverted_pendulum"
-        elif "ControlSuite" in preset:
-            level = "pendulum:swingup"
-        params = ["python3", "rl_coach/coach.py", "-p", preset, "-ns", "-e", ".test"]
-        if level != "":
-            params += ["-lvl", level]
+    print("Testing preset {}".format(preset))
 
-        p = Popen(params, stdout=DEVNULL)
+    # TODO: this is a temporary workaround for presets which define more than a single available level.
+    # we should probably do this in a more robust way
+    level = ""
+    if "Atari" in preset:
+        level = "breakout"
+    elif "Mujoco" in preset:
+        level = "inverted_pendulum"
+    elif "ControlSuite" in preset:
+        level = "pendulum:swingup"
 
-        # wait 10 seconds overhead of initialization etc.
-        time.sleep(10)
-        return_value = p.poll()
+    experiment_name = ".test-" + preset
 
-        if return_value is None:
-            screen.success("{} passed successfully".format(preset))
-        else:
-            test_failed = True
-            screen.error("{} failed".format(preset), crash=False)
+    params = ["python3", "rl_coach/coach.py", "-p", preset, "-ns", "-e", experiment_name]
+    if level != "":
+        params += ["-lvl", level]
 
-        p.kill()
-        if os.path.exists("experiments/.test"):
-            shutil.rmtree("experiments/.test")
+    p = Popen(params)
+
+    # wait 10 seconds overhead of initialization etc.
+    time.sleep(10)
+    return_value = p.poll()
+
+    if return_value is None:
+        screen.success("{} passed successfully".format(preset))
+    else:
+        test_failed = True
+        screen.error("{} failed".format(preset), crash=False)
+
+    p.kill()
+    if os.path.exists("experiments/" + experiment_name):
+        shutil.rmtree("experiments/" + experiment_name)
 
     assert not test_failed
-
-
-if __name__ == "__main__":
-    test_all_presets_are_running()

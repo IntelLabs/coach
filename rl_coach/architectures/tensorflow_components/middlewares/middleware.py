@@ -14,27 +14,13 @@
 # limitations under the License.
 #
 import copy
-from typing import Type, Union, List
+from typing import Union, Tuple
 
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import Dense, BatchnormActivationDropout
+from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
 from rl_coach.base_parameters import MiddlewareScheme, NetworkComponentParameters
 from rl_coach.core_types import MiddlewareEmbedding
-
-
-class MiddlewareParameters(NetworkComponentParameters):
-    def __init__(self, parameterized_class: Type['Middleware'],
-                 activation_function: str='relu', scheme: Union[List, MiddlewareScheme]=MiddlewareScheme.Medium,
-                 batchnorm: bool=False, dropout: bool=False, name='middleware', dense_layer=Dense, is_training=False):
-        super().__init__(dense_layer=dense_layer)
-        self.activation_function = activation_function
-        self.scheme = scheme
-        self.batchnorm = batchnorm
-        self.dropout = dropout
-        self.name = name
-        self.is_training = is_training
-        self.parameterized_class_name = parameterized_class.__name__
 
 
 class Middleware(object):
@@ -45,47 +31,66 @@ class Middleware(object):
     """
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False, name="middleware_embedder", dense_layer=Dense,
+                 batchnorm: bool = False, dropout_rate: float = 0.0, name="middleware_embedder", dense_layer=Dense,
                  is_training=False):
         self.name = name
         self.input = None
         self.output = None
         self.activation_function = activation_function
         self.batchnorm = batchnorm
-        self.dropout = dropout
-        self.dropout_rate = 0
+        self.dropout_rate = dropout_rate
         self.scheme = scheme
         self.return_type = MiddlewareEmbedding
         self.dense_layer = dense_layer
+        if self.dense_layer is None:
+            self.dense_layer = Dense
         self.is_training = is_training
 
         # layers order is conv -> batchnorm -> activation -> dropout
         if isinstance(self.scheme, MiddlewareScheme):
             self.layers_params = copy.copy(self.schemes[self.scheme])
         else:
-            self.layers_params = copy.copy(self.scheme)
+            # if scheme is specified directly, convert to TF layer if it's not a callable object
+            # NOTE: if layer object is callable, it must return a TF tensor when invoked
+            self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
 
         # we allow adding batchnorm, dropout or activation functions after each layer.
         # The motivation is to simplify the transition between a network with batchnorm and a network without
         # batchnorm to a single flag (the same applies to activation function and dropout)
-        if self.batchnorm or self.activation_function or self.dropout:
+        if self.batchnorm or self.activation_function or self.dropout_rate > 0:
             for layer_idx in reversed(range(len(self.layers_params))):
                 self.layers_params.insert(layer_idx+1,
                                           BatchnormActivationDropout(batchnorm=self.batchnorm,
                                                                      activation_function=self.activation_function,
                                                                      dropout_rate=self.dropout_rate))
 
-    def __call__(self, input_layer):
+    def __call__(self, input_layer: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+        """
+        Wrapper for building the module graph including scoping and loss creation
+        :param input_layer: the input to the graph
+        :return: the input placeholder and the output of the last layer
+        """
         with tf.variable_scope(self.get_name()):
             self.input = input_layer
             self._build_module()
 
         return self.input, self.output
 
-    def _build_module(self):
+    def _build_module(self) -> None:
+        """
+        Builds the graph of the module
+        This method is called early on from __call__. It is expected to store the graph
+        in self.output.
+        :param input_layer: the input to the graph
+        :return: None
+        """
         pass
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """
+        Get a formatted name for the module
+        :return: the formatted name
+        """
         return self.name
 
     @property

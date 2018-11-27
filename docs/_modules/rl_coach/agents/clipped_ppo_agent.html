@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.agents.clipped_ppo_agent &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.agents.clipped_ppo_agent</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.agents.clipped_ppo_agent</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.agents.actor_critic_agent</span> <span class="k">import</span> <span class="n">ActorCriticAgent</span>
+<span class="kn">from</span> <span class="nn">rl_coach.agents.policy_optimization_agent</span> <span class="k">import</span> <span class="n">PolicyGradientRescaler</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.embedder_parameters</span> <span class="k">import</span> <span class="n">InputEmbedderParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.head_parameters</span> <span class="k">import</span> <span class="n">PPOHeadParameters</span><span class="p">,</span> <span class="n">VHeadParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.middleware_parameters</span> <span class="k">import</span> <span class="n">FCMiddlewareParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">AlgorithmParameters</span><span class="p">,</span> <span class="n">NetworkParameters</span><span class="p">,</span> \
+    <span class="n">AgentParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">EnvironmentSteps</span><span class="p">,</span> <span class="n">Batch</span><span class="p">,</span> <span class="n">EnvResponse</span><span class="p">,</span> <span class="n">StateType</span>
+<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.additive_noise</span> <span class="k">import</span> <span class="n">AdditiveNoiseParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.categorical</span> <span class="k">import</span> <span class="n">CategoricalParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">screen</span>
+<span class="kn">from</span> <span class="nn">rl_coach.memories.episodic.episodic_experience_replay</span> <span class="k">import</span> <span class="n">EpisodicExperienceReplayParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.schedules</span> <span class="k">import</span> <span class="n">ConstantSchedule</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">DiscreteActionSpace</span><span class="p">,</span> <span class="n">BoxActionSpace</span>
+
+
+<span class="k">class</span> <span class="nc">ClippedPPONetworkParameters</span><span class="p">(</span><span class="n">NetworkParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">activation_function</span><span class="o">=</span><span class="s1">&#39;tanh&#39;</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">middleware_parameters</span> <span class="o">=</span> <span class="n">FCMiddlewareParameters</span><span class="p">(</span><span class="n">activation_function</span><span class="o">=</span><span class="s1">&#39;tanh&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">VHeadParameters</span><span class="p">(),</span> <span class="n">PPOHeadParameters</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_type</span> <span class="o">=</span> <span class="s1">&#39;Adam&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_gradients</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_separate_networks_per_head</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">async_training</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l2_regularization</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># The target network is used in order to freeze the old policy, while making updates to the new one</span>
+        <span class="c1"># in train_network()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_target_network</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_optimizer</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_down_gradients_by_number_of_workers_for_sync_training</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="ClippedPPOAlgorithmParameters"><a class="viewcode-back" href="../../../components/agents/policy_optimization/cppo.html#rl_coach.agents.clipped_ppo_agent.ClippedPPOAlgorithmParameters">[docs]</a><span class="k">class</span> <span class="nc">ClippedPPOAlgorithmParameters</span><span class="p">(</span><span class="n">AlgorithmParameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param policy_gradient_rescaler: (PolicyGradientRescaler)</span>
+<span class="sd">        This represents how the critic will be used to update the actor. The critic value function is typically used</span>
+<span class="sd">        to rescale the gradients calculated by the actor. There are several ways for doing this, such as using the</span>
+<span class="sd">        advantage of the action, or the generalized advantage estimation (GAE) value.</span>
+
+<span class="sd">    :param gae_lambda: (float)</span>
+<span class="sd">        The :math:`\lambda` value is used within the GAE function in order to weight different bootstrap length</span>
+<span class="sd">        estimations. Typical values are in the range 0.9-1, and define an exponential decay over the different</span>
+<span class="sd">        n-step estimations.</span>
+
+<span class="sd">    :param clip_likelihood_ratio_using_epsilon: (float)</span>
+<span class="sd">        If not None, the likelihood ratio between the current and new policy in the PPO loss function will be</span>
+<span class="sd">        clipped to the range [1-clip_likelihood_ratio_using_epsilon, 1+clip_likelihood_ratio_using_epsilon].</span>
+<span class="sd">        This is typically used in the Clipped PPO version of PPO, and should be set to None in regular PPO</span>
+<span class="sd">        implementations.</span>
+
+<span class="sd">    :param value_targets_mix_fraction: (float)</span>
+<span class="sd">        The targets for the value network are an exponential weighted moving average which uses this mix fraction to</span>
+<span class="sd">        define how much of the new targets will be taken into account when calculating the loss.</span>
+<span class="sd">        This value should be set to the range (0,1], where 1 means that only the new targets will be taken into account.</span>
+
+<span class="sd">    :param estimate_state_value_using_gae: (bool)</span>
+<span class="sd">        If set to True, the state value will be estimated using the GAE technique.</span>
+
+<span class="sd">    :param use_kl_regularization: (bool)</span>
+<span class="sd">        If set to True, the loss function will be regularized using the KL diveregence between the current and new</span>
+<span class="sd">        policy, to bound the change of the policy during the network update.</span>
+
+<span class="sd">    :param beta_entropy: (float)</span>
+<span class="sd">        An entropy regulaization term can be added to the loss function in order to control exploration. This term</span>
+<span class="sd">        is weighted using the :math:`\beta` value defined by beta_entropy.</span>
+
+<span class="sd">    :param optimization_epochs: (int)</span>
+<span class="sd">        For each training phase, the collected dataset will be used for multiple epochs, which are defined by the</span>
+<span class="sd">        optimization_epochs value.</span>
+
+<span class="sd">    :param optimization_epochs: (Schedule)</span>
+<span class="sd">        Can be used to define a schedule over the clipping of the likelihood ratio.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_episodes_in_experience_replay</span> <span class="o">=</span> <span class="mi">1000000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy_gradient_rescaler</span> <span class="o">=</span> <span class="n">PolicyGradientRescaler</span><span class="o">.</span><span class="n">GAE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gae_lambda</span> <span class="o">=</span> <span class="mf">0.95</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_kl_regularization</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_likelihood_ratio_using_epsilon</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimate_state_value_using_gae</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta_entropy</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># should be 0 for mujoco</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span> <span class="o">=</span> <span class="n">EnvironmentSteps</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_epochs</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalization_stats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clipping_decay_schedule</span> <span class="o">=</span> <span class="n">ConstantSchedule</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">act_for_full_episodes</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<span class="k">class</span> <span class="nc">ClippedPPOAgentParameters</span><span class="p">(</span><span class="n">AgentParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="n">ClippedPPOAlgorithmParameters</span><span class="p">(),</span>
+                         <span class="n">exploration</span><span class="o">=</span><span class="p">{</span><span class="n">DiscreteActionSpace</span><span class="p">:</span> <span class="n">CategoricalParameters</span><span class="p">(),</span>
+                                      <span class="n">BoxActionSpace</span><span class="p">:</span> <span class="n">AdditiveNoiseParameters</span><span class="p">()},</span>
+                         <span class="n">memory</span><span class="o">=</span><span class="n">EpisodicExperienceReplayParameters</span><span class="p">(),</span>
+                         <span class="n">networks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;main&quot;</span><span class="p">:</span> <span class="n">ClippedPPONetworkParameters</span><span class="p">()})</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.agents.clipped_ppo_agent:ClippedPPOAgent&#39;</span>
+
+
+<span class="c1"># Clipped Proximal Policy Optimization - https://arxiv.org/abs/1707.06347</span>
+<span class="k">class</span> <span class="nc">ClippedPPOAgent</span><span class="p">(</span><span class="n">ActorCriticAgent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_parameters</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;LevelManager&#39;</span><span class="p">,</span> <span class="s1">&#39;CompositeAgent&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent_parameters</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="c1"># signals definition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Value Loss&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Policy Loss&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_kl_divergence_during_training_process</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unclipped_grads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Grads (unclipped)&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Value Targets&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kl_divergence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;KL Divergence&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">likelihood_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Likelihood Ratio&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clipped_likelihood_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Clipped Likelihood Ratio&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="n">sess</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">normalization_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">normalization_stats</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="n">sess</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fill_advantages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="n">network_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="n">current_state_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">network_keys</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">current_state_values</span> <span class="o">=</span> <span class="n">current_state_values</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_values</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">current_state_values</span><span class="p">)</span>
+
+        <span class="c1"># calculate advantages</span>
+        <span class="n">advantages</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">value_targets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">total_returns</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">n_step_discounted_rewards</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_gradient_rescaler</span> <span class="o">==</span> <span class="n">PolicyGradientRescaler</span><span class="o">.</span><span class="n">A_VALUE</span><span class="p">:</span>
+            <span class="n">advantages</span> <span class="o">=</span> <span class="n">total_returns</span> <span class="o">-</span> <span class="n">current_state_values</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy_gradient_rescaler</span> <span class="o">==</span> <span class="n">PolicyGradientRescaler</span><span class="o">.</span><span class="n">GAE</span><span class="p">:</span>
+            <span class="c1"># get bootstraps</span>
+            <span class="n">episode_start_idx</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">advantages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="n">value_targets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">game_over</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">game_overs</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">game_over</span><span class="p">:</span>
+                    <span class="c1"># get advantages for the rollout</span>
+                    <span class="n">value_bootstrapping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,))</span>
+                    <span class="n">rollout_state_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state_values</span><span class="p">[</span><span class="n">episode_start_idx</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">value_bootstrapping</span><span class="p">)</span>
+
+                    <span class="n">rollout_advantages</span><span class="p">,</span> <span class="n">gae_based_value_targets</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_general_advantage_estimation_values</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">rewards</span><span class="p">()[</span><span class="n">episode_start_idx</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span>
+                                                                     <span class="n">rollout_state_values</span><span class="p">)</span>
+                    <span class="n">episode_start_idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">advantages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">advantages</span><span class="p">,</span> <span class="n">rollout_advantages</span><span class="p">)</span>
+                    <span class="n">value_targets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value_targets</span><span class="p">,</span> <span class="n">gae_based_value_targets</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">screen</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;WARNING: The requested policy gradient rescaler is not available&quot;</span><span class="p">)</span>
+
+        <span class="c1"># standardize</span>
+        <span class="n">advantages</span> <span class="o">=</span> <span class="p">(</span><span class="n">advantages</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">advantages</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">advantages</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">transition</span><span class="p">,</span> <span class="n">advantage</span><span class="p">,</span> <span class="n">value_target</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">transitions</span><span class="p">,</span> <span class="n">advantages</span><span class="p">,</span> <span class="n">value_targets</span><span class="p">):</span>
+            <span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;advantage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">advantage</span>
+            <span class="n">transition</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;gae_based_value_target&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_target</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_advantages</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">advantages</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">train_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">epochs</span><span class="p">):</span>
+        <span class="n">batch_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+            <span class="n">batch</span><span class="o">.</span><span class="n">shuffle</span><span class="p">()</span>
+            <span class="n">batch_results</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;total_loss&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">&#39;losses&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">&#39;unclipped_grads&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">&#39;kl_divergence&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">&#39;entropy&#39;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">}</span>
+
+            <span class="n">fetches</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">output_heads</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">kl_divergence</span><span class="p">,</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">output_heads</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">entropy</span><span class="p">,</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">output_heads</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">likelihood_ratio</span><span class="p">,</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">output_heads</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clipped_likelihood_ratio</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)):</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span>
+
+                <span class="n">network_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="n">actions</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">actions</span><span class="p">()[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+                <span class="n">gae_based_value_targets</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;gae_based_value_target&#39;</span><span class="p">)[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">DiscreteActionSpace</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># get old policy probabilities and distribution</span>
+
+                <span class="c1"># TODO-perf - the target network (&quot;old_policy&quot;) is not changing. this can be calculated once for all epochs.</span>
+                <span class="c1"># the shuffling being done, should only be performed on the indices.</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">target_network</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">network_keys</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+                <span class="n">old_policy_distribution</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+                <span class="n">total_returns</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">n_step_discounted_rewards</span><span class="p">(</span><span class="n">expand_dims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># calculate gradients and apply on both the local policy network and on the global policy network</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">estimate_state_value_using_gae</span><span class="p">:</span>
+                    <span class="n">value_targets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">gae_based_value_targets</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value_targets</span> <span class="o">=</span> <span class="n">total_returns</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+
+                <span class="n">inputs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">network_keys</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+                <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;output_1_0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actions</span>
+
+                <span class="c1"># The old_policy_distribution needs to be represented as a list, because in the event of</span>
+                <span class="c1"># discrete controls, it has just a mean. otherwise, it has both a mean and standard deviation</span>
+                <span class="k">for</span> <span class="n">input_index</span><span class="p">,</span> <span class="nb">input</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">old_policy_distribution</span><span class="p">):</span>
+                    <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;output_1_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">input_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">input</span>
+
+                <span class="c1"># update the clipping decay schedule value</span>
+                <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;output_1_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">old_policy_distribution</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">clipping_decay_schedule</span><span class="o">.</span><span class="n">current_value</span>
+
+                <span class="n">total_loss</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">unclipped_grads</span><span class="p">,</span> <span class="n">fetch_result</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">train_and_sync_networks</span><span class="p">(</span>
+                        <span class="n">inputs</span><span class="p">,</span> <span class="p">[</span><span class="n">value_targets</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;advantage&#39;</span><span class="p">)[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]],</span> <span class="n">additional_fetches</span><span class="o">=</span><span class="n">fetches</span>
+                    <span class="p">)</span>
+
+                <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;total_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_loss</span><span class="p">)</span>
+                <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+                <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;unclipped_grads&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unclipped_grads</span><span class="p">)</span>
+                <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;kl_divergence&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fetch_result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fetch_result</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">unclipped_grads</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">unclipped_grads</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">value_targets</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">value_targets</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">fetch_result</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clipped_likelihood_ratio</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">fetch_result</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">batch_results</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">batch_results</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">batch_results</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">value_loss</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">policy_loss</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;total_loss&#39;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">learning_rate_decay_rate</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">curr_learning_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">get_variable_value</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">adaptive_learning_rate_scheme</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">curr_learning_rate</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">curr_learning_rate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">curr_learning_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">learning_rate</span>
+
+            <span class="c1"># log training parameters</span>
+            <span class="n">screen</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span>
+                <span class="n">OrderedDict</span><span class="p">([</span>
+                    <span class="p">(</span><span class="s2">&quot;Surrogate loss&quot;</span><span class="p">,</span> <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="s2">&quot;KL divergence&quot;</span><span class="p">,</span> <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;kl_divergence&#39;</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="s2">&quot;Entropy&quot;</span><span class="p">,</span> <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="s2">&quot;training epoch&quot;</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span> <span class="n">curr_learning_rate</span><span class="p">)</span>
+                <span class="p">]),</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;Policy training&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_kl_divergence_during_training_process</span> <span class="o">=</span> <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;kl_divergence&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entropy</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;entropy&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kl_divergence</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;kl_divergence&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">batch_results</span><span class="p">[</span><span class="s1">&#39;losses&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">post_training_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># clean memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;clean&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_train</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">network</span><span class="o">.</span><span class="n">set_is_training</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">transitions</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">Batch</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">training_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_training_steps</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fill_advantages</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+                <span class="c1"># take only the requested number of steps</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span><span class="p">,</span> <span class="n">EnvironmentSteps</span><span class="p">):</span>
+                    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span><span class="o">.</span><span class="n">num_steps</span><span class="p">]</span>
+                <span class="n">shuffle</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="n">Batch</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_network</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">optimization_epochs</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">network</span><span class="o">.</span><span class="n">set_is_training</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">post_training_commands</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># should be done in order to update the data that has been accumulated * while not playing *</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_log</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">StateType</span><span class="p">):</span>
+        <span class="n">dummy_env_response</span> <span class="o">=</span> <span class="n">EnvResponse</span><span class="p">(</span><span class="n">next_state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">reward</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">game_over</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dummy_env_response</span><span class="p">,</span> <span class="n">update_internal_state</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">next_state</span>
+
+    <span class="k">def</span> <span class="nf">choose_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">curr_state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">clipping_decay_schedule</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">choose_action</span><span class="p">(</span><span class="n">curr_state</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.environments.carla_environment &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.environments.carla_environment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.environments.carla_environment</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">environ</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">screen</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.action.partial_discrete_action_space_map</span> <span class="k">import</span> <span class="n">PartialDiscreteActionSpaceMap</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rgb_to_y_filter</span> <span class="k">import</span> <span class="n">ObservationRGBToYFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_to_uint8_filter</span> <span class="k">import</span> <span class="n">ObservationToUInt8Filter</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">&#39;CARLA_ROOT&#39;</span> <span class="ow">in</span> <span class="n">environ</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CARLA_ROOT&#39;</span><span class="p">),</span> <span class="s1">&#39;PythonClient&#39;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;CARLA_ROOT was not defined. Please set it to point to the CARLA root directory and try again.&quot;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">carla.client</span> <span class="k">import</span> <span class="n">CarlaClient</span>
+    <span class="kn">from</span> <span class="nn">carla.settings</span> <span class="k">import</span> <span class="n">CarlaSettings</span>
+    <span class="kn">from</span> <span class="nn">carla.tcp</span> <span class="k">import</span> <span class="n">TCPConnectionError</span>
+    <span class="kn">from</span> <span class="nn">carla.sensor</span> <span class="k">import</span> <span class="n">Camera</span>
+    <span class="kn">from</span> <span class="nn">carla.client</span> <span class="k">import</span> <span class="n">VehicleControl</span>
+    <span class="kn">from</span> <span class="nn">carla.planner.planner</span> <span class="k">import</span> <span class="n">Planner</span>
+    <span class="kn">from</span> <span class="nn">carla.driving_benchmark.experiment_suites.experiment_suite</span> <span class="k">import</span> <span class="n">ExperimentSuite</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
+    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CARLA&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">rl_coach.environments.environment</span> <span class="k">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EnvironmentParameters</span><span class="p">,</span> <span class="n">LevelSelection</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">ImageObservationSpace</span><span class="p">,</span> <span class="n">StateSpace</span><span class="p">,</span> \
+    <span class="n">VectorObservationSpace</span>
+<span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">get_open_port</span><span class="p">,</span> <span class="n">force_list</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">VisualizationParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">InputFilter</span><span class="p">,</span> <span class="n">NoOutputFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rescale_to_size_filter</span> <span class="k">import</span> <span class="n">ObservationRescaleToSizeFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_stacking_filter</span> <span class="k">import</span> <span class="n">ObservationStackingFilter</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="c1"># enum of the available levels and their path</span>
+<span class="k">class</span> <span class="nc">CarlaLevel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">TOWN1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;map_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Town01&quot;</span><span class="p">,</span> <span class="s2">&quot;map_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/Game/Maps/Town01&quot;</span><span class="p">}</span>
+    <span class="n">TOWN2</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;map_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Town02&quot;</span><span class="p">,</span> <span class="s2">&quot;map_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/Game/Maps/Town02&quot;</span><span class="p">}</span>
+
+<span class="n">key_map</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;BRAKE&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">274</span><span class="p">,),</span>  <span class="c1"># down arrow</span>
+    <span class="s1">&#39;GAS&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">273</span><span class="p">,),</span>  <span class="c1"># up arrow</span>
+    <span class="s1">&#39;TURN_LEFT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">276</span><span class="p">,),</span>  <span class="c1"># left arrow</span>
+    <span class="s1">&#39;TURN_RIGHT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">275</span><span class="p">,),</span>  <span class="c1"># right arrow</span>
+    <span class="s1">&#39;GAS_AND_TURN_LEFT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">273</span><span class="p">,</span> <span class="mi">276</span><span class="p">),</span>
+    <span class="s1">&#39;GAS_AND_TURN_RIGHT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">273</span><span class="p">,</span> <span class="mi">275</span><span class="p">),</span>
+    <span class="s1">&#39;BRAKE_AND_TURN_LEFT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">274</span><span class="p">,</span> <span class="mi">276</span><span class="p">),</span>
+    <span class="s1">&#39;BRAKE_AND_TURN_RIGHT&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">274</span><span class="p">,</span> <span class="mi">275</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">CarlaInputFilter</span> <span class="o">=</span> <span class="n">InputFilter</span><span class="p">(</span><span class="n">is_a_reference_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">CarlaInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;forward_camera&#39;</span><span class="p">,</span> <span class="s1">&#39;rescaling&#39;</span><span class="p">,</span>
+                                        <span class="n">ObservationRescaleToSizeFilter</span><span class="p">(</span><span class="n">ImageObservationSpace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">128</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+                                                                                             <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">)))</span>
+<span class="n">CarlaInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;forward_camera&#39;</span><span class="p">,</span> <span class="s1">&#39;to_grayscale&#39;</span><span class="p">,</span> <span class="n">ObservationRGBToYFilter</span><span class="p">())</span>
+<span class="n">CarlaInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;forward_camera&#39;</span><span class="p">,</span> <span class="s1">&#39;to_uint8&#39;</span><span class="p">,</span> <span class="n">ObservationToUInt8Filter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+<span class="n">CarlaInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;forward_camera&#39;</span><span class="p">,</span> <span class="s1">&#39;stacking&#39;</span><span class="p">,</span> <span class="n">ObservationStackingFilter</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="n">CarlaOutputFilter</span> <span class="o">=</span> <span class="n">NoOutputFilter</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">CameraTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">FRONT</span> <span class="o">=</span> <span class="s2">&quot;forward_camera&quot;</span>
+    <span class="n">LEFT</span> <span class="o">=</span> <span class="s2">&quot;left_camera&quot;</span>
+    <span class="n">RIGHT</span> <span class="o">=</span> <span class="s2">&quot;right_camera&quot;</span>
+    <span class="n">SEGMENTATION</span> <span class="o">=</span> <span class="s2">&quot;segmentation&quot;</span>
+    <span class="n">DEPTH</span> <span class="o">=</span> <span class="s2">&quot;depth&quot;</span>
+    <span class="n">LIDAR</span> <span class="o">=</span> <span class="s2">&quot;lidar&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">CarlaEnvironmentParameters</span><span class="p">(</span><span class="n">EnvironmentParameters</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Quality</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="n">LOW</span> <span class="o">=</span> <span class="s2">&quot;Low&quot;</span>
+        <span class="n">EPIC</span> <span class="o">=</span> <span class="s2">&quot;Epic&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;town1&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># the frame skip affects the fps of the server directly. fps = 30 / frameskip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_height</span> <span class="o">=</span> <span class="mi">512</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_width</span> <span class="o">=</span> <span class="mi">720</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera_height</span> <span class="o">=</span> <span class="mi">128</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera_width</span> <span class="o">=</span> <span class="mi">180</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_suite</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># an optional CARLA experiment suite to use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="n">level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Quality</span><span class="o">.</span><span class="n">LOW</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cameras</span> <span class="o">=</span> <span class="p">[</span><span class="n">CameraTypes</span><span class="o">.</span><span class="n">FRONT</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weather_id</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode_max_time</span> <span class="o">=</span> <span class="mi">100000</span>  <span class="c1"># miliseconds for each episode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_braking</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">separate_actions_for_throttle_and_brake</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_speedup_steps</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span> <span class="o">=</span> <span class="mf">35.0</span>  <span class="c1"># km/h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_input_filter</span> <span class="o">=</span> <span class="n">CarlaInputFilter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_output_filter</span> <span class="o">=</span> <span class="n">CarlaOutputFilter</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.environments.carla_environment:CarlaEnvironment&#39;</span>
+
+
+<div class="viewcode-block" id="CarlaEnvironment"><a class="viewcode-back" href="../../../components/environments/index.html#rl_coach.environments.carla_environment.CarlaEnvironment">[docs]</a><span class="k">class</span> <span class="nc">CarlaEnvironment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LevelSelection</span><span class="p">,</span>
+                 <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">human_control</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">custom_reward_threshold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+                 <span class="n">visualization_parameters</span><span class="p">:</span> <span class="n">VisualizationParameters</span><span class="p">,</span>
+                 <span class="n">server_height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">server_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">camera_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">experiment_suite</span><span class="p">:</span> <span class="n">ExperimentSuite</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">episode_max_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">allow_braking</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">quality</span><span class="p">:</span> <span class="n">CarlaEnvironmentParameters</span><span class="o">.</span><span class="n">Quality</span><span class="p">,</span>
+                 <span class="n">cameras</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CameraTypes</span><span class="p">],</span> <span class="n">weather_id</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">experiment_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">separate_actions_for_throttle_and_brake</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                 <span class="n">num_speedup_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">target_success_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">,</span> <span class="n">human_control</span><span class="p">,</span> <span class="n">custom_reward_threshold</span><span class="p">,</span> <span class="n">visualization_parameters</span><span class="p">,</span> <span class="n">target_success_rate</span><span class="p">)</span>
+
+        <span class="c1"># server configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_height</span> <span class="o">=</span> <span class="n">server_height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_width</span> <span class="o">=</span> <span class="n">server_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">get_open_port</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_name</span> <span class="o">=</span> <span class="n">CarlaLevel</span><span class="p">[</span><span class="n">level</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;map_name&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_path</span> <span class="o">=</span> <span class="n">CarlaLevel</span><span class="p">[</span><span class="n">level</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;map_path&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span> <span class="o">=</span> <span class="n">experiment_path</span>
+
+        <span class="c1"># client configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quality</span> <span class="o">=</span> <span class="n">quality</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cameras</span> <span class="o">=</span> <span class="n">cameras</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weather_id</span> <span class="o">=</span> <span class="n">weather_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode_max_time</span> <span class="o">=</span> <span class="n">episode_max_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_braking</span> <span class="o">=</span> <span class="n">allow_braking</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">separate_actions_for_throttle_and_brake</span> <span class="o">=</span> <span class="n">separate_actions_for_throttle_and_brake</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera_width</span> <span class="o">=</span> <span class="n">camera_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera_height</span> <span class="o">=</span> <span class="n">camera_height</span>
+
+        <span class="c1"># setup server settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_suite</span> <span class="o">=</span> <span class="n">experiment_suite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+            <span class="c1"># load settings from file</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># hard coded settings</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">CarlaSettings</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                <span class="n">SynchronousMode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">SendNonPlayerAgentsInfo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">NumberOfVehicles</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                <span class="n">NumberOfPedestrians</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+                <span class="n">WeatherId</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">force_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather_id</span><span class="p">)),</span>
+                <span class="n">QualityLevel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quality</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                <span class="n">SeedVehicles</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                <span class="n">SeedPedestrians</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">randomize_seeds</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_cameras</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cameras</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_height</span><span class="p">)</span>
+
+        <span class="c1"># open the server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_server</span><span class="p">()</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span>
+
+        <span class="c1"># open the client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game</span> <span class="o">=</span> <span class="n">CarlaClient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">99999999</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_suite</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_experiment_idx</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_suite</span><span class="o">.</span><span class="n">get_experiments</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_experiment_idx</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">load_settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_experiment</span><span class="o">.</span><span class="n">conditions</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">load_settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+
+        <span class="c1"># get available start positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">player_start_spots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_positions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_start_position_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_pose</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># state space</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span> <span class="o">=</span> <span class="n">StateSpace</span><span class="p">({</span>
+            <span class="s2">&quot;measurements&quot;</span><span class="p">:</span> <span class="n">VectorObservationSpace</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">measurements_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;forward_speed&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">])</span>
+        <span class="p">})</span>
+        <span class="k">for</span> <span class="n">camera</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">sensors</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">camera</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ImageObservationSpace</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">camera_height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_width</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+                <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+
+        <span class="c1"># action space</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">separate_actions_for_throttle_and_brake</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">BoxActionSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+                                               <span class="n">descriptions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;steer&quot;</span><span class="p">,</span> <span class="s2">&quot;gas&quot;</span><span class="p">,</span> <span class="s2">&quot;brake&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">BoxActionSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+                                               <span class="n">descriptions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;steer&quot;</span><span class="p">,</span> <span class="s2">&quot;gas_and_brake&quot;</span><span class="p">])</span>
+
+        <span class="c1"># human control</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_control</span><span class="p">:</span>
+            <span class="c1"># convert continuous action space to discrete</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steering_strength</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gas_strength</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">brake_strength</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="c1"># TODO: reverse order of actions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">PartialDiscreteActionSpaceMap</span><span class="p">(</span>
+                <span class="n">target_actions</span><span class="o">=</span><span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span>
+                                <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">steering_strength</span><span class="p">],</span>
+                                <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steering_strength</span><span class="p">],</span>
+                                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_strength</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span>
+                                <span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">brake_strength</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_strength</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">steering_strength</span><span class="p">],</span>
+                                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_strength</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steering_strength</span><span class="p">],</span>
+                                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">brake_strength</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">steering_strength</span><span class="p">],</span>
+                                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">brake_strength</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steering_strength</span><span class="p">]],</span>
+                <span class="n">descriptions</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;NO-OP&#39;</span><span class="p">,</span> <span class="s1">&#39;TURN_LEFT&#39;</span><span class="p">,</span> <span class="s1">&#39;TURN_RIGHT&#39;</span><span class="p">,</span> <span class="s1">&#39;GAS&#39;</span><span class="p">,</span> <span class="s1">&#39;BRAKE&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;GAS_AND_TURN_LEFT&#39;</span><span class="p">,</span> <span class="s1">&#39;GAS_AND_TURN_RIGHT&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;BRAKE_AND_TURN_LEFT&#39;</span><span class="p">,</span> <span class="s1">&#39;BRAKE_AND_TURN_RIGHT&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># map keyboard keys to actions</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">descriptions</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">key_map</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">key_to_action</span><span class="p">[</span><span class="n">key_map</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span> <span class="o">=</span> <span class="n">idx</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_speedup_steps</span> <span class="o">=</span> <span class="n">num_speedup_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span> <span class="o">=</span> <span class="n">max_speed</span>
+
+        <span class="c1"># measurements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopilot</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planner</span> <span class="o">=</span> <span class="n">Planner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">map_name</span><span class="p">)</span>
+
+        <span class="c1"># env initialization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_internal_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># render</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_rendered</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rendered_image</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">create_screen</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span> <span class="o">=</span> <span class="n">target_success_rate</span>
+
+    <span class="k">def</span> <span class="nf">_add_cameras</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">cameras</span><span class="p">,</span> <span class="n">camera_width</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">):</span>
+        <span class="c1"># add a front facing camera</span>
+        <span class="k">if</span> <span class="n">CameraTypes</span><span class="o">.</span><span class="n">FRONT</span> <span class="ow">in</span> <span class="n">cameras</span><span class="p">:</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="n">CameraTypes</span><span class="o">.</span><span class="n">FRONT</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">FOV</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_image_size</span><span class="p">(</span><span class="n">camera_width</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_rotation</span><span class="p">(</span><span class="o">-</span><span class="mf">15.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span>
+
+        <span class="c1"># add a left facing camera</span>
+        <span class="k">if</span> <span class="n">CameraTypes</span><span class="o">.</span><span class="n">LEFT</span> <span class="ow">in</span> <span class="n">cameras</span><span class="p">:</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="n">CameraTypes</span><span class="o">.</span><span class="n">LEFT</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">FOV</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_image_size</span><span class="p">(</span><span class="n">camera_width</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_rotation</span><span class="p">(</span><span class="o">-</span><span class="mf">15.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span>
+
+        <span class="c1"># add a right facing camera</span>
+        <span class="k">if</span> <span class="n">CameraTypes</span><span class="o">.</span><span class="n">RIGHT</span> <span class="ow">in</span> <span class="n">cameras</span><span class="p">:</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="n">CameraTypes</span><span class="o">.</span><span class="n">RIGHT</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">FOV</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_image_size</span><span class="p">(</span><span class="n">camera_width</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_rotation</span><span class="p">(</span><span class="o">-</span><span class="mf">15.0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span>
+
+        <span class="c1"># add a front facing depth camera</span>
+        <span class="k">if</span> <span class="n">CameraTypes</span><span class="o">.</span><span class="n">DEPTH</span> <span class="ow">in</span> <span class="n">cameras</span><span class="p">:</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="n">CameraTypes</span><span class="o">.</span><span class="n">DEPTH</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_image_size</span><span class="p">(</span><span class="n">camera_width</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_rotation</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">PostProcessing</span> <span class="o">=</span> <span class="s1">&#39;Depth&#39;</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span>
+
+        <span class="c1"># add a front facing semantic segmentation camera</span>
+        <span class="k">if</span> <span class="n">CameraTypes</span><span class="o">.</span><span class="n">SEGMENTATION</span> <span class="ow">in</span> <span class="n">cameras</span><span class="p">:</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="n">CameraTypes</span><span class="o">.</span><span class="n">SEGMENTATION</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_image_size</span><span class="p">(</span><span class="n">camera_width</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">set_rotation</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">camera</span><span class="o">.</span><span class="n">PostProcessing</span> <span class="o">=</span> <span class="s1">&#39;SemanticSegmentation&#39;</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">add_sensor</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">settings</span>
+
+    <span class="k">def</span> <span class="nf">_get_directions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class that should return the directions to reach a certain goal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">directions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">planner</span><span class="o">.</span><span class="n">get_next_command</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">current_point</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+             <span class="n">current_point</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">current_point</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+             <span class="n">current_point</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+             <span class="n">current_point</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">z</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">end_point</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">end_point</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">end_point</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">end_point</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">end_point</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">directions</span>
+
+    <span class="k">def</span> <span class="nf">_open_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">log_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;logs&#39;</span><span class="p">,</span>
+                             <span class="s2">&quot;CARLA_LOG_</span><span class="si">{}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">log_path</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">log_path</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CARLA_ROOT&#39;</span><span class="p">),</span> <span class="s1">&#39;CarlaUE4.sh&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_path</span><span class="p">,</span>
+                   <span class="s2">&quot;-benchmark&quot;</span><span class="p">,</span> <span class="s2">&quot;-carla-server&quot;</span><span class="p">,</span> <span class="s2">&quot;-fps=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">30</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_skip</span><span class="p">),</span>
+                   <span class="s2">&quot;-world-port=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">),</span>
+                   <span class="s2">&quot;-windowed -ResX=</span><span class="si">{}</span><span class="s2"> -ResY=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">server_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_height</span><span class="p">),</span>
+                   <span class="s2">&quot;-carla-no-hud&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+                <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-carla-settings=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="nf">_close_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">killpg</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpgid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">pid</span><span class="p">),</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGKILL</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># get measurements and observations</span>
+        <span class="n">measurements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">type</span><span class="p">(</span><span class="n">measurements</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">measurements</span><span class="p">,</span> <span class="n">sensor_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">read_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">camera</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">sensors</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">camera</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sensor_data</span><span class="p">[</span><span class="n">camera</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="p">[</span><span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+                         <span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                         <span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">z</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_from_goal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span> <span class="o">-</span>
+                                                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
+
+        <span class="n">is_collision</span> <span class="o">=</span> <span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">collision_vehicles</span> <span class="o">!=</span> <span class="mi">0</span> \
+                       <span class="ow">or</span> <span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">collision_pedestrians</span> <span class="o">!=</span> <span class="mi">0</span> \
+                       <span class="ow">or</span> <span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">collision_other</span> <span class="o">!=</span> <span class="mi">0</span>
+
+        <span class="n">speed_reward</span> <span class="o">=</span> <span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">forward_speed</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">speed_reward</span> <span class="o">&gt;</span> <span class="mf">30.</span><span class="p">:</span>
+            <span class="n">speed_reward</span> <span class="o">=</span> <span class="mf">30.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">speed_reward</span> \
+                      <span class="o">-</span> <span class="p">(</span><span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">intersection_otherlane</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span> \
+                      <span class="o">-</span> <span class="p">(</span><span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">intersection_offroad</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span> \
+                      <span class="o">-</span> <span class="n">is_collision</span> <span class="o">*</span> <span class="mi">100</span> \
+                      <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">steer</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span>
+
+        <span class="c1"># update measurements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span> <span class="o">=</span> <span class="p">[</span><span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">forward_speed</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autopilot</span> <span class="o">=</span> <span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">autopilot_control</span>
+
+        <span class="c1"># The directions to reach the goal (0 Follow lane, 1 Left, 2 Right, 3 Straight)</span>
+        <span class="n">directions</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_directions</span><span class="p">(</span><span class="n">measurements</span><span class="o">.</span><span class="n">player_measurements</span><span class="o">.</span><span class="n">transform</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;high_level_command&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">directions</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">measurements</span><span class="o">.</span><span class="n">game_timestamp</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_max_time</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_collision</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">measurements</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="n">VehicleControl</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">separate_actions_for_throttle_and_brake</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">steer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">throttle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">brake</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># transform the 2 value action (steer, throttle - brake) into a 3 value action (steer, throttle, brake)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">steer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">throttle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">brake</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="c1"># prevent braking</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_braking</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">brake</span> <span class="o">&lt;</span> <span class="mf">0.1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">throttle</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">brake</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">brake</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># prevent over speeding</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;measurements&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">3.6</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">brake</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">throttle</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">hand_brake</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">reverse</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">send_control</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load_experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_idx</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_suite</span><span class="o">.</span><span class="n">get_experiments</span><span class="p">()[</span><span class="n">experiment_idx</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">load_settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_experiment</span><span class="o">.</span><span class="n">conditions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">player_start_spots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_positions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_start_position_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_pose</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_restart_environment_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_environment_reset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># select start and end positions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_suite</span><span class="p">:</span>
+            <span class="c1"># if an expeirent suite is available, follow its given poses</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pose</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_experiment</span><span class="o">.</span><span class="n">poses</span><span class="p">):</span>
+                <span class="c1"># load a new experiment</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_experiment_idx</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_experiment_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_suite</span><span class="o">.</span><span class="n">get_experiments</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_experiment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_experiment_idx</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_start_position_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_experiment</span><span class="o">.</span><span class="n">poses</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pose</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_experiment</span><span class="o">.</span><span class="n">poses</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pose</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_pose</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># go over all the possible positions in a cyclic manner</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_start_position_idx</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_start_position_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_positions</span>
+
+            <span class="c1"># choose a random goal destination</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">start_episode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_start_position_idx</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">start_episode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_start_position_idx</span><span class="p">)</span>
+
+        <span class="c1"># start the game with some initial speed</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_speedup_steps</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">control</span> <span class="o">=</span> <span class="n">VehicleControl</span><span class="p">(</span><span class="n">throttle</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">brake</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">steer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hand_brake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">send_control</span><span class="p">(</span><span class="n">VehicleControl</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">get_rendered_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a numpy array containing the image that will be rendered to the screen.</span>
+<span class="sd">        This can be different from the observation. For example, mujoco&#39;s observation is a measurements vector.</span>
+<span class="sd">        :return: numpy array containing the image that will be rendered to the screen</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">camera</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">camera</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">sensors</span><span class="p">]</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span>
+
+    <span class="k">def</span> <span class="nf">get_target_success_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

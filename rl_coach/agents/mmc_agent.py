@@ -24,6 +24,11 @@ from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperi
 
 
 class MixedMonteCarloAlgorithmParameters(DQNAlgorithmParameters):
+    """
+    :param monte_carlo_mixing_rate: (float)
+        The mixing rate is used for setting the amount of monte carlo estimate (full return) that will be mixes into
+        the single-step bootstrapped targets.
+    """
     def __init__(self):
         super().__init__()
         self.monte_carlo_mixing_rate = 0.1
@@ -58,11 +63,13 @@ class MixedMonteCarloAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        total_returns = batch.n_step_discounted_rewards()
+
         for i in range(self.ap.network_wrappers['main'].batch_size):
             one_step_target = batch.rewards()[i] + \
                               (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * \
                               q_st_plus_1[i][selected_actions[i]]
-            monte_carlo_target = batch.total_returns()[i]
+            monte_carlo_target = total_returns[i]
             TD_targets[i, batch.actions()[i]] = (1 - self.mixing_rate) * one_step_target + \
                                                 self.mixing_rate * monte_carlo_target
 

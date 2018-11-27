@@ -1,6 +1,6 @@
 from rl_coach.agents.ppo_agent import PPOAgentParameters
-from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.architectures.layers import Dense
+from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters, DistributedCoachSynchronizationType
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.environments.gym_environment import GymVectorEnvironment, mujoco_v2
@@ -32,6 +32,9 @@ agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(64
 
 agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_observation_filter('observation', 'normalize', ObservationNormalizationFilter())
+
+# Distributed Coach synchronization type.
+agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
 
 ###############
 # Environment #

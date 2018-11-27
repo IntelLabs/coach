@@ -16,6 +16,7 @@
 
 import gym
 import numpy as np
+from enum import IntEnum
 import scipy.ndimage
 
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -44,7 +45,7 @@ from typing import Dict, Any, Union
 from rl_coach.core_types import RunPhase, EnvironmentSteps
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace, ImageObservationSpace, VectorObservationSpace, \
-    StateSpace, RewardSpace
+    PlanarMapsObservationSpace, TensorObservationSpace, StateSpace, RewardSpace
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.filters.reward.reward_clipping_filter import RewardClippingFilter
 from rl_coach.filters.observation.observation_rescale_to_size_filter import ObservationRescaleToSizeFilter
@@ -63,7 +64,8 @@ class GymEnvironmentParameters(EnvironmentParameters):
         super().__init__(level=level)
         self.random_initialization_steps = 0
         self.max_over_num_frames = 1
-        self.additional_simulator_parameters = None
+        self.additional_simulator_parameters = {}
+        self.observation_space_type = None
 
     @property
     def path(self):
@@ -83,7 +85,7 @@ class GymVectorEnvironment(GymEnvironmentParameters):
 gym_roboschool_envs = ['inverted_pendulum', 'inverted_pendulum_swingup', 'inverted_double_pendulum', 'reacher',
                        'hopper', 'walker2d', 'half_cheetah', 'ant', 'humanoid', 'humanoid_flagrun',
                        'humanoid_flagrun_harder', 'pong']
-roboschool_v0 = {e: "{}".format(lower_under_to_upper(e) + '-v0') for e in gym_roboschool_envs}
+roboschool_v1 = {e: "Roboschool{}".format(lower_under_to_upper(e) + '-v1') for e in gym_roboschool_envs}
 
 # Mujoco
 gym_mujoco_envs = ['inverted_pendulum', 'inverted_double_pendulum', 'reacher', 'hopper', 'walker2d', 'half_cheetah',
@@ -140,7 +142,7 @@ atari_schedule = ScheduleParameters()
 atari_schedule.improve_steps = EnvironmentSteps(50000000)
 atari_schedule.steps_between_evaluation_periods = EnvironmentSteps(250000)
 atari_schedule.evaluation_steps = EnvironmentSteps(135000)
-atari_schedule.heatup_steps = EnvironmentSteps(50000)
+atari_schedule.heatup_steps = EnvironmentSteps(1)
 
 
 class MaxOverFramesAndFrameskipEnvWrapper(gym.Wrapper):
@@ -176,13 +178,68 @@ class MaxOverFramesAndFrameskipEnvWrapper(gym.Wrapper):
 
 
 # Environment
+class ObservationSpaceType(IntEnum):
+    Tensor = 0
+    Image = 1
+    Vector = 2
+
+
 class GymEnvironment(Environment):
-    def __init__(self, level: LevelSelection, frame_skip: int, visualization_parameters: VisualizationParameters,
-                 additional_simulator_parameters: Dict[str, Any] = None, seed: Union[None, int]=None,
-                 human_control: bool=False, custom_reward_threshold: Union[int, float]=None,
-                 random_initialization_steps: int=1, max_over_num_frames: int=1, **kwargs):
+    def __init__(self,
+                 level: LevelSelection,
+                 frame_skip: int,
+                 visualization_parameters: VisualizationParameters,
+                 target_success_rate: float=1.0,
+                 additional_simulator_parameters: Dict[str, Any] = {},
+                 seed: Union[None, int] = None,
+                 human_control: bool=False,
+                 custom_reward_threshold: Union[int, float]=None,
+                 random_initialization_steps: int=1,
+                 max_over_num_frames: int=1,
+                 observation_space_type: ObservationSpaceType=None,
+                 **kwargs):
+        """
+        :param level: (str)
+            A string representing the gym level to run. This can also be a LevelSelection object.
+            For example, BreakoutDeterministic-v0
+
+        :param frame_skip: (int)
+            The number of frames to skip between any two actions given by the agent. The action will be repeated
+            for all the skipped frames.
+
+        :param visualization_parameters: (VisualizationParameters)
+            The parameters used for visualizing the environment, such as the render flag, storing videos etc.
+
+        :param additional_simulator_parameters: (Dict[str, Any])
+            Any additional parameters that the user can pass to the Gym environment. These parameters should be
+            accepted by the __init__ function of the implemented Gym environment.
+
+        :param seed: (int)
+            A seed to use for the random number generator when running the environment.
+
+        :param human_control: (bool)
+            A flag that allows controlling the environment using the keyboard keys.
+
+        :param custom_reward_threshold: (float)
+            Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.
+            If not set, this value will be taken from the Gym environment definition.
+
+        :param random_initialization_steps: (int)
+            The number of random steps that will be taken in the environment after each reset.
+            This is a feature presented in the DQN paper, which improves the variability of the episodes the agent sees.
+
+        :param max_over_num_frames: (int)
+            This value will be used for merging multiple frames into a single frame by taking the maximum value for each
+            of the pixels in the frame. This is particularly used in Atari games, where the frames flicker, and objects
+            can be seen in one frame but disappear in the next.
+
+        :param observation_space_type:
+            This value will be used for generating observation space. Allows a custom space. Should be one of
+            ObservationSpaceType. If not specified, observation space is inferred from the number of dimensions
+            of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, PlanarMaps space otherwise.
+        """
         super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
-                         visualization_parameters)
+                         visualization_parameters, target_success_rate)
 
         self.random_initialization_steps = random_initialization_steps
         self.max_over_num_frames = max_over_num_frames
@@ -218,10 +275,12 @@ class GymEnvironment(Environment):
                 env_class = gym.envs.registration.load(self.env_id)
 
             # instantiate the environment
-            if self.additional_simulator_parameters:
+            try:
                 self.env = env_class(**self.additional_simulator_parameters)
-            else:
-                self.env = env_class()
+            except:
+                screen.error("Failed to instantiate Gym environment class %s with arguments %s" %
+                             (env_class, self.additional_simulator_parameters), crash=False)
+                raise
         else:
             self.env = gym.make(self.env_id)
 
@@ -243,6 +302,7 @@ class GymEnvironment(Environment):
         # frame skip and max between consecutive frames
         self.is_robotics_env = 'robotics' in str(self.env.unwrapped.__class__)
         self.is_mujoco_env = 'mujoco' in str(self.env.unwrapped.__class__)
+        self.is_roboschool_env = 'roboschool' in str(self.env.unwrapped.__class__)
         self.is_atari_env = 'Atari' in str(self.env.unwrapped.__class__)
         self.timelimit_env_wrapper = self.env
         if self.is_atari_env:
@@ -267,19 +327,40 @@ class GymEnvironment(Environment):
             state_space = self.env.observation_space.spaces
 
         for observation_space_name, observation_space in state_space.items():
-            if len(observation_space.shape) == 3 and observation_space.shape[-1] == 3:
-                # we assume gym has image observations which are RGB and where their values are within 0-255
-                self.state_space[observation_space_name] = ImageObservationSpace(
+            if observation_space_type == ObservationSpaceType.Tensor:
+                # we consider arbitrary input tensor which does not necessarily represent images
+                self.state_space[observation_space_name] = TensorObservationSpace(
                     shape=np.array(observation_space.shape),
-                    high=255,
-                    channels_axis=-1
+                    low=observation_space.low,
+                    high=observation_space.high
                 )
-            else:
+            elif observation_space_type == ObservationSpaceType.Image or len(observation_space.shape) == 3:
+                # we assume gym has image observations (with arbitrary number of channels) where their values are
+                # within 0-255, and where the channel dimension is the last dimension
+                if observation_space.shape[-1] in [1, 3]:
+                    self.state_space[observation_space_name] = ImageObservationSpace(
+                        shape=np.array(observation_space.shape),
+                        high=255,
+                        channels_axis=-1
+                    )
+                else:
+                    # For any number of channels other than 1 or 3, use the generic PlanarMaps space
+                    self.state_space[observation_space_name] = PlanarMapsObservationSpace(
+                        shape=np.array(observation_space.shape),
+                        low=0,
+                        high=255,
+                        channels_axis=-1
+                    )
+            elif observation_space_type == ObservationSpaceType.Vector or len(observation_space.shape) == 1:
                 self.state_space[observation_space_name] = VectorObservationSpace(
                     shape=observation_space.shape[0],
                     low=observation_space.low,
                     high=observation_space.high
                 )
+            else:
+                raise screen.error("Failed to instantiate Gym environment class %s with observation space type %s" %
+                                 (env_class, observation_space_type), crash=True)
+
         if 'desired_goal' in state_space.keys():
             self.goal_space = self.state_space['desired_goal']
 
@@ -333,6 +414,8 @@ class GymEnvironment(Environment):
         if self.env.spec and custom_reward_threshold is None:
                 self.reward_success_threshold = self.env.spec.reward_threshold
                 self.reward_space = RewardSpace(1, reward_success_threshold=self.reward_success_threshold)
+
+        self.target_success_rate = target_success_rate
 
     def _wrap_state(self, state):
         if not isinstance(self.env.observation_space, gym.spaces.Dict):
@@ -403,8 +486,7 @@ class GymEnvironment(Environment):
         :param camera_idx: The index of the camera to use. Should be defined in the model
         :return: None
         """
-        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx and\
-                self.env.unwrapped.viewer._ncam > camera_idx:
+        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx:
             from mujoco_py.generated import const
             self.env.unwrapped.viewer.cam.type = const.CAMERA_FIXED
             self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
@@ -418,7 +500,7 @@ class GymEnvironment(Environment):
     def _render(self):
         self.env.render(mode='human')
         # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env:
+        if self.is_mujoco_env and not self.is_roboschool_env:
             self._set_mujoco_camera(0)
 
     def get_rendered_image(self):
@@ -428,6 +510,17 @@ class GymEnvironment(Environment):
         else:
             image = self.env.render(mode='rgb_array')
         # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env:
+        if self.is_mujoco_env and not self.is_roboschool_env:
             self._set_mujoco_camera(0)
         return image
+
+    def get_target_success_rate(self) -> float:
+        return self.target_success_rate
+
+    def close(self) -> None:
+        """
+        Clean up to close rendering windows.
+
+        :return: None
+        """
+        self.env.close()

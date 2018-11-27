@@ -1,0 +1,380 @@
+aliases:
+  - &executor_prep
+    docker:
+      - image: circleci/python:3.7.0-stretch
+    working_directory: ~/repo
+  - &remote_docker
+    # ensure layers of constructed docker containers are cached for reuse between jobs.
+    setup_remote_docker:
+      docker_layer_caching: true
+  - &restore_cache
+    restore_cache:
+      keys:
+        - v1-dependencies-{{ checksum "requirements.txt" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
+  - &save_cache
+    save_cache:
+      paths:
+        - ./venv
+      key: v1-dependencies-{{ checksum "requirements.txt" }}
+  - &aws_prep
+    run:
+      name: Prepare aws cli
+      command: |
+        sudo pip install awscli pytest kubernetes==8.0.0b1
+
+        $(aws ecr get-login --no-include-email --region us-west-2)
+        sudo curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
+        sudo chmod a+x /usr/local/bin/aws-iam-authenticator
+        aws eks update-kubeconfig --name coach-aws-cicd
+        sudo curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        sudo chmod a+x /usr/local/bin/kubectl
+  - &docker_prep
+    run:
+      name: Prepare dockerfiles
+      command: |
+        aws s3 cp --recursive s3://coach-ci-dockerfiles docker
+
+version: 2
+jobs:
+  build_base:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: Build and push base and main container
+          command: |
+            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
+            TAG=$(git describe --tags --always --dirty)
+
+            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
+            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-base:${TAG} -f docker/Dockerfile.base .
+
+            docker push ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+
+            docker pull ${REGISTRY}/coach:${MASTER_BRANCH}
+            docker pull ${REGISTRY}/coach:builder-${MASTER_BRANCH}
+
+            docker build --target builder --cache-from ${REGISTRY}/coach:${MASTER_BRANCH} --cache-from ${REGISTRY}/coach:builder-${MASTER_BRANCH} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach:builder-${TAG} -f docker/Dockerfile .
+            docker push ${REGISTRY}/coach:builder-${TAG}
+
+            docker build --cache-from ${REGISTRY}/coach:${MASTER_BRANCH} --cache-from ${REGISTRY}/coach:builder-${TAG} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach:${TAG} -f docker/Dockerfile .
+            docker push ${REGISTRY}/coach:${TAG}
+
+          no_output_timeout: 30m
+
+  build_gym_env:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: Build and push gym environment container
+          command: |
+            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
+            TAG=$(git describe --tags --always --dirty)
+            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
+            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-gym_environment:${TAG} -f docker/Dockerfile.gym_environment .
+            docker push ${REGISTRY}/coach-gym_environment:${TAG}
+          no_output_timeout: 10m
+
+  build_doom_env:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: Build and push vizdoom environment container
+          command: |
+            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
+            TAG=$(git describe --tags --always --dirty)
+            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
+            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-doom_environment:${TAG} -f docker/Dockerfile.doom_environment .
+            docker push ${REGISTRY}/coach-doom_environment:${TAG}
+          no_output_timeout: 10m
+
+  build_mujoco_env:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: Build and push mujoco environment container
+          command: |
+            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
+            TAG=$(git describe --tags --always --dirty)
+            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
+            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach-mujoco_environment:${TAG} -f docker/Dockerfile.mujoco_environment .
+            docker push ${REGISTRY}/coach-mujoco_environment:${TAG}
+          no_output_timeout: 10m
+
+  unit_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run unit tests
+          command: |
+            python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn unit-test -tc 'make unit_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=unit-test-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns unit-test-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  integration_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run integration tests
+          command: |
+            python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn integration-test -tc 'make integration_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=integration-test-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns integration-test-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  golden_test_gym:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run gym related golden tests
+          command: |
+            export PRESETS='CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn golden-test-gym -tc "export PRESETS=${PRESETS} && make golden_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=golden-test-gym-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns golden-test-gym-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  golden_test_doom:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run doom related golden tests
+          command: |
+            export PRESETS='Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn golden-test-doom -tc "export PRESETS=${PRESETS} && make golden_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=golden-test-doom-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns golden-test-doom-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  golden_test_mujoco:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run mujoco related golden tests
+          command: |
+            export PRESETS='BitFlip_DQN_HER,BitFlip_DQN,Mujoco_A3C,Mujoco_A3C_LSTM,Mujoco_PPO,Mujoco_ClippedPPO,Mujoco_DDPG'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn golden-test-mujoco -tc "export PRESETS=${PRESETS} && make golden_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  trace_test_gym:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run gym related trace tests
+          command: |
+            export PRESETS='CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-gym -tc "export PRESETS=${PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=trace-test-gym-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns trace-test-gym-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  trace_test_doom:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run doom related trace tests
+          command: |
+            export PRESETS='Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-doom -tc "export PRESETS=${PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=trace-test-doom-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns trace-test-doom-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  trace_test_mujoco:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run mujoco related trace tests
+          command: |
+            export PRESETS='BitFlip_DQN_HER,BitFlip_DQN,Mujoco_A3C,Mujoco_A3C_LSTM,Mujoco_PPO,Mujoco_ClippedPPO,Mujoco_DDPG'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-mujoco -tc "export PRESETS=${PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  container_deploy:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: Tag and push updated base and main container
+          command: |
+            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
+            TAG=$(git describe --tags --always --dirty)
+
+            docker pull ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} ${REGISTRY}/coach-base:${MASTER_BRANCH}
+            docker push ${REGISTRY}/coach-base:${MASTER_BRANCH}
+
+            docker pull ${REGISTRY}/coach:builder-${TAG}
+            docker tag ${REGISTRY}/coach:builder-${TAG} ${REGISTRY}/coach:builder-${MASTER_BRANCH}
+            docker push ${REGISTRY}/coach:builder-${MASTER_BRANCH}
+
+            docker pull ${REGISTRY}/coach:${TAG}
+            docker tag ${REGISTRY}/coach:${TAG} ${REGISTRY}/coach:${MASTER_BRANCH}
+            docker push ${REGISTRY}/coach:${MASTER_BRANCH}
+            
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build_base
+      - unit_tests:
+          requires:
+            - build_base
+      - integration_tests:
+          requires:
+            - build_base
+      - e2e_approval:
+          type: approval
+          requires:
+            - build_base
+      - build_gym_env:
+          requires:
+            - e2e_approval
+      - build_doom_env:
+          requires:
+            - e2e_approval
+      - build_mujoco_env:
+          requires:
+            - e2e_approval
+      - gym_approval:
+          type: approval
+          requires:
+            - golden_test_gym
+      - doom_approval:
+          type: approval
+          requires:
+            - golden_test_doom
+      - mujoco_approval:
+          type: approval
+          requires:
+            - golden_test_mujoco
+      - golden_test_gym:
+          requires:
+            - build_gym_env
+      - golden_test_doom:
+          requires:
+            - build_doom_env
+      - golden_test_mujoco:
+          requires:
+            - build_mujoco_env
+      - trace_test_gym:
+          requires:
+            - gym_approval
+      - trace_test_doom:
+          requires:
+            - doom_approval
+      - trace_test_mujoco:
+          requires:
+            - mujoco_approval
+      - container_deploy:
+          requires:
+            - unit_tests
+            - integration_tests
+          filters:
+            branches:
+              only: master

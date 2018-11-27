@@ -1,12 +1,13 @@
 # Coach
 
+[![CircleCI](https://circleci.com/gh/NervanaSystems/coach/tree/master.svg?style=svg)](https://circleci.com/gh/NervanaSystems/coach/tree/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/NervanaSystems/coach/blob/master/LICENSE)
 [![Docs](https://readthedocs.org/projects/carla/badge/?version=latest)](https://nervanasystems.github.io/coach/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)
 
 <p align="center"><img src="img/coach_logo.png" alt="Coach Logo" width="200"/></p>
 
-Coach is a python reinforcement learning research framework containing implementation of many state-of-the-art algorithms.
+Coach is a python reinforcement learning framework containing implementation of many state-of-the-art algorithms.
 
 It exposes a set of easy-to-use APIs for experimenting with new RL algorithms, and allows simple integration of new environments to solve. 
 Basic RL components (algorithms, environments, neural network architectures, exploration policies, ...) are well decoupled, so that extending and reusing existing components is fairly painless.
@@ -27,7 +28,8 @@ coach -p CartPole_DQN -r
 Blog posts from the Intel® AI website:
 * [Release 0.8.0](https://ai.intel.com/reinforcement-learning-coach-intel/) (initial release)
 * [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/)
-* [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/) (current release)
+* [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/)
+* Release 0.11 (current release)
 
 Contacting the Coach development team is also possible through the email [coach@intel.com](coach@intel.com)
 
@@ -148,7 +150,7 @@ For example:
   coach -r -p Atari_NEC -lvl pong
   ```
 
-There are several types of agents that can benefit from running them in a distrbitued fashion with multiple workers in parallel. Each worker interacts with its own copy of the environment but updates a shared network, which improves the data collection speed and the stability of the learning process.
+There are several types of agents that can benefit from running them in a distributed fashion with multiple workers in parallel. Each worker interacts with its own copy of the environment but updates a shared network, which improves the data collection speed and the stability of the learning process.
 To specify the number of workers to run, use the `-n` flag.
 
 For example:
@@ -162,6 +164,11 @@ For example:
 It is easy to create new presets for different levels or environments by following the same pattern as in presets.py
 
 More usage examples can be found [here](https://nervanasystems.github.io/coach/usage/index.html).
+
+### Distributed Multi-Node Coach
+
+As of release 0.11 Coach supports horizontal scaling for training RL agents on multiple nodes. In release 0.11 this was tested on the ClippedPPO and DQN agents.
+For usage instructions please refer to the documentation [here](https://nervanasystems.github.io/coach/dist_usage.html)
 
 ### Running Coach Dashboard (Visualization)
 Training an agent to solve an environment can be tricky, at times. 
@@ -185,7 +192,7 @@ dashboard
 
 * *OpenAI Gym:*
 
-    Installed by default by Coach's installer. The version used by Coach is 0.10.5.
+    Installed by default by Coach's installer
 
 * *ViZDoom:*
 
@@ -193,7 +200,6 @@ dashboard
 
     https://github.com/mwydmuch/ViZDoom
 
-    The version currently used by Coach is 1.1.4.
     Additionally, Coach assumes that the environment variable VIZDOOM_ROOT points to the ViZDoom installation directory.
 
 * *Roboschool:*
@@ -230,15 +236,11 @@ dashboard
     
     https://github.com/deepmind/pysc2
     
-    The version used by Coach is 2.0.1
-    
 * *DeepMind Control Suite:*
 
     Follow the instructions described in the DeepMind Control Suite repository - 
     
     https://github.com/deepmind/dm_control
-    
-    The version used by Coach is 0.0.0
 
 
 ## Supported Algorithms
@@ -256,23 +258,25 @@ dashboard
 * [Persistent Advantage Learning (PAL)](https://arxiv.org/abs/1512.04860)  ([code](rl_coach/agents/pal_agent.py))
 * [Categorical Deep Q Network (C51)](https://arxiv.org/abs/1707.06887)  ([code](rl_coach/agents/categorical_dqn_agent.py))
 * [Quantile Regression Deep Q Network (QR-DQN)](https://arxiv.org/pdf/1710.10044v1.pdf)  ([code](rl_coach/agents/qr_dqn_agent.py))
-* [N-Step Q Learning](https://arxiv.org/abs/1602.01783) | **Distributed**  ([code](rl_coach/agents/n_step_q_agent.py))
+* [N-Step Q Learning](https://arxiv.org/abs/1602.01783) | **Multi Worker Single Node**  ([code](rl_coach/agents/n_step_q_agent.py))
 * [Neural Episodic Control (NEC)](https://arxiv.org/abs/1703.01988)  ([code](rl_coach/agents/nec_agent.py))
-* [Normalized Advantage Functions (NAF)](https://arxiv.org/abs/1603.00748.pdf) | **Distributed**  ([code](rl_coach/agents/naf_agent.py))
+* [Normalized Advantage Functions (NAF)](https://arxiv.org/abs/1603.00748.pdf) | **Multi Worker Single Node**  ([code](rl_coach/agents/naf_agent.py))
+* [Rainbow](https://arxiv.org/abs/1710.02298)  ([code](rl_coach/agents/rainbow_dqn_agent.py))
 
 ### Policy Optimization Agents
-* [Policy Gradients (PG)](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) | **Distributed**  ([code](rl_coach/agents/policy_gradients_agent.py))
-* [Asynchronous Advantage Actor-Critic (A3C)](https://arxiv.org/abs/1602.01783) | **Distributed**  ([code](rl_coach/agents/actor_critic_agent.py))
-* [Deep Deterministic Policy Gradients (DDPG)](https://arxiv.org/abs/1509.02971) | **Distributed**  ([code](rl_coach/agents/ddpg_agent.py))
+* [Policy Gradients (PG)](http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) | **Multi Worker Single Node**  ([code](rl_coach/agents/policy_gradients_agent.py))
+* [Asynchronous Advantage Actor-Critic (A3C)](https://arxiv.org/abs/1602.01783) | **Multi Worker Single Node**  ([code](rl_coach/agents/actor_critic_agent.py))
+* [Deep Deterministic Policy Gradients (DDPG)](https://arxiv.org/abs/1509.02971) | **Multi Worker Single Node**  ([code](rl_coach/agents/ddpg_agent.py))
 * [Proximal Policy Optimization (PPO)](https://arxiv.org/pdf/1707.06347.pdf)  ([code](rl_coach/agents/ppo_agent.py))
-* [Clipped Proximal Policy Optimization (CPPO)](https://arxiv.org/pdf/1707.06347.pdf) | **Distributed**  ([code](rl_coach/agents/clipped_ppo_agent.py))
+* [Clipped Proximal Policy Optimization (CPPO)](https://arxiv.org/pdf/1707.06347.pdf) | **Multi Worker Single Node**  ([code](rl_coach/agents/clipped_ppo_agent.py))
 * [Generalized Advantage Estimation (GAE)](https://arxiv.org/abs/1506.02438) ([code](rl_coach/agents/actor_critic_agent.py#L86))
 
 ### General Agents
-* [Direct Future Prediction (DFP)](https://arxiv.org/abs/1611.01779) | **Distributed**  ([code](rl_coach/agents/dfp_agent.py))
+* [Direct Future Prediction (DFP)](https://arxiv.org/abs/1611.01779) | **Multi Worker Single Node**  ([code](rl_coach/agents/dfp_agent.py))
 
 ### Imitation Learning Agents
 * Behavioral Cloning (BC)  ([code](rl_coach/agents/bc_agent.py))
+* [Conditional Imitation Learning](https://arxiv.org/abs/1710.02410) ([code](rl_coach/agents/cil_agent.py))
 
 ### Hierarchical Reinforcement Learning Agents
 * [Hierarchical Actor Critic (HAC)](https://arxiv.org/abs/1712.00948.pdf) ([code](rl_coach/agents/ddpg_hac_agent.py))

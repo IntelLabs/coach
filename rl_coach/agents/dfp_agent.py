@@ -21,14 +21,13 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.agent import Agent
+from rl_coach.architectures.head_parameters import MeasurementsPredictionHeadParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense
-from rl_coach.architectures.tensorflow_components.heads.measurements_prediction_head import \
-    MeasurementsPredictionHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, NetworkParameters, \
      MiddlewareScheme
 from rl_coach.core_types import ActionInfo, EnvironmentSteps, RunPhase
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.memories.memory import MemoryGranularity
@@ -82,6 +81,35 @@ class DFPMemoryParameters(EpisodicExperienceReplayParameters):
 
 
 class DFPAlgorithmParameters(AlgorithmParameters):
+    """
+    :param num_predicted_steps_ahead: (int)
+        Number of future steps to predict measurements for. The future steps won't be sequential, but rather jump
+        in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4
+
+    :param goal_vector: (List[float])
+        The goal vector will weight each of the measurements to form an optimization goal. The vector should have
+        the same length as the number of measurements, and it will be vector multiplied by the measurements.
+        Positive values correspond to trying to maximize the particular measurement, and negative values
+        correspond to trying to minimize the particular measurement.
+
+    :param future_measurements_weights: (List[float])
+        The future_measurements_weights weight the contribution of each of the predicted timesteps to the optimization
+        goal. For example, if there are 6 steps predicted ahead, and a future_measurements_weights vector with 3 values,
+        then only the 3 last timesteps will be taken into account, according to the weights in the
+        future_measurements_weights vector.
+
+    :param use_accumulated_reward_as_measurement: (bool)
+        If set to True, the accumulated reward from the beginning of the episode will be added as a measurement to
+        the measurements vector in the state. This van be useful in environments where the given measurements don't
+        include enough information for the particular goal the agent should achieve.
+
+    :param handling_targets_after_episode_end: (HandlingTargetsAfterEpisodeEnd)
+        Dictates how to handle measurements that are outside the episode length.
+
+    :param scale_measurements_targets: (Dict[str, float])
+        Allows rescaling the values of each of the measurements available. This van be useful when the measurements
+        have a different scale and you want to normalize them to the same scale.
+    """
     def __init__(self):
         super().__init__()
         self.num_predicted_steps_ahead = 6

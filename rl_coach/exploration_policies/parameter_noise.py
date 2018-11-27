@@ -19,7 +19,7 @@ from typing import List, Dict
 import numpy as np
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.architectures.tensorflow_components.layers import NoisyNetDense
+from rl_coach.architectures.layers import NoisyNetDense
 from rl_coach.base_parameters import AgentParameters, NetworkParameters
 from rl_coach.spaces import ActionSpace, BoxActionSpace, DiscreteActionSpace
 
@@ -42,10 +42,18 @@ class ParameterNoiseParameters(ExplorationParameters):
 
 
 class ParameterNoise(ExplorationPolicy):
+    """
+    The ParameterNoise exploration policy is intended for both discrete and continuous action spaces.
+    It applies the exploration policy by replacing all the dense network layers with noisy layers.
+    The noisy layers have both weight means and weight standard deviations, and for each forward pass of the network
+    the weights are sampled from a normal distribution that follows the learned weights mean and standard deviation
+    values.
+
+    Warning: currently supported only by DQN variants
+    """
     def __init__(self, network_params: Dict[str, NetworkParameters], action_space: ActionSpace):
         """
         :param action_space: the action space used by the environment
-        :param alpha0:
         """
         super().__init__(action_space)
         self.network_params = network_params

@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Clipped Proximal Policy Optimization &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Deep Deterministic Policy Gradient" href="ddpg.html" />
+    <link rel="prev" title="Conditional Imitation Learning" href="../imitation/cil.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Agents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ac.html">Actor-Critic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/bc.html">Behavioral Cloning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/bs_dqn.html">Bootstrapped DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/categorical_dqn.html">Categorical DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/cil.html">Conditional Imitation Learning</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Clipped Proximal Policy Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#network-structure">Network Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-description">Algorithm Description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#choosing-an-action-continuous-action">Choosing an action - Continuous action</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training-the-network">Training the network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../other/dfp.html">Direct Future Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/double_dqn.html">Double DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/dqn.html">Deep Q Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/dueling_dqn.html">Dueling DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/mmc.html">Mixed Monte Carlo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/n_step.html">N-Step Q Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/naf.html">Normalized Advantage Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/nec.html">Neural Episodic Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/pal.html">Persistent Advantage Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pg.html">Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppo.html">Proximal Policy Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/rainbow.html">Rainbow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/qr_dqn.html">Quantile Regression DQN</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Agents</a> &raquo;</li>
+        
+      <li>Clipped Proximal Policy Optimization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/components/agents/policy_optimization/cppo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="clipped-proximal-policy-optimization">
+<h1>Clipped Proximal Policy Optimization<a class="headerlink" href="#clipped-proximal-policy-optimization" title="Permalink to this headline">¶</a></h1>
+<p><strong>Actions space:</strong> Discrete | Continuous</p>
+<p><strong>References:</strong> <a class="reference external" href="https://arxiv.org/pdf/1707.06347.pdf">Proximal Policy Optimization Algorithms</a></p>
+<div class="section" id="network-structure">
+<h2>Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h2>
+<img alt="../../../_images/ppo.png" class="align-center" src="../../../_images/ppo.png" />
+</div>
+<div class="section" id="algorithm-description">
+<h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="choosing-an-action-continuous-action">
+<h3>Choosing an action - Continuous action<a class="headerlink" href="#choosing-an-action-continuous-action" title="Permalink to this headline">¶</a></h3>
+<p>Same as in PPO.</p>
+</div>
+<div class="section" id="training-the-network">
+<h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
+<p>Very similar to PPO, with several small (but very simplifying) changes:</p>
+<ol class="arabic">
+<li><p class="first">Train both the value and policy networks, simultaneously, by defining a single loss function,
+which is the sum of each of the networks loss functions. Then, back propagate gradients only once from this unified loss function.</p>
+</li>
+<li><p class="first">The unified network’s optimizer is set to Adam (instead of L-BFGS for the value network as in PPO).</p>
+</li>
+<li><p class="first">Value targets are now also calculated based on the GAE advantages.
+In this method, the <span class="math notranslate nohighlight">\(V\)</span> values are predicted from the critic network, and then added to the GAE based advantages,
+in order to get a <span class="math notranslate nohighlight">\(Q\)</span> value for each action. Now, since our critic network is predicting a <span class="math notranslate nohighlight">\(V\)</span> value for
+each state, setting the <span class="math notranslate nohighlight">\(Q\)</span> calculated action-values as a target, will on average serve as a <span class="math notranslate nohighlight">\(V\)</span> state-value target.</p>
+</li>
+<li><p class="first">Instead of adapting the penalizing KL divergence coefficient used in PPO, the likelihood ratio
+<span class="math notranslate nohighlight">\(r_t(\theta) =\frac{\pi_{\theta}(a|s)}{\pi_{\theta_{old}}(a|s)}\)</span> is clipped, to achieve a similar effect.
+This is done by defining the policy’s loss function to be the minimum between the standard surrogate loss and an epsilon
+clipped surrogate loss:</p>
+<p><span class="math notranslate nohighlight">\(L^{CLIP}(\theta)=E_{t}[min(r_t(\theta)\cdot \hat{A}_t, clip(r_t(\theta), 1-\epsilon, 1+\epsilon) \cdot \hat{A}_t)]\)</span></p>
+</li>
+</ol>
+<dl class="class">
+<dt id="rl_coach.agents.clipped_ppo_agent.ClippedPPOAlgorithmParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.agents.clipped_ppo_agent.</code><code class="descname">ClippedPPOAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/clipped_ppo_agent.html#ClippedPPOAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.clipped_ppo_agent.ClippedPPOAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>policy_gradient_rescaler</strong> – (PolicyGradientRescaler)
+This represents how the critic will be used to update the actor. The critic value function is typically used
+to rescale the gradients calculated by the actor. There are several ways for doing this, such as using the
+advantage of the action, or the generalized advantage estimation (GAE) value.</li>
+<li><strong>gae_lambda</strong> – (float)
+The <span class="math notranslate nohighlight">\(\lambda\)</span> value is used within the GAE function in order to weight different bootstrap length
+estimations. Typical values are in the range 0.9-1, and define an exponential decay over the different
+n-step estimations.</li>
+<li><strong>clip_likelihood_ratio_using_epsilon</strong> – (float)
+If not None, the likelihood ratio between the current and new policy in the PPO loss function will be
+clipped to the range [1-clip_likelihood_ratio_using_epsilon, 1+clip_likelihood_ratio_using_epsilon].
+This is typically used in the Clipped PPO version of PPO, and should be set to None in regular PPO
+implementations.</li>
+<li><strong>value_targets_mix_fraction</strong> – (float)
+The targets for the value network are an exponential weighted moving average which uses this mix fraction to
+define how much of the new targets will be taken into account when calculating the loss.
+This value should be set to the range (0,1], where 1 means that only the new targets will be taken into account.</li>
+<li><strong>estimate_state_value_using_gae</strong> – (bool)
+If set to True, the state value will be estimated using the GAE technique.</li>
+<li><strong>use_kl_regularization</strong> – (bool)
+If set to True, the loss function will be regularized using the KL diveregence between the current and new
+policy, to bound the change of the policy during the network update.</li>
+<li><strong>beta_entropy</strong> – (float)
+An entropy regulaization term can be added to the loss function in order to control exploration. This term
+is weighted using the <span class="math notranslate nohighlight">\(eta\)</span> value defined by beta_entropy.</li>
+<li><strong>optimization_epochs</strong> – (int)
+For each training phase, the collected dataset will be used for multiple epochs, which are defined by the
+optimization_epochs value.</li>
+<li><strong>optimization_epochs</strong> – (Schedule)
+Can be used to define a schedule over the clipping of the likelihood ratio.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ddpg.html" class="btn btn-neutral float-right" title="Deep Deterministic Policy Gradient" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../imitation/cil.html" class="btn btn-neutral" title="Conditional Imitation Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -25,9 +25,12 @@ from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
 
 class BoxDiscretization(PartialDiscreteActionSpaceMap):
     """
-    Given a box action space, this is used to discretize the space.
-    The discretization is achieved by creating a grid in the space with num_bins_per_dimension bins per dimension in the
-    space. Each discrete action is mapped to a single N dimensional action in the BoxActionSpace action space.
+    Discretizes a continuous action space into a discrete action space, allowing the usage of
+    agents such as DQN for continuous environments such as MuJoCo. Given the number of bins to discretize into, the
+    original continuous action space is uniformly separated into the given number of bins, each mapped to a discrete
+    action index. Each discrete action is mapped to a single N dimensional action in the BoxActionSpace action space.
+    For example, if the original actions space is between -1 and 1 and 5 bins were selected, the new action
+    space will consist of 5 actions mapped to -1, -0.5, 0, 0.5 and 1.
     """
     def __init__(self, num_bins_per_dimension: Union[int, List[int]], force_int_bins=False):
         """

@@ -1,5 +1,5 @@
 from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
-from rl_coach.architectures.tensorflow_components.middlewares.lstm_middleware import LSTMMiddlewareParameters
+from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameters
 from rl_coach.base_parameters import VisualizationParameters, MiddlewareScheme, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection

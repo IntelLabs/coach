@@ -18,22 +18,12 @@ import numpy as np
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadParameters, normalized_columns_initializer
-from rl_coach.base_parameters import AgentParameters
+from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer
+from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import eps
-
-
-class PPOHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='tanh', name: str='ppo_head_params',
-                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
-                 loss_weight: float = 1.0, dense_layer=Dense):
-        super().__init__(parameterized_class=PPOHead, activation_function=activation_function, name=name,
-                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
-                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight)
 
 
 class PPOHead(Head):
@@ -137,11 +127,15 @@ class PPOHead(Head):
         self.input = [self.actions, self.old_policy_mean, self.old_policy_std]
         self.policy_mean = self.dense_layer(num_actions)(input_layer, name='policy_mean',
                                            kernel_initializer=normalized_columns_initializer(0.01))
-        if self.is_local:
+
+        # for local networks in distributed settings, we need to move variables we create manually to the
+        # tf.GraphKeys.LOCAL_VARIABLES collection, since the variable scope custom getter which is set in
+        # Architecture does not apply to them
+        if self.is_local and isinstance(self.ap.task_parameters, DistributedTaskParameters):
             self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32',
-                                            collections=[tf.GraphKeys.LOCAL_VARIABLES])
+                                             collections=[tf.GraphKeys.LOCAL_VARIABLES], name="policy_log_std")
         else:
-            self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32')
+            self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32', name="policy_log_std")
 
         self.policy_std = tf.tile(tf.exp(self.policy_logstd), [tf.shape(input_layer)[0], 1], name='policy_std')
 

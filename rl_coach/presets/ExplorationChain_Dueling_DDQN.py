@@ -1,5 +1,5 @@
 from rl_coach.agents.ddqn_agent import DDQNAgentParameters
-from rl_coach.architectures.tensorflow_components.heads.dueling_q_head import DuelingQHeadParameters
+from rl_coach.architectures.head_parameters import DuelingQHeadParameters
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.gym_environment import GymEnvironmentParameters

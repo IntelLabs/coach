@@ -13,16 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
 import time
+from typing import Any, List, Tuple, Dict
 
 import numpy as np
 import tensorflow as tf
 
 from rl_coach.architectures.architecture import Architecture
+from rl_coach.architectures.tensorflow_components.savers import GlobalVariableSaver
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import GradientClippingMethod
+from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import force_list, squeeze_list
+from rl_coach.utils import force_list, squeeze_list, start_shell_command_and_wait
 
 
 def variable_summaries(var):
@@ -145,6 +149,14 @@ class TensorFlowArchitecture(Architecture):
 
             # set the fetches for training
             self._set_initial_fetch_list()
+
+    def get_model(self) -> None:
+        """
+        Constructs the model using `network_parameters` and sets `input_embedders`, `middleware`,
+        `output_heads`, `outputs`, `losses`, `total_loss`, `adaptive_learning_rate_scheme`,
+        `current_learning_rate`, and `optimizer`
+        """
+        raise NotImplementedError
 
     def _set_initial_fetch_list(self):
         """
@@ -535,6 +547,26 @@ class TensorFlowArchitecture(Architecture):
             output = squeeze_list(output)
         return output
 
+    @staticmethod
+    def parallel_predict(sess: Any,
+                         network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) ->\
+            List[np.ndarray]:
+        """
+        :param sess: active session to use for prediction
+        :param network_input_tuples: tuple of network and corresponding input
+        :return: list of outputs from all networks
+        """
+        feed_dict = {}
+        fetches = []
+
+        for network, input in network_input_tuples:
+            feed_dict.update(network.create_feed_dict(input))
+            fetches += network.outputs
+
+        outputs = sess.run(fetches, feed_dict)
+
+        return outputs
+
     def train_on_batch(self, inputs, targets, scaler=1., additional_fetches=None, importance_weights=None):
         """
         Given a batch of examples and targets, runs a forward pass & backward pass and then applies the gradients
@@ -606,3 +638,53 @@ class TensorFlowArchitecture(Architecture):
         if self.middleware.__class__.__name__ == 'LSTMMiddleware':
             self.curr_rnn_c_in = self.middleware.c_init
             self.curr_rnn_h_in = self.middleware.h_init
+
+    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+        """
+        Collection of all checkpoints for the network (typically only one checkpoint)
+        :param parent_path_suffix: path suffix of the parent of the network
+            (e.g. could be name of level manager plus name of agent)
+        :return: checkpoint collection for the network
+        """
+        savers = SaverCollection()
+        if not self.distributed_training:
+            savers.add(GlobalVariableSaver(self.name))
+        return savers
+
+
+def save_onnx_graph(input_nodes, output_nodes, checkpoint_save_dir: str) -> None:
+    """
+    Given the input nodes and output nodes of the TF graph, save it as an onnx graph
+    This requires the TF graph and the weights checkpoint to be stored in the experiment directory.
+    It then freezes the graph (merging the graph and weights checkpoint), and converts it to ONNX.
+
+    :param input_nodes: A list of input nodes for the TF graph
+    :param output_nodes: A list of output nodes for the TF graph
+    :param checkpoint_save_dir: The directory to save the ONNX graph to
+    :return: None
+    """
+    import tf2onnx  # just to verify that tf2onnx is installed
+
+    # freeze graph
+    frozen_graph_path = os.path.join(checkpoint_save_dir, "frozen_graph.pb")
+    freeze_graph_command = [
+        "python -m tensorflow.python.tools.freeze_graph",
+        "--input_graph={}".format(os.path.join(checkpoint_save_dir, "graphdef.pb")),
+        "--input_binary=true",
+        "--output_node_names='{}'".format(','.join([o.split(":")[0] for o in output_nodes])),
+        "--input_checkpoint={}".format(tf.train.latest_checkpoint(checkpoint_save_dir)),
+        "--output_graph={}".format(frozen_graph_path)
+    ]
+    start_shell_command_and_wait(" ".join(freeze_graph_command))
+
+    # convert graph to onnx
+    onnx_graph_path = os.path.join(checkpoint_save_dir, "model.onnx")
+    convert_to_onnx_command = [
+        "python -m tf2onnx.convert",
+        "--input {}".format(frozen_graph_path),
+        "--inputs '{}'".format(','.join(input_nodes)),
+        "--outputs '{}'".format(','.join(output_nodes)),
+        "--output {}".format(onnx_graph_path),
+        "--verbose"
+    ]
+    start_shell_command_and_wait(" ".join(convert_to_onnx_command))

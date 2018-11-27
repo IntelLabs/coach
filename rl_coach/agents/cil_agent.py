@@ -17,18 +17,21 @@
 from typing import Union
 
 from rl_coach.agents.imitation_agent import ImitationAgent
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.architectures.tensorflow_components.heads.cil_head import RegressionHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import RegressionHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AgentParameters, MiddlewareScheme, NetworkParameters, AlgorithmParameters
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.non_episodic.balanced_experience_replay import BalancedExperienceReplayParameters
 
 
 class CILAlgorithmParameters(AlgorithmParameters):
+    """
+    :param state_key_with_the_class_index: (str)
+        The key of the state dictionary which corresponds to the value that will be used to control the class index.
+    """
     def __init__(self):
         super().__init__()
-        self.collect_new_data = False
         self.state_key_with_the_class_index = 'high_level_command'
 
 

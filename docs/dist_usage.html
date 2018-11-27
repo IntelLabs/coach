@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage - Distributed Coach &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Features" href="features/index.html" />
+    <link rel="prev" title="Usage" href="usage.html" />
+    <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Usage - Distributed Coach</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/dist_usage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage-distributed-coach">
+<span id="dist-coach-usage"></span><h1>Usage - Distributed Coach<a class="headerlink" href="#usage-distributed-coach" title="Permalink to this headline">¶</a></h1>
+<p>Coach supports the horizontal scale-out of rollout workers in distributed mode. For more information on the design and
+implementation of distributed Coach, see <a class="reference internal" href="design/horizontal_scaling.html#dist-coach-design"><span class="std std-ref">Distributed Coach - Horizontal Scale-Out</span></a>. In the rest of this section, we will describe how to
+get started with distributed Coach.</p>
+<div class="section" id="interfaces-and-implementations">
+<h2>Interfaces and Implementations<a class="headerlink" href="#interfaces-and-implementations" title="Permalink to this headline">¶</a></h2>
+<p>Coach uses three interfaces to orchestrate, schedule and manager the resources of workers it spawns in the distributed
+mode. These interfaces are the orchestrator, memory backend and the data store. Refer to <a class="reference internal" href="design/horizontal_scaling.html#dist-coach-design"><span class="std std-ref">Distributed Coach - Horizontal Scale-Out</span></a> for
+more information. The following implementation(s) are available for each interface:</p>
+<ul class="simple">
+<li><strong>Orchestrator</strong> - <a class="reference external" href="https://kubernetes.io">Kubernetes</a>.</li>
+<li><strong>Memory Backend</strong> - <a class="reference external" href="https://redis.io/topics/pubsub">Redis Pub/Sub</a>.</li>
+<li><strong>Data Store</strong> - <a class="reference external" href="https://aws.amazon.com/s3">S3</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Network_File_System">NFS</a>.</li>
+</ul>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Building and pushing containers - <a class="reference external" href="https://docs.docker.com/install/linux/docker-ce/ubuntu">Docker</a>.</li>
+<li>Container registry access for hosting container images - <a class="reference external" href="https://hub.docker.com">Docker Hub</a></li>
+<li>Using Kubernetes for orchestration - <a class="reference external" href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Kubernetes configuration</a>.</li>
+<li>Using S3 for storing policy checkpoints - <a class="reference external" href="https://aws.amazon.com/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks">AWS CLI &lt;https://docs.aws.amazon.com/cli/latest/userguide/installing.html&gt;_,
+`AWS credentials</a>
+and <a class="reference external" href="https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html">S3 bucket</a>.</li>
+</ul>
+</div>
+<div class="section" id="clone-the-repository">
+<h2>Clone the Repository<a class="headerlink" href="#clone-the-repository" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone git@github.com:NervanaSystems/coach.git
+$ <span class="nb">cd</span> coach
+</pre></div>
+</div>
+</div>
+<div class="section" id="build-container-image-and-push">
+<h2>Build Container Image and Push<a class="headerlink" href="#build-container-image-and-push" title="Permalink to this headline">¶</a></h2>
+<p>Create a directory <cite>docker</cite>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mkdir docker
+</pre></div>
+</div>
+<p>Create docker files in the <cite>docker</cite> directory.</p>
+<p>A sample base docker file (Dockerfile.base) would look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
+
+<span class="c1">################################</span>
+<span class="c1"># Install apt-get Requirements #</span>
+<span class="c1">################################</span>
+
+<span class="c1"># General</span>
+RUN apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get install -y python3-pip cmake zlib1g-dev python3-tk python-opencv <span class="se">\</span>
+    <span class="c1"># Boost libraries</span>
+    libboost-all-dev <span class="se">\</span>
+    <span class="c1"># Scipy requirements</span>
+    libblas-dev liblapack-dev libatlas-base-dev gfortran <span class="se">\</span>
+    <span class="c1"># Pygame requirements</span>
+    libsdl-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev <span class="se">\</span>
+    libsmpeg-dev libportmidi-dev libavformat-dev libswscale-dev <span class="se">\</span>
+    <span class="c1"># Dashboard</span>
+    dpkg-dev build-essential python3.5-dev libjpeg-dev  libtiff-dev libsdl1.2-dev libnotify-dev <span class="se">\</span>
+    freeglut3 freeglut3-dev libsm-dev libgtk2.0-dev libgtk-3-dev libwebkitgtk-dev libgtk-3-dev <span class="se">\</span>
+    libwebkitgtk-3.0-dev libgstreamer-plugins-base1.0-dev <span class="se">\</span>
+    <span class="c1"># Gym</span>
+    libav-tools libsdl2-dev swig cmake <span class="se">\</span>
+    <span class="c1"># Mujoco_py</span>
+    curl libgl1-mesa-dev libgl1-mesa-glx libglew-dev libosmesa6-dev software-properties-common <span class="se">\</span>
+    <span class="c1"># ViZDoom</span>
+    build-essential zlib1g-dev libsdl2-dev libjpeg-dev <span class="se">\</span>
+    nasm tar libbz2-dev libgtk2.0-dev cmake git libfluidsynth-dev libgme-dev <span class="se">\</span>
+    libopenal-dev timidity libwildmidi-dev unzip wget <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get clean autoclean <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    apt-get autoremove -y
+
+<span class="c1">############################</span>
+<span class="c1"># Install Pip Requirements #</span>
+<span class="c1">############################</span>
+RUN pip3 install --upgrade pip
+RUN pip3 install <span class="nv">setuptools</span><span class="o">==</span><span class="m">39</span>.1.0 <span class="o">&amp;&amp;</span> pip3 install pytest <span class="o">&amp;&amp;</span> pip3 install pytest-xdist
+
+RUN curl -o /usr/local/bin/patchelf https://s3-us-west-2.amazonaws.com/openai-sci-artifacts/manual-builds/patchelf_0.9_amd64.elf <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> chmod +x /usr/local/bin/patchelf
+</pre></div>
+</div>
+<p>A sample docker file for the gym environment would look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>FROM coach-base:master as builder
+
+<span class="c1"># prep gym and any of its related requirements.</span>
+RUN pip3 install gym<span class="o">[</span>atari,box2d,classic_control<span class="o">]==</span><span class="m">0</span>.10.5
+
+<span class="c1"># add coach source starting with files that could trigger</span>
+<span class="c1"># re-build if dependencies change.</span>
+RUN mkdir /root/src
+COPY setup.py /root/src/.
+COPY requirements.txt /root/src/.
+RUN pip3 install -r /root/src/requirements.txt
+
+FROM coach-base:master
+WORKDIR /root/src
+COPY --from<span class="o">=</span>builder /root/.cache /root/.cache
+COPY setup.py /root/src/.
+COPY requirements.txt /root/src/.
+COPY README.md /root/src/.
+RUN pip3 install gym<span class="o">[</span>atari,box2d,classic_control<span class="o">]==</span><span class="m">0</span>.10.5 <span class="o">&amp;&amp;</span> pip3 install -e .<span class="o">[</span>all<span class="o">]</span> <span class="o">&amp;&amp;</span> rm -rf /root/.cache
+COPY . /root/src
+</pre></div>
+</div>
+<p>A sample docker file for the Mujoco environment would look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>FROM coach-base:master as builder
+
+<span class="c1"># prep mujoco and any of its related requirements.</span>
+<span class="c1"># Mujoco</span>
+RUN mkdir -p ~/.mujoco <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> wget https://www.roboti.us/download/mjpro150_linux.zip -O mujoco.zip <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> unzip -n mujoco.zip -d ~/.mujoco <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> rm mujoco.zip
+ARG MUJOCO_KEY
+ENV <span class="nv">MUJOCO_KEY</span><span class="o">=</span><span class="nv">$MUJOCO_KEY</span>
+ENV LD_LIBRARY_PATH /root/.mujoco/mjpro150/bin:<span class="nv">$LD_LIBRARY_PATH</span>
+RUN <span class="nb">echo</span> <span class="nv">$MUJOCO_KEY</span> <span class="p">|</span> base64 --decode &gt; /root/.mujoco/mjkey.txt
+RUN pip3 install mujoco_py
+
+<span class="c1"># add coach source starting with files that could trigger</span>
+<span class="c1"># re-build if dependencies change.</span>
+RUN mkdir /root/src
+COPY setup.py /root/src/.
+COPY requirements.txt /root/src/.
+RUN pip3 install -r /root/src/requirements.txt
+
+FROM coach-base:master
+WORKDIR /root/src
+COPY --from<span class="o">=</span>builder /root/.mujoco /root/.mujoco
+ENV LD_LIBRARY_PATH /root/.mujoco/mjpro150/bin:<span class="nv">$LD_LIBRARY_PATH</span>
+COPY --from<span class="o">=</span>builder /root/.cache /root/.cache
+COPY setup.py /root/src/.
+COPY requirements.txt /root/src/.
+COPY README.md /root/src/.
+RUN pip3 install mujoco_py <span class="o">&amp;&amp;</span> pip3 install -e .<span class="o">[</span>all<span class="o">]</span> <span class="o">&amp;&amp;</span> rm -rf /root/.cache
+COPY . /root/src
+</pre></div>
+</div>
+<p>A sample docker file for the ViZDoom environment would look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>FROM coach-base:master as builder
+
+<span class="c1"># prep vizdoom and any of its related requirements.</span>
+RUN pip3 install vizdoom
+
+<span class="c1"># add coach source starting with files that could trigger</span>
+<span class="c1"># re-build if dependencies change.</span>
+RUN mkdir /root/src
+COPY setup.py /root/src/.
+COPY requirements.txt /root/src/.
+RUN pip3 install -r /root/src/requirements.txt
+
+FROM coach-base:master
+WORKDIR /root/src
+COPY --from<span class="o">=</span>builder /root/.cache /root/.cache
+COPY setup.py /root/src/.
+COPY requirements.txt /root/src/.
+COPY README.md /root/src/.
+RUN pip3 install vizdoom <span class="o">&amp;&amp;</span> pip3 install -e .<span class="o">[</span>all<span class="o">]</span> <span class="o">&amp;&amp;</span> rm -rf /root/.cache
+COPY . /root/src
+</pre></div>
+</div>
+<p>Build the base container. Make sure you are in the Coach root directory before building.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker build -t coach-base:master -f docker/Dockerfile.base .
+</pre></div>
+</div>
+<p>If you would like to use the Mujoco environment, save this key as an environment variable. Replace <cite>&lt;mujoco_key&gt;</cite> with the
+contents of your mujoco key.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">export</span> <span class="nv">MUJOCO_KEY</span><span class="o">=</span>&lt;mujoco_key&gt;
+</pre></div>
+</div>
+<p>Build the container for your environment.
+Replace <cite>&lt;env&gt;</cite> with your choice of environment. The choices are <cite>gym</cite>, <cite>mujoco</cite> and <cite>doom</cite>.
+Replace <cite>&lt;user-name&gt;</cite>, <cite>&lt;image-name&gt;</cite> and <cite>&lt;tag&gt;</cite> with appropriate values.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker build --build-arg <span class="nv">MUJOCO_KEY</span><span class="o">=</span><span class="si">${</span><span class="nv">MUJOCO_KEY</span><span class="si">}</span> -t &lt;user-name&gt;/&lt;image-name&gt;:&lt;tag&gt; -f docker/Dockerfile.&lt;env&gt; .
+</pre></div>
+</div>
+<p>Push the container to a registry of your choice. Replace <cite>&lt;user-name&gt;</cite>, <cite>&lt;image-name&gt;</cite> and <cite>&lt;tag&gt;</cite> with appropriate values.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker push &lt;user-name&gt;/&lt;image-name&gt;:&lt;tag&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-config-file">
+<h2>Create a Config file<a class="headerlink" href="#create-a-config-file" title="Permalink to this headline">¶</a></h2>
+<p>Add the following contents to file.
+Replace <cite>&lt;user-name&gt;</cite>, <cite>&lt;image-name&gt;</cite>, <cite>&lt;tag&gt;</cite>, <cite>&lt;bucket-name&gt;</cite> and <cite>&lt;path-to-aws-credentials&gt;</cite> with appropriate values.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>coach<span class="o">]</span>
+<span class="nv">image</span> <span class="o">=</span> &lt;user-name&gt;/&lt;image-name&gt;:&lt;tag&gt;
+<span class="nv">memory_backend</span> <span class="o">=</span> redispubsub
+<span class="nv">data_store</span> <span class="o">=</span> s3
+<span class="nv">s3_end_point</span> <span class="o">=</span> s3.amazonaws.com
+<span class="nv">s3_bucket_name</span> <span class="o">=</span> &lt;bucket-name&gt;
+<span class="nv">s3_creds_file</span> <span class="o">=</span> &lt;path-to-aws-credentials&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-distributed-coach">
+<h2>Run Distributed Coach<a class="headerlink" href="#run-distributed-coach" title="Permalink to this headline">¶</a></h2>
+<p>The following command will run distributed Coach with CartPole_ClippedPPO preset, Redis Pub/Sub as the memory backend, S3 as the data store in Kubernetes
+with three rollout workers.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python3 rl_coach/coach.py -p CartPole_ClippedPPO <span class="se">\</span>
+-dc <span class="se">\</span>
+-e &lt;experiment-name&gt; <span class="se">\</span>
+-n <span class="m">3</span> <span class="se">\</span>
+-dcp &lt;path-to-config-file&gt;
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="features/index.html" class="btn btn-neutral float-right" title="Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage.html" class="btn btn-neutral" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

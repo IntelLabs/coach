@@ -1,16 +1,15 @@
 import os
 
 import numpy as np
-import tensorflow as tf
 # make sure you have $CARLA_ROOT/PythonClient in your PYTHONPATH
 from carla.driving_benchmark.experiment_suites import CoRL2017
 from rl_coach.logger import screen
 
 from rl_coach.agents.cil_agent import CILAgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.architectures.tensorflow_components.heads.cil_head import RegressionHeadParameters
-from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense, BatchnormActivationDropout
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import RegressionHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
+from rl_coach.architectures.layers import Conv2d, Dense, BatchnormActivationDropout
 from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.carla_environment import CarlaEnvironmentParameters
@@ -46,34 +45,34 @@ agent_params.network_wrappers['main'].input_embedders_parameters = {
     'CameraRGB': InputEmbedderParameters(
         scheme=[
             Conv2d(32, 5, 2),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Conv2d(32, 3, 1),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Conv2d(64, 3, 2),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Conv2d(64, 3, 1),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Conv2d(128, 3, 2),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Conv2d(128, 3, 1),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Conv2d(256, 3, 1),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Conv2d(256, 3, 1),
-            BatchnormActivationDropout(batchnorm=True, activation_function=tf.tanh),
+            BatchnormActivationDropout(batchnorm=True, activation_function='tanh'),
             Dense(512),
-            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.3),
+            BatchnormActivationDropout(activation_function='tanh', dropout_rate=0.3),
             Dense(512),
-            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.3)
+            BatchnormActivationDropout(activation_function='tanh', dropout_rate=0.3)
         ],
         activation_function='none'  # we define the activation function for each layer explicitly
     ),
     'measurements': InputEmbedderParameters(
          scheme=[
             Dense(128),
-            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5),
+            BatchnormActivationDropout(activation_function='tanh', dropout_rate=0.5),
             Dense(128),
-            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5)
+            BatchnormActivationDropout(activation_function='tanh', dropout_rate=0.5)
          ],
          activation_function='none'  # we define the activation function for each layer explicitly
     )
@@ -84,7 +83,7 @@ agent_params.network_wrappers['main'].middleware_parameters = \
     FCMiddlewareParameters(
         scheme=[
             Dense(512),
-            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5)
+            BatchnormActivationDropout(activation_function='tanh', dropout_rate=0.5)
         ],
         activation_function='none'
     )
@@ -94,9 +93,9 @@ agent_params.network_wrappers['main'].heads_parameters = [
     RegressionHeadParameters(
         scheme=[
             Dense(256),
-            BatchnormActivationDropout(activation_function=tf.tanh, dropout_rate=0.5),
+            BatchnormActivationDropout(activation_function='tanh', dropout_rate=0.5),
             Dense(256),
-            BatchnormActivationDropout(activation_function=tf.tanh)
+            BatchnormActivationDropout(activation_function='tanh')
         ],
         num_output_head_copies=4  # follow lane, left, right, straight
     )

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,12 +22,11 @@ import numpy as np
 
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.policy_optimization_agent import PolicyGradientRescaler
-from rl_coach.architectures.tensorflow_components.heads.ppo_head import PPOHeadParameters
-from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
     AgentParameters, DistributedTaskParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.core_types import EnvironmentSteps, Batch
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
@@ -64,6 +63,51 @@ class PPOActorNetworkParameters(NetworkParameters):
 
 
 class PPOAlgorithmParameters(AlgorithmParameters):
+    """
+    :param policy_gradient_rescaler: (PolicyGradientRescaler)
+        This represents how the critic will be used to update the actor. The critic value function is typically used
+        to rescale the gradients calculated by the actor. There are several ways for doing this, such as using the
+        advantage of the action, or the generalized advantage estimation (GAE) value.
+
+    :param gae_lambda: (float)
+        The :math:`\lambda` value is used within the GAE function in order to weight different bootstrap length
+        estimations. Typical values are in the range 0.9-1, and define an exponential decay over the different
+        n-step estimations.
+
+    :param target_kl_divergence: (float)
+        The target kl divergence between the current policy distribution and the new policy. PPO uses a heuristic to
+        bring the KL divergence to this value, by adding a penalty if the kl divergence is higher.
+
+    :param initial_kl_coefficient: (float)
+        The initial weight that will be given to the KL divergence between the current and the new policy in the
+        regularization factor.
+
+    :param high_kl_penalty_coefficient: (float)
+        The penalty that will be given for KL divergence values which are highes than what was defined as the target.
+
+    :param clip_likelihood_ratio_using_epsilon: (float)
+        If not None, the likelihood ratio between the current and new policy in the PPO loss function will be
+        clipped to the range [1-clip_likelihood_ratio_using_epsilon, 1+clip_likelihood_ratio_using_epsilon].
+        This is typically used in the Clipped PPO version of PPO, and should be set to None in regular PPO
+        implementations.
+
+    :param value_targets_mix_fraction: (float)
+        The targets for the value network are an exponential weighted moving average which uses this mix fraction to
+        define how much of the new targets will be taken into account when calculating the loss.
+        This value should be set to the range (0,1], where 1 means that only the new targets will be taken into account.
+
+    :param estimate_state_value_using_gae: (bool)
+        If set to True, the state value will be estimated using the GAE technique.
+
+    :param use_kl_regularization: (bool)
+        If set to True, the loss function will be regularized using the KL diveregence between the current and new
+        policy, to bound the change of the policy during the network update.
+
+    :param beta_entropy: (float)
+        An entropy regulaization term can be added to the loss function in order to control exploration. This term
+        is weighted using the :math:`\beta` value defined by beta_entropy.
+
+    """
     def __init__(self):
         super().__init__()
         self.policy_gradient_rescaler = PolicyGradientRescaler.GAE
@@ -74,10 +118,10 @@ class PPOAlgorithmParameters(AlgorithmParameters):
         self.clip_likelihood_ratio_using_epsilon = None
         self.value_targets_mix_fraction = 0.1
         self.estimate_state_value_using_gae = True
-        self.step_until_collecting_full_episodes = True
         self.use_kl_regularization = True
         self.beta_entropy = 0.01
         self.num_consecutive_playing_steps = EnvironmentSteps(5000)
+        self.act_for_full_episodes = True
 
 
 class PPOAgentParameters(AgentParameters):
@@ -113,11 +157,11 @@ class PPOAgent(ActorCriticAgent):
         # current_states_with_timestep = self.concat_state_and_timestep(batch)
 
         current_state_values = self.networks['critic'].online_network.predict(batch.states(network_keys)).squeeze()
-
+        total_returns = batch.n_step_discounted_rewards()
         # calculate advantages
         advantages = []
         if self.policy_gradient_rescaler == PolicyGradientRescaler.A_VALUE:
-            advantages = batch.total_returns() - current_state_values
+            advantages = total_returns - current_state_values
         elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
             # get bootstraps
             episode_start_idx = 0
@@ -156,6 +200,7 @@ class PPOAgent(ActorCriticAgent):
         # current_states_with_timestep = self.concat_state_and_timestep(dataset)
 
         mix_fraction = self.ap.algorithm.value_targets_mix_fraction
+        total_returns = batch.n_step_discounted_rewards(True)
         for j in range(epochs):
             curr_batch_size = batch.size
             if self.networks['critic'].online_network.optimizer_type != 'LBFGS':
@@ -166,7 +211,7 @@ class PPOAgent(ActorCriticAgent):
                     k: v[i * curr_batch_size:(i + 1) * curr_batch_size]
                     for k, v in batch.states(network_keys).items()
                 }
-                total_return_batch = batch.total_returns(True)[i * curr_batch_size:(i + 1) * curr_batch_size]
+                total_return_batch = total_returns[i * curr_batch_size:(i + 1) * curr_batch_size]
                 old_policy_values = force_list(self.networks['critic'].target_network.predict(
                     current_states_batch).squeeze())
                 if self.networks['critic'].online_network.optimizer_type != 'LBFGS':
@@ -312,7 +357,7 @@ class PPOAgent(ActorCriticAgent):
 
     def train(self):
         loss = 0
-        if self._should_train(wait_for_full_episode=True):
+        if self._should_train():
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -344,3 +389,4 @@ class PPOAgent(ActorCriticAgent):
     def get_prediction(self, states):
         tf_input_state = self.prepare_batch_for_inference(states, "actor")
         return self.networks['actor'].online_network.predict(tf_input_state)
+

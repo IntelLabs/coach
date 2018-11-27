@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,12 +23,11 @@ import numpy as np
 
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.policy_optimization_agent import PolicyGradientRescaler
-from rl_coach.architectures.tensorflow_components.heads.ppo_head import PPOHeadParameters
-from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
     AgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import EnvironmentSteps, Batch, EnvResponse, StateType
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.categorical import CategoricalParameters
@@ -59,6 +58,47 @@ class ClippedPPONetworkParameters(NetworkParameters):
 
 
 class ClippedPPOAlgorithmParameters(AlgorithmParameters):
+    """
+    :param policy_gradient_rescaler: (PolicyGradientRescaler)
+        This represents how the critic will be used to update the actor. The critic value function is typically used
+        to rescale the gradients calculated by the actor. There are several ways for doing this, such as using the
+        advantage of the action, or the generalized advantage estimation (GAE) value.
+
+    :param gae_lambda: (float)
+        The :math:`\lambda` value is used within the GAE function in order to weight different bootstrap length
+        estimations. Typical values are in the range 0.9-1, and define an exponential decay over the different
+        n-step estimations.
+
+    :param clip_likelihood_ratio_using_epsilon: (float)
+        If not None, the likelihood ratio between the current and new policy in the PPO loss function will be
+        clipped to the range [1-clip_likelihood_ratio_using_epsilon, 1+clip_likelihood_ratio_using_epsilon].
+        This is typically used in the Clipped PPO version of PPO, and should be set to None in regular PPO
+        implementations.
+
+    :param value_targets_mix_fraction: (float)
+        The targets for the value network are an exponential weighted moving average which uses this mix fraction to
+        define how much of the new targets will be taken into account when calculating the loss.
+        This value should be set to the range (0,1], where 1 means that only the new targets will be taken into account.
+
+    :param estimate_state_value_using_gae: (bool)
+        If set to True, the state value will be estimated using the GAE technique.
+
+    :param use_kl_regularization: (bool)
+        If set to True, the loss function will be regularized using the KL diveregence between the current and new
+        policy, to bound the change of the policy during the network update.
+
+    :param beta_entropy: (float)
+        An entropy regulaization term can be added to the loss function in order to control exploration. This term
+        is weighted using the :math:`\beta` value defined by beta_entropy.
+
+    :param optimization_epochs: (int)
+        For each training phase, the collected dataset will be used for multiple epochs, which are defined by the
+        optimization_epochs value.
+
+    :param optimization_epochs: (Schedule)
+        Can be used to define a schedule over the clipping of the likelihood ratio.
+
+    """
     def __init__(self):
         super().__init__()
         self.num_episodes_in_experience_replay = 1000000
@@ -67,12 +107,12 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
         self.use_kl_regularization = False
         self.clip_likelihood_ratio_using_epsilon = 0.2
         self.estimate_state_value_using_gae = True
-        self.step_until_collecting_full_episodes = True
         self.beta_entropy = 0.01  # should be 0 for mujoco
         self.num_consecutive_playing_steps = EnvironmentSteps(2048)
         self.optimization_epochs = 10
         self.normalization_stats = None
         self.clipping_decay_schedule = ConstantSchedule(1)
+        self.act_for_full_episodes = True
 
 
 class ClippedPPOAgentParameters(AgentParameters):
@@ -117,8 +157,10 @@ class ClippedPPOAgent(ActorCriticAgent):
         # calculate advantages
         advantages = []
         value_targets = []
+        total_returns = batch.n_step_discounted_rewards()
+
         if self.policy_gradient_rescaler == PolicyGradientRescaler.A_VALUE:
-            advantages = batch.total_returns() - current_state_values
+            advantages = total_returns - current_state_values
         elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
             # get bootstraps
             episode_start_idx = 0
@@ -182,11 +224,13 @@ class ClippedPPOAgent(ActorCriticAgent):
                 result = self.networks['main'].target_network.predict({k: v[start:end] for k, v in batch.states(network_keys).items()})
                 old_policy_distribution = result[1:]
 
+                total_returns = batch.n_step_discounted_rewards(expand_dims=True)
+
                 # calculate gradients and apply on both the local policy network and on the global policy network
                 if self.ap.algorithm.estimate_state_value_using_gae:
                     value_targets = np.expand_dims(gae_based_value_targets, -1)
                 else:
-                    value_targets = batch.total_returns(expand_dims=True)[start:end]
+                    value_targets = total_returns[start:end]
 
                 inputs = copy.copy({k: v[start:end] for k, v in batch.states(network_keys).items()})
                 inputs['output_1_0'] = actions
@@ -252,7 +296,7 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.call_memory('clean')
 
     def train(self):
-        if self._should_train(wait_for_full_episode=True):
+        if self._should_train():
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -288,3 +332,4 @@ class ClippedPPOAgent(ActorCriticAgent):
     def choose_action(self, curr_state):
         self.ap.algorithm.clipping_decay_schedule.step()
         return super().choose_action(curr_state)
+

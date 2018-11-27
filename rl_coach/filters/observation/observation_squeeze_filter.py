@@ -23,9 +23,12 @@ from rl_coach.spaces import ObservationSpace
 
 class ObservationSqueezeFilter(ObservationFilter):
     """
-    Squeezes the observation so to eliminate redundant axes.
+    Removes redundant axes from the observation, which are axes with a dimension of 1.
     """
     def __init__(self, axis: int = None):
+        """
+        :param axis: Specifies which axis to remove. If set to None, all the axes of size 1 will be removed.
+        """
         super().__init__()
         self.axis = axis
 

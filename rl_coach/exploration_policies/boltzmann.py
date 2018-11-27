@@ -36,6 +36,12 @@ class BoltzmannParameters(ExplorationParameters):
 
 
 class Boltzmann(ExplorationPolicy):
+    """
+    The Boltzmann exploration policy is intended for discrete action spaces. It assumes that each of the possible
+    actions has some value assigned to it (such as the Q value), and uses a softmax function to convert these values
+    into a distribution over the actions. It then samples the action for playing out of the calculated distribution.
+    An additional temperature schedule can be given by the user, and will control the steepness of the softmax function.
+    """
     def __init__(self, action_space: ActionSpace, temperature_schedule: Schedule):
         """
         :param action_space: the action space used by the environment

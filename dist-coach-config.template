@@ -1,0 +1,7 @@
+[coach]
+image = <insert-image-name>
+memory_backend = redispubsub
+data_store = s3
+s3_end_point = s3.amazonaws.com
+s3_bucket_name = <insert-s3-bucket-name>
+s3_creds_file = <insert-path-for-s3-creds-file>

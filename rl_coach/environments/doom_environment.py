@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -124,16 +124,50 @@ class DoomEnvironment(Environment):
 
     def __init__(self, level: LevelSelection, seed: int, frame_skip: int, human_control: bool,
                  custom_reward_threshold: Union[int, float], visualization_parameters: VisualizationParameters,
-                 cameras: List[CameraTypes], **kwargs):
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters)
+                 cameras: List[CameraTypes], target_success_rate: float=1.0, **kwargs):
+        """
+        :param level: (str)
+            A string representing the doom level to run. This can also be a LevelSelection object.
+            This should be one of the levels defined in the DoomLevel enum. For example, HEALTH_GATHERING.
+
+        :param seed: (int)
+            A seed to use for the random number generator when running the environment.
+
+        :param frame_skip: (int)
+            The number of frames to skip between any two actions given by the agent. The action will be repeated
+            for all the skipped frames.
+
+        :param human_control: (bool)
+            A flag that allows controlling the environment using the keyboard keys.
+
+        :param custom_reward_threshold: (float)
+            Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.
+
+        :param visualization_parameters: (VisualizationParameters)
+            The parameters used for visualizing the environment, such as the render flag, storing videos etc.
+
+        :param cameras: (List[CameraTypes])
+            A list of camera types to use as observation in the state returned from the environment.
+            Each camera should be an enum from CameraTypes, and there are several options like an RGB observation,
+            a depth map, a segmentation map, and a top down map of the enviornment.
+
+		:param target_success_rate: (float)
+			Stop experiment if given target success rate was achieved.
+
+        """
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
 
         self.cameras = cameras
 
         # load the emulator with the required level
         self.level = DoomLevel[level.upper()]
         local_scenarios_path = path.join(os.path.dirname(os.path.realpath(__file__)), 'doom')
-        self.scenarios_dir = local_scenarios_path if 'COACH_LOCAL' in level \
-            else path.join(environ.get('VIZDOOM_ROOT'), 'scenarios')
+        if 'COACH_LOCAL' in level:
+            self.scenarios_dir = local_scenarios_path
+        elif 'VIZDOOM_ROOT' in environ:
+            self.scenarios_dir = path.join(environ.get('VIZDOOM_ROOT'), 'scenarios')
+        else:
+            self.scenarios_dir = path.join(os.path.dirname(os.path.realpath(vizdoom.__file__)), 'scenarios')
 
         self.game = vizdoom.DoomGame()
         self.game.load_config(path.join(self.scenarios_dir, self.level.value))
@@ -196,6 +230,8 @@ class DoomEnvironment(Environment):
             image = self.get_rendered_image()
             self.renderer.create_screen(image.shape[1], image.shape[0])
 
+        self.target_success_rate = target_success_rate
+
     def _update_state(self):
         # extract all data from the current state
         state = self.game.get_state()
@@ -227,3 +263,6 @@ class DoomEnvironment(Environment):
         image = [self.state[camera.value[0]] for camera in self.cameras]
         image = np.vstack(image)
         return image
+
+    def get_target_success_rate(self) -> float:
+        return self.target_success_rate

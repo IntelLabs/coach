@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Double DQN &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Deep Q Networks" href="dqn.html" />
+    <link rel="prev" title="Direct Future Prediction" href="../other/dfp.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Agents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ac.html">Actor-Critic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/bc.html">Behavioral Cloning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bs_dqn.html">Bootstrapped DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categorical_dqn.html">Categorical DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/cil.html">Conditional Imitation Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../other/dfp.html">Direct Future Prediction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Double DQN</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#network-structure">Network Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-description">Algorithm Description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training-the-network">Training the network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dqn.html">Deep Q Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dueling_dqn.html">Dueling DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mmc.html">Mixed Monte Carlo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="n_step.html">N-Step Q Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="naf.html">Normalized Advantage Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nec.html">Neural Episodic Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pal.html">Persistent Advantage Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/pg.html">Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ppo.html">Proximal Policy Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rainbow.html">Rainbow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_dqn.html">Quantile Regression DQN</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Agents</a> &raquo;</li>
+        
+      <li>Double DQN</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/components/agents/value_optimization/double_dqn.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="double-dqn">
+<h1>Double DQN<a class="headerlink" href="#double-dqn" title="Permalink to this headline">¶</a></h1>
+<p><strong>Actions space:</strong> Discrete</p>
+<p><strong>References:</strong> <a class="reference external" href="https://arxiv.org/abs/1509.06461.pdf">Deep Reinforcement Learning with Double Q-learning</a></p>
+<div class="section" id="network-structure">
+<h2>Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h2>
+<img alt="../../../_images/dqn.png" class="align-center" src="../../../_images/dqn.png" />
+</div>
+<div class="section" id="algorithm-description">
+<h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="training-the-network">
+<h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Sample a batch of transitions from the replay buffer.</li>
+<li>Using the next states from the sampled batch, run the online network in order to find the $Q$ maximizing
+action <span class="math notranslate nohighlight">\(argmax_a Q(s_{t+1},a)\)</span>. For these actions, use the corresponding next states and run the target
+network to calculate <span class="math notranslate nohighlight">\(Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span>.</li>
+<li>In order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss),
+use the current states from the sampled batch, and run the online network to get the current Q values predictions.
+Set those values as the targets for the actions that were not actually played.</li>
+<li>For each action that was played, use the following equation for calculating the targets of the network:
+<span class="math notranslate nohighlight">\(y_t=r(s_t,a_t )+\gamma \cdot Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span></li>
+<li>Finally, train the online network using the current states as inputs, and with the aforementioned targets.</li>
+<li>Once in every few thousand steps, copy the weights from the online network to the target network.</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dqn.html" class="btn btn-neutral float-right" title="Deep Q Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../other/dfp.html" class="btn btn-neutral" title="Direct Future Prediction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -66,10 +66,42 @@ control_suite_envs = {':'.join(env): ':'.join(env) for env in suite.BENCHMARKING
 # Environment
 class ControlSuiteEnvironment(Environment):
     def __init__(self, level: LevelSelection, frame_skip: int, visualization_parameters: VisualizationParameters,
-                 seed: Union[None, int]=None, human_control: bool=False,
+                 target_success_rate: float=1.0, seed: Union[None, int]=None, human_control: bool=False,
                  observation_type: ObservationType=ObservationType.Measurements,
                  custom_reward_threshold: Union[int, float]=None, **kwargs):
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters)
+        """
+        :param level: (str)
+            A string representing the control suite level to run. This can also be a LevelSelection object.
+            For example, cartpole:swingup.
+
+        :param frame_skip: (int)
+            The number of frames to skip between any two actions given by the agent. The action will be repeated
+            for all the skipped frames.
+
+        :param visualization_parameters: (VisualizationParameters)
+            The parameters used for visualizing the environment, such as the render flag, storing videos etc.
+
+        :param target_success_rate: (float)
+            Stop experiment if given target success rate was achieved.
+
+        :param seed: (int)
+            A seed to use for the random number generator when running the environment.
+
+        :param human_control: (bool)
+            A flag that allows controlling the environment using the keyboard keys.
+
+        :param observation_type: (ObservationType)
+            An enum which defines which observation to use. The current options are to use:
+            * Measurements only - a vector of joint torques and similar measurements
+            * Image only - an image of the environment as seen by a camera attached to the simulator
+            * Measurements & Image - both type of observations will be returned in the state using the keys
+            'measurements' and 'pixels' respectively.
+
+        :param custom_reward_threshold: (float)
+            Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.
+
+        """
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
 
         self.observation_type = observation_type
 
@@ -126,6 +158,8 @@ class ControlSuiteEnvironment(Environment):
             if not self.native_rendering:
                 self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
+        self.target_success_rate = target_success_rate
+
     def _update_state(self):
         self.state = {}
 
@@ -160,3 +194,6 @@ class ControlSuiteEnvironment(Environment):
 
     def get_rendered_image(self):
         return self.env.physics.render(camera_id=0)
+
+    def get_target_success_rate(self) -> float:
+        return self.target_success_rate

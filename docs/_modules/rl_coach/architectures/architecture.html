@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.architectures.architecture &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.architectures.architecture</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.architectures.architecture</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation </span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">AgentParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.saver</span> <span class="k">import</span> <span class="n">SaverCollection</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">SpacesDefinition</span>
+
+
+<div class="viewcode-block" id="Architecture"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture">[docs]</a><span class="k">class</span> <span class="nc">Architecture</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Architecture.construct"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.construct">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span><span class="n">variable_scope</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">devices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Architecture&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a network class using the provided variable scope and on requested devices</span>
+<span class="sd">        :param variable_scope: string specifying variable scope under which to create network variables</span>
+<span class="sd">        :param devices: list of devices (can be list of Device objects, or string for TF distributed)</span>
+<span class="sd">        :param args: all other arguments for class initializer</span>
+<span class="sd">        :param kwargs: all other keyword arguments for class initializer</span>
+<span class="sd">        :return: an object which is a child of Architecture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_parameters</span><span class="p">:</span> <span class="n">AgentParameters</span><span class="p">,</span> <span class="n">spaces</span><span class="p">:</span> <span class="n">SpacesDefinition</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a neural network &#39;architecture&#39;, that can be trained and used for inference.</span>
+
+<span class="sd">        :param agent_parameters: the agent parameters</span>
+<span class="sd">        :param spaces: the spaces (observation, action, etc.) definition of the agent</span>
+<span class="sd">        :param name: the name of the network</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span> <span class="o">=</span> <span class="n">spaces</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_wrapper_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># e.g. &#39;main/online&#39; --&gt; &#39;main&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">full_name_id</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">network_wrapper_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ap</span> <span class="o">=</span> <span class="n">agent_parameters</span>
+
+<div class="viewcode-block" id="Architecture.predict"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                <span class="n">outputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">squeeze_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="n">initial_feed_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given input observations, use the model to make predictions (e.g. action or value).</span>
+
+<span class="sd">        :param inputs: current state (i.e. observations, measurements, goals, etc.)</span>
+<span class="sd">            (e.g. `{&#39;observation&#39;: numpy.ndarray}` of shape (batch_size, observation_space_size))</span>
+<span class="sd">        :param outputs: list of outputs to return. Return all outputs if unspecified. Type of the list elements</span>
+<span class="sd">            depends on the framework backend.</span>
+<span class="sd">        :param squeeze_output: call squeeze_list on output before returning if True</span>
+<span class="sd">        :param initial_feed_dict: a dictionary of extra inputs for forward pass.</span>
+<span class="sd">        :return: predictions of action or value of shape (batch_size, action_space_size) for action predictions)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.parallel_predict"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.parallel_predict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parallel_predict</span><span class="p">(</span><span class="n">sess</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+                         <span class="n">network_input_tuples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="s1">&#39;Architecture&#39;</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]])</span> <span class="o">-&gt;</span> \
+            <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param sess: active session to use for prediction</span>
+<span class="sd">        :param network_input_tuples: tuple of network and corresponding input</span>
+<span class="sd">        :return: list or tuple of outputs from all networks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.train_on_batch"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.train_on_batch">[docs]</a>    <span class="k">def</span> <span class="nf">train_on_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                       <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                       <span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                       <span class="n">scaler</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                       <span class="n">additional_fetches</span><span class="p">:</span> <span class="nb">list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">importance_weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a batch of inputs (e.g. states) and targets (e.g. discounted rewards), takes a training step: i.e. runs a</span>
+<span class="sd">        forward pass and backward pass of the network, accumulates the gradients and applies an optimization step to</span>
+<span class="sd">        update the weights.</span>
+<span class="sd">        Calls `accumulate_gradients` followed by `apply_and_reset_gradients`.</span>
+<span class="sd">        Note: Currently an unused method.</span>
+
+<span class="sd">        :param inputs: typically the environment states (but can also contain other data necessary for loss).</span>
+<span class="sd">            (e.g. `{&#39;observation&#39;: numpy.ndarray}` with `observation` of shape (batch_size, observation_space_size) or</span>
+<span class="sd">            (batch_size, observation_space_size, stack_size) or</span>
+<span class="sd">            `{&#39;observation&#39;: numpy.ndarray, &#39;output_0_0&#39;: numpy.ndarray}` with `output_0_0` of shape (batch_size,))</span>
+<span class="sd">        :param targets: target values of shape (batch_size, ). For example discounted rewards for value network</span>
+<span class="sd">            for calculating the value-network loss would be a target. Length of list and order of arrays in</span>
+<span class="sd">            the list matches that of network losses which are defined by network parameters</span>
+<span class="sd">        :param scaler: value to scale gradients by before optimizing network weights</span>
+<span class="sd">        :param additional_fetches: list of additional values to fetch and return. The type of each list</span>
+<span class="sd">            element is framework dependent.</span>
+<span class="sd">        :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.</span>
+<span class="sd">        :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors</span>
+<span class="sd">            total_loss (float): sum of all head losses</span>
+<span class="sd">            losses (list of float): list of all losses. The order is list of target losses followed by list</span>
+<span class="sd">                of regularization losses. The specifics of losses is dependant on the network parameters</span>
+<span class="sd">                (number of heads, etc.)</span>
+<span class="sd">            norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied</span>
+<span class="sd">            fetched_tensors: all values for additional_fetches</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.get_weights"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.get_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets model weights as a list of ndarrays. It is used for synchronizing weight between two identical networks.</span>
+
+<span class="sd">        :return: list weights as ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.set_weights"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.set_weights">[docs]</a>    <span class="k">def</span> <span class="nf">set_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets model weights for provided layer parameters.</span>
+
+<span class="sd">        :param weights: list of model weights in the same order as received in get_weights</span>
+<span class="sd">        :param rate: controls the mixture of given weight values versus old weight values.</span>
+<span class="sd">            i.e. new_weight = rate * given_weight + (1 - rate) * old_weight</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.reset_accumulated_gradients"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.reset_accumulated_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">reset_accumulated_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets gradient of all parameters to 0.</span>
+
+<span class="sd">        Once gradients are reset, they must be accessible by `accumulated_gradients` property of this class,</span>
+<span class="sd">        which must return a list of numpy ndarrays. Child class must ensure that `accumulated_gradients` is set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.accumulate_gradients"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.accumulate_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">accumulate_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                             <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                             <span class="n">targets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                             <span class="n">additional_fetches</span><span class="p">:</span> <span class="nb">list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">importance_weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">no_accumulation</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a batch of inputs (i.e. states) and targets (e.g. discounted rewards), computes and accumulates the</span>
+<span class="sd">        gradients for model parameters. Will run forward and backward pass to compute gradients, clip the gradient</span>
+<span class="sd">        values if required and then accumulate gradients from all learners. It does not update the model weights,</span>
+<span class="sd">        that&#39;s performed in `apply_and_reset_gradients` method.</span>
+
+<span class="sd">        Once gradients are accumulated, they are accessed by `accumulated_gradients` property of this class.å</span>
+
+<span class="sd">        :param inputs: typically the environment states (but can also contain other data for loss)</span>
+<span class="sd">            (e.g. `{&#39;observation&#39;: numpy.ndarray}` with `observation` of shape (batch_size, observation_space_size) or</span>
+<span class="sd">             (batch_size, observation_space_size, stack_size) or</span>
+<span class="sd">            `{&#39;observation&#39;: numpy.ndarray, &#39;output_0_0&#39;: numpy.ndarray}` with `output_0_0` of shape (batch_size,))</span>
+<span class="sd">        :param targets: targets for calculating loss. For example discounted rewards for value network</span>
+<span class="sd">            for calculating the value-network loss would be a target. Length of list and order of arrays in</span>
+<span class="sd">            the list matches that of network losses which are defined by network parameters</span>
+<span class="sd">        :param additional_fetches: list of additional values to fetch and return. The type of each list</span>
+<span class="sd">            element is framework dependent.</span>
+<span class="sd">        :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.</span>
+<span class="sd">        :param no_accumulation: if True, set gradient values to the new gradients, otherwise sum with previously</span>
+<span class="sd">            calculated gradients</span>
+<span class="sd">        :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors</span>
+<span class="sd">            total_loss (float): sum of all head losses</span>
+<span class="sd">            losses (list of float): list of all losses. The order is list of target losses followed by list of</span>
+<span class="sd">                regularization losses. The specifics of losses is dependant on the network parameters</span>
+<span class="sd">                (number of heads, etc.)</span>
+<span class="sd">            norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied</span>
+<span class="sd">            fetched_tensors: all values for additional_fetches</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.apply_and_reset_gradients"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.apply_and_reset_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">apply_and_reset_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">scaler</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies the given gradients to the network weights and resets the gradient accumulations.</span>
+<span class="sd">        Has the same impact as calling `apply_gradients`, then `reset_accumulated_gradients`.</span>
+
+<span class="sd">        :param gradients: gradients for the parameter weights, taken from `accumulated_gradients` property</span>
+<span class="sd">            of an identical network (either self or another identical network)</span>
+<span class="sd">        :param scaler: A scaling factor that allows rescaling the gradients before applying them</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.apply_gradients"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.apply_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">apply_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">scaler</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies the given gradients to the network weights.</span>
+<span class="sd">        Will be performed sync or async depending on `network_parameters.async_training`</span>
+
+<span class="sd">        :param gradients: gradients for the parameter weights, taken from `accumulated_gradients` property</span>
+<span class="sd">            of an identical network (either self or another identical network)</span>
+<span class="sd">        :param scaler: A scaling factor that allows rescaling the gradients before applying them</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.get_variable_value"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.get_variable_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_variable_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets value of a specified variable. Type of variable is dependant on the framework.</span>
+<span class="sd">        Example of a variable is head.kl_coefficient, which could be a symbol for evaluation</span>
+<span class="sd">        or could be a string representing the value.</span>
+
+<span class="sd">        :param variable: variable of interest</span>
+<span class="sd">        :return: value of the specified variable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.set_variable_value"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.set_variable_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_variable_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assign_op</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">placeholder</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the value of a specified variable. Type of assign_op is dependant on the framework</span>
+<span class="sd">        and is a unique identifier for assigning value to a variable. For example an agent may use</span>
+<span class="sd">        head.assign_kl_coefficient. There is a one to one mapping between assign_op and placeholder</span>
+<span class="sd">        (in the example above, placeholder would be head.kl_coefficient_ph).</span>
+
+<span class="sd">        :param assign_op: a parameter representing the operation for assigning value to a specific variable</span>
+<span class="sd">        :param value: value of the specified variable used for update</span>
+<span class="sd">        :param placeholder: a placeholder for binding the value to assign_op.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.collect_savers"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.collect_savers">[docs]</a>    <span class="k">def</span> <span class="nf">collect_savers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_path_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SaverCollection</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collection of all savers for the network (typically only one saver for network and one for ONNX export)</span>
+<span class="sd">        :param parent_path_suffix: path suffix of the parent of the network</span>
+<span class="sd">            (e.g. could be name of level manager plus name of agent)</span>
+<span class="sd">        :return: saver collection for the network</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
-from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.architectures.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters, EmbedderScheme
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection
