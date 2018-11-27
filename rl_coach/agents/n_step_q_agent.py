@@ -20,10 +20,10 @@ import numpy as np
 
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.q_head import QHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import QHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, AgentParameters, NetworkParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 
 from rl_coach.core_types import EnvironmentSteps
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
@@ -44,6 +44,26 @@ class NStepQNetworkParameters(NetworkParameters):
 
 
 class NStepQAlgorithmParameters(AlgorithmParameters):
+    """
+    :param num_steps_between_copying_online_weights_to_target: (StepMethod)
+        The number of steps between copying the online network weights to the target network weights.
+
+    :param apply_gradients_every_x_episodes: (int)
+        The number of episodes between applying the accumulated gradients to the network. After every
+        num_steps_between_gradient_updates steps, the agent will calculate the gradients for the collected data,
+        it will then accumulate it in internal accumulators, and will only apply them to the network once in every
+        apply_gradients_every_x_episodes episodes.
+
+    :param num_steps_between_gradient_updates: (int)
+        The number of steps between calculating gradients for the collected data. In the A3C paper, this parameter is
+        called t_max. Since this algorithm is on-policy, only the steps collected between each two gradient calculations
+        are used in the batch.
+
+    :param targets_horizon: (str)
+        Should be either 'N-Step' or '1-Step', and defines the length for which to bootstrap the network values over.
+        Essentially, 1-Step follows the regular 1 step bootstrapping Q learning update. For more information,
+        please refer to the original paper (https://arxiv.org/abs/1602.01783)
+    """
     def __init__(self):
         super().__init__()
         self.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(10000)

@@ -26,9 +26,11 @@ from rl_coach.spaces import ObservationSpace, VectorObservationSpace
 
 class ObservationReductionBySubPartsNameFilter(ObservationFilter):
     """
-    Choose sub parts of the observation to remove or keep using their name.
-    This is useful when the environment has a measurements vector as observation which includes several different
+    Allows keeping only parts of the observation, by specifying their
+    name. This is useful when the environment has a measurements vector as observation which includes several different
     measurements, but you want the agent to only see some of the measurements and not all.
+    For example, the CARLA environment extracts multiple measurements that can be used by the agent, such as
+    speed and location. If we want to only use the speed, it can be done using this filter.
     This will currently work only for VectorObservationSpace observations
     """
     class ReductionMethod(Enum):

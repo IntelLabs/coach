@@ -1,5 +1,5 @@
 from rl_coach.agents.n_step_q_agent import NStepQAgentParameters
-from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense
+from rl_coach.architectures.layers import Conv2d, Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection

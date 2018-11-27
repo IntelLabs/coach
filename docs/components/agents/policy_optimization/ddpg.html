@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deep Deterministic Policy Gradient &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Direct Future Prediction" href="../other/dfp.html" />
+    <link rel="prev" title="Clipped Proximal Policy Optimization" href="cppo.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Agents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ac.html">Actor-Critic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/bc.html">Behavioral Cloning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/bs_dqn.html">Bootstrapped DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/categorical_dqn.html">Categorical DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/cil.html">Conditional Imitation Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cppo.html">Clipped Proximal Policy Optimization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Deep Deterministic Policy Gradient</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#network-structure">Network Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-description">Algorithm Description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#choosing-an-action">Choosing an action</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training-the-network">Training the network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../other/dfp.html">Direct Future Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/double_dqn.html">Double DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/dqn.html">Deep Q Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/dueling_dqn.html">Dueling DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/mmc.html">Mixed Monte Carlo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/n_step.html">N-Step Q Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/naf.html">Normalized Advantage Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/nec.html">Neural Episodic Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/pal.html">Persistent Advantage Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pg.html">Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ppo.html">Proximal Policy Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/rainbow.html">Rainbow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../value_optimization/qr_dqn.html">Quantile Regression DQN</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Agents</a> &raquo;</li>
+        
+      <li>Deep Deterministic Policy Gradient</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/components/agents/policy_optimization/ddpg.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="deep-deterministic-policy-gradient">
+<h1>Deep Deterministic Policy Gradient<a class="headerlink" href="#deep-deterministic-policy-gradient" title="Permalink to this headline">¶</a></h1>
+<p><strong>Actions space:</strong> Continuous</p>
+<p><strong>References:</strong> <a class="reference external" href="https://arxiv.org/abs/1509.02971">Continuous control with deep reinforcement learning</a></p>
+<div class="section" id="network-structure">
+<h2>Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h2>
+<img alt="../../../_images/ddpg.png" class="align-center" src="../../../_images/ddpg.png" />
+</div>
+<div class="section" id="algorithm-description">
+<h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="choosing-an-action">
+<h3>Choosing an action<a class="headerlink" href="#choosing-an-action" title="Permalink to this headline">¶</a></h3>
+<p>Pass the current states through the actor network, and get an action mean vector <span class="math notranslate nohighlight">\(\mu\)</span>.
+While in training phase, use a continuous exploration policy, such as the Ornstein-Uhlenbeck process,
+to add exploration noise to the action. When testing, use the mean vector <span class="math notranslate nohighlight">\(\mu\)</span> as-is.</p>
+</div>
+<div class="section" id="training-the-network">
+<h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
+<p>Start by sampling a batch of transitions from the experience replay.</p>
+<ul>
+<li><p class="first">To train the <strong>critic network</strong>, use the following targets:</p>
+<p><span class="math notranslate nohighlight">\(y_t=r(s_t,a_t )+\gamma \cdot Q(s_{t+1},\mu(s_{t+1} ))\)</span></p>
+<p>First run the actor target network, using the next states as the inputs, and get <span class="math notranslate nohighlight">\(\mu (s_{t+1} )\)</span>.
+Next, run the critic target network using the next states and <span class="math notranslate nohighlight">\(\mu (s_{t+1} )\)</span>, and use the output to
+calculate <span class="math notranslate nohighlight">\(y_t\)</span> according to the equation above. To train the network, use the current states and actions
+as the inputs, and <span class="math notranslate nohighlight">\(y_t\)</span> as the targets.</p>
+</li>
+<li><p class="first">To train the <strong>actor network</strong>, use the following equation:</p>
+<p><span class="math notranslate nohighlight">\(\nabla_{\theta^\mu } J \approx E_{s_t \tilde{} \rho^\beta } [\nabla_a Q(s,a)|_{s=s_t,a=\mu (s_t ) } \cdot \nabla_{\theta^\mu} \mu(s)|_{s=s_t} ]\)</span></p>
+<p>Use the actor’s online network to get the action mean values using the current states as the inputs.
+Then, use the critic online network in order to get the gradients of the critic output with respect to the
+action mean values <span class="math notranslate nohighlight">\(\nabla _a Q(s,a)|_{s=s_t,a=\mu(s_t ) }\)</span>.
+Using the chain rule, calculate the gradients of the actor’s output, with respect to the actor weights,
+given <span class="math notranslate nohighlight">\(\nabla_a Q(s,a)\)</span>. Finally, apply those gradients to the actor network.</p>
+</li>
+</ul>
+<p>After every training step, do a soft update of the critic and actor target networks’ weights from the online networks.</p>
+<dl class="class">
+<dt id="rl_coach.agents.ddpg_agent.DDPGAlgorithmParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.agents.ddpg_agent.</code><code class="descname">DDPGAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/ddpg_agent.html#DDPGAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.ddpg_agent.DDPGAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_steps_between_copying_online_weights_to_target</strong> – (StepMethod)
+The number of steps between copying the online network weights to the target network weights.</li>
+<li><strong>rate_for_copying_weights_to_target</strong> – (float)
+When copying the online network weights to the target network weights, a soft update will be used, which
+weight the new online network weights by rate_for_copying_weights_to_target</li>
+<li><strong>num_consecutive_playing_steps</strong> – (StepMethod)
+The number of consecutive steps to act between every two training iterations</li>
+<li><strong>use_target_network_for_evaluation</strong> – (bool)
+If set to True, the target network will be used for predicting the actions when choosing actions to act.
+Since the target network weights change more slowly, the predicted actions will be more consistent.</li>
+<li><strong>action_penalty</strong> – (float)
+The amount by which to penalize the network on high action feature (pre-activation) values.
+This can prevent the actions features from saturating the TanH activation function, and therefore prevent the
+gradients from becoming very low.</li>
+<li><strong>clip_critic_targets</strong> – (Tuple[float, float] or None)
+The range to clip the critic target to in order to prevent overestimation of the action values.</li>
+<li><strong>use_non_zero_discount_for_terminal_states</strong> – (bool)
+If set to True, the discount factor will be used for terminal states to bootstrap the next predicted state
+values. If set to False, the terminal states reward will be taken as the target return for the network.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../other/dfp.html" class="btn btn-neutral float-right" title="Direct Future Prediction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cppo.html" class="btn btn-neutral" title="Clipped Proximal Policy Optimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Coach Dashboard &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Control Flow" href="design/control_flow.html" />
+    <link rel="prev" title="Selecting an Algorithm" href="selecting_an_algorithm.html" />
+    <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Coach Dashboard</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/dashboard.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="coach-dashboard">
+<h1>Coach Dashboard<a class="headerlink" href="#coach-dashboard" title="Permalink to this headline">¶</a></h1>
+<p>Reinforcement learning algorithms are neat. That is - when they work. But when they don’t, RL algorithms are often quite tricky to debug.</p>
+<p>Finding the root cause for why things break in RL is rather difficult. Moreover, different RL algorithms shine in some aspects, but then lack on other. Comparing the algorithms faithfully is also a hard task, which requires the right tools.</p>
+<p>Coach Dashboard is a visualization tool which simplifies the analysis of the training process. Each run of Coach extracts a lot of information from within the algorithm and stores it in the experiment directory. This information is very valuable for debugging, analyzing and comparing different algorithms. But without a good visualization tool, this information can not be utilized. This is where Coach Dashboard takes place.</p>
+<div class="section" id="visualizing-signals">
+<h2>Visualizing Signals<a class="headerlink" href="#visualizing-signals" title="Permalink to this headline">¶</a></h2>
+<p>Coach Dashboard exposes a convenient user interface for visualizing the training signals. The signals are dynamically updated - during the agent training. Additionaly, it allows selecting a subset of the available signals, and then overlaying them on top of each other.</p>
+<a class="reference internal image-reference" href="_images/updating_dynamically.gif"><img alt="_images/updating_dynamically.gif" class="align-center" src="_images/updating_dynamically.gif" style="width: 800px;" /></a>
+<ul class="simple">
+<li>Holding the CTRL key, while selecting signals, will allow visualizing more than one signal.</li>
+<li>Signals can be visualized, using either of the Y-axes, in order to visualize signals with different scales. To move a signal to the second Y-axis, select it and press the ‘Toggle Second Axis’ button.</li>
+</ul>
+</div>
+<div class="section" id="tracking-statistics">
+<h2>Tracking Statistics<a class="headerlink" href="#tracking-statistics" title="Permalink to this headline">¶</a></h2>
+<p>When running parallel algorithms, such as A3C, it often helps visualizing the learning of all the workers, at the same time. Coach Dashboard allows viewing multiple signals (and even smooth them out, if required) from multiple workers. In addition, it supports viewing the mean and standard deviation of the same signal, across different workers, using Bollinger bands.</p>
+<div class="figure align-center" id="id1">
+<a class="reference internal image-reference" href="_images/bollinger_bands.png"><img alt="_images/bollinger_bands.png" src="_images/bollinger_bands.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Displaying Bollinger Bands</strong></span></p>
+</div>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="_images/separate_signals.png"><img alt="_images/separate_signals.png" src="_images/separate_signals.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Displaying all the Workers</strong></span></p>
+</div>
+</div>
+<div class="section" id="comparing-runs">
+<h2>Comparing Runs<a class="headerlink" href="#comparing-runs" title="Permalink to this headline">¶</a></h2>
+<p>Reinforcement learning algorithms are notoriously known as unstable, and suffer from high run-to-run variance. This makes benchmarking and comparing different algorithms even harder. To ease this process, it is common to execute several runs of the same algorithm and average over them. This is easy to do with Coach Dashboard, by centralizing all the experiment directories in a single directory, and then loading them as a single group. Loading several groups of different algorithms then allows comparing the averaged signals, such as the total episode reward.</p>
+<p>In RL, there are several interesting performance metrics to consider, and this is easy to do by controlling the X-axis units in Coach Dashboard. It is possible to switch between several options such as the total number of steps or the total training time.</p>
+<div class="figure align-center" id="id3">
+<a class="reference internal image-reference" href="_images/compare_by_time.png"><img alt="_images/compare_by_time.png" src="_images/compare_by_time.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Comparing Several Algorithms According to the Time Passed</strong></span></p>
+</div>
+<div class="figure align-center" id="id4">
+<a class="reference internal image-reference" href="_images/compare_by_num_episodes.png"><img alt="_images/compare_by_num_episodes.png" src="_images/compare_by_num_episodes.png" style="width: 800px;" /></a>
+<p class="caption"><span class="caption-text"><strong>Comparing Several Algorithms According to the Number of Episodes Played</strong></span></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="design/control_flow.html" class="btn btn-neutral float-right" title="Control Flow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="selecting_an_algorithm.html" class="btn btn-neutral" title="Selecting an Algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

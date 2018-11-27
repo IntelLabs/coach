@@ -1,0 +1,1273 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.agents.agent &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.agents.agent</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.agents.agent</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">read_pickle</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">range</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.agents.agent_interface</span> <span class="k">import</span> <span class="n">AgentInterface</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.network_wrapper</span> <span class="k">import</span> <span class="n">NetworkWrapper</span>
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">AgentParameters</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">DeviceType</span><span class="p">,</span> <span class="n">DistributedTaskParameters</span><span class="p">,</span> <span class="n">Frameworks</span>
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RunPhase</span><span class="p">,</span> <span class="n">PredictionType</span><span class="p">,</span> <span class="n">EnvironmentEpisodes</span><span class="p">,</span> <span class="n">ActionType</span><span class="p">,</span> <span class="n">Batch</span><span class="p">,</span> <span class="n">Episode</span><span class="p">,</span> <span class="n">StateType</span>
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">Transition</span><span class="p">,</span> <span class="n">ActionInfo</span><span class="p">,</span> <span class="n">TrainingSteps</span><span class="p">,</span> <span class="n">EnvironmentSteps</span><span class="p">,</span> <span class="n">EnvResponse</span>
+<span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">screen</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">EpisodeLogger</span>
+<span class="kn">from</span> <span class="nn">rl_coach.memories.episodic.episodic_experience_replay</span> <span class="k">import</span> <span class="n">EpisodicExperienceReplay</span>
+<span class="kn">from</span> <span class="nn">rl_coach.saver</span> <span class="k">import</span> <span class="n">SaverCollection</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">SpacesDefinition</span><span class="p">,</span> <span class="n">VectorObservationSpace</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">,</span> <span class="n">AttentionActionSpace</span>
+<span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">Signal</span><span class="p">,</span> <span class="n">force_list</span>
+<span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">dynamic_import_and_instantiate_module_from_params</span>
+<span class="kn">from</span> <span class="nn">rl_coach.memories.backend.memory_impl</span> <span class="k">import</span> <span class="n">get_memory_backend</span>
+
+
+<div class="viewcode-block" id="Agent"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent">[docs]</a><span class="k">class</span> <span class="nc">Agent</span><span class="p">(</span><span class="n">AgentInterface</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_parameters</span><span class="p">:</span> <span class="n">AgentParameters</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;LevelManager&#39;</span><span class="p">,</span> <span class="s1">&#39;CompositeAgent&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param agent_parameters: A AgentParameters class instance with all the agent parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ap</span> <span class="o">=</span> <span class="n">agent_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">task_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_chief</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_id</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">)</span> <span class="o">==</span> <span class="n">DistributedTaskParameters</span> \
+                             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">shared_memory</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">)</span> <span class="o">==</span> <span class="n">DistributedTaskParameters</span><span class="p">:</span>
+            <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;Creating agent - name: </span><span class="si">{}</span><span class="s2"> task id: </span><span class="si">{}</span><span class="s2"> (may take up to 30 seconds due to &quot;</span>
+                             <span class="s2">&quot;tensorflow wake up time)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;Creating agent - name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imitation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span> <span class="o">=</span> <span class="n">Logger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span> <span class="o">=</span> <span class="n">EpisodeLogger</span><span class="p">()</span>
+
+        <span class="c1"># get the memory</span>
+        <span class="c1"># - distributed training + shared memory:</span>
+        <span class="c1">#   * is chief?  -&gt; create the memory and add it to the scratchpad</span>
+        <span class="c1">#   * not chief? -&gt; wait for the chief to create the memory and then fetch it</span>
+        <span class="c1"># - non distributed training / not shared memory:</span>
+        <span class="c1">#   * create memory</span>
+        <span class="n">memory_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_lookup_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">memory_name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_chief</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_lookup_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># modules</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">dynamic_import_and_instantiate_module_from_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="s1">&#39;memory_backend_params&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">memory_backend</span> <span class="o">=</span> <span class="n">get_memory_backend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">memory_backend_params</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">memory_backend_params</span><span class="o">.</span><span class="n">run_type</span> <span class="o">!=</span> <span class="s1">&#39;trainer&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">set_memory_backend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_backend</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">:</span>
+                <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;Loading replay buffer from pickle. Pickle path: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_chief</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_lookup_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
+
+        <span class="c1"># set devices</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">)</span> <span class="o">==</span> <span class="n">DistributedTaskParameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">has_global</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replicated_device</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">device</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">worker_device</span> <span class="o">=</span> <span class="s2">&quot;/job:worker/task:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">use_cpu</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">worker_device</span> <span class="o">+=</span> <span class="s2">&quot;/cpu:0&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">worker_device</span> <span class="o">+=</span> <span class="s2">&quot;/device:GPU:0&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">has_global</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replicated_device</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">use_cpu</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">worker_device</span> <span class="o">=</span> <span class="n">Device</span><span class="p">(</span><span class="n">DeviceType</span><span class="o">.</span><span class="n">CPU</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">worker_device</span> <span class="o">=</span> <span class="p">[</span><span class="n">Device</span><span class="p">(</span><span class="n">DeviceType</span><span class="o">.</span><span class="n">GPU</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                                      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">num_gpu</span><span class="p">)]</span>
+
+        <span class="c1"># filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">input_filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s1">&#39;input_filter&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">output_filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s1">&#39;output_filter&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">pre_network_filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s1">&#39;pre_network_filter&#39;</span><span class="p">)</span>
+
+        <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replicated_device</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">replicated_device</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker_device</span>
+
+        <span class="c1"># TODO-REMOVE This is a temporary flow dividing to 3 modes. To be converged to a single flow once distributed tf</span>
+        <span class="c1">#  is removed, and Redis is used for sharing data between local workers.</span>
+        <span class="c1"># Filters MoW will be split between different configurations</span>
+        <span class="c1"># 1. Distributed coach synchrnization type (=distributed across multiple nodes) - Redis based data sharing + numpy arithmetic backend</span>
+        <span class="c1"># 2. Distributed TF (=distributed on a single node, using distributed TF) - TF for both data sharing and arithmetic backend</span>
+        <span class="c1"># 3. Single worker (=both TF and Mxnet) - no data sharing needed + numpy arithmetic backend</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="s1">&#39;memory_backend_params&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">distributed_coach_synchronization_type</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">memory_backend_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">memory_backend_params</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">memory_backend_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">memory_backend_params</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">memory_backend_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">memory_backend_params</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">)</span> <span class="o">==</span> <span class="n">DistributedTaskParameters</span> <span class="ow">and</span>
+              <span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">framework_type</span> <span class="o">==</span> <span class="n">Frameworks</span><span class="o">.</span><span class="n">tensorflow</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;tf&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;tf&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;tf&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+
+        <span class="c1"># initialize all internal variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_reward</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_target_network_update_step</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_hrl_goal</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode_running_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_episode_evaluation_ran</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_observations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">networks</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_observation_stats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_reward_stats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_rewards_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_shaped_rewards_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span> <span class="o">=</span> <span class="n">Episode</span><span class="p">(</span><span class="n">discount</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">discount</span><span class="p">,</span> <span class="n">n_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">n_step</span><span class="p">)</span>
+        <span class="c1"># TODO: add agents observation rendering for debugging purposes (not the same as the environment rendering)</span>
+
+        <span class="c1"># environment parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">in_action_space</span>
+
+        <span class="c1"># signals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode_signals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_signals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Loss&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curr_learning_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Learning Rate&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unclipped_grads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Grads (unclipped)&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Reward&#39;</span><span class="p">,</span> <span class="n">dump_one_value_per_episode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dump_one_value_per_step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Shaped Reward&#39;</span><span class="p">,</span> <span class="n">dump_one_value_per_episode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dump_one_value_per_step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discounted_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Discounted Return&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distance_from_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Distance From Goal&#39;</span><span class="p">,</span> <span class="n">dump_one_value_per_step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># use seed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># we need to seed the RNG since the different processes are initialized with the same parent seed</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;LevelManager&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the parent class of the agent</span>
+
+<span class="sd">        :return: the current phase</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+
+    <span class="nd">@parent</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the parent class of the agent.</span>
+<span class="sd">        Additionally, updates the full name of the agent</span>
+
+<span class="sd">        :param val: the new parent</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The parent of an agent must have a name&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Agent.setup_logger"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.setup_logger">[docs]</a>    <span class="k">def</span> <span class="nf">setup_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the logger for the agent</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># dump documentation</span>
+        <span class="n">logger_prefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{graph_name}</span><span class="s2">.</span><span class="si">{level_name}</span><span class="s2">.</span><span class="si">{agent_full_id}</span><span class="s2">&quot;</span><span class="o">.</span>\
+            <span class="nb">format</span><span class="p">(</span><span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">parent_graph_manager</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                   <span class="n">level_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                   <span class="n">agent_full_id</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_logger_filenames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">logger_prefix</span><span class="o">=</span><span class="n">logger_prefix</span><span class="p">,</span>
+                                               <span class="n">add_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">task_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">set_logger_filenames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">experiment_path</span><span class="p">,</span>
+                                                           <span class="n">logger_prefix</span><span class="o">=</span><span class="n">logger_prefix</span><span class="p">,</span>
+                                                           <span class="n">add_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">task_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Agent.set_session"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.set_session">[docs]</a>    <span class="k">def</span> <span class="nf">set_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the deep learning framework session for all the agents in the composite agent</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="n">sess</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="n">sess</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="n">sess</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">network</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="n">sess</span><span class="p">)</span> <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="Agent.register_signal"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.register_signal">[docs]</a>    <span class="k">def</span> <span class="nf">register_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dump_one_value_per_episode</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">dump_one_value_per_step</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Signal</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register a signal such that its statistics will be dumped and be viewable through dashboard</span>
+
+<span class="sd">        :param signal_name: the name of the signal as it will appear in dashboard</span>
+<span class="sd">        :param dump_one_value_per_episode: should the signal value be written for each episode?</span>
+<span class="sd">        :param dump_one_value_per_step: should the signal value be written for each step?</span>
+<span class="sd">        :return: the created signal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="n">signal_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dump_one_value_per_episode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">episode_signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dump_one_value_per_step</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">signal</span></div>
+
+<div class="viewcode-block" id="Agent.set_environment_parameters"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.set_environment_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">set_environment_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spaces</span><span class="p">:</span> <span class="n">SpacesDefinition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the parameters that are environment dependent. As a side effect, initializes all the components that are</span>
+<span class="sd">        dependent on those values, by calling init_environment_dependent_modules</span>
+
+<span class="sd">        :param spaces: the environment spaces definition</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">spaces</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">use_accumulated_reward_as_measurement</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;measurements&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">sub_spaces</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">measurements_names</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;accumulated_reward&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VectorObservationSpace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">measurements_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accumulated_reward&#39;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">observation_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">sub_spaces</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">observation_name</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">get_filtered_observation_space</span><span class="p">(</span><span class="n">observation_name</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">get_filtered_observation_space</span><span class="p">(</span><span class="n">observation_name</span><span class="p">,</span>
+                                                                     <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">observation_name</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">get_filtered_reward_space</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">get_filtered_reward_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">reward</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">get_unfiltered_action_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">):</span>
+            <span class="c1"># TODO: what if the goal type is an embedding / embedding change?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">set_target_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">goal_name</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_environment_dependent_modules</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Agent.create_networks"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.create_networks">[docs]</a>    <span class="k">def</span> <span class="nf">create_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NetworkWrapper</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create all the networks of the agent.</span>
+<span class="sd">        The network creation will be done after setting the environment parameters for the agent, since they are needed</span>
+<span class="sd">        for creating the network.</span>
+
+<span class="sd">        :return: A list containing all the networks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">networks</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">network_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">NetworkWrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span>
+                                                    <span class="n">agent_parameters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="p">,</span>
+                                                    <span class="n">has_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">create_target_network</span><span class="p">,</span>
+                                                    <span class="n">has_global</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">has_global</span><span class="p">,</span>
+                                                    <span class="n">spaces</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="p">,</span>
+                                                    <span class="n">replicated_device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">replicated_device</span><span class="p">,</span>
+                                                    <span class="n">worker_device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_device</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">print_networks_summary</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">networks</span></div>
+
+<div class="viewcode-block" id="Agent.init_environment_dependent_modules"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.init_environment_dependent_modules">[docs]</a>    <span class="k">def</span> <span class="nf">init_environment_dependent_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize any modules that depend on knowing information about the environment such as the action space or</span>
+<span class="sd">        the observation space</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># initialize exploration policy</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">exploration</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">exploration</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">exploration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">exploration</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="vm">__class__</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The exploration parameters were defined as a mapping between action space types and &quot;</span>
+                                 <span class="s2">&quot;exploration types, but the action space used by the environment (</span><span class="si">{}</span><span class="s2">) was not part of &quot;</span>
+                                 <span class="s2">&quot;the exploration parameters dictionary keys (</span><span class="si">{}</span><span class="s2">)&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">exploration</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">exploration</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span> <span class="o">=</span> <span class="n">dynamic_import_and_instantiate_module_from_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">exploration</span><span class="p">)</span>
+
+        <span class="c1"># create all the networks of the agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">networks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_networks</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RunPhase</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The current running phase of the agent</span>
+
+<span class="sd">        :return: RunPhase</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span>
+
+    <span class="nd">@phase</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">RunPhase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the phase of the run for the agent and all the sub components</span>
+
+<span class="sd">        :param val: the new run phase (TRAIN, TEST, etc.)</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_evaluation_state</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">change_phase</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Agent.reset_evaluation_state"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.reset_evaluation_state">[docs]</a>    <span class="k">def</span> <span class="nf">reset_evaluation_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">RunPhase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform accumulators initialization when entering an evaluation phase, and signal dumping when exiting an</span>
+<span class="sd">        evaluation phase. Entering or exiting the evaluation phase is determined according to the new phase given</span>
+<span class="sd">        by val, and by the current phase set in self.phase.</span>
+
+<span class="sd">        :param val: The new phase to change to</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">starting_evaluation</span> <span class="o">=</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span><span class="p">)</span>
+        <span class="n">ending_evaluation</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">starting_evaluation</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_rewards_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_shaped_rewards_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+                <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Starting evaluation phase&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">ending_evaluation</span><span class="p">:</span>
+            <span class="c1"># we write to the next episode, because it could be that the current episode was already written</span>
+            <span class="c1"># to disk and then we won&#39;t write it again</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">evaluation_reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_rewards_across_evaluation_episodes</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span>
+                <span class="s1">&#39;Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">evaluation_reward</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span>
+                <span class="s1">&#39;Shaped Evaluation Reward&#39;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_shaped_rewards_across_evaluation_episodes</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span><span class="p">)</span>
+            <span class="n">success_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span>
+                <span class="s2">&quot;Success Rate&quot;</span><span class="p">,</span>
+                <span class="n">success_rate</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+                <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Finished evaluation phase. Success rate = </span><span class="si">{}</span><span class="s2">, Avg Total Reward = </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">success_rate</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">evaluation_reward</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="Agent.call_memory"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.call_memory">[docs]</a>    <span class="k">def</span> <span class="nf">call_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is a wrapper to allow having the same calls for shared or unshared memories.</span>
+<span class="sd">        It should be used instead of calling the memory directly in order to allow different algorithms to work</span>
+<span class="sd">        both with a shared and a local memory.</span>
+
+<span class="sd">        :param func: the name of the memory function to call</span>
+<span class="sd">        :param args: the arguments to supply to the function</span>
+<span class="sd">        :return: the return value of the function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span><span class="o">.</span><span class="n">internal_call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_lookup_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">args</span><span class="p">,)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">func</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Agent.log_to_screen"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.log_to_screen">[docs]</a>    <span class="k">def</span> <span class="nf">log_to_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write an episode summary line to the terminal</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># log to screen</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">log</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">[</span><span class="s2">&quot;Worker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_id</span>
+        <span class="n">log</span><span class="p">[</span><span class="s2">&quot;Episode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span>
+        <span class="n">log</span><span class="p">[</span><span class="s2">&quot;Total reward&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">[</span><span class="s2">&quot;Exploration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">get_control_param</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">[</span><span class="s2">&quot;Steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span>
+        <span class="n">log</span><span class="p">[</span><span class="s2">&quot;Training iteration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Agent.update_step_in_episode_log"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.update_step_in_episode_log">[docs]</a>    <span class="k">def</span> <span class="nf">update_step_in_episode_log</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the in-episode log file with all the signal values from the most recent step.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># log all the signals to file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Training Iter&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;In Heatup&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;ER #Transitions&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;num_transitions&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;ER #Episodes&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Total steps&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;Epsilon&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">get_control_param</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;Shaped Accumulated Reward&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Update Target Network&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">update_wall_clock_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_signals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_last_value</span><span class="p">())</span>
+
+        <span class="c1"># dump</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">dump_output_csv</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Agent.update_log"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.update_log">[docs]</a>    <span class="k">def</span> <span class="nf">update_log</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the episodic log file with all the signal values from the most recent episode.</span>
+<span class="sd">        Additional signals for logging can be set by the creating a new signal using self.register_signal,</span>
+<span class="sd">        and then updating it with some internal agent values.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># log all the signals to file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Training Iter&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;In Heatup&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;ER #Transitions&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;num_transitions&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;ER #Episodes&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Episode Length&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Total steps&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;Epsilon&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">get_control_param</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;Shaped Training Reward&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span>
+                                   <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;Training Reward&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span>
+                                   <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Update Target Network&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">update_wall_clock_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">!=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Shaped Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Success Rate&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_signals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/Mean&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_mean</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/Stdev&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_stdev</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/Max&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_max</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/Min&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_min</span><span class="p">())</span>
+
+        <span class="c1"># dump</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_signals_to_csv_every_x_episodes</span> <span class="o">==</span> <span class="mi">0</span> \
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">dump_output_csv</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Agent.handle_episode_ended"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.handle_episode_ended">[docs]</a>    <span class="k">def</span> <span class="nf">handle_episode_ended</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make any changes needed when each episode is ended.</span>
+<span class="sd">        This includes incrementing counters, updating full episode dependent values, updating logs, etc.</span>
+<span class="sd">        This function is called right after each episode is ended.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">is_complete</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">update_transitions_rewards_and_bootstrap_data</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">transition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">discounted_return</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">n_step_discounted_rewards</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">!=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">evaluate_only</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">!=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store_episode&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">transition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_rewards_across_evaluation_episodes</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_shaped_rewards_across_evaluation_episodes</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">reward_success_threshold</span> <span class="ow">and</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">reward_success_threshold</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_csv</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_log</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_to_screen</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Agent.reset_internal_state"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.reset_internal_state">[docs]</a>    <span class="k">def</span> <span class="nf">reset_internal_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset all the episodic parameters. This function is called right before each episode starts.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_signals</span><span class="p">:</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_signals</span><span class="p">:</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_episode_logger</span><span class="o">.</span><span class="n">set_episode_idx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode_running_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span> <span class="o">=</span> <span class="n">Episode</span><span class="p">(</span><span class="n">discount</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">discount</span><span class="p">,</span> <span class="n">n_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">n_step</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;verify_last_episode_is_closed&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">network</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">reset_internal_memory</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Agent.learn_from_batch"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.learn_from_batch">[docs]</a>    <span class="k">def</span> <span class="nf">learn_from_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a batch of transitions, calculates their target values and updates the network.</span>
+
+<span class="sd">        :param batch: A list of transitions</span>
+<span class="sd">        :return: The total loss of the training, the loss per head and the unclipped gradients</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]</span></div>
+
+    <span class="k">def</span> <span class="nf">_should_update_online_weights_to_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if online weights should be copied to the target.</span>
+
+<span class="sd">        :return: boolean: True if the online weights should be copied to the target.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># update the target network of every network that has a target network</span>
+        <span class="n">step_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_steps_between_copying_online_weights_to_target</span>
+        <span class="k">if</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">TrainingSteps</span><span class="p">:</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_target_network_update_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">step_method</span><span class="o">.</span><span class="n">num_steps</span>
+            <span class="k">if</span> <span class="n">should_update</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_target_network_update_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span>
+        <span class="k">elif</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentSteps</span><span class="p">:</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_target_network_update_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">step_method</span><span class="o">.</span><span class="n">num_steps</span>
+            <span class="k">if</span> <span class="n">should_update</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_target_network_update_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The num_steps_between_copying_online_weights_to_target parameter should be either &quot;</span>
+                             <span class="s2">&quot;EnvironmentSteps or TrainingSteps. Instead it is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">should_update</span>
+
+    <span class="k">def</span> <span class="nf">_should_train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine if we should start a training phase according to the number of steps passed since the last training</span>
+
+<span class="sd">        :return:  boolean: True if we should start a training phase</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">should_update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_train_helper</span><span class="p">()</span>
+
+        <span class="n">step_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span>
+
+        <span class="k">if</span> <span class="n">should_update</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentEpisodes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span>
+            <span class="k">if</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentSteps</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span>
+
+        <span class="k">return</span> <span class="n">should_update</span>
+
+    <span class="k">def</span> <span class="nf">_should_train_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">wait_for_full_episode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">act_for_full_episodes</span>
+        <span class="n">step_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span>
+
+        <span class="k">if</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentEpisodes</span><span class="p">:</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">step_method</span><span class="o">.</span><span class="n">num_steps</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="n">should_update</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="k">elif</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentSteps</span><span class="p">:</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">step_method</span><span class="o">.</span><span class="n">num_steps</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="n">should_update</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;num_transitions&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="n">wait_for_full_episode</span><span class="p">:</span>
+                <span class="n">should_update</span> <span class="o">=</span> <span class="n">should_update</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">is_complete</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The num_consecutive_playing_steps parameter should be either &quot;</span>
+                             <span class="s2">&quot;EnvironmentSteps or Episodes. Instead it is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">should_update</span>
+
+<div class="viewcode-block" id="Agent.train"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a training phase should be done as configured by num_consecutive_playing_steps.</span>
+<span class="sd">        If it should, then do several training steps as configured by num_consecutive_training_steps.</span>
+<span class="sd">        A single training iteration: Sample a batch, train on it and update target networks.</span>
+
+<span class="sd">        :return: The total training loss during the training iterations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_train</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">network</span><span class="o">.</span><span class="n">set_is_training</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">training_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_training_steps</span><span class="p">):</span>
+                <span class="c1"># TODO: this should be network dependent</span>
+                <span class="n">network_parameters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="c1"># update counters</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># sample a batch and train on it</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;sample&#39;</span><span class="p">,</span> <span class="n">network_parameters</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">update_internal_state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="c1"># if the batch returned empty then there are not enough samples in the replay buffer -&gt; skip</span>
+                <span class="c1"># training step</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># train</span>
+                    <span class="n">batch</span> <span class="o">=</span> <span class="n">Batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                    <span class="n">total_loss</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">unclipped_grads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">learn_from_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                    <span class="n">loss</span> <span class="o">+=</span> <span class="n">total_loss</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">unclipped_grads</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">unclipped_grads</span><span class="p">)</span>
+
+                    <span class="c1"># TODO: the learning rate decay should be done through the network instead of here</span>
+                    <span class="c1"># decay learning rate</span>
+                    <span class="k">if</span> <span class="n">network_parameters</span><span class="o">.</span><span class="n">learning_rate_decay_rate</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">curr_learning_rate</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">current_learning_rate</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">curr_learning_rate</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">network</span><span class="o">.</span><span class="n">has_target</span> <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span> \
+                            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update_online_weights_to_target</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                            <span class="n">network</span><span class="o">.</span><span class="n">update_target_network</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">rate_for_copying_weights_to_target</span><span class="p">)</span>
+
+                        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Update Target Network&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Update Target Network&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">imitation</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log_to_screen</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">network</span><span class="o">.</span><span class="n">set_is_training</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># run additional commands after the training is done</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">post_training_commands</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="Agent.choose_action"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.choose_action">[docs]</a>    <span class="k">def</span> <span class="nf">choose_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">curr_state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        choose an action to act with in the current episode being played. Different behavior might be exhibited when</span>
+<span class="sd">        training or testing.</span>
+
+<span class="sd">        :param curr_state: the current state to act upon.</span>
+<span class="sd">        :return: chosen action, some action value describing the action (q-value, probability, etc)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Agent.prepare_batch_for_inference"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.prepare_batch_for_inference">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_batch_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]],</span>
+                                    <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all</span>
+<span class="sd">        observations together, measurements together, etc.</span>
+
+<span class="sd">        :param states: A list of environment states, where each one is a dict mapping from an observation name to its</span>
+<span class="sd">                       corresponding observation</span>
+<span class="sd">        :param network_name: The agent network name to prepare the batch for. this is needed in order to extract only</span>
+<span class="sd">                             the observation relevant for the network from the states.</span>
+<span class="sd">        :return: A dictionary containing a list of values from all the given states for each of the observations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># convert to batch so we can run it through the network</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">force_list</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+        <span class="n">batches_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># there are cases (e.g. ddpg) where the state does not contain all the information needed for running</span>
+            <span class="c1"># through the network and this has to be added externally (e.g. ddpg where the action needs to be given in</span>
+            <span class="c1"># addition to the current_state, so that all the inputs of the network will be filled)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">batches_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">batches_dict</span></div>
+
+<div class="viewcode-block" id="Agent.act"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.act">[docs]</a>    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionInfo</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given the agents current knowledge, decide on the next action to apply to the environment</span>
+
+<span class="sd">        :return: An ActionInfo object, which contains the action and any additional info from the action decision process</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># This agent never plays  while training (e.g. behavioral cloning)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># count steps (only when training or if we are in the evaluation worker)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">!=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">evaluate_only</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># decide on the action</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">heatup_using_network_decisions</span><span class="p">:</span>
+            <span class="c1"># random action</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">sample_with_info</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># informed action</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># before choosing an action, first use the pre_network_filter to filter out the current state</span>
+                <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_action</span><span class="p">(</span><span class="n">curr_state</span><span class="p">)</span>
+
+        <span class="n">filtered_action_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">filtered_action_info</span></div>
+
+<div class="viewcode-block" id="Agent.run_pre_network_filter_for_inference"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference">[docs]</a>    <span class="k">def</span> <span class="nf">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">StateType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StateType</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run filters which where defined for being applied right before using the state for inference.</span>
+
+<span class="sd">        :param state: The state to run the filters on</span>
+<span class="sd">        :return: The filtered state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dummy_env_response</span> <span class="o">=</span> <span class="n">EnvResponse</span><span class="p">(</span><span class="n">next_state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">reward</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">game_over</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dummy_env_response</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">next_state</span></div>
+
+<div class="viewcode-block" id="Agent.get_state_embedding"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.get_state_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">get_state_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a state, get the corresponding state embedding  from the main network</span>
+
+<span class="sd">        :param state: a state dict</span>
+<span class="sd">        :return: a numpy embedding vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: this won&#39;t work anymore</span>
+        <span class="c1"># TODO: instead of the state embedding (which contains the goal) we should use the observation embedding</span>
+        <span class="n">embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepare_batch_for_inference</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">),</span>
+            <span class="n">outputs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">state_embedding</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">embedding</span></div>
+
+<div class="viewcode-block" id="Agent.update_transition_before_adding_to_replay_buffer"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.update_transition_before_adding_to_replay_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">update_transition_before_adding_to_replay_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">:</span> <span class="n">Transition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transition</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Allows agents to update the transition just before adding it to the replay buffer.</span>
+<span class="sd">        Can be useful for agents that want to tweak the reward, termination signal, etc.</span>
+
+<span class="sd">        :param transition: the transition to update</span>
+<span class="sd">        :return: the updated transition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">transition</span></div>
+
+<div class="viewcode-block" id="Agent.observe"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_response</span><span class="p">:</span> <span class="n">EnvResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a response from the environment, distill the observation from it and store it for later use.</span>
+<span class="sd">        The response should be a dictionary containing the performed action, the new observation and measurements,</span>
+<span class="sd">        the reward, a game over flag and any additional information necessary.</span>
+
+<span class="sd">        :param env_response: result of call from environment.step(action)</span>
+<span class="sd">        :return: a boolean value which determines if the agent has decided to terminate the episode after seeing the</span>
+<span class="sd">                 given observation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># filter the env_response</span>
+        <span class="n">filtered_env_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">env_response</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># inject agent collected statistics, if required</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">use_accumulated_reward_as_measurement</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;measurements&#39;</span> <span class="ow">in</span> <span class="n">filtered_env_response</span><span class="o">.</span><span class="n">next_state</span><span class="p">:</span>
+                <span class="n">filtered_env_response</span><span class="o">.</span><span class="n">next_state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filtered_env_response</span><span class="o">.</span><span class="n">next_state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">],</span>
+                                                                             <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">filtered_env_response</span><span class="o">.</span><span class="n">next_state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span><span class="p">])</span>
+
+        <span class="c1"># if we are in the first step in the episode, then we don&#39;t have a a next state and a reward and thus no</span>
+        <span class="c1"># transition yet, and therefore we don&#39;t need to store anything in the memory.</span>
+        <span class="c1"># also we did not reach the goal yet.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># initialize the current state</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span> <span class="o">=</span> <span class="n">filtered_env_response</span><span class="o">.</span><span class="n">next_state</span>
+            <span class="k">return</span> <span class="n">env_response</span><span class="o">.</span><span class="n">game_over</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="n">Transition</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span><span class="p">),</span> <span class="n">action</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="n">action</span><span class="p">,</span>
+                                    <span class="n">reward</span><span class="o">=</span><span class="n">filtered_env_response</span><span class="o">.</span><span class="n">reward</span><span class="p">,</span> <span class="n">next_state</span><span class="o">=</span><span class="n">filtered_env_response</span><span class="o">.</span><span class="n">next_state</span><span class="p">,</span>
+                                    <span class="n">game_over</span><span class="o">=</span><span class="n">filtered_env_response</span><span class="o">.</span><span class="n">game_over</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="n">filtered_env_response</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+            <span class="c1"># now that we have formed a basic transition - the next state progresses to be the current state</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span> <span class="o">=</span> <span class="n">filtered_env_response</span><span class="o">.</span><span class="n">next_state</span>
+
+            <span class="c1"># make agent specific changes to the transition if needed</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_transition_before_adding_to_replay_buffer</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+
+            <span class="c1"># merge the intrinsic reward in</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_external_reward_by_intrinsic_reward_value</span><span class="p">:</span>
+                <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="n">action_intrinsic_reward</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="n">action_intrinsic_reward</span>
+
+            <span class="c1"># sum up the total shaped reward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">env_response</span><span class="o">.</span><span class="n">reward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">env_response</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+
+            <span class="c1"># add action info to transition</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;CompositeAgent&#39;</span><span class="p">:</span>
+                <span class="n">transition</span><span class="o">.</span><span class="n">add_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">transition</span><span class="o">.</span><span class="n">add_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+
+            <span class="c1"># create and store the transition</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]:</span>
+                <span class="c1"># for episodic memories we keep the transitions in a local buffer until the episode is ended.</span>
+                <span class="c1"># for regular memories we insert the transitions directly to the memory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">)</span> \
+                        <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_step_in_episode_log</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span></div>
+
+<div class="viewcode-block" id="Agent.post_training_commands"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.post_training_commands">[docs]</a>    <span class="k">def</span> <span class="nf">post_training_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A function which allows adding any functionality that is required to run right after the training phase ends.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Agent.get_predictions"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.get_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">get_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span> <span class="n">prediction_type</span><span class="p">:</span> <span class="n">PredictionType</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a prediction from the agent with regard to the requested prediction_type.</span>
+<span class="sd">        If the agent cannot predict this type of prediction_type, or if there is more than possible way to do so,</span>
+<span class="sd">        raise a ValueException.</span>
+
+<span class="sd">        :param states: The states to get a prediction for</span>
+<span class="sd">        :param prediction_type: The type of prediction to get for the states. For example, the state-value prediction.</span>
+<span class="sd">        :return: the predicted values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">predict_with_prediction_type</span><span class="p">(</span>
+            <span class="c1"># states=self.dict_state_to_batches_dict(states, &#39;main&#39;), prediction_type=prediction_type)</span>
+            <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">prediction_type</span><span class="o">=</span><span class="n">prediction_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The network has more than one component </span><span class="si">{}</span><span class="s2"> matching the requested prediction_type </span><span class="si">{}</span><span class="s2">. &quot;</span><span class="o">.</span>
+                             <span class="nb">format</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">prediction_type</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Agent.set_incoming_directive"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.set_incoming_directive">[docs]</a>    <span class="k">def</span> <span class="nf">set_incoming_directive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Allows setting a directive for the agent to follow. This is useful in hierarchy structures, where the agent</span>
+<span class="sd">        has another master agent that is controlling it. In such cases, the master agent can define the goals for the</span>
+<span class="sd">        slave agent, define it&#39;s observation, possible actions, etc. The directive type is defined by the agent</span>
+<span class="sd">        in-action-space.</span>
+
+<span class="sd">        :param action: The action that should be set as the directive</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_hrl_goal</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span><span class="p">,</span> <span class="n">AttentionActionSpace</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">observation_filters</span><span class="p">[</span><span class="s1">&#39;attention&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">crop_low</span> <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">observation_filters</span><span class="p">[</span><span class="s1">&#39;attention&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">crop_high</span> <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">action_filters</span><span class="p">[</span><span class="s1">&#39;masking&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_masking</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Agent.save_checkpoint"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.save_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Allows agents to store additional information when saving checkpoints.</span>
+
+<span class="sd">        :param checkpoint_prefix: The prefix of the checkpoint file to save</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">checkpoint_save_dir</span>
+
+        <span class="n">checkpoint_prefix</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">checkpoint_prefix</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>  <span class="c1"># adds both level name and agent name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">save_state_to_checkpoint</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">save_state_to_checkpoint</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">save_state_to_checkpoint</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Agent.restore_checkpoint"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.restore_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">restore_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Allows agents to store additional information when saving checkpoints.</span>
+
+<span class="sd">        :param checkpoint_dir: The checkpoint dir to restore from</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">checkpoint_prefix</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span>  <span class="c1"># adds both level name and agent name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span><span class="o">.</span><span class="n">restore_state_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">restore_state_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">)</span></div>
+
+        <span class="c1"># no output filters currently have an internal state to restore</span>
+        <span class="c1"># self.output_filter.restore_state_from_checkpoint(checkpoint_dir)</span>
+
+<div class="viewcode-block" id="Agent.sync"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.sync">[docs]</a>    <span class="k">def</span> <span class="nf">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sync the global network parameters to local networks</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">network</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span></div>
+
+    <span class="c1"># TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create</span>
+    <span class="c1">#               an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]</span>
+<div class="viewcode-block" id="Agent.emulate_observe_on_trainer"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.emulate_observe_on_trainer">[docs]</a>    <span class="k">def</span> <span class="nf">emulate_observe_on_trainer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">:</span> <span class="n">Transition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This emulates the observe using the transition obtained from the rollout worker on the training worker</span>
+<span class="sd">        in case of distributed training.</span>
+<span class="sd">        Given a response from the environment, distill the observation from it and store it for later use.</span>
+<span class="sd">        The response should be a dictionary containing the performed action, the new observation and measurements,</span>
+<span class="sd">        the reward, a game over flag and any additional information necessary.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if we are in the first step in the episode, then we don&#39;t have a a next state and a reward and thus no</span>
+        <span class="c1"># transition yet, and therefore we don&#39;t need to store anything in the memory.</span>
+        <span class="c1"># also we did not reach the goal yet.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># initialize the current state</span>
+            <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># sum up the total shaped reward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+
+            <span class="c1"># create and store the transition</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]:</span>
+                <span class="c1"># for episodic memories we keep the transitions in a local buffer until the episode is ended.</span>
+                <span class="c1"># for regular memories we insert the transitions directly to the memory</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">)</span> \
+                        <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_step_in_episode_log</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span></div>
+
+    <span class="c1"># TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create</span>
+    <span class="c1">#         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]</span>
+<div class="viewcode-block" id="Agent.emulate_act_on_trainer"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.emulate_act_on_trainer">[docs]</a>    <span class="k">def</span> <span class="nf">emulate_act_on_trainer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">:</span> <span class="n">Transition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionInfo</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This emulates the act using the transition obtained from the rollout worker on the training worker</span>
+<span class="sd">        in case of distributed training.</span>
+<span class="sd">        Given the agents current knowledge, decide on the next action to apply to the environment</span>
+<span class="sd">        :return: an action and a dictionary containing any additional info from the action decision process</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># This agent never plays  while training (e.g. behavioral cloning)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># count steps (only when training or if we are in the evaluation worker)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">!=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">evaluate_only</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="n">transition</span><span class="o">.</span><span class="n">action</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span></div>
+
+    <span class="k">def</span> <span class="nf">get_success_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span>
+
+<div class="viewcode-block" id="Agent.collect_savers"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.collect_savers">[docs]</a>    <span class="k">def</span> <span class="nf">collect_savers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_path_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SaverCollection</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collect all of agent&#39;s network savers</span>
+<span class="sd">        :param parent_path_suffix: path suffix of the parent of the agent</span>
+<span class="sd">            (could be name of level manager or composite agent)</span>
+<span class="sd">        :return: collection of all agent savers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parent_path_suffix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_path_suffix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">savers</span> <span class="o">=</span> <span class="n">SaverCollection</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">savers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">collect_savers</span><span class="p">(</span><span class="n">parent_path_suffix</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">savers</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

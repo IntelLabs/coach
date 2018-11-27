@@ -15,6 +15,7 @@
 #
 
 import copy
+import os
 import random
 from collections import OrderedDict
 from typing import Dict, List, Union, Tuple
@@ -25,20 +26,22 @@ from six.moves import range
 
 from rl_coach.agents.agent_interface import AgentInterface
 from rl_coach.architectures.network_wrapper import NetworkWrapper
-from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
+from rl_coach.base_parameters import AgentParameters, Device, DeviceType, DistributedTaskParameters, Frameworks
 from rl_coach.core_types import RunPhase, PredictionType, EnvironmentEpisodes, ActionType, Batch, Episode, StateType
 from rl_coach.core_types import Transition, ActionInfo, TrainingSteps, EnvironmentSteps, EnvResponse
 from rl_coach.logger import screen, Logger, EpisodeLogger
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplay
+from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition, VectorObservationSpace, GoalsSpace, AttentionActionSpace
 from rl_coach.utils import Signal, force_list
 from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
+from rl_coach.memories.backend.memory_impl import get_memory_backend
 
 
 class Agent(AgentInterface):
     def __init__(self, agent_parameters: AgentParameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         """
-        :param agent_parameters: A Preset class instance with all the running paramaters
+        :param agent_parameters: A AgentParameters class instance with all the agent parameters
         """
         super().__init__()
         self.ap = agent_parameters
@@ -76,6 +79,12 @@ class Agent(AgentInterface):
             # modules
             self.memory = dynamic_import_and_instantiate_module_from_params(self.ap.memory)
 
+            if hasattr(self.ap.memory, 'memory_backend_params'):
+                self.memory_backend = get_memory_backend(self.ap.memory.memory_backend_params)
+
+                if self.ap.memory.memory_backend_params.run_type != 'trainer':
+                    self.memory.set_memory_backend(self.memory_backend)
+
             if agent_parameters.memory.load_memory_from_file_path:
                 screen.log_title("Loading replay buffer from pickle. Pickle path: {}"
                                  .format(agent_parameters.memory.load_memory_from_file_path))
@@ -89,24 +98,49 @@ class Agent(AgentInterface):
             self.has_global = True
             self.replicated_device = agent_parameters.task_parameters.device
             self.worker_device = "/job:worker/task:{}".format(self.task_id)
+            if agent_parameters.task_parameters.use_cpu:
+                self.worker_device += "/cpu:0"
+            else:
+                self.worker_device += "/device:GPU:0"
         else:
             self.has_global = False
             self.replicated_device = None
-            self.worker_device = ""
-        if agent_parameters.task_parameters.use_cpu:
-            self.worker_device += "/cpu:0"
-        else:
-            self.worker_device += "/device:GPU:0"
+            if agent_parameters.task_parameters.use_cpu:
+                self.worker_device = Device(DeviceType.CPU)
+            else:
+                self.worker_device = [Device(DeviceType.GPU, i)
+                                      for i in range(agent_parameters.task_parameters.num_gpu)]
 
         # filters
         self.input_filter = self.ap.input_filter
+        self.input_filter.set_name('input_filter')
         self.output_filter = self.ap.output_filter
+        self.output_filter.set_name('output_filter')
         self.pre_network_filter = self.ap.pre_network_filter
-        device = self.replicated_device if self.replicated_device else self.worker_device
-        self.input_filter.set_device(device)
-        self.output_filter.set_device(device)
-        self.pre_network_filter.set_device(device)
+        self.pre_network_filter.set_name('pre_network_filter')
 
+        device = self.replicated_device if self.replicated_device else self.worker_device
+
+        # TODO-REMOVE This is a temporary flow dividing to 3 modes. To be converged to a single flow once distributed tf
+        #  is removed, and Redis is used for sharing data between local workers.
+        # Filters MoW will be split between different configurations
+        # 1. Distributed coach synchrnization type (=distributed across multiple nodes) - Redis based data sharing + numpy arithmetic backend
+        # 2. Distributed TF (=distributed on a single node, using distributed TF) - TF for both data sharing and arithmetic backend
+        # 3. Single worker (=both TF and Mxnet) - no data sharing needed + numpy arithmetic backend
+
+        if hasattr(self.ap.memory, 'memory_backend_params') and self.ap.algorithm.distributed_coach_synchronization_type:
+            self.input_filter.set_device(device, memory_backend_params=self.ap.memory.memory_backend_params, mode='numpy')
+            self.output_filter.set_device(device, memory_backend_params=self.ap.memory.memory_backend_params, mode='numpy')
+            self.pre_network_filter.set_device(device, memory_backend_params=self.ap.memory.memory_backend_params, mode='numpy')
+        elif (type(agent_parameters.task_parameters) == DistributedTaskParameters and
+              agent_parameters.task_parameters.framework_type == Frameworks.tensorflow):
+            self.input_filter.set_device(device, mode='tf')
+            self.output_filter.set_device(device, mode='tf')
+            self.pre_network_filter.set_device(device, mode='tf')
+        else:
+            self.input_filter.set_device(device, mode='numpy')
+            self.output_filter.set_device(device, mode='numpy')
+            self.pre_network_filter.set_device(device, mode='numpy')
 
         # initialize all internal variables
         self._phase = RunPhase.HEATUP
@@ -134,7 +168,7 @@ class Agent(AgentInterface):
         self.accumulated_shaped_rewards_across_evaluation_episodes = 0
         self.num_successes_across_evaluation_episodes = 0
         self.num_evaluation_episodes_completed = 0
-        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount)
+        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step)
         # TODO: add agents observation rendering for debugging purposes (not the same as the environment rendering)
 
         # environment parameters
@@ -152,7 +186,6 @@ class Agent(AgentInterface):
         self.discounted_return = self.register_signal('Discounted Return')
         if isinstance(self.in_action_space, GoalsSpace):
             self.distance_from_goal = self.register_signal('Distance From Goal', dump_one_value_per_step=True)
-
         # use seed
         if self.ap.task_parameters.seed is not None:
             random.seed(self.ap.task_parameters.seed)
@@ -163,18 +196,20 @@ class Agent(AgentInterface):
             np.random.seed()
 
     @property
-    def parent(self):
+    def parent(self) -> 'LevelManager':
         """
         Get the parent class of the agent
+
         :return: the current phase
         """
         return self._parent
 
     @parent.setter
-    def parent(self, val):
+    def parent(self, val) -> None:
         """
         Change the parent class of the agent.
         Additionally, updates the full name of the agent
+
         :param val: the new parent
         :return: None
         """
@@ -184,7 +219,12 @@ class Agent(AgentInterface):
                 raise ValueError("The parent of an agent must have a name")
             self.full_name_id = self.ap.full_name_id = "{}/{}".format(self._parent.name, self.name)
 
-    def setup_logger(self):
+    def setup_logger(self) -> None:
+        """
+        Setup the logger for the agent
+
+        :return: None
+        """
         # dump documentation
         logger_prefix = "{graph_name}.{level_name}.{agent_full_id}".\
             format(graph_name=self.parent_level_manager.parent_graph_manager.name,
@@ -200,6 +240,7 @@ class Agent(AgentInterface):
     def set_session(self, sess) -> None:
         """
         Set the deep learning framework session for all the agents in the composite agent
+
         :return: None
         """
         self.input_filter.set_session(sess)
@@ -211,6 +252,7 @@ class Agent(AgentInterface):
                         dump_one_value_per_step: bool=False) -> Signal:
         """
         Register a signal such that its statistics will be dumped and be viewable through dashboard
+
         :param signal_name: the name of the signal as it will appear in dashboard
         :param dump_one_value_per_episode: should the signal value be written for each episode?
         :param dump_one_value_per_step: should the signal value be written for each step?
@@ -227,6 +269,7 @@ class Agent(AgentInterface):
         """
         Sets the parameters that are environment dependent. As a side effect, initializes all the components that are
         dependent on those values, by calling init_environment_dependent_modules
+
         :param spaces: the environment spaces definition
         :return: None
         """
@@ -262,6 +305,7 @@ class Agent(AgentInterface):
         Create all the networks of the agent.
         The network creation will be done after setting the environment parameters for the agent, since they are needed
         for creating the network.
+
         :return: A list containing all the networks
         """
         networks = {}
@@ -283,6 +327,7 @@ class Agent(AgentInterface):
         """
         Initialize any modules that depend on knowing information about the environment such as the action space or
         the observation space
+
         :return: None
         """
         # initialize exploration policy
@@ -302,13 +347,19 @@ class Agent(AgentInterface):
 
     @property
     def phase(self) -> RunPhase:
+        """
+        The current running phase of the agent
+
+        :return: RunPhase
+        """
         return self._phase
 
     @phase.setter
     def phase(self, val: RunPhase) -> None:
         """
         Change the phase of the run for the agent and all the sub components
-        :param phase: the new run phase (TRAIN, TEST, etc.)
+
+        :param val: the new run phase (TRAIN, TEST, etc.)
         :return: None
         """
         self.reset_evaluation_state(val)
@@ -316,6 +367,14 @@ class Agent(AgentInterface):
         self.exploration_policy.change_phase(val)
 
     def reset_evaluation_state(self, val: RunPhase) -> None:
+        """
+        Perform accumulators initialization when entering an evaluation phase, and signal dumping when exiting an
+        evaluation phase. Entering or exiting the evaluation phase is determined according to the new phase given
+        by val, and by the current phase set in self.phase.
+
+        :param val: The new phase to change to
+        :return: None
+        """
         starting_evaluation = (val == RunPhase.TEST)
         ending_evaluation = (self.phase == RunPhase.TEST)
 
@@ -331,9 +390,9 @@ class Agent(AgentInterface):
             # we write to the next episode, because it could be that the current episode was already written
             # to disk and then we won't write it again
             self.agent_logger.set_current_time(self.current_episode + 1)
+            evaluation_reward = self.accumulated_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
-                'Evaluation Reward',
-                self.accumulated_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed)
+                'Evaluation Reward', evaluation_reward)
             self.agent_logger.create_signal_value(
                 'Shaped Evaluation Reward',
                 self.accumulated_shaped_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed)
@@ -343,14 +402,15 @@ class Agent(AgentInterface):
                 success_rate
             )
             if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
-                screen.log_title("{}: Finished evaluation phase. Success rate = {}"
-                             .format(self.name, np.round(success_rate, 2)))
+                screen.log_title("{}: Finished evaluation phase. Success rate = {}, Avg Total Reward = {}"
+                                 .format(self.name, np.round(success_rate, 2), np.round(evaluation_reward, 2)))
 
     def call_memory(self, func, args=()):
         """
         This function is a wrapper to allow having the same calls for shared or unshared memories.
         It should be used instead of calling the memory directly in order to allow different algorithms to work
         both with a shared and a local memory.
+
         :param func: the name of the memory function to call
         :param args: the arguments to supply to the function
         :return: the return value of the function
@@ -363,7 +423,12 @@ class Agent(AgentInterface):
             result = getattr(self.memory, func)(*args)
         return result
 
-    def log_to_screen(self):
+    def log_to_screen(self) -> None:
+        """
+        Write an episode summary line to the terminal
+
+        :return: None
+        """
         # log to screen
         log = OrderedDict()
         log["Name"] = self.full_name_id
@@ -376,9 +441,10 @@ class Agent(AgentInterface):
         log["Training iteration"] = self.training_iteration
         screen.log_dict(log, prefix=self.phase.value)
 
-    def update_step_in_episode_log(self):
+    def update_step_in_episode_log(self) -> None:
         """
-        Writes logging messages to screen and updates the log file with all the signal values.
+        Updates the in-episode log file with all the signal values from the most recent step.
+
         :return: None
         """
         # log all the signals to file
@@ -399,9 +465,12 @@ class Agent(AgentInterface):
         # dump
         self.agent_episode_logger.dump_output_csv()
 
-    def update_log(self):
+    def update_log(self) -> None:
         """
-        Writes logging messages to screen and updates the log file with all the signal values.
+        Updates the episodic log file with all the signal values from the most recent episode.
+        Additional signals for logging can be set by the creating a new signal using self.register_signal,
+        and then updating it with some internal agent values.
+
         :return: None
         """
         # log all the signals to file
@@ -426,7 +495,6 @@ class Agent(AgentInterface):
             self.agent_logger.create_signal_value('Shaped Evaluation Reward', np.nan, overwrite=False)
             self.agent_logger.create_signal_value('Success Rate', np.nan, overwrite=False)
 
-
         for signal in self.episode_signals:
             self.agent_logger.create_signal_value("{}/Mean".format(signal.name), signal.get_mean())
             self.agent_logger.create_signal_value("{}/Stdev".format(signal.name), signal.get_stdev())
@@ -440,14 +508,17 @@ class Agent(AgentInterface):
 
     def handle_episode_ended(self) -> None:
         """
-        End an episode
+        Make any changes needed when each episode is ended.
+        This includes incrementing counters, updating full episode dependent values, updating logs, etc.
+        This function is called right after each episode is ended.
+
         :return: None
         """
         self.current_episode_buffer.is_complete = True
-        self.current_episode_buffer.update_returns()
+        self.current_episode_buffer.update_transitions_rewards_and_bootstrap_data()
 
         for transition in self.current_episode_buffer.transitions:
-            self.discounted_return.add_sample(transition.total_return)
+            self.discounted_return.add_sample(transition.n_step_discounted_rewards)
 
         if self.phase != RunPhase.TEST or self.ap.task_parameters.evaluate_only:
             self.current_episode += 1
@@ -474,9 +545,10 @@ class Agent(AgentInterface):
         if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
             self.log_to_screen()
 
-    def reset_internal_state(self):
+    def reset_internal_state(self) -> None:
         """
-        Reset all the episodic parameters
+        Reset all the episodic parameters. This function is called right before each episode starts.
+
         :return: None
         """
         for signal in self.episode_signals:
@@ -489,7 +561,7 @@ class Agent(AgentInterface):
         self.curr_state = {}
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
-        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount)
+        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step)
         if self.exploration_policy:
             self.exploration_policy.reset()
         self.input_filter.reset()
@@ -504,6 +576,7 @@ class Agent(AgentInterface):
     def learn_from_batch(self, batch) -> Tuple[float, List, List]:
         """
         Given a batch of transitions, calculates their target values and updates the network.
+
         :param batch: A list of transitions
         :return: The total loss of the training, the loss per head and the unclipped gradients
         """
@@ -512,8 +585,10 @@ class Agent(AgentInterface):
     def _should_update_online_weights_to_target(self):
         """
         Determine if online weights should be copied to the target.
+
         :return: boolean: True if the online weights should be copied to the target.
         """
+
         # update the target network of every network that has a target network
         step_method = self.ap.algorithm.num_steps_between_copying_online_weights_to_target
         if step_method.__class__ == TrainingSteps:
@@ -529,32 +604,51 @@ class Agent(AgentInterface):
                              "EnvironmentSteps or TrainingSteps. Instead it is {}".format(step_method.__class__))
         return should_update
 
-    def _should_train(self, wait_for_full_episode=False):
+    def _should_train(self):
         """
         Determine if we should start a training phase according to the number of steps passed since the last training
+
         :return:  boolean: True if we should start a training phase
         """
+
+        should_update = self._should_train_helper()
+
         step_method = self.ap.algorithm.num_consecutive_playing_steps
+
+        if should_update:
+            if step_method.__class__ == EnvironmentEpisodes:
+                self.last_training_phase_step = self.current_episode
+            if step_method.__class__ == EnvironmentSteps:
+                self.last_training_phase_step = self.total_steps_counter
+
+        return should_update
+
+    def _should_train_helper(self):
+        wait_for_full_episode = self.ap.algorithm.act_for_full_episodes
+        step_method = self.ap.algorithm.num_consecutive_playing_steps
+
         if step_method.__class__ == EnvironmentEpisodes:
             should_update = (self.current_episode - self.last_training_phase_step) >= step_method.num_steps
-            if should_update:
-                self.last_training_phase_step = self.current_episode
+            should_update = should_update and self.call_memory('length') > 0
+
         elif step_method.__class__ == EnvironmentSteps:
             should_update = (self.total_steps_counter - self.last_training_phase_step) >= step_method.num_steps
+            should_update = should_update and self.call_memory('num_transitions') > 0
+
             if wait_for_full_episode:
                 should_update = should_update and self.current_episode_buffer.is_complete
-            if should_update:
-                self.last_training_phase_step = self.total_steps_counter
         else:
             raise ValueError("The num_consecutive_playing_steps parameter should be either "
                              "EnvironmentSteps or Episodes. Instead it is {}".format(step_method.__class__))
+
         return should_update
 
-    def train(self):
+    def train(self) -> float:
         """
         Check if a training phase should be done as configured by num_consecutive_playing_steps.
         If it should, then do several training steps as configured by num_consecutive_training_steps.
         A single training iteration: Sample a batch, train on it and update target networks.
+
         :return: The total training loss during the training iterations.
         """
         loss = 0
@@ -611,14 +705,12 @@ class Agent(AgentInterface):
             # run additional commands after the training is done
             self.post_training_commands()
 
-
-
         return loss
 
     def choose_action(self, curr_state):
         """
-        choose an action to act with in the current episode being played. Different behavior might be exhibited when training
-         or testing.
+        choose an action to act with in the current episode being played. Different behavior might be exhibited when
+        training or testing.
 
         :param curr_state: the current state to act upon.
         :return: chosen action, some action value describing the action (q-value, probability, etc)
@@ -626,10 +718,16 @@ class Agent(AgentInterface):
         pass
 
     def prepare_batch_for_inference(self, states: Union[Dict[str, np.ndarray], List[Dict[str, np.ndarray]]],
-                                    network_name: str):
+                                    network_name: str) -> Dict[str, np.array]:
         """
-        convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
+        Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
         observations together, measurements together, etc.
+
+        :param states: A list of environment states, where each one is a dict mapping from an observation name to its
+                       corresponding observation
+        :param network_name: The agent network name to prepare the batch for. this is needed in order to extract only
+                             the observation relevant for the network from the states.
+        :return: A dictionary containing a list of values from all the given states for each of the observations
         """
         # convert to batch so we can run it through the network
         states = force_list(states)
@@ -646,7 +744,8 @@ class Agent(AgentInterface):
     def act(self) -> ActionInfo:
         """
         Given the agents current knowledge, decide on the next action to apply to the environment
-        :return: an action and a dictionary containing any additional info from the action decision process
+
+        :return: An ActionInfo object, which contains the action and any additional info from the action decision process
         """
         if self.phase == RunPhase.TRAIN and self.ap.algorithm.num_consecutive_playing_steps.num_steps == 0:
             # This agent never plays  while training (e.g. behavioral cloning)
@@ -675,13 +774,20 @@ class Agent(AgentInterface):
 
         return filtered_action_info
 
-    def run_pre_network_filter_for_inference(self, state: StateType):
+    def run_pre_network_filter_for_inference(self, state: StateType) -> StateType:
+        """
+        Run filters which where defined for being applied right before using the state for inference.
+
+        :param state: The state to run the filters on
+        :return: The filtered state
+        """
         dummy_env_response = EnvResponse(next_state=state, reward=0, game_over=False)
         return self.pre_network_filter.filter(dummy_env_response)[0].next_state
 
     def get_state_embedding(self, state: dict) -> np.ndarray:
         """
         Given a state, get the corresponding state embedding  from the main network
+
         :param state: a state dict
         :return: a numpy embedding vector
         """
@@ -696,6 +802,7 @@ class Agent(AgentInterface):
         """
         Allows agents to update the transition just before adding it to the replay buffer.
         Can be useful for agents that want to tweak the reward, termination signal, etc.
+
         :param transition: the transition to update
         :return: the updated transition
         """
@@ -706,8 +813,10 @@ class Agent(AgentInterface):
         Given a response from the environment, distill the observation from it and store it for later use.
         The response should be a dictionary containing the performed action, the new observation and measurements,
         the reward, a game over flag and any additional information necessary.
+
         :param env_response: result of call from environment.step(action)
-        :return:
+        :return: a boolean value which determines if the agent has decided to terminate the episode after seeing the
+                 given observation
         """
 
         # filter the env_response
@@ -771,7 +880,12 @@ class Agent(AgentInterface):
 
             return transition.game_over
 
-    def post_training_commands(self):
+    def post_training_commands(self) -> None:
+        """
+        A function which allows adding any functionality that is required to run right after the training phase ends.
+
+        :return: None
+        """
         pass
 
     def get_predictions(self, states: List[Dict[str, np.ndarray]], prediction_type: PredictionType):
@@ -779,9 +893,10 @@ class Agent(AgentInterface):
         Get a prediction from the agent with regard to the requested prediction_type.
         If the agent cannot predict this type of prediction_type, or if there is more than possible way to do so,
         raise a ValueException.
-        :param states:
-        :param prediction_type:
-        :return:
+
+        :param states: The states to get a prediction for
+        :param prediction_type: The type of prediction to get for the states. For example, the state-value prediction.
+        :return: the predicted values
         """
 
         predictions = self.networks['main'].online_network.predict_with_prediction_type(
@@ -794,6 +909,15 @@ class Agent(AgentInterface):
         return list(predictions.values())[0]
 
     def set_incoming_directive(self, action: ActionType) -> None:
+        """
+        Allows setting a directive for the agent to follow. This is useful in hierarchy structures, where the agent
+        has another master agent that is controlling it. In such cases, the master agent can define the goals for the
+        slave agent, define it's observation, possible actions, etc. The directive type is defined by the agent
+        in-action-space.
+
+        :param action: The action that should be set as the directive
+        :return:
+        """
         if isinstance(self.in_action_space, GoalsSpace):
             self.current_hrl_goal = action
         elif isinstance(self.in_action_space, AttentionActionSpace):
@@ -801,23 +925,117 @@ class Agent(AgentInterface):
             self.input_filter.observation_filters['attention'].crop_high = action[1]
             self.output_filter.action_filters['masking'].set_masking(action[0], action[1])
 
-    def save_checkpoint(self, checkpoint_id: int) -> None:
+    def save_checkpoint(self, checkpoint_prefix: str) -> None:
         """
         Allows agents to store additional information when saving checkpoints.
-        :param checkpoint_id: the id of the checkpoint
+
+        :param checkpoint_prefix: The prefix of the checkpoint file to save
         :return: None
         """
-        pass
+        checkpoint_dir = self.ap.task_parameters.checkpoint_save_dir
+
+        checkpoint_prefix = '.'.join([checkpoint_prefix] + self.full_name_id.split('/'))  # adds both level name and agent name
+
+        self.input_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
+        self.output_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
+        self.pre_network_filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
+
+    def restore_checkpoint(self, checkpoint_dir: str) -> None:
+        """
+        Allows agents to store additional information when saving checkpoints.
+
+        :param checkpoint_dir: The checkpoint dir to restore from
+        :return: None
+        """
+        checkpoint_prefix = '.'.join(self.full_name_id.split('/'))  # adds both level name and agent name
+        self.input_filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
+        self.pre_network_filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
+
+        # no output filters currently have an internal state to restore
+        # self.output_filter.restore_state_from_checkpoint(checkpoint_dir)
 
     def sync(self) -> None:
         """
         Sync the global network parameters to local networks
+
         :return: None
         """
         for network in self.networks.values():
             network.sync()
 
+    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
+    #               an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
+    def emulate_observe_on_trainer(self, transition: Transition) -> bool:
+        """
+        This emulates the observe using the transition obtained from the rollout worker on the training worker
+        in case of distributed training.
+        Given a response from the environment, distill the observation from it and store it for later use.
+        The response should be a dictionary containing the performed action, the new observation and measurements,
+        the reward, a game over flag and any additional information necessary.
+        :return:
+        """
 
+        # if we are in the first step in the episode, then we don't have a a next state and a reward and thus no
+        # transition yet, and therefore we don't need to store anything in the memory.
+        # also we did not reach the goal yet.
+        if self.current_episode_steps_counter == 0:
+            # initialize the current state
+            return transition.game_over
+        else:
+            # sum up the total shaped reward
+            self.total_shaped_reward_in_current_episode += transition.reward
+            self.total_reward_in_current_episode += transition.reward
+            self.shaped_reward.add_sample(transition.reward)
+            self.reward.add_sample(transition.reward)
 
+            # create and store the transition
+            if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
+                # for episodic memories we keep the transitions in a local buffer until the episode is ended.
+                # for regular memories we insert the transitions directly to the memory
+                self.current_episode_buffer.insert(transition)
+                if not isinstance(self.memory, EpisodicExperienceReplay) \
+                        and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
+                    self.call_memory('store', transition)
 
+            if self.ap.visualization.dump_in_episode_signals:
+                self.update_step_in_episode_log()
 
+            return transition.game_over
+
+    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
+    #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
+    def emulate_act_on_trainer(self, transition: Transition) -> ActionInfo:
+        """
+        This emulates the act using the transition obtained from the rollout worker on the training worker
+        in case of distributed training.
+        Given the agents current knowledge, decide on the next action to apply to the environment
+        :return: an action and a dictionary containing any additional info from the action decision process
+        """
+        if self.phase == RunPhase.TRAIN and self.ap.algorithm.num_consecutive_playing_steps.num_steps == 0:
+            # This agent never plays  while training (e.g. behavioral cloning)
+            return None
+
+        # count steps (only when training or if we are in the evaluation worker)
+        if self.phase != RunPhase.TEST or self.ap.task_parameters.evaluate_only:
+            self.total_steps_counter += 1
+        self.current_episode_steps_counter += 1
+
+        self.last_action_info = transition.action
+
+        return self.last_action_info
+
+    def get_success_rate(self) -> float:
+        return self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed
+
+    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+        """
+        Collect all of agent's network savers
+        :param parent_path_suffix: path suffix of the parent of the agent
+            (could be name of level manager or composite agent)
+        :return: collection of all agent savers
+        """
+        parent_path_suffix = "{}.{}".format(parent_path_suffix, self.name)
+        savers = SaverCollection()
+        for network in self.networks.values():
+            savers.update(network.collect_savers(parent_path_suffix))
+        return savers

@@ -41,8 +41,8 @@ def test_store_and_get(buffer: SingleEpisodeBuffer):
     # check that the episode is valid
     episode = buffer.get(0)
     assert episode.length() == 2
-    assert episode.get_transition(0).total_return == 1 + 0.99
-    assert episode.get_transition(1).total_return == 1
+    assert episode.get_transition(0).n_step_discounted_rewards == 1 + 0.99
+    assert episode.get_transition(1).n_step_discounted_rewards == 1
     assert buffer.mean_reward() == 1
 
     # only one episode in the replay buffer

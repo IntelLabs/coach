@@ -1,0 +1,592 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Input Filters &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Output Filters" href="output_filters.html" />
+    <link rel="prev" title="Filters" href="index.html" />
+    <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Filters</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Input Filters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#observation-filters">Observation Filters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#observationclippingfilter">ObservationClippingFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationcropfilter">ObservationCropFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationmoveaxisfilter">ObservationMoveAxisFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationnormalizationfilter">ObservationNormalizationFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationreductionbysubpartsnamefilter">ObservationReductionBySubPartsNameFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationrescalesizebyfactorfilter">ObservationRescaleSizeByFactorFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationrescaletosizefilter">ObservationRescaleToSizeFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationrgbtoyfilter">ObservationRGBToYFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationsqueezefilter">ObservationSqueezeFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationstackingfilter">ObservationStackingFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#observationtouint8filter">ObservationToUInt8Filter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#reward-filters">Reward Filters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rewardclippingfilter">RewardClippingFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rewardnormalizationfilter">RewardNormalizationFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rewardrescalefilter">RewardRescaleFilter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="output_filters.html">Output Filters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Filters</a> &raquo;</li>
+        
+      <li>Input Filters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/components/filters/input_filters.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="input-filters">
+<h1>Input Filters<a class="headerlink" href="#input-filters" title="Permalink to this headline">¶</a></h1>
+<p>The input filters are separated into two categories - <strong>observation filters</strong> and <strong>reward filters</strong>.</p>
+<div class="section" id="observation-filters">
+<h2>Observation Filters<a class="headerlink" href="#observation-filters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="observationclippingfilter">
+<h3>ObservationClippingFilter<a class="headerlink" href="#observationclippingfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationClippingFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationClippingFilter</code><span class="sig-paren">(</span><em>clipping_low: float = -inf</em>, <em>clipping_high: float = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_clipping_filter.html#ObservationClippingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationClippingFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clips the observation values to a given range of values.
+For example, if the observation consists of measurements in an arbitrary range,
+and we want to control the minimum and maximum values of these observations,
+we can define a range and clip the values of the measurements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clipping_low</strong> – The minimum value to allow after normalizing the observation</li>
+<li><strong>clipping_high</strong> – The maximum value to allow after normalizing the observation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationcropfilter">
+<h3>ObservationCropFilter<a class="headerlink" href="#observationcropfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationCropFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationCropFilter</code><span class="sig-paren">(</span><em>crop_low: numpy.ndarray = None</em>, <em>crop_high: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_crop_filter.html#ObservationCropFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationCropFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crops the size of the observation to a given crop window. For example, in Atari, the
+observations are images with a shape of 210x160. Usually, we will want to crop the size of the observation to a
+square of 160x160 before rescaling them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>crop_low</strong> – a vector where each dimension describes the start index for cropping the observation in the
+corresponding dimension. a negative value of -1 will be mapped to the max size</li>
+<li><strong>crop_high</strong> – a vector where each dimension describes the end index for cropping the observation in the
+corresponding dimension. a negative value of -1 will be mapped to the max size</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationmoveaxisfilter">
+<h3>ObservationMoveAxisFilter<a class="headerlink" href="#observationmoveaxisfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationMoveAxisFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationMoveAxisFilter</code><span class="sig-paren">(</span><em>axis_origin: int = None</em>, <em>axis_target: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_move_axis_filter.html#ObservationMoveAxisFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationMoveAxisFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorders the axes of the observation. This can be useful when the observation is an
+image, and we want to move the channel axis to be the last axis instead of the first axis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>axis_origin</strong> – The axis to move</li>
+<li><strong>axis_target</strong> – Where to move the selected axis to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationnormalizationfilter">
+<h3>ObservationNormalizationFilter<a class="headerlink" href="#observationnormalizationfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationNormalizationFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationNormalizationFilter</code><span class="sig-paren">(</span><em>clip_min: float = -5.0</em>, <em>clip_max: float = 5.0</em>, <em>name='observation_stats'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_normalization_filter.html#ObservationNormalizationFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationNormalizationFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the observation values with a running mean and standard deviation of
+all the observations seen so far. The normalization is performed element-wise. Additionally, when working with
+multiple workers, the statistics used for the normalization operation are accumulated over all the workers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clip_min</strong> – The minimum value to allow after normalizing the observation</li>
+<li><strong>clip_max</strong> – The maximum value to allow after normalizing the observation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationreductionbysubpartsnamefilter">
+<h3>ObservationReductionBySubPartsNameFilter<a class="headerlink" href="#observationreductionbysubpartsnamefilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationReductionBySubPartsNameFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationReductionBySubPartsNameFilter</code><span class="sig-paren">(</span><em>part_names: List[str], reduction_method: rl_coach.filters.observation.observation_reduction_by_sub_parts_name_filter.ObservationReductionBySubPartsNameFilter.ReductionMethod</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_reduction_by_sub_parts_name_filter.html#ObservationReductionBySubPartsNameFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationReductionBySubPartsNameFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows keeping only parts of the observation, by specifying their
+name. This is useful when the environment has a measurements vector as observation which includes several different
+measurements, but you want the agent to only see some of the measurements and not all.
+For example, the CARLA environment extracts multiple measurements that can be used by the agent, such as
+speed and location. If we want to only use the speed, it can be done using this filter.
+This will currently work only for VectorObservationSpace observations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>part_names</strong> – A list of part names to reduce</li>
+<li><strong>reduction_method</strong> – A reduction method to use - keep or discard the given parts</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationrescalesizebyfactorfilter">
+<h3>ObservationRescaleSizeByFactorFilter<a class="headerlink" href="#observationrescalesizebyfactorfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleSizeByFactorFilter</code><span class="sig-paren">(</span><em>rescale_factor: float</em>, <em>rescaling_interpolation_type: rl_coach.filters.observation.observation_rescale_size_by_factor_filter.RescaleInterpolationType</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_size_by_factor_filter.html#ObservationRescaleSizeByFactorFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rescales an image observation by some factor. For example, the image size
+can be reduced by a factor of 2.
+Warning: this requires the input observation to be of type uint8 due to scipy requirements!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rescale_factor</strong> – the factor by which the observation will be rescaled</li>
+<li><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationrescaletosizefilter">
+<h3>ObservationRescaleToSizeFilter<a class="headerlink" href="#observationrescaletosizefilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationRescaleToSizeFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleToSizeFilter</code><span class="sig-paren">(</span><em>output_observation_space: rl_coach.spaces.PlanarMapsObservationSpace</em>, <em>rescaling_interpolation_type: rl_coach.filters.observation.observation_rescale_to_size_filter.RescaleInterpolationType = &lt;RescaleInterpolationType.BILINEAR: 'bilinear'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_to_size_filter.html#ObservationRescaleToSizeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleToSizeFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rescales an image observation to a given size. The target size does not
+necessarily keep the aspect ratio of the original observation.
+Warning: this requires the input observation to be of type uint8 due to scipy requirements!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output_observation_space</strong> – the output observation space</li>
+<li><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationrgbtoyfilter">
+<h3>ObservationRGBToYFilter<a class="headerlink" href="#observationrgbtoyfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationRGBToYFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRGBToYFilter</code><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rgb_to_y_filter.html#ObservationRGBToYFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRGBToYFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a color image observation specified using the RGB encoding into a grayscale
+image observation, by keeping only the luminance (Y) channel of the YUV encoding. This can be useful if the colors
+in the original image are not relevant for solving the task at hand.
+The channels axis is assumed to be the last axis</p>
+</dd></dl>
+
+</div>
+<div class="section" id="observationsqueezefilter">
+<h3>ObservationSqueezeFilter<a class="headerlink" href="#observationsqueezefilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationSqueezeFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationSqueezeFilter</code><span class="sig-paren">(</span><em>axis: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_squeeze_filter.html#ObservationSqueezeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationSqueezeFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes redundant axes from the observation, which are axes with a dimension of 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> – Specifies which axis to remove. If set to None, all the axes of size 1 will be removed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationstackingfilter">
+<h3>ObservationStackingFilter<a class="headerlink" href="#observationstackingfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationStackingFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationStackingFilter</code><span class="sig-paren">(</span><em>stack_size: int</em>, <em>stacking_axis: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_stacking_filter.html#ObservationStackingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationStackingFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stacks several observations on top of each other. For image observation this will
+create a 3D blob. The stacking is done in a lazy manner in order to reduce memory consumption. To achieve this,
+a LazyStack object is used in order to wrap the observations in the stack. For this reason, the
+ObservationStackingFilter <strong>must</strong> be the last filter in the inputs filters stack.
+This filter is stateful since it stores the previous step result and depends on it.
+The filter adds an additional dimension to the output observation.</p>
+<p>Warning!!! The filter replaces the observation with a LazyStack object, so no filters should be
+applied after this filter. applying more filters will cause the LazyStack object to be converted to a numpy array
+and increase the memory footprint.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stack_size</strong> – the number of previous observations in the stack</li>
+<li><strong>stacking_axis</strong> – the axis on which to stack the observation on</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="observationtouint8filter">
+<h3>ObservationToUInt8Filter<a class="headerlink" href="#observationtouint8filter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.observation.ObservationToUInt8Filter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationToUInt8Filter</code><span class="sig-paren">(</span><em>input_low: float</em>, <em>input_high: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_to_uint8_filter.html#ObservationToUInt8Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationToUInt8Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a floating point observation into an unsigned int 8 bit observation. This is
+mostly useful for reducing memory consumption and is usually used for image observations. The filter will first
+spread the observation values over the range 0-255 and then discretize them into integer values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_low</strong> – The lowest value currently present in the observation</li>
+<li><strong>input_high</strong> – The highest value currently present in the observation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="reward-filters">
+<h2>Reward Filters<a class="headerlink" href="#reward-filters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rewardclippingfilter">
+<h3>RewardClippingFilter<a class="headerlink" href="#rewardclippingfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.reward.RewardClippingFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardClippingFilter</code><span class="sig-paren">(</span><em>clipping_low: float = -inf</em>, <em>clipping_high: float = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_clipping_filter.html#RewardClippingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardClippingFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clips the reward values into a given range. For example, in DQN, the Atari rewards are
+clipped into the range -1 and 1 in order to control the scale of the returns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clipping_low</strong> – The low threshold for reward clipping</li>
+<li><strong>clipping_high</strong> – The high threshold for reward clipping</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="rewardnormalizationfilter">
+<h3>RewardNormalizationFilter<a class="headerlink" href="#rewardnormalizationfilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.reward.RewardNormalizationFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardNormalizationFilter</code><span class="sig-paren">(</span><em>clip_min: float = -5.0</em>, <em>clip_max: float = 5.0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_normalization_filter.html#RewardNormalizationFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardNormalizationFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the reward values with a running mean and standard deviation of
+all the rewards seen so far. When working with multiple workers, the statistics used for the normalization operation
+are accumulated over all the workers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clip_min</strong> – The minimum value to allow after normalizing the reward</li>
+<li><strong>clip_max</strong> – The maximum value to allow after normalizing the reward</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="rewardrescalefilter">
+<h3>RewardRescaleFilter<a class="headerlink" href="#rewardrescalefilter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.filters.reward.RewardRescaleFilter">
+<em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardRescaleFilter</code><span class="sig-paren">(</span><em>rescale_factor: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_rescale_filter.html#RewardRescaleFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardRescaleFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rescales the reward by a given factor. Rescaling the rewards of the environment has been
+observed to have a large effect (negative or positive) on the behavior of the learning process.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rescale_factor</strong> – The reward rescaling factor by which the reward will be multiplied</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="output_filters.html" class="btn btn-neutral float-right" title="Output Filters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

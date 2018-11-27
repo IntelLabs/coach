@@ -1,0 +1,17 @@
+annoy>=1.8.3
+Pillow>=4.3.0
+matplotlib>=2.0.2
+numpy>=1.14.5
+pandas>=0.22.0
+pygame>=1.9.3
+PyOpenGL>=3.1.0
+scipy>=0.19.0
+scikit-image>=0.13.0
+gym>=0.10.5
+bokeh>=0.13.0
+futures>=3.1.1
+wxPython>=4.0.1
+kubernetes>=8.0.0b1
+redis>=2.10.6
+minio>=4.0.5
+pytest>=3.8.2

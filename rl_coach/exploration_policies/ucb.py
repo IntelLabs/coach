@@ -43,6 +43,15 @@ class UCBParameters(EGreedyParameters):
 
 
 class UCB(EGreedy):
+    """
+    UCB exploration policy is following the upper confidence bound heuristic to sample actions in discrete action spaces.
+    It assumes that there are multiple network heads that are predicting action values, and that the standard deviation
+    between the heads predictions represents the uncertainty of the agent in each of the actions.
+    It then updates the action value estimates to by mean(actions)+lambda*stdev(actions), where lambda is
+    given by the user. This exploration policy aims to take advantage of the uncertainty of the agent in its predictions,
+    and select the action according to the tradeoff between how uncertain the agent is, and how large it predicts
+    the outcome from those actions to be.
+    """
     def __init__(self, action_space: ActionSpace, epsilon_schedule: Schedule, evaluation_epsilon: float,
                  architecture_num_q_heads: int, lamb: int,
                  continuous_exploration_policy_parameters: ExplorationParameters = AdditiveNoiseParameters()):

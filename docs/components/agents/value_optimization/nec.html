@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Neural Episodic Control &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Persistent Advantage Learning" href="pal.html" />
+    <link rel="prev" title="Normalized Advantage Functions" href="naf.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Agents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ac.html">Actor-Critic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/bc.html">Behavioral Cloning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bs_dqn.html">Bootstrapped DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="categorical_dqn.html">Categorical DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../imitation/cil.html">Conditional Imitation Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../other/dfp.html">Direct Future Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="double_dqn.html">Double DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dqn.html">Deep Q Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dueling_dqn.html">Dueling DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mmc.html">Mixed Monte Carlo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="n_step.html">N-Step Q Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="naf.html">Normalized Advantage Functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Neural Episodic Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#network-structure">Network Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-description">Algorithm Description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#choosing-an-action">Choosing an action</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finalizing-an-episode">Finalizing an episode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training-the-network">Training the network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pal.html">Persistent Advantage Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/pg.html">Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ppo.html">Proximal Policy Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rainbow.html">Rainbow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_dqn.html">Quantile Regression DQN</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Agents</a> &raquo;</li>
+        
+      <li>Neural Episodic Control</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/components/agents/value_optimization/nec.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="neural-episodic-control">
+<h1>Neural Episodic Control<a class="headerlink" href="#neural-episodic-control" title="Permalink to this headline">¶</a></h1>
+<p><strong>Actions space:</strong> Discrete</p>
+<p><strong>References:</strong> <a class="reference external" href="https://arxiv.org/abs/1703.01988">Neural Episodic Control</a></p>
+<div class="section" id="network-structure">
+<h2>Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h2>
+<a class="reference internal image-reference" href="../../../_images/nec.png"><img alt="../../../_images/nec.png" class="align-center" src="../../../_images/nec.png" style="width: 500px;" /></a>
+</div>
+<div class="section" id="algorithm-description">
+<h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="choosing-an-action">
+<h3>Choosing an action<a class="headerlink" href="#choosing-an-action" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic simple">
+<li>Use the current state as an input to the online network and extract the state embedding, which is the intermediate
+output from the middleware.</li>
+<li>For each possible action <span class="math notranslate nohighlight">\(a_i\)</span>, run the DND head using the state embedding and the selected action <span class="math notranslate nohighlight">\(a_i\)</span> as inputs.
+The DND is queried and returns the <span class="math notranslate nohighlight">\(P\)</span> nearest neighbor keys and values. The keys and values are used to calculate
+and return the action <span class="math notranslate nohighlight">\(Q\)</span> value from the network.</li>
+<li>Pass all the <span class="math notranslate nohighlight">\(Q\)</span> values to the exploration policy and choose an action accordingly.</li>
+<li>Store the state embeddings and actions taken during the current episode in a small buffer <span class="math notranslate nohighlight">\(B\)</span>, in order to
+accumulate transitions until it is possible to calculate the total discounted returns over the entire episode.</li>
+</ol>
+</div>
+<div class="section" id="finalizing-an-episode">
+<h3>Finalizing an episode<a class="headerlink" href="#finalizing-an-episode" title="Permalink to this headline">¶</a></h3>
+<p>For each step in the episode, the state embeddings and the taken actions are stored in the buffer <span class="math notranslate nohighlight">\(B\)</span>.
+When the episode is finished, the replay buffer calculates the <span class="math notranslate nohighlight">\(N\)</span>-step total return of each transition in the
+buffer, bootstrapped using the maximum <span class="math notranslate nohighlight">\(Q\)</span> value of the <span class="math notranslate nohighlight">\(N\)</span>-th transition. Those values are inserted
+along with the total return into the DND, and the buffer <span class="math notranslate nohighlight">\(B\)</span> is reset.</p>
+</div>
+<div class="section" id="training-the-network">
+<h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
+<p>Train the network only when the DND has enough entries for querying.</p>
+<p>To train the network, the current states are used as the inputs and the <span class="math notranslate nohighlight">\(N\)</span>-step returns are used as the targets.
+The <span class="math notranslate nohighlight">\(N\)</span>-step return used takes into account <span class="math notranslate nohighlight">\(N\)</span> consecutive steps, and bootstraps the last value from
+the network if necessary:
+<span class="math notranslate nohighlight">\(y_t=\sum_{j=0}^{N-1}\gamma^j r(s_{t+j},a_{t+j} ) +\gamma^N   max_a Q(s_{t+N},a)\)</span></p>
+<dl class="class">
+<dt id="rl_coach.agents.nec_agent.NECAlgorithmParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.agents.nec_agent.</code><code class="descname">NECAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/nec_agent.html#NECAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.nec_agent.NECAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dnd_size</strong> – (int)
+Defines the number of transitions that will be stored in each one of the DNDs. Note that the total number
+of transitions that will be stored is dnd_size x num_actions.</li>
+<li><strong>l2_norm_added_delta</strong> – (float)
+A small value that will be added when calculating the weight of each of the DND entries. This follows the
+<span class="math notranslate nohighlight">\(\delta\)</span> patameter defined in the paper.</li>
+<li><strong>new_value_shift_coefficient</strong> – (float)
+In the case where a ew embedding that was added to the DND was already present, the value that will be stored
+in the DND is a mix between the existing value and the new value. The mix rate is defined by
+new_value_shift_coefficient.</li>
+<li><strong>number_of_knn</strong> – (int)
+The number of neighbors that will be retrieved for each DND query.</li>
+<li><strong>DND_key_error_threshold</strong> – (float)
+When the DND is queried for a specific embedding, this threshold will be used to determine if the embedding
+exists in the DND, since exact matches of embeddings are very rare.</li>
+<li><strong>propagate_updates_to_DND</strong> – (bool)
+If set to True, when the gradients of the network will be calculated, the gradients will also be
+backpropagated through the keys of the DND. The keys will then be updated as well, as if they were regular
+network weights.</li>
+<li><strong>n_step</strong> – (int)
+The bootstrap length that will be used when calculating the state values to store in the DND.</li>
+<li><strong>bootstrap_total_return_from_old_policy</strong> – (bool)
+If set to True, the bootstrap that will be used to calculate each state-action value, is the network value
+when the state was first seen, and not the latest, most up-to-date network value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pal.html" class="btn btn-neutral float-right" title="Persistent Advantage Learning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="naf.html" class="btn btn-neutral" title="Normalized Advantage Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

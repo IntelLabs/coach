@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Control Flow &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Network Design" href="network.html" />
+    <link rel="prev" title="Coach Dashboard" href="../dashboard.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Control Flow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#graph-manager">Graph Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#level-manager">Level Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#agent">Agent</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Control Flow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/design/control_flow.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="control-flow">
+<h1>Control Flow<a class="headerlink" href="#control-flow" title="Permalink to this headline">¶</a></h1>
+<p>Coach is built in a modular way, encouraging modules reuse and reducing the amount of boilerplate code needed
+for developing new algorithms or integrating a new challenge as an environment.
+On the other hand, it can be overwhelming for new users to ramp up on the code.
+To help with that, here’s a short overview of the control flow.</p>
+<div class="section" id="graph-manager">
+<h2>Graph Manager<a class="headerlink" href="#graph-manager" title="Permalink to this headline">¶</a></h2>
+<p>The main entry point for Coach is <code class="code docutils literal notranslate"><span class="pre">coach.py</span></code>.
+The main functionality of this script is to parse the command line arguments and invoke all the sub-processes needed
+for the given experiment.
+<code class="code docutils literal notranslate"><span class="pre">coach.py</span></code> executes the given <strong>preset</strong> file which returns a <code class="code docutils literal notranslate"><span class="pre">GraphManager</span></code> object.</p>
+<p>A <strong>preset</strong> is a design pattern that is intended for concentrating the entire definition of an experiment in a single
+file. This helps with experiments reproducibility, improves readability and prevents confusion.
+The outcome of a preset is a <code class="code docutils literal notranslate"><span class="pre">GraphManager</span></code> which will usually be instantiated in the final lines of the preset.</p>
+<p>A <code class="code docutils literal notranslate"><span class="pre">GraphManager</span></code> is an object that holds all the agents and environments of an experiment, and is mostly responsible
+for scheduling their work. Why is it called a <strong>graph</strong> manager? Because agents and environments are structured into
+a graph of interactions. For example, in hierarchical reinforcement learning schemes, there will often be a master
+policy agent, that will control a sub-policy agent, which will interact with the environment. Other schemes can have
+much more complex graphs of control, such as several hierarchy layers, each with multiple agents.
+The graph manager’s main loop is the improve loop.</p>
+<a class="reference internal image-reference" href="../_images/improve.png"><img alt="../_images/improve.png" class="align-center" src="../_images/improve.png" style="width: 400px;" /></a>
+<p>The improve loop skips between 3 main phases - heatup, training and evaluation:</p>
+<ul class="simple">
+<li><strong>Heatup</strong> - the goal of this phase is to collect initial data for populating the replay buffers. The heatup phase
+takes place only in the beginning of the experiment, and the agents will act completely randomly during this phase.
+Importantly, the agents do not train their networks during this phase. DQN for example, uses 50k random steps in order
+to initialize the replay buffers.</li>
+<li><strong>Training</strong> - the training phase is the main phase of the experiment. This phase can change between agent types,
+but essentially consists of repeated cycles of acting, collecting data from the environment, and training the agent
+networks. During this phase, the agent will use its exploration policy in training mode, which will add noise to its
+actions in order to improve its knowledge about the environment state space.</li>
+<li><strong>Evaluation</strong> - the evaluation phase is intended for evaluating the current performance of the agent. The agents
+will act greedily in order to exploit the knowledge aggregated so far and the performance over multiple episodes of
+evaluation will be averaged in order to reduce the stochasticity effects of all the components.</li>
+</ul>
+</div>
+<div class="section" id="level-manager">
+<h2>Level Manager<a class="headerlink" href="#level-manager" title="Permalink to this headline">¶</a></h2>
+<p>In each of the 3 phases described above, the graph manager will invoke all the hierarchy levels in the graph in a
+synchronized manner. In Coach, agents do not interact directly with the environment. Instead, they go through a
+<em>LevelManager</em>, which is a proxy that manages their interaction. The level manager passes the current state and reward
+from the environment to the agent, and the actions from the agent to the environment.</p>
+<p>The motivation for having a level manager is to disentangle the code of the environment and the agent, so to allow more
+complex interactions. Each level can have multiple agents which interact with the environment. Who gets to choose the
+action for each step is controlled by the level manager.
+Additionally, each level manager can act as an environment for the hierarchy level above it, such that each hierarchy
+level can be seen as an interaction between an agent and an environment, even if the environment is just more agents in
+a lower hierarchy level.</p>
+</div>
+<div class="section" id="agent">
+<h2>Agent<a class="headerlink" href="#agent" title="Permalink to this headline">¶</a></h2>
+<p>The base agent class has 3 main function that will be used during those phases - observe, act and train.</p>
+<ul class="simple">
+<li><strong>Observe</strong> - this function gets the latest response from the environment as input, and updates the internal state
+of the agent with the new information. The environment response will
+be first passed through the agent’s <code class="code docutils literal notranslate"><span class="pre">InputFilter</span></code> object, which will process the values in the response, according
+to the specific agent definition. The environment response will then be converted into a
+<code class="code docutils literal notranslate"><span class="pre">Transition</span></code> which will contain the information from a single step
+<span class="math notranslate nohighlight">\((s_{t}, a_{t}, r_{t}, s_{t+1}, \textrm{terminal signal})\)</span>, and store it in the memory.</li>
+</ul>
+<a class="reference internal image-reference" href="../_images/observe.png"><img alt="../_images/observe.png" class="align-center" src="../_images/observe.png" style="width: 700px;" /></a>
+<ul class="simple">
+<li><strong>Act</strong> - this function uses the current internal state of the agent in order to select the next action to take on
+the environment. This function will call the per-agent custom function <code class="code docutils literal notranslate"><span class="pre">choose_action</span></code> that will use the network
+and the exploration policy in order to select an action. The action will be stored, together with any additional
+information (like the action value for example) in an <code class="code docutils literal notranslate"><span class="pre">ActionInfo</span></code> object. The ActionInfo object will then be
+passed through the agent’s <code class="code docutils literal notranslate"><span class="pre">OutputFilter</span></code> to allow any processing of the action (like discretization,
+or shifting, for example), before passing it to the environment.</li>
+</ul>
+<a class="reference internal image-reference" href="../_images/act.png"><img alt="../_images/act.png" class="align-center" src="../_images/act.png" style="width: 700px;" /></a>
+<ul class="simple">
+<li><strong>Train</strong> - this function will sample a batch from the memory and train on it. The batch of transitions will be
+first wrapped into a <code class="code docutils literal notranslate"><span class="pre">Batch</span></code> object to allow efficient querying of the batch values. It will then be passed into
+the agent specific <code class="code docutils literal notranslate"><span class="pre">learn_from_batch</span></code> function, that will extract network target values from the batch and will
+train the networks accordingly. Lastly, if there’s a target network defined for the agent, it will sync the target
+network weights with the online network.</li>
+</ul>
+<a class="reference internal image-reference" href="../_images/train.png"><img alt="../_images/train.png" class="align-center" src="../_images/train.png" style="width: 700px;" /></a>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="network.html" class="btn btn-neutral float-right" title="Network Design" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../dashboard.html" class="btn btn-neutral" title="Coach Dashboard" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

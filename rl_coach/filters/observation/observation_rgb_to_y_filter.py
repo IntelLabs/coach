@@ -21,7 +21,9 @@ from rl_coach.spaces import ObservationSpace
 
 class ObservationRGBToYFilter(ObservationFilter):
     """
-    Converts the observation in the current state to gray scale (Y channel).
+    Converts a color image observation specified using the RGB encoding into a grayscale
+    image observation, by keeping only the luminance (Y) channel of the YUV encoding. This can be useful if the colors
+    in the original image are not relevant for solving the task at hand.
     The channels axis is assumed to be the last axis
     """
     def __init__(self):

@@ -26,10 +26,10 @@ def test_sum_tree():
     sum_tree.add(5, "5")
     assert sum_tree.total_value() == 20
 
-    assert sum_tree.get(2) == (0, 2.5, '2.5')
-    assert sum_tree.get(3) == (1, 5.0, '5')
-    assert sum_tree.get(10) == (2, 5.0, '5')
-    assert sum_tree.get(13) == (3, 7.5, '7.5')
+    assert sum_tree.get_element_by_partial_sum(2) == (0, 2.5, '2.5')
+    assert sum_tree.get_element_by_partial_sum(3) == (1, 5.0, '5')
+    assert sum_tree.get_element_by_partial_sum(10) == (2, 5.0, '5')
+    assert sum_tree.get_element_by_partial_sum(13) == (3, 7.5, '7.5')
 
     sum_tree.update(2, 10)
     assert sum_tree.__str__() == "[25.]\n[ 7.5 17.5]\n[ 2.5  5.  10.   7.5]\n"

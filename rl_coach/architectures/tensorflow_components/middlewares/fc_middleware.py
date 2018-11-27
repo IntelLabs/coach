@@ -18,29 +18,20 @@ from typing import Union, List
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
-from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware, MiddlewareParameters
+from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_FC_Embedding
 from rl_coach.utils import force_list
 
 
-class FCMiddlewareParameters(MiddlewareParameters):
-    def __init__(self, activation_function='relu',
-                 scheme: Union[List, MiddlewareScheme] = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False,
-                 name="middleware_fc_embedder", dense_layer=Dense, is_training=False):
-        super().__init__(parameterized_class=FCMiddleware, activation_function=activation_function,
-                         scheme=scheme, batchnorm=batchnorm, dropout=dropout, name=name, dense_layer=dense_layer,
-                         is_training=is_training)
-
-
 class FCMiddleware(Middleware):
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout: bool = False,
+                 batchnorm: bool = False, dropout_rate: float = 0.0,
                  name="middleware_fc_embedder", dense_layer=Dense, is_training=False):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
-                         dropout=dropout, scheme=scheme, name=name, dense_layer=dense_layer, is_training=is_training)
+                         dropout_rate=dropout_rate, scheme=scheme, name=name, dense_layer=dense_layer,
+                         is_training=is_training)
         self.return_type = Middleware_FC_Embedding
         self.layers = []
 

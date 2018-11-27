@@ -18,6 +18,7 @@ from enum import Enum
 from typing import Tuple
 
 from rl_coach.base_parameters import Parameters
+from rl_coach.memories.backend.memory import MemoryBackend
 
 
 class MemoryGranularity(Enum):
@@ -32,7 +33,6 @@ class MemoryParameters(Parameters):
         self.shared_memory = False
         self.load_memory_from_file_path = None
 
-
     @property
     def path(self):
         return 'rl_coach.memories.memory:Memory'
@@ -45,9 +45,15 @@ class Memory(object):
         """
         self.max_size = max_size
         self._length = 0
+        self.memory_backend = None
 
     def store(self, obj):
-        raise NotImplementedError("")
+        if self.memory_backend:
+            self.memory_backend.store(obj)
+
+    def store_episode(self, episode):
+        if self.memory_backend:
+            self.memory_backend.store(episode)
 
     def get(self, index):
         raise NotImplementedError("")
@@ -64,4 +70,5 @@ class Memory(object):
     def clean(self):
         raise NotImplementedError("")
 
-
+    def set_memory_backend(self, memory_backend: MemoryBackend):
+        self.memory_backend = memory_backend

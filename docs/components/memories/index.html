@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Memories &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Memory Backends" href="../memory_backends/index.html" />
+    <link rel="prev" title="Output Filters" href="../filters/output_filters.html" />
+    <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../filters/index.html">Filters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Memories</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#episodic-memories">Episodic Memories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#episodicexperiencereplay">EpisodicExperienceReplay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#episodichindsightexperiencereplay">EpisodicHindsightExperienceReplay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#episodichrlhindsightexperiencereplay">EpisodicHRLHindsightExperienceReplay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#singleepisodebuffer">SingleEpisodeBuffer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#non-episodic-memories">Non-Episodic Memories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#balancedexperiencereplay">BalancedExperienceReplay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qdnd">QDND</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#experiencereplay">ExperienceReplay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prioritizedexperiencereplay">PrioritizedExperienceReplay</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transitioncollection">TransitionCollection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Memories</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/components/memories/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="memories">
+<h1>Memories<a class="headerlink" href="#memories" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="episodic-memories">
+<h2>Episodic Memories<a class="headerlink" href="#episodic-memories" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="episodicexperiencereplay">
+<h3>EpisodicExperienceReplay<a class="headerlink" href="#episodicexperiencereplay" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.episodic.EpisodicExperienceReplay">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.episodic.</code><code class="descname">EpisodicExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity</em>, <em>int] = (&lt;MemoryGranularity.Transitions: 0&gt;</em>, <em>1000000)</em>, <em>n_step=-1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/episodic/episodic_experience_replay.html#EpisodicExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.episodic.EpisodicExperienceReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>A replay buffer that stores episodes of transitions. The additional structure allows performing various
+calculations of total return and other values that depend on the sequential behavior of the transitions
+in the episode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="episodichindsightexperiencereplay">
+<h3>EpisodicHindsightExperienceReplay<a class="headerlink" href="#episodichindsightexperiencereplay" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.episodic.EpisodicHindsightExperienceReplay">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.episodic.</code><code class="descname">EpisodicHindsightExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], hindsight_transitions_per_regular_transition: int, hindsight_goal_selection_method: rl_coach.memories.episodic.episodic_hindsight_experience_replay.HindsightGoalSelectionMethod, goals_space: rl_coach.spaces.GoalsSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/episodic/episodic_hindsight_experience_replay.html#EpisodicHindsightExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.episodic.EpisodicHindsightExperienceReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements Hindsight Experience Replay as described in the following paper: <a class="reference external" href="https://arxiv.org/pdf/1707.01495.pdf">https://arxiv.org/pdf/1707.01495.pdf</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_size</strong> – The maximum size of the memory. should be defined in a granularity of Transitions</li>
+<li><strong>hindsight_transitions_per_regular_transition</strong> – The number of hindsight artificial transitions to generate
+for each actual transition</li>
+<li><strong>hindsight_goal_selection_method</strong> – The method that will be used for generating the goals for the
+hindsight transitions. Should be one of HindsightGoalSelectionMethod</li>
+<li><strong>goals_space</strong> – A GoalsSpace which defines the base properties of the goals space</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="episodichrlhindsightexperiencereplay">
+<h3>EpisodicHRLHindsightExperienceReplay<a class="headerlink" href="#episodichrlhindsightexperiencereplay" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.episodic.EpisodicHRLHindsightExperienceReplay">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.episodic.</code><code class="descname">EpisodicHRLHindsightExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], hindsight_transitions_per_regular_transition: int, hindsight_goal_selection_method: rl_coach.memories.episodic.episodic_hindsight_experience_replay.HindsightGoalSelectionMethod, goals_space: rl_coach.spaces.GoalsSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/episodic/episodic_hrl_hindsight_experience_replay.html#EpisodicHRLHindsightExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.episodic.EpisodicHRLHindsightExperienceReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements HRL Hindsight Experience Replay as described in the following paper:  <a class="reference external" href="https://arxiv.org/abs/1805.08180">https://arxiv.org/abs/1805.08180</a></p>
+<p>This is the memory you should use if you want a shared hindsight experience replay buffer between multiple workers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_size</strong> – The maximum size of the memory. should be defined in a granularity of Transitions</li>
+<li><strong>hindsight_transitions_per_regular_transition</strong> – The number of hindsight artificial transitions to generate
+for each actual transition</li>
+<li><strong>hindsight_goal_selection_method</strong> – The method that will be used for generating the goals for the
+hindsight transitions. Should be one of HindsightGoalSelectionMethod</li>
+<li><strong>goals_space</strong> – A GoalsSpace  which defines the properties of the goals</li>
+<li><strong>do_action_hindsight</strong> – Replace the action (sub-goal) given to a lower layer, with the actual achieved goal</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="singleepisodebuffer">
+<h3>SingleEpisodeBuffer<a class="headerlink" href="#singleepisodebuffer" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.episodic.SingleEpisodeBuffer">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.episodic.</code><code class="descname">SingleEpisodeBuffer</code><a class="reference internal" href="../../_modules/rl_coach/memories/episodic/single_episode_buffer.html#SingleEpisodeBuffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.episodic.SingleEpisodeBuffer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="non-episodic-memories">
+<h2>Non-Episodic Memories<a class="headerlink" href="#non-episodic-memories" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="balancedexperiencereplay">
+<h3>BalancedExperienceReplay<a class="headerlink" href="#balancedexperiencereplay" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.non_episodic.BalancedExperienceReplay">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">BalancedExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], allow_duplicates_in_batch_sampling: bool = True, num_classes: int = 0, state_key_with_the_class_index: Any = 'class'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/balanced_experience_replay.html#BalancedExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.BalancedExperienceReplay" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</li>
+<li><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</li>
+<li><strong>num_classes</strong> – the number of classes in the replayed data</li>
+<li><strong>state_key_with_the_class_index</strong> – the class index is assumed to be a value in the state dictionary.
+this parameter determines the key to retrieve the class index value</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="qdnd">
+<h3>QDND<a class="headerlink" href="#qdnd" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.non_episodic.QDND">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">QDND</code><span class="sig-paren">(</span><em>dict_size</em>, <em>key_width</em>, <em>num_actions</em>, <em>new_value_shift_coefficient=0.1</em>, <em>key_error_threshold=0.01</em>, <em>learning_rate=0.01</em>, <em>num_neighbors=50</em>, <em>return_additional_data=False</em>, <em>override_existing_keys=False</em>, <em>rebuild_on_every_update=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/differentiable_neural_dictionary.html#QDND"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.QDND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="experiencereplay">
+<h3>ExperienceReplay<a class="headerlink" href="#experiencereplay" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.non_episodic.ExperienceReplay">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">ExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], allow_duplicates_in_batch_sampling: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/experience_replay.html#ExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.ExperienceReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>A regular replay buffer which stores transition without any additional structure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</li>
+<li><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="prioritizedexperiencereplay">
+<h3>PrioritizedExperienceReplay<a class="headerlink" href="#prioritizedexperiencereplay" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.non_episodic.PrioritizedExperienceReplay">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">PrioritizedExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], alpha: float = 0.6, beta: rl_coach.schedules.Schedule = &lt;rl_coach.schedules.ConstantSchedule object&gt;, epsilon: float = 1e-06, allow_duplicates_in_batch_sampling: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/prioritized_experience_replay.html#PrioritizedExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.PrioritizedExperienceReplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the proportional sampling variant of the prioritized experience replay as described
+in <a class="reference external" href="https://arxiv.org/pdf/1511.05952.pdf">https://arxiv.org/pdf/1511.05952.pdf</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</li>
+<li><strong>alpha</strong> – the alpha prioritization coefficient</li>
+<li><strong>beta</strong> – the beta parameter used for importance sampling</li>
+<li><strong>epsilon</strong> – a small value added to the priority of each transition</li>
+<li><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="transitioncollection">
+<h3>TransitionCollection<a class="headerlink" href="#transitioncollection" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.memories.non_episodic.TransitionCollection">
+<em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">TransitionCollection</code><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/transition_collection.html#TransitionCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.TransitionCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple python implementation of transitions collection non-episodic memories
+are constructed on top of.</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../memory_backends/index.html" class="btn btn-neutral float-right" title="Memory Backends" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../filters/output_filters.html" class="btn btn-neutral" title="Output Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

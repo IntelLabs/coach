@@ -1,0 +1,725 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Spaces &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Additional Parameters" href="additional_parameters.html" />
+    <link rel="prev" title="Core Types" href="core_types.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_types.html">Core Types</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Spaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#space">Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#observation-spaces">Observation Spaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vectorobservationspace">VectorObservationSpace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#planarmapsobservationspace">PlanarMapsObservationSpace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#imageobservationspace">ImageObservationSpace</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#action-spaces">Action Spaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#attentionactionspace">AttentionActionSpace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#boxactionspace">BoxActionSpace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#discreteactionspace">DiscreteActionSpace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multiselectactionspace">MultiSelectActionSpace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compoundactionspace">CompoundActionSpace</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#goal-spaces">Goal Spaces</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Spaces</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/spaces.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="spaces">
+<h1>Spaces<a class="headerlink" href="#spaces" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="space">
+<h2>Space<a class="headerlink" href="#space" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.spaces.Space">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">Space</code><span class="sig-paren">(</span><em>shape: Union[int, tuple, list, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#Space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space" title="Permalink to this definition">¶</a></dt>
+<dd><p>A space defines a set of valid values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>shape</strong> – the shape of the space</li>
+<li><strong>low</strong> – the lowest values possible in the space. can be an array defining the lowest values per point,
+or a single value defining the general lowest values</li>
+<li><strong>high</strong> – the highest values possible in the space. can be an array defining the highest values per point,
+or a single value defining the general highest values</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="rl_coach.spaces.Space.is_point_in_space_shape">
+<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.is_point_in_space_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.Space.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the defined space, either uniformly, if space bounds are defined, or Normal distributed if no
+bounds are defined</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A numpy array sampled from the space</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.Space.val_matches_space_definition">
+<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.val_matches_space_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="observation-spaces">
+<h2>Observation Spaces<a class="headerlink" href="#observation-spaces" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.spaces.ObservationSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">ObservationSpace</code><span class="sig-paren">(</span><em>shape: Union[int, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#ObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ObservationSpace" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="rl_coach.spaces.ObservationSpace.is_point_in_space_shape">
+<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.ObservationSpace.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the defined space, either uniformly, if space bounds are defined, or Normal distributed if no
+bounds are defined</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A numpy array sampled from the space</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.ObservationSpace.val_matches_space_definition">
+<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="vectorobservationspace">
+<h3>VectorObservationSpace<a class="headerlink" href="#vectorobservationspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.VectorObservationSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">VectorObservationSpace</code><span class="sig-paren">(</span><em>shape: int</em>, <em>low: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray] = -inf</em>, <em>high: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray] = inf</em>, <em>measurements_names: List[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#VectorObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.VectorObservationSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>An observation space which is defined as a vector of elements. This can be particularly useful for environments
+which return measurements, such as in robotic environments.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="planarmapsobservationspace">
+<h3>PlanarMapsObservationSpace<a class="headerlink" href="#planarmapsobservationspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.PlanarMapsObservationSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">PlanarMapsObservationSpace</code><span class="sig-paren">(</span><em>shape: numpy.ndarray</em>, <em>low: int</em>, <em>high: int</em>, <em>channels_axis: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#PlanarMapsObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.PlanarMapsObservationSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>An observation space which defines a stack of 2D observations. For example, an environment which returns
+a stack of segmentation maps like in Starcraft.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="imageobservationspace">
+<h3>ImageObservationSpace<a class="headerlink" href="#imageobservationspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.ImageObservationSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">ImageObservationSpace</code><span class="sig-paren">(</span><em>shape: numpy.ndarray</em>, <em>high: int</em>, <em>channels_axis: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#ImageObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ImageObservationSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>An observation space which is a private case of the PlanarMapsObservationSpace, where the stack of 2D observations
+represent a RGB image, or a grayscale image.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="action-spaces">
+<h2>Action Spaces<a class="headerlink" href="#action-spaces" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.spaces.ActionSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">ActionSpace</code><span class="sig-paren">(</span><em>shape: Union[int, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf, descriptions: Union[None, List, Dict] = None, default_action: Union[int, float, numpy.ndarray, List] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#ActionSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ActionSpace" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="rl_coach.spaces.ActionSpace.clip_action_to_space">
+<code class="descname">clip_action_to_space</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../_modules/rl_coach/spaces.html#ActionSpace.clip_action_to_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ActionSpace.clip_action_to_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an action, clip its values to fit to the action space ranges</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – a given action</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the clipped action</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.ActionSpace.is_point_in_space_shape">
+<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.ActionSpace.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#rl_coach.spaces.ActionSpace.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the defined space, either uniformly, if space bounds are defined, or Normal distributed if no
+bounds are defined</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A numpy array sampled from the space</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.ActionSpace.sample_with_info">
+<code class="descname">sample_with_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="reference internal" href="../_modules/rl_coach/spaces.html#ActionSpace.sample_with_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ActionSpace.sample_with_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a random action with additional “fake” info</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An action info instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.ActionSpace.val_matches_space_definition">
+<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="attentionactionspace">
+<h3>AttentionActionSpace<a class="headerlink" href="#attentionactionspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.AttentionActionSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">AttentionActionSpace</code><span class="sig-paren">(</span><em>shape: int</em>, <em>low: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray] = -inf</em>, <em>high: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray] = inf</em>, <em>descriptions: Union[None</em>, <em>List</em>, <em>Dict] = None</em>, <em>default_action: numpy.ndarray = None</em>, <em>forced_attention_size: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#AttentionActionSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.AttentionActionSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>A box selection continuous action space, meaning that the actions are defined as selecting a multidimensional box
+from a given range.
+The actions will be in the form:
+[[low_x, low_y, …], [high_x, high_y, …]]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="boxactionspace">
+<h3>BoxActionSpace<a class="headerlink" href="#boxactionspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.BoxActionSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">BoxActionSpace</code><span class="sig-paren">(</span><em>shape: Union[int, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf, descriptions: Union[None, List, Dict] = None, default_action: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#BoxActionSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.BoxActionSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>A multidimensional bounded or unbounded continuous action space</p>
+</dd></dl>
+
+</div>
+<div class="section" id="discreteactionspace">
+<h3>DiscreteActionSpace<a class="headerlink" href="#discreteactionspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.DiscreteActionSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">DiscreteActionSpace</code><span class="sig-paren">(</span><em>num_actions: int</em>, <em>descriptions: Union[None</em>, <em>List</em>, <em>Dict] = None</em>, <em>default_action: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#DiscreteActionSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.DiscreteActionSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>A discrete action space with action indices as actions</p>
+</dd></dl>
+
+</div>
+<div class="section" id="multiselectactionspace">
+<h3>MultiSelectActionSpace<a class="headerlink" href="#multiselectactionspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.MultiSelectActionSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">MultiSelectActionSpace</code><span class="sig-paren">(</span><em>size: int</em>, <em>max_simultaneous_selected_actions: int = 1</em>, <em>descriptions: Union[None</em>, <em>List</em>, <em>Dict] = None</em>, <em>default_action: numpy.ndarray = None</em>, <em>allow_no_action_to_be_selected=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#MultiSelectActionSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.MultiSelectActionSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>A discrete action space where multiple actions can be selected at once. The actions are encoded as multi-hot vectors</p>
+</dd></dl>
+
+</div>
+<div class="section" id="compoundactionspace">
+<h3>CompoundActionSpace<a class="headerlink" href="#compoundactionspace" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rl_coach.spaces.CompoundActionSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">CompoundActionSpace</code><span class="sig-paren">(</span><em>sub_spaces: List[rl_coach.spaces.ActionSpace]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#CompoundActionSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.CompoundActionSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>An action space which consists of multiple sub-action spaces.
+For example, in Starcraft the agent should choose an action identifier from ~550 options (Discrete(550)),
+but it also needs to choose 13 different arguments for the selected action identifier, where each argument is
+by itself an action space. In Starcraft, the arguments are Discrete action spaces as well, but this is not mandatory.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="goal-spaces">
+<h2>Goal Spaces<a class="headerlink" href="#goal-spaces" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.spaces.GoalsSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">GoalsSpace</code><span class="sig-paren">(</span><em>goal_name: str, reward_type: rl_coach.spaces.GoalToRewardConversion, distance_metric: Union[rl_coach.spaces.GoalsSpace.DistanceMetric, Callable]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#GoalsSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.GoalsSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>A multidimensional space with a goal type definition. It also behaves as an action space, so that hierarchical
+agents can use it as an output action space.
+The class acts as a wrapper to the target space. So after setting the target space, all the values of the class
+will match the values of the target space (the shape, low, high, etc.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>goal_name</strong> – the name of the observation space to use as the achieved goal.</li>
+<li><strong>reward_type</strong> – the reward type to use for converting distances from goal to rewards</li>
+<li><strong>distance_metric</strong> – the distance metric to use. could be either one of the distances in the
+DistanceMetric enum, or a custom function that gets two vectors as input and
+returns the distance between them</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="rl_coach.spaces.GoalsSpace.DistanceMetric">
+<em class="property">class </em><code class="descname">DistanceMetric</code><a class="reference internal" href="../_modules/rl_coach/spaces.html#GoalsSpace.DistanceMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.GoalsSpace.DistanceMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>An enumeration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.clip_action_to_space">
+<code class="descname">clip_action_to_space</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.clip_action_to_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given an action, clip its values to fit to the action space ranges</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – a given action</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the clipped action</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.distance_from_goal">
+<code class="descname">distance_from_goal</code><span class="sig-paren">(</span><em>goal: numpy.ndarray</em>, <em>state: dict</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/rl_coach/spaces.html#GoalsSpace.distance_from_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.GoalsSpace.distance_from_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a state, check its distance from the goal</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>goal</strong> – a numpy array representing the goal</li>
+<li><strong>state</strong> – a dict representing the state</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the distance from the goal</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.get_reward_for_goal_and_state">
+<code class="descname">get_reward_for_goal_and_state</code><span class="sig-paren">(</span><em>goal: numpy.ndarray</em>, <em>state: dict</em><span class="sig-paren">)</span> &#x2192; Tuple[float, bool]<a class="reference internal" href="../_modules/rl_coach/spaces.html#GoalsSpace.get_reward_for_goal_and_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.GoalsSpace.get_reward_for_goal_and_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a state, check if the goal was reached and return a reward accordingly</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>goal</strong> – a numpy array representing the goal</li>
+<li><strong>state</strong> – a dict representing the state</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the reward for the current goal and state pair and a boolean representing if the goal was reached</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.goal_from_state">
+<code class="descname">goal_from_state</code><span class="sig-paren">(</span><em>state: Dict</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#GoalsSpace.goal_from_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.GoalsSpace.goal_from_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a state, extract an observation according to the goal_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> – a dictionary of observations</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the observation corresponding to the goal_name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.is_point_in_space_shape">
+<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.sample">
+<code class="descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the defined space, either uniformly, if space bounds are defined, or Normal distributed if no
+bounds are defined</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A numpy array sampled from the space</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.sample_with_info">
+<code class="descname">sample_with_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.sample_with_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a random action with additional “fake” info</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An action info instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.val_matches_space_definition">
+<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="additional_parameters.html" class="btn btn-neutral float-right" title="Additional Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="core_types.html" class="btn btn-neutral" title="Core Types" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

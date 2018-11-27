@@ -15,18 +15,21 @@
 #
 
 import copy
-from typing import Dict
+from types import MethodType
+from typing import Dict, List, Union
 
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import HeadParameters
+from rl_coach.architectures.middleware_parameters import MiddlewareParameters
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
-from rl_coach.architectures.tensorflow_components.heads.head import HeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.middleware import MiddlewareParameters
-from rl_coach.base_parameters import AgentParameters, EmbeddingMergerType
+from rl_coach.architectures.tensorflow_components import utils
+from rl_coach.base_parameters import AgentParameters, Device, DeviceType, EmbeddingMergerType
 from rl_coach.core_types import PredictionType
-from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace
+from rl_coach.logger import screen
+from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, TensorObservationSpace
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
 
@@ -34,6 +37,62 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
     """
     A generalized version of all possible networks implemented using tensorflow.
     """
+    # dictionary of variable-scope name to variable-scope object to prevent tensorflow from
+    # creating a new auxiliary variable scope even when name is properly specified
+    variable_scopes_dict = dict()
+
+    @staticmethod
+    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'GeneralTensorFlowNetwork':
+        """
+        Construct a network class using the provided variable scope and on requested devices
+        :param variable_scope: string specifying variable scope under which to create network variables
+        :param devices: list of devices (can be list of Device objects, or string for TF distributed)
+        :param args: all other arguments for class initializer
+        :param kwargs: all other keyword arguments for class initializer
+        :return: a GeneralTensorFlowNetwork object
+        """
+        if len(devices) > 1:
+            screen.warning("Tensorflow implementation only support a single device. Using {}".format(devices[0]))
+
+        def construct_on_device():
+            with tf.device(GeneralTensorFlowNetwork._tf_device(devices[0])):
+                return GeneralTensorFlowNetwork(*args, **kwargs)
+
+        # If variable_scope is in our dictionary, then this is not the first time that this variable_scope
+        # is being used with construct(). So to avoid TF adding an incrementing number to the end of the
+        # variable_scope to uniquify it, we have to both pass the previous variable_scope object to the new
+        # variable_scope() call and also recover the name space using name_scope
+        if variable_scope in GeneralTensorFlowNetwork.variable_scopes_dict:
+            variable_scope = GeneralTensorFlowNetwork.variable_scopes_dict[variable_scope]
+            with tf.variable_scope(variable_scope, auxiliary_name_scope=False) as vs:
+                with tf.name_scope(vs.original_name_scope):
+                    return construct_on_device()
+        else:
+            with tf.variable_scope(variable_scope, auxiliary_name_scope=True) as vs:
+                # Add variable_scope object to dictionary for next call to construct
+                GeneralTensorFlowNetwork.variable_scopes_dict[variable_scope] = vs
+                return construct_on_device()
+
+    @staticmethod
+    def _tf_device(device: Union[str, MethodType, Device]) -> str:
+        """
+        Convert device to tensorflow-specific device representation
+        :param device: either a specific string or method (used in distributed mode) which is returned without
+            any change or a Device type, which will be converted to a string
+        :return: tensorflow-specific string for device
+        """
+        if isinstance(device, str) or isinstance(device, MethodType):
+            return device
+        elif isinstance(device, Device):
+            if device.device_type == DeviceType.CPU:
+                return "/cpu:0"
+            elif device.device_type == DeviceType.GPU:
+                return "/device:GPU:{}".format(device.index)
+            else:
+                raise ValueError("Invalid device_type: {}".format(device.device_type))
+        else:
+            raise ValueError("Invalid device instance type: {}".format(type(device)))
+
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, name: str,
                  global_network=None, network_is_local: bool=True, network_is_trainable: bool=False):
         """
@@ -99,27 +158,6 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         return ret_dict
 
-    @staticmethod
-    def get_activation_function(activation_function_string: str):
-        """
-        Map the activation function from a string to the tensorflow framework equivalent
-        :param activation_function_string: the type of the activation function
-        :return: the tensorflow activation function
-        """
-        activation_functions = {
-            'relu': tf.nn.relu,
-            'tanh': tf.nn.tanh,
-            'sigmoid': tf.nn.sigmoid,
-            'elu': tf.nn.elu,
-            'selu': tf.nn.selu,
-            'leaky_relu': tf.nn.leaky_relu,
-            'none': None
-        }
-        assert activation_function_string in activation_functions.keys(), \
-            "Activation function must be one of the following {}. instead it was: {}"\
-                .format(activation_functions.keys(), activation_function_string)
-        return activation_functions[activation_function_string]
-
     def get_input_embedder(self, input_name: str, embedder_params: InputEmbedderParameters):
         """
         Given an input embedder parameters class, creates the input embedder and returns it
@@ -136,15 +174,19 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
                              .format(input_name, allowed_inputs.keys()))
 
-        type = "vector"
-        if isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
-            type = "image"
+        mod_names = {'image': 'ImageEmbedder', 'vector': 'VectorEmbedder', 'tensor': 'TensorEmbedder'}
 
-        embedder_path = 'rl_coach.architectures.tensorflow_components.embedders.' + embedder_params.path[type]
+        emb_type = "vector"
+        if isinstance(allowed_inputs[input_name], TensorObservationSpace):
+            emb_type = "tensor"
+        elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
+            emb_type = "image"
+
+        embedder_path = 'rl_coach.architectures.tensorflow_components.embedders:' + mod_names[emb_type]
         embedder_params_copy = copy.copy(embedder_params)
-        embedder_params_copy.activation_function = self.get_activation_function(embedder_params.activation_function)
-        embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[type]
-        embedder_params_copy.input_offset = embedder_params_copy.input_offset[type]
+        embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
+        embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
+        embedder_params_copy.input_offset = embedder_params_copy.input_offset[emb_type]
         embedder_params_copy.name = input_name
         module = dynamic_import_and_instantiate_module_from_params(embedder_params_copy,
                                                                    path=embedder_path,
@@ -157,25 +199,25 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :param middleware_params: the paramaeters of the middleware class
         :return: the middleware instance
         """
+        mod_name = middleware_params.parameterized_class_name
+        middleware_path = 'rl_coach.architectures.tensorflow_components.middlewares:' + mod_name
         middleware_params_copy = copy.copy(middleware_params)
-        middleware_params_copy.activation_function = self.get_activation_function(middleware_params.activation_function)
-        module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy)
+        middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
+        module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
         return module
 
     def get_output_head(self, head_params: HeadParameters, head_idx: int):
         """
         Given a head type, creates the head and returns it
         :param head_params: the parameters of the head to create
-        :param head_type: the path to the class of the head under the embedders directory or a full path to a head class.
-                          the path should be in the following structure: <module_path>:<class_path>
         :param head_idx: the head index
-        :param loss_weight: the weight to assign for the embedders loss
         :return: the head
         """
-
+        mod_name = head_params.parameterized_class_name
+        head_path = 'rl_coach.architectures.tensorflow_components.heads:' + mod_name
         head_params_copy = copy.copy(head_params)
-        head_params_copy.activation_function = self.get_activation_function(head_params_copy.activation_function)
-        return dynamic_import_and_instantiate_module_from_params(head_params_copy, extra_kwargs={
+        head_params_copy.activation_function = utils.get_activation_function(head_params_copy.activation_function)
+        return dynamic_import_and_instantiate_module_from_params(head_params_copy, path=head_path, extra_kwargs={
             'agent_parameters': self.ap, 'spaces': self.spaces, 'network_name': self.network_wrapper_name,
             'head_idx': head_idx, 'is_local': self.network_is_local})
 
@@ -298,7 +340,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # Losses
         self.losses = tf.losses.get_losses(self.full_name)
         self.losses += tf.losses.get_regularization_losses(self.full_name)
-        self.total_loss = tf.losses.compute_weighted_loss(self.losses, scope=self.full_name)
+        self.total_loss = tf.reduce_sum(self.losses)
         # tf.summary.scalar('total_loss', self.total_loss)
 
         # Learning rate

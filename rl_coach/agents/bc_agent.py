@@ -19,20 +19,19 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.imitation_agent import ImitationAgent
-from rl_coach.architectures.tensorflow_components.heads.policy_head import PolicyHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.head_parameters import PolicyHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.base_parameters import AgentParameters, AlgorithmParameters, NetworkParameters, \
     MiddlewareScheme
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
 
 
 class BCAlgorithmParameters(AlgorithmParameters):
     def __init__(self):
         super().__init__()
-        self.collect_new_data = False
 
 
 class BCNetworkParameters(NetworkParameters):

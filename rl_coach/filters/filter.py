@@ -15,6 +15,7 @@
 #
 
 import copy
+import os
 from collections import OrderedDict
 from copy import deepcopy
 from typing import Dict, Union, List
@@ -25,12 +26,13 @@ from rl_coach.utils import force_list
 
 
 class Filter(object):
-    def __init__(self):
-        pass
+    def __init__(self, name=None):
+        self.name = name
 
     def reset(self) -> None:
         """
         Called from reset() and implements the reset logic for the filter.
+        :param name: the filter's name
         :return: None
         """
         pass
@@ -46,10 +48,12 @@ class Filter(object):
         """
         raise NotImplementedError("")
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None, mode='numpy') -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
+        :param memory_backend_params: parameters associated with the memory backend
+        :param mode: arithmetic backend to be used {numpy | tf}
         :return: None
         """
         pass
@@ -62,14 +66,40 @@ class Filter(object):
         """
         pass
 
+    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
+        """
+        Save the filter's internal state to a checkpoint to file, so that it can be later restored.
+        :param checkpoint_dir: the directory in which to save the filter's state
+        :param checkpoint_prefix: the prefix of the checkpoint file to save
+        :return: None
+        """
+        pass
+
+    def restore_state_from_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
+        """
+        Save the filter's internal state to a checkpoint to file, so that it can be later restored.
+        :param checkpoint_dir: the directory from which to restore
+        :param checkpoint_prefix: the checkpoint prefix to look for
+        :return: None
+        """
+        pass
+
+    def set_name(self, name: str) -> None:
+        """
+        Set the filter's name
+        :param name: the filter's name
+        :return: None
+        """
+        self.name = name
+
 
 class OutputFilter(Filter):
     """
     An output filter is a module that filters the output from an agent to the environment.
     """
     def __init__(self, action_filters: OrderedDict([(str, 'ActionFilter')])=None,
-                 is_a_reference_filter: bool=False):
-        super().__init__()
+                 is_a_reference_filter: bool=False, name=None):
+        super().__init__(name)
 
         if action_filters is None:
             action_filters = OrderedDict([])
@@ -84,13 +114,13 @@ class OutputFilter(Filter):
         duplicate.i_am_a_reference_filter = False
         return duplicate
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None, mode='numpy') -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
         :return: None
         """
-        [f.set_device(device) for f in self.action_filters.values()]
+        [f.set_device(device, memory_backend_params, mode='numpy') for f in self.action_filters.values()]
 
     def set_session(self, sess) -> None:
         """
@@ -192,6 +222,25 @@ class OutputFilter(Filter):
         """
         del self._action_filters[filter_name]
 
+    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_prefix):
+        """
+        Currently not in use for OutputFilter.
+        :param checkpoint_dir: the directory in which to save the filter's state
+        :param checkpoint_prefix: the prefix of the checkpoint file to save
+        :return:
+        """
+        pass
+
+    def restore_state_from_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
+        """
+        Currently not in use for OutputFilter.
+        :param checkpoint_dir: the directory from which to restore
+        :param checkpoint_prefix: the checkpoint prefix to look for
+        :return: None
+        """
+        pass
+
+
 
 class NoOutputFilter(OutputFilter):
     """
@@ -207,8 +256,8 @@ class InputFilter(Filter):
     """
     def __init__(self, observation_filters: Dict[str, Dict[str, 'ObservationFilter']]=None,
                  reward_filters: Dict[str, 'RewardFilter']=None,
-                 is_a_reference_filter: bool=False):
-        super().__init__()
+                 is_a_reference_filter: bool=False, name=None):
+        super().__init__(name)
         if observation_filters is None:
             observation_filters = {}
         if reward_filters is None:
@@ -225,14 +274,14 @@ class InputFilter(Filter):
         duplicate.i_am_a_reference_filter = False
         return duplicate
 
-    def set_device(self, device) -> None:
+    def set_device(self, device, memory_backend_params=None, mode='numpy') -> None:
         """
         An optional function that allows the filter to get the device if it is required to use tensorflow ops
         :param device: the device to use
         :return: None
         """
-        [f.set_device(device) for f in self.reward_filters.values()]
-        [[f.set_device(device) for f in filters.values()] for filters in self.observation_filters.values()]
+        [f.set_device(device, memory_backend_params, mode) for f in self.reward_filters.values()]
+        [[f.set_device(device, memory_backend_params, mode) for f in filters.values()] for filters in self.observation_filters.values()]
 
     def set_session(self, sess) -> None:
         """
@@ -296,7 +345,6 @@ class InputFilter(Filter):
             f.reward = filtered_reward
 
         return filtered_data
-
 
     def get_filtered_observation_space(self, observation_name: str,
                                        input_observation_space: ObservationSpace) -> ObservationSpace:
@@ -407,12 +455,52 @@ class InputFilter(Filter):
         """
         del self._reward_filters[filter_name]
 
+    def save_state_to_checkpoint(self, checkpoint_dir, checkpoint_prefix):
+        """
+        Save the filter's internal state to a checkpoint to file, so that it can be later restored.
+        :param checkpoint_dir: the directory in which to save the filter's state
+        :param checkpoint_prefix: the prefix of the checkpoint file to save
+        :return: None
+        """
+        checkpoint_prefix = '.'.join([checkpoint_prefix, 'filters'])
+        if self.name is not None:
+            checkpoint_prefix = '.'.join([checkpoint_prefix, self.name])
+        for filter_name, filter in self._reward_filters.items():
+            checkpoint_prefix = '.'.join([checkpoint_prefix, 'reward_filters', filter_name])
+            filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
+
+        for observation_name, filters_dict in self._observation_filters.items():
+            for filter_name, filter in filters_dict.items():
+                checkpoint_prefix = '.'.join([checkpoint_prefix, 'observation_filters', observation_name,
+                                                                 filter_name])
+                filter.save_state_to_checkpoint(checkpoint_dir, checkpoint_prefix)
+
+    def restore_state_from_checkpoint(self, checkpoint_dir, checkpoint_prefix)->None:
+        """
+        Save the filter's internal state to a checkpoint to file, so that it can be later restored.
+        :param checkpoint_dir: the directory from which to restore
+        :param checkpoint_prefix: the checkpoint prefix to look for
+        :return: None
+        """
+        checkpoint_prefix = '.'.join([checkpoint_prefix, 'filters'])
+        if self.name is not None:
+            checkpoint_prefix = '.'.join([checkpoint_prefix, self.name])
+        for filter_name, filter in self._reward_filters.items():
+            checkpoint_prefix = '.'.join([checkpoint_prefix, 'reward_filters', filter_name])
+            filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
+
+        for observation_name, filters_dict in self._observation_filters.items():
+            for filter_name, filter in filters_dict.items():
+                checkpoint_prefix = '.'.join([checkpoint_prefix, 'observation_filters', observation_name,
+                                                                 filter_name])
+                filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
+
 
 class NoInputFilter(InputFilter):
     """
     Creates an empty input filter. Used only for readability when creating the presets
     """
     def __init__(self):
-        super().__init__(is_a_reference_filter=False)
+        super().__init__(is_a_reference_filter=False, name='no_input_filter')
 
 

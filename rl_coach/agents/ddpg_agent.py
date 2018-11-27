@@ -22,10 +22,9 @@ import numpy as np
 
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.agent import Agent
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.architectures.tensorflow_components.heads.ddpg_actor_head import DDPGActorHeadParameters
-from rl_coach.architectures.tensorflow_components.heads.v_head import VHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, VHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters, EmbedderScheme
 from rl_coach.core_types import ActionInfo, EnvironmentSteps
@@ -66,6 +65,33 @@ class DDPGActorNetworkParameters(NetworkParameters):
 
 
 class DDPGAlgorithmParameters(AlgorithmParameters):
+    """
+    :param num_steps_between_copying_online_weights_to_target: (StepMethod)
+        The number of steps between copying the online network weights to the target network weights.
+
+    :param rate_for_copying_weights_to_target: (float)
+        When copying the online network weights to the target network weights, a soft update will be used, which
+        weight the new online network weights by rate_for_copying_weights_to_target
+
+    :param num_consecutive_playing_steps: (StepMethod)
+        The number of consecutive steps to act between every two training iterations
+
+    :param use_target_network_for_evaluation: (bool)
+        If set to True, the target network will be used for predicting the actions when choosing actions to act.
+        Since the target network weights change more slowly, the predicted actions will be more consistent.
+
+    :param action_penalty: (float)
+        The amount by which to penalize the network on high action feature (pre-activation) values.
+        This can prevent the actions features from saturating the TanH activation function, and therefore prevent the
+        gradients from becoming very low.
+
+    :param clip_critic_targets: (Tuple[float, float] or None)
+        The range to clip the critic target to in order to prevent overestimation of the action values.
+
+    :param use_non_zero_discount_for_terminal_states: (bool)
+        If set to True, the discount factor will be used for terminal states to bootstrap the next predicted state
+        values. If set to False, the terminal states reward will be taken as the target return for the network.
+    """
     def __init__(self):
         super().__init__()
         self.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(1)

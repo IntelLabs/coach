@@ -20,8 +20,7 @@ import numpy as np
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters, DQNNetworkParameters, DQNAlgorithmParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.architectures.tensorflow_components.heads.quantile_regression_q_head import \
-    QuantileRegressionQHeadParameters
+from rl_coach.architectures.head_parameters import QuantileRegressionQHeadParameters
 from rl_coach.core_types import StateType
 from rl_coach.schedules import LinearSchedule
 
@@ -35,6 +34,14 @@ class QuantileRegressionDQNNetworkParameters(DQNNetworkParameters):
 
 
 class QuantileRegressionDQNAlgorithmParameters(DQNAlgorithmParameters):
+    """
+    :param atoms: (int)
+        the number of atoms to predict for each action
+
+    :param huber_loss_interval: (float)
+        One of the huber loss parameters, and is referred to as :math:`\kapa` in the paper.
+        It describes the interval [-k, k] in which the huber loss acts as a MSE loss.
+    """
     def __init__(self):
         super().__init__()
         self.atoms = 200

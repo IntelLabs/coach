@@ -72,6 +72,8 @@ class BalancedExperienceReplay(ExperienceReplay):
                      locks and then calls store with lock = True
         :return: None
         """
+        # Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.
+        super().store(transition)
         if lock:
             self.reader_writer_lock.lock_writing_and_reading()
 

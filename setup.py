@@ -40,6 +40,7 @@ import subprocess
 # 3. Run `python setup.py sdist`
 # 4. Run `twine upload dist/*`
 
+slim_package = False  # if true build aws package with partial dependencies, otherwise, build full package
 
 here = path.abspath(path.dirname(__file__))
 
@@ -47,10 +48,16 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires=[
-        'annoy==1.8.3', 'Pillow==4.3.0', 'matplotlib==2.0.2', 'numpy==1.14.5', 'pandas==0.22.0',
-        'pygame==1.9.3', 'PyOpenGL==3.1.0', 'scipy==0.19.0', 'scikit-image==0.13.0',
-        'box2d==2.3.2', 'gym==0.10.5', 'bokeh==0.13.0', 'futures==3.1.1', 'wxPython==4.0.1']
+install_requires = list()
+extras = dict()
+excluded_packages = ['wxPython', 'kubernetes', 'tensorflow'] if slim_package else []
+
+with open(path.join(here, 'requirements.txt'), 'r') as f:
+    for line in f:
+        package = line.strip()
+        if any(p in package for p in excluded_packages):
+            continue
+        install_requires.append(package)
 
 # check if system has CUDA enabled GPU
 p = subprocess.Popen(['command -v nvidia-smi'], stdout=subprocess.PIPE, shell=True)
@@ -58,18 +65,28 @@ out = p.communicate()[0].decode('UTF-8')
 using_GPU = out != ''
 
 if not using_GPU:
-    # For linux wth no GPU, we install the Intel optimized version of TensorFlow
-    if sys.platform == "linux" or sys.platform == "linux2":
-        subprocess.check_call(['pip install '
-                               'https://anaconda.org/intel/tensorflow/1.6.0/download/tensorflow-1.6.0-cp35-cp35m-linux_x86_64.whl'],
-                              shell=True)
-    install_requires.append('tensorflow==1.6.0')
+    if not slim_package:
+        # For linux wth no GPU, we install the Intel optimized version of TensorFlow
+        if sys.platform == "linux" or sys.platform == "linux2":
+            subprocess.check_call(['pip install '
+                                   'https://storage.googleapis.com/intel-optimized-tensorflow/tensorflow-1.11.0-cp35-cp35m-linux_x86_64.whl'],
+                                  shell=True)
+        install_requires.append('tensorflow>=1.9.0')
+    extras['mxnet'] = ['mxnet-mkl>=1.3.0']
 else:
-    install_requires.append('tensorflow-gpu==1.9.0')
+    if not slim_package:
+        install_requires.append('tensorflow-gpu>=1.9.0')
+    extras['mxnet'] = ['mxnet-cu90mkl>=1.3.0']
+
+all_deps = []
+for group_name in extras:
+    all_deps += extras[group_name]
+extras['all'] = all_deps
+
 
 setup(
-    name='rl-coach',
-    version='0.10.0',
+    name='rl-coach' if not slim_package else 'rl-coach-slim',
+    version='0.11.0',
     description='Reinforcement Learning Coach enables easy experimentation with state of the art Reinforcement Learning algorithms.',
     url='https://github.com/NervanaSystems/coach',
     author='Intel AI Lab',
@@ -77,6 +94,7 @@ setup(
     packages=find_packages(),
     python_requires=">=3.5.*",
     install_requires=install_requires,
+    extras_require=extras,
     package_data={'rl_coach': ['dashboard_components/*.css',
                                'environments/doom/*.cfg',
                                'environments/doom/*.wad',

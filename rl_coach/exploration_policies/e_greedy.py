@@ -43,6 +43,19 @@ class EGreedyParameters(ExplorationParameters):
 
 
 class EGreedy(ExplorationPolicy):
+    """
+    e-greedy is an exploration policy that is intended for both discrete and continuous action spaces.
+
+    For discrete action spaces, it assumes that each action is assigned a value, and it selects the action with the
+    highest value with probability 1 - epsilon. Otherwise, it selects a action sampled uniformly out of all the
+    possible actions. The epsilon value is given by the user and can be given as a schedule.
+    In evaluation, a different epsilon value can be specified.
+
+    For continuous action spaces, it assumes that the mean action is given by the agent. With probability epsilon,
+    it samples a random action out of the action space bounds. Otherwise, it selects the action according to a
+    given continuous exploration policy, which is set to AdditiveNoise by default. In evaluation, the action is
+    always selected according to the given continuous exploration policy (where its phase is set to evaluation as well).
+    """
     def __init__(self, action_space: ActionSpace, epsilon_schedule: Schedule,
                  evaluation_epsilon: float,
                  continuous_exploration_policy_parameters: ExplorationParameters=AdditiveNoiseParameters()):

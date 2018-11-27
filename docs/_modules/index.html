@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview: module code &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Overview: module code</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>All modules for which code is available</h1>
+<ul><li><a href="rl_coach/agents/actor_critic_agent.html">rl_coach.agents.actor_critic_agent</a></li>
+<li><a href="rl_coach/agents/agent.html">rl_coach.agents.agent</a></li>
+<li><a href="rl_coach/agents/bc_agent.html">rl_coach.agents.bc_agent</a></li>
+<li><a href="rl_coach/agents/categorical_dqn_agent.html">rl_coach.agents.categorical_dqn_agent</a></li>
+<li><a href="rl_coach/agents/cil_agent.html">rl_coach.agents.cil_agent</a></li>
+<li><a href="rl_coach/agents/clipped_ppo_agent.html">rl_coach.agents.clipped_ppo_agent</a></li>
+<li><a href="rl_coach/agents/ddpg_agent.html">rl_coach.agents.ddpg_agent</a></li>
+<li><a href="rl_coach/agents/dfp_agent.html">rl_coach.agents.dfp_agent</a></li>
+<li><a href="rl_coach/agents/dqn_agent.html">rl_coach.agents.dqn_agent</a></li>
+<li><a href="rl_coach/agents/mmc_agent.html">rl_coach.agents.mmc_agent</a></li>
+<li><a href="rl_coach/agents/n_step_q_agent.html">rl_coach.agents.n_step_q_agent</a></li>
+<li><a href="rl_coach/agents/naf_agent.html">rl_coach.agents.naf_agent</a></li>
+<li><a href="rl_coach/agents/nec_agent.html">rl_coach.agents.nec_agent</a></li>
+<li><a href="rl_coach/agents/pal_agent.html">rl_coach.agents.pal_agent</a></li>
+<li><a href="rl_coach/agents/policy_gradients_agent.html">rl_coach.agents.policy_gradients_agent</a></li>
+<li><a href="rl_coach/agents/ppo_agent.html">rl_coach.agents.ppo_agent</a></li>
+<li><a href="rl_coach/agents/qr_dqn_agent.html">rl_coach.agents.qr_dqn_agent</a></li>
+<li><a href="rl_coach/agents/rainbow_dqn_agent.html">rl_coach.agents.rainbow_dqn_agent</a></li>
+<li><a href="rl_coach/agents/value_optimization_agent.html">rl_coach.agents.value_optimization_agent</a></li>
+<li><a href="rl_coach/architectures/architecture.html">rl_coach.architectures.architecture</a></li>
+<li><a href="rl_coach/architectures/network_wrapper.html">rl_coach.architectures.network_wrapper</a></li>
+<li><a href="rl_coach/base_parameters.html">rl_coach.base_parameters</a></li>
+<li><a href="rl_coach/core_types.html">rl_coach.core_types</a></li>
+<li><a href="rl_coach/data_stores/nfs_data_store.html">rl_coach.data_stores.nfs_data_store</a></li>
+<li><a href="rl_coach/data_stores/s3_data_store.html">rl_coach.data_stores.s3_data_store</a></li>
+<li><a href="rl_coach/environments/carla_environment.html">rl_coach.environments.carla_environment</a></li>
+<li><a href="rl_coach/environments/control_suite_environment.html">rl_coach.environments.control_suite_environment</a></li>
+<li><a href="rl_coach/environments/doom_environment.html">rl_coach.environments.doom_environment</a></li>
+<li><a href="rl_coach/environments/environment.html">rl_coach.environments.environment</a></li>
+<li><a href="rl_coach/environments/gym_environment.html">rl_coach.environments.gym_environment</a></li>
+<li><a href="rl_coach/environments/starcraft2_environment.html">rl_coach.environments.starcraft2_environment</a></li>
+<li><a href="rl_coach/exploration_policies/additive_noise.html">rl_coach.exploration_policies.additive_noise</a></li>
+<li><a href="rl_coach/exploration_policies/boltzmann.html">rl_coach.exploration_policies.boltzmann</a></li>
+<li><a href="rl_coach/exploration_policies/bootstrapped.html">rl_coach.exploration_policies.bootstrapped</a></li>
+<li><a href="rl_coach/exploration_policies/categorical.html">rl_coach.exploration_policies.categorical</a></li>
+<li><a href="rl_coach/exploration_policies/continuous_entropy.html">rl_coach.exploration_policies.continuous_entropy</a></li>
+<li><a href="rl_coach/exploration_policies/e_greedy.html">rl_coach.exploration_policies.e_greedy</a></li>
+<li><a href="rl_coach/exploration_policies/exploration_policy.html">rl_coach.exploration_policies.exploration_policy</a></li>
+<li><a href="rl_coach/exploration_policies/greedy.html">rl_coach.exploration_policies.greedy</a></li>
+<li><a href="rl_coach/exploration_policies/ou_process.html">rl_coach.exploration_policies.ou_process</a></li>
+<li><a href="rl_coach/exploration_policies/parameter_noise.html">rl_coach.exploration_policies.parameter_noise</a></li>
+<li><a href="rl_coach/exploration_policies/truncated_normal.html">rl_coach.exploration_policies.truncated_normal</a></li>
+<li><a href="rl_coach/exploration_policies/ucb.html">rl_coach.exploration_policies.ucb</a></li>
+<li><a href="rl_coach/filters/action/attention_discretization.html">rl_coach.filters.action.attention_discretization</a></li>
+<li><a href="rl_coach/filters/action/box_discretization.html">rl_coach.filters.action.box_discretization</a></li>
+<li><a href="rl_coach/filters/action/box_masking.html">rl_coach.filters.action.box_masking</a></li>
+<li><a href="rl_coach/filters/action/full_discrete_action_space_map.html">rl_coach.filters.action.full_discrete_action_space_map</a></li>
+<li><a href="rl_coach/filters/action/linear_box_to_box_map.html">rl_coach.filters.action.linear_box_to_box_map</a></li>
+<li><a href="rl_coach/filters/action/partial_discrete_action_space_map.html">rl_coach.filters.action.partial_discrete_action_space_map</a></li>
+<li><a href="rl_coach/filters/observation/observation_clipping_filter.html">rl_coach.filters.observation.observation_clipping_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_crop_filter.html">rl_coach.filters.observation.observation_crop_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_move_axis_filter.html">rl_coach.filters.observation.observation_move_axis_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_normalization_filter.html">rl_coach.filters.observation.observation_normalization_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_reduction_by_sub_parts_name_filter.html">rl_coach.filters.observation.observation_reduction_by_sub_parts_name_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_rescale_size_by_factor_filter.html">rl_coach.filters.observation.observation_rescale_size_by_factor_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_rescale_to_size_filter.html">rl_coach.filters.observation.observation_rescale_to_size_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_rgb_to_y_filter.html">rl_coach.filters.observation.observation_rgb_to_y_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_squeeze_filter.html">rl_coach.filters.observation.observation_squeeze_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_stacking_filter.html">rl_coach.filters.observation.observation_stacking_filter</a></li>
+<li><a href="rl_coach/filters/observation/observation_to_uint8_filter.html">rl_coach.filters.observation.observation_to_uint8_filter</a></li>
+<li><a href="rl_coach/filters/reward/reward_clipping_filter.html">rl_coach.filters.reward.reward_clipping_filter</a></li>
+<li><a href="rl_coach/filters/reward/reward_normalization_filter.html">rl_coach.filters.reward.reward_normalization_filter</a></li>
+<li><a href="rl_coach/filters/reward/reward_rescale_filter.html">rl_coach.filters.reward.reward_rescale_filter</a></li>
+<li><a href="rl_coach/memories/backend/redis.html">rl_coach.memories.backend.redis</a></li>
+<li><a href="rl_coach/memories/episodic/episodic_experience_replay.html">rl_coach.memories.episodic.episodic_experience_replay</a></li>
+<li><a href="rl_coach/memories/episodic/episodic_hindsight_experience_replay.html">rl_coach.memories.episodic.episodic_hindsight_experience_replay</a></li>
+<li><a href="rl_coach/memories/episodic/episodic_hrl_hindsight_experience_replay.html">rl_coach.memories.episodic.episodic_hrl_hindsight_experience_replay</a></li>
+<li><a href="rl_coach/memories/episodic/single_episode_buffer.html">rl_coach.memories.episodic.single_episode_buffer</a></li>
+<li><a href="rl_coach/memories/non_episodic/balanced_experience_replay.html">rl_coach.memories.non_episodic.balanced_experience_replay</a></li>
+<li><a href="rl_coach/memories/non_episodic/differentiable_neural_dictionary.html">rl_coach.memories.non_episodic.differentiable_neural_dictionary</a></li>
+<li><a href="rl_coach/memories/non_episodic/experience_replay.html">rl_coach.memories.non_episodic.experience_replay</a></li>
+<li><a href="rl_coach/memories/non_episodic/prioritized_experience_replay.html">rl_coach.memories.non_episodic.prioritized_experience_replay</a></li>
+<li><a href="rl_coach/memories/non_episodic/transition_collection.html">rl_coach.memories.non_episodic.transition_collection</a></li>
+<li><a href="rl_coach/orchestrators/kubernetes_orchestrator.html">rl_coach.orchestrators.kubernetes_orchestrator</a></li>
+<li><a href="rl_coach/spaces.html">rl_coach.spaces</a></li>
+</ul>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

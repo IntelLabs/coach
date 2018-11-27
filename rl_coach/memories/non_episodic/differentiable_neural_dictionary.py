@@ -18,7 +18,12 @@ import os
 import pickle
 
 import numpy as np
-from annoy import AnnoyIndex
+try:
+    import annoy
+    from annoy import AnnoyIndex
+except ImportError:
+    from rl_coach.logger import failed_imports
+    failed_imports.append("annoy")
 
 
 class AnnoyDictionary(object):
@@ -264,14 +269,19 @@ class QDND(object):
 
 
 def load_dnd(model_dir):
-    max_id = 0
+    latest_checkpoint_id = -1
+    latest_checkpoint = ''
+    # get all checkpoint files
+    for fname in os.listdir(model_dir):
+        path = os.path.join(model_dir, fname)
+        if os.path.isdir(path) or fname.split('.')[-1] != 'srs':
+            continue
+        checkpoint_id = int(fname.split('_')[0])
+        if checkpoint_id > latest_checkpoint_id:
+            latest_checkpoint = fname
+            latest_checkpoint_id = checkpoint_id
 
-    for f in [s for s in os.listdir(model_dir) if s.endswith('.dnd')]:
-        if int(f.split('.')[0]) > max_id:
-            max_id = int(f.split('.')[0])
-
-    model_path = str(max_id) + '.dnd'
-    with open(os.path.join(model_dir, model_path), 'rb') as f:
+    with open(os.path.join(model_dir, str(latest_checkpoint)), 'rb') as f:
         DND = pickle.load(f)
 
         for a in range(DND.num_actions):

@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Adding a New Agent &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adding a New Environment" href="add_env.html" />
+    <link rel="prev" title="Distributed Coach - Horizontal Scale-Out" href="../design/horizontal_scaling.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Adding a New Agent</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/contributing/add_agent.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="adding-a-new-agent">
+<h1>Adding a New Agent<a class="headerlink" href="#adding-a-new-agent" title="Permalink to this headline">¶</a></h1>
+<p>Coach’s modularity makes adding an agent a simple and clean task.
+We suggest using the following
+<a class="reference external" href="https://github.com/NervanaSystems/coach/blob/master/tutorials/1.%20Implementing%20an%20Algorithm.ipynb">Jupyter notebook tutorial</a>
+to ramp up on this process. In general, it involves the following steps:</p>
+<ol class="arabic">
+<li><p class="first">Implement your algorithm in a new file. The agent can inherit base classes such as <strong>ValueOptimizationAgent</strong> or
+<strong>ActorCriticAgent</strong>, or the more generic <strong>Agent</strong> base class.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>ValueOptimizationAgent</strong>, <strong>PolicyOptimizationAgent</strong> and <strong>Agent</strong> are abstract classes.
+<code class="code docutils literal notranslate"><span class="pre">learn_from_batch()</span></code> should be overriden with the desired behavior for the algorithm being implemented.
+If deciding to inherit from <strong>Agent</strong>, also <code class="code docutils literal notranslate"><span class="pre">choose_action()</span></code> should be overriden.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">learn_from_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a batch of transitions, calculates their target values and updates the network.</span>
+<span class="sd">    :param batch: A list of transitions</span>
+<span class="sd">    :return: The total loss of the training, the loss per head and the unclipped gradients</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">choose_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">curr_state</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    choose an action to act with in the current episode being played. Different behavior might be exhibited when training</span>
+<span class="sd">     or testing.</span>
+
+<span class="sd">    :param curr_state: the current state to act upon.</span>
+<span class="sd">    :return: chosen action, some action value describing the action (q-value, probability, etc)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Implement your agent’s specific network head, if needed, at the implementation for the framework of your choice.
+For example <strong>architectures/neon_components/heads.py</strong>. The head will inherit the generic base class Head.
+A new output type should be added to configurations.py, and a mapping between the new head and output type should
+be defined in the get_output_head() function at <strong>architectures/neon_components/general_network.py</strong></p>
+</li>
+<li><p class="first">Define a new parameters class that inherits AgentParameters.
+The parameters class defines all the hyperparameters for the agent, and is initialized with 4 main components:</p>
+<ul class="simple">
+<li><strong>algorithm</strong>: A class inheriting AlgorithmParameters which defines any algorithm specific parameters</li>
+<li><strong>exploration</strong>: A class inheriting ExplorationParameters which defines the exploration policy parameters.
+There are several common exploration policies built-in which you can use, and are defined under
+the exploration sub directory. You can also define your own custom exploration policy.</li>
+<li><strong>memory</strong>: A class inheriting MemoryParameters which defined the memory parameters.
+There are several common memory types built-in which you can use, and are defined under the memories
+sub directory. You can also define your own custom memory.</li>
+<li><strong>networks</strong>: A dictionary defining all the networks that will be used by the agent. The keys of the dictionary
+define the network name and will be used to access each network through the agent class.
+The dictionary values are a class inheriting NetworkParameters, which define the network structure
+and parameters.</li>
+</ul>
+<p>Additionally, set the path property to return the path to your agent class in the following format:</p>
+<p><code class="code docutils literal notranslate"><span class="pre">&lt;path</span> <span class="pre">to</span> <span class="pre">python</span> <span class="pre">module&gt;:&lt;name</span> <span class="pre">of</span> <span class="pre">agent</span> <span class="pre">class&gt;</span></code></p>
+<p>For example,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RainbowAgentParameters</span><span class="p">(</span><span class="n">AgentParameters</span><span class="p">):</span>
+<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="n">RainbowAlgorithmParameters</span><span class="p">(),</span>
+                     <span class="n">exploration</span><span class="o">=</span><span class="n">RainbowExplorationParameters</span><span class="p">(),</span>
+                     <span class="n">memory</span><span class="o">=</span><span class="n">RainbowMemoryParameters</span><span class="p">(),</span>
+                     <span class="n">networks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;main&quot;</span><span class="p">:</span> <span class="n">RainbowNetworkParameters</span><span class="p">()})</span>
+
+<span class="nd">@property</span>
+<span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;rainbow.rainbow_agent:RainbowAgent&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">(Optional) Define a preset using the new agent type with a given environment, and the hyper-parameters that should
+be used for training on that environment.</p>
+</li>
+</ol>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="add_env.html" class="btn btn-neutral float-right" title="Adding a New Environment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../design/horizontal_scaling.html" class="btn btn-neutral" title="Distributed Coach - Horizontal Scale-Out" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

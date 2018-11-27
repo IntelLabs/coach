@@ -1,7 +1,7 @@
 import os
 import sys
 
-from rl_coach.base_parameters import TaskParameters
+from rl_coach.base_parameters import TaskParameters, Frameworks
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 import tensorflow as tf
@@ -16,7 +16,7 @@ def test_get_QActionStateValue_predictions():
     from rl_coach.presets.CartPole_DQN import graph_manager as cartpole_dqn_graph_manager
     assert cartpole_dqn_graph_manager
     cartpole_dqn_graph_manager.create_graph(task_parameters=
-                                            TaskParameters(framework_type="tensorflow",
+                                            TaskParameters(framework_type=Frameworks.tensorflow,
                                                            experiment_path="./experiments/test"))
     cartpole_dqn_graph_manager.improve_steps.num_steps = 1
     cartpole_dqn_graph_manager.steps_between_evaluation_periods.num_steps = 5

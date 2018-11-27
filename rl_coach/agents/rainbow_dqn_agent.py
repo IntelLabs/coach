@@ -21,8 +21,8 @@ import numpy as np
 from rl_coach.agents.categorical_dqn_agent import CategoricalDQNAlgorithmParameters, \
     CategoricalDQNAgent, CategoricalDQNAgentParameters
 from rl_coach.agents.dqn_agent import DQNNetworkParameters
-from rl_coach.architectures.tensorflow_components.heads.rainbow_q_head import RainbowQHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.head_parameters import RainbowQHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.exploration_policies.parameter_noise import ParameterNoiseParameters
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplayParameters, \
@@ -37,25 +37,30 @@ class RainbowDQNNetworkParameters(DQNNetworkParameters):
 
 
 class RainbowDQNAlgorithmParameters(CategoricalDQNAlgorithmParameters):
+    """
+    :param n_step: (int)
+        The number of steps to bootstrap the network over. The first N-1 steps actual rewards will be accumulated
+        using an exponentially growing discount factor, and the Nth step will be bootstrapped from the network
+        prediction.
+
+    :param store_transitions_only_when_episodes_are_terminated: (bool)
+        If set to True, the transitions will be stored in an Episode object until the episode ends, and just then
+        written to the memory. This is useful since we want to calculate the N-step discounted rewards before saving the
+        transitions into the memory, and to do so we need the entire episode first.
+    """
     def __init__(self):
         super().__init__()
+        self.n_step = 3
 
-
-class RainbowDQNExplorationParameters(ParameterNoiseParameters):
-    def __init__(self, agent_params):
-        super().__init__(agent_params)
-
-
-class RainbowDQNMemoryParameters(PrioritizedExperienceReplayParameters):
-    def __init__(self):
-        super().__init__()
+        # needed for n-step updates to work. i.e. waiting for a full episode to be closed before storing each transition
+        self.store_transitions_only_when_episodes_are_terminated = True
 
 
 class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
     def __init__(self):
         super().__init__()
         self.algorithm = RainbowDQNAlgorithmParameters()
-        self.exploration = RainbowDQNExplorationParameters(self)
+        self.exploration = ParameterNoiseParameters(self)
         self.memory = PrioritizedExperienceReplayParameters()
         self.network_wrappers = {"main": RainbowDQNNetworkParameters()}
 
@@ -65,15 +70,13 @@ class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
 
 
 # Rainbow Deep Q Network - https://arxiv.org/abs/1710.02298
-# Agent implementation is WIP. Currently is composed of:
+# Agent implementation is composed of:
 # 1. NoisyNets
 # 2. C51
 # 3. Prioritized ER
 # 4. DDQN
 # 5. Dueling DQN
-#
-# still missing:
-# 1. N-Step
+# 6. N-step returns
 
 class RainbowDQNAgent(CategoricalDQNAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
@@ -87,7 +90,7 @@ class RainbowDQNAgent(CategoricalDQNAgent):
 
         # for the action we actually took, the error is calculated by the atoms distribution
         # for all other actions, the error is 0
-        distributed_q_st_plus_1, TD_targets = self.networks['main'].parallel_prediction([
+        distributional_q_st_plus_n, TD_targets = self.networks['main'].parallel_prediction([
             (self.networks['main'].target_network, batch.next_states(network_keys)),
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
@@ -98,15 +101,16 @@ class RainbowDQNAgent(CategoricalDQNAgent):
 
         batches = np.arange(self.ap.network_wrappers['main'].batch_size)
         for j in range(self.z_values.size):
-            tzj = np.fmax(np.fmin(batch.rewards() +
-                                  (1.0 - batch.game_overs()) * self.ap.algorithm.discount * self.z_values[j],
-                                  self.z_values[self.z_values.size - 1]),
-                          self.z_values[0])
+            # we use batch.info('should_bootstrap_next_state') instead of (1 - batch.game_overs()) since with n-step,
+            # we will not bootstrap for the last n-step transitions in the episode
+            tzj = np.fmax(np.fmin(batch.n_step_discounted_rewards() + batch.info('should_bootstrap_next_state') *
+                                  (self.ap.algorithm.discount ** self.ap.algorithm.n_step) * self.z_values[j],
+                                  self.z_values[-1]), self.z_values[0])
             bj = (tzj - self.z_values[0])/(self.z_values[1] - self.z_values[0])
             u = (np.ceil(bj)).astype(int)
             l = (np.floor(bj)).astype(int)
-            m[batches, l] = m[batches, l] + (distributed_q_st_plus_1[batches, target_actions, j] * (u - bj))
-            m[batches, u] = m[batches, u] + (distributed_q_st_plus_1[batches, target_actions, j] * (bj - l))
+            m[batches, l] += (distributional_q_st_plus_n[batches, target_actions, j] * (u - bj))
+            m[batches, u] += (distributional_q_st_plus_n[batches, target_actions, j] * (bj - l))
 
         # total_loss = cross entropy between actual result above and predicted result for the given action
         TD_targets[batches, batch.actions()] = m
@@ -122,7 +126,7 @@ class RainbowDQNAgent(CategoricalDQNAgent):
         # TODO: fix this spaghetti code
         if isinstance(self.memory, PrioritizedExperienceReplay):
             errors = losses[0][np.arange(batch.size), batch.actions()]
-            self.memory.update_priorities(batch.info('idx'), errors)
+            self.call_memory('update_priorities', (batch.info('idx'), errors))
 
         return total_loss, losses, unclipped_grads
 

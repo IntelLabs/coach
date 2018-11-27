@@ -36,7 +36,6 @@ agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
 ###############
 env_params = DoomEnvironmentParameters(level='basic')
 
-
 ########
 # Test #
 ########

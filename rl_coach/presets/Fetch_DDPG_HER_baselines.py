@@ -1,7 +1,7 @@
 from rl_coach.agents.ddpg_agent import DDPGAgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
-from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
+from rl_coach.architectures.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps
 from rl_coach.environments.environment import SingleLevelSelection

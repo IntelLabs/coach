@@ -19,16 +19,20 @@ import importlib.util
 import inspect
 import json
 import os
+import re
 import signal
 import sys
 import threading
 import time
+import traceback
 from multiprocessing import Manager
 from subprocess import Popen
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import atexit
 import numpy as np
+
+from rl_coach.logger import screen
 
 killed_processes = []
 
@@ -234,51 +238,6 @@ def squeeze_list(var):
         return var[0]
     else:
         return var
-
-
-# http://www.johndcook.com/blog/standard_deviation/
-class RunningStat(object):
-    def __init__(self, shape):
-        self._shape = shape
-        self._num_samples = 0
-        self._mean = np.zeros(shape)
-        self._std = np.zeros(shape)
-
-    def reset(self):
-        self._num_samples = 0
-        self._mean = np.zeros(self._shape)
-        self._std = np.zeros(self._shape)
-
-    def push(self, sample):
-        sample = np.asarray(sample)
-        assert sample.shape == self._mean.shape, 'RunningStat input shape mismatch'
-        self._num_samples += 1
-        if self._num_samples == 1:
-            self._mean[...] = sample
-        else:
-            old_mean = self._mean.copy()
-            self._mean[...] = old_mean + (sample - old_mean) / self._num_samples
-            self._std[...] = self._std + (sample - old_mean) * (sample - self._mean)
-
-    @property
-    def n(self):
-        return self._num_samples
-
-    @property
-    def mean(self):
-        return self._mean
-
-    @property
-    def var(self):
-        return self._std / (self._num_samples - 1) if self._num_samples > 1 else np.square(self._mean)
-
-    @property
-    def std(self):
-        return np.sqrt(self.var)
-
-    @property
-    def shape(self):
-        return self._mean.shape
 
 
 def get_open_port():

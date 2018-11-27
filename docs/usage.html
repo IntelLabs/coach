@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Usage &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage - Distributed Coach" href="dist_usage.html" />
+    <link rel="prev" title="Reinforcement Learning Coach" href="index.html" />
+    <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>One of the mechanisms Coach uses for running experiments is the <strong>Preset</strong> mechanism.
+As its name implies, a preset defines a set of predefined experiment parameters.
+This allows defining a <em>complex</em> agent-environment interaction, with multiple parameters, and later running it through
+a very <em>simple</em> command line.</p>
+<p>The preset includes all the components that are used in the experiment, such as the agent internal components and
+the environment to use.
+It additionally defines general parameters for the experiment itself, such as the training schedule,
+visualization parameters, and testing parameters.</p>
+<div class="section" id="training-an-agent">
+<h2>Training an Agent<a class="headerlink" href="#training-an-agent" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="single-threaded-algorithms">
+<h3>Single-threaded Algorithms<a class="headerlink" href="#single-threaded-algorithms" title="Permalink to this headline">¶</a></h3>
+<p>This is the most common case. Just choose a preset using the <cite>-p</cite> flag and press enter.
+To list the available presets, use the <cite>-l</cite> flag.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">CartPole_DQN</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multi-threaded-algorithms">
+<h3>Multi-threaded Algorithms<a class="headerlink" href="#multi-threaded-algorithms" title="Permalink to this headline">¶</a></h3>
+<p>Multi-threaded algorithms are very common these days.
+They typically achieve the best results, and scale gracefully with the number of threads.
+In Coach, running such algorithms is done by selecting a suitable preset, and choosing the number of threads to run using the <code class="code docutils literal notranslate"><span class="pre">-n</span></code> flag.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">CartPole_A3C</span> <span class="o">-</span><span class="n">n</span> <span class="mi">8</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multi-node-algorithms">
+<h3>Multi-Node Algorithms<a class="headerlink" href="#multi-node-algorithms" title="Permalink to this headline">¶</a></h3>
+<p>Coach supports the multi-node runs in distributed mode. Specifically, the horizontal scale-out of rollout workers is implemented.
+In Coach, running such algorithms is done by selecting a suitable preset, enabling distributed coach using <code class="code docutils literal notranslate"><span class="pre">-dc</span></code> flag,
+passing distributed coach parameters using <code class="code docutils literal notranslate"><span class="pre">dcp</span></code> and choosing the number of to run using the <code class="code docutils literal notranslate"><span class="pre">-n</span></code> flag.
+For more details and instructions on how to use distributed Coach, see <a class="reference internal" href="dist_usage.html#dist-coach-usage"><span class="std std-ref">Usage - Distributed Coach</span></a>.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">CartPole_ClippedPPO</span> <span class="o">-</span><span class="n">dc</span> <span class="o">-</span><span class="n">dcp</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="nb">file</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">n</span> <span class="mi">8</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="evaluating-an-agent">
+<h2>Evaluating an Agent<a class="headerlink" href="#evaluating-an-agent" title="Permalink to this headline">¶</a></h2>
+<p>There are several options for evaluating an agent during the training:</p>
+<ul class="simple">
+<li>For multi-threaded runs, an evaluation agent will constantly run in the background and evaluate the model during the training.</li>
+<li>For single-threaded runs, it is possible to define an evaluation period through the preset. This will run several episodes of evaluation once in a while.</li>
+</ul>
+<p>Additionally, it is possible to save checkpoints of the agents networks and then run only in evaluation mode.
+Saving checkpoints can be done by specifying the number of seconds between storing checkpoints using the <code class="code docutils literal notranslate"><span class="pre">-s</span></code> flag.
+The checkpoints will be saved into the experiment directory.
+Loading a model for evaluation can be done by specifying the <code class="code docutils literal notranslate"><span class="pre">-crd</span></code> flag with the experiment directory, and the <code class="code docutils literal notranslate"><span class="pre">--evaluate</span></code> flag to disable training.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">CartPole_DQN</span> <span class="o">-</span><span class="n">s</span> <span class="mi">60</span>
+<span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">CartPole_DQN</span> <span class="o">--</span><span class="n">evaluate</span> <span class="o">-</span><span class="n">crd</span> <span class="n">CHECKPOINT_RESTORE_DIR</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="playing-with-the-environment-as-a-human">
+<h2>Playing with the Environment as a Human<a class="headerlink" href="#playing-with-the-environment-as-a-human" title="Permalink to this headline">¶</a></h2>
+<p>Interacting with the environment as a human can be useful for understanding its difficulties and for collecting data for imitation learning.
+In Coach, this can be easily done by selecting a preset that defines the environment to use, and specifying the <code class="code docutils literal notranslate"><span class="pre">--play</span></code> flag.
+When the environment is loaded, the available keyboard buttons will be printed to the screen.
+Pressing the escape key when finished will end the simulation and store the replay buffer in the experiment dir.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">et</span> <span class="n">rl_coach</span><span class="o">.</span><span class="n">environments</span><span class="o">.</span><span class="n">gym_environment</span><span class="p">:</span><span class="n">Atari</span> <span class="o">-</span><span class="n">lvl</span> <span class="n">BreakoutDeterministic</span><span class="o">-</span><span class="n">v4</span> <span class="o">--</span><span class="n">play</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="learning-through-imitation-learning">
+<h2>Learning Through Imitation Learning<a class="headerlink" href="#learning-through-imitation-learning" title="Permalink to this headline">¶</a></h2>
+<p>Learning through imitation of human behavior is a nice way to speedup the learning.
+In Coach, this can be done in two steps -</p>
+<ol class="arabic">
+<li><p class="first">Create a dataset of demonstrations by playing with the environment as a human.
+After this step, a pickle of the replay buffer containing your game play will be stored in the experiment directory.
+The path to this replay buffer will be printed to the screen.
+To do so, you should select an environment type and level through the command line, and specify the <code class="code docutils literal notranslate"><span class="pre">--play</span></code> flag.</p>
+<blockquote>
+<div><p><em>Example:</em></p>
+</div></blockquote>
+</li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">et</span> <span class="n">rl_coach</span><span class="o">.</span><span class="n">environments</span><span class="o">.</span><span class="n">doom_environment</span><span class="p">:</span><span class="n">DoomEnvironmentParameters</span> <span class="o">-</span><span class="n">lvl</span> <span class="n">Basic</span> <span class="o">--</span><span class="n">play</span>
+</pre></div>
+</div>
+<ol class="arabic" start="2">
+<li><dl class="first docutils">
+<dt>Next, use an imitation learning preset and set the replay buffer path accordingly.</dt>
+<dd><p class="first">The path can be set either from the command line or from the preset itself.</p>
+<p class="last"><em>Example:</em></p>
+</dd>
+</dl>
+</li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Doom_Basic_BC</span> <span class="o">-</span><span class="n">cp</span><span class="o">=</span><span class="s1">&#39;agent.load_memory_from_file_path=</span><span class="se">\&quot;</span><span class="s1">&lt;experiment dir&gt;/replay_buffer.p</span><span class="se">\&quot;</span><span class="s1">&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="visualizations">
+<h2>Visualizations<a class="headerlink" href="#visualizations" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rendering-the-environment">
+<h3>Rendering the Environment<a class="headerlink" href="#rendering-the-environment" title="Permalink to this headline">¶</a></h3>
+<p>Rendering the environment can be done by using the <code class="code docutils literal notranslate"><span class="pre">-r</span></code> flag.
+When working with multi-threaded algorithms, the rendered image will be representing the game play of the evaluation worker.
+When working with single-threaded algorithms, the rendered image will be representing the single worker which can be either training or evaluating.
+Keep in mind that rendering the environment in single-threaded algorithms may slow the training to some extent.
+When playing with the environment using the <code class="code docutils literal notranslate"><span class="pre">--play</span></code> flag, the environment will be rendered automatically without the need for specifying the <code class="code docutils literal notranslate"><span class="pre">-r</span></code> flag.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Atari_DQN</span> <span class="o">-</span><span class="n">lvl</span> <span class="n">breakout</span> <span class="o">-</span><span class="n">r</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dumping-gifs">
+<h3>Dumping GIFs<a class="headerlink" href="#dumping-gifs" title="Permalink to this headline">¶</a></h3>
+<p>Coach allows storing GIFs of the agent game play.
+To dump GIF files, use the <code class="code docutils literal notranslate"><span class="pre">-dg</span></code> flag.
+The files are dumped after every evaluation episode, and are saved into the experiment directory, under a gifs sub-directory.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Atari_A3C</span> <span class="o">-</span><span class="n">lvl</span> <span class="n">breakout</span> <span class="o">-</span><span class="n">n</span> <span class="mi">4</span> <span class="o">-</span><span class="n">dg</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="switching-between-deep-learning-frameworks">
+<h2>Switching Between Deep Learning Frameworks<a class="headerlink" href="#switching-between-deep-learning-frameworks" title="Permalink to this headline">¶</a></h2>
+<p>Coach uses TensorFlow as its main backend framework, but it also supports MXNet.
+MXNet is optional, and by default, TensorFlow will be used.
+If MXNet was installed, it is possible to switch to MXNet using the <code class="code docutils literal notranslate"><span class="pre">-f</span></code> flag.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Doom_Basic_DQN</span> <span class="o">-</span><span class="n">f</span> <span class="n">mxnet</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="additional-flags">
+<h2>Additional Flags<a class="headerlink" href="#additional-flags" title="Permalink to this headline">¶</a></h2>
+<p>There are several convenient flags which are important to know about.
+The most up to date description can be found by using the <code class="code docutils literal notranslate"><span class="pre">-h</span></code> flag.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dist_usage.html" class="btn btn-neutral float-right" title="Usage - Distributed Coach" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Reinforcement Learning Coach" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

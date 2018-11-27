@@ -25,17 +25,19 @@ from rl_coach.spaces import BoxActionSpace
 
 class LinearBoxToBoxMap(ActionFilter):
     """
-    Maps a box action space to a box action space.
-    For example,
-    - the source action space has actions of shape 1 with values between -42 and -10,
-    - the target action space has actions of shape 1 with values between 10 and 32
-    The mapping will add an offset of 52 to the incoming actions and then multiply them by 22/32 to scale them to the
-    target action space
-    The shape of the source and target action spaces is always the same
+    A linear mapping of two box action spaces. For example, if the action space of the
+    environment consists of continuous actions between 0 and 1, and we want the agent to choose actions between -1 and 1,
+    the LinearBoxToBoxMap can be used to map the range -1 and 1 to the range 0 and 1 in a linear way. This means that the
+    action -1 will be mapped to 0, the action 1 will be mapped to 1, and the rest of the actions will be linearly mapped
+    between those values.
     """
     def __init__(self,
                  input_space_low: Union[None, int, float, np.ndarray],
                  input_space_high: Union[None, int, float, np.ndarray]):
+        """
+        :param input_space_low: the low values of the desired action space
+        :param input_space_high: the high values of the desired action space
+        """
         self.input_space_low = input_space_low
         self.input_space_high = input_space_high
         self.rescale = None

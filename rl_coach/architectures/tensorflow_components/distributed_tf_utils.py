@@ -75,13 +75,13 @@ def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_ind
 
 
 def create_monitored_session(target: tf.train.Server, task_index: int,
-                             checkpoint_dir: str, save_checkpoint_secs: int, config: tf.ConfigProto=None) -> tf.Session:
+                             checkpoint_dir: str, checkpoint_save_secs: int, config: tf.ConfigProto=None) -> tf.Session:
     """
     Create a monitored session for the worker
     :param target: the target string for the tf.Session
     :param task_index: the task index of the worker
     :param checkpoint_dir: a directory path where the checkpoints will be stored
-    :param save_checkpoint_secs: number of seconds between checkpoints storing
+    :param checkpoint_save_secs: number of seconds between checkpoints storing
     :param config: the tensorflow configuration (optional)
     :return: the session to use for the run
     """
@@ -94,8 +94,9 @@ def create_monitored_session(target: tf.train.Server, task_index: int,
         is_chief=is_chief,
         hooks=[],
         checkpoint_dir=checkpoint_dir,
-        save_checkpoint_secs=save_checkpoint_secs,
-        config=config
+        save_checkpoint_secs=checkpoint_save_secs,
+        config=config,
+        log_step_count_steps=0  # disable logging of steps to avoid TF warning during inference
     )
 
     return sess

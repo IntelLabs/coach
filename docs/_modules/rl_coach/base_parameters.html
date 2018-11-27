@@ -1,0 +1,853 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.base_parameters &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.base_parameters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.base_parameters</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">TrainingSteps</span><span class="p">,</span> <span class="n">EnvironmentSteps</span><span class="p">,</span> <span class="n">GradientClippingMethod</span><span class="p">,</span> <span class="n">RunPhase</span><span class="p">,</span> \
+    <span class="n">SelectedPhaseOnlyDumpFilter</span><span class="p">,</span> <span class="n">MaxDumpFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">NoInputFilter</span>
+
+
+<span class="k">class</span> <span class="nc">Frameworks</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">tensorflow</span> <span class="o">=</span> <span class="s2">&quot;TensorFlow&quot;</span>
+    <span class="n">mxnet</span> <span class="o">=</span> <span class="s2">&quot;MXNet&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">EmbedderScheme</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Empty</span> <span class="o">=</span> <span class="s2">&quot;Empty&quot;</span>
+    <span class="n">Shallow</span> <span class="o">=</span> <span class="s2">&quot;Shallow&quot;</span>
+    <span class="n">Medium</span> <span class="o">=</span> <span class="s2">&quot;Medium&quot;</span>
+    <span class="n">Deep</span> <span class="o">=</span> <span class="s2">&quot;Deep&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">MiddlewareScheme</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Empty</span> <span class="o">=</span> <span class="s2">&quot;Empty&quot;</span>
+    <span class="n">Shallow</span> <span class="o">=</span> <span class="s2">&quot;Shallow&quot;</span>
+    <span class="n">Medium</span> <span class="o">=</span> <span class="s2">&quot;Medium&quot;</span>
+    <span class="n">Deep</span> <span class="o">=</span> <span class="s2">&quot;Deep&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">EmbeddingMergerType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Concat</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Sum</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1">#ConcatDepthWise = 2</span>
+    <span class="c1">#Multiply = 3</span>
+
+<span class="k">class</span> <span class="nc">RunType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">ORCHESTRATOR</span> <span class="o">=</span> <span class="s2">&quot;orchestrator&quot;</span>
+    <span class="n">TRAINER</span> <span class="o">=</span> <span class="s2">&quot;trainer&quot;</span>
+    <span class="n">ROLLOUT_WORKER</span> <span class="o">=</span> <span class="s2">&quot;rollout-worker&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+
+<span class="k">class</span> <span class="nc">DeviceType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">CPU</span> <span class="o">=</span> <span class="s1">&#39;cpu&#39;</span>
+    <span class="n">GPU</span> <span class="o">=</span> <span class="s1">&#39;gpu&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">Device</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="p">:</span> <span class="n">DeviceType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param device_type: type of device (CPU/GPU)</span>
+<span class="sd">        :param index: index of device (only used if device type is GPU)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device_type</span> <span class="o">=</span> <span class="n">device_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">device_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<span class="c1"># DistributedCoachSynchronizationType provides the synchronization type for distributed Coach.</span>
+<span class="c1"># The default value is None, which means the algorithm or preset cannot be used with distributed Coach.</span>
+<span class="k">class</span> <span class="nc">DistributedCoachSynchronizationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="c1"># In SYNC mode, the trainer waits for all the experiences to be gathered from distributed rollout workers before</span>
+    <span class="c1"># training a new policy and the rollout workers wait for a new policy before gathering experiences.</span>
+    <span class="n">SYNC</span> <span class="o">=</span> <span class="s2">&quot;sync&quot;</span>
+
+    <span class="c1"># In ASYNC mode, the trainer doesn&#39;t wait for any set of experiences to be gathered from distributed rollout workers</span>
+    <span class="c1"># and the rollout workers continously gather experiences loading new policies, whenever they become available.</span>
+    <span class="n">ASYNC</span> <span class="o">=</span> <span class="s2">&quot;async&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">iterable_to_items</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">MappingProxyType</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given object is not a dict or a list&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">items</span>
+
+
+<span class="k">def</span> <span class="nf">unfold_dict_or_list</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursively unfolds all the parameters in dictionaries and lists</span>
+<span class="sd">    :param obj: a dictionary or list to unfold</span>
+<span class="sd">    :return: the unfolded parameters dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">iterable_to_items</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;tensorflow.&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">unfold_dict_or_list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;tensorflow.&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">):</span>
+            <span class="n">sub_params</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="k">if</span> <span class="s1">&#39;__objclass__&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sub_params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">unfold_dict_or_list</span><span class="p">(</span><span class="n">sub_params</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">RecursionError</span><span class="p">:</span>
+                    <span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_params</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;__class__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># unfolding this type of object will result in infinite recursion</span>
+                <span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_params</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parameters</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">parameters</span>
+
+
+<span class="k">class</span> <span class="nc">Parameters</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">caller_name</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
+
+        <span class="k">if</span> <span class="n">caller_name</span> <span class="o">!=</span> <span class="s1">&#39;__init__&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{}</span><span class="s2">&#39; does not exist in </span><span class="si">{}</span><span class="s2">. Parameters are only to be defined in a constructor of&quot;</span>
+                            <span class="s2">&quot; a class inheriting from Parameters. In order to explicitly register a new parameter &quot;</span>
+                            <span class="s2">&quot;outside of a constructor use register_var().&quot;</span><span class="o">.</span>
+                            <span class="nb">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;parameterized_class_name&#39;</span><span class="p">):</span>
+            <span class="n">module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.py&#39;</span>
+
+            <span class="k">return</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">module_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameterized_class_name</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The parameters class does not have an attached class it parameterizes. &quot;</span>
+                             <span class="s2">&quot;The self.parameterized_class_name should be set to the parameterized class.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">register_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot register an already existing parameter &#39;</span><span class="si">{}</span><span class="s2">&#39;. &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                                   <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">unfold_dict_or_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">repr</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">class</span> <span class="nc">AlgorithmParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Architecture parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_accumulated_reward_as_measurement</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Agent parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span> <span class="o">=</span> <span class="n">EnvironmentSteps</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_consecutive_training_steps</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># TODO: update this to TrainingSteps</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">heatup_using_network_decisions</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discount</span> <span class="o">=</span> <span class="mf">0.99</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_gradients_every_x_episodes</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_steps_between_copying_online_weights_to_target</span> <span class="o">=</span> <span class="n">TrainingSteps</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate_for_copying_weights_to_target</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_memory_from_file_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># HRL / HER related params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># distributed agents params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_statistics_between_workers</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># intrinsic reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_external_reward_by_intrinsic_reward_value</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># n-step returns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_step</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># calculate the total return (no bootstrap, by default)</span>
+
+        <span class="c1"># Distributed Coach params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distributed_coach_synchronization_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Should the workers wait for full episode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">act_for_full_episodes</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="PresetValidationParameters"><a class="viewcode-back" href="../../components/additional_parameters.html#rl_coach.base_parameters.PresetValidationParameters">[docs]</a><span class="k">class</span> <span class="nc">PresetValidationParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">min_reward_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">max_episodes_to_achieve_reward</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">reward_test_level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">test_using_a_trace_test</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">trace_test_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">trace_max_env_steps</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param test:</span>
+<span class="sd">            A flag which specifies if the preset should be tested as part of the validation process.</span>
+<span class="sd">        :param min_reward_threshold:</span>
+<span class="sd">            The minimum reward that the agent should pass after max_episodes_to_achieve_reward episodes when the</span>
+<span class="sd">            preset is run.</span>
+<span class="sd">        :param max_episodes_to_achieve_reward:</span>
+<span class="sd">            The maximum number of episodes that the agent should train using the preset in order to achieve the</span>
+<span class="sd">            reward specified by min_reward_threshold.</span>
+<span class="sd">        :param num_workers:</span>
+<span class="sd">            The number of workers that should be used when running this preset in the test suite for validation.</span>
+<span class="sd">        :param reward_test_level:</span>
+<span class="sd">            The environment level or levels, given by a list of strings, that should be tested as part of the</span>
+<span class="sd">            reward tests suite.</span>
+<span class="sd">        :param test_using_a_trace_test:</span>
+<span class="sd">            A flag that specifies if the preset should be run as part of the trace tests suite.</span>
+<span class="sd">        :param trace_test_levels:</span>
+<span class="sd">            The environment level or levels, given by a list of strings, that should be tested as part of the</span>
+<span class="sd">            trace tests suite.</span>
+<span class="sd">        :param trace_max_env_steps:</span>
+<span class="sd">            An integer representing the maximum number of environment steps to run when running this preset as part</span>
+<span class="sd">            of the trace tests suite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># setting a seed will only work for non-parallel algorithms. Parallel algorithms add uncontrollable noise in</span>
+        <span class="c1"># the form of different workers starting at different times, and getting different assignments of CPU</span>
+        <span class="c1"># time from the OS.</span>
+
+        <span class="c1"># Testing parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_reward_threshold</span> <span class="o">=</span> <span class="n">min_reward_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_episodes_to_achieve_reward</span> <span class="o">=</span> <span class="n">max_episodes_to_achieve_reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_workers</span> <span class="o">=</span> <span class="n">num_workers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_test_level</span> <span class="o">=</span> <span class="n">reward_test_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_using_a_trace_test</span> <span class="o">=</span> <span class="n">test_using_a_trace_test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trace_test_levels</span> <span class="o">=</span> <span class="n">trace_test_levels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trace_max_env_steps</span> <span class="o">=</span> <span class="n">trace_max_env_steps</span></div>
+
+
+<div class="viewcode-block" id="NetworkParameters"><a class="viewcode-back" href="../../components/architectures/index.html#rl_coach.base_parameters.NetworkParameters">[docs]</a><span class="k">class</span> <span class="nc">NetworkParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">async_training</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">shared_optimizer</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">scale_down_gradients_by_number_of_workers_for_sync_training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">clip_gradients</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">gradients_clipping_method</span><span class="o">=</span><span class="n">GradientClippingMethod</span><span class="o">.</span><span class="n">ClipByGlobalNorm</span><span class="p">,</span>
+                 <span class="n">l2_regularization</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.00025</span><span class="p">,</span>
+                 <span class="n">learning_rate_decay_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">learning_rate_decay_steps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">input_embedders_parameters</span><span class="o">=</span><span class="p">{},</span>
+                 <span class="n">embedding_merger_type</span><span class="o">=</span><span class="n">EmbeddingMergerType</span><span class="o">.</span><span class="n">Concat</span><span class="p">,</span>
+                 <span class="n">middleware_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">heads_parameters</span><span class="o">=</span><span class="p">[],</span>
+                 <span class="n">use_separate_networks_per_head</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">optimizer_type</span><span class="o">=</span><span class="s1">&#39;Adam&#39;</span><span class="p">,</span>
+                 <span class="n">optimizer_epsilon</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span>
+                 <span class="n">adam_optimizer_beta1</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                 <span class="n">adam_optimizer_beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+                 <span class="n">rms_prop_optimizer_decay</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+                 <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+                 <span class="n">replace_mse_with_huber_loss</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">create_target_network</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">tensorflow_support</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param force_cpu:</span>
+<span class="sd">            Force the neural networks to run on the CPU even if a GPU is available</span>
+<span class="sd">        :param async_training:</span>
+<span class="sd">            If set to True, asynchronous training will be used, meaning that each workers will progress in its own</span>
+<span class="sd">            speed, while not waiting for the rest of the workers to calculate their gradients.</span>
+<span class="sd">        :param shared_optimizer:</span>
+<span class="sd">            If set to True, a central optimizer which will be shared with all the workers will be used for applying</span>
+<span class="sd">            gradients to the network. Otherwise, each worker will have its own optimizer with its own internal</span>
+<span class="sd">            parameters that will only be affected by the gradients calculated by that worker</span>
+<span class="sd">        :param scale_down_gradients_by_number_of_workers_for_sync_training:</span>
+<span class="sd">            If set to True, in synchronous training, the gradients of each worker will be scaled down by the</span>
+<span class="sd">            number of workers. This essentially means that the gradients applied to the network are the average</span>
+<span class="sd">            of the gradients over all the workers.</span>
+<span class="sd">        :param clip_gradients:</span>
+<span class="sd">            A value that will be used for clipping the gradients of the network. If set to None, no gradient clipping</span>
+<span class="sd">            will be applied. Otherwise, the gradients will be clipped according to the gradients_clipping_method.</span>
+<span class="sd">        :param gradients_clipping_method:</span>
+<span class="sd">            A gradient clipping method, defined by a GradientClippingMethod enum, and that will be used to clip the</span>
+<span class="sd">            gradients of the network. This will only be used if the clip_gradients value is defined as a value other</span>
+<span class="sd">            than None.</span>
+<span class="sd">        :param l2_regularization:</span>
+<span class="sd">            A L2 regularization weight that will be applied to the network weights while calculating the loss function</span>
+<span class="sd">        :param learning_rate:</span>
+<span class="sd">            The learning rate for the network</span>
+<span class="sd">        :param learning_rate_decay_rate:</span>
+<span class="sd">            If this value is larger than 0, an exponential decay will be applied to the network learning rate.</span>
+<span class="sd">            The rate of the decay is defined by this parameter, and the number of training steps the decay will be</span>
+<span class="sd">            applied is defined by learning_rate_decay_steps. Notice that both parameters should be defined in order</span>
+<span class="sd">            for this to work correctly.</span>
+<span class="sd">        :param learning_rate_decay_steps:</span>
+<span class="sd">            If the learning_rate_decay_rate of the network is larger than 0, an exponential decay will be applied to</span>
+<span class="sd">            the network learning rate. The number of steps the decay will be applied is defined by this parameter.</span>
+<span class="sd">            Notice that both this parameter, as well as learning_rate_decay_rate should be defined in order for the</span>
+<span class="sd">            learning rate decay to work correctly.</span>
+<span class="sd">        :param input_embedders_parameters:</span>
+<span class="sd">            A dictionary mapping between input names and input embedders (InputEmbedderParameters) to use for the</span>
+<span class="sd">            network. Each of the keys is an input name as returned from the environment in the state.</span>
+<span class="sd">            For example, if the environment returns a state containing &#39;observation&#39; and &#39;measurements&#39;, then</span>
+<span class="sd">            the keys for the input embedders dictionary can be either &#39;observation&#39; to use the observation as input,</span>
+<span class="sd">            &#39;measurements&#39; to use the measurements as input, or both.</span>
+<span class="sd">            The embedder type will be automatically selected according to the input type. Vector inputs will</span>
+<span class="sd">            produce a fully connected embedder, and image inputs will produce a convolutional embedder.</span>
+<span class="sd">        :param embedding_merger_type:</span>
+<span class="sd">            The type of embedding merging to use, given by one of the EmbeddingMergerType enum values.</span>
+<span class="sd">            This will be used to merge the outputs of all the input embedders into a single embbeding.</span>
+<span class="sd">        :param middleware_parameters:</span>
+<span class="sd">            The parameters of the middleware to use, given by a MiddlewareParameters object.</span>
+<span class="sd">            Each network will have only a single middleware embedder which will take the merged embeddings from the</span>
+<span class="sd">            input embedders and pass them through more neural network layers.</span>
+<span class="sd">        :param heads_parameters:</span>
+<span class="sd">            A list of heads for the network given by their corresponding HeadParameters.</span>
+<span class="sd">            Each network can have one or multiple network heads, where each one will take the output of the middleware</span>
+<span class="sd">            and make some additional computation on top of it. Additionally, each head calculates a weighted loss value,</span>
+<span class="sd">            and the loss values from all the heads will be summed later on.</span>
+<span class="sd">        :param use_separate_networks_per_head:</span>
+<span class="sd">            A flag that allows using different copies of the input embedders and middleware for each one of the heads.</span>
+<span class="sd">            Regularly, the heads will have a shared input, but in the case where use_separate_networks_per_head is set</span>
+<span class="sd">            to True, each one of the heads will get a different input.</span>
+<span class="sd">        :param optimizer_type:</span>
+<span class="sd">            A string specifying the optimizer type to use for updating the network. The available optimizers are</span>
+<span class="sd">            Adam, RMSProp and LBFGS.</span>
+<span class="sd">        :param optimizer_epsilon:</span>
+<span class="sd">            An internal optimizer parameter used for Adam and RMSProp.</span>
+<span class="sd">        :param adam_optimizer_beta1:</span>
+<span class="sd">            An beta1 internal optimizer parameter used for Adam. It will be used only if Adam was selected as the</span>
+<span class="sd">            optimizer for the network.</span>
+<span class="sd">        :param adam_optimizer_beta2:</span>
+<span class="sd">            An beta2 internal optimizer parameter used for Adam. It will be used only if Adam was selected as the</span>
+<span class="sd">            optimizer for the network.</span>
+<span class="sd">        :param rms_prop_optimizer_decay:</span>
+<span class="sd">            The decay value for the RMSProp optimizer, which will be used only in case the RMSProp optimizer was</span>
+<span class="sd">            selected for this network.</span>
+<span class="sd">        :param batch_size:</span>
+<span class="sd">            The batch size to use when updating the network.</span>
+<span class="sd">        :param replace_mse_with_huber_loss:</span>
+<span class="sd">        :param create_target_network:</span>
+<span class="sd">            If this flag is set to True, an additional copy of the network will be created and initialized with the</span>
+<span class="sd">            same weights as the online network. It can then be queried, and its weights can be synced from the</span>
+<span class="sd">            online network at will.</span>
+<span class="sd">        :param tensorflow_support:</span>
+<span class="sd">            A flag which specifies if the network is supported by the TensorFlow framework.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="o">=</span> <span class="n">Frameworks</span><span class="o">.</span><span class="n">tensorflow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># hardware parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_cpu</span> <span class="o">=</span> <span class="n">force_cpu</span>
+
+        <span class="c1"># distributed training options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">async_training</span> <span class="o">=</span> <span class="n">async_training</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_optimizer</span> <span class="o">=</span> <span class="n">shared_optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_down_gradients_by_number_of_workers_for_sync_training</span> <span class="o">=</span> <span class="n">scale_down_gradients_by_number_of_workers_for_sync_training</span>
+
+        <span class="c1"># regularization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_gradients</span> <span class="o">=</span> <span class="n">clip_gradients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gradients_clipping_method</span> <span class="o">=</span> <span class="n">gradients_clipping_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l2_regularization</span> <span class="o">=</span> <span class="n">l2_regularization</span>
+
+        <span class="c1"># learning rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate_decay_rate</span> <span class="o">=</span> <span class="n">learning_rate_decay_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate_decay_steps</span> <span class="o">=</span> <span class="n">learning_rate_decay_steps</span>
+
+        <span class="c1"># structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="n">input_embedders_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_merger_type</span> <span class="o">=</span> <span class="n">embedding_merger_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">middleware_parameters</span> <span class="o">=</span> <span class="n">middleware_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="n">heads_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_separate_networks_per_head</span> <span class="o">=</span> <span class="n">use_separate_networks_per_head</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_type</span> <span class="o">=</span> <span class="n">optimizer_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_epsilon</span> <span class="o">=</span> <span class="n">optimizer_epsilon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adam_optimizer_beta1</span> <span class="o">=</span> <span class="n">adam_optimizer_beta1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adam_optimizer_beta2</span> <span class="o">=</span> <span class="n">adam_optimizer_beta2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rms_prop_optimizer_decay</span> <span class="o">=</span> <span class="n">rms_prop_optimizer_decay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replace_mse_with_huber_loss</span> <span class="o">=</span> <span class="n">replace_mse_with_huber_loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_target_network</span> <span class="o">=</span> <span class="n">create_target_network</span>
+
+        <span class="c1"># Framework support</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tensorflow_support</span> <span class="o">=</span> <span class="n">tensorflow_support</span></div>
+
+
+<span class="k">class</span> <span class="nc">NetworkComponentParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dense_layer</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dense_layer</span> <span class="o">=</span> <span class="n">dense_layer</span>
+
+
+<div class="viewcode-block" id="VisualizationParameters"><a class="viewcode-back" href="../../components/additional_parameters.html#rl_coach.base_parameters.VisualizationParameters">[docs]</a><span class="k">class</span> <span class="nc">VisualizationParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">print_networks_summary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">dump_csv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">dump_signals_to_csv_every_x_episodes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">dump_gifs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">dump_mp4</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">video_dump_methods</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dump_in_episode_signals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">dump_parameters_documentation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">render</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">native_rendering</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">max_fps_for_human_control</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">tensorboard</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">add_rendered_image_to_env_response</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param print_networks_summary:</span>
+<span class="sd">            If set to True, a summary of all the networks structure will be printed at the beginning of the experiment</span>
+<span class="sd">        :param dump_csv:</span>
+<span class="sd">            If set to True, the logger will dump logs to a csv file once in every dump_signals_to_csv_every_x_episodes</span>
+<span class="sd">            episodes. The logs can be later used to visualize the training process using Coach Dashboard.</span>
+<span class="sd">        :param dump_signals_to_csv_every_x_episodes:</span>
+<span class="sd">            Defines the number of episodes between writing new data to the csv log files. Lower values can affect</span>
+<span class="sd">            performance, as writing to disk may take time, and it is done synchronously.</span>
+<span class="sd">        :param dump_gifs:</span>
+<span class="sd">            If set to True, GIF videos of the environment will be stored into the experiment directory according to</span>
+<span class="sd">            the filters defined in video_dump_methods.</span>
+<span class="sd">        :param dump_mp4:</span>
+<span class="sd">            If set to True, MP4 videos of the environment will be stored into the experiment directory according to</span>
+<span class="sd">            the filters defined in video_dump_methods.</span>
+<span class="sd">        :param dump_in_episode_signals:</span>
+<span class="sd">            If set to True, csv files will be dumped for each episode for inspecting different metrics within the</span>
+<span class="sd">            episode. This means that for each step in each episode, different metrics such as the reward, the</span>
+<span class="sd">            future return, etc. will be saved. Setting this to True may affect performance severely, and therefore</span>
+<span class="sd">            this should be used only for debugging purposes.</span>
+<span class="sd">        :param dump_parameters_documentation:</span>
+<span class="sd">            If set to True, a json file containing all the agent parameters will be saved in the experiment directory.</span>
+<span class="sd">            This may be very useful for inspecting the values defined for each parameters and making sure that all</span>
+<span class="sd">            the parameters are defined as expected.</span>
+<span class="sd">        :param render:</span>
+<span class="sd">            If set to True, the environment render function will be called for each step, rendering the image of the</span>
+<span class="sd">            environment. This may affect the performance of training, and is highly dependent on the environment.</span>
+<span class="sd">            By default, Coach uses PyGame to render the environment image instead of the environment specific rendered.</span>
+<span class="sd">            To change this, use the native_rendering flag.</span>
+<span class="sd">        :param native_rendering:</span>
+<span class="sd">            If set to True, the environment native renderer will be used for rendering the environment image.</span>
+<span class="sd">            In some cases this can be slower than rendering using PyGame through Coach, but in other cases the</span>
+<span class="sd">            environment opens its native renderer by default, so rendering with PyGame is an unnecessary overhead.</span>
+<span class="sd">        :param max_fps_for_human_control:</span>
+<span class="sd">            The maximum number of frames per second used while playing the environment as a human. This only has</span>
+<span class="sd">            effect while using the --play flag for Coach.</span>
+<span class="sd">        :param tensorboard:</span>
+<span class="sd">            If set to True, TensorBoard summaries will be stored in the experiment directory. This can later be</span>
+<span class="sd">            loaded in TensorBoard in order to visualize the training process.</span>
+<span class="sd">        :param video_dump_methods:</span>
+<span class="sd">            A list of dump methods that will be used as filters for deciding when to save videos.</span>
+<span class="sd">            The filters in the list will be checked one after the other until the first dump method that returns</span>
+<span class="sd">            false for should_dump() in the environment class. This list will only be used if dump_mp4 or dump_gif are</span>
+<span class="sd">            set to True.</span>
+<span class="sd">        :param add_rendered_image_to_env_response:</span>
+<span class="sd">            Some environments have a different observation compared to the one displayed while rendering.</span>
+<span class="sd">            For some cases it can be useful to pass the rendered image to the agent for visualization purposes.</span>
+<span class="sd">            If this flag is set to True, the rendered image will be added to the environment EnvResponse object,</span>
+<span class="sd">            which will be passed to the agent and allow using those images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">video_dump_methods</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">video_dump_methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">SelectedPhaseOnlyDumpFilter</span><span class="p">(</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span><span class="p">),</span> <span class="n">MaxDumpFilter</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_networks_summary</span> <span class="o">=</span> <span class="n">print_networks_summary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_csv</span> <span class="o">=</span> <span class="n">dump_csv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_gifs</span> <span class="o">=</span> <span class="n">dump_gifs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_mp4</span> <span class="o">=</span> <span class="n">dump_mp4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_signals_to_csv_every_x_episodes</span> <span class="o">=</span> <span class="n">dump_signals_to_csv_every_x_episodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_in_episode_signals</span> <span class="o">=</span> <span class="n">dump_in_episode_signals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_parameters_documentation</span> <span class="o">=</span> <span class="n">dump_parameters_documentation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span> <span class="o">=</span> <span class="n">render</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">native_rendering</span> <span class="o">=</span> <span class="n">native_rendering</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_fps_for_human_control</span> <span class="o">=</span> <span class="n">max_fps_for_human_control</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tensorboard</span> <span class="o">=</span> <span class="n">tensorboard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_dump_filters</span> <span class="o">=</span> <span class="n">video_dump_methods</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_rendered_image_to_env_response</span> <span class="o">=</span> <span class="n">add_rendered_image_to_env_response</span></div>
+
+
+<div class="viewcode-block" id="AgentParameters"><a class="viewcode-back" href="../../components/agents/index.html#rl_coach.base_parameters.AgentParameters">[docs]</a><span class="k">class</span> <span class="nc">AgentParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="n">AlgorithmParameters</span><span class="p">,</span> <span class="n">exploration</span><span class="p">:</span> <span class="s1">&#39;ExplorationParameters&#39;</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="s1">&#39;MemoryParameters&#39;</span><span class="p">,</span>
+                 <span class="n">networks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NetworkParameters</span><span class="p">],</span> <span class="n">visualization</span><span class="p">:</span> <span class="n">VisualizationParameters</span><span class="o">=</span><span class="n">VisualizationParameters</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param algorithm:</span>
+<span class="sd">            A class inheriting AlgorithmParameters.</span>
+<span class="sd">            The parameters used for the specific algorithm used by the agent.</span>
+<span class="sd">            These parameters can be later referenced in the agent implementation through self.ap.algorithm.</span>
+<span class="sd">        :param exploration:</span>
+<span class="sd">            Either a class inheriting ExplorationParameters or a dictionary mapping between action</span>
+<span class="sd">            space types and their corresponding ExplorationParameters. If a dictionary was used,</span>
+<span class="sd">            when the agent will be instantiated, the correct exploration policy parameters will be used</span>
+<span class="sd">            according to the real type of the environment action space.</span>
+<span class="sd">            These parameters will be used to instantiate the exporation policy.</span>
+<span class="sd">        :param memory:</span>
+<span class="sd">            A class inheriting MemoryParameters. It defines all the parameters used by the memory module.</span>
+<span class="sd">        :param networks:</span>
+<span class="sd">            A dictionary mapping between network names and their corresponding network parmeters, defined</span>
+<span class="sd">            as a class inheriting NetworkParameters. Each element will be used in order to instantiate</span>
+<span class="sd">            a NetworkWrapper class, and all the network wrappers will be stored in the agent under</span>
+<span class="sd">            self.network_wrappers. self.network_wrappers is a dict mapping between the network name that</span>
+<span class="sd">            was given in the networks dict, and the instantiated network wrapper.</span>
+<span class="sd">        :param visualization:</span>
+<span class="sd">            A class inheriting VisualizationParameters and defining various parameters that can be</span>
+<span class="sd">            used for visualization purposes, such as printing to the screen, rendering, and saving videos.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visualization</span> <span class="o">=</span> <span class="n">visualization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="o">=</span> <span class="n">algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exploration</span> <span class="o">=</span> <span class="n">exploration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_wrappers</span> <span class="o">=</span> <span class="n">networks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_filter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="o">=</span> <span class="n">NoInputFilter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_a_lowest_level_agent</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_parameters</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.agents.agent:Agent&#39;</span></div>
+
+
+<div class="viewcode-block" id="TaskParameters"><a class="viewcode-back" href="../../components/additional_parameters.html#rl_coach.base_parameters.TaskParameters">[docs]</a><span class="k">class</span> <span class="nc">TaskParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework_type</span><span class="p">:</span> <span class="n">Frameworks</span><span class="o">=</span><span class="n">Frameworks</span><span class="o">.</span><span class="n">tensorflow</span><span class="p">,</span> <span class="n">evaluate_only</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_cpu</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">experiment_path</span><span class="o">=</span><span class="s1">&#39;/tmp&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpoint_save_secs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpoint_restore_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">checkpoint_save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">export_onnx_graph</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">apply_stop_condition</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">num_gpu</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param framework_type: deep learning framework type. currently only tensorflow is supported</span>
+<span class="sd">        :param evaluate_only: the task will be used only for evaluating the model</span>
+<span class="sd">        :param use_cpu: use the cpu for this task</span>
+<span class="sd">        :param experiment_path: the path to the directory which will store all the experiment outputs</span>
+<span class="sd">        :param seed: a seed to use for the random numbers generator</span>
+<span class="sd">        :param checkpoint_save_secs: the number of seconds between each checkpoint saving</span>
+<span class="sd">        :param checkpoint_restore_dir: the directory to restore the checkpoints from</span>
+<span class="sd">        :param checkpoint_save_dir: the directory to store the checkpoints in</span>
+<span class="sd">        :param export_onnx_graph: If set to True, this will export an onnx graph each time a checkpoint is saved</span>
+<span class="sd">        :param apply_stop_condition: If set to True, this will apply the stop condition defined by reaching a target success rate</span>
+<span class="sd">        :param num_gpu: number of GPUs to use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framework_type</span> <span class="o">=</span> <span class="n">framework_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_index</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># TODO: not really needed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_only</span> <span class="o">=</span> <span class="n">evaluate_only</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_cpu</span> <span class="o">=</span> <span class="n">use_cpu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_path</span> <span class="o">=</span> <span class="n">experiment_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_save_secs</span> <span class="o">=</span> <span class="n">checkpoint_save_secs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_restore_dir</span> <span class="o">=</span> <span class="n">checkpoint_restore_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_save_dir</span> <span class="o">=</span> <span class="n">checkpoint_save_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_onnx_graph</span> <span class="o">=</span> <span class="n">export_onnx_graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_stop_condition</span> <span class="o">=</span> <span class="n">apply_stop_condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_gpu</span> <span class="o">=</span> <span class="n">num_gpu</span></div>
+
+
+<div class="viewcode-block" id="DistributedTaskParameters"><a class="viewcode-back" href="../../components/additional_parameters.html#rl_coach.base_parameters.DistributedTaskParameters">[docs]</a><span class="k">class</span> <span class="nc">DistributedTaskParameters</span><span class="p">(</span><span class="n">TaskParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework_type</span><span class="p">:</span> <span class="n">Frameworks</span><span class="p">,</span> <span class="n">parameters_server_hosts</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">worker_hosts</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">job_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">task_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">evaluate_only</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_tasks</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_training_tasks</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_cpu</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">experiment_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dnd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">shared_memory_scratchpad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpoint_save_secs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpoint_restore_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">checkpoint_save_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">export_onnx_graph</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">apply_stop_condition</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param framework_type: deep learning framework type. currently only tensorflow is supported</span>
+<span class="sd">        :param evaluate_only: the task will be used only for evaluating the model</span>
+<span class="sd">        :param parameters_server_hosts: comma-separated list of hostname:port pairs to which the parameter servers are</span>
+<span class="sd">                                        assigned</span>
+<span class="sd">        :param worker_hosts: comma-separated list of hostname:port pairs to which the workers are assigned</span>
+<span class="sd">        :param job_type: the job type - either ps (short for parameters server) or worker</span>
+<span class="sd">        :param task_index: the index of the process</span>
+<span class="sd">        :param num_tasks: the number of total tasks that are running (not including the parameters server)</span>
+<span class="sd">        :param num_training_tasks: the number of tasks that are training (not including the parameters server)</span>
+<span class="sd">        :param use_cpu: use the cpu for this task</span>
+<span class="sd">        :param experiment_path: the path to the directory which will store all the experiment outputs</span>
+<span class="sd">        :param dnd: an external DND to use for NEC. This is a workaround needed for a shared DND not using the scratchpad.</span>
+<span class="sd">        :param seed: a seed to use for the random numbers generator</span>
+<span class="sd">        :param checkpoint_save_secs: the number of seconds between each checkpoint saving</span>
+<span class="sd">        :param checkpoint_restore_dir: the directory to restore the checkpoints from</span>
+<span class="sd">        :param checkpoint_save_dir: the directory to store the checkpoints in</span>
+<span class="sd">        :param export_onnx_graph: If set to True, this will export an onnx graph each time a checkpoint is saved</span>
+<span class="sd">        :param apply_stop_condition: If set to True, this will apply the stop condition defined by reaching a target success rate</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">framework_type</span><span class="o">=</span><span class="n">framework_type</span><span class="p">,</span> <span class="n">evaluate_only</span><span class="o">=</span><span class="n">evaluate_only</span><span class="p">,</span> <span class="n">use_cpu</span><span class="o">=</span><span class="n">use_cpu</span><span class="p">,</span>
+                         <span class="n">experiment_path</span><span class="o">=</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">checkpoint_save_secs</span><span class="o">=</span><span class="n">checkpoint_save_secs</span><span class="p">,</span>
+                         <span class="n">checkpoint_restore_dir</span><span class="o">=</span><span class="n">checkpoint_restore_dir</span><span class="p">,</span> <span class="n">checkpoint_save_dir</span><span class="o">=</span><span class="n">checkpoint_save_dir</span><span class="p">,</span>
+                         <span class="n">export_onnx_graph</span><span class="o">=</span><span class="n">export_onnx_graph</span><span class="p">,</span> <span class="n">apply_stop_condition</span><span class="o">=</span><span class="n">apply_stop_condition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters_server_hosts</span> <span class="o">=</span> <span class="n">parameters_server_hosts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">worker_hosts</span> <span class="o">=</span> <span class="n">worker_hosts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_type</span> <span class="o">=</span> <span class="n">job_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_index</span> <span class="o">=</span> <span class="n">task_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_tasks</span> <span class="o">=</span> <span class="n">num_tasks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_training_tasks</span> <span class="o">=</span> <span class="n">num_training_tasks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the replicated device which will be used for the global parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">worker_target</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dnd</span> <span class="o">=</span> <span class="n">dnd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span> <span class="o">=</span> <span class="n">shared_memory_scratchpad</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

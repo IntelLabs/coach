@@ -18,16 +18,18 @@ import os
 from collections import OrderedDict
 from typing import Union
 
-import pygame
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
 from pandas import to_pickle
 
 from rl_coach.agents.agent import Agent
 from rl_coach.agents.bc_agent import BCNetworkParameters
-from rl_coach.architectures.tensorflow_components.heads.policy_head import PolicyHeadParameters
-from rl_coach.architectures.tensorflow_components.middlewares.fc_middleware import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
+from rl_coach.architectures.head_parameters import PolicyHeadParameters
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, EmbedderScheme, \
     AgentParameters
-from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedderParameters
 from rl_coach.core_types import ActionInfo
 from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.logger import screen

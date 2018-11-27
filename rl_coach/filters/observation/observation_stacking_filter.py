@@ -43,7 +43,10 @@ class LazyStack(object):
 
 class ObservationStackingFilter(ObservationFilter):
     """
-    Stack the current state observation on top of several previous observations.
+    Stacks several observations on top of each other. For image observation this will
+    create a 3D blob. The stacking is done in a lazy manner in order to reduce memory consumption. To achieve this,
+    a LazyStack object is used in order to wrap the observations in the stack. For this reason, the
+    ObservationStackingFilter **must** be the last filter in the inputs filters stack.
     This filter is stateful since it stores the previous step result and depends on it.
     The filter adds an additional dimension to the output observation.
 

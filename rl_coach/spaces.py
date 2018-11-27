@@ -120,6 +120,7 @@ class Space(object):
     def val_matches_space_definition(self, val: Union[int, float, np.ndarray]) -> bool:
         """
         Checks if the given value matches the space definition in terms of shape and values
+
         :param val: a value to check
         :return: True / False depending on if the val matches the space definition
         """
@@ -136,6 +137,7 @@ class Space(object):
     def is_point_in_space_shape(self, point: np.ndarray) -> bool:
         """
         Checks if a given multidimensional point is within the bounds of the shape of the space
+
         :param point: a multidimensional point
         :return: True if the point is within the shape of the space. False otherwise
         """
@@ -146,6 +148,12 @@ class Space(object):
         return True
 
     def sample(self) -> np.ndarray:
+        """
+        Sample the defined space, either uniformly, if space bounds are defined, or Normal distributed if no
+        bounds are defined
+
+        :return: A numpy array sampled from the space
+        """
         # if there are infinite bounds, we sample using gaussian noise with mean 0 and std 1
         if np.any(self.low == -np.inf) or np.any(self.high == np.inf):
             return np.random.normal(0, 1, self.shape)
@@ -173,6 +181,10 @@ class ObservationSpace(Space):
 
 
 class VectorObservationSpace(ObservationSpace):
+    """
+    An observation space which is defined as a vector of elements. This can be particularly useful for environments
+    which return measurements, such as in robotic environments.
+    """
     def __init__(self, shape: int, low: Union[None, int, float, np.ndarray]=-np.inf,
                  high: Union[None, int, float, np.ndarray]=np.inf, measurements_names: List[str]=None):
         if measurements_names is None:
@@ -185,7 +197,21 @@ class VectorObservationSpace(ObservationSpace):
         super().__init__(shape, low, high)
 
 
+class TensorObservationSpace(ObservationSpace):
+    """
+    An observation space which defines observations with arbitrary shape. This can be particularly useful for
+    environments with non image input.
+    """
+    def __init__(self, shape: np.ndarray, low: -np.inf,
+                 high: np.inf):
+        super().__init__(shape, low, high)
+
+
 class PlanarMapsObservationSpace(ObservationSpace):
+    """
+    An observation space which defines a stack of 2D observations. For example, an environment which returns
+    a stack of segmentation maps like in Starcraft.
+    """
     def __init__(self, shape: Union[np.ndarray], low: int, high: int, channels_axis: int=-1):
         super().__init__(shape, low, high)
         self.channels_axis = channels_axis
@@ -200,6 +226,10 @@ class PlanarMapsObservationSpace(ObservationSpace):
 
 
 class ImageObservationSpace(PlanarMapsObservationSpace):
+    """
+    An observation space which is a private case of the PlanarMapsObservationSpace, where the stack of 2D observations
+    represent a RGB image, or a grayscale image.
+    """
     def __init__(self, shape: Union[np.ndarray], high: int, channels_axis: int=-1):
         # TODO: consider allowing arbitrary low values for images
         super().__init__(shape, 0, high, channels_axis)
@@ -245,6 +275,7 @@ class ActionSpace(Space):
     def sample_with_info(self) -> ActionInfo:
         """
         Get a random action with additional "fake" info
+
         :return: An action info instance
         """
         return ActionInfo(self.sample())
@@ -252,6 +283,7 @@ class ActionSpace(Space):
     def clip_action_to_space(self, action: ActionType) -> ActionType:
         """
         Given an action, clip its values to fit to the action space ranges
+
         :param action: a given action
         :return: the clipped action
         """
@@ -460,6 +492,7 @@ class GoalToRewardConversion(object):
     def convert_distance_to_reward(self, distance: Union[float, np.ndarray]) -> Tuple[float, bool]:
         """
         Given a distance from the goal, return a reward and a flag representing if the goal was reached
+
         :param distance: the distance from the goal
         :return:
         """
@@ -543,6 +576,7 @@ class GoalsSpace(VectorObservationSpace, ActionSpace):
     def goal_from_state(self, state: Dict):
         """
         Given a state, extract an observation according to the goal_name
+
         :param state: a dictionary of observations
         :return: the observation corresponding to the goal_name
         """
@@ -551,6 +585,7 @@ class GoalsSpace(VectorObservationSpace, ActionSpace):
     def distance_from_goal(self, goal: np.ndarray, state: dict) -> float:
         """
         Given a state, check its distance from the goal
+
         :param goal: a numpy array representing the goal
         :param state: a dict representing the state
         :return: the distance from the goal
@@ -574,6 +609,7 @@ class GoalsSpace(VectorObservationSpace, ActionSpace):
     def get_reward_for_goal_and_state(self, goal: np.ndarray, state: dict) -> Tuple[float, bool]:
         """
         Given a state, check if the goal was reached and return a reward accordingly
+
         :param goal: a numpy array representing the goal
         :param state: a dict representing the state
         :return: the reward for the current goal and state pair and a boolean representing if the goal was reached

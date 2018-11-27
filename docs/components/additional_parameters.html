@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Additional Parameters &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Spaces" href="spaces.html" />
+    <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spaces.html">Spaces</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Additional Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#visualizationparameters">VisualizationParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#presetvalidationparameters">PresetValidationParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taskparameters">TaskParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distributedtaskparameters">DistributedTaskParameters</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Additional Parameters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/components/additional_parameters.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="additional-parameters">
+<h1>Additional Parameters<a class="headerlink" href="#additional-parameters" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="visualizationparameters">
+<h2>VisualizationParameters<a class="headerlink" href="#visualizationparameters" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.base_parameters.VisualizationParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">VisualizationParameters</code><span class="sig-paren">(</span><em>print_networks_summary=False</em>, <em>dump_csv=True</em>, <em>dump_signals_to_csv_every_x_episodes=5</em>, <em>dump_gifs=False</em>, <em>dump_mp4=False</em>, <em>video_dump_methods=None</em>, <em>dump_in_episode_signals=False</em>, <em>dump_parameters_documentation=True</em>, <em>render=False</em>, <em>native_rendering=False</em>, <em>max_fps_for_human_control=10</em>, <em>tensorboard=False</em>, <em>add_rendered_image_to_env_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#VisualizationParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.VisualizationParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>print_networks_summary</strong> – If set to True, a summary of all the networks structure will be printed at the beginning of the experiment</li>
+<li><strong>dump_csv</strong> – If set to True, the logger will dump logs to a csv file once in every dump_signals_to_csv_every_x_episodes
+episodes. The logs can be later used to visualize the training process using Coach Dashboard.</li>
+<li><strong>dump_signals_to_csv_every_x_episodes</strong> – Defines the number of episodes between writing new data to the csv log files. Lower values can affect
+performance, as writing to disk may take time, and it is done synchronously.</li>
+<li><strong>dump_gifs</strong> – If set to True, GIF videos of the environment will be stored into the experiment directory according to
+the filters defined in video_dump_methods.</li>
+<li><strong>dump_mp4</strong> – If set to True, MP4 videos of the environment will be stored into the experiment directory according to
+the filters defined in video_dump_methods.</li>
+<li><strong>dump_in_episode_signals</strong> – If set to True, csv files will be dumped for each episode for inspecting different metrics within the
+episode. This means that for each step in each episode, different metrics such as the reward, the
+future return, etc. will be saved. Setting this to True may affect performance severely, and therefore
+this should be used only for debugging purposes.</li>
+<li><strong>dump_parameters_documentation</strong> – If set to True, a json file containing all the agent parameters will be saved in the experiment directory.
+This may be very useful for inspecting the values defined for each parameters and making sure that all
+the parameters are defined as expected.</li>
+<li><strong>render</strong> – If set to True, the environment render function will be called for each step, rendering the image of the
+environment. This may affect the performance of training, and is highly dependent on the environment.
+By default, Coach uses PyGame to render the environment image instead of the environment specific rendered.
+To change this, use the native_rendering flag.</li>
+<li><strong>native_rendering</strong> – If set to True, the environment native renderer will be used for rendering the environment image.
+In some cases this can be slower than rendering using PyGame through Coach, but in other cases the
+environment opens its native renderer by default, so rendering with PyGame is an unnecessary overhead.</li>
+<li><strong>max_fps_for_human_control</strong> – The maximum number of frames per second used while playing the environment as a human. This only has
+effect while using the –play flag for Coach.</li>
+<li><strong>tensorboard</strong> – If set to True, TensorBoard summaries will be stored in the experiment directory. This can later be
+loaded in TensorBoard in order to visualize the training process.</li>
+<li><strong>video_dump_methods</strong> – A list of dump methods that will be used as filters for deciding when to save videos.
+The filters in the list will be checked one after the other until the first dump method that returns
+false for should_dump() in the environment class. This list will only be used if dump_mp4 or dump_gif are
+set to True.</li>
+<li><strong>add_rendered_image_to_env_response</strong> – Some environments have a different observation compared to the one displayed while rendering.
+For some cases it can be useful to pass the rendered image to the agent for visualization purposes.
+If this flag is set to True, the rendered image will be added to the environment EnvResponse object,
+which will be passed to the agent and allow using those images.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="presetvalidationparameters">
+<h2>PresetValidationParameters<a class="headerlink" href="#presetvalidationparameters" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.base_parameters.PresetValidationParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">PresetValidationParameters</code><span class="sig-paren">(</span><em>test=False</em>, <em>min_reward_threshold=0</em>, <em>max_episodes_to_achieve_reward=1</em>, <em>num_workers=1</em>, <em>reward_test_level=None</em>, <em>test_using_a_trace_test=True</em>, <em>trace_test_levels=None</em>, <em>trace_max_env_steps=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#PresetValidationParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.PresetValidationParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>test</strong> – A flag which specifies if the preset should be tested as part of the validation process.</li>
+<li><strong>min_reward_threshold</strong> – The minimum reward that the agent should pass after max_episodes_to_achieve_reward episodes when the
+preset is run.</li>
+<li><strong>max_episodes_to_achieve_reward</strong> – The maximum number of episodes that the agent should train using the preset in order to achieve the
+reward specified by min_reward_threshold.</li>
+<li><strong>num_workers</strong> – The number of workers that should be used when running this preset in the test suite for validation.</li>
+<li><strong>reward_test_level</strong> – The environment level or levels, given by a list of strings, that should be tested as part of the
+reward tests suite.</li>
+<li><strong>test_using_a_trace_test</strong> – A flag that specifies if the preset should be run as part of the trace tests suite.</li>
+<li><strong>trace_test_levels</strong> – The environment level or levels, given by a list of strings, that should be tested as part of the
+trace tests suite.</li>
+<li><strong>trace_max_env_steps</strong> – An integer representing the maximum number of environment steps to run when running this preset as part
+of the trace tests suite.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="taskparameters">
+<h2>TaskParameters<a class="headerlink" href="#taskparameters" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.base_parameters.TaskParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">TaskParameters</code><span class="sig-paren">(</span><em>framework_type: rl_coach.base_parameters.Frameworks = &lt;Frameworks.tensorflow: 'TensorFlow'&gt;</em>, <em>evaluate_only: bool = False</em>, <em>use_cpu: bool = False</em>, <em>experiment_path='/tmp'</em>, <em>seed=None</em>, <em>checkpoint_save_secs=None</em>, <em>checkpoint_restore_dir=None</em>, <em>checkpoint_save_dir=None</em>, <em>export_onnx_graph: bool = False</em>, <em>apply_stop_condition: bool = False</em>, <em>num_gpu: int = 1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#TaskParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.TaskParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>framework_type</strong> – deep learning framework type. currently only tensorflow is supported</li>
+<li><strong>evaluate_only</strong> – the task will be used only for evaluating the model</li>
+<li><strong>use_cpu</strong> – use the cpu for this task</li>
+<li><strong>experiment_path</strong> – the path to the directory which will store all the experiment outputs</li>
+<li><strong>seed</strong> – a seed to use for the random numbers generator</li>
+<li><strong>checkpoint_save_secs</strong> – the number of seconds between each checkpoint saving</li>
+<li><strong>checkpoint_restore_dir</strong> – the directory to restore the checkpoints from</li>
+<li><strong>checkpoint_save_dir</strong> – the directory to store the checkpoints in</li>
+<li><strong>export_onnx_graph</strong> – If set to True, this will export an onnx graph each time a checkpoint is saved</li>
+<li><strong>apply_stop_condition</strong> – If set to True, this will apply the stop condition defined by reaching a target success rate</li>
+<li><strong>num_gpu</strong> – number of GPUs to use</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="distributedtaskparameters">
+<h2>DistributedTaskParameters<a class="headerlink" href="#distributedtaskparameters" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.base_parameters.DistributedTaskParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">DistributedTaskParameters</code><span class="sig-paren">(</span><em>framework_type: rl_coach.base_parameters.Frameworks</em>, <em>parameters_server_hosts: str</em>, <em>worker_hosts: str</em>, <em>job_type: str</em>, <em>task_index: int</em>, <em>evaluate_only: bool = False</em>, <em>num_tasks: int = None</em>, <em>num_training_tasks: int = None</em>, <em>use_cpu: bool = False</em>, <em>experiment_path=None</em>, <em>dnd=None</em>, <em>shared_memory_scratchpad=None</em>, <em>seed=None</em>, <em>checkpoint_save_secs=None</em>, <em>checkpoint_restore_dir=None</em>, <em>checkpoint_save_dir=None</em>, <em>export_onnx_graph: bool = False</em>, <em>apply_stop_condition: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#DistributedTaskParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.DistributedTaskParameters" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>framework_type</strong> – deep learning framework type. currently only tensorflow is supported</li>
+<li><strong>evaluate_only</strong> – the task will be used only for evaluating the model</li>
+<li><strong>parameters_server_hosts</strong> – comma-separated list of hostname:port pairs to which the parameter servers are
+assigned</li>
+<li><strong>worker_hosts</strong> – comma-separated list of hostname:port pairs to which the workers are assigned</li>
+<li><strong>job_type</strong> – the job type - either ps (short for parameters server) or worker</li>
+<li><strong>task_index</strong> – the index of the process</li>
+<li><strong>num_tasks</strong> – the number of total tasks that are running (not including the parameters server)</li>
+<li><strong>num_training_tasks</strong> – the number of tasks that are training (not including the parameters server)</li>
+<li><strong>use_cpu</strong> – use the cpu for this task</li>
+<li><strong>experiment_path</strong> – the path to the directory which will store all the experiment outputs</li>
+<li><strong>dnd</strong> – an external DND to use for NEC. This is a workaround needed for a shared DND not using the scratchpad.</li>
+<li><strong>seed</strong> – a seed to use for the random numbers generator</li>
+<li><strong>checkpoint_save_secs</strong> – the number of seconds between each checkpoint saving</li>
+<li><strong>checkpoint_restore_dir</strong> – the directory to restore the checkpoints from</li>
+<li><strong>checkpoint_save_dir</strong> – the directory to store the checkpoints in</li>
+<li><strong>export_onnx_graph</strong> – If set to True, this will export an onnx graph each time a checkpoint is saved</li>
+<li><strong>apply_stop_condition</strong> – If set to True, this will apply the stop condition defined by reaching a target success rate</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="spaces.html" class="btn btn-neutral" title="Spaces" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,985 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Index &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+    <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Index</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.accumulate_gradients">accumulate_gradients() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.act">act() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.act">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.action_space">action_space (rl_coach.environments.environment.Environment attribute)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.ActionInfo">ActionInfo (class in rl_coach.core_types)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.actions">actions() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.ActionSpace">ActionSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/agents/policy_optimization/ac.html#rl_coach.agents.actor_critic_agent.ActorCriticAlgorithmParameters">ActorCriticAlgorithmParameters (class in rl_coach.agents.actor_critic_agent)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.AdditiveNoise">AdditiveNoise (class in rl_coach.exploration_policies)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent">Agent (class in rl_coach.agents.agent)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.base_parameters.AgentParameters">AgentParameters (class in rl_coach.base_parameters)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.apply_and_reset_gradients">apply_and_reset_gradients() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.apply_gradients">apply_gradients() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_and_sync_networks">apply_gradients_and_sync_networks() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_to_global_network">apply_gradients_to_global_network() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.apply_gradients_to_online_network">apply_gradients_to_online_network() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture">Architecture (class in rl_coach.architectures.architecture)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.AttentionActionSpace">AttentionActionSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/filters/output_filters.html#rl_coach.filters.action.AttentionDiscretization">AttentionDiscretization (class in rl_coach.filters.action)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/memories/index.html#rl_coach.memories.non_episodic.BalancedExperienceReplay">BalancedExperienceReplay (class in rl_coach.memories.non_episodic)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch">Batch (class in rl_coach.core_types)</a>
+</li>
+      <li><a href="components/agents/imitation/bc.html#rl_coach.agents.bc_agent.BCAlgorithmParameters">BCAlgorithmParameters (class in rl_coach.agents.bc_agent)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.Boltzmann">Boltzmann (class in rl_coach.exploration_policies)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.Bootstrapped">Bootstrapped (class in rl_coach.exploration_policies)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.BoxActionSpace">BoxActionSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/filters/output_filters.html#rl_coach.filters.action.BoxDiscretization">BoxDiscretization (class in rl_coach.filters.action)</a>
+</li>
+      <li><a href="components/filters/output_filters.html#rl_coach.filters.action.BoxMasking">BoxMasking (class in rl_coach.filters.action)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.call_memory">call_memory() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.call_memory">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/environments/index.html#rl_coach.environments.carla_environment.CarlaEnvironment">CarlaEnvironment (class in rl_coach.environments.carla_environment)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.Categorical">Categorical (class in rl_coach.exploration_policies)</a>
+</li>
+      <li><a href="components/agents/value_optimization/categorical_dqn.html#rl_coach.agents.categorical_dqn_agent.CategoricalDQNAlgorithmParameters">CategoricalDQNAlgorithmParameters (class in rl_coach.agents.categorical_dqn_agent)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.change_phase">change_phase() (rl_coach.exploration_policies.ExplorationPolicy method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.choose_action">choose_action() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.choose_action">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/agents/imitation/cil.html#rl_coach.agents.cil_agent.CILAlgorithmParameters">CILAlgorithmParameters (class in rl_coach.agents.cil_agent)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.ActionSpace.clip_action_to_space">clip_action_to_space() (rl_coach.spaces.ActionSpace method)</a>
+
+      <ul>
+        <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.clip_action_to_space">(rl_coach.spaces.GoalsSpace method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/policy_optimization/cppo.html#rl_coach.agents.clipped_ppo_agent.ClippedPPOAlgorithmParameters">ClippedPPOAlgorithmParameters (class in rl_coach.agents.clipped_ppo_agent)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.close">close() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.collect_savers">collect_savers() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.collect_savers">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+        <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.collect_savers">(rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+        <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.collect_savers">(rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/spaces.html#rl_coach.spaces.CompoundActionSpace">CompoundActionSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.construct">construct() (rl_coach.architectures.architecture.Architecture static method)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.ContinuousEntropy">ContinuousEntropy (class in rl_coach.exploration_policies)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.control_suite_environment.ControlSuiteEnvironment">ControlSuiteEnvironment (class in rl_coach.environments.control_suite_environment)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.create_networks">create_networks() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.create_networks">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/policy_optimization/ddpg.html#rl_coach.agents.ddpg_agent.DDPGAlgorithmParameters">DDPGAlgorithmParameters (class in rl_coach.agents.ddpg_agent)</a>
+</li>
+      <li><a href="components/agents/other/dfp.html#rl_coach.agents.dfp_agent.DFPAlgorithmParameters">DFPAlgorithmParameters (class in rl_coach.agents.dfp_agent)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.DiscreteActionSpace">DiscreteActionSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.distance_from_goal">distance_from_goal() (rl_coach.spaces.GoalsSpace method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/additional_parameters.html#rl_coach.base_parameters.DistributedTaskParameters">DistributedTaskParameters (class in rl_coach.base_parameters)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.doom_environment.DoomEnvironment">DoomEnvironment (class in rl_coach.environments.doom_environment)</a>
+</li>
+      <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent">DQNAgent (class in rl_coach.agents.dqn_agent)</a>
+</li>
+      <li><a href="components/agents/value_optimization/dqn.html#rl_coach.agents.dqn_agent.DQNAlgorithmParameters">DQNAlgorithmParameters (class in rl_coach.agents.dqn_agent)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.EGreedy">EGreedy (class in rl_coach.exploration_policies)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.emulate_act_on_trainer">emulate_act_on_trainer() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.emulate_act_on_trainer">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.emulate_observe_on_trainer">emulate_observe_on_trainer() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.emulate_observe_on_trainer">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment">Environment (class in rl_coach.environments.environment)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/core_types.html#rl_coach.core_types.EnvResponse">EnvResponse (class in rl_coach.core_types)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode">Episode (class in rl_coach.core_types)</a>
+</li>
+      <li><a href="components/memories/index.html#rl_coach.memories.episodic.EpisodicExperienceReplay">EpisodicExperienceReplay (class in rl_coach.memories.episodic)</a>
+</li>
+      <li><a href="components/memories/index.html#rl_coach.memories.episodic.EpisodicHindsightExperienceReplay">EpisodicHindsightExperienceReplay (class in rl_coach.memories.episodic)</a>
+</li>
+      <li><a href="components/memories/index.html#rl_coach.memories.episodic.EpisodicHRLHindsightExperienceReplay">EpisodicHRLHindsightExperienceReplay (class in rl_coach.memories.episodic)</a>
+</li>
+      <li><a href="components/memories/index.html#rl_coach.memories.non_episodic.ExperienceReplay">ExperienceReplay (class in rl_coach.memories.non_episodic)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy">ExplorationPolicy (class in rl_coach.exploration_policies)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/filters/output_filters.html#rl_coach.filters.action.FullDiscreteActionSpaceMap">FullDiscreteActionSpaceMap (class in rl_coach.filters.action)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.game_overs">game_overs() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.get_action">get_action() (rl_coach.exploration_policies.ExplorationPolicy method)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.get_action_from_user">get_action_from_user() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.get_available_keys">get_available_keys() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.get_first_transition">get_first_transition() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.get_goal">get_goal() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.get_last_transition">get_last_transition() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.get_predictions">get_predictions() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.get_predictions">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.get_random_action">get_random_action() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.get_rendered_image">get_rendered_image() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.get_reward_for_goal_and_state">get_reward_for_goal_and_state() (rl_coach.spaces.GoalsSpace method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.get_state_embedding">get_state_embedding() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.get_state_embedding">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.get_transition">get_transition() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.get_transitions_attribute">get_transitions_attribute() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.get_variable_value">get_variable_value() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.get_weights">get_weights() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.goal_from_state">goal_from_state() (rl_coach.spaces.GoalsSpace method)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.goal_space">goal_space (rl_coach.environments.environment.Environment attribute)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.goals">goals() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace">GoalsSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.DistanceMetric">GoalsSpace.DistanceMetric (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.Greedy">Greedy (class in rl_coach.exploration_policies)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.gym_environment.GymEnvironment">GymEnvironment (class in rl_coach.environments.gym_environment)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.handle_episode_ended">handle_episode_ended() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.handle_episode_ended">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+        <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.handle_episode_ended">(rl_coach.environments.environment.Environment method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/spaces.html#rl_coach.spaces.ImageObservationSpace">ImageObservationSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.info">info() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.info_as_list">info_as_list() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.init_environment_dependent_modules">init_environment_dependent_modules() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.init_environment_dependent_modules">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.insert">insert() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.is_empty">is_empty() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.ActionSpace.is_point_in_space_shape">is_point_in_space_shape() (rl_coach.spaces.ActionSpace method)</a>
+
+      <ul>
+        <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.is_point_in_space_shape">(rl_coach.spaces.GoalsSpace method)</a>
+</li>
+        <li><a href="components/spaces.html#rl_coach.spaces.ObservationSpace.is_point_in_space_shape">(rl_coach.spaces.ObservationSpace method)</a>
+</li>
+        <li><a href="components/spaces.html#rl_coach.spaces.Space.is_point_in_space_shape">(rl_coach.spaces.Space method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/orchestrators/index.html#rl_coach.orchestrators.kubernetes_orchestrator.Kubernetes">Kubernetes (class in rl_coach.orchestrators.kubernetes_orchestrator)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.last_env_response">last_env_response (rl_coach.environments.environment.Environment attribute)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.learn_from_batch">learn_from_batch() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.learn_from_batch">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.length">length() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/filters/output_filters.html#rl_coach.filters.action.LinearBoxToBoxMap">LinearBoxToBoxMap (class in rl_coach.filters.action)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.log_to_screen">log_to_screen() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.log_to_screen">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/value_optimization/mmc.html#rl_coach.agents.mmc_agent.MixedMonteCarloAlgorithmParameters">MixedMonteCarloAlgorithmParameters (class in rl_coach.agents.mmc_agent)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/spaces.html#rl_coach.spaces.MultiSelectActionSpace">MultiSelectActionSpace (class in rl_coach.spaces)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.n_step_discounted_rewards">n_step_discounted_rewards() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/agents/value_optimization/naf.html#rl_coach.agents.naf_agent.NAFAlgorithmParameters">NAFAlgorithmParameters (class in rl_coach.agents.naf_agent)</a>
+</li>
+      <li><a href="components/agents/value_optimization/nec.html#rl_coach.agents.nec_agent.NECAlgorithmParameters">NECAlgorithmParameters (class in rl_coach.agents.nec_agent)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.base_parameters.NetworkParameters">NetworkParameters (class in rl_coach.base_parameters)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper">NetworkWrapper (class in rl_coach.architectures.network_wrapper)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.next_states">next_states() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/data_stores/index.html#rl_coach.data_stores.nfs_data_store.NFSDataStore">NFSDataStore (class in rl_coach.data_stores.nfs_data_store)</a>
+</li>
+      <li><a href="components/agents/value_optimization/n_step.html#rl_coach.agents.n_step_q_agent.NStepQAlgorithmParameters">NStepQAlgorithmParameters (class in rl_coach.agents.n_step_q_agent)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationClippingFilter">ObservationClippingFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationCropFilter">ObservationCropFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationMoveAxisFilter">ObservationMoveAxisFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationNormalizationFilter">ObservationNormalizationFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationReductionBySubPartsNameFilter">ObservationReductionBySubPartsNameFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter">ObservationRescaleSizeByFactorFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationRescaleToSizeFilter">ObservationRescaleToSizeFilter (class in rl_coach.filters.observation)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationRGBToYFilter">ObservationRGBToYFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.ObservationSpace">ObservationSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationSqueezeFilter">ObservationSqueezeFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationStackingFilter">ObservationStackingFilter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.observation.ObservationToUInt8Filter">ObservationToUInt8Filter (class in rl_coach.filters.observation)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.observe">observe() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.observe">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.OUProcess">OUProcess (class in rl_coach.exploration_policies)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/value_optimization/pal.html#rl_coach.agents.pal_agent.PALAlgorithmParameters">PALAlgorithmParameters (class in rl_coach.agents.pal_agent)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.parallel_predict">parallel_predict() (rl_coach.architectures.architecture.Architecture static method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.parallel_prediction">parallel_prediction() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.ParameterNoise">ParameterNoise (class in rl_coach.exploration_policies)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.parent">parent (rl_coach.agents.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.parent">(rl_coach.agents.dqn_agent.DQNAgent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="components/filters/output_filters.html#rl_coach.filters.action.PartialDiscreteActionSpaceMap">PartialDiscreteActionSpaceMap (class in rl_coach.filters.action)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.phase">phase (rl_coach.agents.agent.Agent attribute)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.phase">(rl_coach.agents.dqn_agent.DQNAgent attribute)</a>
+</li>
+        <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.phase">(rl_coach.environments.environment.Environment attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/spaces.html#rl_coach.spaces.PlanarMapsObservationSpace">PlanarMapsObservationSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/agents/policy_optimization/pg.html#rl_coach.agents.policy_gradients_agent.PolicyGradientAlgorithmParameters">PolicyGradientAlgorithmParameters (class in rl_coach.agents.policy_gradients_agent)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.post_training_commands">post_training_commands() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.post_training_commands">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/agents/policy_optimization/ppo.html#rl_coach.agents.ppo_agent.PPOAlgorithmParameters">PPOAlgorithmParameters (class in rl_coach.agents.ppo_agent)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.predict">predict() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.prepare_batch_for_inference">prepare_batch_for_inference() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.prepare_batch_for_inference">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/additional_parameters.html#rl_coach.base_parameters.PresetValidationParameters">PresetValidationParameters (class in rl_coach.base_parameters)</a>
+</li>
+      <li><a href="components/memories/index.html#rl_coach.memories.non_episodic.PrioritizedExperienceReplay">PrioritizedExperienceReplay (class in rl_coach.memories.non_episodic)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/memories/index.html#rl_coach.memories.non_episodic.QDND">QDND (class in rl_coach.memories.non_episodic)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/value_optimization/qr_dqn.html#rl_coach.agents.qr_dqn_agent.QuantileRegressionDQNAlgorithmParameters">QuantileRegressionDQNAlgorithmParameters (class in rl_coach.agents.qr_dqn_agent)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/value_optimization/rainbow.html#rl_coach.agents.rainbow_dqn_agent.RainbowDQNAlgorithmParameters">RainbowDQNAlgorithmParameters (class in rl_coach.agents.rainbow_dqn_agent)</a>
+</li>
+      <li><a href="components/memory_backends/index.html#rl_coach.memories.backend.redis.RedisPubSubBackend">RedisPubSubBackend (class in rl_coach.memories.backend.redis)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.register_signal">register_signal() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.register_signal">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.render">render() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.requires_action_values">requires_action_values() (rl_coach.exploration_policies.ExplorationPolicy method)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.reset">reset() (rl_coach.exploration_policies.ExplorationPolicy method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.reset_accumulated_gradients">reset_accumulated_gradients() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.reset_evaluation_state">reset_evaluation_state() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.reset_evaluation_state">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.reset_internal_state">reset_internal_state() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.reset_internal_state">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+        <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.reset_internal_state">(rl_coach.environments.environment.Environment method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.restore_checkpoint">restore_checkpoint() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.restore_checkpoint">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.reward.RewardClippingFilter">RewardClippingFilter (class in rl_coach.filters.reward)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.reward.RewardNormalizationFilter">RewardNormalizationFilter (class in rl_coach.filters.reward)</a>
+</li>
+      <li><a href="components/filters/input_filters.html#rl_coach.filters.reward.RewardRescaleFilter">RewardRescaleFilter (class in rl_coach.filters.reward)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.rewards">rewards() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference">run_pre_network_filter_for_inference() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.run_pre_network_filter_for_inference">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/data_stores/index.html#rl_coach.data_stores.s3_data_store.S3DataStore">S3DataStore (class in rl_coach.data_stores.s3_data_store)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.ActionSpace.sample">sample() (rl_coach.spaces.ActionSpace method)</a>
+
+      <ul>
+        <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.sample">(rl_coach.spaces.GoalsSpace method)</a>
+</li>
+        <li><a href="components/spaces.html#rl_coach.spaces.ObservationSpace.sample">(rl_coach.spaces.ObservationSpace method)</a>
+</li>
+        <li><a href="components/spaces.html#rl_coach.spaces.Space.sample">(rl_coach.spaces.Space method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/spaces.html#rl_coach.spaces.ActionSpace.sample_with_info">sample_with_info() (rl_coach.spaces.ActionSpace method)</a>
+
+      <ul>
+        <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.sample_with_info">(rl_coach.spaces.GoalsSpace method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.save_checkpoint">save_checkpoint() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.save_checkpoint">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.set_environment_parameters">set_environment_parameters() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.set_environment_parameters">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.set_goal">set_goal() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.set_incoming_directive">set_incoming_directive() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.set_incoming_directive">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.set_is_training">set_is_training() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.set_session">set_session() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.set_session">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.set_variable_value">set_variable_value() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.set_weights">set_weights() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.setup_logger">setup_logger() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.setup_logger">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.shuffle">shuffle() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/memories/index.html#rl_coach.memories.episodic.SingleEpisodeBuffer">SingleEpisodeBuffer (class in rl_coach.memories.episodic)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.size">size (rl_coach.core_types.Batch attribute)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.slice">slice() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/spaces.html#rl_coach.spaces.Space">Space (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.starcraft2_environment.StarCraft2Environment">StarCraft2Environment (class in rl_coach.environments.starcraft2_environment)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.state_space">state_space (rl_coach.environments.environment.Environment attribute)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Batch.states">states() (rl_coach.core_types.Batch method)</a>
+</li>
+      <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.step">step() (rl_coach.environments.environment.Environment method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.sync">sync() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.sync">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+        <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.sync">(rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/additional_parameters.html#rl_coach.base_parameters.TaskParameters">TaskParameters (class in rl_coach.base_parameters)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.train">train() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.train">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.train_and_sync_networks">train_and_sync_networks() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.architecture.Architecture.train_on_batch">train_on_batch() (rl_coach.architectures.architecture.Architecture method)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Transition">Transition (class in rl_coach.core_types)</a>
+</li>
+      <li><a href="components/memories/index.html#rl_coach.memories.non_episodic.TransitionCollection">TransitionCollection (class in rl_coach.memories.non_episodic)</a>
+</li>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.TruncatedNormal">TruncatedNormal (class in rl_coach.exploration_policies)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.UCB">UCB (class in rl_coach.exploration_policies)</a>
+</li>
+      <li><a href="components/core_types.html#rl_coach.core_types.Episode.update_discounted_rewards">update_discounted_rewards() (rl_coach.core_types.Episode method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.update_log">update_log() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.update_log">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.update_online_network">update_online_network() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.update_step_in_episode_log">update_step_in_episode_log() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.update_step_in_episode_log">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+      <li><a href="components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.update_target_network">update_target_network() (rl_coach.architectures.network_wrapper.NetworkWrapper method)</a>
+</li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.update_transition_before_adding_to_replay_buffer">update_transition_before_adding_to_replay_buffer() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.update_transition_before_adding_to_replay_buffer">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/spaces.html#rl_coach.spaces.ActionSpace.val_matches_space_definition">val_matches_space_definition() (rl_coach.spaces.ActionSpace method)</a>
+
+      <ul>
+        <li><a href="components/spaces.html#rl_coach.spaces.GoalsSpace.val_matches_space_definition">(rl_coach.spaces.GoalsSpace method)</a>
+</li>
+        <li><a href="components/spaces.html#rl_coach.spaces.ObservationSpace.val_matches_space_definition">(rl_coach.spaces.ObservationSpace method)</a>
+</li>
+        <li><a href="components/spaces.html#rl_coach.spaces.Space.val_matches_space_definition">(rl_coach.spaces.Space method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="components/spaces.html#rl_coach.spaces.VectorObservationSpace">VectorObservationSpace (class in rl_coach.spaces)</a>
+</li>
+      <li><a href="components/additional_parameters.html#rl_coach.base_parameters.VisualizationParameters">VisualizationParameters (class in rl_coach.base_parameters)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
