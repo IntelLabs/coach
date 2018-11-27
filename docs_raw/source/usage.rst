@@ -132,7 +132,7 @@ When playing with the environment using the :code:`--play` flag, the environment
 
 .. code-block:: python
 
-   coach -p Breakout_DQN -r
+   coach -p Atari_DQN -lvl breakout -r
 
 Dumping GIFs
 ++++++++++++
@@ -145,7 +145,7 @@ The files are dumped after every evaluation episode, and are saved into the expe
 
 .. code-block:: python
 
-   coach -p Breakout_A3C -n 4 -dg
+   coach -p Atari_A3C -lvl breakout -n 4 -dg
 
 Switching Between Deep Learning Frameworks
 ------------------------------------------

@@ -292,7 +292,7 @@ When working with single-threaded algorithms, the rendered image will be represe
 Keep in mind that rendering the environment in single-threaded algorithms may slow the training to some extent.
 When playing with the environment using the <code class="code docutils literal notranslate"><span class="pre">--play</span></code> flag, the environment will be rendered automatically without the need for specifying the <code class="code docutils literal notranslate"><span class="pre">-r</span></code> flag.</p>
 <p><em>Example:</em></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Breakout_DQN</span> <span class="o">-</span><span class="n">r</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Atari_DQN</span> <span class="o">-</span><span class="n">lvl</span> <span class="n">breakout</span> <span class="o">-</span><span class="n">r</span>
 </pre></div>
 </div>
 </div>
@@ -302,7 +302,7 @@ When playing with the environment using the <code class="code docutils literal n
 To dump GIF files, use the <code class="code docutils literal notranslate"><span class="pre">-dg</span></code> flag.
 The files are dumped after every evaluation episode, and are saved into the experiment directory, under a gifs sub-directory.</p>
 <p><em>Example:</em></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Breakout_A3C</span> <span class="o">-</span><span class="n">n</span> <span class="mi">4</span> <span class="o">-</span><span class="n">dg</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Atari_A3C</span> <span class="o">-</span><span class="n">lvl</span> <span class="n">breakout</span> <span class="o">-</span><span class="n">n</span> <span class="mi">4</span> <span class="o">-</span><span class="n">dg</span>
 </pre></div>
 </div>
 </div>
