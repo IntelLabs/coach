@@ -85,6 +85,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
@@ -93,6 +94,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -103,10 +105,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../components/agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../components/additional_parameters.html">Additional Parameters</a></li>
@@ -194,6 +199,8 @@
 <li><a href="rl_coach/architectures/network_wrapper.html">rl_coach.architectures.network_wrapper</a></li>
 <li><a href="rl_coach/base_parameters.html">rl_coach.base_parameters</a></li>
 <li><a href="rl_coach/core_types.html">rl_coach.core_types</a></li>
+<li><a href="rl_coach/data_stores/nfs_data_store.html">rl_coach.data_stores.nfs_data_store</a></li>
+<li><a href="rl_coach/data_stores/s3_data_store.html">rl_coach.data_stores.s3_data_store</a></li>
 <li><a href="rl_coach/environments/carla_environment.html">rl_coach.environments.carla_environment</a></li>
 <li><a href="rl_coach/environments/control_suite_environment.html">rl_coach.environments.control_suite_environment</a></li>
 <li><a href="rl_coach/environments/doom_environment.html">rl_coach.environments.doom_environment</a></li>
@@ -232,6 +239,7 @@
 <li><a href="rl_coach/filters/reward/reward_clipping_filter.html">rl_coach.filters.reward.reward_clipping_filter</a></li>
 <li><a href="rl_coach/filters/reward/reward_normalization_filter.html">rl_coach.filters.reward.reward_normalization_filter</a></li>
 <li><a href="rl_coach/filters/reward/reward_rescale_filter.html">rl_coach.filters.reward.reward_rescale_filter</a></li>
+<li><a href="rl_coach/memories/backend/redis.html">rl_coach.memories.backend.redis</a></li>
 <li><a href="rl_coach/memories/episodic/episodic_experience_replay.html">rl_coach.memories.episodic.episodic_experience_replay</a></li>
 <li><a href="rl_coach/memories/episodic/episodic_hindsight_experience_replay.html">rl_coach.memories.episodic.episodic_hindsight_experience_replay</a></li>
 <li><a href="rl_coach/memories/episodic/episodic_hrl_hindsight_experience_replay.html">rl_coach.memories.episodic.episodic_hrl_hindsight_experience_replay</a></li>
@@ -241,6 +249,7 @@
 <li><a href="rl_coach/memories/non_episodic/experience_replay.html">rl_coach.memories.non_episodic.experience_replay</a></li>
 <li><a href="rl_coach/memories/non_episodic/prioritized_experience_replay.html">rl_coach.memories.non_episodic.prioritized_experience_replay</a></li>
 <li><a href="rl_coach/memories/non_episodic/transition_collection.html">rl_coach.memories.non_episodic.transition_collection</a></li>
+<li><a href="rl_coach/orchestrators/kubernetes_orchestrator.html">rl_coach.orchestrators.kubernetes_orchestrator</a></li>
 <li><a href="rl_coach/spaces.html">rl_coach.spaces</a></li>
 </ul>
 

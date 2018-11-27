@@ -36,6 +36,7 @@ You can find more details in the `GitHub repository <https://github.com/NervanaS
    :titlesonly:
 
    usage
+   dist_usage
    features/index
    selecting_an_algorithm
    dashboard
@@ -47,6 +48,7 @@ You can find more details in the `GitHub repository <https://github.com/NervanaS
 
    design/control_flow
    design/network
+   design/horizontal_scaling
 
 .. toctree::
    :maxdepth: 1
@@ -61,10 +63,13 @@ You can find more details in the `GitHub repository <https://github.com/NervanaS
 
    components/agents/index
    components/architectures/index
+   components/data_stores/index
    components/environments/index
    components/exploration_policies/index
    components/filters/index
    components/memories/index
+   components/memory_backends/index
+   components/orchestrators/index
    components/core_types
    components/spaces
    components/additional_parameters

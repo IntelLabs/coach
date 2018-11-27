@@ -85,6 +85,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
@@ -93,6 +94,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -103,10 +105,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
@@ -194,10 +199,23 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">AgentParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.saver</span> <span class="k">import</span> <span class="n">SaverCollection</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">SpacesDefinition</span>
 
 
 <div class="viewcode-block" id="Architecture"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture">[docs]</a><span class="k">class</span> <span class="nc">Architecture</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Architecture.construct"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.construct">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span><span class="n">variable_scope</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">devices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Architecture&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a network class using the provided variable scope and on requested devices</span>
+<span class="sd">        :param variable_scope: string specifying variable scope under which to create network variables</span>
+<span class="sd">        :param devices: list of devices (can be list of Device objects, or string for TF distributed)</span>
+<span class="sd">        :param args: all other arguments for class initializer</span>
+<span class="sd">        :param kwargs: all other keyword arguments for class initializer</span>
+<span class="sd">        :return: an object which is a child of Architecture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_parameters</span><span class="p">:</span> <span class="n">AgentParameters</span><span class="p">,</span> <span class="n">spaces</span><span class="p">:</span> <span class="n">SpacesDefinition</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a neural network &#39;architecture&#39;, that can be trained and used for inference.</span>
@@ -386,6 +404,15 @@
 <span class="sd">        :param assign_op: a parameter representing the operation for assigning value to a specific variable</span>
 <span class="sd">        :param value: value of the specified variable used for update</span>
 <span class="sd">        :param placeholder: a placeholder for binding the value to assign_op.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Architecture.collect_savers"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.architecture.Architecture.collect_savers">[docs]</a>    <span class="k">def</span> <span class="nf">collect_savers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_path_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SaverCollection</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collection of all savers for the network (typically only one saver for network and one for ONNX export)</span>
+<span class="sd">        :param parent_path_suffix: path suffix of the parent of the network</span>
+<span class="sd">            (e.g. could be name of level manager plus name of agent)</span>
+<span class="sd">        :return: saver collection for the network</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 </pre></div>

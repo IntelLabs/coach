@@ -25,17 +25,30 @@ class RedisPubSubMemoryBackendParameters(MemoryBackendParameters):
 
 
 class RedisPubSubBackend(MemoryBackend):
+    """
+    A memory backend which transfers the experiences from the rollout to the training worker using Redis Pub/Sub in
+    Coach when distributed mode is used.
+    """
 
     def __init__(self, params: RedisPubSubMemoryBackendParameters):
+        """
+        :param params: The Redis parameters to be used with this Redis Pub/Sub instance.
+        """
         self.params = params
         self.redis_connection = redis.Redis(self.params.redis_address, self.params.redis_port)
         self.redis_server_name = 'redis-server-{}'.format(uuid.uuid4())
         self.redis_service_name = 'redis-service-{}'.format(uuid.uuid4())
 
     def store(self, obj):
+        """
+        :param obj: The object to store in memory. The object is either a Tranisition or Episode type.
+        """
         self.redis_connection.publish(self.params.channel, pickle.dumps(obj))
 
     def deploy(self):
+        """
+        Deploy the Redis Pub/Sub service in an orchestrator.
+        """
         if not self.params.deployed:
             if self.params.orchestrator_type == 'kubernetes':
                 self.deploy_kubernetes()
@@ -44,7 +57,9 @@ class RedisPubSubBackend(MemoryBackend):
         time.sleep(10)
 
     def deploy_kubernetes(self):
-
+        """
+        Deploy the Redis Pub/Sub service in Kubernetes orchestrator.
+        """
         if 'namespace' not in self.params.orchestrator_params:
             self.params.orchestrator_params['namespace'] = "default"
         from kubernetes import client
@@ -111,6 +126,9 @@ class RedisPubSubBackend(MemoryBackend):
             return False
 
     def undeploy(self):
+        """
+        Undeploy the Redis Pub/Sub service in an orchestrator.
+        """
         from kubernetes import client
         if self.params.deployed:
             return
@@ -133,9 +151,15 @@ class RedisPubSubBackend(MemoryBackend):
         pass
 
     def fetch(self, num_consecutive_playing_steps=None):
+        """
+        :param num_consecutive_playing_steps: The number steps to fetch.
+        """
         return RedisSub(redis_address=self.params.redis_address, redis_port=self.params.redis_port, channel=self.params.channel).run(num_consecutive_playing_steps)
 
     def subscribe(self, agent):
+        """
+        :param agent: The agent in use.
+        """
         redis_sub = RedisSub(redis_address=self.params.redis_address, redis_port=self.params.redis_port, channel=self.params.channel)
         return redis_sub
 
@@ -154,6 +178,9 @@ class RedisSub(object):
         self.subscriber = self.pubsub.subscribe(self.channel)
 
     def run(self, num_consecutive_playing_steps):
+        """
+        :param num_consecutive_playing_steps: The number steps to fetch.
+        """
         transitions = 0
         episodes = 0
         steps = 0

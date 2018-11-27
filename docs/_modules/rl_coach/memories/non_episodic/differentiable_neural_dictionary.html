@@ -85,6 +85,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../dashboard.html">Coach Dashboard</a></li>
@@ -93,6 +94,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -103,10 +105,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/additional_parameters.html">Additional Parameters</a></li>
@@ -444,14 +449,19 @@
 
 
 <span class="k">def</span> <span class="nf">load_dnd</span><span class="p">(</span><span class="n">model_dir</span><span class="p">):</span>
-    <span class="n">max_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">latest_checkpoint_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">latest_checkpoint</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="c1"># get all checkpoint files</span>
+    <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">model_dir</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;srs&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">checkpoint_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">checkpoint_id</span> <span class="o">&gt;</span> <span class="n">latest_checkpoint_id</span><span class="p">:</span>
+            <span class="n">latest_checkpoint</span> <span class="o">=</span> <span class="n">fname</span>
+            <span class="n">latest_checkpoint_id</span> <span class="o">=</span> <span class="n">checkpoint_id</span>
 
-    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.dnd&#39;</span><span class="p">)]:</span>
-        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">max_id</span><span class="p">:</span>
-            <span class="n">max_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-
-    <span class="n">model_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_id</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.dnd&#39;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">model_path</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">latest_checkpoint</span><span class="p">)),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">DND</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DND</span><span class="o">.</span><span class="n">num_actions</span><span class="p">):</span>

@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Environments" href="../environments/index.html" />
+    <link rel="next" title="Data Stores" href="../data_stores/index.html" />
     <link rel="prev" title="Quantile Regression DQN" href="../agents/value_optimization/qr_dqn.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
@@ -87,6 +87,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../dashboard.html">Coach Dashboard</a></li>
@@ -95,6 +96,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -109,10 +111,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#networkwrapper">NetworkWrapper</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../additional_parameters.html">Additional Parameters</a></li>
@@ -365,6 +370,34 @@ of an identical network (either self or another identical network)</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="rl_coach.architectures.architecture.Architecture.collect_savers">
+<code class="descname">collect_savers</code><span class="sig-paren">(</span><em>parent_path_suffix: str</em><span class="sig-paren">)</span> &#x2192; rl_coach.saver.SaverCollection<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.collect_savers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.collect_savers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collection of all savers for the network (typically only one saver for network and one for ONNX export)
+:param parent_path_suffix: path suffix of the parent of the network</p>
+<blockquote>
+<div>(e.g. could be name of level manager plus name of agent)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">saver collection for the network</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="rl_coach.architectures.architecture.Architecture.construct">
+<em class="property">static </em><code class="descname">construct</code><span class="sig-paren">(</span><em>variable_scope: str, devices: List[str], *args, **kwargs</em><span class="sig-paren">)</span> &#x2192; rl_coach.architectures.architecture.Architecture<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.construct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.construct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a network class using the provided variable scope and on requested devices
+:param variable_scope: string specifying variable scope under which to create network variables
+:param devices: list of devices (can be list of Device objects, or string for TF distributed)
+:param args: all other arguments for class initializer
+:param kwargs: all other keyword arguments for class initializer
+:return: an object which is a child of Architecture</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="rl_coach.architectures.architecture.Architecture.get_variable_value">
 <code class="descname">get_variable_value</code><span class="sig-paren">(</span><em>variable: Any</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/architectures/architecture.html#Architecture.get_variable_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.architecture.Architecture.get_variable_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets value of a specified variable. Type of variable is dependant on the framework.
@@ -600,28 +633,27 @@ complexity for this function by around 10%</td>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.get_global_variables">
-<code class="descname">get_global_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.get_global_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.get_global_variables" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all the variables that are shared between threads</p>
+<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.collect_savers">
+<code class="descname">collect_savers</code><span class="sig-paren">(</span><em>parent_path_suffix: str</em><span class="sig-paren">)</span> &#x2192; rl_coach.saver.SaverCollection<a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.collect_savers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.collect_savers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect all of network’s savers for global or online network
+Note: global, online, and target network are all copies fo the same network which parameters that are</p>
+<blockquote>
+<div>updated at different rates. So we only need to save one of the networks; the one that holds the most
+recent parameters. target network is created for some agents and used for stabilizing training by
+updating parameters from online network at a slower rate. As a result, target network never contains
+the most recent set of parameters. In single-worker training, no global network is created and online
+network contains the most recent parameters. In vertical distributed training with more than one worker,
+global network is updated by all workers and contains the most recent parameters.
+Therefore preference is given to global network if it exists, otherwise online network is used
+for saving.</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of all the variables that are shared between threads</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>parent_path_suffix</strong> – path suffix of the parent of the network wrapper
+(e.g. could be name of level manager plus name of agent)</td>
 </tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rl_coach.architectures.network_wrapper.NetworkWrapper.get_local_variables">
-<code class="descname">get_local_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/architectures/network_wrapper.html#NetworkWrapper.get_local_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.architectures.network_wrapper.NetworkWrapper.get_local_variables" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all the variables that are local to the thread</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of all the variables that are local to the thread</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">collection of all checkpoint objects</td>
 </tr>
 </tbody>
 </table>
@@ -739,7 +771,7 @@ error of this sample. If it is not given, the samples losses won’t be scaled</
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../environments/index.html" class="btn btn-neutral float-right" title="Environments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../data_stores/index.html" class="btn btn-neutral float-right" title="Data Stores" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../agents/value_optimization/qr_dqn.html" class="btn btn-neutral" title="Quantile Regression DQN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

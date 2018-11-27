@@ -86,6 +86,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
@@ -94,6 +95,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -104,10 +106,13 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="spaces.html">Spaces</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Additional Parameters</a><ul>
@@ -271,7 +276,7 @@ of the trace tests suite.</li>
 <h2>TaskParameters<a class="headerlink" href="#taskparameters" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.base_parameters.TaskParameters">
-<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">TaskParameters</code><span class="sig-paren">(</span><em>framework_type: rl_coach.base_parameters.Frameworks = &lt;Frameworks.tensorflow: 'TensorFlow'&gt;</em>, <em>evaluate_only: bool = False</em>, <em>use_cpu: bool = False</em>, <em>experiment_path='/tmp'</em>, <em>seed=None</em>, <em>checkpoint_save_secs=None</em>, <em>checkpoint_restore_dir=None</em>, <em>checkpoint_save_dir=None</em>, <em>export_onnx_graph: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#TaskParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.TaskParameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">TaskParameters</code><span class="sig-paren">(</span><em>framework_type: rl_coach.base_parameters.Frameworks = &lt;Frameworks.tensorflow: 'TensorFlow'&gt;</em>, <em>evaluate_only: bool = False</em>, <em>use_cpu: bool = False</em>, <em>experiment_path='/tmp'</em>, <em>seed=None</em>, <em>checkpoint_save_secs=None</em>, <em>checkpoint_restore_dir=None</em>, <em>checkpoint_save_dir=None</em>, <em>export_onnx_graph: bool = False</em>, <em>apply_stop_condition: bool = False</em>, <em>num_gpu: int = 1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#TaskParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.TaskParameters" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -286,6 +291,8 @@ of the trace tests suite.</li>
 <li><strong>checkpoint_restore_dir</strong> – the directory to restore the checkpoints from</li>
 <li><strong>checkpoint_save_dir</strong> – the directory to store the checkpoints in</li>
 <li><strong>export_onnx_graph</strong> – If set to True, this will export an onnx graph each time a checkpoint is saved</li>
+<li><strong>apply_stop_condition</strong> – If set to True, this will apply the stop condition defined by reaching a target success rate</li>
+<li><strong>num_gpu</strong> – number of GPUs to use</li>
 </ul>
 </td>
 </tr>
@@ -298,7 +305,7 @@ of the trace tests suite.</li>
 <h2>DistributedTaskParameters<a class="headerlink" href="#distributedtaskparameters" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.base_parameters.DistributedTaskParameters">
-<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">DistributedTaskParameters</code><span class="sig-paren">(</span><em>framework_type: rl_coach.base_parameters.Frameworks</em>, <em>parameters_server_hosts: str</em>, <em>worker_hosts: str</em>, <em>job_type: str</em>, <em>task_index: int</em>, <em>evaluate_only: bool = False</em>, <em>num_tasks: int = None</em>, <em>num_training_tasks: int = None</em>, <em>use_cpu: bool = False</em>, <em>experiment_path=None</em>, <em>dnd=None</em>, <em>shared_memory_scratchpad=None</em>, <em>seed=None</em>, <em>checkpoint_save_secs=None</em>, <em>checkpoint_restore_dir=None</em>, <em>checkpoint_save_dir=None</em>, <em>export_onnx_graph: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#DistributedTaskParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.DistributedTaskParameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">DistributedTaskParameters</code><span class="sig-paren">(</span><em>framework_type: rl_coach.base_parameters.Frameworks</em>, <em>parameters_server_hosts: str</em>, <em>worker_hosts: str</em>, <em>job_type: str</em>, <em>task_index: int</em>, <em>evaluate_only: bool = False</em>, <em>num_tasks: int = None</em>, <em>num_training_tasks: int = None</em>, <em>use_cpu: bool = False</em>, <em>experiment_path=None</em>, <em>dnd=None</em>, <em>shared_memory_scratchpad=None</em>, <em>seed=None</em>, <em>checkpoint_save_secs=None</em>, <em>checkpoint_restore_dir=None</em>, <em>checkpoint_save_dir=None</em>, <em>export_onnx_graph: bool = False</em>, <em>apply_stop_condition: bool = False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/base_parameters.html#DistributedTaskParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.DistributedTaskParameters" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -321,6 +328,7 @@ assigned</li>
 <li><strong>checkpoint_restore_dir</strong> – the directory to restore the checkpoints from</li>
 <li><strong>checkpoint_save_dir</strong> – the directory to store the checkpoints in</li>
 <li><strong>export_onnx_graph</strong> – If set to True, this will export an onnx graph each time a checkpoint is saved</li>
+<li><strong>apply_stop_condition</strong> – If set to True, this will apply the stop condition defined by reaching a target success rate</li>
 </ul>
 </td>
 </tr>

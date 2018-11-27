@@ -85,6 +85,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
@@ -93,6 +94,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -103,10 +105,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
@@ -191,6 +196,7 @@
 
 <span class="kn">import</span> <span class="nn">gym</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">IntEnum</span>
 <span class="kn">import</span> <span class="nn">scipy.ndimage</span>
 
 <span class="kn">from</span> <span class="nn">rl_coach.graph_managers.graph_manager</span> <span class="k">import</span> <span class="n">ScheduleParameters</span>
@@ -219,7 +225,7 @@
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RunPhase</span><span class="p">,</span> <span class="n">EnvironmentSteps</span>
 <span class="kn">from</span> <span class="nn">rl_coach.environments.environment</span> <span class="k">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EnvironmentParameters</span><span class="p">,</span> <span class="n">LevelSelection</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">DiscreteActionSpace</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">ImageObservationSpace</span><span class="p">,</span> <span class="n">VectorObservationSpace</span><span class="p">,</span> \
-    <span class="n">StateSpace</span><span class="p">,</span> <span class="n">RewardSpace</span>
+    <span class="n">PlanarMapsObservationSpace</span><span class="p">,</span> <span class="n">TensorObservationSpace</span><span class="p">,</span> <span class="n">StateSpace</span><span class="p">,</span> <span class="n">RewardSpace</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">NoInputFilter</span><span class="p">,</span> <span class="n">NoOutputFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.reward.reward_clipping_filter</span> <span class="k">import</span> <span class="n">RewardClippingFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rescale_to_size_filter</span> <span class="k">import</span> <span class="n">ObservationRescaleToSizeFilter</span>
@@ -239,6 +245,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">random_initialization_steps</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_over_num_frames</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">additional_simulator_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space_type</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -258,7 +265,7 @@
 <span class="n">gym_roboschool_envs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;inverted_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;inverted_pendulum_swingup&#39;</span><span class="p">,</span> <span class="s1">&#39;inverted_double_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;reacher&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;hopper&#39;</span><span class="p">,</span> <span class="s1">&#39;walker2d&#39;</span><span class="p">,</span> <span class="s1">&#39;half_cheetah&#39;</span><span class="p">,</span> <span class="s1">&#39;ant&#39;</span><span class="p">,</span> <span class="s1">&#39;humanoid&#39;</span><span class="p">,</span> <span class="s1">&#39;humanoid_flagrun&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;humanoid_flagrun_harder&#39;</span><span class="p">,</span> <span class="s1">&#39;pong&#39;</span><span class="p">]</span>
-<span class="n">roboschool_v0</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower_under_to_upper</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-v0&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gym_roboschool_envs</span><span class="p">}</span>
+<span class="n">roboschool_v1</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="s2">&quot;Roboschool</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lower_under_to_upper</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-v1&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gym_roboschool_envs</span><span class="p">}</span>
 
 <span class="c1"># Mujoco</span>
 <span class="n">gym_mujoco_envs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;inverted_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;inverted_double_pendulum&#39;</span><span class="p">,</span> <span class="s1">&#39;reacher&#39;</span><span class="p">,</span> <span class="s1">&#39;hopper&#39;</span><span class="p">,</span> <span class="s1">&#39;walker2d&#39;</span><span class="p">,</span> <span class="s1">&#39;half_cheetah&#39;</span><span class="p">,</span>
@@ -351,11 +358,26 @@
 
 
 <span class="c1"># Environment</span>
+<span class="k">class</span> <span class="nc">ObservationSpaceType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="n">Tensor</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Image</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">Vector</span> <span class="o">=</span> <span class="mi">2</span>
+
+
 <div class="viewcode-block" id="GymEnvironment"><a class="viewcode-back" href="../../../components/environments/index.html#rl_coach.environments.gym_environment.GymEnvironment">[docs]</a><span class="k">class</span> <span class="nc">GymEnvironment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LevelSelection</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">visualization_parameters</span><span class="p">:</span> <span class="n">VisualizationParameters</span><span class="p">,</span>
-                 <span class="n">target_success_rate</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">additional_simulator_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">human_control</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">custom_reward_threshold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">random_initialization_steps</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_over_num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">level</span><span class="p">:</span> <span class="n">LevelSelection</span><span class="p">,</span>
+                 <span class="n">frame_skip</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">visualization_parameters</span><span class="p">:</span> <span class="n">VisualizationParameters</span><span class="p">,</span>
+                 <span class="n">target_success_rate</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">additional_simulator_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+                 <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">human_control</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">custom_reward_threshold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">random_initialization_steps</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">max_over_num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">observation_space_type</span><span class="p">:</span> <span class="n">ObservationSpaceType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param level: (str)</span>
 <span class="sd">            A string representing the gym level to run. This can also be a LevelSelection object.</span>
@@ -390,6 +412,11 @@
 <span class="sd">            This value will be used for merging multiple frames into a single frame by taking the maximum value for each</span>
 <span class="sd">            of the pixels in the frame. This is particularly used in Atari games, where the frames flicker, and objects</span>
 <span class="sd">            can be seen in one frame but disappear in the next.</span>
+
+<span class="sd">        :param observation_space_type:</span>
+<span class="sd">            This value will be used for generating observation space. Allows a custom space. Should be one of</span>
+<span class="sd">            ObservationSpaceType. If not specified, observation space is inferred from the number of dimensions</span>
+<span class="sd">            of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, PlanarMaps space otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">,</span> <span class="n">human_control</span><span class="p">,</span> <span class="n">custom_reward_threshold</span><span class="p">,</span>
                          <span class="n">visualization_parameters</span><span class="p">,</span> <span class="n">target_success_rate</span><span class="p">)</span>
@@ -455,6 +482,7 @@
         <span class="c1"># frame skip and max between consecutive frames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_robotics_env</span> <span class="o">=</span> <span class="s1">&#39;robotics&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span> <span class="o">=</span> <span class="s1">&#39;mujoco&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_roboschool_env</span> <span class="o">=</span> <span class="s1">&#39;roboschool&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span> <span class="o">=</span> <span class="s1">&#39;Atari&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timelimit_env_wrapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_atari_env</span><span class="p">:</span>
@@ -479,20 +507,40 @@
             <span class="n">state_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">spaces</span>
 
         <span class="k">for</span> <span class="n">observation_space_name</span><span class="p">,</span> <span class="n">observation_space</span> <span class="ow">in</span> <span class="n">state_space</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">observation_space_type</span> <span class="o">==</span> <span class="n">ObservationSpaceType</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+                <span class="c1"># we consider arbitrary input tensor which does not necessarily represent images</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">TensorObservationSpace</span><span class="p">(</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                    <span class="n">low</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
+                    <span class="n">high</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">high</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">observation_space_type</span> <span class="o">==</span> <span class="n">ObservationSpaceType</span><span class="o">.</span><span class="n">Image</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="c1"># we assume gym has image observations (with arbitrary number of channels) where their values are</span>
                 <span class="c1"># within 0-255, and where the channel dimension is the last dimension</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ImageObservationSpace</span><span class="p">(</span>
-                    <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
-                    <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
-                    <span class="n">channels_axis</span><span class="o">=-</span><span class="mi">1</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ImageObservationSpace</span><span class="p">(</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                        <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+                        <span class="n">channels_axis</span><span class="o">=-</span><span class="mi">1</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># For any number of channels other than 1 or 3, use the generic PlanarMaps space</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">(</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                        <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+                        <span class="n">channels_axis</span><span class="o">=-</span><span class="mi">1</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">observation_space_type</span> <span class="o">==</span> <span class="n">ObservationSpaceType</span><span class="o">.</span><span class="n">Vector</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="n">observation_space_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">VectorObservationSpace</span><span class="p">(</span>
                     <span class="n">shape</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                     <span class="n">low</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">low</span><span class="p">,</span>
                     <span class="n">high</span><span class="o">=</span><span class="n">observation_space</span><span class="o">.</span><span class="n">high</span>
                 <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to instantiate Gym environment class </span><span class="si">%s</span><span class="s2"> with observation space type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">env_class</span><span class="p">,</span> <span class="n">observation_space_type</span><span class="p">),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="s1">&#39;desired_goal&#39;</span> <span class="ow">in</span> <span class="n">state_space</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">goal_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="s1">&#39;desired_goal&#39;</span><span class="p">]</span>
 
@@ -618,8 +666,7 @@
 <span class="sd">        :param camera_idx: The index of the camera to use. Should be defined in the model</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">fixedcamid</span> <span class="o">!=</span> <span class="n">camera_idx</span> <span class="ow">and</span>\
-                <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">_ncam</span> <span class="o">&gt;</span> <span class="n">camera_idx</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">fixedcamid</span> <span class="o">!=</span> <span class="n">camera_idx</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">mujoco_py.generated</span> <span class="k">import</span> <span class="n">const</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">CAMERA_FIXED</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">fixedcamid</span> <span class="o">=</span> <span class="n">camera_idx</span>
@@ -633,7 +680,7 @@
     <span class="k">def</span> <span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;human&#39;</span><span class="p">)</span>
         <span class="c1"># required for setting up a fixed camera for mujoco</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_roboschool_env</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_mujoco_camera</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_rendered_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -643,12 +690,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rgb_array&#39;</span><span class="p">)</span>
         <span class="c1"># required for setting up a fixed camera for mujoco</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mujoco_env</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_roboschool_env</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_mujoco_camera</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">image</span>
 
     <span class="k">def</span> <span class="nf">get_target_success_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clean up to close rendering windows.</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 </pre></div>
 
            </div>

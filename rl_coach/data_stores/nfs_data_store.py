@@ -22,10 +22,21 @@ class NFSDataStoreParameters(DataStoreParameters):
 
 
 class NFSDataStore(DataStore):
+    """
+    An implementation of data store which uses NFS for storing policy checkpoints when using Coach in distributed mode.
+    The policy checkpoints are written by the trainer and read by the rollout worker.
+    """
+
     def __init__(self, params: NFSDataStoreParameters):
+        """
+        :param params: The parameters required to use the NFS data store.
+        """
         self.params = params
 
     def deploy(self) -> bool:
+        """
+        Deploy the NFS server in an orchestrator if/when required.
+        """
         if self.params.orchestrator_type == "kubernetes":
             if not self.params.deployed:
                 if not self.deploy_k8s_nfs():
@@ -43,6 +54,9 @@ class NFSDataStore(DataStore):
         )
 
     def undeploy(self) -> bool:
+        """
+        Undeploy the NFS server and resources from an orchestrator.
+        """
         if self.params.orchestrator_type == "kubernetes":
             if not self.params.deployed:
                 if not self.undeploy_k8s_nfs():
@@ -59,6 +73,9 @@ class NFSDataStore(DataStore):
         pass
 
     def deploy_k8s_nfs(self) -> bool:
+        """
+        Deploy the NFS server in the Kubernetes orchestrator.
+        """
         from kubernetes import client as k8sclient
 
         name = "nfs-server-{}".format(uuid.uuid4())
@@ -148,6 +165,9 @@ class NFSDataStore(DataStore):
         return True
 
     def create_k8s_nfs_resources(self) -> bool:
+        """
+        Create NFS resources such as PV and PVC in Kubernetes.
+        """
         from kubernetes import client as k8sclient
 
         pv_name = "nfs-ckpt-pv-{}".format(uuid.uuid4())
@@ -226,6 +246,9 @@ class NFSDataStore(DataStore):
         return True
 
     def delete_k8s_nfs_resources(self) -> bool:
+        """
+        Delete NFS resources such as PV and PVC from the Kubernetes orchestrator.
+        """
         from kubernetes import client as k8sclient
 
         del_options = k8sclient.V1DeleteOptions()

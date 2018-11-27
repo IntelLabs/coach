@@ -85,6 +85,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
@@ -93,6 +94,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -103,10 +105,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
@@ -193,7 +198,9 @@
 
 <span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">Frameworks</span><span class="p">,</span> <span class="n">AgentParameters</span>
 <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
+<span class="kn">from</span> <span class="nn">rl_coach.saver</span> <span class="k">import</span> <span class="n">SaverCollection</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">SpacesDefinition</span>
+<span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">force_list</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
     <span class="kn">from</span> <span class="nn">rl_coach.architectures.tensorflow_components.general_network</span> <span class="k">import</span> <span class="n">GeneralTensorFlowNetwork</span>
@@ -227,52 +234,55 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">framework</span> <span class="o">==</span> <span class="n">Frameworks</span><span class="o">.</span><span class="n">tensorflow</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;tensorflow&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">failed_imports</span><span class="p">:</span>
-                <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralTensorFlowNetwork</span>
+                <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralTensorFlowNetwork</span><span class="o">.</span><span class="n">construct</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Install tensorflow before using it as framework&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">framework</span> <span class="o">==</span> <span class="n">Frameworks</span><span class="o">.</span><span class="n">mxnet</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;mxnet&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">failed_imports</span><span class="p">:</span>
-                <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralMxnetNetwork</span>
+                <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralMxnetNetwork</span><span class="o">.</span><span class="n">construct</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Install mxnet before using it as framework&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Framework is not supported&quot;</span>
                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Frameworks</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">framework</span><span class="p">)))</span>
 
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">full_name_id</span><span class="p">,</span> <span class="n">name</span><span class="p">)):</span>
+        <span class="n">variable_scope</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">full_name_id</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
-            <span class="c1"># Global network - the main network shared between threads</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">global_network</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_global</span><span class="p">:</span>
-                <span class="c1"># we assign the parameters of this network on the parameters server</span>
-                <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">replicated_device</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">global_network</span> <span class="o">=</span> <span class="n">general_network</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">=</span><span class="n">agent_parameters</span><span class="p">,</span>
-                                                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/global&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
-                                                          <span class="n">global_network</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                                          <span class="n">network_is_local</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                                          <span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span>
-                                                          <span class="n">network_is_trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Global network - the main network shared between threads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_network</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_global</span><span class="p">:</span>
+            <span class="c1"># we assign the parameters of this network on the parameters server</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_network</span> <span class="o">=</span> <span class="n">general_network</span><span class="p">(</span><span class="n">variable_scope</span><span class="o">=</span><span class="n">variable_scope</span><span class="p">,</span>
+                                                  <span class="n">devices</span><span class="o">=</span><span class="n">force_list</span><span class="p">(</span><span class="n">replicated_device</span><span class="p">),</span>
+                                                  <span class="n">agent_parameters</span><span class="o">=</span><span class="n">agent_parameters</span><span class="p">,</span>
+                                                  <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/global&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                                                  <span class="n">global_network</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                                  <span class="n">network_is_local</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                  <span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span>
+                                                  <span class="n">network_is_trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-            <span class="c1"># Online network - local copy of the main network used for playing</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">online_network</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">worker_device</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">online_network</span> <span class="o">=</span> <span class="n">general_network</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">=</span><span class="n">agent_parameters</span><span class="p">,</span>
-                                                      <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/online&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
-                                                      <span class="n">global_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_network</span><span class="p">,</span>
-                                                      <span class="n">network_is_local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                                      <span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span>
-                                                      <span class="n">network_is_trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Online network - local copy of the main network used for playing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">online_network</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">online_network</span> <span class="o">=</span> <span class="n">general_network</span><span class="p">(</span><span class="n">variable_scope</span><span class="o">=</span><span class="n">variable_scope</span><span class="p">,</span>
+                                              <span class="n">devices</span><span class="o">=</span><span class="n">force_list</span><span class="p">(</span><span class="n">worker_device</span><span class="p">),</span>
+                                              <span class="n">agent_parameters</span><span class="o">=</span><span class="n">agent_parameters</span><span class="p">,</span>
+                                              <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/online&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                                              <span class="n">global_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_network</span><span class="p">,</span>
+                                              <span class="n">network_is_local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                              <span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span>
+                                              <span class="n">network_is_trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-            <span class="c1"># Target network - a local, slow updating network used for stabilizing the learning</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">target_network</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_target</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">worker_device</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">target_network</span> <span class="o">=</span> <span class="n">general_network</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">=</span><span class="n">agent_parameters</span><span class="p">,</span>
-                                                          <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/target&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
-                                                          <span class="n">global_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_network</span><span class="p">,</span>
-                                                          <span class="n">network_is_local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                                          <span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span>
-                                                          <span class="n">network_is_trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Target network - a local, slow updating network used for stabilizing the learning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_network</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_target</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_network</span> <span class="o">=</span> <span class="n">general_network</span><span class="p">(</span><span class="n">variable_scope</span><span class="o">=</span><span class="n">variable_scope</span><span class="p">,</span>
+                                                  <span class="n">devices</span><span class="o">=</span><span class="n">force_list</span><span class="p">(</span><span class="n">worker_device</span><span class="p">),</span>
+                                                  <span class="n">agent_parameters</span><span class="o">=</span><span class="n">agent_parameters</span><span class="p">,</span>
+                                                  <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/target&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                                                  <span class="n">global_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">global_network</span><span class="p">,</span>
+                                                  <span class="n">network_is_local</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                  <span class="n">spaces</span><span class="o">=</span><span class="n">spaces</span><span class="p">,</span>
+                                                  <span class="n">network_is_trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NetworkWrapper.sync"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.sync">[docs]</a>    <span class="k">def</span> <span class="nf">sync</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -372,26 +382,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">online_network</span><span class="p">)</span><span class="o">.</span><span class="n">parallel_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sess</span><span class="p">,</span> <span class="n">network_input_tuples</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="NetworkWrapper.get_local_variables"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.get_local_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_local_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get all the variables that are local to the thread</span>
-
-<span class="sd">        :return: a list of all the variables that are local to the thread</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">local_variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">local_variables</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_target</span><span class="p">:</span>
-            <span class="n">local_variables</span> <span class="o">+=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">local_variables</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_network</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">local_variables</span></div>
-
-<div class="viewcode-block" id="NetworkWrapper.get_global_variables"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.get_global_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get all the variables that are shared between threads</span>
-
-<span class="sd">        :return: a list of all the variables that are shared between threads</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">global_variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_variables</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_network</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">global_variables</span></div>
-
 <div class="viewcode-block" id="NetworkWrapper.set_is_training"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.set_is_training">[docs]</a>    <span class="k">def</span> <span class="nf">set_is_training</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the phase of the network between training and testing</span>
@@ -425,7 +415,29 @@
         <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
         <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">online_network</span><span class="p">))</span>
         <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NetworkWrapper.collect_savers"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper.collect_savers">[docs]</a>    <span class="k">def</span> <span class="nf">collect_savers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_path_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SaverCollection</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collect all of network&#39;s savers for global or online network</span>
+<span class="sd">        Note: global, online, and target network are all copies fo the same network which parameters that are</span>
+<span class="sd">            updated at different rates. So we only need to save one of the networks; the one that holds the most</span>
+<span class="sd">            recent parameters. target network is created for some agents and used for stabilizing training by</span>
+<span class="sd">            updating parameters from online network at a slower rate. As a result, target network never contains</span>
+<span class="sd">            the most recent set of parameters. In single-worker training, no global network is created and online</span>
+<span class="sd">            network contains the most recent parameters. In vertical distributed training with more than one worker,</span>
+<span class="sd">            global network is updated by all workers and contains the most recent parameters.</span>
+<span class="sd">            Therefore preference is given to global network if it exists, otherwise online network is used</span>
+<span class="sd">            for saving.</span>
+<span class="sd">        :param parent_path_suffix: path suffix of the parent of the network wrapper</span>
+<span class="sd">            (e.g. could be name of level manager plus name of agent)</span>
+<span class="sd">        :return: collection of all checkpoint objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_network</span><span class="p">:</span>
+            <span class="n">savers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_network</span><span class="o">.</span><span class="n">collect_savers</span><span class="p">(</span><span class="n">parent_path_suffix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">savers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">collect_savers</span><span class="p">(</span><span class="n">parent_path_suffix</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">savers</span></div></div>
 </pre></div>
 
            </div>

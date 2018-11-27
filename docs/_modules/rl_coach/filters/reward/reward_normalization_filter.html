@@ -85,6 +85,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../dashboard.html">Coach Dashboard</a></li>
@@ -93,6 +94,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -103,10 +105,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components/orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../components/additional_parameters.html">Additional Parameters</a></li>
@@ -188,14 +193,14 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">rl_coach.architectures.tensorflow_components.shared_variables</span> <span class="k">import</span> <span class="n">SharedRunningStats</span>
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RewardType</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.reward.reward_filter</span> <span class="k">import</span> <span class="n">RewardFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">RewardSpace</span>
+<span class="kn">from</span> <span class="nn">rl_coach.utilities.shared_running_stats</span> <span class="k">import</span> <span class="n">NumpySharedRunningStats</span>
 
 
 <div class="viewcode-block" id="RewardNormalizationFilter"><a class="viewcode-back" href="../../../../components/filters/input_filters.html#rl_coach.filters.reward.RewardNormalizationFilter">[docs]</a><span class="k">class</span> <span class="nc">RewardNormalizationFilter</span><span class="p">(</span><span class="n">RewardFilter</span><span class="p">):</span>
@@ -214,14 +219,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">clip_max</span> <span class="o">=</span> <span class="n">clip_max</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">running_rewards_stats</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">set_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">memory_backend_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">memory_backend_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        An optional function that allows the filter to get the device if it is required to use tensorflow ops</span>
 <span class="sd">        :param device: the device to use</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">running_rewards_stats</span> <span class="o">=</span> <span class="n">SharedRunningStats</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rewards_stats&#39;</span><span class="p">,</span>
-                                                        <span class="n">pubsub_params</span><span class="o">=</span><span class="n">memory_backend_params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;tf&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">rl_coach.architectures.tensorflow_components.shared_variables</span> <span class="k">import</span> <span class="n">TFSharedRunningStats</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">running_rewards_stats</span> <span class="o">=</span> <span class="n">TFSharedRunningStats</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rewards_stats&#39;</span><span class="p">,</span> <span class="n">create_ops</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                            <span class="n">pubsub_params</span><span class="o">=</span><span class="n">memory_backend_params</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;numpy&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">running_rewards_stats</span> <span class="o">=</span> <span class="n">NumpySharedRunningStats</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;rewards_stats&#39;</span><span class="p">,</span>
+                                                          <span class="n">pubsub_params</span><span class="o">=</span><span class="n">memory_backend_params</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -242,7 +253,13 @@
         <span class="k">return</span> <span class="n">reward</span>
 
     <span class="k">def</span> <span class="nf">get_filtered_reward_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_reward_space</span><span class="p">:</span> <span class="n">RewardSpace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RewardSpace</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">input_reward_space</span></div>
+        <span class="k">return</span> <span class="n">input_reward_space</span>
+
+    <span class="k">def</span> <span class="nf">save_state_to_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_rewards_stats</span><span class="o">.</span><span class="n">save_state_to_checkpoint</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">restore_state_from_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running_rewards_stats</span><span class="o">.</span><span class="n">restore_state_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">checkpoint_prefix</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

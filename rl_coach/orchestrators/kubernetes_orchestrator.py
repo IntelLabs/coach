@@ -54,8 +54,17 @@ class KubernetesParameters(DeployParameters):
 
 
 class Kubernetes(Deploy):
+    """
+    An orchestrator implmentation which uses Kubernetes to deploy the components such as training and rollout workers
+    and Redis Pub/Sub in Coach when used in the distributed mode.
+    """
 
     def __init__(self, params: KubernetesParameters):
+        """
+        :param params: The Kubernetes parameters which are used for deploying the components in Coach. These parameters
+        include namespace and kubeconfig.
+        """
+
         super().__init__(params)
         self.params = params
         if self.params.kubeconfig:
@@ -93,6 +102,9 @@ class Kubernetes(Deploy):
                 self.s3_secret_key = os.environ.get('SECRET_ACCESS_KEY')
 
     def setup(self) -> bool:
+        """
+        Deploys the memory backend and data stores if required.
+        """
 
         self.memory_backend.deploy()
         if not self.data_store.deploy():
@@ -102,6 +114,9 @@ class Kubernetes(Deploy):
         return True
 
     def deploy_trainer(self) -> bool:
+        """
+        Deploys the training worker in Kubernetes.
+        """
 
         trainer_params = self.params.run_type_params.get(str(RunType.TRAINER), None)
         if not trainer_params:
@@ -179,6 +194,9 @@ class Kubernetes(Deploy):
             return False
 
     def deploy_worker(self):
+        """
+        Deploys the rollout worker(s) in Kubernetes.
+        """
 
         worker_params = self.params.run_type_params.get(str(RunType.ROLLOUT_WORKER), None)
         if not worker_params:
@@ -258,6 +276,9 @@ class Kubernetes(Deploy):
             return False
 
     def worker_logs(self, path='./logs'):
+        """
+        :param path: Path to store the worker logs.
+        """
         worker_params = self.params.run_type_params.get(str(RunType.ROLLOUT_WORKER), None)
         if not worker_params:
             return
@@ -288,6 +309,9 @@ class Kubernetes(Deploy):
         self.tail_log(pod_name, api_client)
 
     def trainer_logs(self):
+        """
+        Get the logs from trainer.
+        """
         trainer_params = self.params.run_type_params.get(str(RunType.TRAINER), None)
         if not trainer_params:
             return
@@ -346,6 +370,10 @@ class Kubernetes(Deploy):
                     return
 
     def undeploy(self):
+        """
+        Undeploy all the components, such as trainer and rollout worker(s), Redis pub/sub and data store, when required.
+        """
+
         trainer_params = self.params.run_type_params.get(str(RunType.TRAINER), None)
         api_client = k8sclient.BatchV1Api()
         delete_options = k8sclient.V1DeleteOptions(

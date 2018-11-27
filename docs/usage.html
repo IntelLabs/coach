@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Features" href="features/index.html" />
+    <link rel="next" title="Usage - Distributed Coach" href="dist_usage.html" />
     <link rel="prev" title="Reinforcement Learning Coach" href="index.html" />
     <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
 
@@ -87,6 +87,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dashboard.html">Coach Dashboard</a></li>
@@ -95,6 +96,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -105,10 +107,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="components/agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components/additional_parameters.html">Additional Parameters</a></li>
@@ -178,7 +183,7 @@
             
   <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<p>One of the mechanism Coach uses for running experiments is the <strong>Preset</strong> mechanism.
+<p>One of the mechanisms Coach uses for running experiments is the <strong>Preset</strong> mechanism.
 As its name implies, a preset defines a set of predefined experiment parameters.
 This allows defining a <em>complex</em> agent-environment interaction, with multiple parameters, and later running it through
 a very <em>simple</em> command line.</p>
@@ -199,11 +204,22 @@ To list the available presets, use the <cite>-l</cite> flag.</p>
 </div>
 <div class="section" id="multi-threaded-algorithms">
 <h3>Multi-threaded Algorithms<a class="headerlink" href="#multi-threaded-algorithms" title="Permalink to this headline">¶</a></h3>
-<p>Multi-threaded algorithms are very common this days.
+<p>Multi-threaded algorithms are very common these days.
 They typically achieve the best results, and scale gracefully with the number of threads.
 In Coach, running such algorithms is done by selecting a suitable preset, and choosing the number of threads to run using the <code class="code docutils literal notranslate"><span class="pre">-n</span></code> flag.</p>
 <p><em>Example:</em></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">CartPole_A3C</span> <span class="o">-</span><span class="n">n</span> <span class="mi">8</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multi-node-algorithms">
+<h3>Multi-Node Algorithms<a class="headerlink" href="#multi-node-algorithms" title="Permalink to this headline">¶</a></h3>
+<p>Coach supports the multi-node runs in distributed mode. Specifically, the horizontal scale-out of rollout workers is implemented.
+In Coach, running such algorithms is done by selecting a suitable preset, enabling distributed coach using <code class="code docutils literal notranslate"><span class="pre">-dc</span></code> flag,
+passing distributed coach parameters using <code class="code docutils literal notranslate"><span class="pre">dcp</span></code> and choosing the number of to run using the <code class="code docutils literal notranslate"><span class="pre">-n</span></code> flag.
+For more details and instructions on how to use distributed Coach, see <a class="reference internal" href="dist_usage.html#dist-coach-usage"><span class="std std-ref">Usage - Distributed Coach</span></a>.</p>
+<p><em>Example:</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">CartPole_ClippedPPO</span> <span class="o">-</span><span class="n">dc</span> <span class="o">-</span><span class="n">dcp</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="nb">file</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">n</span> <span class="mi">8</span>
 </pre></div>
 </div>
 </div>
@@ -316,7 +332,7 @@ The most up to date description can be found by using the <code class="code docu
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="features/index.html" class="btn btn-neutral float-right" title="Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dist_usage.html" class="btn btn-neutral float-right" title="Usage - Distributed Coach" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="Reinforcement Learning Coach" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

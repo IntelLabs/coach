@@ -30,7 +30,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Exploration Policies" href="../exploration_policies/index.html" />
-    <link rel="prev" title="Architectures" href="../architectures/index.html" />
+    <link rel="prev" title="Data Stores" href="../data_stores/index.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
 
@@ -87,6 +87,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../dashboard.html">Coach Dashboard</a></li>
@@ -95,6 +96,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -105,6 +107,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Environments</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#deepmind-control-suite">DeepMind Control Suite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#blizzard-starcraft-ii">Blizzard Starcraft II</a></li>
@@ -116,6 +119,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../core_types.html">Core Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../spaces.html">Spaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../additional_parameters.html">Additional Parameters</a></li>
@@ -215,6 +220,20 @@ additional arguments which will be ignored by this class, but might be used by o
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the action space</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.environments.environment.Environment.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean up steps.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
@@ -547,7 +566,7 @@ includes a set of robotics environments.</li>
 </ul>
 <dl class="class">
 <dt id="rl_coach.environments.gym_environment.GymEnvironment">
-<em class="property">class </em><code class="descclassname">rl_coach.environments.gym_environment.</code><code class="descname">GymEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection</em>, <em>frame_skip: int</em>, <em>visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em>target_success_rate: float = 1.0</em>, <em>additional_simulator_parameters: Dict[str</em>, <em>Any] = {}</em>, <em>seed: Union[None</em>, <em>int] = None</em>, <em>human_control: bool = False</em>, <em>custom_reward_threshold: Union[int</em>, <em>float] = None</em>, <em>random_initialization_steps: int = 1</em>, <em>max_over_num_frames: int = 1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/gym_environment.html#GymEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.gym_environment.GymEnvironment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rl_coach.environments.gym_environment.</code><code class="descname">GymEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection</em>, <em>frame_skip: int</em>, <em>visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em>target_success_rate: float = 1.0</em>, <em>additional_simulator_parameters: Dict[str</em>, <em>Any] = {}</em>, <em>seed: Union[None</em>, <em>int] = None</em>, <em>human_control: bool = False</em>, <em>custom_reward_threshold: Union[int</em>, <em>float] = None</em>, <em>random_initialization_steps: int = 1</em>, <em>max_over_num_frames: int = 1</em>, <em>observation_space_type: rl_coach.environments.gym_environment.ObservationSpaceType = None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/gym_environment.html#GymEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.gym_environment.GymEnvironment" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -578,6 +597,9 @@ This is a feature presented in the DQN paper, which improves the variability of 
 This value will be used for merging multiple frames into a single frame by taking the maximum value for each
 of the pixels in the frame. This is particularly used in Atari games, where the frames flicker, and objects
 can be seen in one frame but disappear in the next.</li>
+<li><strong>observation_space_type</strong> – This value will be used for generating observation space. Allows a custom space. Should be one of
+ObservationSpaceType. If not specified, observation space is inferred from the number of dimensions
+of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, PlanarMaps space otherwise.</li>
 </ul>
 </td>
 </tr>
@@ -599,7 +621,7 @@ can be seen in one frame but disappear in the next.</li>
         <a href="../exploration_policies/index.html" class="btn btn-neutral float-right" title="Exploration Policies" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../architectures/index.html" class="btn btn-neutral" title="Architectures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../data_stores/index.html" class="btn btn-neutral" title="Data Stores" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

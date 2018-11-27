@@ -87,6 +87,7 @@
               <p class="caption"><span class="caption-text">Intro</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../features/index.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dashboard.html">Coach Dashboard</a></li>
@@ -95,6 +96,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../design/control_flow.html">Control Flow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Contributing</span></p>
 <ul>
@@ -105,10 +107,13 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="agents/index.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_stores/index.html">Data Stores</a></li>
 <li class="toctree-l1"><a class="reference internal" href="environments/index.html">Environments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exploration_policies/index.html">Exploration Policies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="filters/index.html">Filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="orchestrators/index.html">Orchestrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="core_types.html">Core Types</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Spaces</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#space">Space</a></li>
@@ -327,7 +332,7 @@ bounds are defined</p>
 <dt id="rl_coach.spaces.VectorObservationSpace">
 <em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">VectorObservationSpace</code><span class="sig-paren">(</span><em>shape: int</em>, <em>low: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray] = -inf</em>, <em>high: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray] = inf</em>, <em>measurements_names: List[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#VectorObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.VectorObservationSpace" title="Permalink to this definition">¶</a></dt>
 <dd><p>An observation space which is defined as a vector of elements. This can be particularly useful for environments
-which return measurements, such as in robotic environmnets.</p>
+which return measurements, such as in robotic environments.</p>
 </dd></dl>
 
 </div>

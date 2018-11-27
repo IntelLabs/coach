@@ -1,7 +1,7 @@
 Usage
 =====
 
-One of the mechanism Coach uses for running experiments is the **Preset** mechanism.
+One of the mechanisms Coach uses for running experiments is the **Preset** mechanism.
 As its name implies, a preset defines a set of predefined experiment parameters.
 This allows defining a *complex* agent-environment interaction, with multiple parameters, and later running it through
 a very *simple* command line.
@@ -29,7 +29,7 @@ To list the available presets, use the `-l` flag.
 Multi-threaded Algorithms
 +++++++++++++++++++++++++
 
-Multi-threaded algorithms are very common this days.
+Multi-threaded algorithms are very common these days.
 They typically achieve the best results, and scale gracefully with the number of threads.
 In Coach, running such algorithms is done by selecting a suitable preset, and choosing the number of threads to run using the :code:`-n` flag.
 
@@ -38,6 +38,20 @@ In Coach, running such algorithms is done by selecting a suitable preset, and ch
 .. code-block:: python
 
    coach -p CartPole_A3C -n 8
+
+Multi-Node Algorithms
++++++++++++++++++++++++++
+
+Coach supports the multi-node runs in distributed mode. Specifically, the horizontal scale-out of rollout workers is implemented.
+In Coach, running such algorithms is done by selecting a suitable preset, enabling distributed coach using :code:`-dc` flag,
+passing distributed coach parameters using :code:`dcp` and choosing the number of to run using the :code:`-n` flag.
+For more details and instructions on how to use distributed Coach, see :ref:`dist-coach-usage`.
+
+*Example:*
+
+.. code-block:: python
+
+   coach -p CartPole_ClippedPPO -dc -dcp <path-to-config-file> -n 8
 
 Evaluating an Agent
 -------------------
