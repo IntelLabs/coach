@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+# TODO - importing these here might cause circular imports issues. Remove from here.
+
 from .additive_noise import AdditiveNoiseParameters, AdditiveNoise
 from .boltzmann import BoltzmannParameters, Boltzmann
 from .bootstrapped import BootstrappedParameters, Bootstrapped
