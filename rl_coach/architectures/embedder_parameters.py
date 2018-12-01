@@ -40,7 +40,6 @@ class InputEmbedderParameters(NetworkComponentParameters):
         self.input_clipping = input_clipping
         self.name = name
         self.is_training = is_training
-        self.path = None
 
     def path(self, emb_type):
         return 'rl_coach.architectures.tensorflow_components.embedders:' + MOD_NAMES[emb_type]
