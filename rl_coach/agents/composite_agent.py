@@ -305,9 +305,12 @@ class CompositeAgent(AgentInterface):
         for agent in self.agents.values():
             agent.phase = val
 
-    def end_episode(self) -> None:
+    def handle_episode_ended(self) -> None:
         """
-        End an episode
+        Make any changes needed when each episode is ended.
+        This includes incrementing counters, updating full episode dependent values, updating logs, etc.
+        This function is called right after each episode is ended.
+
         :return: None
         """
         self.current_episode += 1
@@ -429,14 +432,3 @@ class CompositeAgent(AgentInterface):
             savers.update(agent.collect_savers(
                 parent_path_suffix="{}.{}".format(parent_path_suffix, self.name)))
         return savers
-
-    def handle_episode_ended(self) -> None:
-        """
-        Make any changes needed when each episode is ended.
-        This includes incrementing counters, updating full episode dependent values, updating logs, etc.
-        This function is called right after each episode is ended.
-
-        :return: None
-        """
-        for agent in self.agents.values():
-            agent.handle_episode_ended()
