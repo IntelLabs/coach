@@ -1,7 +1,7 @@
 # Coach Documentation
 
 Coach uses Sphinx with a Read The Docs theme for its documentation website.
-The website is hosted on GitHub pages, and is automatically pulled from the repository through the built docs directory.
+The website is hosted on GitHub Pages, and is automatically pulled from the repository through the built docs directory.
 
 To build the documentation website locally, first install the following requirements:
 
