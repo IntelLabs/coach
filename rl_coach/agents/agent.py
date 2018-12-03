@@ -15,13 +15,11 @@
 #
 
 import copy
-import os
 import random
 from collections import OrderedDict
 from typing import Dict, List, Union, Tuple
 
 import numpy as np
-from pandas import read_pickle
 from six.moves import range
 
 from rl_coach.agents.agent_interface import AgentInterface
