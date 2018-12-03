@@ -14,7 +14,7 @@ pip install sphinx-argparse
 ```
 
 Then there are two option to build:
-1. Build using the make file (recommended):
+1. Build using the make file (recommended). Run from within the `docs_raw` directory:
 
 ```
 make html
