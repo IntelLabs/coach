@@ -20,7 +20,7 @@ or for reward filters:
 ```bash
 from coach.filters.filter import RewardFilter
 
-class CustomFilter(ObservationFilter):
+class CustomFilter(RewardFilter):
   def __init__(self):
     ...
   def filter(self, env_response: EnvResponse) -> EnvResponse:
