@@ -210,7 +210,8 @@
 <span class="k">class</span> <span class="nc">ParameterNoiseParameters</span><span class="p">(</span><span class="n">ExplorationParameters</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_params</span><span class="p">:</span> <span class="n">AgentParameters</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agent_params</span><span class="p">,</span> <span class="n">DQNAgentParameters</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">agent_params</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">supports_parameter_noise</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Currently only DQN variants are supported for using an exploration type of &quot;</span>
                              <span class="s2">&quot;ParameterNoise.&quot;</span><span class="p">)</span>
 
@@ -221,7 +222,7 @@
         <span class="k">return</span> <span class="s1">&#39;rl_coach.exploration_policies.parameter_noise:ParameterNoise&#39;</span>
 
 
-<div class="viewcode-block" id="ParameterNoise"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.ParameterNoise">[docs]</a><span class="k">class</span> <span class="nc">ParameterNoise</span><span class="p">(</span><span class="n">ExplorationPolicy</span><span class="p">):</span>
+<div class="viewcode-block" id="ParameterNoise"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.parameter_noise.ParameterNoise">[docs]</a><span class="k">class</span> <span class="nc">ParameterNoise</span><span class="p">(</span><span class="n">ExplorationPolicy</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The ParameterNoise exploration policy is intended for both discrete and continuous action spaces.</span>
 <span class="sd">    It applies the exploration policy by replacing all the dense network layers with noisy layers.</span>
