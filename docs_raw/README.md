@@ -21,6 +21,7 @@ make html
 cp source/_static/css/custom.css build/html/_static/css/
 rm -rf ../docs/
 mkdir ../docs
+touch ../docs/.nojekyll
 cp -R build/html/* ../docs/
 ```
 
