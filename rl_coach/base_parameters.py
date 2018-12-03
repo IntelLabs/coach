@@ -211,6 +211,9 @@ class AlgorithmParameters(Parameters):
         # Should the workers wait for full episode
         self.act_for_full_episodes = False
 
+        # Support for parameter noise
+        self.supports_parameter_noise = False
+
 
 class PresetValidationParameters(Parameters):
     def __init__(self,
