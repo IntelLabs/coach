@@ -74,7 +74,7 @@ class OnnxSaver(Saver):
     """
     Child class that implements saver for exporting gluon HybridBlock to ONNX
     """
-    def __init__(self, name: str, model: gluon.HybridBlock, input_shapes: List[List[int]]):
+    def __init__(self, name: str, model: gluon.HybridBlock, input_shapes: List[Tuple[int, ...]]):
         self._name = name
         self._sym = self._get_onnx_sym(model, len(input_shapes))
         self._param_dict = model.collect_params()

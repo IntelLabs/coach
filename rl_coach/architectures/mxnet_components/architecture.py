@@ -107,7 +107,7 @@ class MxnetArchitecture(Architecture):
         else:
             return (p.list_grad()[index] for p in self.model.collect_params().values() if p.grad_req != 'null')
 
-    def _model_input_shapes(self) -> List[List[int]]:
+    def _model_input_shapes(self) -> List[Tuple[int, ...]]:
         """
         Create a list of input array shapes
         :return: type of input shapes
@@ -116,7 +116,7 @@ class MxnetArchitecture(Architecture):
         allowed_inputs["action"] = copy.copy(self.spaces.action)
         allowed_inputs["goal"] = copy.copy(self.spaces.goal)
         embedders = self.model.nets[0].input_embedders
-        return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in embedders)
+        return list(tuple([1] + allowed_inputs[emb.embedder_name].shape.tolist()) for emb in embedders)
 
     def _dummy_model_inputs(self) -> Tuple[NDArray, ...]:
         """
@@ -125,7 +125,7 @@ class MxnetArchitecture(Architecture):
         :return: tuple of inputs for model forward pass
         """
         input_shapes = self._model_input_shapes()
-        inputs = tuple(nd.zeros(tuple(shape), ctx=self._devices[0]) for shape in input_shapes)
+        inputs = tuple(nd.zeros(shape, ctx=self._devices[0]) for shape in input_shapes)
         return inputs
 
     def construct_model(self) -> None:
