@@ -174,15 +174,13 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
                              .format(input_name, allowed_inputs.keys()))
 
-        mod_names = {'image': 'ImageEmbedder', 'vector': 'VectorEmbedder', 'tensor': 'TensorEmbedder'}
-
         emb_type = "vector"
         if isinstance(allowed_inputs[input_name], TensorObservationSpace):
             emb_type = "tensor"
         elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
             emb_type = "image"
 
-        embedder_path = 'rl_coach.architectures.tensorflow_components.embedders:' + mod_names[emb_type]
+        embedder_path = embedder_params.path(emb_type)
         embedder_params_copy = copy.copy(embedder_params)
         embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
         embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
@@ -200,7 +198,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :return: the middleware instance
         """
         mod_name = middleware_params.parameterized_class_name
-        middleware_path = 'rl_coach.architectures.tensorflow_components.middlewares:' + mod_name
+        middleware_path = middleware_params.path
         middleware_params_copy = copy.copy(middleware_params)
         middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
         module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
@@ -214,7 +212,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :return: the head
         """
         mod_name = head_params.parameterized_class_name
-        head_path = 'rl_coach.architectures.tensorflow_components.heads:' + mod_name
+        head_path = head_params.path
         head_params_copy = copy.copy(head_params)
         head_params_copy.activation_function = utils.get_activation_function(head_params_copy.activation_function)
         return dynamic_import_and_instantiate_module_from_params(head_params_copy, path=head_path, extra_kwargs={
