@@ -31,6 +31,11 @@ class HeadParameters(NetworkComponentParameters):
         self.loss_weight = loss_weight
         self.parameterized_class_name = parameterized_class_name
 
+    @property
+    def path(self):
+        return 'rl_coach.architectures.tensorflow_components.heads:' + self.parameterized_class_name
+
+
 
 class PPOHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='tanh', name: str='ppo_head_params',
