@@ -302,7 +302,7 @@ jobs:
           name: run e2e test
           command: |
             aws s3 mb s3://coach-aws-test-${CIRCLE_BUILD_NUM}
-            python rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -b coach-aws-test-${CIRCLE_BUILD_NUM}
+            python rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cr ~/.aws/credentials -b coach-aws-test-${CIRCLE_BUILD_NUM}
           no_output_timeout: 30m
       - run:
           name: cleanup
