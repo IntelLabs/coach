@@ -290,6 +290,29 @@ jobs:
             kubectl delete ns trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
           when: always
 
+  e2e_test:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run e2e test
+          command: |
+            aws s3 mb s3://coach-aws-test-${CIRCLE_BUILD_NUM}
+            python rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -b coach-aws-test-${CIRCLE_BUILD_NUM}
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
+            aws s3 rm --recursive s3://coach-aws-test-${CIRCLE_BUILD_NUM}
+            aws s3 rb s3://coach-aws-test-${CIRCLE_BUILD_NUM}
+          when: always
+
   container_deploy:
     <<: *executor_prep
     steps:
@@ -315,7 +338,7 @@ jobs:
             docker pull ${REGISTRY}/coach:${TAG}
             docker tag ${REGISTRY}/coach:${TAG} ${REGISTRY}/coach:${MASTER_BRANCH}
             docker push ${REGISTRY}/coach:${MASTER_BRANCH}
-            
+
 
 workflows:
   version: 2
@@ -326,6 +349,9 @@ workflows:
           requires:
             - build_base
       - integration_tests:
+          requires:
+            - build_base
+      - e2e_test:
           requires:
             - build_base
       - e2e_approval:

@@ -65,7 +65,7 @@ def test_dc(test, image, memory_backend, data_store, s3_end_point, s3_bucket_nam
 
 def get_tests():
     tests = [
-        Test('python rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 150),
+        Test('python rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200),
         # Test('coach -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200)
     ]
     return tests
