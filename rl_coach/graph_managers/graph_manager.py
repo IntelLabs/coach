@@ -156,6 +156,7 @@ class GraphManager(object):
 
         self.setup_logger()
 
+        self.achieved_success_rate = False
         return self
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
@@ -423,7 +424,8 @@ class GraphManager(object):
         self.verify_graph_was_created()
 
         if hasattr(self, 'data_store_params') and hasattr(self.agent_params.memory, 'memory_backend_params'):
-            if self.agent_params.memory.memory_backend_params.run_type == str(RunType.ROLLOUT_WORKER):
+            if self.agent_params.memory.memory_backend_params.run_type == str(RunType.ROLLOUT_WORKER) or \
+                self.agent_params.memory.memory_backend_params.run_type == str(RunType.EVAL_WORKER):
                 data_store = self.get_data_store(self.data_store_params)
                 data_store.load_from_store()
 
@@ -484,7 +486,7 @@ class GraphManager(object):
         :return: bool, True if the target reward and target success has been reached
         """
         self.verify_graph_was_created()
-
+        screen.log_title("evaluate started")
         if steps.num_steps > 0:
             with self.phase_context(RunPhase.TEST):
                 # reset all the levels before starting to evaluate
@@ -502,9 +504,10 @@ class GraphManager(object):
             if hasattr(self, 'data_store_params'):
                 data_store = self.get_data_store(self.data_store_params)
                 data_store.save_to_store()
-
+            screen.log_title("success")
             screen.success("Reached required success rate. Exiting.")
             return True
+        screen.log_title("fail")
         return False
 
     def improve(self):

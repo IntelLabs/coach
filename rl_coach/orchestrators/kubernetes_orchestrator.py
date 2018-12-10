@@ -1,20 +1,3 @@
-#
-# Copyright (c) 2017 Intel Corporation
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
-
 import os
 import uuid
 import json
@@ -210,6 +193,88 @@ class Kubernetes(Deploy):
             print("Got exception: %s\n while creating job", e)
             return False
 
+    def deploy_eval(self):
+        """
+        Deploys the eval worker(s) in Kubernetes.
+        """
+
+        worker_params = self.params.run_type_params.get(str(RunType.EVAL_WORKER), None)
+        if not worker_params:
+            return False
+
+        worker_params.command += ['--memory_backend_params', json.dumps(self.params.memory_backend_parameters.__dict__)]
+        worker_params.command += ['--data_store_params', json.dumps(self.params.data_store_params.__dict__)]
+        worker_params.command += ['--num_workers', '{}'.format(worker_params.num_replicas)]
+
+        name = "{}-{}".format(worker_params.run_type, uuid.uuid4())
+
+        if self.params.data_store_params.store_type == "nfs":
+            container = k8sclient.V1Container(
+                name=name,
+                image=worker_params.image,
+                command=worker_params.command,
+                args=worker_params.arguments,
+                image_pull_policy='Always',
+                volume_mounts=[k8sclient.V1VolumeMount(
+                    name='nfs-pvc',
+                    mount_path=worker_params.checkpoint_dir
+                )],
+                stdin=True,
+                tty=True
+            )
+            template = k8sclient.V1PodTemplateSpec(
+                metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
+                spec=k8sclient.V1PodSpec(
+                    containers=[container],
+                    volumes=[k8sclient.V1Volume(
+                        name="nfs-pvc",
+                        persistent_volume_claim=self.nfs_pvc
+                    )],
+                    restart_policy='OnFailure'
+                ),
+            )
+        else:
+            container = k8sclient.V1Container(
+                name=name,
+                image=worker_params.image,
+                command=worker_params.command,
+                args=worker_params.arguments,
+                image_pull_policy='Always',
+                env=[k8sclient.V1EnvVar("ACCESS_KEY_ID", self.s3_access_key),
+                     k8sclient.V1EnvVar("SECRET_ACCESS_KEY", self.s3_secret_key)],
+                stdin=True,
+                tty=True
+            )
+            template = k8sclient.V1PodTemplateSpec(
+                metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
+                spec=k8sclient.V1PodSpec(
+                    containers=[container],
+                    restart_policy='OnFailure'
+                )
+            )
+
+        job_spec = k8sclient.V1JobSpec(
+            completions=worker_params.num_replicas,
+            parallelism=worker_params.num_replicas,
+            template=template
+        )
+
+        job = k8sclient.V1Job(
+            api_version="batch/v1",
+            kind="Job",
+            metadata=k8sclient.V1ObjectMeta(name=name),
+            spec=job_spec
+        )
+
+        api_client = k8sclient.BatchV1Api()
+        try:
+            api_client.create_namespaced_job(self.params.namespace, job)
+            worker_params.orchestration_params['job_name'] = name
+            return True
+        except k8sclient.rest.ApiException as e:
+            print("Got exception: %s\n while creating Job", e)
+            return False
+
     def deploy_worker(self):
         """
         Deploys the rollout worker(s) in Kubernetes.
@@ -317,6 +382,32 @@ class Kubernetes(Deploy):
 
         for pod in pods.items:
             Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path)).start()
+    
+    def eval_logs(self, path='./logs'):
+        """
+        :param path: Path to store the worker logs.
+        """
+        worker_params = self.params.run_type_params.get(str(RunType.EVAL_WORKER), None)
+        if not worker_params:
+            return
+
+        api_client = k8sclient.CoreV1Api()
+        pods = None
+        try:
+            pods = api_client.list_namespaced_pod(self.params.namespace, label_selector='app={}'.format(
+                worker_params.orchestration_params['job_name']
+            ))
+
+            # pod = pods.items[0]
+        except k8sclient.rest.ApiException as e:
+            print("Got exception: %s\n while reading pods", e)
+            return
+
+        if not pods or len(pods.items) == 0:
+            return
+
+        for pod in pods.items:
+            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path)).start()
 
     def _tail_log_file(self, pod_name, api_client, namespace, path):
         if not os.path.exists(path):
@@ -403,6 +494,13 @@ class Kubernetes(Deploy):
             except k8sclient.rest.ApiException as e:
                 print("Got exception: %s\n while deleting trainer", e)
         worker_params = self.params.run_type_params.get(str(RunType.ROLLOUT_WORKER), None)
+        if worker_params:
+            try:
+                api_client.delete_namespaced_job(worker_params.orchestration_params['job_name'], self.params.namespace, delete_options)
+            except k8sclient.rest.ApiException as e:
+                print("Got exception: %s\n while deleting workers", e)
+
+        worker_params = self.params.run_type_params.get(str(RunType.EVAL_WORKER), None)
         if worker_params:
             try:
                 api_client.delete_namespaced_job(worker_params.orchestration_params['job_name'], self.params.namespace, delete_options)

@@ -2,7 +2,7 @@
 this rollout worker:
 
 - restores a model from disk
-- evaluates a predefined number of episodes
+- evaluates the restored model
 - contributes them to a distributed memory
 - exits
 """
@@ -15,42 +15,13 @@ from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchroniza
 from rl_coach.checkpoint import CheckpointStateFile, CheckpointStateReader
 from rl_coach.core_types import EnvironmentSteps, RunPhase, EnvironmentEpisodes
 from rl_coach.data_stores.data_store import SyncFiles
+from rl_coach.rollout_worker import wait_for_checkpoint, should_stop
 from rl_coach.logger import screen
 
 
-def wait_for_checkpoint(checkpoint_dir, data_store=None, timeout=10):
+def eval_worker(graph_manager, data_store, num_workers, task_parameters):
     """
-    block until there is a checkpoint in checkpoint_dir
-    """
-    chkpt_state_file = CheckpointStateFile(checkpoint_dir)
-    for i in range(timeout):
-        if data_store:
-            data_store.load_from_store()
-
-        if chkpt_state_file.read() is not None:
-            return
-        time.sleep(10)
-
-    # one last time
-    if chkpt_state_file.read() is not None:
-        return
-
-    raise ValueError((
-        'Waited {timeout} seconds, but checkpoint never found in '
-        '{checkpoint_dir}'
-    ).format(
-        timeout=timeout,
-        checkpoint_dir=checkpoint_dir,
-    ))
-
-
-def should_stop(checkpoint_dir):
-    return os.path.exists(os.path.join(checkpoint_dir, SyncFiles.FINISHED.value))
-
-
-def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
-    """
-    wait for first checkpoint then perform rollouts using the model
+    wait for first checkpoint then perform evaluation using the model
     """
     checkpoint_dir = task_parameters.checkpoint_restore_dir
     wait_for_checkpoint(checkpoint_dir, data_store)
@@ -62,18 +33,18 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
         last_checkpoint = 0
 
         act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)/num_workers)
-
+        # graph_manager.evaluate(graph_manager.evaluation_steps)
         for i in range(int(graph_manager.improve_steps.num_steps/act_steps)):
 
-            screen.log_title('achieved: ' + str(graph_manager.achieved_success_rate))
             if should_stop(checkpoint_dir):
                 break
-
-            if type(graph_manager.agent_params.algorithm.num_consecutive_playing_steps) == EnvironmentSteps:
-                graph_manager.act(EnvironmentSteps(num_steps=act_steps), wait_for_full_episodes=graph_manager.agent_params.algorithm.act_for_full_episodes)
-            elif type(graph_manager.agent_params.algorithm.num_consecutive_playing_steps) == EnvironmentEpisodes:
-                graph_manager.act(EnvironmentEpisodes(num_steps=act_steps))
-
+            
+            # screen.log_title('steps: ' + str(i))
+            if graph_manager.evaluate(graph_manager.evaluation_steps):
+                graph_manager.achieved_success_rate = True
+                screen.log_title('achieved: ' + str(graph_manager.achieved_success_rate))
+                break
+                    
             new_checkpoint = chkpt_state_reader.get_latest()
             if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
                 while new_checkpoint is None or new_checkpoint.num < last_checkpoint + 1:
@@ -91,3 +62,5 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
 
             if new_checkpoint is not None:
                 last_checkpoint = new_checkpoint.num
+
+

@@ -46,6 +46,7 @@ from rl_coach.data_stores.nfs_data_store import NFSDataStoreParameters
 from rl_coach.data_stores.data_store_impl import get_data_store, construct_data_store_params
 from rl_coach.training_worker import training_worker
 from rl_coach.rollout_worker import rollout_worker, wait_for_checkpoint
+from rl_coach.eval_worker import eval_worker
 
 
 if len(set(failed_imports)) > 0:
@@ -113,8 +114,21 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         data_store = None
         if args.data_store_params:
             data_store = get_data_store(data_store_params)
-
+        
         rollout_worker(
+            graph_manager=graph_manager,
+            data_store=data_store,
+            num_workers=args.num_workers,
+            task_parameters=task_parameters
+        )
+    if args.distributed_coach_run_type == RunType.EVAL_WORKER:
+        task_parameters.checkpoint_restore_dir = ckpt_inside_container
+
+        data_store = None
+        if args.data_store_params:
+            data_store = get_data_store(data_store_params)
+        screen.log_title('EVAL WORKER')
+        eval_worker(
             graph_manager=graph_manager,
             data_store=data_store,
             num_workers=args.num_workers,
@@ -137,10 +151,12 @@ def handle_distributed_coach_orchestrator(args):
 
     trainer_command = ['python3', 'rl_coach/coach.py', '--distributed_coach_run_type', str(RunType.TRAINER)] + arg_list
     rollout_command = ['python3', 'rl_coach/coach.py', '--distributed_coach_run_type', str(RunType.ROLLOUT_WORKER)] + arg_list
+    eval_command = ['python3', 'rl_coach/coach.py', '--distributed_coach_run_type', str(RunType.EVAL_WORKER)] + arg_list
 
     if '--experiment_name' not in rollout_command:
         rollout_command = rollout_command + ['--experiment_name', args.experiment_name]
-
+    if '--experiment_name' not in eval_command:
+        eval_command = eval_command + ['--experiment_name', args.experiment_name]
     if '--experiment_name' not in trainer_command:
         trainer_command = trainer_command + ['--experiment_name', args.experiment_name]
 
@@ -157,10 +173,11 @@ def handle_distributed_coach_orchestrator(args):
         ds_params = DataStoreParameters("nfs", "kubernetes", "")
         ds_params_instance = NFSDataStoreParameters(ds_params)
 
+    eval_run_type_params = RunTypeParameters(args.image, eval_command, run_type=str(RunType.EVAL_WORKER))
     worker_run_type_params = RunTypeParameters(args.image, rollout_command, run_type=str(RunType.ROLLOUT_WORKER), num_replicas=args.num_workers)
     trainer_run_type_params = RunTypeParameters(args.image, trainer_command, run_type=str(RunType.TRAINER))
 
-    orchestration_params = KubernetesParameters([worker_run_type_params, trainer_run_type_params],
+    orchestration_params = KubernetesParameters([eval_run_type_params, worker_run_type_params, trainer_run_type_params],
                                                 kubeconfig='~/.kube/config',
                                                 memory_backend_parameters=memory_backend_params,
                                                 data_store_params=ds_params_instance)
@@ -181,9 +198,17 @@ def handle_distributed_coach_orchestrator(args):
         print("Could not deploy rollout worker(s).")
         return
 
+    if orchestrator.deploy_eval():
+        print("Successfully deployed eval worker(s).")
+    else:
+        print("Could not deploy eval worker(s).")
+        return
+
     if args.dump_worker_logs:
         screen.log_title("Dumping rollout worker logs in: {}".format(args.experiment_path))
+        screen.log_title(args.experiment_path)
         orchestrator.worker_logs(path=args.experiment_path)
+        orchestrator.eval_logs(path=args.experiment_path)
 
     try:
         orchestrator.trainer_logs()
@@ -403,6 +428,7 @@ class CoachLauncher(object):
         # get experiment name and path
         args.experiment_name = logger.get_experiment_name(args.experiment_name)
         args.experiment_path = logger.get_experiment_path(args.experiment_name)
+        print(args.experiment_path)
 
         if args.play and args.num_workers > 1:
             screen.warning("Playing the game as a human is only available with a single worker. "

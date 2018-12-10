@@ -56,6 +56,7 @@ class RunType(Enum):
     ORCHESTRATOR = "orchestrator"
     TRAINER = "trainer"
     ROLLOUT_WORKER = "rollout-worker"
+    EVAL_WORKER = "eval-worker"
 
     def __str__(self):
         return self.value
