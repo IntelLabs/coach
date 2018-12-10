@@ -35,7 +35,6 @@ from multiprocessing.managers import BaseManager
 import subprocess
 from rl_coach.graph_managers.graph_manager import HumanPlayScheduleParameters, GraphManager
 from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, get_base_dir
-from rl_coach.agents.human_agent import HumanAgentParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.memories.backend.redis import RedisPubSubMemoryBackendParameters
@@ -229,6 +228,8 @@ class CoachLauncher(object):
 
         # for human play we need to create a custom graph manager
         if args.play:
+            from rl_coach.agents.human_agent import HumanAgentParameters
+
             env_params = short_dynamic_import(args.environment_type, ignore_module_case=True)()
             env_params.human_control = True
             schedule_params = HumanPlayScheduleParameters()
