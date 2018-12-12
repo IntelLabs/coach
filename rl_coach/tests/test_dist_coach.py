@@ -1,7 +1,6 @@
 
 from configparser import ConfigParser
 import subprocess
-import pytest
 import argparse
 
 # Test dist coach.
@@ -65,7 +64,7 @@ def test_dc(test, image, memory_backend, data_store, s3_end_point, s3_bucket_nam
 
 def get_tests():
     tests = [
-        Test('python rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200),
+        Test('python3 rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200),
         # Test('coach -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200)
     ]
     return tests
@@ -98,9 +97,6 @@ def main():
     if args.data_store == 's3':
         if not args.bucket:
             print("bucket_name required for s3")
-            exit(1)
-        if not args.creds_file:
-            print("creds_file required for s3")
             exit(1)
     for test in get_tests():
         test_dc(test, args.image, args.memory_backend, args.data_store, args.endpoint, args.bucket, args.creds_file, './tmp.cred')

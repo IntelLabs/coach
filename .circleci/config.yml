@@ -302,7 +302,8 @@ jobs:
           name: run e2e test
           command: |
             aws s3 mb s3://coach-aws-test-${CIRCLE_BUILD_NUM}
-            python rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cr ~/.aws/credentials -b coach-aws-test-${CIRCLE_BUILD_NUM}
+            docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) \
+            /bin/bash -c "pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator; chmod a+x /usr/local/bin/aws-iam-authenticator; aws eks update-kubeconfig --name coach-aws-cicd; python rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:${TAG} -b coach-aws-test-${CIRCLE_BUILD_NUM}"
           no_output_timeout: 30m
       - run:
           name: cleanup
