@@ -348,7 +348,7 @@ class Kubernetes(Deploy):
         if not pod:
             return
 
-        self.tail_log(pod.metadata.name, api_client)
+        return self.tail_log(pod.metadata.name, api_client)
 
     def tail_log(self, pod_name, corev1_api):
         while True:
@@ -382,9 +382,9 @@ class Kubernetes(Deploy):
                        container_status.state.waiting.reason == 'CrashLoopBackOff' or \
                        container_status.state.waiting.reason == 'ImagePullBackOff' or \
                        container_status.state.waiting.reason == 'ErrImagePull':
-                        return
+                        return 1
                 if container_status.state.terminated is not None:
-                    return
+                    return container_status.state.terminated.exit_code
 
     def undeploy(self):
         """

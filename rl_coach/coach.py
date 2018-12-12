@@ -166,30 +166,32 @@ def handle_distributed_coach_orchestrator(args):
     orchestrator = Kubernetes(orchestration_params)
     if not orchestrator.setup():
         print("Could not setup.")
-        return
+        return 1
 
     if orchestrator.deploy_trainer():
         print("Successfully deployed trainer.")
     else:
         print("Could not deploy trainer.")
-        return
+        return 1
 
     if orchestrator.deploy_worker():
         print("Successfully deployed rollout worker(s).")
     else:
         print("Could not deploy rollout worker(s).")
-        return
+        return 1
 
     if args.dump_worker_logs:
         screen.log_title("Dumping rollout worker logs in: {}".format(args.experiment_path))
         orchestrator.worker_logs(path=args.experiment_path)
 
+    exit_code = 1
     try:
-        orchestrator.trainer_logs()
+        exit_code = orchestrator.trainer_logs()
     except KeyboardInterrupt:
         pass
 
     orchestrator.undeploy()
+    return exit_code
 
 
 class CoachLauncher(object):
@@ -617,8 +619,7 @@ class CoachLauncher(object):
             return
 
         if args.distributed_coach and args.distributed_coach_run_type == RunType.ORCHESTRATOR:
-            handle_distributed_coach_orchestrator(args)
-            return
+            exit(handle_distributed_coach_orchestrator(args))
 
         # Single-threaded runs
         if args.num_workers == 1:

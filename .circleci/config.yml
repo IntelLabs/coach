@@ -303,7 +303,7 @@ jobs:
           command: |
             aws s3 mb s3://coach-aws-test-${CIRCLE_BUILD_NUM}
             kubectl create ns e2e-test-${CIRCLE_BUILD_NUM}
-            docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e aws_access_key_id=$AWS_ACCESS_KEY_ID -e aws_secret_access_key=$AWS_SECRET_ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) \
+            docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
                           && aws eks update-kubeconfig --name coach-aws-cicd \
@@ -311,7 +311,10 @@ jobs:
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=e2e-test-${CIRCLE_BUILD_NUM} \
                           && python3 rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:${TAG} -b coach-aws-test-${CIRCLE_BUILD_NUM}'
+            docker ps -a -q | head -n 1  | xargs -I% docker cp %:/root/src/experiments . || true
           no_output_timeout: 30m
+      - store_artifacts:
+          path: ~/repo/experiments
       - run:
           name: cleanup
           command: |
@@ -354,12 +357,12 @@ workflows:
   build_and_test:
     jobs:
       - build_base
-      - unit_tests:
-          requires:
-            - build_base
-      - integration_tests:
-          requires:
-            - build_base
+      # - unit_tests:
+      #     requires:
+      #       - build_base
+      # - integration_tests:
+      #     requires:
+      #       - build_base
       - e2e_test:
           requires:
             - build_base
@@ -406,10 +409,10 @@ workflows:
       - trace_test_mujoco:
           requires:
             - mujoco_approval
-      - container_deploy:
-          requires:
-            - unit_tests
-            - integration_tests
-          filters:
-            branches:
-              only: master
+      # - container_deploy:
+      #     requires:
+      #       - unit_tests
+      #       - integration_tests
+      #     filters:
+      #       branches:
+      #         only: master
