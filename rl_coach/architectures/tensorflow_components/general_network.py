@@ -129,7 +129,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             ret_dict = {}
             for cls in get_all_subclasses(PredictionType):
                 ret_dict[cls] = []
-            components = self.input_embedders + [self.middleware] + self.output_heads
+            components = self.input_embedders + [self.middleware[-1]] + self.output_heads
             for component in components:
                 if not hasattr(component, 'return_type'):
                     raise ValueError("{} has no return_type attribute. This should not happen.")
@@ -276,8 +276,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                 # Middleware #
                 ##############
 
-                self.middleware = self.get_middleware(self.network_parameters.middleware_parameters)
-                _, self.state_embedding = self.middleware(state_embedding)
+                self.middleware.append(self.get_middleware(self.network_parameters.middleware_parameters))
+                _, self.state_embedding = self.middleware[-1](state_embedding)
 
                 ################
                 # Output Heads #
@@ -400,7 +400,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
             # middleware
             network_structure.append("Middleware:")
-            network_structure.append(indent_string(str(self.middleware)))
+            network_structure.append(indent_string(str(self.middleware[-1])))
 
             # head
             if self.network_parameters.use_separate_networks_per_head:

@@ -68,7 +68,7 @@ class TensorFlowArchitecture(Architecture):
         :param network_is_trainable: is the network trainable (we can apply gradients on it)
         """
         super().__init__(agent_parameters, spaces, name)
-        self.middleware = None
+        self.middleware = []
         self.network_is_local = network_is_local
         self.global_network = global_network
         if not self.network_parameters.tensorflow_support:
@@ -83,8 +83,8 @@ class TensorFlowArchitecture(Architecture):
         self.trainable_weights = []
         self.weights_placeholders = []
         self.shared_accumulated_gradients = []
-        self.curr_rnn_c_in = None
-        self.curr_rnn_h_in = None
+        self.curr_rnn_c_in = {}
+        self.curr_rnn_h_in = {}
         self.gradients_wrt_inputs = []
         self.train_writer = None
         self.accumulated_gradients = None
@@ -169,8 +169,9 @@ class TensorFlowArchitecture(Architecture):
         else:
             self.train_fetches.append(self.tensor_gradients)
         self.train_fetches += [self.total_loss, self.losses]
-        if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-            self.train_fetches.append(self.middleware.state_out)
+        if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
+            for middleware in self.middleware:
+                self.train_fetches.append(middleware.state_out)
         self.additional_fetches_start_idx = len(self.train_fetches)
 
     def _create_locks_for_synchronous_training(self):
@@ -357,24 +358,25 @@ class TensorFlowArchitecture(Architecture):
         if self.optimizer_type != 'LBFGS':
 
             # feed the lstm state if necessary
-            if self.middleware.__class__.__name__ == 'LSTMMiddleware':
+            if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
                 # we can't always assume that we are starting from scratch here can we?
-                feed_dict[self.middleware.c_in] = self.middleware.c_init
-                feed_dict[self.middleware.h_in] = self.middleware.h_init
+                for middleware in self.middleware:
+                    feed_dict[middleware.c_in] = middleware.c_init
+                    feed_dict[middleware.h_in] = middleware.h_init
 
             fetches = self.train_fetches + additional_fetches
             if self.ap.visualization.tensorboard:
                 fetches += [self.merged]
 
-            # get grads
             result = self.sess.run(fetches, feed_dict=feed_dict)
             if hasattr(self, 'train_writer') and self.train_writer is not None:
                 self.train_writer.add_summary(result[-1], self.sess.run(self.global_step))
 
             # extract the fetches
             norm_unclipped_grads, grads, total_loss, losses = result[:4]
-            if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-                (self.curr_rnn_c_in, self.curr_rnn_h_in) = result[4]
+            if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
+                for idx, middleware in enumerate(self.middleware):
+                    (self.curr_rnn_c_in[middleware], self.curr_rnn_h_in[middleware]) = result[4+idx]
             fetched_tensors = []
             if len(additional_fetches) > 0:
                 fetched_tensors = result[self.additional_fetches_start_idx:self.additional_fetches_start_idx +
@@ -534,12 +536,22 @@ class TensorFlowArchitecture(Architecture):
         if outputs is None:
             outputs = self.outputs
 
-        if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-            feed_dict[self.middleware.c_in] = self.curr_rnn_c_in
-            feed_dict[self.middleware.h_in] = self.curr_rnn_h_in
+        if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
+            for middleware in self.middleware:
+                feed_dict[middleware.c_in] = self.curr_rnn_c_in[middleware]
+                feed_dict[middleware.h_in] = self.curr_rnn_h_in[middleware]
 
-            output, (self.curr_rnn_c_in, self.curr_rnn_h_in) = self.sess.run([outputs, self.middleware.state_out],
-                                                                             feed_dict=feed_dict)
+            fetches = [outputs]
+            for middleware in self.middleware:
+                fetches.append(middleware.state_out)
+
+            result = self.sess.run(fetches, feed_dict=feed_dict)
+
+            output = result[0]
+            state_out = result[1:]
+
+            for idx, middleware in enumerate(self.middleware):
+                (self.curr_rnn_c_in[middleware], self.curr_rnn_h_in[middleware]) = state_out[idx]
         else:
             output = self.sess.run(outputs, feed_dict)
 
@@ -635,9 +647,10 @@ class TensorFlowArchitecture(Architecture):
         :return: None
         """
         # initialize LSTM hidden states
-        if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-            self.curr_rnn_c_in = self.middleware.c_init
-            self.curr_rnn_h_in = self.middleware.h_init
+        if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
+            for idx, middleware in enumerate(self.middleware):
+                self.curr_rnn_c_in[middleware] = middleware.c_init
+                self.curr_rnn_h_in[middleware] = middleware.h_init
 
     def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
         """

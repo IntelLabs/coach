@@ -147,10 +147,39 @@ class ClippedPPOAgent(ActorCriticAgent):
         if self.ap.algorithm.normalization_stats is not None:
             self.ap.algorithm.normalization_stats.set_session(sess)
 
+    def build_dataset(self):
+        self.LSTM_middleware = self.networks["main"].online_network.middleware[-1].__class__.__name__ == 'LSTMMiddleware'
+        dataset = []
+        for episode in self.memory._buffer:
+            for i, transition in enumerate(episode.transitions):
+                transition = self.pre_network_filter.filter([transition], deep_copy=False)[0]
+                if self.LSTM_middleware:
+                    sequence_length = self.networks["main"].online_network.middleware[-1].sequence_length
+                    trajectory = []
+                    for j in range(i-sequence_length+1, i+1):
+                        if j >= 0:
+                            trajectory.append(episode.transitions[j])
+                        else:
+                            trajectory.append(episode.transitions[0])  # padding
+                    transition.add_info({'sample_sequence': Batch(trajectory)})
+                dataset.append(transition)
+        return Batch(dataset)
+
+    def build_network_inputs(self, data, network_keys, start=None, end=None):
+        feed_dict = {}
+        for k in network_keys:
+            if self.LSTM_middleware:
+                feed_dict[k] = np.vstack([t.info['sample_sequence'].states([k])[k] for t in data[start:end]])
+            else:
+                feed_dict[k] = data.states([k])[k][start:end]
+        return feed_dict
+
     def fill_advantages(self, batch):
+        self.networks['main'].online_network.reset_internal_memory()
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
-        current_state_values = self.networks['main'].online_network.predict(batch.states(network_keys))[0]
+        network_input = self.build_network_inputs(batch, network_keys)
+        current_state_values = self.networks['main'].online_network.predict(network_input)[0]
         current_state_values = current_state_values.squeeze()
         self.state_values.add_sample(current_state_values)
 
@@ -170,6 +199,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                 if game_over:
                     # get advantages for the rollout
                     value_bootstrapping = np.zeros((1,))
+
                     rollout_state_values = np.append(current_state_values[episode_start_idx:idx+1], value_bootstrapping)
 
                     rollout_advantages, gae_based_value_targets = \
@@ -208,6 +238,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                        self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
 
             for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
+                self.networks['main'].target_network.reset_internal_memory()
                 start = i * self.ap.network_wrappers['main'].batch_size
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size
 
@@ -221,7 +252,8 @@ class ClippedPPOAgent(ActorCriticAgent):
 
                 # TODO-perf - the target network ("old_policy") is not changing. this can be calculated once for all epochs.
                 # the shuffling being done, should only be performed on the indices.
-                result = self.networks['main'].target_network.predict({k: v[start:end] for k, v in batch.states(network_keys).items()})
+                network_input = self.build_network_inputs(batch, network_keys, start, end)
+                result = self.networks['main'].target_network.predict(network_input)
                 old_policy_distribution = result[1:]
 
                 total_returns = batch.n_step_discounted_rewards(expand_dims=True)
@@ -232,7 +264,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                 else:
                     value_targets = total_returns[start:end]
 
-                inputs = copy.copy({k: v[start:end] for k, v in batch.states(network_keys).items()})
+                inputs = copy.copy(network_input)
                 inputs['output_1_0'] = actions
 
                 # The old_policy_distribution needs to be represented as a list, because in the event of
@@ -300,21 +332,12 @@ class ClippedPPOAgent(ActorCriticAgent):
             for network in self.networks.values():
                 network.set_is_training(True)
 
-            dataset = self.memory.transitions
-            dataset = self.pre_network_filter.filter(dataset, deep_copy=False)
-            batch = Batch(dataset)
+            batch = self.build_dataset()
 
-            for training_step in range(self.ap.algorithm.num_consecutive_training_steps):
-                self.networks['main'].sync()
-                self.fill_advantages(batch)
+            self.networks['main'].sync()
+            self.fill_advantages(batch)
 
-                # take only the requested number of steps
-                if isinstance(self.ap.algorithm.num_consecutive_playing_steps, EnvironmentSteps):
-                    dataset = dataset[:self.ap.algorithm.num_consecutive_playing_steps.num_steps]
-                shuffle(dataset)
-                batch = Batch(dataset)
-
-                self.train_network(batch, self.ap.algorithm.optimization_epochs)
+            self.train_network(batch, self.ap.algorithm.optimization_epochs)
 
             for network in self.networks.values():
                 network.set_is_training(False)
