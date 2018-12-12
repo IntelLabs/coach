@@ -302,8 +302,15 @@ jobs:
           name: run e2e test
           command: |
             aws s3 mb s3://coach-aws-test-${CIRCLE_BUILD_NUM}
-            docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) \
-            /bin/bash -c "pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator; chmod a+x /usr/local/bin/aws-iam-authenticator; aws eks update-kubeconfig --name coach-aws-cicd; python3 rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:${TAG} -b coach-aws-test-${CIRCLE_BUILD_NUM}"
+            kubectl create ns e2e-test-${CIRCLE_BUILD_NUM}
+            docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e aws_access_key_id=$AWS_ACCESS_KEY_ID -e aws_secret_access_key=$AWS_SECRET_ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) \
+            /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
+                          && chmod a+x /usr/local/bin/aws-iam-authenticator \
+                          && aws eks update-kubeconfig --name coach-aws-cicd \
+                          && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
+                          && chmod a+x /usr/local/bin/kubectl \
+                          && kubectl config set-context $(kubectl config current-context) --namespace=e2e-test-${CIRCLE_BUILD_NUM} \
+                          && python3 rl_coach/tests/test_dist_coach.py -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:${TAG} -b coach-aws-test-${CIRCLE_BUILD_NUM}'
           no_output_timeout: 30m
       - run:
           name: cleanup
@@ -312,6 +319,7 @@ jobs:
             kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
             aws s3 rm --recursive s3://coach-aws-test-${CIRCLE_BUILD_NUM} || true
             aws s3 rb s3://coach-aws-test-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns e2e-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
   container_deploy:

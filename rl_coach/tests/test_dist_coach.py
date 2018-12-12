@@ -28,14 +28,13 @@ class Test:
         self.timeout = timeout
 
 
-def generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+def generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, config_file):
     coach_config = ConfigParser({
         'image': image,
         'memory_backend': memory_backend,
         'data_store': data_store,
         's3_end_point': s3_end_point,
         's3_bucket_name': s3_bucket_name,
-        's3_creds_file': s3_creds_file
     }, default_section="coach")
     with open(config_file, 'w') as f:
         coach_config.write(f)
@@ -53,9 +52,9 @@ def test_command(command, timeout):
     return 1
 
 
-def test_dc(test, image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+def test_dc(test, image, memory_backend, data_store, s3_end_point, s3_bucket_name, config_file):
 
-    generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file)
+    generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, config_file)
 
     command = test.command.format(template=config_file).split(' ')
 
@@ -86,9 +85,6 @@ def main():
         '-e', '--endpoint', help="(string) Name of the s3 endpoint", type=str, default='s3.amazonaws.com'
     )
     parser.add_argument(
-        '-cr', '--creds_file', help="(string) Path of the s3 creds file", type=str, default=None
-    )
-    parser.add_argument(
         '-b', '--bucket', help="(string) Name of the bucket for s3", type=str, default=None
     )
 
@@ -99,7 +95,7 @@ def main():
             print("bucket_name required for s3")
             exit(1)
     for test in get_tests():
-        test_dc(test, args.image, args.memory_backend, args.data_store, args.endpoint, args.bucket, args.creds_file, './tmp.cred')
+        test_dc(test, args.image, args.memory_backend, args.data_store, args.endpoint, args.bucket, './tmp.cred')
 
 
 if __name__ == "__main__":
