@@ -1,15 +1,10 @@
 
 from configparser import ConfigParser
-import subprocess
+import pytest
 import argparse
 import os
-
-
-class Test:
-
-    def __init__(self, command, timeout):
-        self.command = command
-        self.timeout = timeout
+from rl_coach.coach import CoachLauncher
+import sys
 
 
 def generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
@@ -34,31 +29,26 @@ def generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_n
         coach_config.write(f)
 
 
-def test_command(command, timeout):
-
-    try:
-        subprocess.check_call(command, timeout=timeout, shell=True)
-        return 0
-    except subprocess.CalledProcessError as e:
-        print("{command} did not succeed".format(command=command))
-        return 1
-
-    return 1
+def test_command(command):
+    sys.argv = command
+    print(sys.argv)
+    launcher = CoachLauncher()
+    with pytest.raises(SystemExit) as e:
+        launcher.launch()
+    assert e.value.code == 0
 
 
-def test_dc(test, image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
-
+def test_dc(command, image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
     generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file)
+    command = command.format(template=config_file).split(' ')
 
-    command = test.command.format(template=config_file).split(' ')
-
-    assert test_command(command, test.timeout) == 0
+    test_command(command)
 
 
 def get_tests():
     tests = [
-        Test('python3 rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200),
-        Test('coach -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 300)
+        'rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc',
+        'rl_coach/coach.py -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc'
     ]
     return tests
 
@@ -94,8 +84,8 @@ def main():
         if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
             print("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars need to be set")
             exit(1)
-    for test in get_tests():
-        test_dc(test, args.image, args.memory_backend, args.data_store, args.endpoint, args.bucket, args.creds_file, './tmp.cred')
+    for command in get_tests():
+        test_dc(command, args.image, args.memory_backend, args.data_store, args.endpoint, args.bucket, args.creds_file, './tmp.cred')
 
 
 if __name__ == "__main__":

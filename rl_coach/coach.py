@@ -103,7 +103,8 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         task_parameters.checkpoint_save_dir = ckpt_inside_container
         training_worker(
             graph_manager=graph_manager,
-            task_parameters=task_parameters
+            task_parameters=task_parameters,
+            test_preset=args.test_preset
         )
 
     if args.distributed_coach_run_type == RunType.ROLLOUT_WORKER:
@@ -333,7 +334,7 @@ class CoachLauncher(object):
         # if no arg is given
         if len(sys.argv) == 1:
             parser.print_help()
-            sys.exit(0)
+            sys.exit(1)
 
         # list available presets
         if args.list:
@@ -570,6 +571,9 @@ class CoachLauncher(object):
                             action='store_true')
         parser.add_argument('--dump_worker_logs',
                             help="(flag) Only used in distributed coach. If set, the worker logs are saved in the experiment dir",
+                            action='store_true')
+        parser.add_argument('--test_preset',
+                            help=argparse.SUPPRESS,
                             action='store_true')
 
         return parser
