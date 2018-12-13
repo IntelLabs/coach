@@ -4,23 +4,6 @@ import subprocess
 import argparse
 import os
 
-# Test dist coach.
-
-# Test cartpole distributed based on # workers.
-# python rl_coach/coach.py  -p CartPole_ClippedPPO -dc -e sample -dcp dist-coach-config.template --dump_worker_logs --checkpoint_save_secs 20
-
-# Test inverted pendulum.
-# coach -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp dist-coach-config.template --dump_worker_logs --checkpoint_save_secs 20
-
-"""
-1. Deploy the examples with a target success rate
-2. Wait for the resources to get deleted.
-"""
-
-"""
-1. Generate the config file and spin up a command.
-"""
-
 
 class Test:
 
@@ -54,7 +37,7 @@ def generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_n
 def test_command(command, timeout):
 
     try:
-        subprocess.check_call(command, timeout=timeout)
+        subprocess.check_call(command, timeout=timeout, shell=True)
         return 0
     except subprocess.CalledProcessError as e:
         print("{command} did not succeed".format(command=command))
@@ -75,7 +58,7 @@ def test_dc(test, image, memory_backend, data_store, s3_end_point, s3_bucket_nam
 def get_tests():
     tests = [
         Test('python3 rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200),
-        # Test('coach -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 200)
+        Test('coach -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp {template} --dump_worker_logs --checkpoint_save_secs 20 -asc', 300)
     ]
     return tests
 

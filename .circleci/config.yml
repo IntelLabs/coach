@@ -357,12 +357,12 @@ workflows:
   build_and_test:
     jobs:
       - build_base
-      # - unit_tests:
-      #     requires:
-      #       - build_base
-      # - integration_tests:
-      #     requires:
-      #       - build_base
+      - unit_tests:
+          requires:
+            - build_base
+      - integration_tests:
+          requires:
+            - build_base
       - e2e_test:
           requires:
             - build_base
@@ -409,10 +409,10 @@ workflows:
       - trace_test_mujoco:
           requires:
             - mujoco_approval
-      # - container_deploy:
-      #     requires:
-      #       - unit_tests
-      #       - integration_tests
-      #     filters:
-      #       branches:
-      #         only: master
+      - container_deploy:
+          requires:
+            - unit_tests
+            - integration_tests
+          filters:
+            branches:
+              only: master
