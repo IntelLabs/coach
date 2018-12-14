@@ -32,7 +32,6 @@ def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_cred
 
 def test_command(command):
     sys.argv = command
-    print(sys.argv)
     launcher = CoachLauncher()
     with pytest.raises(SystemExit) as e:
         launcher.launch()
@@ -43,9 +42,11 @@ def clear_bucket(s3_end_point, s3_bucket_name):
     access_key = os.environ.get('AWS_ACCESS_KEY_ID')
     secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
     minio_client = Minio(s3_end_point, access_key=access_key, secret_key=secret_access_key)
-
-    for obj in minio_client.list_objects_v2(s3_bucket_name, recursive=True):
-        minio_client.remove_object(s3_bucket_name, obj.object_name)
+    try:
+        for obj in minio_client.list_objects_v2(s3_bucket_name, recursive=True):
+            minio_client.remove_object(s3_bucket_name, obj.object_name)
+    except Exception:
+        pass
 
 
 def test_dc(command, image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
