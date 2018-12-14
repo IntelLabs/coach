@@ -5,9 +5,10 @@ import argparse
 import os
 from rl_coach.coach import CoachLauncher
 import sys
+from minio import Minio
 
 
-def generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
 
     # Write s3 creds
     aws_config = ConfigParser({
@@ -20,7 +21,7 @@ def generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_n
     coach_config = ConfigParser({
         'image': image,
         'memory_backend': memory_backend,
-        'data_store': data_store,
+        'data_store': 's3',
         's3_end_point': s3_end_point,
         's3_bucket_name': s3_bucket_name,
         's3_creds_file': s3_creds_file
@@ -38,10 +39,18 @@ def test_command(command):
     assert e.value.code == 0
 
 
-def test_dc(command, image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
-    generate_config(image, memory_backend, data_store, s3_end_point, s3_bucket_name, s3_creds_file, config_file)
-    command = command.format(template=config_file).split(' ')
+def clear_bucket(s3_end_point, s3_bucket_name):
+    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+    secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    minio_client = Minio(s3_end_point, access_key=access_key, secret_key=secret_access_key)
 
+    for obj in minio_client.list_objects_v2(s3_bucket_name, recursive=True):
+        minio_client.remove_object(s3_bucket_name, obj.object_name)
+
+
+def test_dc(command, image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+    clear_bucket(s3_end_point, s3_bucket_name)
+    command = command.format(template=config_file).split(' ')
     test_command(command)
 
 
@@ -63,9 +72,6 @@ def main():
         '-mb', '--memory_backend', help="(string) Name of the memory backend", type=str, default="redispubsub"
     )
     parser.add_argument(
-        '-ds', '--data_store', help="(string) Name of the data store", type=str, default="s3"
-    )
-    parser.add_argument(
         '-e', '--endpoint', help="(string) Name of the s3 endpoint", type=str, default='s3.amazonaws.com'
     )
     parser.add_argument(
@@ -77,15 +83,17 @@ def main():
 
     args = parser.parse_args()
 
-    if args.data_store == 's3':
-        if not args.bucket:
-            print("bucket_name required for s3")
-            exit(1)
-        if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
-            print("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars need to be set")
-            exit(1)
+    if not args.bucket:
+        print("bucket_name required for s3")
+        exit(1)
+    if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
+        print("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars need to be set")
+        exit(1)
+
+    config_file = './tmp.cred'
+    generate_config(args.image, args.memory_backend, args.endpoint, args.bucket, args.creds_file, config_file)
     for command in get_tests():
-        test_dc(command, args.image, args.memory_backend, args.data_store, args.endpoint, args.bucket, args.creds_file, './tmp.cred')
+        test_dc(command, args.image, args.memory_backend, args.endpoint, args.bucket, args.creds_file, config_file)
 
 
 if __name__ == "__main__":
