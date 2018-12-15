@@ -316,7 +316,7 @@ class Kubernetes(Deploy):
             return
 
         for pod in pods.items:
-            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path)).start()
+            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path), daemon=True).start()
 
     def _tail_log_file(self, pod_name, api_client, namespace, path):
         if not os.path.exists(path):
