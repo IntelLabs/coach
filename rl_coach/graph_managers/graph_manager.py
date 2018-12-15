@@ -562,7 +562,8 @@ class GraphManager(object):
                 screen.warning("No checkpoint to restore in: {}".format(self.task_parameters.checkpoint_restore_dir))
             else:
                 screen.log_title("Loading checkpoint: {}".format(checkpoint.model_checkpoint_path))
-                self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
+                if not hasattr(self.agent_params.memory, 'memory_backend_params') or self.agent_params.memory.memory_backend_params.run_type != str(RunType.ROLLOUT_WORKER):
+                    self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
 
             [manager.restore_checkpoint(self.task_parameters.checkpoint_restore_dir) for manager in self.level_managers]
 
