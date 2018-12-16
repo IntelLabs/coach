@@ -36,6 +36,7 @@ class DQNAlgorithmParameters(AlgorithmParameters):
         self.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(10000)
         self.num_consecutive_playing_steps = EnvironmentSteps(4)
         self.discount = 0.99
+        self.supports_parameter_noise = True
 
 
 class DQNNetworkParameters(NetworkParameters):
