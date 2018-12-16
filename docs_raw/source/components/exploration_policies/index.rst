@@ -38,50 +38,50 @@ spaces.
 
 ExplorationPolicy
 -----------------
-.. autoclass:: rl_coach.exploration_policies.ExplorationPolicy
+.. autoclass:: rl_coach.exploration_policies.exploration_policy.ExplorationPolicy
    :members:
    :inherited-members:
 
 AdditiveNoise
 -------------
-.. autoclass:: rl_coach.exploration_policies.AdditiveNoise
+.. autoclass:: rl_coach.exploration_policies.additive_noise.AdditiveNoise
 
 Boltzmann
 ---------
-.. autoclass:: rl_coach.exploration_policies.Boltzmann
+.. autoclass:: rl_coach.exploration_policies.boltzmann.Boltzmann
 
 Bootstrapped
 ------------
-.. autoclass:: rl_coach.exploration_policies.Bootstrapped
+.. autoclass:: rl_coach.exploration_policies.bootstrapped.Bootstrapped
 
 Categorical
 -----------
-.. autoclass:: rl_coach.exploration_policies.Categorical
+.. autoclass:: rl_coach.exploration_policies.categorical.Categorical
 
 ContinuousEntropy
 -----------------
-.. autoclass:: rl_coach.exploration_policies.ContinuousEntropy
+.. autoclass:: rl_coach.exploration_policies.continuous_entropy.ContinuousEntropy
 
 EGreedy
 -------
-.. autoclass:: rl_coach.exploration_policies.EGreedy
+.. autoclass:: rl_coach.exploration_policies.e_greedy.EGreedy
 
 Greedy
 ------
-.. autoclass:: rl_coach.exploration_policies.Greedy
+.. autoclass:: rl_coach.exploration_policies.greedy.Greedy
 
 OUProcess
 ---------
-.. autoclass:: rl_coach.exploration_policies.OUProcess
+.. autoclass:: rl_coach.exploration_policies.ou_process.OUProcess
 
 ParameterNoise
 --------------
-.. autoclass:: rl_coach.exploration_policies.ParameterNoise
+.. autoclass:: rl_coach.exploration_policies.parameter_noise.ParameterNoise
 
 TruncatedNormal
 ---------------
-.. autoclass:: rl_coach.exploration_policies.TruncatedNormal
+.. autoclass:: rl_coach.exploration_policies.truncated_normal.TruncatedNormal
 
 UCB
 ---
-.. autoclass:: rl_coach.exploration_policies.UCB
+.. autoclass:: rl_coach.exploration_policies.ucb.UCB
