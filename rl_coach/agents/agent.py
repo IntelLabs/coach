@@ -779,7 +779,7 @@ class Agent(AgentInterface):
         Run filters which where defined for being applied right before using the state for inference.
 
         :param state: The state to run the filters on
-        :param update_filter_internal_state: Should update the filter's internal state - probably should not when evaluating
+        :param update_filter_internal_state: Should update the filter's internal state - should not update when evaluating
         :return: The filtered state
         """
         dummy_env_response = EnvResponse(next_state=state, reward=0, game_over=False)
