@@ -32,7 +32,7 @@ from bokeh.models.callbacks import CustomJS
 from bokeh.models.widgets import RadioButtonGroup, MultiSelect, Button, Select, Slider, Div, CheckboxGroup
 from bokeh.plotting import figure
 from rl_coach.dashboard_components.globals import signals_files, x_axis_labels, x_axis_options, show_spinner, hide_spinner, \
-    dialog, FolderType, RunType, add_directory_csv_files, doc, display_boards, layouts, \
+    make_dialog, FolderType, RunType, add_directory_csv_files, doc, display_boards, layouts, \
     crcolor, crx, cry, color_resolution, crRGBs, rgb_to_hex, x_axis
 from rl_coach.dashboard_components.signals_files_group import SignalsFilesGroup
 

@@ -22,7 +22,6 @@ from os.path import join
 from enum import Enum
 from bokeh.models import Div
 from bokeh.plotting import curdoc
-import wx
 import colorsys
 
 patches = {}
@@ -40,7 +39,7 @@ with open(os.path.join(root_dir, 'dashboard_components/spinner.css'), 'r') as f:
     spinner_html = """<ul class="spinner"><li></li><li></li><li></li><li></li>
                       <li>
                         <br>
-                        <span style="font-size: 24px; font-weight: bold; margin-left: -175px; width: 400px; 
+                        <span style="font-size: 24px; font-weight: bold; margin-left: -175px; width: 400px;
                         position: absolute; text-align: center;">
                             {}
                         </span>
@@ -113,26 +112,6 @@ def add_directory_csv_files(dir_path, paths=None):
     return paths
 
 
-class DialogApp(wx.App):
-    def getFileDialog(self):
-        with wx.FileDialog(None, "Open CSV file", wildcard="CSV files (*.csv)|*.csv",
-                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_CHANGE_DIR | wx.FD_MULTIPLE) as fileDialog:
-            if fileDialog.ShowModal() == wx.ID_CANCEL:
-                return None  # the user changed their mind
-            else:
-                # Proceed loading the file chosen by the user
-                return fileDialog.GetPaths()
-
-    def getDirDialog(self):
-        with wx.DirDialog(None, "Choose input directory", "",
-                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_CHANGE_DIR) as dirDialog:
-            if dirDialog.ShowModal() == wx.ID_CANCEL:
-                return None  # the user changed their mind
-            else:
-                # Proceed loading the dir chosen by the user
-                return dirDialog.GetPath()
-
-
 class RunType(Enum):
     SINGLE_FOLDER_SINGLE_FILE = 1
     SINGLE_FOLDER_MULTIPLE_FILES = 2
@@ -147,7 +126,28 @@ class FolderType(Enum):
     MULTIPLE_FOLDERS = 3
     EMPTY = 4
 
+def make_dialog():
+    import wx
 
-dialog = DialogApp()
+    class DialogApp(wx.App):
+        def getFileDialog(self):
+            with wx.FileDialog(None, "Open CSV file", wildcard="CSV files (*.csv)|*.csv",
+                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_CHANGE_DIR | wx.FD_MULTIPLE) as fileDialog:
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return None  # the user changed their mind
+                else:
+                    # Proceed loading the file chosen by the user
+                    return fileDialog.GetPaths()
+
+        def getDirDialog(self):
+            with wx.DirDialog(None, "Choose input directory", "",
+                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_CHANGE_DIR) as dirDialog:
+                if dirDialog.ShowModal() == wx.ID_CANCEL:
+                    return None  # the user changed their mind
+                else:
+                    # Proceed loading the dir chosen by the user
+                    return dirDialog.GetPath()
+
+    return DialogApp()
 
 doc = curdoc()
