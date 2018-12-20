@@ -36,19 +36,17 @@ def eval_worker(graph_manager, data_store, num_workers, task_parameters):
         # graph_manager.evaluate(graph_manager.evaluation_steps)
         for i in range(int(graph_manager.improve_steps.num_steps/act_steps)):
 
-            if should_stop(checkpoint_dir):
+            if should_stop(task_parameters.checkpoint_save_dir):
                 break
             
-            # screen.log_title('steps: ' + str(i))
             if graph_manager.evaluate(graph_manager.evaluation_steps):
-                graph_manager.achieved_success_rate = True
-                screen.log_title('achieved: ' + str(graph_manager.achieved_success_rate))
+                data_store.save_finished_to_store()
                 break
                     
             new_checkpoint = chkpt_state_reader.get_latest()
             if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
                 while new_checkpoint is None or new_checkpoint.num < last_checkpoint + 1:
-                    if should_stop(checkpoint_dir):
+                    if should_stop(task_parameters.checkpoint_save_dir):
                         break
                     if data_store:
                         data_store.load_from_store()

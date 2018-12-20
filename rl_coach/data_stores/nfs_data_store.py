@@ -88,6 +88,12 @@ class NFSDataStore(DataStore):
 
     def load_from_store(self):
         pass
+        
+    def save_finished_to_store(self):
+        pass
+        
+    def check_finished_from_store(self):
+        pass
 
     def deploy_k8s_nfs(self) -> bool:
         """

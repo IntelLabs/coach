@@ -64,9 +64,7 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
         act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)/num_workers)
 
         for i in range(int(graph_manager.improve_steps.num_steps/act_steps)):
-
-            screen.log_title('achieved: ' + str(graph_manager.achieved_success_rate))
-            if should_stop(checkpoint_dir):
+            if should_stop(task_parameters.checkpoint_save_dir):
                 break
 
             if type(graph_manager.agent_params.algorithm.num_consecutive_playing_steps) == EnvironmentSteps:
@@ -77,7 +75,7 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
             new_checkpoint = chkpt_state_reader.get_latest()
             if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
                 while new_checkpoint is None or new_checkpoint.num < last_checkpoint + 1:
-                    if should_stop(checkpoint_dir):
+                    if should_stop(task_parameters.checkpoint_save_dir):
                         break
                     if data_store:
                         data_store.load_from_store()

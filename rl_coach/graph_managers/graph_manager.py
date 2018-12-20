@@ -500,7 +500,7 @@ class GraphManager(object):
                     self.sync()
         if self.should_stop():
             if self.task_parameters.checkpoint_save_dir and os.path.exists(self.task_parameters.checkpoint_save_dir):
-                open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.FINISHED.value), 'w').close()
+                open(os.path.join(self.task_parameters.checkpoint_restore_dir, SyncFiles.FINISHED.value), 'w').close()
             if hasattr(self, 'data_store_params'):
                 data_store = self.get_data_store(self.data_store_params)
                 data_store.save_to_store()

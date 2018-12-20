@@ -44,6 +44,12 @@ class DataStore(object):
     def load_from_store(self):
         pass
 
+    def save_finished_to_store(self):
+        pass
+
+    def check_finished_from_store(self):
+        pass
+
 
 class SyncFiles(Enum):
     FINISHED = ".finished"

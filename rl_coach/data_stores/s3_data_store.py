@@ -111,8 +111,11 @@ class S3DataStore(DataStore):
 
             if self.params.expt_dir and os.path.exists(self.params.expt_dir):
                 for filename in os.listdir(self.params.expt_dir):
-                    if filename.endswith((".csv", ".json")):
+                    if filename.endswith((".csv", ".json")) or filename == SyncFiles.FINISHED.value:
                         self.mc.fput_object(self.params.bucket_name, filename, os.path.join(self.params.expt_dir, filename))
+
+            if os.path.exists(os.path.join(self.params.checkpoint_dir, SyncFiles.FINISHED.value)):
+                self.mc.fput_object(self.params.bucket_name, SyncFiles.FINISHED.value, os.path.join(self.params.checkpoint_dir, SyncFiles.FINISHED.value))
 
             if self.params.expt_dir and os.path.exists(os.path.join(self.params.expt_dir, 'videos')):
                 for filename in os.listdir(os.path.join(self.params.expt_dir, 'videos')):
@@ -145,17 +148,7 @@ class S3DataStore(DataStore):
                     break
                 time.sleep(10)
 
-            # Check if there's a finished file
-            objects = self.mc.list_objects_v2(self.params.bucket_name, SyncFiles.FINISHED.value)
-
-            if next(objects, None) is not None:
-                try:
-                    self.mc.fget_object(
-                        self.params.bucket_name, SyncFiles.FINISHED.value,
-                        os.path.abspath(os.path.join(self.params.checkpoint_dir, SyncFiles.FINISHED.value))
-                    )
-                except Exception as e:
-                    pass
+            self.check_finished_from_store()
 
             checkpoint_state = state_file.read()
             if checkpoint_state is not None:
@@ -167,3 +160,32 @@ class S3DataStore(DataStore):
 
         except ResponseError as e:
             print("Got exception: %s\n while loading from S3", e)
+    
+    def save_finished_to_store(self):
+        """
+        save_finished_to_store() uploads the finished file, which signifies a reached success rate.
+        """
+
+        if os.path.exists(os.path.join(self.params.checkpoint_dir, SyncFiles.FINISHED.value)):
+            try:
+                self.mc.fput_object(
+                    self.params.bucket_name, SyncFiles.FINISHED.value,
+                    os.path.abspath(os.path.join(self.params.checkpoint_dir, SyncFiles.FINISHED.value))
+                )
+            except ResponseError as e:
+                print("Got exception: %s\n while saving finished file to S3", e)
+
+    def check_finished_from_store(self):
+        """
+        check_finished_from_store() downloads the finished file, which signifies a reached success rate, if it exists.
+        """
+        objects = self.mc.list_objects_v2(self.params.bucket_name, SyncFiles.FINISHED.value)
+
+        if next(objects, None) is not None:
+            try:
+                self.mc.fget_object(
+                    self.params.bucket_name, SyncFiles.FINISHED.value,
+                    os.path.abspath(os.path.join(self.params.checkpoint_dir, SyncFiles.FINISHED.value))
+                )
+            except Exception as e:
+                pass

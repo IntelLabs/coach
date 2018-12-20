@@ -103,13 +103,20 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
 
     if args.distributed_coach_run_type == RunType.TRAINER:
         task_parameters.checkpoint_save_dir = ckpt_inside_container
+
+        data_store = None
+        if args.data_store_params:
+            data_store = get_data_store(data_store_params)
+
         training_worker(
             graph_manager=graph_manager,
-            task_parameters=task_parameters
+            task_parameters=task_parameters,
+            data_store=data_store
         )
 
     if args.distributed_coach_run_type == RunType.ROLLOUT_WORKER:
         task_parameters.checkpoint_restore_dir = ckpt_inside_container
+        task_parameters.checkpoint_save_dir = ckpt_inside_container
 
         data_store = None
         if args.data_store_params:
@@ -123,11 +130,12 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         )
     if args.distributed_coach_run_type == RunType.EVAL_WORKER:
         task_parameters.checkpoint_restore_dir = ckpt_inside_container
+        task_parameters.checkpoint_save_dir = ckpt_inside_container
 
         data_store = None
         if args.data_store_params:
             data_store = get_data_store(data_store_params)
-        screen.log_title('EVAL WORKER')
+            
         eval_worker(
             graph_manager=graph_manager,
             data_store=data_store,
@@ -206,7 +214,6 @@ def handle_distributed_coach_orchestrator(args):
 
     if args.dump_worker_logs:
         screen.log_title("Dumping rollout worker logs in: {}".format(args.experiment_path))
-        screen.log_title(args.experiment_path)
         orchestrator.worker_logs(path=args.experiment_path)
         orchestrator.eval_logs(path=args.experiment_path)
 
@@ -428,7 +435,6 @@ class CoachLauncher(object):
         # get experiment name and path
         args.experiment_name = logger.get_experiment_name(args.experiment_name)
         args.experiment_path = logger.get_experiment_path(args.experiment_name)
-        print(args.experiment_path)
 
         if args.play and args.num_workers > 1:
             screen.warning("Playing the game as a human is only available with a single worker. "

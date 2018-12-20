@@ -5,6 +5,7 @@ import time
 from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchronizationType
 from rl_coach import core_types
 from rl_coach.logger import screen
+from rl_coach.rollout_worker import should_stop
 
 
 def data_store_ckpt_save(data_store):
@@ -13,7 +14,7 @@ def data_store_ckpt_save(data_store):
         time.sleep(10)
 
 
-def training_worker(graph_manager, task_parameters):
+def training_worker(graph_manager, task_parameters, data_store=None):
     """
     restore a checkpoint then perform rollouts using the restored model
     """
@@ -39,16 +40,20 @@ def training_worker(graph_manager, task_parameters):
 
         if graph_manager.should_train():
             steps += 1
-            # screen.log_title('steps: ' + str(steps))
-            # screen.log_title('improve steps: ' + str(graph_manager.improve_steps.num_steps/math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)/num_workers)))
 
             graph_manager.phase = core_types.RunPhase.TRAIN
             graph_manager.train()
             graph_manager.phase = core_types.RunPhase.UNDEFINED
-            screen.log_title('achieved: ' + str(graph_manager.achieved_success_rate))
-            if graph_manager.achieved_success_rate:
-                break
             if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
                 graph_manager.save_checkpoint()
             else:
                 graph_manager.occasionally_save_checkpoint()
+
+            print('checking finished...')
+            if data_store:
+                data_store.check_finished_from_store()
+            if should_stop(task_parameters.checkpoint_save_dir):
+                screen.log_title('Reached required success rate. Exiting.')
+                break
+            else:
+                print('finished not found')
