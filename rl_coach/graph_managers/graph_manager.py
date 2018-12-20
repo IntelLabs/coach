@@ -486,7 +486,6 @@ class GraphManager(object):
         :return: bool, True if the target reward and target success has been reached
         """
         self.verify_graph_was_created()
-        screen.log_title("evaluate started")
         if steps.num_steps > 0:
             with self.phase_context(RunPhase.TEST):
                 # reset all the levels before starting to evaluate
@@ -504,10 +503,8 @@ class GraphManager(object):
             if hasattr(self, 'data_store_params'):
                 data_store = self.get_data_store(self.data_store_params)
                 data_store.save_to_store()
-            screen.log_title("success")
             screen.success("Reached required success rate. Exiting.")
             return True
-        screen.log_title("fail")
         return False
 
     def improve(self):
