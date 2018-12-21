@@ -126,9 +126,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                          network_is_local, network_is_trainable)
 
         def fill_return_types():
-            ret_dict = {}
-            for cls in get_all_subclasses(PredictionType):
-                ret_dict[cls] = []
+            ret_dict = {cls: [] for cls in get_all_subclasses(PredictionType)}
+            
             components = self.input_embedders + [self.middleware] + self.output_heads
             for component in components:
                 if not hasattr(component, 'return_type'):
@@ -136,6 +135,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                         "{} has no return_type attribute. Without this, it is "
                         "unclear how this component should be used."
                     ).format(component))
+
                 if component.return_type is not None:
                     ret_dict[component.return_type].append(component)
 
