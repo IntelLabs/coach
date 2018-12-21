@@ -45,7 +45,7 @@ endif
 ifndef GOLDEN_PRESETS
 	GOLDEN_PRESETS=
 endif
-GOLDEN_TESTS=python3 -m pytest rl_coach/tests -m golden_test -v ${GOLDEN_PRESETS} --collect-only
+GOLDEN_TESTS=python3 -m pytest rl_coach/tests -m golden_test -v ${GOLDEN_PRESETS}
 # example specifying a couple presets:
 # GOLDEN_TESTS=python3 -m pytest rl_coach/tests -m golden_test -v -k "Mujoco_NAF or Doom_Basic_DQN"
 # example specifying all golden tests using the mujoco environment
