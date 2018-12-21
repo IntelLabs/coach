@@ -132,7 +132,10 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             components = self.input_embedders + [self.middleware] + self.output_heads
             for component in components:
                 if not hasattr(component, 'return_type'):
-                    raise ValueError("{} has no return_type attribute. This should not happen.")
+                    raise ValueError((
+                        "{} has no return_type attribute. Without this, it is "
+                        "unclear how this component should be used."
+                    ).format(component))
                 if component.return_type is not None:
                     ret_dict[component.return_type].append(component)
 
