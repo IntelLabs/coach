@@ -609,7 +609,7 @@ class Agent(AgentInterface):
         :return:  boolean: True if we should start a training phase
         """
 
-        should_update = self._should_train_helper()
+        should_update = self._should_update()
 
         steps = self.ap.algorithm.num_consecutive_playing_steps
 
@@ -621,7 +621,7 @@ class Agent(AgentInterface):
 
         return should_update
 
-    def _should_train_helper(self):
+    def _should_update(self):
         wait_for_full_episode = self.ap.algorithm.act_for_full_episodes
         steps = self.ap.algorithm.num_consecutive_playing_steps
 
