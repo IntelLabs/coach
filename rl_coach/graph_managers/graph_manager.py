@@ -346,6 +346,10 @@ class GraphManager(object):
 
     @contextlib.contextmanager
     def phase_context(self, phase):
+        """
+        Create a context which temporarily sets the phase to the provided phase.
+        The previous phase is restored afterwards.
+        """
         old_phase = self.phase
         self.phase = phase
         yield
