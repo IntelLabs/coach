@@ -2,7 +2,17 @@ import os
 
 import numpy as np
 # make sure you have $CARLA_ROOT/PythonClient in your PYTHONPATH
-from carla.driving_benchmark.experiment_suites import CoRL2017
+environ['CARLA_ROOT'] = '/CARLA_Server_0.8.2'
+try:
+    if 'CARLA_ROOT' in environ:
+        print(path.join(environ.get('CARLA_ROOT'), 'PythonClient'))
+        sys.path.append(path.join(environ.get('CARLA_ROOT'), 'PythonClient'))
+    else:
+        screen.error("CARLA_ROOT was not defined. Please set it to point to the CARLA root directory and try again.")
+    from carla.driving_benchmark.experiment_suites import CoRL2017
+except ImportError:
+    from rl_coach.logger import failed_imports
+    failed_imports.append("CARLA")
 from rl_coach.logger import screen
 
 from rl_coach.agents.cil_agent import CILAgentParameters
