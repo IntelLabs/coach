@@ -150,7 +150,7 @@ class GraphManager(object):
 
         # create a session (it needs to be created after all the graph ops were created)
         self.sess = None
-        self.create_session(task_parameters=task_parameters)
+        self.restore_checkpoint()
 
         self._phase = self.phase = RunPhase.UNDEFINED
 
@@ -261,8 +261,6 @@ class GraphManager(object):
         self.checkpoint_saver = SaverCollection()
         for level in self.level_managers:
             self.checkpoint_saver.update(level.collect_savers())
-        # restore from checkpoint if given
-        self.restore_checkpoint()
 
     def save_graph(self) -> None:
         """
@@ -558,14 +556,20 @@ class GraphManager(object):
             else:
                 checkpoint = get_checkpoint_state(self.task_parameters.checkpoint_restore_dir)
 
+            # As part of this restore, Agent recreates the global, target and online networks
+            [manager.restore_checkpoint(self.task_parameters.checkpoint_restore_dir) for manager in self.level_managers]
+
+            # Recreate the session to use the new TF Graphs
+            self.create_session(self.task_parameters)
+
             if checkpoint is None:
                 screen.warning("No checkpoint to restore in: {}".format(self.task_parameters.checkpoint_restore_dir))
             else:
                 screen.log_title("Loading checkpoint: {}".format(checkpoint.model_checkpoint_path))
-                if not hasattr(self.agent_params.memory, 'memory_backend_params') or self.agent_params.memory.memory_backend_params.run_type != str(RunType.ROLLOUT_WORKER):
-                    self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
-
-            [manager.restore_checkpoint(self.task_parameters.checkpoint_restore_dir) for manager in self.level_managers]
+                self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
+        else:
+            # Create the session to use the new TF Graphs
+            self.create_session(self.task_parameters)
 
     def _get_checkpoint_state_tf(self):
         import tensorflow as tf
