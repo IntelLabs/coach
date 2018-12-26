@@ -559,7 +559,7 @@ class GraphManager(object):
             # As part of this restore, Agent recreates the global, target and online networks
             [manager.restore_checkpoint(self.task_parameters.checkpoint_restore_dir) for manager in self.level_managers]
 
-            # Recreate the session to use the new TF Graphs
+            # Recreate session. This will help use the new Tensorflow Graph created in above step.
             self.create_session(self.task_parameters)
 
             if checkpoint is None:
@@ -568,7 +568,7 @@ class GraphManager(object):
                 screen.log_title("Loading checkpoint: {}".format(checkpoint.model_checkpoint_path))
                 self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
         else:
-            # Create the session to use the new TF Graphs
+            # Create new session
             self.create_session(self.task_parameters)
 
     def _get_checkpoint_state_tf(self):
