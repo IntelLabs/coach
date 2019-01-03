@@ -92,7 +92,7 @@ class TruncatedNormal(ExplorationPolicy):
             action_values_mean = action_values.squeeze()
 
         # step the noise schedule
-        if self.phase == RunPhase.TRAIN:
+        if self.phase is not RunPhase.TEST:
             self.noise_percentage_schedule.step()
             # the second element of the list is assumed to be the standard deviation
             if isinstance(action_values, list) and len(action_values) > 1:
