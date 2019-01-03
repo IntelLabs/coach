@@ -379,6 +379,8 @@ class GymEnvironment(Environment):
                 num_actions=self.env.action_space.n,
                 descriptions=actions_description
             )
+        else:
+            raise ValueError('invalid action space {}'.format(self.env.action_space))
 
         if self.human_control:
             # TODO: add this to the action space
