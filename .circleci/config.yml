@@ -290,7 +290,7 @@ jobs:
             kubectl delete ns trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
           when: always
 
-  e2e_test:
+  multinode_test:
     <<: *executor_prep
     steps:
       - checkout
@@ -363,9 +363,13 @@ workflows:
       - integration_tests:
           requires:
             - build_base
-      - e2e_test:
+      - multinode_approval:
+          type: approval
           requires:
             - build_base
+      - multinode_test:
+          requires:
+            - multinode_approval
       - e2e_approval:
           type: approval
           requires:
