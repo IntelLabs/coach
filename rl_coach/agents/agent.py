@@ -953,12 +953,6 @@ class Agent(AgentInterface):
         self.input_filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
         self.pre_network_filter.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
 
-        if self.ap.task_parameters.framework_type == Frameworks.tensorflow:
-            import tensorflow as tf
-            tf.reset_default_graph()
-            # Recreate all the networks of the agent
-            self.networks = self.create_networks()
-
         # no output filters currently have an internal state to restore
         # self.output_filter.restore_state_from_checkpoint(checkpoint_dir)
 
