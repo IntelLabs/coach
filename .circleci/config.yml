@@ -299,7 +299,7 @@ jobs:
       - *aws_prep
       - *docker_prep
       - run:
-          name: run e2e test
+          name: run multinode test
           command: |
             aws s3 mb s3://coach-aws-test-${CIRCLE_BUILD_NUM}
             kubectl create ns e2e-test-${CIRCLE_BUILD_NUM}

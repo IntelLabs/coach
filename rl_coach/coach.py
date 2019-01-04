@@ -104,7 +104,7 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         training_worker(
             graph_manager=graph_manager,
             task_parameters=task_parameters,
-            test_preset=args.test_preset
+            multi_node_test=args.multi_node_test
         )
 
     if args.distributed_coach_run_type == RunType.ROLLOUT_WORKER:
@@ -572,7 +572,7 @@ class CoachLauncher(object):
         parser.add_argument('--dump_worker_logs',
                             help="(flag) Only used in distributed coach. If set, the worker logs are saved in the experiment dir",
                             action='store_true')
-        parser.add_argument('--test_preset',
+        parser.add_argument('--multi_node_test',
                             help=argparse.SUPPRESS,
                             action='store_true')
 

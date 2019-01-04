@@ -30,7 +30,7 @@ def data_store_ckpt_save(data_store):
         time.sleep(10)
 
 
-def training_worker(graph_manager, task_parameters, test_preset):
+def training_worker(graph_manager, task_parameters, multi_node_test):
     """
     restore a checkpoint then perform rollouts using the restored model
     """
@@ -51,7 +51,7 @@ def training_worker(graph_manager, task_parameters, test_preset):
     while steps < graph_manager.improve_steps.num_steps:
 
         graph_manager.phase = core_types.RunPhase.TRAIN
-        if test_preset and graph_manager.get_current_episodes_count() > graph_manager.preset_validation_params.max_episodes_to_achieve_reward:
+        if multi_node_test and graph_manager.get_current_episodes_count() > graph_manager.preset_validation_params.max_episodes_to_achieve_reward:
             # Test failed as it has not reached the required success rate
             graph_manager.flush_finished()
             screen.error("Could not reach required success by {} episodes.".format(graph_manager.preset_validation_params.max_episodes_to_achieve_reward), crash=True)
