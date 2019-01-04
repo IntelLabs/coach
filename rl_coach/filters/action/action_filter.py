@@ -47,7 +47,7 @@ class ActionFilter(Filter):
         :param action: an action to validate
         :return: None
         """
-        if not self.output_action_space.val_matches_space_definition(action):
+        if not self.output_action_space.contains(action):
             raise ValueError("The given action ({}) does not match the action space ({})"
                              .format(action, self.output_action_space))
 
