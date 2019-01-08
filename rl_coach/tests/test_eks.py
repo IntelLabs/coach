@@ -75,11 +75,13 @@ class EKSHandler():
                     print(line.decode('utf-8'), flush=True, end='')
 
             except client.rest.ApiException as e:
+                print("Got exception: {} while reading pod logs".format(e))
                 pass
 
             try:
                 pod = self.corev1_api.read_namespaced_pod(self.test_name, self.namespace)
             except client.rest.ApiException as e:
+                print("Got exception: {} while reading pod".format(e))
                 continue
 
             if not hasattr(pod, 'status') or not pod.status:
@@ -104,6 +106,7 @@ class EKSHandler():
         try:
             pod = self.corev1_api.read_namespaced_pod(self.test_name, self.namespace)
         except client.rest.ApiException as e:
+            print("Got exception: {} while reading pod".format(e))
             return 1
 
         if not hasattr(pod, 'status') or not pod.status:
