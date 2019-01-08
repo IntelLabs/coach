@@ -168,8 +168,7 @@ class Space(object):
         )
         return contains(val)
 
-
-    def is_point_in_space_shape(self, point: np.ndarray): -> bool
+    def is_point_in_space_shape(self, point: np.ndarray) -> bool:
         screen.warning(
             "Space.is_point_in_space_shape will be deprecated soon. Use "
             "valid_index instead."
