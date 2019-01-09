@@ -11,6 +11,8 @@ from .q_head import QHead
 from .quantile_regression_q_head import QuantileRegressionQHead
 from .rainbow_q_head import RainbowQHead
 from .v_head import VHead
+from .acer_policy_head import ACERPolicyHead
+from .acer_q_head import ACERQHead
 
 __all__ = [
     'CategoricalQHead',
@@ -25,5 +27,7 @@ __all__ = [
     'QHead',
     'QuantileRegressionQHead',
     'RainbowQHead',
-    'VHead'
+    'VHead',
+    'ACERPolicyHead',
+    'ACERQHead'
 ]
