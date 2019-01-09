@@ -163,17 +163,17 @@ class Space(object):
 
     def val_matches_space_definition(self, val: Union[int, float, np.ndarray]) -> bool:
         screen.warning(
-            "Space.is_point_in_space_shape will be deprecated soon. Use "
+            "Space.val_matches_space_definition will be deprecated soon. Use "
             "contains instead."
         )
-        return contains(val)
+        return self.contains(val)
 
     def is_point_in_space_shape(self, point: np.ndarray) -> bool:
         screen.warning(
             "Space.is_point_in_space_shape will be deprecated soon. Use "
             "is_valid_index instead."
         )
-        return valid_index(point)
+        return self.is_valid_index(point)
 
 
 class RewardSpace(Space):
