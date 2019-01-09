@@ -138,12 +138,12 @@ def test_observation_space():
     assert not observation_space.contains(np.ones([1, 10]) * 100)
     assert not observation_space.contains(np.ones([1, 1, 10]))
 
-    # valid_index
-    assert observation_space.valid_index(np.array([0, 9]))
-    assert observation_space.valid_index(np.array([0, 0]))
-    assert not observation_space.valid_index(np.array([1, 8]))
-    assert not observation_space.valid_index(np.array([0, 10]))
-    assert not observation_space.valid_index(np.array([-1, 6]))
+    # is_valid_index
+    assert observation_space.is_valid_index(np.array([0, 9]))
+    assert observation_space.is_valid_index(np.array([0, 0]))
+    assert not observation_space.is_valid_index(np.array([1, 8]))
+    assert not observation_space.is_valid_index(np.array([0, 10]))
+    assert not observation_space.is_valid_index(np.array([-1, 6]))
 
 
 @pytest.mark.unit_test

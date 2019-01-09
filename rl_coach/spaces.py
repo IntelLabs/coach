@@ -135,7 +135,7 @@ class Space(object):
             return False
         return True
 
-    def valid_index(self, index: np.ndarray) -> bool:
+    def is_valid_index(self, index: np.ndarray) -> bool:
         """
         Checks if a given multidimensional index is within the bounds of the shape of the space
 
@@ -171,7 +171,7 @@ class Space(object):
     def is_point_in_space_shape(self, point: np.ndarray) -> bool:
         screen.warning(
             "Space.is_point_in_space_shape will be deprecated soon. Use "
-            "valid_index instead."
+            "is_valid_index instead."
         )
         return valid_index(point)
 
