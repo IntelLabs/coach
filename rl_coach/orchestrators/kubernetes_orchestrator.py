@@ -129,11 +129,8 @@ class Kubernetes(Deploy):
         if self.params.data_store_params.store_type == "nfs":
             self.nfs_pvc = self.data_store.get_info()
 
-        if crd:
-            temp_checkpoint = self.data_store.params.checkpoint_dir
-            self.data_store.params.checkpoint_dir = crd
-            self.data_store.save_to_store()
-            self.data_store.params.checkpoint_dir = temp_checkpoint
+        # To upload checkpoints in checkpoint_restore_dir (if provided) to the data store
+        self.data_store.setup_checkpoint_dir(crd)
         return True
 
     def deploy_trainer(self) -> bool:
@@ -147,7 +144,6 @@ class Kubernetes(Deploy):
 
         trainer_params.command += ['--memory_backend_params', json.dumps(self.params.memory_backend_parameters.__dict__)]
         trainer_params.command += ['--data_store_params', json.dumps(self.params.data_store_params.__dict__)]
-
         name = "{}-{}".format(trainer_params.run_type, uuid.uuid4())
 
         if self.params.data_store_params.store_type == "nfs":

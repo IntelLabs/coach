@@ -387,7 +387,9 @@ class CoachLauncher(object):
 
         # validate the checkpoints args
         if args.checkpoint_restore_dir is not None and not os.path.exists(args.checkpoint_restore_dir):
-            screen.error("The requested checkpoint folder to load from does not exist.")
+            # If distributed trainer, the checkpoint dir is not yet available so skipping the check in that case.
+            if not (args.distributed_coach and args.distributed_coach_run_type == RunType.TRAINER):
+                screen.error("The requested checkpoint folder to load from does not exist.")
 
         # no preset was given. check if the user requested to play some environment on its own
         if args.preset is None and args.play and not args.environment_type:

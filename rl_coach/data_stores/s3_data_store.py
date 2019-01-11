@@ -167,3 +167,10 @@ class S3DataStore(DataStore):
 
         except ResponseError as e:
             print("Got exception: %s\n while loading from S3", e)
+
+    def setup_checkpoint_dir(self, crd=None):
+        if crd:
+            temp_dir = self.params.checkpoint_dir
+            self.params.checkpoint_dir = crd
+            self.save_to_store()
+            self.params.checkpoint_dir = temp_dir
