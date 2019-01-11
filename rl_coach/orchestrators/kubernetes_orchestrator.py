@@ -118,7 +118,7 @@ class Kubernetes(Deploy):
                 self.s3_access_key = os.environ.get('ACCESS_KEY_ID')
                 self.s3_secret_key = os.environ.get('SECRET_ACCESS_KEY')
 
-    def setup(self) -> bool:
+    def setup(self, crd=None) -> bool:
         """
         Deploys the memory backend and data stores if required.
         """
@@ -128,6 +128,12 @@ class Kubernetes(Deploy):
             return False
         if self.params.data_store_params.store_type == "nfs":
             self.nfs_pvc = self.data_store.get_info()
+
+        if crd:
+            temp_checkpoint = self.data_store.params.checkpoint_dir
+            self.data_store.params.checkpoint_dir = crd
+            self.data_store.save_to_store()
+            self.data_store.params.checkpoint_dir = temp_checkpoint
         return True
 
     def deploy_trainer(self) -> bool:

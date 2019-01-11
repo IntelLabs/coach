@@ -164,7 +164,7 @@ def handle_distributed_coach_orchestrator(args):
                                                 memory_backend_parameters=memory_backend_params,
                                                 data_store_params=ds_params_instance)
     orchestrator = Kubernetes(orchestration_params)
-    if not orchestrator.setup():
+    if not orchestrator.setup(args.checkpoint_restore_dir):
         print("Could not setup.")
         return
 
