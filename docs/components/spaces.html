@@ -223,8 +223,8 @@ or a single value defining the general highest values</li>
 </tbody>
 </table>
 <dl class="method">
-<dt id="rl_coach.spaces.Space.is_point_in_space_shape">
-<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.is_point_in_space_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.Space.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.is_valid_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -254,8 +254,8 @@ bounds are defined</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.Space.val_matches_space_definition">
-<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.val_matches_space_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.Space.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.contains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.contains" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -278,8 +278,8 @@ bounds are defined</p>
 <dt id="rl_coach.spaces.ObservationSpace">
 <em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">ObservationSpace</code><span class="sig-paren">(</span><em>shape: Union[int, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#ObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ObservationSpace" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
-<dt id="rl_coach.spaces.ObservationSpace.is_point_in_space_shape">
-<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.ObservationSpace.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -309,8 +309,8 @@ bounds are defined</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.ObservationSpace.val_matches_space_definition">
-<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.ObservationSpace.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.contains" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -379,8 +379,8 @@ represent a RGB image, or a grayscale image.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.ActionSpace.is_point_in_space_shape">
-<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.ActionSpace.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -424,8 +424,8 @@ bounds are defined</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.ActionSpace.val_matches_space_definition">
-<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.ActionSpace.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.contains" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -598,8 +598,8 @@ returns the distance between them</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.GoalsSpace.is_point_in_space_shape">
-<code class="descname">is_point_in_space_shape</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.is_point_in_space_shape" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.GoalsSpace.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -643,8 +643,8 @@ bounds are defined</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.GoalsSpace.val_matches_space_definition">
-<code class="descname">val_matches_space_definition</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.val_matches_space_definition" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.GoalsSpace.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.contains" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
