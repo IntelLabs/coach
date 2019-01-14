@@ -223,8 +223,8 @@ or a single value defining the general highest values</li>
 </tbody>
 </table>
 <dl class="method">
-<dt id="rl_coach.spaces.Space.valid_index">
-<code class="descname">valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.valid_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.valid_index" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.Space.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.is_valid_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -278,8 +278,8 @@ bounds are defined</p>
 <dt id="rl_coach.spaces.ObservationSpace">
 <em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">ObservationSpace</code><span class="sig-paren">(</span><em>shape: Union[int, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#ObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ObservationSpace" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
-<dt id="rl_coach.spaces.ObservationSpace.valid_index">
-<code class="descname">valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.valid_index" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.ObservationSpace.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -379,8 +379,8 @@ represent a RGB image, or a grayscale image.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.ActionSpace.valid_index">
-<code class="descname">valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.valid_index" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.ActionSpace.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -598,8 +598,8 @@ returns the distance between them</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.GoalsSpace.valid_index">
-<code class="descname">valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.valid_index" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.spaces.GoalsSpace.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
