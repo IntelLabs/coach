@@ -468,10 +468,11 @@ class GraphManager(object):
 
                 count_end = self.current_step_counter + steps
                 while self.current_step_counter < count_end:
-                    # The actual steps being done on the environment are decided by the agents themselves.
-                    # this inner loop always takes one step in the environment, but depending on
-                    # internal counters and parameters, doesn't always train or save checkpoints.
-                    # This is just an high-level controller.
+                    # The actual number of steps being done on the environment
+                    # is decided by the agent, though this inner loop always
+                    # takes at least one step in the environment. Depending on
+                    # internal counters and parameters, it doesn't always train
+                    # or save checkpoints.
                     self.act(EnvironmentSteps(1))
                     self.train()
                     self.occasionally_save_checkpoint()
