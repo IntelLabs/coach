@@ -47,6 +47,12 @@ class DataStore(object):
     def setup_checkpoint_dir(self, crd=None):
         pass
 
+    def store_shared_running_stats(self, crd=None):
+        pass
+
+    def load_shared_running_stats(self, crd=None):
+        pass
+
 
 class SyncFiles(Enum):
     FINISHED = ".finished"

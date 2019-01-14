@@ -31,6 +31,7 @@ def data_store_ckpt_save(data_store):
 
 def data_store_ckpt_load(data_store):
     data_store.load_from_store()
+    data_store.load_shared_running_stats()
 
 
 def training_worker(graph_manager, task_parameters):

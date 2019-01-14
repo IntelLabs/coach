@@ -171,6 +171,25 @@ class S3DataStore(DataStore):
         except ResponseError as e:
             print("Got exception: %s\n while loading from S3", e)
 
+    def store_shared_running_stats(self, crd=None):
+        if crd:
+            for root, dirs, files in os.walk(crd):
+                for filename in files:
+                    if filename.endswith('.srs'):
+                        abs_name = os.path.abspath(os.path.join(root, filename))
+                        rel_name = os.path.relpath(abs_name, crd)
+                        self.mc.fput_object(self.params.bucket_name, rel_name, abs_name)
+
+    def load_shared_running_stats(self):
+        objects = self.mc.list_objects_v2(self.params.bucket_name)
+        for obj in objects:
+            if obj.object_name.endswith('.srs'):
+                filename = os.path.abspath(os.path.join(self.params.checkpoint_dir, obj.object_name))
+                if not os.path.exists(filename):
+                    self.mc.fget_object(obj.bucket_name, obj.object_name, filename)
+
     def setup_checkpoint_dir(self, crd=None):
         if crd:
             self._save_to_store(crd)
+            # Sync shared running stats.
+            self.store_shared_running_stas(crd)
