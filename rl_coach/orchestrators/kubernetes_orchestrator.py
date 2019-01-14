@@ -129,7 +129,7 @@ class Kubernetes(Deploy):
         if self.params.data_store_params.store_type == "nfs":
             self.nfs_pvc = self.data_store.get_info()
 
-        # To upload checkpoints in checkpoint_restore_dir (if provided) to the data store
+        # Upload checkpoints in checkpoint_restore_dir (if provided) to the data store
         self.data_store.setup_checkpoint_dir(crd)
         return True
 
