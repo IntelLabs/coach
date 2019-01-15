@@ -67,7 +67,6 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
     """
     wait for first checkpoint then perform rollouts using the model
     """
-    time.sleep(30)
     checkpoint_dir = task_parameters.checkpoint_restore_dir
     wait_for_checkpoint(checkpoint_dir, data_store)
 
@@ -75,7 +74,7 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
     with graph_manager.phase_context(RunPhase.TRAIN):
 
         chkpt_state_reader = CheckpointStateReader(checkpoint_dir, checkpoint_state_optional=False)
-        last_checkpoint = 0
+        last_checkpoint = chkpt_state_reader.get_latest().num
 
         act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)/num_workers)
 

@@ -37,6 +37,7 @@ from rl_coach.utils import set_cpu, start_shell_command_and_wait
 from rl_coach.data_stores.data_store_impl import get_data_store as data_store_creator
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.data_stores.data_store import SyncFiles
+from rl_coach.checkpoint import CheckpointStateReader
 
 
 class ScheduleParameters(Parameters):
@@ -565,6 +566,10 @@ class GraphManager(object):
                 self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
 
             [manager.restore_checkpoint(self.task_parameters.checkpoint_restore_dir) for manager in self.level_managers]
+
+            # Set the last checkpoint ID
+            chkpt_state_reader = CheckpointStateReader(self.task_parameters.checkpoint_restore_dir, checkpoint_state_optional=False)
+            self.checkpoint_id = chkpt_state_reader.get_latest().num + 1
 
     def _get_checkpoint_state_tf(self):
         import tensorflow as tf

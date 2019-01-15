@@ -23,14 +23,9 @@ from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchroniza
 from rl_coach import core_types
 
 
-def data_store_ckpt_save(data_store):
-    while True:
-        data_store.save_to_store()
-        time.sleep(10)
-
-
 def data_store_ckpt_load(data_store):
-    data_store.load_from_store()
+    if data_store:
+        data_store.load_from_store()
 
 
 def training_worker(graph_manager, task_parameters, data_store):
@@ -42,6 +37,7 @@ def training_worker(graph_manager, task_parameters, data_store):
         data_store_ckpt_load(data_store)
         # initialize graph
         graph_manager.create_graph(task_parameters)
+
     else:
         # initialize graph
         graph_manager.create_graph(task_parameters)
