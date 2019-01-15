@@ -40,6 +40,8 @@ def training_worker(graph_manager, task_parameters, data_store):
     # Load checkpoint if provided
     if task_parameters.checkpoint_restore_dir:
         data_store_ckpt_load(data_store)
+        # initialize graph
+        graph_manager.create_graph(task_parameters)
     else:
         # initialize graph
         graph_manager.create_graph(task_parameters)
