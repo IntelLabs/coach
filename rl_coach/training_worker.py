@@ -31,20 +31,19 @@ def data_store_ckpt_save(data_store):
 
 def data_store_ckpt_load(data_store):
     data_store.load_from_store()
-    data_store.load_shared_running_stats()
 
 
-def training_worker(graph_manager, task_parameters):
+def training_worker(graph_manager, task_parameters, data_store):
     """
     restore a checkpoint then perform rollouts using the restored model
     """
-    # initialize graph
-    graph_manager.create_graph(task_parameters)
-
     # Load checkpoint if provided
     if task_parameters.checkpoint_restore_dir:
-        data_store_ckpt_load(graph_manager.get_data_store())
+        data_store_ckpt_load(data_store)
     else:
+        # initialize graph
+        graph_manager.create_graph(task_parameters)
+
         # save randomly initialized graph
         graph_manager.save_checkpoint()
 
