@@ -977,32 +977,25 @@ class Agent(AgentInterface):
         :return:
         """
 
-        # if we are in the first step in the episode, then we don't have a a next state and a reward and thus no
-        # transition yet, and therefore we don't need to store anything in the memory.
-        # also we did not reach the goal yet.
-        if self.current_episode_steps_counter == 0:
-            # initialize the current state
-            return transition.game_over
-        else:
-            # sum up the total shaped reward
-            self.total_shaped_reward_in_current_episode += transition.reward
-            self.total_reward_in_current_episode += transition.reward
-            self.shaped_reward.add_sample(transition.reward)
-            self.reward.add_sample(transition.reward)
+        # sum up the total shaped reward
+        self.total_shaped_reward_in_current_episode += transition.reward
+        self.total_reward_in_current_episode += transition.reward
+        self.shaped_reward.add_sample(transition.reward)
+        self.reward.add_sample(transition.reward)
+        
+        # create and store the transition
+        if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
+            # for episodic memories we keep the transitions in a local buffer until the episode is ended.
+            # for regular memories we insert the transitions directly to the memory
+            self.current_episode_buffer.insert(transition)
+            if not isinstance(self.memory, EpisodicExperienceReplay) \
+                    and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
+                self.call_memory('store', transition)
 
-            # create and store the transition
-            if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
-                # for episodic memories we keep the transitions in a local buffer until the episode is ended.
-                # for regular memories we insert the transitions directly to the memory
-                self.current_episode_buffer.insert(transition)
-                if not isinstance(self.memory, EpisodicExperienceReplay) \
-                        and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
-                    self.call_memory('store', transition)
+        if self.ap.visualization.dump_in_episode_signals:
+            self.update_step_in_episode_log()
 
-            if self.ap.visualization.dump_in_episode_signals:
-                self.update_step_in_episode_log()
-
-            return transition.game_over
+        return transition.game_over
 
     # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
     #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
