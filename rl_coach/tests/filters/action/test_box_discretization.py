@@ -26,7 +26,7 @@ def test_filter():
 
     result = filter.filter(action)
     assert result == [7.5]
-    assert output_space.val_matches_space_definition(result)
+    assert output_space.contains(result)
 
     # 2 dimensional box
     filter = BoxDiscretization(3)
@@ -42,4 +42,4 @@ def test_filter():
 
     result = filter.filter(action)
     assert result == [5., 15.]
-    assert output_space.val_matches_space_definition(result)
+    assert output_space.contains(result)

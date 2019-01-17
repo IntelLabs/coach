@@ -76,6 +76,7 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
         chkpt_state_reader = CheckpointStateReader(checkpoint_dir, checkpoint_state_optional=False)
         last_checkpoint = 0
 
+        # this worker should play a fraction of the total playing steps per rollout
         act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)/num_workers)
 
         for i in range(int(graph_manager.improve_steps.num_steps/act_steps)):
