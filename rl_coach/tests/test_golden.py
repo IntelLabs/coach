@@ -100,7 +100,7 @@ def preset_name(request):
 
 
 @pytest.mark.golden_test
-def test_preset_reward(preset_name, no_progress_bar=False, time_limit=60 * 60, verbose=False):
+def test_preset_reward(preset_name, no_progress_bar=True, time_limit=60 * 60, verbose=True):
     preset_validation_params = validation_params(preset_name)
 
     win_size = 10
@@ -221,7 +221,8 @@ def test_preset_reward(preset_name, no_progress_bar=False, time_limit=60 * 60, v
 
     shutil.rmtree(test_path)
     os.remove(log_file_name)
-    return test_passed
+    if not test_passed:
+        raise ValueError('golden test failed')
 
 
 def main():
@@ -278,8 +279,9 @@ def main():
                 continue
 
             test_count += 1
-            test_passed = test_preset_reward(preset_name, args.no_progress_bar, args.time_limit, args.verbose)
-            if not test_passed:
+            try:
+                test_preset_reward(preset_name, args.no_progress_bar, args.time_limit, args.verbose)
+            except Exception as e:
                 fail_count += 1
 
     screen.separator()
