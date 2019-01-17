@@ -17,7 +17,6 @@
 import importlib
 import importlib.util
 import inspect
-import json
 import os
 import re
 import signal
@@ -83,19 +82,6 @@ def break_file_path(path):
 
 def is_empty(str):
     return str == 0 or len(str.replace("'", "").replace("\"", "")) == 0
-
-
-def read_json(filename):
-    # read json file
-    with open(filename, 'r') as f:
-        dict = json.loads(f.read())
-        return dict
-
-
-def write_json(filename, dict):
-    # read json file
-    with open(filename, 'w') as f:
-        f.write(json.dumps(dict, indent=4))
 
 
 def path_is_valid_dir(path):
