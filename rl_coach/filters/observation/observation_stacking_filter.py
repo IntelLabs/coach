@@ -79,7 +79,7 @@ class ObservationStackingFilter(ObservationFilter):
                          "functionality")
 
     def validate_input_observation_space(self, input_observation_space: ObservationSpace):
-        if len(self.stack) > 0 and not input_observation_space.val_matches_space_definition(self.stack[-1]):
+        if len(self.stack) > 0 and not input_observation_space.contains(self.stack[-1]):
             raise ValueError("The given input observation space is different than the observations already stored in"
                              "the filters memory")
         if input_observation_space.num_dimensions <= self.stacking_axis:

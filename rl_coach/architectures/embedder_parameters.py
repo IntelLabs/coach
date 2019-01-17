@@ -18,6 +18,7 @@ from typing import List, Union
 
 from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
 
+MOD_NAMES = {'image': 'ImageEmbedder', 'vector': 'VectorEmbedder', 'tensor': 'TensorEmbedder'}
 
 class InputEmbedderParameters(NetworkComponentParameters):
     def __init__(self, activation_function: str='relu', scheme: Union[List, EmbedderScheme]=EmbedderScheme.Medium,
@@ -39,3 +40,6 @@ class InputEmbedderParameters(NetworkComponentParameters):
         self.input_clipping = input_clipping
         self.name = name
         self.is_training = is_training
+
+    def path(self, emb_type):
+        return 'rl_coach.architectures.tensorflow_components.embedders:' + MOD_NAMES[emb_type]

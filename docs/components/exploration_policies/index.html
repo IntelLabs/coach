@@ -264,8 +264,8 @@ spaces.</p>
 <div class="section" id="explorationpolicy">
 <h2>ExplorationPolicy<a class="headerlink" href="#explorationpolicy" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.ExplorationPolicy">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">ExplorationPolicy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ExplorationPolicy" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.exploration_policy.ExplorationPolicy">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.exploration_policy.</code><code class="descname">ExplorationPolicy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy" title="Permalink to this definition">¶</a></dt>
 <dd><p>An exploration policy takes the predicted actions or action values from the agent, and selects the action to
 actually apply to the environment using some predefined algorithm.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -277,16 +277,16 @@ actually apply to the environment using some predefined algorithm.</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="rl_coach.exploration_policies.ExplorationPolicy.change_phase">
-<code class="descname">change_phase</code><span class="sig-paren">(</span><em>phase</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.change_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ExplorationPolicy.change_phase" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.change_phase">
+<code class="descname">change_phase</code><span class="sig-paren">(</span><em>phase</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.change_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.change_phase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Change between running phases of the algorithm
 :param phase: Either Heatup or Train
 :return: none</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.exploration_policies.ExplorationPolicy.get_action">
-<code class="descname">get_action</code><span class="sig-paren">(</span><em>action_values: List[Union[int, float, numpy.ndarray, List]]</em><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.get_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ExplorationPolicy.get_action" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.get_action">
+<code class="descname">get_action</code><span class="sig-paren">(</span><em>action_values: List[Union[int, float, numpy.ndarray, List]]</em><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.get_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.get_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of values corresponding to each action, 
 choose one actions according to the exploration policy
 :param action_values: A list of action values
@@ -294,8 +294,8 @@ choose one actions according to the exploration policy
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.exploration_policies.ExplorationPolicy.requires_action_values">
-<code class="descname">requires_action_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.requires_action_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ExplorationPolicy.requires_action_values" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.requires_action_values">
+<code class="descname">requires_action_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.requires_action_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.requires_action_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows exploration policies to define if they require the action values for the current step.
 This can save up a lot of computation. For example in e-greedy, if the random value generated is smaller
 than epsilon, the action is completely random, and the action values don’t need to be calculated
@@ -303,8 +303,8 @@ than epsilon, the action is completely random, and the action values don’t nee
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.exploration_policies.ExplorationPolicy.reset">
-<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ExplorationPolicy.reset" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.reset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used for resetting the exploration policy parameters when needed
 :return: None</p>
 </dd></dl>
@@ -315,8 +315,8 @@ than epsilon, the action is completely random, and the action values don’t nee
 <div class="section" id="additivenoise">
 <h2>AdditiveNoise<a class="headerlink" href="#additivenoise" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.AdditiveNoise">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">AdditiveNoise</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>noise_percentage_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_noise_percentage: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/additive_noise.html#AdditiveNoise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.AdditiveNoise" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.additive_noise.AdditiveNoise">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.additive_noise.</code><code class="descname">AdditiveNoise</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>noise_percentage_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_noise_percentage: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/additive_noise.html#AdditiveNoise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.additive_noise.AdditiveNoise" title="Permalink to this definition">¶</a></dt>
 <dd><p>AdditiveNoise is an exploration policy intended for continuous action spaces. It takes the action from the agent
 and adds a Gaussian distributed noise to it. The amount of noise added to the action follows the noise amount that
 can be given in two different ways:
@@ -343,8 +343,8 @@ of the action space</li>
 <div class="section" id="boltzmann">
 <h2>Boltzmann<a class="headerlink" href="#boltzmann" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.Boltzmann">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">Boltzmann</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>temperature_schedule: rl_coach.schedules.Schedule</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/boltzmann.html#Boltzmann"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.Boltzmann" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.boltzmann.Boltzmann">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.boltzmann.</code><code class="descname">Boltzmann</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>temperature_schedule: rl_coach.schedules.Schedule</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/boltzmann.html#Boltzmann"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.boltzmann.Boltzmann" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Boltzmann exploration policy is intended for discrete action spaces. It assumes that each of the possible
 actions has some value assigned to it (such as the Q value), and uses a softmax function to convert these values
 into a distribution over the actions. It then samples the action for playing out of the calculated distribution.
@@ -367,8 +367,8 @@ An additional temperature schedule can be given by the user, and will control th
 <div class="section" id="bootstrapped">
 <h2>Bootstrapped<a class="headerlink" href="#bootstrapped" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.Bootstrapped">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">Bootstrapped</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>epsilon_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_epsilon: float</em>, <em>architecture_num_q_heads: int</em>, <em>continuous_exploration_policy_parameters: rl_coach.exploration_policies.exploration_policy.ExplorationParameters = &lt;rl_coach.exploration_policies.additive_noise.AdditiveNoiseParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/bootstrapped.html#Bootstrapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.Bootstrapped" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.bootstrapped.Bootstrapped">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.bootstrapped.</code><code class="descname">Bootstrapped</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>epsilon_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_epsilon: float</em>, <em>architecture_num_q_heads: int</em>, <em>continuous_exploration_policy_parameters: rl_coach.exploration_policies.exploration_policy.ExplorationParameters = &lt;rl_coach.exploration_policies.additive_noise.AdditiveNoiseParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/bootstrapped.html#Bootstrapped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.bootstrapped.Bootstrapped" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bootstrapped exploration policy is currently only used for discrete action spaces along with the
 Bootstrapped DQN agent. It assumes that there is an ensemble of network heads, where each one predicts the
 values for all the possible actions. For each episode, a single head is selected to lead the agent, according
@@ -401,8 +401,8 @@ if the e-greedy is used for a continuous policy</li>
 <div class="section" id="categorical">
 <h2>Categorical<a class="headerlink" href="#categorical" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.Categorical">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">Categorical</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/categorical.html#Categorical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.Categorical" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.categorical.Categorical">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.categorical.</code><code class="descname">Categorical</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/categorical.html#Categorical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.categorical.Categorical" title="Permalink to this definition">¶</a></dt>
 <dd><p>Categorical exploration policy is intended for discrete action spaces. It expects the action values to
 represent a probability distribution over the action, from which a single action will be sampled.
 In evaluation, the action that has the highest probability will be selected. This is particularly useful for
@@ -421,8 +421,8 @@ actor-critic schemes, where the actors output is a probability distribution over
 <div class="section" id="continuousentropy">
 <h2>ContinuousEntropy<a class="headerlink" href="#continuousentropy" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.ContinuousEntropy">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">ContinuousEntropy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>noise_percentage_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_noise_percentage: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/continuous_entropy.html#ContinuousEntropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ContinuousEntropy" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.continuous_entropy.ContinuousEntropy">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.continuous_entropy.</code><code class="descname">ContinuousEntropy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>noise_percentage_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_noise_percentage: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/continuous_entropy.html#ContinuousEntropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.continuous_entropy.ContinuousEntropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Continuous entropy is an exploration policy that is actually implemented as part of the network.
 The exploration policy class is only a placeholder for choosing this policy. The exploration policy is
 implemented by adding a regularization factor to the network loss, which regularizes the entropy of the action.
@@ -453,8 +453,8 @@ of the action space</li>
 <div class="section" id="egreedy">
 <h2>EGreedy<a class="headerlink" href="#egreedy" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.EGreedy">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">EGreedy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>epsilon_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_epsilon: float</em>, <em>continuous_exploration_policy_parameters: rl_coach.exploration_policies.exploration_policy.ExplorationParameters = &lt;rl_coach.exploration_policies.additive_noise.AdditiveNoiseParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/e_greedy.html#EGreedy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.EGreedy" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.e_greedy.EGreedy">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.e_greedy.</code><code class="descname">EGreedy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>epsilon_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_epsilon: float</em>, <em>continuous_exploration_policy_parameters: rl_coach.exploration_policies.exploration_policy.ExplorationParameters = &lt;rl_coach.exploration_policies.additive_noise.AdditiveNoiseParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/e_greedy.html#EGreedy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.e_greedy.EGreedy" title="Permalink to this definition">¶</a></dt>
 <dd><p>e-greedy is an exploration policy that is intended for both discrete and continuous action spaces.</p>
 <p>For discrete action spaces, it assumes that each action is assigned a value, and it selects the action with the
 highest value with probability 1 - epsilon. Otherwise, it selects a action sampled uniformly out of all the
@@ -485,8 +485,8 @@ if the e-greedy is used for a continuous policy</li>
 <div class="section" id="greedy">
 <h2>Greedy<a class="headerlink" href="#greedy" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.Greedy">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">Greedy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/greedy.html#Greedy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.Greedy" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.greedy.Greedy">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.greedy.</code><code class="descname">Greedy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/greedy.html#Greedy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.greedy.Greedy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Greedy exploration policy is intended for both discrete and continuous action spaces.
 For discrete action spaces, it always selects the action with the maximum value, as given by the agent.
 For continuous action spaces, it always return the exact action, as it was given by the agent.</p>
@@ -504,8 +504,8 @@ For continuous action spaces, it always return the exact action, as it was given
 <div class="section" id="ouprocess">
 <h2>OUProcess<a class="headerlink" href="#ouprocess" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.OUProcess">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">OUProcess</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>mu: float = 0</em>, <em>theta: float = 0.15</em>, <em>sigma: float = 0.2</em>, <em>dt: float = 0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/ou_process.html#OUProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.OUProcess" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.ou_process.OUProcess">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.ou_process.</code><code class="descname">OUProcess</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>mu: float = 0</em>, <em>theta: float = 0.15</em>, <em>sigma: float = 0.2</em>, <em>dt: float = 0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/ou_process.html#OUProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ou_process.OUProcess" title="Permalink to this definition">¶</a></dt>
 <dd><p>OUProcess exploration policy is intended for continuous action spaces, and selects the action according to
 an Ornstein-Uhlenbeck process. The Ornstein-Uhlenbeck process implements the action as a Gaussian process, where
 the samples are correlated between consequent time steps.</p>
@@ -523,8 +523,8 @@ the samples are correlated between consequent time steps.</p>
 <div class="section" id="parameternoise">
 <h2>ParameterNoise<a class="headerlink" href="#parameternoise" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.ParameterNoise">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">ParameterNoise</code><span class="sig-paren">(</span><em>network_params: Dict[str, rl_coach.base_parameters.NetworkParameters], action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/parameter_noise.html#ParameterNoise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ParameterNoise" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.parameter_noise.ParameterNoise">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.parameter_noise.</code><code class="descname">ParameterNoise</code><span class="sig-paren">(</span><em>network_params: Dict[str, rl_coach.base_parameters.NetworkParameters], action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/parameter_noise.html#ParameterNoise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.parameter_noise.ParameterNoise" title="Permalink to this definition">¶</a></dt>
 <dd><p>The ParameterNoise exploration policy is intended for both discrete and continuous action spaces.
 It applies the exploration policy by replacing all the dense network layers with noisy layers.
 The noisy layers have both weight means and weight standard deviations, and for each forward pass of the network
@@ -545,8 +545,8 @@ values.</p>
 <div class="section" id="truncatednormal">
 <h2>TruncatedNormal<a class="headerlink" href="#truncatednormal" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.TruncatedNormal">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">TruncatedNormal</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>noise_percentage_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_noise_percentage: float</em>, <em>clip_low: float</em>, <em>clip_high: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/truncated_normal.html#TruncatedNormal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.TruncatedNormal" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.truncated_normal.TruncatedNormal">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.truncated_normal.</code><code class="descname">TruncatedNormal</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>noise_percentage_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_noise_percentage: float</em>, <em>clip_low: float</em>, <em>clip_high: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/truncated_normal.html#TruncatedNormal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.truncated_normal.TruncatedNormal" title="Permalink to this definition">¶</a></dt>
 <dd><p>The TruncatedNormal exploration policy is intended for continuous action spaces. It samples the action from a
 normal distribution, where the mean action is given by the agent, and the standard deviation can be given in t
 wo different ways:
@@ -575,8 +575,8 @@ of the action space</li>
 <div class="section" id="ucb">
 <h2>UCB<a class="headerlink" href="#ucb" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="rl_coach.exploration_policies.UCB">
-<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.</code><code class="descname">UCB</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>epsilon_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_epsilon: float</em>, <em>architecture_num_q_heads: int</em>, <em>lamb: int</em>, <em>continuous_exploration_policy_parameters: rl_coach.exploration_policies.exploration_policy.ExplorationParameters = &lt;rl_coach.exploration_policies.additive_noise.AdditiveNoiseParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/ucb.html#UCB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.UCB" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.exploration_policies.ucb.UCB">
+<em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.ucb.</code><code class="descname">UCB</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em>, <em>epsilon_schedule: rl_coach.schedules.Schedule</em>, <em>evaluation_epsilon: float</em>, <em>architecture_num_q_heads: int</em>, <em>lamb: int</em>, <em>continuous_exploration_policy_parameters: rl_coach.exploration_policies.exploration_policy.ExplorationParameters = &lt;rl_coach.exploration_policies.additive_noise.AdditiveNoiseParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/ucb.html#UCB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.ucb.UCB" title="Permalink to this definition">¶</a></dt>
 <dd><p>UCB exploration policy is following the upper confidence bound heuristic to sample actions in discrete action spaces.
 It assumes that there are multiple network heads that are predicting action values, and that the standard deviation
 between the heads predictions represents the uncertainty of the agent in each of the actions.

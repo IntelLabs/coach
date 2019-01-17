@@ -1,6 +1,6 @@
 # Coach
 
-[![CircleCI](https://circleci.com/gh/NervanaSystems/coach/tree/master.svg?style=svg)](https://circleci.com/gh/NervanaSystems/coach/tree/master)
+[![CI](https://img.shields.io/circleci/project/github/NervanaSystems/coach/master.svg)](https://circleci.com/gh/NervanaSystems/workflows/coach/tree/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/NervanaSystems/coach/blob/master/LICENSE)
 [![Docs](https://readthedocs.org/projects/carla/badge/?version=latest)](https://nervanasystems.github.io/coach/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)
@@ -29,7 +29,7 @@ Blog posts from the Intel® AI website:
 * [Release 0.8.0](https://ai.intel.com/reinforcement-learning-coach-intel/) (initial release)
 * [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/)
 * [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/)
-* Release 0.11 (current release)
+* [Release 0.11.0](https://ai.intel.com/rl-coach-data-science-at-scale) (current release)
 
 Contacting the Coach development team is also possible through the email [coach@intel.com](coach@intel.com)
 

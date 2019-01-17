@@ -32,7 +32,7 @@ def test_filter():
 
     result = filter.filter(action)
     assert np.all(result == np.array([[41.5, 0], [83., 41.5]]))
-    assert output_space.val_matches_space_definition(result)
+    assert output_space.contains(result)
 
     # force int bins
     filter = AttentionDiscretization(2, force_int_bins=True)

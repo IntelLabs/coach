@@ -72,3 +72,9 @@ class Memory(object):
 
     def set_memory_backend(self, memory_backend: MemoryBackend):
         self.memory_backend = memory_backend
+
+    def num_transitions(self) -> int:
+        """
+        Get the number of transitions in the ER
+        """
+        raise NotImplementedError("")
