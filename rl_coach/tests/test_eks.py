@@ -15,11 +15,16 @@ class EKSHandler():
         self.image = image
         self.cpu = cpu
         self.memory = memory
-        config.load_kube_config()
+        self.refresh_config()
         self.namespace = '{}-{}'.format(test_name, build_num)
-        self.corev1_api = client.CoreV1Api()
         self.create_namespace()
         self.working_dir = working_dir
+
+    def refresh_config(self):
+        # on AWS tokens only last 10 minutes so this must periodically be
+        # called to prevent auth related errors
+        config.load_kube_config()
+        self.corev1_api = client.CoreV1Api()
 
     def create_namespace(self):
         namespace = client.V1Namespace(
@@ -73,13 +78,17 @@ class EKSHandler():
                     _preload_content=False
                 ):
                     print(line.decode('utf-8'), flush=True, end='')
+                # above call blocks for pod lifetime, so we may need to refresh tokens
+                self.refresh_config()
 
             except client.rest.ApiException as e:
+                print("Got exception: {} while reading pod logs".format(e))
                 pass
 
             try:
                 pod = self.corev1_api.read_namespaced_pod(self.test_name, self.namespace)
             except client.rest.ApiException as e:
+                print("Got exception: {} while reading pod".format(e))
                 continue
 
             if not hasattr(pod, 'status') or not pod.status:
@@ -104,6 +113,7 @@ class EKSHandler():
         try:
             pod = self.corev1_api.read_namespaced_pod(self.test_name, self.namespace)
         except client.rest.ApiException as e:
+            print("Got exception: {} while reading pod".format(e))
             return 1
 
         if not hasattr(pod, 'status') or not pod.status:

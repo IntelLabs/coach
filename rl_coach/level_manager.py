@@ -271,7 +271,7 @@ class LevelManager(EnvironmentInterface):
         [agent.sync() for agent in self.agents.values()]
 
     def should_train(self) -> bool:
-        return any([agent._should_train_helper() for agent in self.agents.values()])
+        return any([agent._should_update() for agent in self.agents.values()])
 
     # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
     #               an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]

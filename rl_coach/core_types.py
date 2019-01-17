@@ -98,6 +98,10 @@ class Embedding(PredictionType):
     pass
 
 
+class Measurements(PredictionType):
+    pass
+
+
 class InputEmbedding(Embedding):
     pass
 
@@ -123,10 +127,6 @@ class Middleware_FC_Embedding(MiddlewareEmbedding):
 
 
 class Middleware_LSTM_Embedding(MiddlewareEmbedding):
-    pass
-
-
-class Measurements(PredictionType):
     pass
 
 
