@@ -162,4 +162,14 @@ class AgentInterface(object):
             (could be name of level manager or composite agent)
         :return: collection of all agent savers
         """
-        raise NotImplementedError
+        raise NotImplementedError("")
+
+    def handle_episode_ended(self) -> None:
+        """
+        Make any changes needed when each episode is ended.
+        This includes incrementing counters, updating full episode dependent values, updating logs, etc.
+        This function is called right after each episode is ended.
+
+        :return: None
+        """
+        raise NotImplementedError("")

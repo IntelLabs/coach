@@ -325,7 +325,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             self.update_log()
             return None
 
-    def run_pre_network_filter_for_inference(self, state: StateType):
+    def run_pre_network_filter_for_inference(self, state: StateType, update_internal_state: bool=False):
         dummy_env_response = EnvResponse(next_state=state, reward=0, game_over=False)
         return self.pre_network_filter.filter(dummy_env_response, update_internal_state=False)[0].next_state
 

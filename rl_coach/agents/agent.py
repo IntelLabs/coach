@@ -15,13 +15,11 @@
 #
 
 import copy
-import os
 import random
 from collections import OrderedDict
 from typing import Dict, List, Union, Tuple
 
 import numpy as np
-from pandas import read_pickle
 from six.moves import range
 
 from rl_coach.agents.agent_interface import AgentInterface
@@ -611,35 +609,35 @@ class Agent(AgentInterface):
         :return:  boolean: True if we should start a training phase
         """
 
-        should_update = self._should_train_helper()
+        should_update = self._should_update()
 
-        step_method = self.ap.algorithm.num_consecutive_playing_steps
+        steps = self.ap.algorithm.num_consecutive_playing_steps
 
         if should_update:
-            if step_method.__class__ == EnvironmentEpisodes:
+            if steps.__class__ == EnvironmentEpisodes:
                 self.last_training_phase_step = self.current_episode
-            if step_method.__class__ == EnvironmentSteps:
+            if steps.__class__ == EnvironmentSteps:
                 self.last_training_phase_step = self.total_steps_counter
 
         return should_update
 
-    def _should_train_helper(self):
+    def _should_update(self):
         wait_for_full_episode = self.ap.algorithm.act_for_full_episodes
-        step_method = self.ap.algorithm.num_consecutive_playing_steps
+        steps = self.ap.algorithm.num_consecutive_playing_steps
 
-        if step_method.__class__ == EnvironmentEpisodes:
-            should_update = (self.current_episode - self.last_training_phase_step) >= step_method.num_steps
+        if steps.__class__ == EnvironmentEpisodes:
+            should_update = (self.current_episode - self.last_training_phase_step) >= steps.num_steps
             should_update = should_update and self.call_memory('length') > 0
 
-        elif step_method.__class__ == EnvironmentSteps:
-            should_update = (self.total_steps_counter - self.last_training_phase_step) >= step_method.num_steps
+        elif steps.__class__ == EnvironmentSteps:
+            should_update = (self.total_steps_counter - self.last_training_phase_step) >= steps.num_steps
             should_update = should_update and self.call_memory('num_transitions') > 0
 
             if wait_for_full_episode:
                 should_update = should_update and self.current_episode_buffer.is_complete
         else:
             raise ValueError("The num_consecutive_playing_steps parameter should be either "
-                             "EnvironmentSteps or Episodes. Instead it is {}".format(step_method.__class__))
+                             "EnvironmentSteps or Episodes. Instead it is {}".format(steps.__class__))
 
         return should_update
 
@@ -764,7 +762,8 @@ class Agent(AgentInterface):
             # informed action
             if self.pre_network_filter is not None:
                 # before choosing an action, first use the pre_network_filter to filter out the current state
-                curr_state = self.run_pre_network_filter_for_inference(self.curr_state)
+                update_filter_internal_state = self.phase is not RunPhase.TEST
+                curr_state = self.run_pre_network_filter_for_inference(self.curr_state, update_filter_internal_state)
 
             else:
                 curr_state = self.curr_state
@@ -774,15 +773,18 @@ class Agent(AgentInterface):
 
         return filtered_action_info
 
-    def run_pre_network_filter_for_inference(self, state: StateType) -> StateType:
+    def run_pre_network_filter_for_inference(self, state: StateType, update_filter_internal_state: bool=True)\
+            -> StateType:
         """
         Run filters which where defined for being applied right before using the state for inference.
 
         :param state: The state to run the filters on
+        :param update_filter_internal_state: Should update the filter's internal state - should not update when evaluating
         :return: The filtered state
         """
         dummy_env_response = EnvResponse(next_state=state, reward=0, game_over=False)
-        return self.pre_network_filter.filter(dummy_env_response)[0].next_state
+        return self.pre_network_filter.filter(dummy_env_response,
+                                              update_internal_state=update_filter_internal_state)[0].next_state
 
     def get_state_embedding(self, state: dict) -> np.ndarray:
         """

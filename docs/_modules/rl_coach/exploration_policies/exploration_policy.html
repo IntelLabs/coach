@@ -210,7 +210,7 @@
         <span class="k">return</span> <span class="s1">&#39;rl_coach.exploration_policies.exploration_policy:ExplorationPolicy&#39;</span>
 
 
-<div class="viewcode-block" id="ExplorationPolicy"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy">[docs]</a><span class="k">class</span> <span class="nc">ExplorationPolicy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ExplorationPolicy"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy">[docs]</a><span class="k">class</span> <span class="nc">ExplorationPolicy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An exploration policy takes the predicted actions or action values from the agent, and selects the action to</span>
 <span class="sd">    actually apply to the environment using some predefined algorithm.</span>
@@ -222,14 +222,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">action_space</span>
 
-<div class="viewcode-block" id="ExplorationPolicy.reset"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ExplorationPolicy.reset"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Used for resetting the exploration policy parameters when needed</span>
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="ExplorationPolicy.get_action"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.get_action">[docs]</a>    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ActionType</span><span class="p">:</span>
+<div class="viewcode-block" id="ExplorationPolicy.get_action"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.get_action">[docs]</a>    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ActionType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a list of values corresponding to each action, </span>
 <span class="sd">        choose one actions according to the exploration policy</span>
@@ -243,7 +243,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The get_action function should be overridden in the inheriting exploration class&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExplorationPolicy.change_phase"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.change_phase">[docs]</a>    <span class="k">def</span> <span class="nf">change_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
+<div class="viewcode-block" id="ExplorationPolicy.change_phase"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.change_phase">[docs]</a>    <span class="k">def</span> <span class="nf">change_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change between running phases of the algorithm</span>
 <span class="sd">        :param phase: Either Heatup or Train</span>
@@ -251,7 +251,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span></div>
 
-<div class="viewcode-block" id="ExplorationPolicy.requires_action_values"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.ExplorationPolicy.requires_action_values">[docs]</a>    <span class="k">def</span> <span class="nf">requires_action_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="ExplorationPolicy.requires_action_values"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.requires_action_values">[docs]</a>    <span class="k">def</span> <span class="nf">requires_action_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Allows exploration policies to define if they require the action values for the current step.</span>
 <span class="sd">        This can save up a lot of computation. For example in e-greedy, if the random value generated is smaller</span>

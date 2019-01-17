@@ -379,6 +379,11 @@ class GymEnvironment(Environment):
                 num_actions=self.env.action_space.n,
                 descriptions=actions_description
             )
+        else:
+            raise screen.error((
+                "Failed to instantiate gym environment class {} due to unsupported "
+                "action space {}. Expected BoxActionSpace or DiscreteActionSpace."
+            ).format(env_class, self.env.action_space), crash=True)
 
         if self.human_control:
             # TODO: add this to the action space

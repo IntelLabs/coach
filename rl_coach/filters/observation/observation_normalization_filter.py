@@ -87,3 +87,4 @@ class ObservationNormalizationFilter(ObservationFilter):
 
     def restore_state_from_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: str):
         self.running_observation_stats.restore_state_from_checkpoint(checkpoint_dir, checkpoint_prefix)
+ 

@@ -32,6 +32,10 @@ class MiddlewareParameters(NetworkComponentParameters):
         self.is_training = is_training
         self.parameterized_class_name = parameterized_class_name
 
+    @property
+    def path(self):
+        return 'rl_coach.architectures.tensorflow_components.middlewares:' + self.parameterized_class_name
+
 
 class FCMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu',

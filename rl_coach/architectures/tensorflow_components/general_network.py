@@ -125,21 +125,24 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         super().__init__(agent_parameters, spaces, name, global_network,
                          network_is_local, network_is_trainable)
 
-        def fill_return_types():
-            ret_dict = {}
-            for cls in get_all_subclasses(PredictionType):
-                ret_dict[cls] = []
-            components = self.input_embedders + [self.middleware] + self.output_heads
-            for component in components:
-                if not hasattr(component, 'return_type'):
-                    raise ValueError("{} has no return_type attribute. This should not happen.")
-                if component.return_type is not None:
-                    ret_dict[component.return_type].append(component)
-
-            return ret_dict
-
-        self.available_return_types = fill_return_types()
+        self.available_return_types = self._available_return_types()
         self.is_training = None
+
+    def _available_return_types(self):
+        ret_dict = {cls: [] for cls in get_all_subclasses(PredictionType)}
+
+        components = self.input_embedders + [self.middleware] + self.output_heads
+        for component in components:
+            if not hasattr(component, 'return_type'):
+                raise ValueError((
+                    "{} has no return_type attribute. Without this, it is "
+                    "unclear how this component should be used."
+                ).format(component))
+
+            if component.return_type is not None:
+                ret_dict[component.return_type].append(component)
+
+        return ret_dict
 
     def predict_with_prediction_type(self, states: Dict[str, np.ndarray],
                                      prediction_type: PredictionType) -> Dict[str, np.ndarray]:
@@ -174,15 +177,13 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
                              .format(input_name, allowed_inputs.keys()))
 
-        mod_names = {'image': 'ImageEmbedder', 'vector': 'VectorEmbedder', 'tensor': 'TensorEmbedder'}
-
         emb_type = "vector"
         if isinstance(allowed_inputs[input_name], TensorObservationSpace):
             emb_type = "tensor"
         elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
             emb_type = "image"
 
-        embedder_path = 'rl_coach.architectures.tensorflow_components.embedders:' + mod_names[emb_type]
+        embedder_path = embedder_params.path(emb_type)
         embedder_params_copy = copy.copy(embedder_params)
         embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
         embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
@@ -200,7 +201,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :return: the middleware instance
         """
         mod_name = middleware_params.parameterized_class_name
-        middleware_path = 'rl_coach.architectures.tensorflow_components.middlewares:' + mod_name
+        middleware_path = middleware_params.path
         middleware_params_copy = copy.copy(middleware_params)
         middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
         module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
@@ -214,7 +215,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :return: the head
         """
         mod_name = head_params.parameterized_class_name
-        head_path = 'rl_coach.architectures.tensorflow_components.heads:' + mod_name
+        head_path = head_params.path
         head_params_copy = copy.copy(head_params)
         head_params_copy.activation_function = utils.get_activation_function(head_params_copy.activation_function)
         return dynamic_import_and_instantiate_module_from_params(head_params_copy, path=head_path, extra_kwargs={

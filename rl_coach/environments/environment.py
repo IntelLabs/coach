@@ -60,10 +60,11 @@ class SingleLevelSelection(LevelSelection):
             logger.screen.error("No level has been selected. Please select a level using the -lvl command line flag, "
                                 "or change the level in the preset. \nThe available levels are: \n{}"
                                 .format(', '.join(sorted(self.levels.keys()))), crash=True)
-        if self.selected_level not in self.levels.keys():
+        selected_level = self.selected_level.lower()
+        if selected_level not in self.levels.keys():
             logger.screen.error("The selected level ({}) is not part of the available levels ({})"
-                                .format(self.selected_level, ', '.join(self.levels.keys())), crash=True)
-        return self.levels[self.selected_level]
+                                .format(selected_level, ', '.join(self.levels.keys())), crash=True)
+        return self.levels[selected_level]
 
 
 # class SingleLevelPerPhase(LevelSelection):
@@ -279,7 +280,7 @@ class Environment(EnvironmentInterface):
         :return: the environment response as returned in get_last_env_response
         """
         action = self.action_space.clip_action_to_space(action)
-        if self.action_space and not self.action_space.val_matches_space_definition(action):
+        if self.action_space and not self.action_space.contains(action):
             raise ValueError("The given action does not match the action space definition. "
                              "Action = {}, action space definition = {}".format(action, self.action_space))
 
