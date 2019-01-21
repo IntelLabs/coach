@@ -454,7 +454,7 @@ class CoachLauncher(object):
                                  "effect and the CPU will be used either way.",
                             action='store_true')
         parser.add_argument('-ew', '--evaluation_worker',
-                            help="(int) If multiple workers are used, add an evaluation worker as well which will "
+                            help="(flag) If multiple workers are used, add an evaluation worker as well which will "
                                  "evaluate asynchronously and independently during the training. NOTE: this worker will "
                                  "ignore the evaluation settings in the preset's ScheduleParams.",
                             action='store_true')
