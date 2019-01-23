@@ -125,9 +125,9 @@ class DialogApp():
         my_filetypes = [('csv files', '.csv')]
 
         # Ask the user to select a one or more file names.
-        answer = filedialog.askopenfilenames(parent=application_window,
+        answer = filedialog.askopenfilename(parent=application_window,
                                              initialdir=os.getcwd(),
-                                             title="Please select one or more files",
+                                             title="Please select a file",
                                              filetypes=my_filetypes)
         application_window.destroy()
         return answer
