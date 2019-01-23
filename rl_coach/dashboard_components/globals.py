@@ -24,7 +24,6 @@ from bokeh.models import Div
 from bokeh.plotting import curdoc
 import tkinter as tk
 from tkinter import filedialog
-import os
 import colorsys
 
 patches = {}
@@ -121,13 +120,14 @@ class DialogApp():
 
     def getFileDialog(self):
         application_window = tk.Tk()
+
         # Build a list of tuples for each file type the file dialog should display
         my_filetypes = [('csv files', '.csv')]
 
         # Ask the user to select a one or more file names.
         answer = filedialog.askopenfilenames(parent=application_window,
                                              initialdir=os.getcwd(),
-                                             title="Please select one or more files:",
+                                             title="Please select one or more files",
                                              filetypes=my_filetypes)
         application_window.destroy()
         return answer
@@ -135,13 +135,13 @@ class DialogApp():
 
     def getDirDialog(self):
         application_window = tk.Tk()
+
         # Ask the user to select a folder.
         answer = filedialog.askdirectory(parent=application_window,
                                          initialdir=os.getcwd(),
-                                         title="Please select a folder:")
+                                         title="Please select a folder")
         application_window.destroy()
         return answer
-
 
 
 
@@ -163,5 +163,6 @@ class FolderType(Enum):
 
 
 dialog = DialogApp()
+
 
 doc = curdoc()
