@@ -14,17 +14,15 @@
 # limitations under the License.
 #
 
-import numpy as np
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer
+from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
-from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
-from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace, CompoundActionSpace
+from rl_coach.spaces import DiscreteActionSpace
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import eps, indent_string
+from rl_coach.utils import eps
 
 
 class ACERPolicyHead(Head):
@@ -51,34 +49,36 @@ class ACERPolicyHead(Head):
                 tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES, self.regularizations)
 
             # Truncated importance sampling with bias corrections
-            importance_weight_i = tf.placeholder(tf.float32, [None],
-                                                 name='{}_importance_weight_i'.format(self.get_name()))
-            self.importance_weight.append(importance_weight_i)
-            importance_weight = tf.placeholder(tf.float32, [None, self.num_actions],
-                                               name='{}_importance_weight'.format(self.get_name()))
-            self.importance_weight.append(importance_weight)
-            advantages = tf.placeholder(tf.float32, [None],
-                                        name='{}_advantages'.format(self.get_name()))
-            self.target.append(advantages)
-            advantages_bc = tf.placeholder(tf.float32, [None, self.num_actions],
-                                           name='{}_advantages_bc'.format(self.get_name()))
-            self.target.append(advantages_bc)
+            importance_sampling_weight = tf.placeholder(tf.float32, [None, self.num_actions],
+                                                        name='{}_importance_sampling_weight'.format(self.get_name()))
+            self.input.append(importance_sampling_weight)
+            importance_sampling_weight_i = tf.placeholder(tf.float32, [None],
+                                                 name='{}_importance_sampling_weight_i'.format(self.get_name()))
+            self.input.append(importance_sampling_weight_i)
+
+            V_values = tf.placeholder(tf.float32, [None], name='{}_V_values'.format(self.get_name()))
+            self.target.append(V_values)
+            Q_values = tf.placeholder(tf.float32, [None, self.num_actions], name='{}_Q_values'.format(self.get_name()))
+            self.input.append(Q_values)
+            Q_retrace = tf.placeholder(tf.float32, [None], name='{}_Q_retrace'.format(self.get_name()))
+            self.input.append(Q_retrace)
 
             action_log_probs_wrt_policy = self.policy_distribution.log_prob(self.actions)
-            self.prob_loss = -tf.reduce_mean(action_log_probs_wrt_policy
-                                             * advantages
-                                             * tf.minimum(self.ap.algorithm.importance_weight_truncation,
-                                                          importance_weight_i))
+            self.probability_loss = -tf.reduce_mean(action_log_probs_wrt_policy
+                                                    * (Q_retrace - V_values)
+                                                    * tf.minimum(self.ap.algorithm.importance_weight_truncation,
+                                                                 importance_sampling_weight_i))
 
             log_probs_wrt_policy = tf.log(self.policy_probs + eps)
-            gain_bc = tf.reduce_sum(log_probs_wrt_policy
-                                    * advantages_bc
-                                    * tf.nn.relu(1.0 - (self.ap.algorithm.importance_weight_truncation / (importance_weight + eps)))
-                                    * tf.stop_gradient(self.policy_probs),
-                                    axis=1)
-            self.bc_loss = -tf.reduce_mean(gain_bc)
+            bias_correction_gain = tf.reduce_sum(log_probs_wrt_policy
+                                                 * (Q_values - tf.expand_dims(V_values, 1))
+                                                 * tf.nn.relu(1.0 - (self.ap.algorithm.importance_weight_truncation
+                                                                     / (importance_sampling_weight + eps)))
+                                                 * tf.stop_gradient(self.policy_probs),
+                                                 axis=1)
+            self.bias_correction_loss = -tf.reduce_mean(bias_correction_gain)
 
-            self.loss = self.prob_loss + self.bc_loss
+            self.loss = self.probability_loss + self.bias_correction_loss
             tf.losses.add_loss(self.loss)
 
             # Trust region
@@ -114,7 +114,3 @@ class ACERPolicyHead(Head):
         # (the + eps is to prevent probability 0 which will cause the log later on to be -inf)
         self.policy_distribution = tf.contrib.distributions.Categorical(probs=(self.policy_probs + eps))
         self.output = self.policy_probs
-
-    def calculate_trust_region_gradients(self, weights_placeholders):
-        grads = tf.gradients(self.policy_probs, weights_placeholders, self.policy_grads_wrt_network_output)
-        return [g for g in grads if g is not None]

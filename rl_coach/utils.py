@@ -532,12 +532,3 @@ def start_shell_command_and_wait(command):
 
 def indent_string(string):
     return '\t' + string.replace('\n', '\n\t')
-
-
-# for ACER
-def get_by_index(x, idx):
-    assert (len(x.shape) == 2)
-    assert (len(idx.shape) == 1)
-    idx_flattened = np.array(range(0, x.shape[0])) * x.shape[1] + idx
-    y = np.reshape(x, [-1])[idx_flattened]
-    return y

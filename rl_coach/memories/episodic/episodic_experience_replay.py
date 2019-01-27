@@ -75,17 +75,19 @@ class EpisodicExperienceReplay(Memory):
     def num_transitions_in_complete_episodes(self):
         return self._num_transitions_in_complete_episodes
 
-    def sample(self, size: int, consecutive_transitions=False) -> List[Transition]:
+    def sample(self, size: int, is_consecutive_transitions=False) -> List[Transition]:
         """
         Sample a batch of transitions from the replay buffer. If the requested size is larger than the number
         of samples available in the replay buffer then the batch will return empty.
         :param size: the size of the batch to sample
+        :param is_consecutive_transitions: if set True, samples a batch of consecutive transitions but not necessarily
+                                            from the same episode.
         :return: a batch (list) of selected transitions from the replay buffer
         """
         self.reader_writer_lock.lock_writing()
 
         if self.num_complete_episodes() >= 1:
-            if consecutive_transitions:
+            if is_consecutive_transitions:
                 transition_idx = np.random.randint(size, self.num_transitions_in_complete_episodes())
                 batch = self.transitions[transition_idx-size:transition_idx]
             else:

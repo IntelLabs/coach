@@ -348,9 +348,10 @@ class TensorFlowArchitecture(Architecture):
         for placeholder_idx, target_ph in enumerate(targets):
             if len(importance_weights) <= placeholder_idx or importance_weights[placeholder_idx] is None:
                 importance_weight = np.ones(target_ph.shape[0])
-                importance_weight = np.reshape(importance_weight, (-1,) + (1,) * (len(target_ph.shape) - 1))
             else:
                 importance_weight = importance_weights[placeholder_idx]
+            importance_weight = np.reshape(importance_weight, (-1,) + (1,) * (len(target_ph.shape) - 1))
+
             feed_dict[self.importance_weights[placeholder_idx]] = importance_weight
 
         if self.optimizer_type != 'LBFGS':
