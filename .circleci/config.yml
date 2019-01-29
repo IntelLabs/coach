@@ -30,11 +30,6 @@ aliases:
         aws eks update-kubeconfig --name coach-aws-cicd
         sudo curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         sudo chmod a+x /usr/local/bin/kubectl
-  - &docker_prep
-    run:
-      name: Prepare dockerfiles
-      command: |
-        aws s3 cp --recursive s3://coach-ci-dockerfiles docker
 
 version: 2
 jobs:
@@ -45,7 +40,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push base and main container
           command: |
@@ -76,7 +70,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push gym environment container
           command: |
@@ -95,7 +88,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push vizdoom environment container
           command: |
@@ -114,7 +106,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push mujoco environment container
           command: |
@@ -133,7 +124,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run unit tests
           command: |
@@ -152,7 +142,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run integration tests
           command: |
@@ -171,7 +160,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run gym related golden tests
           command: |
@@ -192,7 +180,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run doom related golden tests
           command: |
@@ -213,7 +200,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run mujoco related golden tests
           command: |
@@ -234,7 +220,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run gym related trace tests
           command: |
@@ -255,7 +240,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run doom related trace tests
           command: |
@@ -276,7 +260,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run mujoco related trace tests
           command: |
@@ -297,7 +280,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Tag and push updated base and main container
           command: |
