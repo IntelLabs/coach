@@ -360,3 +360,20 @@ workflows:
           filters:
             branches:
               only: master
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - unit_tests
+      - integration_tests
+      - golden_test_gym
+      - golden_test_doom
+      - golden_test_mujoco
+      # - trace_test_gym
+      # - trace_test_doom
+      # - trace_test_mujoco

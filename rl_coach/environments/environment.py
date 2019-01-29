@@ -280,7 +280,7 @@ class Environment(EnvironmentInterface):
         :return: the environment response as returned in get_last_env_response
         """
         action = self.action_space.clip_action_to_space(action)
-        if self.action_space and not self.action_space.val_matches_space_definition(action):
+        if self.action_space and not self.action_space.contains(action):
             raise ValueError("The given action does not match the action space definition. "
                              "Action = {}, action space definition = {}".format(action, self.action_space))
 
