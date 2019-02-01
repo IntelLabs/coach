@@ -53,6 +53,15 @@ For more details and instructions on how to use distributed Coach, see :ref:`dis
 
    coach -p CartPole_ClippedPPO -dc -dcp <path-to-config-file> -n 8
 
+Custom Presets
+--------------
+
+Coach comes with some presets which typically reproduce results from specific papers. If you would like to create your own presets, you can specify a preset with a full path.
+
+.. code-block:: python
+
+   coach -p /home/my_user/my_agent_dir/my_preset.py:graph_manager
+
 Evaluating an Agent
 -------------------
 
