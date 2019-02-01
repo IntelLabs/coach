@@ -58,6 +58,8 @@ Custom Presets
 
 Coach comes with some presets which typically reproduce results from specific papers. If you would like to create your own presets, you can specify a preset with a full path.
 
+*Example:*
+
 .. code-block:: python
 
    coach -p /home/my_user/my_agent_dir/my_preset.py:graph_manager
