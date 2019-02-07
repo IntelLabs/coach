@@ -109,6 +109,14 @@ class S3DataStore(DataStore):
                 rel_name = os.path.relpath(abs_name, checkpoint_dir)
                 self.mc.fput_object(self.params.bucket_name, rel_name, abs_name)
 
+            # upload Finished if present
+            if os.path.exists(os.path.join(checkpoint_dir, SyncFiles.FINISHED.value)):
+                self.mc.put_object(self.params.bucket_name, SyncFiles.FINISHED.value, io.BytesIO(b''), 0)
+
+            # upload Ready if present
+            if os.path.exists(os.path.join(checkpoint_dir, SyncFiles.TRAINER_READY.value)):
+                self.mc.put_object(self.params.bucket_name, SyncFiles.TRAINER_READY.value, io.BytesIO(b''), 0)
+
             # release lock
             self.mc.remove_object(self.params.bucket_name, SyncFiles.LOCKFILE.value)
 
@@ -124,6 +132,7 @@ class S3DataStore(DataStore):
             if self.params.expt_dir and os.path.exists(os.path.join(self.params.expt_dir, 'gifs')):
                 for filename in os.listdir(os.path.join(self.params.expt_dir, 'gifs')):
                         self.mc.fput_object(self.params.bucket_name, filename, os.path.join(self.params.expt_dir, 'gifs', filename))
+
         except ResponseError as e:
             print("Got exception: %s\n while saving to S3", e)
 
@@ -156,6 +165,18 @@ class S3DataStore(DataStore):
                     self.mc.fget_object(
                         self.params.bucket_name, SyncFiles.FINISHED.value,
                         os.path.abspath(os.path.join(self.params.checkpoint_dir, SyncFiles.FINISHED.value))
+                    )
+                except Exception as e:
+                    pass
+
+            # Check if there's a ready file
+            objects = self.mc.list_objects_v2(self.params.bucket_name, SyncFiles.TRAINER_READY.value)
+
+            if next(objects, None) is not None:
+                try:
+                    self.mc.fget_object(
+                        self.params.bucket_name, SyncFiles.TRAINER_READY.value,
+                        os.path.abspath(os.path.join(self.params.checkpoint_dir, SyncFiles.TRAINER_READY.value))
                     )
                 except Exception as e:
                     pass

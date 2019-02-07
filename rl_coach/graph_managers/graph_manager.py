@@ -347,6 +347,10 @@ class GraphManager(object):
 
     @contextlib.contextmanager
     def phase_context(self, phase):
+        """
+        Create a context which temporarily sets the phase to the provided phase.
+        The previous phase is restored afterwards.
+        """
         old_phase = self.phase
         self.phase = phase
         yield
@@ -465,8 +469,11 @@ class GraphManager(object):
 
                 count_end = self.current_step_counter + steps
                 while self.current_step_counter < count_end:
-                    # The actual steps being done on the environment are decided by the agents themselves.
-                    # This is just an high-level controller.
+                    # The actual number of steps being done on the environment
+                    # is decided by the agent, though this inner loop always
+                    # takes at least one step in the environment. Depending on
+                    # internal counters and parameters, it doesn't always train
+                    # or save checkpoints.
                     self.act(EnvironmentSteps(1))
                     self.train()
                     self.occasionally_save_checkpoint()
@@ -706,6 +713,9 @@ class GraphManager(object):
     def signal_ready(self):
         if self.task_parameters.checkpoint_save_dir and os.path.exists(self.task_parameters.checkpoint_save_dir):
                 open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.TRAINER_READY.value), 'w').close()
+        if hasattr(self, 'data_store_params'):
+                data_store = self.get_data_store(self.data_store_params)
+                data_store.save_to_store()
 
     def close(self) -> None:
         """

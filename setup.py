@@ -50,7 +50,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 install_requires = list()
 extras = dict()
-excluded_packages = ['wxPython', 'kubernetes', 'tensorflow'] if slim_package else []
+excluded_packages = ['kubernetes', 'tensorflow'] if slim_package else []
 
 with open(path.join(here, 'requirements.txt'), 'r') as f:
     for line in f:

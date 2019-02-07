@@ -1,5 +1,5 @@
 [coach]
-image = 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:master
+image = 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:v0.11.1-14-g822e477
 memory_backend = redispubsub
 data_store = s3
 s3_end_point = s3.amazonaws.com

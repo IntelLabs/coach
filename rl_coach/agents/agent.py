@@ -609,35 +609,35 @@ class Agent(AgentInterface):
         :return:  boolean: True if we should start a training phase
         """
 
-        should_update = self._should_train_helper()
+        should_update = self._should_update()
 
-        step_method = self.ap.algorithm.num_consecutive_playing_steps
+        steps = self.ap.algorithm.num_consecutive_playing_steps
 
         if should_update:
-            if step_method.__class__ == EnvironmentEpisodes:
+            if steps.__class__ == EnvironmentEpisodes:
                 self.last_training_phase_step = self.current_episode
-            if step_method.__class__ == EnvironmentSteps:
+            if steps.__class__ == EnvironmentSteps:
                 self.last_training_phase_step = self.total_steps_counter
 
         return should_update
 
-    def _should_train_helper(self):
+    def _should_update(self):
         wait_for_full_episode = self.ap.algorithm.act_for_full_episodes
-        step_method = self.ap.algorithm.num_consecutive_playing_steps
+        steps = self.ap.algorithm.num_consecutive_playing_steps
 
-        if step_method.__class__ == EnvironmentEpisodes:
-            should_update = (self.current_episode - self.last_training_phase_step) >= step_method.num_steps
+        if steps.__class__ == EnvironmentEpisodes:
+            should_update = (self.current_episode - self.last_training_phase_step) >= steps.num_steps
             should_update = should_update and self.call_memory('length') > 0
 
-        elif step_method.__class__ == EnvironmentSteps:
-            should_update = (self.total_steps_counter - self.last_training_phase_step) >= step_method.num_steps
+        elif steps.__class__ == EnvironmentSteps:
+            should_update = (self.total_steps_counter - self.last_training_phase_step) >= steps.num_steps
             should_update = should_update and self.call_memory('num_transitions') > 0
 
             if wait_for_full_episode:
                 should_update = should_update and self.current_episode_buffer.is_complete
         else:
             raise ValueError("The num_consecutive_playing_steps parameter should be either "
-                             "EnvironmentSteps or Episodes. Instead it is {}".format(step_method.__class__))
+                             "EnvironmentSteps or Episodes. Instead it is {}".format(steps.__class__))
 
         return should_update
 
@@ -977,32 +977,25 @@ class Agent(AgentInterface):
         :return:
         """
 
-        # if we are in the first step in the episode, then we don't have a a next state and a reward and thus no
-        # transition yet, and therefore we don't need to store anything in the memory.
-        # also we did not reach the goal yet.
-        if self.current_episode_steps_counter == 0:
-            # initialize the current state
-            return transition.game_over
-        else:
-            # sum up the total shaped reward
-            self.total_shaped_reward_in_current_episode += transition.reward
-            self.total_reward_in_current_episode += transition.reward
-            self.shaped_reward.add_sample(transition.reward)
-            self.reward.add_sample(transition.reward)
+        # sum up the total shaped reward
+        self.total_shaped_reward_in_current_episode += transition.reward
+        self.total_reward_in_current_episode += transition.reward
+        self.shaped_reward.add_sample(transition.reward)
+        self.reward.add_sample(transition.reward)
+        
+        # create and store the transition
+        if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
+            # for episodic memories we keep the transitions in a local buffer until the episode is ended.
+            # for regular memories we insert the transitions directly to the memory
+            self.current_episode_buffer.insert(transition)
+            if not isinstance(self.memory, EpisodicExperienceReplay) \
+                    and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
+                self.call_memory('store', transition)
 
-            # create and store the transition
-            if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
-                # for episodic memories we keep the transitions in a local buffer until the episode is ended.
-                # for regular memories we insert the transitions directly to the memory
-                self.current_episode_buffer.insert(transition)
-                if not isinstance(self.memory, EpisodicExperienceReplay) \
-                        and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
-                    self.call_memory('store', transition)
+        if self.ap.visualization.dump_in_episode_signals:
+            self.update_step_in_episode_log()
 
-            if self.ap.visualization.dump_in_episode_signals:
-                self.update_step_in_episode_log()
-
-            return transition.game_over
+        return transition.game_over
 
     # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
     #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
