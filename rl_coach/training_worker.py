@@ -52,6 +52,7 @@ def training_worker(graph_manager, task_parameters, data_store):
     eval_offset = 1
 
     graph_manager.setup_memory_backend()
+    graph_manager.signal_ready()
 
     while steps < graph_manager.improve_steps.num_steps:
 

@@ -703,6 +703,10 @@ class GraphManager(object):
 
         return data_store_creator(param)
 
+    def signal_ready(self):
+        if self.task_parameters.checkpoint_save_dir and os.path.exists(self.task_parameters.checkpoint_save_dir):
+                open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.TRAINER_READY.value), 'w').close()
+
     def close(self) -> None:
         """
         Clean up to close environments.

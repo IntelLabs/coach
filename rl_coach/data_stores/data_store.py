@@ -57,3 +57,4 @@ class DataStore(object):
 class SyncFiles(Enum):
     FINISHED = ".finished"
     LOCKFILE = ".lock"
+    TRAINER_READY = ".ready"
