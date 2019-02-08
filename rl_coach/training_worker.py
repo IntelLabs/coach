@@ -33,6 +33,9 @@ def data_store_ckpt_save(data_store):
 def training_worker(graph_manager, task_parameters, multi_node_test):
     """
     restore a checkpoint then perform rollouts using the restored model
+    :param graph_manager: An instance of the graph manager
+    :param task_parameters: An instance of task parameters
+    :param is_multi_node_test: If this is a multi node test insted of a normal run.
     """
     # initialize graph
     graph_manager.create_graph(task_parameters)

@@ -9,7 +9,10 @@ from minio import Minio
 
 
 def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
-
+    """
+    Generate the s3 config file to be used and also the dist-coach-config.template to be used for the test
+    It reads the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` env vars and fails if they are not provided.
+    """
     # Write s3 creds
     aws_config = ConfigParser({
         'aws_access_key_id': os.environ.get('AWS_ACCESS_KEY_ID'),
@@ -31,6 +34,9 @@ def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_cred
 
 
 def test_command(command):
+    """
+    Launches the actual training.
+    """
     sys.argv = command
     launcher = CoachLauncher()
     with pytest.raises(SystemExit) as e:
@@ -39,6 +45,9 @@ def test_command(command):
 
 
 def clear_bucket(s3_end_point, s3_bucket_name):
+    """
+    Clear the bucket before starting the test.
+    """
     access_key = os.environ.get('AWS_ACCESS_KEY_ID')
     secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
     minio_client = Minio(s3_end_point, access_key=access_key, secret_key=secret_access_key)
@@ -50,12 +59,18 @@ def clear_bucket(s3_end_point, s3_bucket_name):
 
 
 def test_dc(command, image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+    """
+    Entry point into the test
+    """
     clear_bucket(s3_end_point, s3_bucket_name)
     command = command.format(template=config_file).split(' ')
     test_command(command)
 
 
 def get_tests():
+    """
+    All the presets to test. New presets should be added here.
+    """
     tests = [
         'rl_coach/coach.py -p CartPole_ClippedPPO -dc -e sample -dcp {template} --dump_worker_logs -asc --multi_node_test',
         'rl_coach/coach.py -p Mujoco_ClippedPPO -lvl inverted_pendulum -dc -e sample -dcp {template} --dump_worker_logs -asc --multi_node_test'
