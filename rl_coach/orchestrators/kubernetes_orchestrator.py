@@ -166,7 +166,7 @@ class Kubernetes(Deploy):
                         name="nfs-pvc",
                         persistent_volume_claim=self.nfs_pvc
                     )],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 ),
             )
         else:
@@ -185,7 +185,7 @@ class Kubernetes(Deploy):
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
                 spec=k8sclient.V1PodSpec(
                     containers=[container],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 ),
             )
 
@@ -247,7 +247,7 @@ class Kubernetes(Deploy):
                         name="nfs-pvc",
                         persistent_volume_claim=self.nfs_pvc
                     )],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 ),
             )
         else:
@@ -266,7 +266,7 @@ class Kubernetes(Deploy):
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
                 spec=k8sclient.V1PodSpec(
                     containers=[container],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 )
             )
 

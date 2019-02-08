@@ -84,7 +84,8 @@ class DFPAlgorithmParameters(AlgorithmParameters):
     """
     :param num_predicted_steps_ahead: (int)
         Number of future steps to predict measurements for. The future steps won't be sequential, but rather jump
-        in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4
+        in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4.
+        The predicted steps will be [t + 2**i for i in range(num_predicted_steps_ahead)]
 
     :param goal_vector: (List[float])
         The goal vector will weight each of the measurements to form an optimization goal. The vector should have

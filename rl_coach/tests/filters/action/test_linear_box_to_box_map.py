@@ -25,5 +25,5 @@ def test_filter():
     action = np.array([12])
     result = filter.filter(action)
     assert result == np.array([11])
-    assert output_space.val_matches_space_definition(result)
+    assert output_space.contains(result)
 

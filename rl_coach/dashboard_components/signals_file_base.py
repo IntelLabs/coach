@@ -55,6 +55,9 @@ class SignalsFileBase:
                     signal.toggle_axis()
 
     def update_source_and_signals(self):
+        # Remove old index
+        self.csv = self.csv.reset_index(drop=True)
+
         # create bokeh data sources
         self.bokeh_source_orig = ColumnDataSource(self.csv)
 

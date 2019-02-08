@@ -71,8 +71,8 @@ class ObservationCropFilter(ObservationFilter):
         if np.any(crop_high > input_observation_space.shape) or \
                 np.any(crop_low > input_observation_space.shape):
             raise ValueError("The cropping values are outside of the observation space")
-        if not input_observation_space.is_point_in_space_shape(crop_low) or \
-                not input_observation_space.is_point_in_space_shape(crop_high - 1):
+        if not input_observation_space.is_valid_index(crop_low) or \
+                not input_observation_space.is_valid_index(crop_high - 1):
             raise ValueError("The cropping indices are outside of the observation space")
 
     def filter(self, observation: ObservationType, update_internal_state: bool=True) -> ObservationType:
