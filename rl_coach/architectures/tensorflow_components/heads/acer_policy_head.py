@@ -33,10 +33,20 @@ class ACERPolicyHead(Head):
                          dense_layer=dense_layer)
         self.name = 'acer_policy_head'
         self.return_type = ActionProbabilities
-        self.beta = agent_parameters.algorithm.beta_entropy
+        self.beta = None
+        self.action_penalty = None
+
+        # a scalar weight that penalizes low entropy values to encourage exploration
+        if hasattr(agent_parameters.algorithm, 'beta_entropy'):
+            # we set the beta value as a tf variable so it can be updated later if needed
+            self.beta = tf.Variable(float(agent_parameters.algorithm.beta_entropy),
+                                    trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
+            self.beta_placeholder = tf.placeholder('float')
+            self.set_beta = tf.assign(self.beta, self.beta_placeholder)
 
     def _build_module(self, input_layer):
         if isinstance(self.spaces.action, DiscreteActionSpace):
+            # create a discrete action network (softmax probabilities output)
             self._build_discrete_net(input_layer, self.spaces.action)
         else:
             raise ValueError("only discrete action spaces are supported for ACER")
@@ -45,15 +55,15 @@ class ACERPolicyHead(Head):
             # add entropy regularization
             if self.beta:
                 self.entropy = tf.reduce_mean(self.policy_distribution.entropy())
-                self.regularizations = -tf.multiply(self.beta, self.entropy, name='entropy_regularization')
-                tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES, self.regularizations)
+                self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
+            tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES, self.regularizations)
 
             # Truncated importance sampling with bias corrections
             importance_sampling_weight = tf.placeholder(tf.float32, [None, self.num_actions],
                                                         name='{}_importance_sampling_weight'.format(self.get_name()))
             self.input.append(importance_sampling_weight)
             importance_sampling_weight_i = tf.placeholder(tf.float32, [None],
-                                                 name='{}_importance_sampling_weight_i'.format(self.get_name()))
+                                                          name='{}_importance_sampling_weight_i'.format(self.get_name()))
             self.input.append(importance_sampling_weight_i)
 
             V_values = tf.placeholder(tf.float32, [None], name='{}_V_values'.format(self.get_name()))

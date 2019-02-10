@@ -25,8 +25,10 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 agent_params = ACERAgentParameters()
 
 agent_params.algorithm.num_steps_between_gradient_updates = 30
+agent_params.algorithm.apply_gradients_every_x_episodes = 1
+agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.algorithm.ratio_of_replay = 4
-agent_params.algorithm.num_transitions_to_start_replay = 2000
+agent_params.algorithm.num_transitions_to_start_replay = 4000
 agent_params.memory.max_size = (MemoryGranularity.Transitions, 100000)
 agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/100.))
@@ -42,10 +44,10 @@ env_params = DoomEnvironmentParameters(level='basic')
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-# preset_validation_params.test = True
-# preset_validation_params.min_reward_threshold = 20
-# preset_validation_params.max_episodes_to_achieve_reward = 400
-# preset_validation_params.num_workers = 8
+preset_validation_params.test = True
+preset_validation_params.min_reward_threshold = 20
+preset_validation_params.max_episodes_to_achieve_reward = 300
+preset_validation_params.num_workers = 8
 
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
