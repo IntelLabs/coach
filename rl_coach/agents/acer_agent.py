@@ -60,7 +60,7 @@ class ACERAlgorithmParameters(AlgorithmParameters):
 
     :param beta_entropy: (float)
         An entropy regulaization term can be added to the loss function in order to control exploration. This term
-        is weighted using the :math:`\beta` value defined by beta_entropy.
+        is weighted using the beta value defined by beta_entropy.
     """
     def __init__(self):
         super().__init__()

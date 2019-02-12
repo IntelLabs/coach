@@ -190,6 +190,14 @@ The algorithms are ordered by their release date in descending order.
                learning stability and speed, both for discrete and continuous action spaces.
             </span>
          </div>
+         <div class="algorithm discrete on-policy requires-multi-worker" data-year="201707">
+            <span class="badge">
+               <a href="components/agents/policy_optimization/acer.html">ACER</a>
+               <br>
+               Similar to A3C with the addition of experience replay and off-policy training. to reduce variance and
+               improve stability it also employs bia correction and trust region optimization techniques.
+            </span>
+         </div>
          <div class="algorithm continuous off-policy" data-year="201509">
             <span class="badge">
                <a href="components/agents/policy_optimization/ddpg.html">DDPG</a>
