@@ -192,6 +192,7 @@ class Agent(AgentInterface):
             # we need to seed the RNG since the different processes are initialized with the same parent seed
             random.seed()
             np.random.seed()
+        self.is_batch_rl = False
 
     @property
     def parent(self) -> 'LevelManager':
@@ -654,15 +655,18 @@ class Agent(AgentInterface):
             for network in self.networks.values():
                 network.set_is_training(True)
 
-            for training_step in range(self.ap.algorithm.num_consecutive_training_steps):
-                # TODO: this should be network dependent
-                network_parameters = list(self.ap.network_wrappers.values())[0]
+            # TODO: this should be network dependent
+            network_parameters = list(self.ap.network_wrappers.values())[0]
 
+            # we either go sequentially through the entire replay buffer in the batch RL mode,
+            # or sample randomly for the basic RL case.
+            training_schedule = self.call_memory('get_shuffled_data_generator', network_parameters.batch_size) if \
+                self.is_batch_rl else [self.call_memory('sample', network_parameters.batch_size) for _ in
+                                       range(self.ap.algorithm.num_consecutive_training_steps)]
+
+            for batch in training_schedule:
                 # update counters
                 self.training_iteration += 1
-
-                # sample a batch and train on it
-                batch = self.call_memory('sample', network_parameters.batch_size)
                 if self.pre_network_filter is not None:
                     batch = self.pre_network_filter.filter(batch, update_internal_state=False, deep_copy=False)
 

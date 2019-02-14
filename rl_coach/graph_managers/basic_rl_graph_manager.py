@@ -31,8 +31,9 @@ class BasicRLGraphManager(GraphManager):
     def __init__(self, agent_params: AgentParameters, env_params: EnvironmentParameters,
                  schedule_params: ScheduleParameters,
                  vis_params: VisualizationParameters=VisualizationParameters(),
-                 preset_validation_params: PresetValidationParameters = PresetValidationParameters()):
-        super().__init__('simple_rl_graph', schedule_params, vis_params)
+                 preset_validation_params: PresetValidationParameters = PresetValidationParameters(),
+                 name='simple_rl_graph'):
+        super().__init__(name, schedule_params, vis_params)
         self.agent_params = agent_params
         self.env_params = env_params
         self.preset_validation_params = preset_validation_params
