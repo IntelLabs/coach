@@ -42,10 +42,95 @@ def test_preset_args(preset_args, flag, clres, start_time=time.time(),
     print(str(run_cmd))
 
     # run command
+    proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
+
+    # validate results
+    try:
+        a_utils.validate_arg_result(flag=test_flag,
+                                    p_valid_params=p_valid_params, clres=clres,
+                                    process=proc, start_time=start_time,
+                                    timeout=time_limit)
+    except AssertionError:
+        # close process once get assert false
+        proc.kill()
+
+    # Close process
+    proc.kill()
+
+
+def test_preset_args_combination(preset_args, comb_flag, clres,
+                                 start_time=time.time(),
+                                 time_limit=Def.TimeOuts.test_time_limit):
+    """
+    Test command arguments - test will check an combination between flags.
+    """
+    p_valid_params = p_utils.validation_params(preset_args)
+
+    run_cmd = [
+        'python3', 'rl_coach/coach.py',
+        '-p', '{}'.format(preset_args),
+        '-e', '{}'.format("ExpName_" + preset_args),
+    ]
+
+    if p_valid_params.reward_test_level:
+        lvl = ['-lvl', '{}'.format(p_valid_params.reward_test_level)]
+        run_cmd.extend(lvl)
+
+    # add flags to run command
+    test_flag = a_utils.add_combination_flags(comb_flags=comb_flag)
+    run_cmd.extend(test_flag)
+    print(str(run_cmd))
+
+    # run command
     p = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
 
     # validate results
-    a_utils.validate_args_results(test_flag, clres, p, start_time, time_limit)
+    try:
+        for flag in comb_flag:
+            a_utils.validate_arg_result(flag=flag,
+                                        p_valid_params=p_valid_params,
+                                        clres=clres,
+                                        process=p, start_time=start_time,
+                                        timeout=time_limit)
+    except AssertionError:
+        # close process once get assert false
+        p.kill()
 
     # Close process
     p.kill()
+
+
+def test_preset_mxnet_framework(preset_for_mxnet_args, clres,
+                                start_time=time.time(),
+                                time_limit=Def.TimeOuts.test_time_limit):
+    """ Test command arguments - the test will check mxnet framework"""
+
+    flag = ["-f", "mxnet"]
+    p_valid_params = p_utils.validation_params(preset_for_mxnet_args)
+
+    run_cmd = [
+        'python3', 'rl_coach/coach.py',
+        '-p', '{}'.format(preset_for_mxnet_args),
+        '-e', '{}'.format("ExpName_" + preset_for_mxnet_args),
+    ]
+
+    # add flags to run command
+    test_flag = a_utils.add_one_flag_value(flag=flag)
+    run_cmd.extend(test_flag)
+    print(str(run_cmd))
+
+    # run command
+    proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
+
+    # validate results
+    try:
+        a_utils.validate_arg_result(flag=test_flag,
+                                    p_valid_params=p_valid_params, clres=clres,
+                                    process=proc, start_time=start_time,
+                                    timeout=time_limit)
+    except AssertionError:
+        # close process once get assert false
+        proc.kill()
+
+    # Close process
+    proc.kill()

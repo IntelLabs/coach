@@ -36,49 +36,76 @@ class Definitions:
         cp = "custom_parameter"
         seed = "seed"
         dccp = "distributed_coach_config_path"
+        enw = "num_workers"
+        fw_ten = "framework_tensorflow"
+        fw_mx = "framework_mxnet"
+        et = "rl_coach.environments.gym_environment:Atari"
 
         """
         Arguments that can be tested for python coach command
-         ** None    = Flag - no need for string or int
-         ** {}      = Add format for this parameter
+         ** 1 parameter    = Flag - no need for string or int
+         ** 2 parameters   = add value for the selected flag
         """
-        cmd_args = {
-            # '-l': None,
-            # '-e': '{}',
-            # '-r': None,
-            # '-n': '{' + enw + '}',
-            # '-c': None,
-            # '-ew': None,
-            '--play': None,
-            '--evaluate': None,
-            # '-v': None,
-            # '-tfv': None,
-            '--nocolor': None,
-            # '-s': '{' + css + '}',
-            # '-crd': '{' + crd + '}',
-            '-dg': None,
-            '-dm': None,
-            # '-et': '{' + et + '}',
-            # '-ept': '{' + ept + '}',
-            # '-lvl': '{level}',
-            # '-cp': '{' + cp + '}',
-            '--print_networks_summary': None,
-            '-tb': None,
-            '-ns': None,
-            '-d': None,
-            # '--seed': '{' + seed + '}',
-            '-onnx': None,
-            '-dc': None,
-            # '-dcp': '{' + dccp + '}',
-            '-asc': None,
-            '--dump_worker_logs': None,
-        }
+
+        cmd_args = [
+            ['-ew'],
+            ['--play'],
+            ['--evaluate'],
+            ['-f', fw_ten],
+            ['--nocolor'],
+            ['-s', css],
+            ['-crd', crd],
+            ['-dg'],
+            ['-dm'],
+            ['-cp', cp],
+            ['--print_networks_summary'],
+            ['-tb'],
+            ['-ns'],
+            ['-onnx'],
+            ['-asc'],
+            ['--dump_worker_logs'],
+            ['-et', et],
+            # '-lvl': '{level}',  # TODO: Add test validation on args_utils
+            # '-e': '{}',  # TODO: Add test validation on args_utils
+            # '-l': None,  # TODO: Add test validation on args_utils
+            # '-c': None,  # TODO: Add test validation using nvidia-smi
+            # '-v': None,  # TODO: Add test validation on args_utils
+            # '--seed': '{' + seed + '}', # TODO - Add test validation
+            # '-dc': None,  # TODO: Add test validation on args_utils
+            # '-dcp': '{}'  # TODO: Add test validation on args_utils
+            # ['-n', enw],  # Duplicated arg test
+            # ['-d'],  # Arg can't be automated - no GUI in the CI
+            # '-r': None,  # No automation test
+            # '-tfv': None,  # No automation test
+            # '-ept': '{' + ept + '}',  # No automation test - not supported
+        ]
+        # TODO: 1- add params that still not tested (from above list)
+        #       2- remove irrelevant args
+        cmd_args_combination = [
+            ['-ew'],
+            ['-f', fw_ten],
+            ['--evaluate'],
+            ['-s', css],
+            ['-dg'],
+            ['-dm'],
+            ['-cp', cp],
+            ['-tb'],
+            ['-ns'],
+            ['-ns'],
+            ['-onnx'],
+            ['-asc'],
+        ]
 
     class Presets:
         # Preset list for testing the flags/ arguments of python coach command
         args_test = [
             "CartPole_A3C",
-            # "CartPole_NEC",
+        ]
+
+    class PresetsForMXNet:
+        # Preset list for testing the flags/ arguments of python coach command
+        args_test = [
+            "Doom_Basic_DQN",
         ]
 
     class Path:
@@ -86,6 +113,7 @@ class Definitions:
         tensorboard = "tensorboard"
         gifs = "gifs"
         videos = "videos"
+        checkpoint = "checkpoint"
 
     class Consts:
         ASSERT_MSG = "Expected: {}, Actual: {}."
@@ -105,7 +133,18 @@ class Definitions:
                        "These flags can not be used together. For human " \
                        "control, please use the --play flag together with " \
                        "the environment type flag (-et)"
+        NO_CHECKPOINT = "No checkpoint to restore in:"
+        LOG_ERROR = "KeyError:"
+
+        num_is = 2000
+        num_sbep = 500
+        num_hs = 200
+        num_es = 1
+
+        f_comb = 2  # number of flags in cmd for creating flags combinations
 
     class TimeOuts:
         test_time_limit = 60 * 60
         wait_for_files = 20
+        wait_for_csv = 240
+        test_run = 15

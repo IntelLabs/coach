@@ -74,11 +74,29 @@ def flag(request):
     return request.param
 
 
+@pytest.fixture(scope="function", params=list(a_utils.collect_args_comb()))
+def comb_flag(request):
+    """
+    Return a combination of relevant flags
+    """
+    return request.param
+
+
 @pytest.fixture(scope="module", params=list(a_utils.collect_preset_for_args()))
 def preset_args(request):
     """
     Return preset names that can be used for args testing only; working in
     module scope
+    """
+    return request.param
+
+
+@pytest.fixture(scope="module",
+                params=list(a_utils.collect_preset_for_mxnet()))
+def preset_for_mxnet_args(request):
+    """
+    Return preset names that can be used for args testing only; this special
+    fixture will be used for mxnet framework only. working in module scope
     """
     return request.param
 
@@ -112,8 +130,8 @@ def clres(request):
 
     # get the stdout for logs results
     log_file_name = 'test_log_{}.txt'.format(p_name)
-    stdout = open(log_file_name, 'w')
-    fn_pattern = 'worker_0*.csv' if p_valid_params.num_workers > 1 else '*.csv'
+    stdout = open(log_file_name, 'w+')
+    fn_pattern = '*.csv' if p_valid_params.num_workers > 1 else 'worker_0*.csv'
 
     res = CreateCsvLog(test_path, stdout, fn_pattern)
 
