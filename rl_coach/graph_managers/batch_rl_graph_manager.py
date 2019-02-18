@@ -53,6 +53,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
         # agent loading
         self.agent_params.task_parameters = task_parameters  # TODO: this should probably be passed in a different way
         self.agent_params.name = "agent"
+        self.agent_params.is_batch_rl_training = True
         agent = short_dynamic_import(self.agent_params.path)(self.agent_params)
 
         # TODO load dataset into the agent's replay buffer. optionally normalize it, and clean it from outliers.
