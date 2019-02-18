@@ -17,6 +17,7 @@
 from typing import List, Tuple, Union, Dict, Any
 
 import numpy as np
+import random
 
 from rl_coach.core_types import Transition, Episode
 from rl_coach.memories.memory import Memory, MemoryGranularity, MemoryParameters
@@ -104,6 +105,33 @@ class EpisodicExperienceReplay(Memory):
         self.reader_writer_lock.release_writing()
 
         return batch
+
+    def get_shuffled_data_generator(self, size: int) -> List[Transition]:
+        """
+        Get an generator for iterating through the shuffled replay buffer, for processing the data in epochs.
+        If the requested size is larger than the number of samples available in the replay buffer then the batch will
+        return empty. The last returned batch may be smaller than the size requested, to accommodate for all the
+        transitions in the replay buffer.
+
+        :param size: the size of the batch to return
+        :return: a batch (list) of selected transitions from the replay buffer
+        """
+        self.reader_writer_lock.lock_writing()
+        shuffled_transition_indices = list(range(self.num_transitions_in_complete_episodes()))
+        random.shuffle(shuffled_transition_indices)
+
+        # we deliberately drop some of the ending data which is left after dividing to batches of size `size`
+        # for i in range(math.ceil(len(shuffled_transition_indices) / size)):
+        for i in range(int(len(shuffled_transition_indices) / size)):
+            sample_data = [self.transitions[j] for j in shuffled_transition_indices[i * size: (i + 1) * size]]
+            self.reader_writer_lock.release_writing()
+
+            yield sample_data
+
+        ## usage example
+        # for o in random_seq_generator(list(range(10)), 4):
+        #     print(o)
+
 
     def _enforce_max_length(self) -> None:
         """

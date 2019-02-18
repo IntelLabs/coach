@@ -192,7 +192,6 @@ class Agent(AgentInterface):
             # we need to seed the RNG since the different processes are initialized with the same parent seed
             random.seed()
             np.random.seed()
-        self.is_batch_rl = False
 
     @property
     def parent(self) -> 'LevelManager':
@@ -660,9 +659,18 @@ class Agent(AgentInterface):
 
             # we either go sequentially through the entire replay buffer in the batch RL mode,
             # or sample randomly for the basic RL case.
+            is_batch_rl = self.parent_level_manager.parent_graph_manager.is_batch_rl
             training_schedule = self.call_memory('get_shuffled_data_generator', network_parameters.batch_size) if \
-                self.is_batch_rl else [self.call_memory('sample', network_parameters.batch_size) for _ in
-                                       range(self.ap.algorithm.num_consecutive_training_steps)]
+                is_batch_rl else [self.call_memory('sample', network_parameters.batch_size) for _ in
+                                      range(self.ap.algorithm.num_consecutive_training_steps)]
+
+            #
+            # if is_batch_rl:
+            #     training_schedule = self.call_memory('get_shuffled_data_generator', network_parameters.batch_size)
+            #     ope_predictions = []
+            # else:
+            #     training_schedule = [self.call_memory('sample', network_parameters.batch_size) for _ in
+            #                           range(self.ap.algorithm.num_consecutive_training_steps)]
 
             for batch in training_schedule:
                 # update counters
@@ -677,6 +685,9 @@ class Agent(AgentInterface):
                     batch = Batch(batch)
                     total_loss, losses, unclipped_grads = self.learn_from_batch(batch)
                     loss += total_loss
+                    # if is_batch_rl:
+                    #     ope_predictions.append(self.run_ope())
+
                     self.unclipped_grads.add_sample(unclipped_grads)
 
                     # TODO: the learning rate decay should be done through the network instead of here
@@ -703,6 +714,7 @@ class Agent(AgentInterface):
 
             for network in self.networks.values():
                 network.set_is_training(False)
+
 
             # run additional commands after the training is done
             self.post_training_commands()

@@ -38,6 +38,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
                  name='batch_rl_graph'):
 
         super().__init__(agent_params, env_params, schedule_params, vis_params, preset_validation_params, name)
+        self.is_batch_rl = True
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
         if self.env_params:
@@ -56,7 +57,6 @@ class BatchRLGraphManager(BasicRLGraphManager):
 
         # TODO load dataset into the agent's replay buffer. optionally normalize it, and clean it from outliers.
         # agent.memory.load_dataset()
-        agent.is_batch_rl = True
 
         # set level manager
         # TODO how to handle not having an environment?
@@ -88,7 +88,8 @@ class BatchRLGraphManager(BasicRLGraphManager):
         self.sync()
 
         # heatup
-        self.heatup(self.heatup_steps)
+        if self.env_params is not None:
+            self.heatup(self.heatup_steps)
 
         # improve
         if self.task_parameters.task_index is not None:
@@ -115,7 +116,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
 
             # TODO should this be done in the GraphManager level or in the agent's level?
             # run off-policy evaluation estimators to evaluate the agent's performance against the dataset
-            self.calculate_ope()
+            self.run_ope()
 
             if self.env_params is not None and self.evaluate(self.evaluation_steps):
                 # if we do have a simulator (although we are in a batch RL setting we might have a simulator, e.g. when
@@ -123,6 +124,10 @@ class BatchRLGraphManager(BasicRLGraphManager):
                 # we might want to evaluate vs. the simulator every now and then.
                 break
 
+    def run_ope(self):
+        """
+        Run off-policy evaluation estimators to evaluate the trained policy performance against the dataset
+        :return:
+        """
+        [manager.run_ope() for manager in self.level_managers]
 
-    def calculate_ope(self):
-        pass

@@ -119,6 +119,7 @@ class GraphManager(object):
         self.checkpoint_state_updater = None
         self.graph_logger = Logger()
         self.data_store = None
+        self.is_batch_rl = False
 
     def create_graph(self, task_parameters: TaskParameters=TaskParameters()):
         self.graph_creation_time = time.time()

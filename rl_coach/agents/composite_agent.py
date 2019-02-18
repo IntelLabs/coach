@@ -432,3 +432,12 @@ class CompositeAgent(AgentInterface):
             savers.update(agent.collect_savers(
                 parent_path_suffix="{}.{}".format(parent_path_suffix, self.name)))
         return savers
+
+    def run_ope(self) -> None:
+        """
+        Run off-policy evaluation estimators to evaluate the trained policy performance against a dataset.
+        Should only be implemented for off-policy RL algorithms.
+
+        :return: None
+        """
+        raise NotImplementedError("")

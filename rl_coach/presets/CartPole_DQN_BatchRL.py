@@ -6,6 +6,8 @@ from rl_coach.graph_managers.batch_rl_graph_manager import BatchRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import LinearSchedule
+from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
+
 
 ####################
 # Graph Scheduling #
@@ -13,9 +15,8 @@ from rl_coach.schedules import LinearSchedule
 
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
-# schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(10)
 schedule_params.steps_between_evaluation_periods = TrainingSteps(1)
-schedule_params.evaluation_steps = EnvironmentEpisodes(10)
+schedule_params.evaluation_steps = EnvironmentEpisodes(30)
 schedule_params.heatup_steps = EnvironmentSteps(40000)
 
 #########
@@ -24,7 +25,6 @@ schedule_params.heatup_steps = EnvironmentSteps(40000)
 agent_params = DQNAgentParameters()
 
 # DQN params
-# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(100)
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(100)
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 agent_params.algorithm.discount = 0.99
@@ -34,11 +34,13 @@ agent_params.algorithm.discount = 0.99
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
 agent_params.network_wrappers['main'].l2_regularization = 0.1
+agent_params.network_wrappers['main'].batch_size = 256
 # agent_params.network_wrappers['main'].learning_rate_decay_rate = 0.5
 # agent_params.network_wrappers['main'].learning_rate_decay_steps = int(40000 /
 #                                                                   agent_params.network_wrappers['main'].batch_size)
 
 # ER size
+agent_params.memory = EpisodicExperienceReplayParameters()
 agent_params.memory.max_size = (MemoryGranularity.Transitions, 40000)
 
 # E-Greedy schedule

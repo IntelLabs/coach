@@ -19,7 +19,7 @@ from typing import Union
 import numpy as np
 
 from rl_coach.agents.agent import Agent
-from rl_coach.core_types import ActionInfo, StateType
+from rl_coach.core_types import ActionInfo, StateType, Batch
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplay
 from rl_coach.spaces import DiscreteActionSpace
 
@@ -96,3 +96,35 @@ class ValueOptimizationAgent(Agent):
 
     def learn_from_batch(self, batch):
         raise NotImplementedError("ValueOptimizationAgent is an abstract agent. Not to be used directly.")
+
+    def run_ope(self):
+        network_parameters = list(self.ap.network_wrappers.values())[0]
+
+        # IPS
+        import tensorflow as tf
+        a = tf.placeholder(tf.float32, shape=(None, len(self.spaces.action.actions)))
+        prob = tf.nn.softmax(a, axis=1)
+        network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+
+        def softmax(x, temperature):
+            """Compute softmax values for each sets of scores in x."""
+            x = x / temperature
+            return self.networks['main'].sess.run(prob, feed_dict={a: x})
+
+        all_probs = np.empty((0, 2))
+        all_rewards = np.empty((0, 1))
+        # generate model probabilities
+        for batch in self.call_memory('get_shuffled_data_generator', network_parameters.batch_size):
+            batch = Batch(batch)
+            all_rewards = np.concatenate([all_rewards, batch.rewards(expand_dims=True)])
+            q_values = self.networks['main'].online_network.predict(batch.states(network_keys))
+            all_probs = np.concatenate([all_probs, softmax(q_values, 0.35)], axis=0)
+
+        old_policy_prob = 0.5
+        new_policy_prob = np.max(all_probs, axis=1)
+        print(np.mean(new_policy_prob/old_policy_prob * all_rewards[0]))
+
+
+
+
+
