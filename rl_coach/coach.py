@@ -76,8 +76,10 @@ def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'
     graph_manager.create_graph(task_parameters)
 
     # let the adventure begin
-    if task_parameters.evaluate_only:
-        graph_manager.evaluate(EnvironmentSteps(sys.maxsize))
+    if task_parameters.evaluate_only is not None:
+        steps_to_evaluate = task_parameters.evaluate_only if task_parameters.evaluate_only > 0 \
+            else sys.maxsize
+        graph_manager.evaluate(EnvironmentSteps(steps_to_evaluate))
     else:
         graph_manager.improve()
     graph_manager.close()
@@ -463,9 +465,12 @@ class CoachLauncher(object):
                                  "This option will save a replay buffer with the game play.",
                             action='store_true')
         parser.add_argument('--evaluate',
-                            help="(flag) Run evaluation only. This is a convenient way to disable "
-                                 "training in order to evaluate an existing checkpoint.",
-                            action='store_true')
+                            help="(int) Run evaluation only, for the given number of steps. This is a convenient way "
+                                "to disable training in order to evaluate an existing checkpoint. If value is 0, or no "
+                                "value is provided, evaluation will run forever.",
+                            nargs='?',
+                            const=0,
+                            type=int)
         parser.add_argument('-v', '--verbosity',
                             help="(flag) Sets the verbosity level of Coach print outs. Can be either low or high.",
                             default="low",

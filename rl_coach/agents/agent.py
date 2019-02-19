@@ -390,15 +390,16 @@ class Agent(AgentInterface):
             self.agent_logger.set_current_time(self.current_episode + 1)
             evaluation_reward = self.accumulated_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
-                'Evaluation Reward', evaluation_reward)
+                'Evaluation Reward', evaluation_reward, overwrite=True)
             self.agent_logger.create_signal_value(
                 'Shaped Evaluation Reward',
-                self.accumulated_shaped_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed)
+                self.accumulated_shaped_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed,
+                overwrite=True)
             success_rate = self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
                 "Success Rate",
-                success_rate
-            )
+                success_rate,
+                overwrite=True)
             if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
                 screen.log_title("{}: Finished evaluation phase. Success rate = {}, Avg Total Reward = {}"
                                  .format(self.name, np.round(success_rate, 2), np.round(evaluation_reward, 2)))
@@ -488,10 +489,9 @@ class Agent(AgentInterface):
         self.agent_logger.create_signal_value('Update Target Network', 0, overwrite=False)
         self.agent_logger.update_wall_clock_time(self.current_episode)
 
-        if self._phase != RunPhase.TEST:
-            self.agent_logger.create_signal_value('Evaluation Reward', np.nan, overwrite=False)
-            self.agent_logger.create_signal_value('Shaped Evaluation Reward', np.nan, overwrite=False)
-            self.agent_logger.create_signal_value('Success Rate', np.nan, overwrite=False)
+        self.agent_logger.create_signal_value('Evaluation Reward', np.nan, overwrite=False)
+        self.agent_logger.create_signal_value('Shaped Evaluation Reward', np.nan, overwrite=False)
+        self.agent_logger.create_signal_value('Success Rate', np.nan, overwrite=False)
 
         for signal in self.episode_signals:
             self.agent_logger.create_signal_value("{}/Mean".format(signal.name), signal.get_mean())
