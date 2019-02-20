@@ -194,7 +194,7 @@
 <h2>ActionInfo<a class="headerlink" href="#actioninfo" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.core_types.ActionInfo">
-<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">ActionInfo</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List], action_probability: float = 0, action_value: float = 0.0, state_value: float = 0.0, max_action_value: float = None, action_intrinsic_reward: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#ActionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.ActionInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">ActionInfo</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List], all_action_probabilities: float = 0, action_value: float = 0.0, state_value: float = 0.0, max_action_value: float = None, action_intrinsic_reward: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#ActionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.ActionInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Action info is a class that holds an action and various additional information details about it</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -202,7 +202,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>action</strong> – the action</li>
-<li><strong>action_probability</strong> – the probability that the action was given when selecting it</li>
+<li><strong>all_action_probabilities</strong> – the probability that the action was given when selecting it</li>
 <li><strong>action_value</strong> – the state-action value (Q value) of the action</li>
 <li><strong>state_value</strong> – the state value (V value) of the state where the action was taken</li>
 <li><strong>max_action_value</strong> – in case this is an action that was selected randomly, this is the value of the action
@@ -684,7 +684,8 @@ the execution of the action.</li>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

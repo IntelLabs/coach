@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Policy Gradient &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>ACER &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
   
 
   
@@ -29,8 +29,8 @@
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Proximal Policy Optimization" href="ppo.html" />
-    <link rel="prev" title="Persistent Advantage Learning" href="../value_optimization/pal.html" />
+    <link rel="next" title="Behavioral Cloning" href="../imitation/bc.html" />
+    <link rel="prev" title="Actor-Critic" href="ac.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
 
@@ -107,7 +107,15 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Agents</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="ac.html">Actor-Critic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="acer.html">ACER</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ACER</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#network-structure">Network Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm-description">Algorithm Description</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#choosing-an-action-discrete-actions">Choosing an action - Discrete actions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training-the-network">Training the network</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../imitation/bc.html">Behavioral Cloning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/bs_dqn.html">Bootstrapped DQN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/categorical_dqn.html">Categorical DQN</a></li>
@@ -123,15 +131,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/naf.html">Normalized Advantage Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/nec.html">Neural Episodic Control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/pal.html">Persistent Advantage Learning</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Policy Gradient</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#network-structure">Network Structure</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#algorithm-description">Algorithm Description</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#choosing-an-action-discrete-actions">Choosing an action - Discrete actions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#training-the-network">Training the network</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="pg.html">Policy Gradient</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ppo.html">Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/rainbow.html">Rainbow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/qr_dqn.html">Quantile Regression DQN</a></li>
@@ -195,13 +195,13 @@
         
           <li><a href="../index.html">Agents</a> &raquo;</li>
         
-      <li>Policy Gradient</li>
+      <li>ACER</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../../_sources/components/agents/policy_optimization/pg.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../_sources/components/agents/policy_optimization/acer.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -214,61 +214,97 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="policy-gradient">
-<h1>Policy Gradient<a class="headerlink" href="#policy-gradient" title="Permalink to this headline">¶</a></h1>
-<p><strong>Actions space:</strong> Discrete | Continuous</p>
-<p><strong>References:</strong> <a class="reference external" href="http://www-anw.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf">Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning</a></p>
+  <div class="section" id="acer">
+<h1>ACER<a class="headerlink" href="#acer" title="Permalink to this headline">¶</a></h1>
+<p><strong>Actions space:</strong> Discrete</p>
+<p><strong>References:</strong> <a class="reference external" href="https://arxiv.org/abs/1611.01224">Sample Efficient Actor-Critic with Experience Replay</a></p>
 <div class="section" id="network-structure">
 <h2>Network Structure<a class="headerlink" href="#network-structure" title="Permalink to this headline">¶</a></h2>
-<img alt="../../../_images/pg.png" class="align-center" src="../../../_images/pg.png" />
+<a class="reference internal image-reference" href="../../../_images/acer.png"><img alt="../../../_images/acer.png" class="align-center" src="../../../_images/acer.png" style="width: 500px;" /></a>
 </div>
 <div class="section" id="algorithm-description">
 <h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="choosing-an-action-discrete-actions">
 <h3>Choosing an action - Discrete actions<a class="headerlink" href="#choosing-an-action-discrete-actions" title="Permalink to this headline">¶</a></h3>
-<p>Run the current states through the network and get a policy distribution over the actions.
-While training, sample from the policy distribution. When testing, take the action with the highest probability.</p>
+<p>The policy network is used in order to predict action probabilites. While training, a sample is taken from a categorical
+distribution assigned with these probabilities. When testing, the action with the highest probability is used.</p>
 </div>
 <div class="section" id="training-the-network">
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
-<p>The policy head loss is defined as <span class="math notranslate nohighlight">\(L=-log (\pi) \cdot  PolicyGradientRescaler\)</span>.
-The <code class="code docutils literal notranslate"><span class="pre">PolicyGradientRescaler</span></code> is used in order to reduce the policy gradient variance, which might be very noisy.
-This is done in order to reduce the variance of the updates, since noisy gradient updates might destabilize the policy’s
-convergence. The rescaler is a configurable parameter and there are few options to choose from:</p>
-<ul class="simple">
-<li><strong>Total Episode Return</strong> - The sum of all the discounted rewards during the episode.</li>
-<li><strong>Future Return</strong> - Return from each transition until the end of the episode.</li>
-<li><strong>Future Return Normalized by Episode</strong> - Future returns across the episode normalized by the episode’s mean and standard deviation.</li>
-<li><strong>Future Return Normalized by Timestep</strong> - Future returns normalized using running means and standard deviations,
-which are calculated seperately for each timestep, across different episodes.</li>
-</ul>
-<p>Gradients are accumulated over a number of full played episodes. The gradients accumulation over several episodes
-serves the same purpose - reducing the update variance. After accumulating gradients for several episodes,
-the gradients are then applied to the network.</p>
+<p>Each iteration perform one on-policy update with a batch of the last <span class="math notranslate nohighlight">\(T_{max}\)</span> transitions,
+and <span class="math notranslate nohighlight">\(n\)</span> (replay ratio) off-policy updates from batches of <span class="math notranslate nohighlight">\(T_{max}\)</span> transitions sampled from the replay buffer.</p>
+<p>Each update perform the following procedure:</p>
+<ol class="arabic">
+<li><p class="first"><strong>Calculate state values:</strong></p>
+<div class="math notranslate nohighlight">
+\[V(s_t) = \mathbb{E}_{a \sim \pi} [Q(s_t,a)]\]</div>
+</li>
+<li><p class="first"><strong>Calculate Q retrace:</strong></p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[Q^{ret}(s_t,a_t) = r_t +\gamma \bar{\rho}_{t+1}[Q^{ret}(s_{t+1},a_{t+1}) - Q(s_{t+1},a_{t+1})] + \gamma V(s_{t+1})\]</div>
+<div class="math notranslate nohighlight">
+\[\text{where} \quad \bar{\rho}_{t} = \min{\left\{c,\rho_t\right\}},\quad \rho_t=\frac{\pi (a_t \mid s_t)}{\mu (a_t \mid s_t)}\]</div>
+</div></blockquote>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Accumulate gradients:</strong></dt>
+<dd><p class="first"><span class="math notranslate nohighlight">\(\bullet\)</span> <strong>Policy gradients (with bias correction):</strong></p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\hat{g}_t^{policy} &amp; = &amp; \bar{\rho}_{t} \nabla \log \pi (a_t \mid s_t) [Q^{ret}(s_t,a_t) - V(s_t)] \\
+&amp; &amp; + \mathbb{E}_{a \sim \pi} \left(\left[\frac{\rho_t(a)-c}{\rho_t(a)}\right] \nabla \log \pi (a \mid s_t) [Q(s_t,a) - V(s_t)] \right)\end{split}\]</div>
+</div></blockquote>
+<p><span class="math notranslate nohighlight">\(\bullet\)</span> <strong>Q-Head gradients (MSE):</strong></p>
+<blockquote class="last">
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\hat{g}_t^{Q} = (Q^{ret}(s_t,a_t) - Q(s_t,a_t)) \nabla Q(s_t,a_t)\\\end{split}\]</div>
+</div></blockquote>
+</dd>
+</dl>
+</li>
+<li><p class="first"><strong>(Optional) Trust region update:</strong> change the policy loss gradient w.r.t network output:</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\hat{g}_t^{trust-region} = \hat{g}_t^{policy} - \max \left\{0, \frac{k^T \hat{g}_t^{policy} - \delta}{\lVert k \rVert_2^2}\right\} k\]</div>
+<div class="math notranslate nohighlight">
+\[\text{where} \quad k = \nabla D_{KL}[\pi_{avg} \parallel \pi]\]</div>
+<p>The average policy network is an exponential moving average of the parameters of the network (<span class="math notranslate nohighlight">\(\theta_{avg}=\alpha\theta_{avg}+(1-\alpha)\theta\)</span>).
+The goal of the trust region update is to the difference between the updated policy and the average policy to ensure stability.</p>
+</div></blockquote>
+</li>
+</ol>
 <dl class="class">
-<dt id="rl_coach.agents.policy_gradients_agent.PolicyGradientAlgorithmParameters">
-<em class="property">class </em><code class="descclassname">rl_coach.agents.policy_gradients_agent.</code><code class="descname">PolicyGradientAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/policy_gradients_agent.html#PolicyGradientAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.policy_gradients_agent.PolicyGradientAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
+<dt id="rl_coach.agents.acer_agent.ACERAlgorithmParameters">
+<em class="property">class </em><code class="descclassname">rl_coach.agents.acer_agent.</code><code class="descname">ACERAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/acer_agent.html#ACERAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.acer_agent.ACERAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>policy_gradient_rescaler</strong> – (PolicyGradientRescaler)
-The rescaler type to use for the policy gradient loss. For policy gradients, we calculate log probability of
-the action and then multiply it by the policy gradient rescaler. The most basic rescaler is the discounter
-return, but there are other rescalers that are intended for reducing the variance of the updates.</li>
-<li><strong>apply_gradients_every_x_episodes</strong> – (int)
-The number of episodes between applying the accumulated gradients to the network. After every
-num_steps_between_gradient_updates steps, the agent will calculate the gradients for the collected data,
-it will then accumulate it in internal accumulators, and will only apply them to the network once in every
-apply_gradients_every_x_episodes episodes.</li>
-<li><strong>beta_entropy</strong> – (float)
-A factor which defines the amount of entropy regularization to apply to the network. The entropy of the actions
-will be added to the loss and scaled by the given beta factor.</li>
 <li><strong>num_steps_between_gradient_updates</strong> – (int)
-The number of steps between calculating gradients for the collected data. In the A3C paper, this parameter is
-called t_max. Since this algorithm is on-policy, only the steps collected between each two gradient calculations
-are used in the batch.</li>
+Every num_steps_between_gradient_updates transitions will be considered as a single batch and use for
+accumulating gradients. This is also the number of steps used for bootstrapping according to the n-step formulation.</li>
+<li><strong>ratio_of_replay</strong> – (int)
+The number of off-policy training iterations in each ACER iteration.</li>
+<li><strong>num_transitions_to_start_replay</strong> – (int)
+Number of environment steps until ACER starts to train off-policy from the experience replay.
+This emulates a heat-up phase where the agents learns only on-policy until there are enough transitions in
+the experience replay to start the off-policy training.</li>
+<li><strong>rate_for_copying_weights_to_target</strong> – (float)
+The rate of the exponential moving average for the average policy which is used for the trust region optimization.
+The target network in this algorithm is used as the average policy.</li>
+<li><strong>importance_weight_truncation</strong> – (float)
+The clipping constant for the importance weight truncation (not used in the Q-retrace calculation).</li>
+<li><strong>use_trust_region_optimization</strong> – (bool)
+If set to True, the gradients of the network will be modified with a term dependant on the KL divergence between
+the average policy and the current one, to bound the change of the policy during the network update.</li>
+<li><strong>max_KL_divergence</strong> – (float)
+The upper bound parameter for the trust region optimization, use_trust_region_optimization needs to be set true
+for this parameter to have an effect.</li>
+<li><strong>beta_entropy</strong> – (float)
+An entropy regulaization term can be added to the loss function in order to control exploration. This term
+is weighted using the beta value defined by beta_entropy.</li>
 </ul>
 </td>
 </tr>
@@ -288,10 +324,10 @@ are used in the batch.</li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ppo.html" class="btn btn-neutral float-right" title="Proximal Policy Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../imitation/bc.html" class="btn btn-neutral float-right" title="Behavioral Cloning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../value_optimization/pal.html" class="btn btn-neutral" title="Persistent Advantage Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ac.html" class="btn btn-neutral" title="Actor-Critic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -195,7 +195,7 @@ The algorithms are ordered by their release date in descending order.
                <a href="components/agents/policy_optimization/acer.html">ACER</a>
                <br>
                Similar to A3C with the addition of experience replay and off-policy training. to reduce variance and
-               improve stability it also employs bia correction and trust region optimization techniques.
+               improve stability it also employs bias correction and trust region optimization techniques.
             </span>
          </div>
          <div class="algorithm continuous off-policy" data-year="201509">

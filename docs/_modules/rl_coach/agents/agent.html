@@ -789,35 +789,35 @@
 <span class="sd">        :return:  boolean: True if we should start a training phase</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">should_update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_train_helper</span><span class="p">()</span>
+        <span class="n">should_update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update</span><span class="p">()</span>
 
-        <span class="n">step_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span>
 
         <span class="k">if</span> <span class="n">should_update</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentEpisodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">steps</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentEpisodes</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span>
-            <span class="k">if</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentSteps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">steps</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentSteps</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span>
 
         <span class="k">return</span> <span class="n">should_update</span>
 
-    <span class="k">def</span> <span class="nf">_should_train_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_should_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">wait_for_full_episode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">act_for_full_episodes</span>
-        <span class="n">step_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span>
 
-        <span class="k">if</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentEpisodes</span><span class="p">:</span>
-            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">step_method</span><span class="o">.</span><span class="n">num_steps</span>
+        <span class="k">if</span> <span class="n">steps</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentEpisodes</span><span class="p">:</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">steps</span><span class="o">.</span><span class="n">num_steps</span>
             <span class="n">should_update</span> <span class="o">=</span> <span class="n">should_update</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-        <span class="k">elif</span> <span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentSteps</span><span class="p">:</span>
-            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">step_method</span><span class="o">.</span><span class="n">num_steps</span>
+        <span class="k">elif</span> <span class="n">steps</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">EnvironmentSteps</span><span class="p">:</span>
+            <span class="n">should_update</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">steps</span><span class="o">.</span><span class="n">num_steps</span>
             <span class="n">should_update</span> <span class="o">=</span> <span class="n">should_update</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;num_transitions&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
             <span class="k">if</span> <span class="n">wait_for_full_episode</span><span class="p">:</span>
                 <span class="n">should_update</span> <span class="o">=</span> <span class="n">should_update</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">is_complete</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The num_consecutive_playing_steps parameter should be either &quot;</span>
-                             <span class="s2">&quot;EnvironmentSteps or Episodes. Instead it is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">step_method</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
+                             <span class="s2">&quot;EnvironmentSteps or Episodes. Instead it is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">should_update</span>
 
@@ -942,7 +942,8 @@
             <span class="c1"># informed action</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># before choosing an action, first use the pre_network_filter to filter out the current state</span>
-                <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span><span class="p">)</span>
+                <span class="n">update_filter_internal_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span>
+                <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span><span class="p">,</span> <span class="n">update_filter_internal_state</span><span class="p">)</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span>
@@ -952,15 +953,18 @@
 
         <span class="k">return</span> <span class="n">filtered_action_info</span></div>
 
-<div class="viewcode-block" id="Agent.run_pre_network_filter_for_inference"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference">[docs]</a>    <span class="k">def</span> <span class="nf">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">StateType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StateType</span><span class="p">:</span>
+<div class="viewcode-block" id="Agent.run_pre_network_filter_for_inference"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference">[docs]</a>    <span class="k">def</span> <span class="nf">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">StateType</span><span class="p">,</span> <span class="n">update_filter_internal_state</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>\
+            <span class="o">-&gt;</span> <span class="n">StateType</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run filters which where defined for being applied right before using the state for inference.</span>
 
 <span class="sd">        :param state: The state to run the filters on</span>
+<span class="sd">        :param update_filter_internal_state: Should update the filter&#39;s internal state - should not update when evaluating</span>
 <span class="sd">        :return: The filtered state</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dummy_env_response</span> <span class="o">=</span> <span class="n">EnvResponse</span><span class="p">(</span><span class="n">next_state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">reward</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">game_over</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dummy_env_response</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">next_state</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dummy_env_response</span><span class="p">,</span>
+                                              <span class="n">update_internal_state</span><span class="o">=</span><span class="n">update_filter_internal_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">next_state</span></div>
 
 <div class="viewcode-block" id="Agent.get_state_embedding"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.get_state_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">get_state_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1153,32 +1157,25 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># if we are in the first step in the episode, then we don&#39;t have a a next state and a reward and thus no</span>
-        <span class="c1"># transition yet, and therefore we don&#39;t need to store anything in the memory.</span>
-        <span class="c1"># also we did not reach the goal yet.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># initialize the current state</span>
-            <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># sum up the total shaped reward</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+        <span class="c1"># sum up the total shaped reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+        
+        <span class="c1"># create and store the transition</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]:</span>
+            <span class="c1"># for episodic memories we keep the transitions in a local buffer until the episode is ended.</span>
+            <span class="c1"># for regular memories we insert the transitions directly to the memory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
 
-            <span class="c1"># create and store the transition</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]:</span>
-                <span class="c1"># for episodic memories we keep the transitions in a local buffer until the episode is ended.</span>
-                <span class="c1"># for regular memories we insert the transitions directly to the memory</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">)</span> \
-                        <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_step_in_episode_log</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">update_step_in_episode_log</span><span class="p">()</span>
-
-            <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span></div>
+        <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span></div>
 
     <span class="c1"># TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create</span>
     <span class="c1">#         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]</span>
@@ -1209,7 +1206,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Collect all of agent&#39;s network savers</span>
 <span class="sd">        :param parent_path_suffix: path suffix of the parent of the agent</span>
-<span class="sd">            (could be name of level manager or composite agent)</span>
+<span class="sd">        (could be name of level manager or composite agent)</span>
 <span class="sd">        :return: collection of all agent savers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parent_path_suffix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parent_path_suffix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -1254,7 +1251,8 @@
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

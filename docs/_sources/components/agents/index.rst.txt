@@ -14,6 +14,7 @@ A detailed description of those algorithms can be found by navigating to each of
    :caption: Agents
 
    policy_optimization/ac
+   policy_optimization/acer
    imitation/bc
    value_optimization/bs_dqn
    value_optimization/categorical_dqn
