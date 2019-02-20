@@ -34,6 +34,7 @@ The environments that were used for testing include:
 |**[Bootstrapped DQN](bootstrapped_dqn)**| ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
 |**[QR-DQN](qr_dqn)**            | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
 |**[A3C](a3c)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari, Mujoco   | |
+|**[ACER](acer)**                | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
 |**[Clipped PPO](clipped_ppo)**  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Mujoco          | |
 |**[DDPG](ddpg)**                | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Mujoco          | |
 |**[NEC](nec)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
