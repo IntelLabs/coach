@@ -659,7 +659,7 @@ class CoachLauncher(object):
                 worker_hosts=worker_hosts,
                 job_type=job_type,
                 task_index=task_index,
-                evaluate_only=evaluation_worker,
+                evaluate_only=0 if evaluation_worker else None,
                 use_cpu=args.use_cpu,
                 num_tasks=total_tasks,  # training tasks + 1 evaluation task
                 num_training_tasks=args.num_workers,
