@@ -1,4 +1,4 @@
-from rl_coach.agents.dqn_agent import DQNAgentParameters
+from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.gym_environment import GymVectorEnvironment
@@ -16,13 +16,13 @@ from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
 schedule_params.steps_between_evaluation_periods = TrainingSteps(1)
-schedule_params.evaluation_steps = EnvironmentEpisodes(30)
+schedule_params.evaluation_steps = EnvironmentEpisodes(10)
 schedule_params.heatup_steps = EnvironmentSteps(40000)
 
 #########
 # Agent #
 #########
-agent_params = DQNAgentParameters()
+agent_params = DDQNAgentParameters()
 
 # DQN params
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(100)

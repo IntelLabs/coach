@@ -311,10 +311,3 @@ class LevelManager(EnvironmentInterface):
         for agent in self.agents.values():
             savers.update(agent.collect_savers(parent_path_suffix=self.name))
         return savers
-
-    def run_ope(self):
-        """
-        Run off-policy evaluation estimators to evaluate the trained policy performance against the dataset
-        :return:
-        """
-        [agent.run_ope() for agent in self.agents.values()]

@@ -13,8 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from copy import deepcopy
 from typing import Tuple, List
 
+from rl_coach.agents.dqn_agent import DQNAgentParameters
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters, TaskParameters, \
     PresetValidationParameters
 from rl_coach.core_types import RunPhase
@@ -25,6 +27,8 @@ from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen
 from rl_coach.utils import short_dynamic_import
+
+from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
 
 
 class BatchRLGraphManager(BasicRLGraphManager):
@@ -50,10 +54,17 @@ class BatchRLGraphManager(BasicRLGraphManager):
         else:
             env = None
 
+        # Only DQN variants are supported at this point.
+        assert(isinstance(self.agent_params, DQNAgentParameters))
+        # Only Episodic memories are supported,
+        # for evaluating the sequential doubly robust estimator
+        assert(isinstance(self.agent_params.memory, EpisodicExperienceReplayParameters))
+
         # agent loading
         self.agent_params.task_parameters = task_parameters  # TODO: this should probably be passed in a different way
         self.agent_params.name = "agent"
         self.agent_params.is_batch_rl_training = True
+        self.agent_params.network_wrappers['reward_model'] = deepcopy(self.agent_params.network_wrappers['main'])
         agent = short_dynamic_import(self.agent_params.path)(self.agent_params)
 
         # TODO load dataset into the agent's replay buffer. optionally normalize it, and clean it from outliers.
@@ -64,7 +75,6 @@ class BatchRLGraphManager(BasicRLGraphManager):
         #  allow for no environment through the entire pipe?
         #  use a dummy batch RL env?
         level_manager = LevelManager(agents=agent, environment=env, name="main_level")
-
         return [level_manager], [env]
 
     def improve(self):
@@ -91,6 +101,8 @@ class BatchRLGraphManager(BasicRLGraphManager):
         # heatup
         if self.env_params is not None:
             self.heatup(self.heatup_steps)
+
+        self.improve_reward_model()
 
         # improve
         if self.task_parameters.task_index is not None:
@@ -125,10 +137,20 @@ class BatchRLGraphManager(BasicRLGraphManager):
                 # we might want to evaluate vs. the simulator every now and then.
                 break
 
+    def improve_reward_model(self):
+        """
+
+        :return:
+        """
+        screen.log_title("Training a regression model for estimating MDP rewards")
+        self.level_managers[0].agents['agent'].improve_reward_model()
+
     def run_ope(self):
         """
         Run off-policy evaluation estimators to evaluate the trained policy performance against the dataset
         :return:
         """
-        [manager.run_ope() for manager in self.level_managers]
+        self.level_managers[0].agents['agent'].run_ope()
+
+
 

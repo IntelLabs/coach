@@ -49,10 +49,10 @@ class Agent(AgentInterface):
                              and self.ap.memory.shared_memory
         if self.shared_memory:
             self.shared_memory_scratchpad = self.ap.task_parameters.shared_memory_scratchpad
-        self.name = agent_parameters.name
         self.parent = parent
         self.parent_level_manager = None
-        self.full_name_id = agent_parameters.full_name_id = self.name
+        # TODO this needs to be sorted out. Why the duplicates for the agent's name?
+        self.full_name_id = agent_parameters.full_name_id = self.name = agent_parameters.name
 
         if type(agent_parameters.task_parameters) == DistributedTaskParameters:
             screen.log_title("Creating agent - name: {} task id: {} (may take up to 30 seconds due to "
@@ -677,8 +677,6 @@ class Agent(AgentInterface):
                     batch = Batch(batch)
                     total_loss, losses, unclipped_grads = self.learn_from_batch(batch)
                     loss += total_loss
-                    # if is_batch_rl:
-                    #     ope_predictions.append(self.run_ope())
 
                     self.unclipped_grads.add_sample(unclipped_grads)
 
