@@ -100,84 +100,64 @@ class ValueOptimizationAgent(Agent):
         raise NotImplementedError("ValueOptimizationAgent is an abstract agent. Not to be used directly.")
 
     def run_ope(self):
-        # TODO continue with restructring the code below. We assume that we have an episodic ER. We then iterate in batches
-        #  on all the transitions in the episodes, and for each transition, we update in its 'info':
-        #  1. DM (Reward Model) reward prediction - this can be done only once right after training the reward network.
-        #  2. Trained policy Q value
-        #  3. Trained Policy Softmax based prob
-        #  4. Trained policy V value
-        #
-        #  we then gather all of the above metrics in variables containing this data for all of the transitions in the
-        #  dataset to calculate IPS, DM, and DR.
-        #  we can then have all of the needed metrics all sorted out for SDR (especially the state value).
-
+        network_parameters = self.ap.network_wrappers['main']
+        network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+        batch_size = network_parameters.batch_size
 
         # IPS
-        if self.first:
-            import tensorflow as tf
-            self.a = tf.placeholder(tf.float32, shape=(None, len(self.spaces.action.actions)))
-            self.prob = tf.nn.softmax(self.a, axis=1)
-
-            self.first_state = deepcopy(self.memory.get_episode(0).transitions[0].state)
-            self.first_state['observation'] = np.expand_dims(self.first_state['observation'], axis=0)
-            self.first = False
-
         def softmax(x, temperature):
             """Compute softmax values for each sets of scores in x."""
             x = x / temperature
-            return self.networks['main'].sess.run(self.prob, feed_dict={self.a: x})
+            e_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+            return e_x / e_x.sum(axis=1, keepdims=True)
 
-        all_learned_policy_probs_temp_0_2 = np.empty((0, len(self.spaces.action.actions)))
-        all_learned_policy_probs_temp_0_5 = np.empty((0, len(self.spaces.action.actions)))
-        all_learned_policy_probs_temp_0_75 = np.empty((0, len(self.spaces.action.actions)))
-        all_learned_policy_probs_temp_2 = np.empty((0, len(self.spaces.action.actions)))
-        all_learned_policy_probs = np.empty((0, len(self.spaces.action.actions)))
+        all_reward_model_rewards, all_q_values, all_policy_probs, all_old_policy_probs = [], [], [], []
+        all_v_values_reward_model_based, all_v_values_q_model_based, all_rewards, all_actions = [], [], [], []
 
-        all_q_values = np.empty((0, len(self.spaces.action.actions)))
-        all_rewards = np.empty((0))
-        all_reward_model_rewards = np.empty((0, len(self.spaces.action.actions)))
-        all_actions = np.empty((0)).astype('int')
-        network_parameters = self.ap.network_wrappers['main']
-        network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+        transitions = self.call_memory('get_all_full_episodes_transitions')
+        for i in range(int(len(transitions) / batch_size) + 1):
+            batch = transitions[i * batch_size: (i + 1) * batch_size]
+            batch_for_inference = Batch(batch)
+
+            all_reward_model_rewards.append(self.networks['reward_model'].online_network.predict(
+                batch_for_inference.states(network_keys)))
+            all_q_values.append(self.networks['main'].online_network.predict(batch_for_inference.states(network_keys)))
+            all_policy_probs.append(softmax(all_q_values[-1], 0.35))
+            all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))
+            all_v_values_q_model_based.append(np.sum(all_policy_probs[-1] * all_q_values[-1], axis=1))
+            all_rewards.append(batch_for_inference.rewards())
+            all_actions.append(batch_for_inference.actions())
+            all_old_policy_probs.append(batch_for_inference.info('action_probability'))
+
+            for j, t in enumerate(batch):
+                t.update_info({
+                    'model_reward': all_reward_model_rewards[-1][j],
+                    'q_value': all_q_values[-1][j],
+                    'softmax_policy_prob': all_policy_probs[-1][j],
+                    'v_value_q_model_based': all_v_values_q_model_based[-1][j],
+
+                })
+
+        all_reward_model_rewards = np.concatenate(all_reward_model_rewards, axis=0)
+        all_q_values = np.concatenate(all_q_values, axis=0)
+        all_policy_probs = np.concatenate(all_policy_probs, axis=0)
+        all_v_values_reward_model_based = np.concatenate(all_v_values_reward_model_based, axis=0)
+        all_rewards = np.concatenate(all_rewards, axis=0)
+        all_actions = np.concatenate(all_actions, axis=0)
+        all_old_policy_probs = np.concatenate(all_old_policy_probs, axis=0)
 
         # generate model probabilities
         # TODO this should use the evaluation dataset, and not the training dataset
-        for batch in self.call_memory('get_shuffled_data_generator', network_parameters.batch_size):
-            batch = Batch(batch)
-            # TODO: just get all the rewards from the ER directly. Set batch size to the size of the ER maybe? or otherwise.
-            all_rewards = np.concatenate([all_rewards, batch.rewards()])
-            all_reward_model_rewards = \
-                np.concatenate([all_reward_model_rewards, self.networks['reward_model'].online_network.
-                               predict(batch.states(network_keys))], axis=0)
 
-            q_values = self.networks['main'].online_network.predict(batch.states(network_keys))
-            all_q_values = np.concatenate([all_q_values, q_values], axis=0)
-            all_learned_policy_probs = np.concatenate([all_learned_policy_probs, softmax(q_values, 0.35)], axis=0)
-            all_learned_policy_probs_temp_0_2 = np.concatenate([all_learned_policy_probs_temp_0_2, softmax(q_values, 0.2)], axis=0)
-            all_learned_policy_probs_temp_0_5 = np.concatenate([all_learned_policy_probs_temp_0_5, softmax(q_values, 0.5)], axis=0)
-            all_learned_policy_probs_temp_2 = np.concatenate([all_learned_policy_probs_temp_2, softmax(q_values, 2)], axis=0)
-            all_actions = np.concatenate([all_actions, batch.actions()])
-
-        old_policy_prob = 0.5
-        new_policy_prob = np.max(all_learned_policy_probs, axis=1)
-        rho_all_dataset = new_policy_prob/old_policy_prob
+        new_policy_prob = np.max(all_policy_probs, axis=1)
+        rho_all_dataset = new_policy_prob/all_old_policy_probs
 
         IPS = np.mean(rho_all_dataset * all_rewards)
-
-        all_learned_policy_state_values = np.sum(all_learned_policy_probs * all_reward_model_rewards, axis=1)
-        DM = np.mean(all_learned_policy_state_values)
-
+        DM = np.mean(all_v_values_reward_model_based)
         DR = np.mean(rho_all_dataset *
                      (all_rewards - all_reward_model_rewards[range(len(all_actions)), all_actions])) + DM
 
-        print("Q_Values and Probabilities")
-        print("==========================")
-        print("Q_Values: " + str([q for q in list(all_q_values[0:10])]))
-        print("Probs temp = 0.2 " + str([p for p in list(all_learned_policy_probs_temp_0_2[0:10])]))
-        print("Probs temp = 0.35 " + str([p for p in list(all_learned_policy_probs[0:10])]))
-        print("Probs temp = 0.5 " + str([p for p in list(all_learned_policy_probs_temp_0_5[0:10])]))
-        print("Probs temp = 0.75 " + str([p for p in list(all_learned_policy_probs_temp_0_75[0:10])]))
-        print("Probs temp = 2 " + str([p for p in list(all_learned_policy_probs_temp_2[0:10])]))
+        print("Q_Values: {} \n".format(str([q for q in list(all_q_values[0])])))
 
         print("Bandits")
         print("=======")
@@ -185,15 +165,24 @@ class ValueOptimizationAgent(Agent):
         print("DM Estimator = {}".format(DM))
         print("DR Estimator = {}".format(DR))
 
-        print("DQN_Agent - testing for Q value magnitude: Q_value for first state, first episode = {}".
-              format(self.networks['main'].online_network.predict(self.first_state)))
-
         # Sequential Doubly Robust
         episodes = [self.call_memory('get_episode', i) for i in range(self.call_memory('num_complete_episodes'))]
+        per_episode_seq_dr = []
+
         for episode in episodes:
+            episode_seq_dr = 0
             for transition in episode.transitions:
-                # per_episode_seq_dr =
-                pass
+                rho = np.max(transition.info['softmax_policy_prob']) / transition.info['action_probability']
+                episode_seq_dr = transition.info['v_value_q_model_based'] + rho * (transition.reward + self.ap.algorithm.discount
+                                                                         * episode_seq_dr -
+                                                                         np.max(transition.info['q_value']))
+            per_episode_seq_dr.append(episode_seq_dr)
+
+        SEQ_DR = np.array(per_episode_seq_dr).mean()
+
+        print("RL")
+        print("=======")
+        print("SEQ_DR Estimator = {}".format(SEQ_DR))
 
     def improve_reward_model(self):
         batch_size = self.ap.network_wrappers['reward_model'].batch_size

@@ -1,4 +1,5 @@
 #
+#
 # Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -128,10 +129,12 @@ class EpisodicExperienceReplay(Memory):
 
             yield sample_data
 
-        ## usage example
-        # for o in random_seq_generator(list(range(10)), 4):
-        #     print(o)
-
+    def get_all_full_episodes_transitions(self) -> List[Transition]:
+        """
+        Get all the transitions from all the complete episodes in the buffer
+        :return: a list of transitions
+        """
+        return self.transitions[:self.num_transitions_in_complete_episodes()]
 
     def _enforce_max_length(self) -> None:
         """

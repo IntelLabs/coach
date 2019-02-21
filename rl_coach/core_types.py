@@ -249,6 +249,9 @@ class Transition(object):
                              .format(self.info.keys(), new_info.keys()))
         self.info.update(new_info)
 
+    def update_info(self, new_info: Dict[str, Any]) -> None:
+        self.info.update(new_info)
+
     def __copy__(self):
         new_transition = type(self)()
         new_transition.__dict__.update(self.__dict__)
