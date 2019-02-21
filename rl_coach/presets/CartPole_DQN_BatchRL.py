@@ -8,6 +8,7 @@ from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import LinearSchedule
 from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
 
+DATASET_SIZE = 40000
 
 ####################
 # Graph Scheduling #
@@ -17,15 +18,21 @@ schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
 schedule_params.steps_between_evaluation_periods = TrainingSteps(1)
 schedule_params.evaluation_steps = EnvironmentEpisodes(10)
-schedule_params.heatup_steps = EnvironmentSteps(40000)
+schedule_params.heatup_steps = EnvironmentSteps(DATASET_SIZE)
 
 #########
 # Agent #
 #########
 agent_params = DDQNAgentParameters()
+agent_params.network_wrappers['main'].batch_size = 256
 
 # DQN params
-agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(100)
+# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(100)
+
+# For making this become Fitted Q-Iteration we can keep the targets constant for the entire dataset size -
+agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
+    DATASET_SIZE / agent_params.network_wrappers['main'].batch_size)
+
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 agent_params.algorithm.discount = 0.99
 
@@ -34,10 +41,9 @@ agent_params.algorithm.discount = 0.99
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
 agent_params.network_wrappers['main'].l2_regularization = 0.1
-agent_params.network_wrappers['main'].batch_size = 256
-# agent_params.network_wrappers['main'].learning_rate_decay_rate = 0.5
-# agent_params.network_wrappers['main'].learning_rate_decay_steps = int(40000 /
-#                                                                   agent_params.network_wrappers['main'].batch_size)
+agent_params.network_wrappers['main'].learning_rate_decay_rate = 0.95
+agent_params.network_wrappers['main'].learning_rate_decay_steps = int(DATASET_SIZE /
+                                                                  agent_params.network_wrappers['main'].batch_size)
 
 # ER size
 agent_params.memory = EpisodicExperienceReplayParameters()
