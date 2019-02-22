@@ -14,7 +14,7 @@ def test_discrete():
     for i in range(100):
         assert 3 > action_space.sample() >= 0
     action_info = action_space.sample_with_info()
-    assert action_info.action_probability == 1. / 3
+    assert action_info.all_action_probabilities[0] == 1. / 3
     assert action_space.high == 2
     assert action_space.low == 0
 

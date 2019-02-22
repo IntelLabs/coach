@@ -329,12 +329,12 @@ class ActionInfo(object):
     Action info is a class that holds an action and various additional information details about it
     """
 
-    def __init__(self, action: ActionType, action_probability: float=0,
+    def __init__(self, action: ActionType, all_action_probabilities: float=0,
                  action_value: float=0., state_value: float=0., max_action_value: float=None,
                  action_intrinsic_reward: float=0):
         """
         :param action: the action
-        :param action_probability: the probability that the action was given when selecting it
+        :param all_action_probabilities: the probability that the action was given when selecting it
         :param action_value: the state-action value (Q value) of the action
         :param state_value: the state value (V value) of the state where the action was taken
         :param max_action_value: in case this is an action that was selected randomly, this is the value of the action
@@ -344,7 +344,7 @@ class ActionInfo(object):
                                         selection
         """
         self.action = action
-        self.action_probability = action_probability
+        self.all_action_probabilities = all_action_probabilities
         self.action_value = action_value
         self.state_value = state_value
         if not max_action_value:

@@ -350,7 +350,7 @@ class TensorFlowArchitecture(Architecture):
                 importance_weight = np.ones(target_ph.shape[0])
             else:
                 importance_weight = importance_weights[placeholder_idx]
-            importance_weight = np.reshape(importance_weight, (-1,) + (1,)*(len(target_ph.shape)-1))
+            importance_weight = np.reshape(importance_weight, (-1,) + (1,) * (len(target_ph.shape) - 1))
 
             feed_dict[self.importance_weights[placeholder_idx]] = importance_weight
 
