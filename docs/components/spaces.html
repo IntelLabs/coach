@@ -223,16 +223,33 @@ or a single value defining the general highest values</li>
 </tbody>
 </table>
 <dl class="method">
-<dt id="rl_coach.spaces.Space.is_valid_index">
-<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.is_valid_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.is_valid_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<dt id="rl_coach.spaces.Space.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.contains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if value is contained by this space. The shape must match and
+all of the values must be within the low and high bounds.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.Space.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>index: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.is_valid_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.is_valid_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional index is within the bounds of the shape of the space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – a multidimensional index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the index is within the shape of the space. False otherwise</td>
 </tr>
 </tbody>
 </table>
@@ -253,10 +270,19 @@ bounds are defined</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="rl_coach.spaces.Space.contains">
-<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/spaces.html#Space.contains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.Space.contains" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
+</dd></dl>
+
+</div>
+<div class="section" id="observation-spaces">
+<h2>Observation Spaces<a class="headerlink" href="#observation-spaces" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rl_coach.spaces.ObservationSpace">
+<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">ObservationSpace</code><span class="sig-paren">(</span><em>shape: Union[int, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#ObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ObservationSpace" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="rl_coach.spaces.ObservationSpace.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if value is contained by this space. The shape must match and
+all of the values must be within the low and high bounds.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -269,25 +295,17 @@ bounds are defined</p>
 </table>
 </dd></dl>
 
-</dd></dl>
-
-</div>
-<div class="section" id="observation-spaces">
-<h2>Observation Spaces<a class="headerlink" href="#observation-spaces" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="rl_coach.spaces.ObservationSpace">
-<em class="property">class </em><code class="descclassname">rl_coach.spaces.</code><code class="descname">ObservationSpace</code><span class="sig-paren">(</span><em>shape: Union[int, numpy.ndarray], low: Union[None, int, float, numpy.ndarray] = -inf, high: Union[None, int, float, numpy.ndarray] = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/spaces.html#ObservationSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.ObservationSpace" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dl class="method">
 <dt id="rl_coach.spaces.ObservationSpace.is_valid_index">
-<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>index: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional index is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – a multidimensional index</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the index is within the shape of the space. False otherwise</td>
 </tr>
 </tbody>
 </table>
@@ -303,22 +321,6 @@ bounds are defined</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A numpy array sampled from the space</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rl_coach.spaces.ObservationSpace.contains">
-<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ObservationSpace.contains" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
 </tr>
 </tbody>
 </table>
@@ -379,16 +381,33 @@ represent a RGB image, or a grayscale image.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rl_coach.spaces.ActionSpace.is_valid_index">
-<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<dt id="rl_coach.spaces.ActionSpace.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if value is contained by this space. The shape must match and
+all of the values must be within the low and high bounds.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.spaces.ActionSpace.is_valid_index">
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>index: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional index is within the bounds of the shape of the space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – a multidimensional index</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the index is within the shape of the space. False otherwise</td>
 </tr>
 </tbody>
 </table>
@@ -418,22 +437,6 @@ bounds are defined</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An action info instance</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rl_coach.spaces.ActionSpace.contains">
-<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.ActionSpace.contains" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
 </tr>
 </tbody>
 </table>
@@ -540,6 +543,23 @@ returns the distance between them</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="rl_coach.spaces.GoalsSpace.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if value is contained by this space. The shape must match and
+all of the values must be within the low and high bounds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="rl_coach.spaces.GoalsSpace.distance_from_goal">
 <code class="descname">distance_from_goal</code><span class="sig-paren">(</span><em>goal: numpy.ndarray</em>, <em>state: dict</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/rl_coach/spaces.html#GoalsSpace.distance_from_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.spaces.GoalsSpace.distance_from_goal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a state, check its distance from the goal</p>
@@ -599,15 +619,15 @@ returns the distance between them</li>
 
 <dl class="method">
 <dt id="rl_coach.spaces.GoalsSpace.is_valid_index">
-<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if a given multidimensional point is within the bounds of the shape of the space</p>
+<code class="descname">is_valid_index</code><span class="sig-paren">(</span><em>index: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.is_valid_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given multidimensional index is within the bounds of the shape of the space</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> – a multidimensional point</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> – a multidimensional index</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the point is within the shape of the space. False otherwise</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the index is within the shape of the space. False otherwise</td>
 </tr>
 </tbody>
 </table>
@@ -637,22 +657,6 @@ bounds are defined</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An action info instance</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rl_coach.spaces.GoalsSpace.contains">
-<code class="descname">contains</code><span class="sig-paren">(</span><em>val: Union[int, float, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#rl_coach.spaces.GoalsSpace.contains" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if the given value matches the space definition in terms of shape and values</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – a value to check</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True / False depending on if the val matches the space definition</td>
 </tr>
 </tbody>
 </table>
@@ -708,7 +712,8 @@ bounds are defined</p>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

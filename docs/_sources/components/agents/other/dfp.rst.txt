@@ -32,8 +32,8 @@ Training the network
 Given a batch of transitions, run them through the network to get the current predictions of the future measurements
 per action, and set them as the initial targets for training the network. For each transition
 :math:`(s_t,a_t,r_t,s_{t+1} )` in the batch, the target of the network for the action that was taken, is the actual
- measurements that were seen in time-steps :math:`t+1,t+2,t+4,t+8,t+16` and :math:`t+32`.
- For the actions that were not taken, the targets are the current values.
+measurements that were seen in time-steps :math:`t+1,t+2,t+4,t+8,t+16` and :math:`t+32`.
+For the actions that were not taken, the targets are the current values.
 
 
 .. autoclass:: rl_coach.agents.dfp_agent.DFPAlgorithmParameters

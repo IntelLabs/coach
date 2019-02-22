@@ -240,10 +240,11 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No level has been selected. Please select a level using the -lvl command line flag, &quot;</span>
                                 <span class="s2">&quot;or change the level in the preset. </span><span class="se">\n</span><span class="s2">The available levels are: </span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span>
                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">keys</span><span class="p">()))),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">selected_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_level</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">selected_level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The selected level (</span><span class="si">{}</span><span class="s2">) is not part of the available levels (</span><span class="si">{}</span><span class="s2">)&quot;</span>
-                                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selected_level</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">selected_level</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">selected_level</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">selected_level</span><span class="p">]</span>
 
 
 <span class="c1"># class SingleLevelPerPhase(LevelSelection):</span>
@@ -717,7 +718,8 @@
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   
