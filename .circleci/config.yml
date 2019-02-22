@@ -381,9 +381,11 @@ workflows:
       - golden_test_doom:
           requires:
             - build_doom_env
+            - golden_test_gym
       - golden_test_mujoco:
           requires:
             - build_mujoco_env
+            - golden_test_doom
       # - trace_test_gym:
       #    requires:
       #      - build_gym_env

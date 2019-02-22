@@ -264,7 +264,8 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param num_predicted_steps_ahead: (int)</span>
 <span class="sd">        Number of future steps to predict measurements for. The future steps won&#39;t be sequential, but rather jump</span>
-<span class="sd">        in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4</span>
+<span class="sd">        in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4.</span>
+<span class="sd">        The predicted steps will be [t + 2**i for i in range(num_predicted_steps_ahead)]</span>
 
 <span class="sd">    :param goal_vector: (List[float])</span>
 <span class="sd">        The goal vector will weight each of the measurements to form an optimization goal. The vector should have</span>
@@ -463,7 +464,8 @@
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   
