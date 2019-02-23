@@ -25,3 +25,11 @@ and what each contains is defined below:
 ## `Dockerfile.doom_environment`
 * `docker build -f docker/Dockerfile.doom_environment .` from the parent dir to create the image
 * contains vizdoom environment and Coach.
+
+## `Dockerfile.starcraft_environment`
+* `docker build -f docker/Dockerfile.starcraft_environment .` from the parent dir to create the image
+* contains StarcraftII environment and Coach.
+
+## `Dockerfile.carla_environment`
+* `docker build -f docker/Dockerfile.carla_environment .` from the parent dir to create the image
+* contains CARLA driving simulator environment and Coach.
