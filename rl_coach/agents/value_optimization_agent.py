@@ -172,10 +172,10 @@ class ValueOptimizationAgent(Agent):
         for episode in episodes:
             episode_seq_dr = 0
             for transition in episode.transitions:
-                rho = np.max(transition.info['softmax_policy_prob']) / transition.info['action_probability']
+                rho = transition.info['softmax_policy_prob'][transition.action] / transition.info['action_probability']
                 episode_seq_dr = transition.info['v_value_q_model_based'] + rho * (transition.reward + self.ap.algorithm.discount
                                                                          * episode_seq_dr -
-                                                                         np.max(transition.info['q_value']))
+                                                                         transition.info['q_value'][transition.action])
             per_episode_seq_dr.append(episode_seq_dr)
 
         SEQ_DR = np.array(per_episode_seq_dr).mean()
@@ -191,7 +191,7 @@ class ValueOptimizationAgent(Agent):
         # this is fitted from the training dataset, as does the policy
         # TODO extract hyper-param out
         # 100 epochs should be enough to learn some reasonable model
-        for epoch in range(100):
+        for epoch in range(50):
             log = OrderedDict()
             log['Epoch'] = epoch
             screen.log_dict(log, prefix='Training Reward Model')
