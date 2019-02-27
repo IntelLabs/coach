@@ -58,7 +58,11 @@ def main():
     from rl_coach.utils import get_open_port
 
     dashboard_path = os.path.realpath(__file__)
-    command = 'bokeh serve --show {} --port {}'.format(dashboard_path, get_open_port())
+    port = get_open_port()
+    # allow-websocket-origin = *:port allows connections from a remote machine. Note that this often works best together
+    # with using the --experiment_dir to select the experiment folder
+    command = 'bokeh serve --show {path} --port {port} --allow-websocket-origin=*:{port}'.format(path=dashboard_path
+                                                                                                     , port=port)
     if args.experiment_dir or args.experiment_files:
         command += ' --args'
         if args.experiment_dir:
