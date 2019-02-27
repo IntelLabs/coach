@@ -1,7 +1,10 @@
 from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
-from rl_coach.environments.gym_environment import GymVectorEnvironment
+from rl_coach.environments.environment import SingleLevelSelection
+from rl_coach.environments.gym_environment import GymVectorEnvironment, Atari, atari_deterministic_v4
+from rl_coach.filters.filter import InputFilter
+from rl_coach.filters.reward import RewardRescaleFilter
 from rl_coach.graph_managers.batch_rl_graph_manager import BatchRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
@@ -35,29 +38,35 @@ agent_params.algorithm.num_steps_between_copying_online_weights_to_target = Trai
 
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 agent_params.algorithm.discount = 0.99
+# agent_params.algorithm.discount = 1.0
 
 
 # NN configuration
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
-agent_params.network_wrappers['main'].l2_regularization = 0.1
+agent_params.network_wrappers['main'].l2_regularization = 0.0001
 agent_params.network_wrappers['main'].learning_rate_decay_rate = 0.95
 agent_params.network_wrappers['main'].learning_rate_decay_steps = int(DATASET_SIZE /
                                                                   agent_params.network_wrappers['main'].batch_size)
 
 # ER size
 agent_params.memory = EpisodicExperienceReplayParameters()
-agent_params.memory.max_size = (MemoryGranularity.Transitions, 40000)
+agent_params.memory.max_size = (MemoryGranularity.Transitions, DATASET_SIZE)
 
 # E-Greedy schedule
 # agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 10000)
 agent_params.exploration.epsilon_schedule = LinearSchedule(0, 0, 10000)
 agent_params.exploration.evaluation_epsilon = 0
 
+
+agent_params.input_filter = InputFilter()
+agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/200.))
+
 ################
 #  Environment #
 ################
 env_params = GymVectorEnvironment(level='CartPole-v0')
+# env_params = Atari(level='BreakoutDeterministic-v4')
 
 ########
 # Test #
@@ -68,5 +77,5 @@ preset_validation_params.min_reward_threshold = 150
 preset_validation_params.max_episodes_to_achieve_reward = 250
 
 graph_manager = BatchRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
+                                    schedule_params=schedule_params, vis_params=VisualizationParameters(dump_signals_to_csv_every_x_episodes=1),
                                     preset_validation_params=preset_validation_params)

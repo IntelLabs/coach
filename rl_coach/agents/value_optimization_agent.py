@@ -84,7 +84,7 @@ class ValueOptimizationAgent(Agent):
             actions_q_values = actions_q_values.squeeze()
 
             # store the q values statistics for logging
-            self.q_values.add_sample(actions_q_values)
+            self.q_values.add_sample(np.expand_dims(actions_q_values, 0))
             for i, q_value in enumerate(actions_q_values):
                 self.q_value_for_action[i].add_sample(q_value)
 
@@ -100,6 +100,7 @@ class ValueOptimizationAgent(Agent):
         raise NotImplementedError("ValueOptimizationAgent is an abstract agent. Not to be used directly.")
 
     def run_ope(self):
+        temperature = 0.2
         network_parameters = self.ap.network_wrappers['main']
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
         batch_size = network_parameters.batch_size
@@ -122,7 +123,7 @@ class ValueOptimizationAgent(Agent):
             all_reward_model_rewards.append(self.networks['reward_model'].online_network.predict(
                 batch_for_inference.states(network_keys)))
             all_q_values.append(self.networks['main'].online_network.predict(batch_for_inference.states(network_keys)))
-            all_policy_probs.append(softmax(all_q_values[-1], 0.35))
+            all_policy_probs.append(softmax(all_q_values[-1], temperature))
             all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))
             all_v_values_q_model_based.append(np.sum(all_policy_probs[-1] * all_q_values[-1], axis=1))
             all_rewards.append(batch_for_inference.rewards())
@@ -182,7 +183,7 @@ class ValueOptimizationAgent(Agent):
 
         print("RL")
         print("=======")
-        print("SEQ_DR Estimator = {}".format(SEQ_DR))
+        print("Temperature = {}: SEQ_DR Estimator = {}".format(temperature, SEQ_DR))
 
     def improve_reward_model(self):
         batch_size = self.ap.network_wrappers['reward_model'].batch_size

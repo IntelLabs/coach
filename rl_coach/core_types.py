@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from collections import namedtuple
 
 import copy
 from enum import Enum
@@ -36,6 +36,16 @@ class GoalTypes(Enum):
     EmbeddingChange = 2
     Observation = 3
     Measurements = 4
+
+
+Record = namedtuple('Record', ['name', 'label'])
+
+
+class TimeTypes(Enum):
+    EpisodeNumber = Record(name='Episode #', label='Episode #')
+    TrainingIteration = Record(name='Training Iter', label='Training Iteration')
+    EnvironmentSteps = Record(name='Total steps', label='Total steps (per worker)')
+    WallClockTime = Record(name='Wall-Clock Time', label='Wall-Clock Time (minutes)')
 
 
 # step methods

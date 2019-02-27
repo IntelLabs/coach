@@ -88,6 +88,9 @@ class QuantileRegressionDQNAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        # add Q value samples for logging
+        self.q_values.add_sample(current_quantiles)
+
         # get the optimal actions to take for the next states
         target_actions = np.argmax(self.get_q_values(next_state_quantiles), axis=1)
 

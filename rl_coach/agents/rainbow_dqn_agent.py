@@ -95,6 +95,9 @@ class RainbowDQNAgent(CategoricalDQNAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        # add Q value samples for logging
+        self.q_values.add_sample(TD_targets)
+
         # only update the action that we have actually done in this transition (using the Double-DQN selected actions)
         target_actions = ddqn_selected_actions
         m = np.zeros((self.ap.network_wrappers['main'].batch_size, self.z_values.size))

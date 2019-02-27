@@ -35,6 +35,8 @@ from rl_coach.utils import Signal, force_list
 from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 
+from rl_coach.core_types import TimeTypes
+
 
 class Agent(AgentInterface):
     def __init__(self, agent_parameters: AgentParameters, parent: Union['LevelManager', 'CompositeAgent']=None):
@@ -147,6 +149,7 @@ class Agent(AgentInterface):
         self.total_steps_counter = 0
         self.running_reward = None
         self.training_iteration = 0
+        self.training_epoch = 0
         self.last_target_network_update_step = 0
         self.last_training_phase_step = 0
         self.current_episode = self.ap.current_episode = 0
@@ -228,6 +231,7 @@ class Agent(AgentInterface):
             format(graph_name=self.parent_level_manager.parent_graph_manager.name,
                    level_name=self.parent_level_manager.name,
                    agent_full_id='.'.join(self.full_name_id.split('/')))
+        self.agent_logger.set_index_name(self.parent_level_manager.parent_graph_manager.time_metric.value.name)
         self.agent_logger.set_logger_filenames(self.ap.task_parameters.experiment_path, logger_prefix=logger_prefix,
                                                add_timestamp=True, task_id=self.task_id)
         if self.ap.visualization.dump_in_episode_signals:
@@ -387,7 +391,8 @@ class Agent(AgentInterface):
         elif ending_evaluation:
             # we write to the next episode, because it could be that the current episode was already written
             # to disk and then we won't write it again
-            self.agent_logger.set_current_time(self.current_episode + 1)
+            self.agent_logger.set_current_time(self.get_current_time() + 1)
+
             evaluation_reward = self.accumulated_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
                 'Evaluation Reward', evaluation_reward)
@@ -471,8 +476,11 @@ class Agent(AgentInterface):
         :return: None
         """
         # log all the signals to file
-        self.agent_logger.set_current_time(self.current_episode)
+        current_time = self.get_current_time()
+        self.agent_logger.set_current_time(current_time)
         self.agent_logger.create_signal_value('Training Iter', self.training_iteration)
+        self.agent_logger.create_signal_value('Episode #', self.current_episode)
+        self.agent_logger.create_signal_value('Epoch', self.training_epoch)
         self.agent_logger.create_signal_value('In Heatup', int(self._phase == RunPhase.HEATUP))
         self.agent_logger.create_signal_value('ER #Transitions', self.call_memory('num_transitions'))
         self.agent_logger.create_signal_value('ER #Episodes', self.call_memory('length'))
@@ -485,7 +493,7 @@ class Agent(AgentInterface):
                                    if self._phase == RunPhase.TRAIN else np.nan)
 
         self.agent_logger.create_signal_value('Update Target Network', 0, overwrite=False)
-        self.agent_logger.update_wall_clock_time(self.current_episode)
+        self.agent_logger.update_wall_clock_time(current_time)
 
         # The following signals are created with meaningful values only when an evaluation phase is completed.
         # Creating with default NaNs for any HEATUP/TRAIN/TEST episode which is not the last in an evaluation phase
@@ -537,7 +545,8 @@ class Agent(AgentInterface):
                     self.total_reward_in_current_episode >= self.spaces.reward.reward_success_threshold:
                 self.num_successes_across_evaluation_episodes += 1
 
-        if self.ap.visualization.dump_csv:
+        if self.ap.visualization.dump_csv and \
+                self.parent_level_manager.parent_graph_manager.time_metric == TimeTypes.EpisodeNumber:
             self.update_log()
 
         if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
@@ -651,6 +660,7 @@ class Agent(AgentInterface):
         """
         loss = 0
         if self._should_train():
+            self.training_epoch += 1
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -702,9 +712,14 @@ class Agent(AgentInterface):
                     if self.imitation:
                         self.log_to_screen()
 
+            if self.ap.visualization.dump_csv and \
+                    self.parent_level_manager.parent_graph_manager.time_metric == TimeTypes.TrainingIteration:
+                # in BatchRL, or imitation learning, the agent never acts, so we have to get the stats out here.
+                # we dump the data out every epoch
+                self.update_log()
+
             for network in self.networks.values():
                 network.set_is_training(False)
-
 
             # run additional commands after the training is done
             self.post_training_commands()
@@ -1040,3 +1055,12 @@ class Agent(AgentInterface):
         for network in self.networks.values():
             savers.update(network.collect_savers(parent_path_suffix))
         return savers
+
+    def get_current_time(self):
+        pass
+        return {
+                TimeTypes.EpisodeNumber: self.current_episode,
+                TimeTypes.TrainingIteration: self.training_iteration,
+                TimeTypes.EnvironmentSteps: self.total_steps_counter,
+                TimeTypes.WallClockTime: self.agent_logger.get_current_wall_clock_time()
+                }[self.parent_level_manager.parent_graph_manager.time_metric]

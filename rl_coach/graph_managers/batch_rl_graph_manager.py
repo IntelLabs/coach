@@ -30,6 +30,8 @@ from rl_coach.utils import short_dynamic_import
 
 from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
 
+from rl_coach.core_types import TimeTypes
+
 
 class BatchRLGraphManager(BasicRLGraphManager):
     """
@@ -43,6 +45,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
 
         super().__init__(agent_params, env_params, schedule_params, vis_params, preset_validation_params, name)
         self.is_batch_rl = True
+        self.time_metric = TimeTypes.TrainingIteration
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
         if self.env_params:

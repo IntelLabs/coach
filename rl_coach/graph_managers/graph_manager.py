@@ -38,6 +38,8 @@ from rl_coach.data_stores.data_store_impl import get_data_store as data_store_cr
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.data_stores.data_store import SyncFiles
 
+from rl_coach.core_types import TimeTypes
+
 
 class ScheduleParameters(Parameters):
     def __init__(self):
@@ -120,6 +122,7 @@ class GraphManager(object):
         self.graph_logger = Logger()
         self.data_store = None
         self.is_batch_rl = False
+        self.time_metric = TimeTypes.EpisodeNumber
 
     def create_graph(self, task_parameters: TaskParameters=TaskParameters()):
         self.graph_creation_time = time.time()
