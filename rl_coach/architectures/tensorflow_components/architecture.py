@@ -102,10 +102,7 @@ class TensorFlowArchitecture(Architecture):
             self.global_step = tf.train.get_or_create_global_step()
 
             # build the network
-            self.get_model()
-
-            # model weights
-            self.weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.full_name)
+            self.weights = self.get_model()
 
             # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
             for idx, var in enumerate(self.weights):
@@ -124,12 +121,6 @@ class TensorFlowArchitecture(Architecture):
 
             # gradients ops
             self._create_gradient_ops()
-
-            # L2 regularization
-            if self.network_parameters.l2_regularization != 0:
-                self.l2_regularization = [tf.add_n([tf.nn.l2_loss(v) for v in self.weights])
-                                          * self.network_parameters.l2_regularization]
-                tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES, self.l2_regularization)
 
             self.inc_step = self.global_step.assign_add(1)
 

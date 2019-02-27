@@ -338,10 +338,19 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
                         head_count += 1
 
+        # model weights
+        self.weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.full_name)
+
         # Losses
         self.losses = tf.losses.get_losses(self.full_name)
-        self.losses += tf.losses.get_regularization_losses(self.full_name)
         self.total_loss = tf.reduce_sum(self.losses)
+
+        # L2 regularization
+        if self.network_parameters.l2_regularization != 0:
+            self.l2_regularization = [tf.add_n([tf.nn.l2_loss(v) for v in self.weights])
+                                      * self.network_parameters.l2_regularization]
+            self.total_loss += self.l2_regularization
+
         # tf.summary.scalar('total_loss', self.total_loss)
 
         # Learning rate
@@ -385,6 +394,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                                                                         options={'maxiter': 25})
             else:
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
+
+        return self.weights
 
     def __str__(self):
         result = []
