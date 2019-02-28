@@ -56,7 +56,6 @@ class ACERPolicyHead(Head):
             if self.beta:
                 self.entropy = tf.reduce_mean(self.policy_distribution.entropy())
                 self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
-            tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES, self.regularizations)
 
             # Truncated importance sampling with bias corrections
             importance_sampling_weight = tf.placeholder(tf.float32, [None, self.num_actions],
