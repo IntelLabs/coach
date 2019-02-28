@@ -390,16 +390,14 @@ class Agent(AgentInterface):
             self.agent_logger.set_current_time(self.current_episode + 1)
             evaluation_reward = self.accumulated_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
-                'Evaluation Reward', evaluation_reward, overwrite=True)
+                'Evaluation Reward', evaluation_reward)
             self.agent_logger.create_signal_value(
                 'Shaped Evaluation Reward',
-                self.accumulated_shaped_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed,
-                overwrite=True)
+                self.accumulated_shaped_rewards_across_evaluation_episodes / self.num_evaluation_episodes_completed)
             success_rate = self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
                 "Success Rate",
-                success_rate,
-                overwrite=True)
+                success_rate)
             if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
                 screen.log_title("{}: Finished evaluation phase. Success rate = {}, Avg Total Reward = {}"
                                  .format(self.name, np.round(success_rate, 2), np.round(evaluation_reward, 2)))
@@ -489,6 +487,8 @@ class Agent(AgentInterface):
         self.agent_logger.create_signal_value('Update Target Network', 0, overwrite=False)
         self.agent_logger.update_wall_clock_time(self.current_episode)
 
+        # The following signals are created with meaningful values only when an evaluation phase is completed.
+        # Creating with default NaNs for any HEATUP/TRAIN/TEST episode which is not the last in an evaluation phase
         self.agent_logger.create_signal_value('Evaluation Reward', np.nan, overwrite=False)
         self.agent_logger.create_signal_value('Shaped Evaluation Reward', np.nan, overwrite=False)
         self.agent_logger.create_signal_value('Success Rate', np.nan, overwrite=False)

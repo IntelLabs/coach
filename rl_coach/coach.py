@@ -468,9 +468,10 @@ class CoachLauncher(object):
                                  "This option will save a replay buffer with the game play.",
                             action='store_true')
         parser.add_argument('--evaluate',
-                            help="(int) Run evaluation only, for the given number of steps. This is a convenient way "
-                                "to disable training in order to evaluate an existing checkpoint. If value is 0, or no "
-                                "value is provided, evaluation will run forever.",
+                            help="(int) Run evaluation only, for at least the given number of steps (note that complete "
+                                "episodes are evaluated). This is a convenient way to disable training in order "
+                                "to evaluate an existing checkpoint. If value is 0, or no value is provided, "
+                                "evaluation will run for an infinite number of steps.",
                             nargs='?',
                             const=0,
                             type=int)
@@ -664,7 +665,7 @@ class CoachLauncher(object):
                 worker_hosts=worker_hosts,
                 job_type=job_type,
                 task_index=task_index,
-                evaluate_only=0 if evaluation_worker else None,
+                evaluate_only=0 if evaluation_worker else None, # 0 value for evaluation worker as it should run infinitely
                 use_cpu=args.use_cpu,
                 num_tasks=total_tasks,  # training tasks + 1 evaluation task
                 num_training_tasks=args.num_workers,
