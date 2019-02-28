@@ -201,17 +201,6 @@
 <span class="kn">from</span> <span class="nn">rl_coach.saver</span> <span class="k">import</span> <span class="n">SaverCollection</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">SpacesDefinition</span>
 <span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">force_list</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-    <span class="kn">from</span> <span class="nn">rl_coach.architectures.tensorflow_components.general_network</span> <span class="k">import</span> <span class="n">GeneralTensorFlowNetwork</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">mxnet</span> <span class="k">as</span> <span class="nn">mx</span>
-    <span class="kn">from</span> <span class="nn">rl_coach.architectures.mxnet_components.general_network</span> <span class="k">import</span> <span class="n">GeneralMxnetNetwork</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;mxnet&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="NetworkWrapper"><a class="viewcode-back" href="../../../components/architectures/index.html#rl_coach.architectures.network_wrapper.NetworkWrapper">[docs]</a><span class="k">class</span> <span class="nc">NetworkWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -233,15 +222,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sess</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">framework</span> <span class="o">==</span> <span class="n">Frameworks</span><span class="o">.</span><span class="n">tensorflow</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;tensorflow&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">failed_imports</span><span class="p">:</span>
-                <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralTensorFlowNetwork</span><span class="o">.</span><span class="n">construct</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Install tensorflow before using it as framework&#39;</span><span class="p">)</span>
+            <span class="kn">from</span> <span class="nn">rl_coach.architectures.tensorflow_components.general_network</span> <span class="k">import</span> <span class="n">GeneralTensorFlowNetwork</span>
+            <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralTensorFlowNetwork</span><span class="o">.</span><span class="n">construct</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">framework</span> <span class="o">==</span> <span class="n">Frameworks</span><span class="o">.</span><span class="n">mxnet</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;mxnet&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">failed_imports</span><span class="p">:</span>
-                <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralMxnetNetwork</span><span class="o">.</span><span class="n">construct</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">mxnet</span> <span class="k">as</span> <span class="nn">mx</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Install mxnet before using it as framework&#39;</span><span class="p">)</span>
+            <span class="kn">from</span> <span class="nn">rl_coach.architectures.mxnet_components.general_network</span> <span class="k">import</span> <span class="n">GeneralMxnetNetwork</span>
+            <span class="n">general_network</span> <span class="o">=</span> <span class="n">GeneralMxnetNetwork</span><span class="o">.</span><span class="n">construct</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> Framework is not supported&quot;</span>
                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Frameworks</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">framework</span><span class="p">)))</span>
@@ -475,7 +468,8 @@
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

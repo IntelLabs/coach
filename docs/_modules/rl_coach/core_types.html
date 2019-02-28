@@ -278,6 +278,10 @@
     <span class="k">pass</span>
 
 
+<span class="k">class</span> <span class="nc">Measurements</span><span class="p">(</span><span class="n">PredictionType</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
 <span class="k">class</span> <span class="nc">InputEmbedding</span><span class="p">(</span><span class="n">Embedding</span><span class="p">):</span>
     <span class="k">pass</span>
 
@@ -303,10 +307,6 @@
 
 
 <span class="k">class</span> <span class="nc">Middleware_LSTM_Embedding</span><span class="p">(</span><span class="n">MiddlewareEmbedding</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-
-<span class="k">class</span> <span class="nc">Measurements</span><span class="p">(</span><span class="n">PredictionType</span><span class="p">):</span>
     <span class="k">pass</span>
 
 
@@ -509,12 +509,12 @@
 <span class="sd">    Action info is a class that holds an action and various additional information details about it</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionType</span><span class="p">,</span> <span class="n">action_probability</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionType</span><span class="p">,</span> <span class="n">all_action_probabilities</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">action_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">state_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">max_action_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">action_intrinsic_reward</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param action: the action</span>
-<span class="sd">        :param action_probability: the probability that the action was given when selecting it</span>
+<span class="sd">        :param all_action_probabilities: the probability that the action was given when selecting it</span>
 <span class="sd">        :param action_value: the state-action value (Q value) of the action</span>
 <span class="sd">        :param state_value: the state value (V value) of the state where the action was taken</span>
 <span class="sd">        :param max_action_value: in case this is an action that was selected randomly, this is the value of the action</span>
@@ -524,7 +524,7 @@
 <span class="sd">                                        selection</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">action_probability</span> <span class="o">=</span> <span class="n">action_probability</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_action_probabilities</span> <span class="o">=</span> <span class="n">all_action_probabilities</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_value</span> <span class="o">=</span> <span class="n">action_value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state_value</span> <span class="o">=</span> <span class="n">state_value</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">max_action_value</span><span class="p">:</span>
@@ -1084,7 +1084,8 @@
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

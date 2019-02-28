@@ -107,6 +107,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Agents</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ac.html">Actor-Critic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/acer.html">ACER</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../imitation/bc.html">Behavioral Cloning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bs_dqn.html">Bootstrapped DQN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="categorical_dqn.html">Categorical DQN</a></li>
@@ -231,7 +232,7 @@ the actions <span class="math notranslate nohighlight">\(Q(s_{t+1},a)\)</span>, 
 <li>In order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss),
 use the current states from the sampled batch, and run the online network to get the current Q values predictions.
 Set those values as the targets for the actions that were not actually played.</li>
-<li>For each action that was played, use the following equation for calculating the targets of the network:​                                                         $$ y_t=r(s_t,a_t)+γcdot max_a {Q(s_{t+1},a)} $$
+<li>For each action that was played, use the following equation for calculating the targets of the network:​
 <span class="math notranslate nohighlight">\(y_t=r(s_t,a_t )+\gamma \cdot max_a Q(s_{t+1})\)</span></li>
 <li>Finally, train the online network using the current states as inputs, and with the aforementioned targets.</li>
 <li>Once in every few thousand steps, copy the weights from the online network to the target network.</li>
@@ -290,7 +291,8 @@ Set those values as the targets for the actions that were not actually played.</
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

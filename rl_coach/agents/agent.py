@@ -1026,7 +1026,7 @@ class Agent(AgentInterface):
         """
         Collect all of agent's network savers
         :param parent_path_suffix: path suffix of the parent of the agent
-            (could be name of level manager or composite agent)
+        (could be name of level manager or composite agent)
         :return: collection of all agent savers
         """
         parent_path_suffix = "{}.{}".format(parent_path_suffix, self.name)
