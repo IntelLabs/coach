@@ -91,9 +91,12 @@ class Definitions:
             ['-cp', cp],
             ['-tb'],
             ['-ns'],
-            ['-ns'],
             ['-onnx'],
             ['-asc'],
+        ]
+
+        cam_args_three = [
+
         ]
 
     class Presets:
@@ -102,10 +105,54 @@ class Definitions:
             "CartPole_A3C",
         ]
 
-    class PresetsForMXNet:
-        # Preset list for testing the flags/ arguments of python coach command
-        args_test = [
+        # Preset list for mxnet framework testing
+        mxnet_args_test = [
             "Doom_Basic_DQN",
+            "CartPole_DQN"
+        ]
+
+        # Preset for testing seed argument
+        seed_args_test = [
+            "Atari_A3C",
+            "Atari_A3C_LSTM",
+            "Atari_Bootstrapped_DQN",
+            "Atari_C51",
+            "Atari_DDQN",
+            "Atari_DQN_with_PER",
+            "Atari_DQN",
+            "Atari_DQN_with_PER",
+            "Atari_Dueling_DDQN",
+            "Atari_Dueling_DDQN_with_PER_OpenAI",
+            "Atari_NStepQ",
+            "Atari_QR_DQN",
+            "Atari_Rainbow",
+            "Atari_UCB_with_Q_Ensembles",
+            "BitFlip_DQN",
+            "BitFlip_DQN_HER",
+            "CartPole_A3C",
+            "CartPole_ClippedPPO",
+            "CartPole_DFP",
+            "CartPole_DQN",
+            "CartPole_Dueling_DDQN",
+            "CartPole_NStepQ",
+            "CartPole_PAL",
+            "CartPole_PG",
+            "ControlSuite_DDPG",
+            "ExplorationChain_Bootstrapped_DQN",
+            "ExplorationChain_Dueling_DDQN",
+            "ExplorationChain_UCB_Q_ensembles",
+            "Fetch_DDPG_HER_baselines",
+            "InvertedPendulum_PG",
+            "MontezumaRevenge_BC",
+            "Mujoco_A3C",
+            "Mujoco_A3C_LSTM",
+            "Mujoco_ClippedPPO",
+            "Mujoco_DDPG",
+            "Mujoco_NAF",
+            "Mujoco_PPO",
+            "Pendulum_HAC",
+            "Starcraft_CollectMinerals_A3C",
+            "Starcraft_CollectMinerals_Dueling_DDQN",
         ]
 
     class Path:
@@ -142,6 +189,8 @@ class Definitions:
         num_es = 1
 
         f_comb = 2  # number of flags in cmd for creating flags combinations
+
+        N_csv_lines = 100  # number of lines to validate on csv file
 
     class TimeOuts:
         test_time_limit = 60 * 60

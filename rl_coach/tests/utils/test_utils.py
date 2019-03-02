@@ -49,20 +49,27 @@ def print_progress(averaged_rewards, last_num_episodes, start_time, time_limit,
     sys.stdout.flush()
 
 
-def read_csv_paths(test_path, filename_pattern, read_csv_tries=120):
+def read_csv_paths(test_path, filename_pattern, read_csv_tries=120,
+                   extra_tries=0):
     """
     Return file path once it found
     :param test_path: test folder path
     :param filename_pattern: csv file pattern
     :param read_csv_tries: number of iterations until file found
+    :param extra_tries: add number of extra tries to check after getting all
+                        the paths.
     :return: |string| return csv file path
     """
     csv_paths = []
     tries_counter = 0
-    while not csv_paths:
+    while not csv_paths or extra_tries > 0:
         csv_paths = glob.glob(path.join(test_path, '*', filename_pattern))
         if tries_counter > read_csv_tries:
             break
-        tries_counter += 1
         time.sleep(1)
+        tries_counter += 1
+
+        if csv_paths and extra_tries > 0:
+            extra_tries -= 1
+
     return csv_paths

@@ -91,6 +91,15 @@ def preset_args(request):
     return request.param
 
 
+@pytest.fixture(scope="module", params=list(a_utils.collect_preset_for_seed()))
+def preset_args_for_seed(request):
+    """
+    Return preset names that can be used for args testing only and for special
+    action when using seed argument; working in module scope
+    """
+    return request.param
+
+
 @pytest.fixture(scope="module",
                 params=list(a_utils.collect_preset_for_mxnet()))
 def preset_for_mxnet_args(request):
@@ -130,7 +139,7 @@ def clres(request):
 
     # get the stdout for logs results
     log_file_name = 'test_log_{}.txt'.format(p_name)
-    stdout = open(log_file_name, 'w+')
+    stdout = open(log_file_name, 'w')
     fn_pattern = '*.csv' if p_valid_params.num_workers > 1 else 'worker_0*.csv'
 
     res = CreateCsvLog(test_path, stdout, fn_pattern)

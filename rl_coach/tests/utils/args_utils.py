@@ -32,7 +32,7 @@ def collect_preset_for_mxnet():
     definitions (args_test under Presets).
     :return: preset(s) list
     """
-    for pn in Def.PresetsForMXNet.args_test:
+    for pn in Def.Presets.mxnet_args_test:
         assert pn, Def.Consts.ASSERT_MSG.format("Preset name", pn)
         yield pn
 
@@ -45,6 +45,18 @@ def collect_preset_for_args():
     :return: preset(s) list
     """
     for pn in Def.Presets.args_test:
+        assert pn, Def.Consts.ASSERT_MSG.format("Preset name", pn)
+        yield pn
+
+
+def collect_preset_for_seed():
+    """
+    Collect presets that relevant for seed argument testing only.
+    This used for testing arguments for specific presets that defined in the
+    definitions (args_test under Presets).
+    :return: preset(s) list
+    """
+    for pn in Def.Presets.seed_args_test:
         assert pn, Def.Consts.ASSERT_MSG.format("Preset name", pn)
         yield pn
 
@@ -172,22 +184,26 @@ def find_string_in_logs(log_path, str, timeout=Def.TimeOuts.wait_for_files):
     return False
 
 
-def get_csv_path(clres, tires_for_csv=Def.TimeOuts.wait_for_csv):
+def get_csv_path(clres, tries_for_csv=Def.TimeOuts.wait_for_csv,
+                 extra_tries=0):
     """
     Get the csv path with the results - reading csv paths will take some time
     :param clres: object of files that test is creating
-    :param tires_for_csv: timeout of tires until getting all csv files
+    :param tries_for_csv: timeout of tires until getting all csv files
+    :param extra_tries: add number of extra tries to check after getting all
+                        the paths.
     :return: |list| csv path
     """
     return test_utils.read_csv_paths(test_path=clres.exp_path,
                                      filename_pattern=clres.fn_pattern,
-                                     read_csv_tries=tires_for_csv)
+                                     read_csv_tries=tries_for_csv,
+                                     extra_tries=extra_tries)
 
 
 def is_reward_reached(csv_path, p_valid_params, start_time, time_limit):
     """
     Check the result of the experiment, by collecting all the Evaluation Reward
-    and aviarage should be bigger than the min reward threshold.
+    and average should be bigger than the min reward threshold.
     :param csv_path: csv file  (results)
     :param p_valid_params: experiment test params
     :param start_time: start time of the test
@@ -503,6 +519,9 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         assert not find_string_in_logs(log_path=clres.stdout.name,
                                        str=Def.Consts.LOG_ERROR)
 
+        ret_val = process.poll()
+        assert ret_val is None, Def.Consts.ASSERT_MSG.format("None", ret_val)
+
     elif flag[0] == "-crd" or flag[0] == "--checkpoint_restore_dir":
 
         """
@@ -516,3 +535,45 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         assert find_string_in_logs(log_path=clres.stdout.name,
                                    str=Def.Consts.NO_CHECKPOINT), \
             Def.Consts.ASSERT_MSG.format(Def.Consts.NO_CHECKPOINT, "Not found")
+
+    elif flag[0] == "--seed":
+        """
+        --seed: Once selected, check logs of process list if all are the same
+                results.
+        """
+        lst_csv = []
+        # wait until files created
+        csv_path = get_csv_path(clres=clres, extra_tries=5)
+
+        assert len(csv_path) > 0, \
+            Def.Consts.ASSERT_MSG.format("paths are not found", csv_path)
+
+        assert int(flag[1]) == len(csv_path), Def.Consts.ASSERT_MSG. \
+            format(len(csv_path), int(flag[1]))
+
+        # wait for getting results in csv's
+        time.sleep(120)
+        for i in range(len(csv_path)):
+            lst_csv.append(pd.read_csv(csv_path[i],
+                                       nrows=Def.Consts.N_csv_lines))
+        assert len(lst_csv) > 1, Def.Consts.ASSERT_MSG.format("> 1",
+                                                              len(lst_csv))
+        assert len(lst_csv[0]) > 50, \
+            Def.Consts.ASSERT_MSG.format("> 50", len(lst_csv[0]))
+
+        df1 = lst_csv[0]
+        for df in lst_csv[1:]:
+            assert list(df1['Training Iter'].values) == list(
+                df['Training Iter'].values)
+
+            assert list(df1['ER #Transitions'].values) == list(
+                df['ER #Transitions'].values)
+
+            assert list(df1['Total steps'].values) == list(
+                df['Total steps'].values)
+
+            assert list(df1['Shaped Training Reward'].values) == list(
+                df['Shaped Training Reward'].values)
+
+    elif flag[0] == "-c" or flag[0] == "--use_cpu":
+        pass
