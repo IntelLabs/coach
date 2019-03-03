@@ -70,7 +70,7 @@ class Definitions:
             # '-l': None,  # TODO: Add test validation on args_utils
             # '-c': None,  # TODO: Add test validation using nvidia-smi
             # '-v': None,  # TODO: Add test validation on args_utils
-            # '--seed': '{' + seed + '}', # TODO - Add test validation
+            # '--seed': '{' + seed + '}', # DONE - new test added
             # '-dc': None,  # TODO: Add test validation on args_utils
             # '-dcp': '{}'  # TODO: Add test validation on args_utils
             # ['-n', enw],  # Duplicated arg test
@@ -196,4 +196,4 @@ class Definitions:
         test_time_limit = 60 * 60
         wait_for_files = 20
         wait_for_csv = 240
-        test_run = 15
+        test_run = 60

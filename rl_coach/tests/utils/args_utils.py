@@ -107,7 +107,7 @@ def add_one_flag_value(flag):
     :param flag: dict flag
     :return: flag with format
     """
-    if not flag or len(flag) > 2 or len(flag) == 0:
+    if not flag or len(flag) == 0:
         return []
 
     if len(flag) == 1:
@@ -139,7 +139,7 @@ def add_one_flag_value(flag):
     return flag
 
 
-def check_files_in_dir(dir_path):
+def get_files_from_dir(dir_path):
     """
     Check if folder has files
     :param dir_path: |string| folder path
@@ -330,7 +330,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
             Def.Consts.ASSERT_MSG.format("tensorboard path", tensorboard_path)
 
         # check if folder contain files
-        check_files_in_dir(dir_path=tensorboard_path)
+        get_files_from_dir(dir_path=tensorboard_path)
 
     elif flag[0] == "-onnx" or flag[0] == "--export_onnx_graph":
         """
@@ -362,7 +362,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                 break
 
         # check if folder contain files
-        check_files_in_dir(dir_path=gifs_path)
+        get_files_from_dir(dir_path=gifs_path)
         # TODO: check if play window is opened
 
     elif flag[0] == "-dm" or flag[0] == "--dump_mp4":
@@ -385,7 +385,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                 break
 
         # check if folder contain files
-        check_files_in_dir(dir_path=videos_path)
+        get_files_from_dir(dir_path=videos_path)
         # TODO: check if play window is opened
 
     elif flag[0] == "--nocolor":
@@ -450,7 +450,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                 break
 
         # check if folder contain files
-        check_files_in_dir(dir_path=checkpoint_path)
+        get_files_from_dir(dir_path=checkpoint_path)
 
     elif flag[0] == "-ew" or flag[0] == "--evaluation_worker":
         """
