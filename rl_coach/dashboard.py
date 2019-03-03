@@ -43,6 +43,12 @@ parser.add_argument('-f', '--experiment_files',
                     help="(string) The path of an experiment file to open",
                     default=None,
                     type=str)
+parser.add_argument('-rc', '--allow_remote_connection',
+                    help="(flag) Allow remote connection to view dashboard results from a remote machine. "
+                         "Note this opens up the connection and allows anyone who tries to connect to the "
+                         "ip address/port to connect and view the bokeh results via their browser.",
+                    action='store_true')
+
 args = parser.parse_args()
 
 if args.experiment_dir:
@@ -59,10 +65,16 @@ def main():
 
     dashboard_path = os.path.realpath(__file__)
     port = get_open_port()
-    # allow-websocket-origin = *:port allows connections from a remote machine. Note that this often works best together
-    # with using the --experiment_dir to select the experiment folder
-    command = 'bokeh serve --show {path} --port {port} --allow-websocket-origin=*:{port}'.format(path=dashboard_path
-                                                                                                     , port=port)
+    command = 'bokeh serve --show {path} --port {port}'.format(path=dashboard_path, port=port)
+
+    if args.allow_remote_connection:
+        if not args.experiment_dir and not args.experiment_files:
+            raise ValueError("The allow_remote_connection flag only works in conjunction with either the experiment_dir"
+                             " or the experiment_files flag. ")
+
+        # allow-websocket-origin = * allows connections from a remote machine.
+        command += ' --allow-websocket-origin=*'
+
     if args.experiment_dir or args.experiment_files:
         command += ' --args'
         if args.experiment_dir:
