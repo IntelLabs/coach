@@ -41,11 +41,12 @@ class BatchRLGraphManager(BasicRLGraphManager):
                  schedule_params: ScheduleParameters,
                  vis_params: VisualizationParameters = VisualizationParameters(),
                  preset_validation_params: PresetValidationParameters = PresetValidationParameters(),
-                 name='batch_rl_graph'):
+                 name='batch_rl_graph', reward_model_num_epochs=100):
 
         super().__init__(agent_params, env_params, schedule_params, vis_params, preset_validation_params, name)
         self.is_batch_rl = True
         self.time_metric = TimeTypes.TrainingIteration
+        self.reward_model_num_epochs = reward_model_num_epochs
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
         if self.env_params:
@@ -67,7 +68,11 @@ class BatchRLGraphManager(BasicRLGraphManager):
         self.agent_params.task_parameters = task_parameters  # TODO: this should probably be passed in a different way
         self.agent_params.name = "agent"
         self.agent_params.is_batch_rl_training = True
-        self.agent_params.network_wrappers['reward_model'] = deepcopy(self.agent_params.network_wrappers['main'])
+
+        # user hasn't defined params for the reward model. we will use the same params as used for the 'main' network.
+        if 'reward_model' not in self.agent_params.network_wrappers:
+            self.agent_params.network_wrappers['reward_model'] = deepcopy(self.agent_params.network_wrappers['main'])
+
         agent = short_dynamic_import(self.agent_params.path)(self.agent_params)
 
         # TODO load dataset into the agent's replay buffer. optionally normalize it, and clean it from outliers.
@@ -146,7 +151,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
         :return:
         """
         screen.log_title("Training a regression model for estimating MDP rewards")
-        self.level_managers[0].agents['agent'].improve_reward_model()
+        self.level_managers[0].agents['agent'].improve_reward_model(epochs=self.reward_model_num_epochs)
 
     def run_ope(self):
         """

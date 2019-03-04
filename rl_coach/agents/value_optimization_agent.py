@@ -187,15 +187,12 @@ class ValueOptimizationAgent(Agent):
         print("=======")
         print("Temperature = {}: SEQ_DR Estimator = {}".format(temperature, SEQ_DR))
 
-    def improve_reward_model(self):
+    def improve_reward_model(self, epochs):
         batch_size = self.ap.network_wrappers['reward_model'].batch_size
         network_keys = self.ap.network_wrappers['reward_model'].input_embedders_parameters.keys()
 
         # this is fitted from the training dataset
-
-        # TODO extract hyper-param out
-        # 100 epochs should be enough to learn some reasonable model
-        for epoch in range(100):
+        for epoch in range(epochs):
             loss = 0
             for i, batch in enumerate(self.call_memory('get_shuffled_data_generator', batch_size)):
                 batch = Batch(batch)
