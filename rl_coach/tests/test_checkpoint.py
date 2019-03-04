@@ -23,6 +23,7 @@ import tempfile
 import numpy as np
 import pandas as pd
 import rl_coach.tests.utils.args_utils as a_utils
+import rl_coach.tests.utils.test_utils as test_utils
 from rl_coach import checkpoint
 from rl_coach.tests.utils.definitions import Definitions as Def
 
@@ -109,11 +110,11 @@ def test_restore_checkpoint(preset_args, clres, start_time=time.time()):
     create_cp_proc.kill()
     checkpoint_test_dir = "{}/{}".format(checkpoint_test_dir,
                                          Def.Path.checkpoint)
-    
+
     restore_cp_proc = _create_cmd_and_run(flag=['-crd', checkpoint_test_dir,
                                                 '--evaluate'])
 
-    new_csv_list = a_utils.get_csv_path(clres=clres)
+    new_csv_list = test_utils.get_csv_path(clres=clres)
     time.sleep(Def.TimeOuts.test_run)
 
     csv = pd.read_csv(new_csv_list[0])

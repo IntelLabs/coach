@@ -54,7 +54,7 @@ class Definitions:
             ['-f', fw_ten],
             ['--nocolor'],
             ['-s', css],
-            ['-crd', crd],
+            # ['-crd', crd], # Tested in checkpoint test
             ['-dg'],
             ['-dm'],
             ['-cp', cp],

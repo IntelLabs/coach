@@ -15,10 +15,10 @@
 #
 """PyTest configuration."""
 
-import configparser as cfgparser
 import os
-import platform
 import shutil
+import sys
+
 import pytest
 import rl_coach.tests.utils.args_utils as a_utils
 import rl_coach.tests.utils.presets_utils as p_utils
@@ -26,44 +26,12 @@ from rl_coach.tests.utils.definitions import Definitions as Def
 from os import path
 
 
-def pytest_collection_modifyitems(config, items):
-    """pytest built in method to pre-process cli options"""
-    global test_config
-    test_config = cfgparser.ConfigParser()
-    str_rootdir = str(config.rootdir)
-    str_inifile = str(config.inifile)
-    # Get the relative path of the inifile
-    # By default is an absolute path but relative path when -c option used
-    config_path = os.path.relpath(str_inifile, str_rootdir)
-    config_path = os.path.join(str_rootdir, config_path)
-    assert (os.path.exists(config_path))
-    test_config.read(config_path)
-
-
-def pytest_runtest_setup(item):
-    """Called before test is run."""
-    if len(item.own_markers) < 1:
-        return
-    if (item.own_markers[0].name == "unstable" and
-            "unstable" not in item.config.getoption("-m")):
-        pytest.skip("skipping unstable test")
-
-    if item.own_markers[0].name == "linux_only":
-        if platform.system() != 'Linux':
-            pytest.skip("Skipping test that isn't Linux OS.")
-
-    if item.own_markers[0].name == "golden_test":
-        """ do some custom configuration for golden tests. """
-        # TODO: add custom functionality
-        pass
-
-
 @pytest.fixture(scope="module", params=list(p_utils.collect_presets()))
 def preset_name(request):
     """
     Return all preset names
     """
-    return request.param
+    yield request.param
 
 
 @pytest.fixture(scope="function", params=list(a_utils.collect_args()))
@@ -71,7 +39,7 @@ def flag(request):
     """
     Return flags names in function scope
     """
-    return request.param
+    yield request.param
 
 
 @pytest.fixture(scope="function", params=list(a_utils.collect_args_comb()))
@@ -79,7 +47,7 @@ def comb_flag(request):
     """
     Return a combination of relevant flags
     """
-    return request.param
+    yield request.param
 
 
 @pytest.fixture(scope="module", params=list(a_utils.collect_preset_for_args()))
@@ -88,7 +56,7 @@ def preset_args(request):
     Return preset names that can be used for args testing only; working in
     module scope
     """
-    return request.param
+    yield request.param
 
 
 @pytest.fixture(scope="module", params=list(a_utils.collect_preset_for_seed()))
@@ -97,7 +65,7 @@ def preset_args_for_seed(request):
     Return preset names that can be used for args testing only and for special
     action when using seed argument; working in module scope
     """
-    return request.param
+    yield request.param
 
 
 @pytest.fixture(scope="module",
@@ -107,7 +75,7 @@ def preset_for_mxnet_args(request):
     Return preset names that can be used for args testing only; this special
     fixture will be used for mxnet framework only. working in module scope
     """
-    return request.param
+    yield request.param
 
 
 @pytest.fixture(scope="function")
@@ -132,6 +100,7 @@ def clres(request):
 
     p_valid_params = p_utils.validation_params(p_name)
 
+    sys.path.append('.')
     test_name = 'ExpName_{}'.format(p_name)
     test_path = os.path.join(Def.Path.experiments, test_name)
     if path.exists(test_path):
@@ -150,5 +119,5 @@ def clres(request):
     if path.exists(res.exp_path):
         shutil.rmtree(res.exp_path)
 
-    if os.path.exists(res.exp_path):
-        os.remove(res.stdout)
+    if path.exists(res.stdout.name):
+        os.remove(res.stdout.name)

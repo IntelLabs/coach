@@ -21,7 +21,8 @@ import time
 import pandas as pd
 import numpy as np
 from itertools import combinations
-from rl_coach.tests.utils import test_utils
+from rl_coach.tests.utils.test_utils import get_csv_path, get_files_from_dir, \
+    find_string_in_logs
 from rl_coach.tests.utils.definitions import Definitions as Def
 
 
@@ -137,67 +138,6 @@ def add_one_flag_value(flag):
         flag[1] = Def.Path.experiments
 
     return flag
-
-
-def get_files_from_dir(dir_path):
-    """
-    Check if folder has files
-    :param dir_path: |string| folder path
-    :return: |list| return files in folder
-    """
-    start_time = time.time()
-    entities = None
-    while time.time() - start_time < Def.TimeOuts.wait_for_files:
-        # wait until logs created
-        if os.path.exists(dir_path):
-            entities = os.listdir(dir_path)
-            if len(entities) > 0:
-                break
-        time.sleep(1)
-
-    assert len(entities) > 0, \
-        Def.Consts.ASSERT_MSG.format("num files > 0", len(entities))
-    return entities
-
-
-def find_string_in_logs(log_path, str, timeout=Def.TimeOuts.wait_for_files):
-    """
-    Find string into the log file
-    :param log_path: |string| log path
-    :param str: |string| search text
-    :param timeout: |int| timeout for searching on file
-    :return: |bool| true if string found in the log file
-    """
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        # wait until logs created
-        if os.path.exists(log_path):
-            break
-        time.sleep(1)
-
-    if not os.path.exists(log_path):
-        return False
-
-    with open(log_path, 'r') as fr:
-        if str in fr.read():
-            return True
-    return False
-
-
-def get_csv_path(clres, tries_for_csv=Def.TimeOuts.wait_for_csv,
-                 extra_tries=0):
-    """
-    Get the csv path with the results - reading csv paths will take some time
-    :param clres: object of files that test is creating
-    :param tries_for_csv: timeout of tires until getting all csv files
-    :param extra_tries: add number of extra tries to check after getting all
-                        the paths.
-    :return: |list| csv path
-    """
-    return test_utils.read_csv_paths(test_path=clres.exp_path,
-                                     filename_pattern=clres.fn_pattern,
-                                     read_csv_tries=tries_for_csv,
-                                     extra_tries=extra_tries)
 
 
 def is_reward_reached(csv_path, p_valid_params, start_time, time_limit):
@@ -543,7 +483,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         """
         lst_csv = []
         # wait until files created
-        csv_path = get_csv_path(clres=clres, extra_tries=5)
+        csv_path = get_csv_path(clres=clres, extra_tries=10)
 
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("paths are not found", csv_path)
@@ -552,14 +492,19 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
             format(len(csv_path), int(flag[1]))
 
         # wait for getting results in csv's
-        time.sleep(120)
         for i in range(len(csv_path)):
+
+            lines_in_file = pd.read_csv(csv_path[i])
+            while len(lines_in_file['Episode #'].values) < 100 and \
+                    time.time() - start_time < Def.TimeOuts.test_time_limit:
+                lines_in_file = pd.read_csv(csv_path[i])
+                time.sleep(1)
+
             lst_csv.append(pd.read_csv(csv_path[i],
                                        nrows=Def.Consts.N_csv_lines))
+
         assert len(lst_csv) > 1, Def.Consts.ASSERT_MSG.format("> 1",
                                                               len(lst_csv))
-        assert len(lst_csv[0]) > 50, \
-            Def.Consts.ASSERT_MSG.format("> 50", len(lst_csv[0]))
 
         df1 = lst_csv[0]
         for df in lst_csv[1:]:
@@ -571,9 +516,6 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
             assert list(df1['Total steps'].values) == list(
                 df['Total steps'].values)
-
-            assert list(df1['Shaped Training Reward'].values) == list(
-                df['Shaped Training Reward'].values)
 
     elif flag[0] == "-c" or flag[0] == "--use_cpu":
         pass
