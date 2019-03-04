@@ -128,7 +128,8 @@ class ValueOptimizationAgent(Agent):
             all_v_values_q_model_based.append(np.sum(all_policy_probs[-1] * all_q_values[-1], axis=1))
             all_rewards.append(batch_for_inference.rewards())
             all_actions.append(batch_for_inference.actions())
-            all_old_policy_probs.append(batch_for_inference.info('action_probability'))
+            all_old_policy_probs.append(batch_for_inference.info('all_action_probabilities')
+                                        [range(len(batch_for_inference.actions())), batch_for_inference.actions()])
 
             for j, t in enumerate(batch):
                 t.update_info({
@@ -173,7 +174,8 @@ class ValueOptimizationAgent(Agent):
         for episode in episodes:
             episode_seq_dr = 0
             for transition in episode.transitions:
-                rho = transition.info['softmax_policy_prob'][transition.action] / transition.info['action_probability']
+                rho = transition.info['softmax_policy_prob'][transition.action] / \
+                      transition.info['all_action_probabilities'][transition.action]
                 episode_seq_dr = transition.info['v_value_q_model_based'] + rho * (transition.reward + self.ap.algorithm.discount
                                                                          * episode_seq_dr -
                                                                          transition.info['q_value'][transition.action])
@@ -189,21 +191,25 @@ class ValueOptimizationAgent(Agent):
         batch_size = self.ap.network_wrappers['reward_model'].batch_size
         network_keys = self.ap.network_wrappers['reward_model'].input_embedders_parameters.keys()
 
-        # this is fitted from the training dataset, as does the policy
+        # this is fitted from the training dataset
+
         # TODO extract hyper-param out
         # 100 epochs should be enough to learn some reasonable model
-        for epoch in range(50):
-            log = OrderedDict()
-            log['Epoch'] = epoch
-            screen.log_dict(log, prefix='Training Reward Model')
-            for batch in self.call_memory('get_shuffled_data_generator', batch_size):
+        for epoch in range(100):
+            loss = 0
+            for i, batch in enumerate(self.call_memory('get_shuffled_data_generator', batch_size)):
                 batch = Batch(batch)
                 current_rewards_prediction_for_all_actions = self.networks['reward_model'].online_network.predict(batch.states(network_keys))
                 current_rewards_prediction_for_all_actions[range(batch_size), batch.actions()] = batch.rewards()
-                loss = self.networks['reward_model'].train_and_sync_networks(batch.states(network_keys),
+                loss += self.networks['reward_model'].train_and_sync_networks(batch.states(network_keys),
                                                                              current_rewards_prediction_for_all_actions)[0]
-                # print("epoch {}: loss = {}".format(epoch, loss))
-        # print(self.networks['reward_model'].online_network.predict(batch.states(network_keys)))
+            # print(self.networks['reward_model'].online_network.predict(batch.states(network_keys))[0])
+
+            log = OrderedDict()
+            log['Epoch'] = epoch
+            log['loss'] = loss / int(self.call_memory('num_transitions_in_complete_episodes') / batch_size)
+            screen.log_dict(log, prefix='Training Reward Model')
+
 
 
 
