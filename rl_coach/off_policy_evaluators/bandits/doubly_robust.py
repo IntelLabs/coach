@@ -15,19 +15,11 @@
 #
 import numpy as np
 
-from rl_coach.off_policy_evaluators.off_policy_evaluator import OffPolicyEvaluator
 
+class DoublyRobust(object):
 
-class DoublyRobust(OffPolicyEvaluator):
-    def __init__(self):
-        """
-        A doubly robust estimator, based on <paper_link>. This estimator is aimed to evaluate policies for
-        bandits problems.
-        """
-        pass
-
-    def evaluate(self, rho_all_dataset, all_rewards, all_v_values_reward_model_based,
-                 all_reward_model_rewards, all_actions) -> tuple:
+    @staticmethod
+    def evaluate(ope_shared_stats: 'OpeSharedStats') -> tuple:
         """
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
@@ -35,15 +27,10 @@ class DoublyRobust(OffPolicyEvaluator):
         :return: the evaluation score
         """
 
-        ips = np.mean(rho_all_dataset * all_rewards)
-        dm = np.mean(all_v_values_reward_model_based)
-        dr = np.mean(rho_all_dataset *
-                     (all_rewards - all_reward_model_rewards[range(len(all_actions)), all_actions])) + dm
-
-        print("Bandits")
-        print("=======")
-        print("IPS Estimator = {}".format(ips))
-        print("DM Estimator = {}".format(dm))
-        print("DR Estimator = {}".format(dr))
+        ips = np.mean(ope_shared_stats.rho_all_dataset * ope_shared_stats.all_rewards)
+        dm = np.mean(ope_shared_stats.all_v_values_reward_model_based)
+        dr = np.mean(ope_shared_stats.rho_all_dataset *
+                     (ope_shared_stats.all_rewards - ope_shared_stats.all_reward_model_rewards[
+                         range(len(ope_shared_stats.all_actions)), ope_shared_stats.all_actions])) + dm
 
         return ips, dm, dr

@@ -162,7 +162,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
         Run off-policy evaluation estimators to evaluate the trained policy performance against the dataset
         :return:
         """
-        self.level_managers[0].agents['agent'].run_ope()
+        self.level_managers[0].agents['agent'].run_off_policy_evaluation()
 
 
 

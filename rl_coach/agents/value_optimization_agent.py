@@ -99,7 +99,12 @@ class ValueOptimizationAgent(Agent):
     def learn_from_batch(self, batch):
         raise NotImplementedError("ValueOptimizationAgent is an abstract agent. Not to be used directly.")
 
-    def run_ope(self):
+    def run_off_policy_evaluation(self):
+        """
+        Run the off-policy evaluation estimators to get a prediction for the performance of the current policy based on
+        an evaluation dataset, which was collected by another policy(ies).
+        :return: None
+        """
         assert self.ope_manager
 
         ips, dm, dr, seq_dr = self.ope_manager.evaluate(
@@ -116,7 +121,13 @@ class ValueOptimizationAgent(Agent):
         self.agent_logger.create_signal_value('Doubly Robust', dr)
         self.agent_logger.create_signal_value('Sequential Doubly Robust', seq_dr)
 
-    def improve_reward_model(self, epochs):
+    def improve_reward_model(self, epochs: int):
+        """
+        Train a reward model to be used by the doubly-robust estimator
+
+        :param epochs: The total number of epochs to use for training a reward model
+        :return: None
+        """
         batch_size = self.ap.network_wrappers['reward_model'].batch_size
         network_keys = self.ap.network_wrappers['reward_model'].input_embedders_parameters.keys()
 

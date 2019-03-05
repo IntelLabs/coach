@@ -13,15 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from collections import namedtuple, OrderedDict
+
 import numpy as np
 from typing import List
 
 from rl_coach.architectures.architecture import Architecture
 from rl_coach.core_types import Episode, Batch
+from rl_coach.logger import screen
 from rl_coach.off_policy_evaluators.bandits.doubly_robust import DoublyRobust
 from rl_coach.off_policy_evaluators.rl.sequential_doubly_robust import SequentialDoublyRobust
 
 from rl_coach.core_types import Transition
+
+OpeSharedStats = namedtuple("OpeSharedStats", ['all_reward_model_rewards', 'all_policy_probs',
+                                               'all_v_values_reward_model_based', 'all_rewards', 'all_actions',
+                                               'all_old_policy_probs', 'new_policy_prob', 'rho_all_dataset'])
+OpeEstimation = namedtuple("OpeEstimation", ['ips', 'dm', 'dr', 'seq_dr'])
 
 
 class OpeManager(object):
@@ -29,11 +37,22 @@ class OpeManager(object):
         self.doubly_robust = DoublyRobust()
         self.sequential_doubly_robust = SequentialDoublyRobust()
 
-
     @staticmethod
-    def _prepare_shared_stats(dataset_as_transitions: List[Transition], batch_size: int,
-                              reward_model: Architecture, q_network: Architecture, network_keys: List,
-                              temperature: float):
+    def _prepare_ope_shared_stats(dataset_as_transitions: List[Transition], batch_size: int,
+                                  reward_model: Architecture, q_network: Architecture, network_keys: List,
+                                  temperature: float) -> OpeSharedStats:
+        """
+        Do the preparations needed for different estimators.
+        Some of the calcuations are shared, so we centralize all the work here.
+
+        :param dataset_as_transitions: The evaluation dataset in the form of transitions.
+        :param batch_size: The batch size to use.
+        :param reward_model: A reward model to be used by DR
+        :param q_network: The Q network whose its policy we evaluate.
+        :param network_keys: The network keys used for feeding the neural networks.
+        :param temperature: The Softmax temperature to use for estimating a probability from Q values.
+        :return:
+        """
         # IPS
         # TODO have softmax calculated as part of the Q network
         def softmax(x, temperature):
@@ -68,10 +87,6 @@ class OpeManager(object):
 
                 })
 
-            # DEBUG
-            if i == 0:
-                print("Q_Values: {} \n".format(str([q for q in list(q_values[0])])))
-
         all_reward_model_rewards = np.concatenate(all_reward_model_rewards, axis=0)
         all_policy_probs = np.concatenate(all_policy_probs, axis=0)
         all_v_values_reward_model_based = np.concatenate(all_v_values_reward_model_based, axis=0)
@@ -83,34 +98,42 @@ class OpeManager(object):
         new_policy_prob = np.max(all_policy_probs, axis=1)
         rho_all_dataset = new_policy_prob / all_old_policy_probs
 
-        # TODO these should all go into some container class to put some order in here. maybe a namedtuple.
-        return all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based, all_rewards, all_actions, \
-               all_old_policy_probs, new_policy_prob, rho_all_dataset
+        return OpeSharedStats(all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based,
+                              all_rewards, all_actions, all_old_policy_probs, new_policy_prob, rho_all_dataset)
 
     def evaluate(self, dataset_as_episodes: List[Episode], batch_size: int, discount_factor: float,
-                 reward_model: Architecture, q_network: Architecture, network_keys: List):
+                 reward_model: Architecture, q_network: Architecture, network_keys: List) -> OpeEstimation:
         """
+        Run all the OPEs and get estimations of the current policy performance based on the evaluation dataset.
 
-        :param dataset_as_episodes:
-        :param batch_size:
-        :param discount_factor:
-        :param reward_model:
-        :param q_network:
-        :param network_keys:
-        :return:
+        :param dataset_as_episodes: The evaluation dataset.
+        :param batch_size: Batch size to use for the estimators.
+        :param discount_factor: The standard RL discount factor.
+        :param reward_model: A reward model to be used by DR
+        :param q_network: The Q network whose its policy we evaluate.
+        :param network_keys: The network keys used for feeding the neural networks.
+
+        :return: An OpeEstimation tuple which groups together all the OPE estimations
         """
         # TODO this should use the evaluation dataset, and not the training dataset
 
         dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
+
+        # TODO extract a temperature hyper-parameter
         temperature = 0.2
 
-        all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based, all_rewards, all_actions, \
-        all_old_policy_probs, new_policy_prob, rho_all_dataset = self._prepare_shared_stats(
-            dataset_as_transitions, batch_size, reward_model, q_network, network_keys, temperature)
+        ope_shared_stats = self._prepare_ope_shared_stats(dataset_as_transitions, batch_size, reward_model,
+                                                          q_network, network_keys, temperature)
 
-        ips, dm, dr = self.doubly_robust.evaluate(rho_all_dataset, all_rewards, all_v_values_reward_model_based,
-                                    all_reward_model_rewards, all_actions)
-        seq_dr = self.sequential_doubly_robust.evaluate(dataset_as_episodes, temperature, discount_factor)
+        ips, dm, dr = self.doubly_robust.evaluate(ope_shared_stats)
+        seq_dr = self.sequential_doubly_robust.evaluate(dataset_as_episodes, discount_factor)
 
-        return ips, dm, dr, seq_dr
+        log = OrderedDict()
+        log['IPS'] = ips
+        log['DM'] = dm
+        log['DR'] = dr
+        log['Sequential-DR'] = seq_dr
+        screen.log_dict(log, prefix='Off-Policy Evaluation')
+
+        return OpeEstimation(ips, dm, dr, seq_dr)
 
