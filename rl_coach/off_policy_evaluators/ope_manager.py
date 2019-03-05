@@ -29,30 +29,6 @@ class OpeManager(object):
         self.doubly_robust = DoublyRobust()
         self.sequential_doubly_robust = SequentialDoublyRobust()
 
-    def evaluate(self, dataset_as_episodes: List[Episode], batch_size: int, discount_factor: float,
-                 reward_model: Architecture, q_network: Architecture, network_keys: List):
-        """
-
-        :param dataset_as_episodes:
-        :param batch_size:
-        :param discount_factor:
-        :param reward_model:
-        :param q_network:
-        :param network_keys:
-        :return:
-        """
-        # TODO this should use the evaluation dataset, and not the training dataset
-
-        dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
-        temperature = 0.2
-
-        all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based, all_rewards, all_actions, \
-        all_old_policy_probs, new_policy_prob, rho_all_dataset = self._prepare_shared_stats(
-            dataset_as_transitions, batch_size, reward_model, q_network, network_keys, temperature)
-
-        self.doubly_robust.evaluate(rho_all_dataset, all_rewards, all_v_values_reward_model_based,
-                                    all_reward_model_rewards, all_actions)
-        self.sequential_doubly_robust.evaluate(dataset_as_episodes, temperature, discount_factor)
 
     @staticmethod
     def _prepare_shared_stats(dataset_as_transitions: List[Transition], batch_size: int,
@@ -107,5 +83,34 @@ class OpeManager(object):
         new_policy_prob = np.max(all_policy_probs, axis=1)
         rho_all_dataset = new_policy_prob / all_old_policy_probs
 
+        # TODO these should all go into some container class to put some order in here. maybe a namedtuple.
         return all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based, all_rewards, all_actions, \
                all_old_policy_probs, new_policy_prob, rho_all_dataset
+
+    def evaluate(self, dataset_as_episodes: List[Episode], batch_size: int, discount_factor: float,
+                 reward_model: Architecture, q_network: Architecture, network_keys: List):
+        """
+
+        :param dataset_as_episodes:
+        :param batch_size:
+        :param discount_factor:
+        :param reward_model:
+        :param q_network:
+        :param network_keys:
+        :return:
+        """
+        # TODO this should use the evaluation dataset, and not the training dataset
+
+        dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
+        temperature = 0.2
+
+        all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based, all_rewards, all_actions, \
+        all_old_policy_probs, new_policy_prob, rho_all_dataset = self._prepare_shared_stats(
+            dataset_as_transitions, batch_size, reward_model, q_network, network_keys, temperature)
+
+        ips, dm, dr = self.doubly_robust.evaluate(rho_all_dataset, all_rewards, all_v_values_reward_model_based,
+                                    all_reward_model_rewards, all_actions)
+        seq_dr = self.sequential_doubly_robust.evaluate(dataset_as_episodes, temperature, discount_factor)
+
+        return ips, dm, dr, seq_dr
+

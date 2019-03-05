@@ -102,12 +102,19 @@ class ValueOptimizationAgent(Agent):
     def run_ope(self):
         assert self.ope_manager
 
-        self.ope_manager.evaluate(dataset_as_episodes=self.call_memory('get_all_complete_episodes'),
+        ips, dm, dr, seq_dr = self.ope_manager.evaluate(
+                                  dataset_as_episodes=self.call_memory('get_all_complete_episodes'),
                                   batch_size=self.ap.network_wrappers['main'].batch_size,
                                   discount_factor=self.ap.algorithm.discount,
                                   reward_model=self.networks['reward_model'].online_network,
                                   q_network=self.networks['main'].online_network,
                                   network_keys=list(self.ap.network_wrappers['main'].input_embedders_parameters.keys()))
+
+        self.agent_logger.set_current_time(self.get_current_time() + 1)
+        self.agent_logger.create_signal_value('Inverse Propensity Score', ips)
+        self.agent_logger.create_signal_value('Direct Method Reward', dm)
+        self.agent_logger.create_signal_value('Doubly Robust', dr)
+        self.agent_logger.create_signal_value('Sequential Doubly Robust', seq_dr)
 
     def improve_reward_model(self, epochs):
         batch_size = self.ap.network_wrappers['reward_model'].batch_size

@@ -83,6 +83,7 @@ preset_validation_params.min_reward_threshold = 150
 preset_validation_params.max_episodes_to_achieve_reward = 250
 
 graph_manager = BatchRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=VisualizationParameters(dump_signals_to_csv_every_x_episodes=1),
+                                    schedule_params=schedule_params,
+                                    vis_params=VisualizationParameters(dump_signals_to_csv_every_x_episodes=1),
                                     preset_validation_params=preset_validation_params,
                                     reward_model_num_epochs=100)

@@ -27,7 +27,7 @@ class DoublyRobust(OffPolicyEvaluator):
         pass
 
     def evaluate(self, rho_all_dataset, all_rewards, all_v_values_reward_model_based,
-                 all_reward_model_rewards, all_actions) -> float:
+                 all_reward_model_rewards, all_actions) -> tuple:
         """
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
@@ -35,13 +35,15 @@ class DoublyRobust(OffPolicyEvaluator):
         :return: the evaluation score
         """
 
-        IPS = np.mean(rho_all_dataset * all_rewards)
-        DM = np.mean(all_v_values_reward_model_based)
-        DR = np.mean(rho_all_dataset *
-                     (all_rewards - all_reward_model_rewards[range(len(all_actions)), all_actions])) + DM
+        ips = np.mean(rho_all_dataset * all_rewards)
+        dm = np.mean(all_v_values_reward_model_based)
+        dr = np.mean(rho_all_dataset *
+                     (all_rewards - all_reward_model_rewards[range(len(all_actions)), all_actions])) + dm
 
         print("Bandits")
         print("=======")
-        print("IPS Estimator = {}".format(IPS))
-        print("DM Estimator = {}".format(DM))
-        print("DR Estimator = {}".format(DR))
+        print("IPS Estimator = {}".format(ips))
+        print("DM Estimator = {}".format(dm))
+        print("DR Estimator = {}".format(dr))
+
+        return ips, dm, dr

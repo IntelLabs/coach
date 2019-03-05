@@ -49,10 +49,10 @@ class SequentialDoublyRobust(OffPolicyEvaluator):
                                                                          transition.info['q_value'][transition.action])
             per_episode_seq_dr.append(episode_seq_dr)
 
-        SEQ_DR = np.array(per_episode_seq_dr).mean()
+        seq_dr = np.array(per_episode_seq_dr).mean()
 
         print("RL")
         print("=======")
-        print("Temperature = {}: SEQ_DR Estimator = {}".format(temperature, SEQ_DR))
+        print("Temperature = {}: SEQ_DR Estimator = {}".format(temperature, seq_dr))
 
-        return SEQ_DR
+        return seq_dr
