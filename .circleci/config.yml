@@ -157,7 +157,7 @@ jobs:
           name: run integration tests
           command: |
             python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn integration-test -tc 'make integration_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
-          no_output_timeout: 20m
+          no_output_timeout: 30m
       - run:
           name: cleanup
           command: |
