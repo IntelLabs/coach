@@ -100,13 +100,17 @@ class BatchRLGraphManager(BasicRLGraphManager):
 
         self.verify_graph_was_created()
 
-        # TODO handle unsupported use-cases for batch RL. i.e. on-policy algorithms,
-        #  distributed setting (either local or multi-node)
-
         # initialize the network parameters from the global network
         self.sync()
 
+        # TODO a bug in heatup where the last episode run is not fed into the ER. e.g. asked for 1024 heatup steps,
+        #  last ran episode ended increased the total to 1040 steps, but the ER will contain only 1014 steps.
+        #  The last episode is not there. Is this a bug in my changes or also on master?
+
+        # TODO make the heatup optional, for cases that we do batch RL with an environment where we collect the dataset
+        #  from. Useful mainly for tutorial and debug purposes.
         # heatup
+        # if self.env_params is not None and no dataset:
         if self.env_params is not None:
             self.heatup(self.heatup_steps)
 
@@ -132,10 +136,10 @@ class BatchRLGraphManager(BasicRLGraphManager):
                         self.train()
 
             # the output of batch RL training is always a checkpoint of the trained agent. we always save a checkpoint,
-            # regardless of the user's command line arguments.
+            # each epoch, regardless of the user's command line arguments.
+            # TODO uncomment
             # self.save_checkpoint()
 
-            # TODO should this be done in the GraphManager level or in the agent's level?
             # run off-policy evaluation estimators to evaluate the agent's performance against the dataset
             self.run_ope()
 

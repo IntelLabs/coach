@@ -100,92 +100,14 @@ class ValueOptimizationAgent(Agent):
         raise NotImplementedError("ValueOptimizationAgent is an abstract agent. Not to be used directly.")
 
     def run_ope(self):
-        temperature = 0.2
-        network_parameters = self.ap.network_wrappers['main']
-        network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
-        batch_size = network_parameters.batch_size
+        assert self.ope_manager
 
-        # IPS
-        def softmax(x, temperature):
-            """Compute softmax values for each sets of scores in x."""
-            x = x / temperature
-            e_x = np.exp(x - np.max(x, axis=1, keepdims=True))
-            return e_x / e_x.sum(axis=1, keepdims=True)
-
-        all_reward_model_rewards, all_q_values, all_policy_probs, all_old_policy_probs = [], [], [], []
-        all_v_values_reward_model_based, all_v_values_q_model_based, all_rewards, all_actions = [], [], [], []
-
-        transitions = self.call_memory('get_all_full_episodes_transitions')
-        for i in range(int(len(transitions) / batch_size) + 1):
-            batch = transitions[i * batch_size: (i + 1) * batch_size]
-            batch_for_inference = Batch(batch)
-
-            all_reward_model_rewards.append(self.networks['reward_model'].online_network.predict(
-                batch_for_inference.states(network_keys)))
-            all_q_values.append(self.networks['main'].online_network.predict(batch_for_inference.states(network_keys)))
-            all_policy_probs.append(softmax(all_q_values[-1], temperature))
-            all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))
-            all_v_values_q_model_based.append(np.sum(all_policy_probs[-1] * all_q_values[-1], axis=1))
-            all_rewards.append(batch_for_inference.rewards())
-            all_actions.append(batch_for_inference.actions())
-            all_old_policy_probs.append(batch_for_inference.info('all_action_probabilities')
-                                        [range(len(batch_for_inference.actions())), batch_for_inference.actions()])
-
-            for j, t in enumerate(batch):
-                t.update_info({
-                    'model_reward': all_reward_model_rewards[-1][j],
-                    'q_value': all_q_values[-1][j],
-                    'softmax_policy_prob': all_policy_probs[-1][j],
-                    'v_value_q_model_based': all_v_values_q_model_based[-1][j],
-
-                })
-
-        all_reward_model_rewards = np.concatenate(all_reward_model_rewards, axis=0)
-        all_q_values = np.concatenate(all_q_values, axis=0)
-        all_policy_probs = np.concatenate(all_policy_probs, axis=0)
-        all_v_values_reward_model_based = np.concatenate(all_v_values_reward_model_based, axis=0)
-        all_rewards = np.concatenate(all_rewards, axis=0)
-        all_actions = np.concatenate(all_actions, axis=0)
-        all_old_policy_probs = np.concatenate(all_old_policy_probs, axis=0)
-
-        # generate model probabilities
-        # TODO this should use the evaluation dataset, and not the training dataset
-
-        new_policy_prob = np.max(all_policy_probs, axis=1)
-        rho_all_dataset = new_policy_prob/all_old_policy_probs
-
-        IPS = np.mean(rho_all_dataset * all_rewards)
-        DM = np.mean(all_v_values_reward_model_based)
-        DR = np.mean(rho_all_dataset *
-                     (all_rewards - all_reward_model_rewards[range(len(all_actions)), all_actions])) + DM
-
-        print("Q_Values: {} \n".format(str([q for q in list(all_q_values[0])])))
-
-        print("Bandits")
-        print("=======")
-        print("IPS Estimator = {}".format(IPS))
-        print("DM Estimator = {}".format(DM))
-        print("DR Estimator = {}".format(DR))
-
-        # Sequential Doubly Robust
-        episodes = [self.call_memory('get_episode', i) for i in range(self.call_memory('num_complete_episodes'))]
-        per_episode_seq_dr = []
-
-        for episode in episodes:
-            episode_seq_dr = 0
-            for transition in episode.transitions:
-                rho = transition.info['softmax_policy_prob'][transition.action] / \
-                      transition.info['all_action_probabilities'][transition.action]
-                episode_seq_dr = transition.info['v_value_q_model_based'] + rho * (transition.reward + self.ap.algorithm.discount
-                                                                         * episode_seq_dr -
-                                                                         transition.info['q_value'][transition.action])
-            per_episode_seq_dr.append(episode_seq_dr)
-
-        SEQ_DR = np.array(per_episode_seq_dr).mean()
-
-        print("RL")
-        print("=======")
-        print("Temperature = {}: SEQ_DR Estimator = {}".format(temperature, SEQ_DR))
+        self.ope_manager.evaluate(dataset_as_episodes=self.call_memory('get_all_complete_episodes'),
+                                  batch_size=self.ap.network_wrappers['main'].batch_size,
+                                  discount_factor=self.ap.algorithm.discount,
+                                  reward_model=self.networks['reward_model'].online_network,
+                                  q_network=self.networks['main'].online_network,
+                                  network_keys=list(self.ap.network_wrappers['main'].input_embedders_parameters.keys()))
 
     def improve_reward_model(self, epochs):
         batch_size = self.ap.network_wrappers['reward_model'].batch_size

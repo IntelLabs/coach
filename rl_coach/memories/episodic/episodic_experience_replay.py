@@ -129,12 +129,19 @@ class EpisodicExperienceReplay(Memory):
 
             yield sample_data
 
-    def get_all_full_episodes_transitions(self) -> List[Transition]:
+    def get_all_complete_episodes_transitions(self) -> List[Transition]:
         """
         Get all the transitions from all the complete episodes in the buffer
         :return: a list of transitions
         """
         return self.transitions[:self.num_transitions_in_complete_episodes()]
+
+    def get_all_complete_episodes(self) -> List[Episode]:
+        """
+        Get all the transitions from all the complete episodes in the buffer
+        :return: a list of transitions
+        """
+        return self._buffer[:self.num_complete_episodes()]
 
     def _enforce_max_length(self) -> None:
         """

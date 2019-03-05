@@ -37,6 +37,8 @@ from rl_coach.memories.backend.memory_impl import get_memory_backend
 
 from rl_coach.core_types import TimeTypes
 
+from rl_coach.off_policy_evaluators.ope_manager import OpeManager
+
 
 class Agent(AgentInterface):
     def __init__(self, agent_parameters: AgentParameters, parent: Union['LevelManager', 'CompositeAgent']=None):
@@ -187,6 +189,7 @@ class Agent(AgentInterface):
         self.discounted_return = self.register_signal('Discounted Return')
         if isinstance(self.in_action_space, GoalsSpace):
             self.distance_from_goal = self.register_signal('Distance From Goal', dump_one_value_per_step=True)
+
         # use seed
         if self.ap.task_parameters.seed is not None:
             random.seed(self.ap.task_parameters.seed)
@@ -195,6 +198,9 @@ class Agent(AgentInterface):
             # we need to seed the RNG since the different processes are initialized with the same parent seed
             random.seed()
             np.random.seed()
+
+        # batch rl
+        self.ope_manager = OpeManager() if self.ap.is_batch_rl_training else None
 
     @property
     def parent(self) -> 'LevelManager':
@@ -669,7 +675,6 @@ class Agent(AgentInterface):
 
             # we either go sequentially through the entire replay buffer in the batch RL mode,
             # or sample randomly for the basic RL case.
-
             training_schedule = self.call_memory('get_shuffled_data_generator', network_parameters.batch_size) if \
                 self.ap.is_batch_rl_training else [self.call_memory('sample', network_parameters.batch_size) for _ in
                                       range(self.ap.algorithm.num_consecutive_training_steps)]
