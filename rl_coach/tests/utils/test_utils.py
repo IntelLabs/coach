@@ -98,12 +98,14 @@ def get_files_from_dir(dir_path):
     return entities
 
 
-def find_string_in_logs(log_path, str, timeout=Def.TimeOuts.wait_for_files):
+def find_string_in_logs(log_path, str, timeout=Def.TimeOuts.wait_for_files,
+                        wait_and_find=False):
     """
     Find string into the log file
     :param log_path: |string| log path
     :param str: |string| search text
     :param timeout: |int| timeout for searching on file
+    :param wait_and_find: |bool| true if need to wait until reaching timeout
     :return: |bool| true if string found in the log file
     """
     start_time = time.time()
@@ -119,6 +121,14 @@ def find_string_in_logs(log_path, str, timeout=Def.TimeOuts.wait_for_files):
     with open(log_path, 'r') as fr:
         if str in fr.read():
             return True
+        fr.close()
+
+    while time.time() - start_time < Def.TimeOuts.test_time_limit \
+            and wait_and_find:
+        with open(log_path, 'r') as fr:
+            if str in fr.read():
+                return True
+            fr.close()
     return False
 
 

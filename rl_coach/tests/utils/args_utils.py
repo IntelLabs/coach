@@ -127,12 +127,7 @@ def add_one_flag_value(flag):
         flag[1] = "mxnet"
 
     elif Def.Flags.cp in flag[1]:
-        flag[1] = "evaluation_steps=EnvironmentSteps({});" \
-                  "heatup_steps=EnvironmentSteps({});" \
-                  "steps_between_evaluation_periods=EnvironmentSteps({});" \
-                  "improve_steps=EnvironmentSteps({})" \
-            .format(Def.Consts.num_es, Def.Consts.num_hs, Def.Consts.num_sbep,
-                    Def.Consts.num_is)
+        flag[1] = "heatup_steps=EnvironmentSteps({})".format(Def.Consts.num_hs)
 
     elif Def.Flags.crd in flag[1]:
         flag[1] = Def.Path.experiments
@@ -229,10 +224,11 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         -asc, --apply_stop_condition: Once selected, coach stopped when 
                                       required success rate reached
         """
-        if find_string_in_logs(log_path=clres.stdout.name,
-                               str=Def.Consts.REACHED_REQ_ASC):
-            assert True, Def.Consts.ASSERT_MSG. \
-                format(Def.Consts.REACHED_REQ_ASC, "Message Not Found")
+        assert find_string_in_logs(log_path=clres.stdout.name,
+                                   str=Def.Consts.REACHED_REQ_ASC,
+                                   wait_and_find=True), \
+            Def.Consts.ASSERT_MSG.format(Def.Consts.REACHED_REQ_ASC,
+                                         "Message Not Found")
 
     elif flag[0] == "--print_networks_summary":
         """
@@ -269,18 +265,19 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         assert os.path.isdir(tensorboard_path), \
             Def.Consts.ASSERT_MSG.format("tensorboard path", tensorboard_path)
 
-        # check if folder contain files
-        get_files_from_dir(dir_path=tensorboard_path)
+        # check if folder contain files and check extensions
+        files = get_files_from_dir(dir_path=tensorboard_path)
+        assert any(".tfevents." in file for file in files)
 
     elif flag[0] == "-onnx" or flag[0] == "--export_onnx_graph":
         """
         -onnx, --export_onnx_graph: Once selected, warning message should 
                                     appear, it should be with another flag.
         """
-        if find_string_in_logs(log_path=clres.stdout.name,
-                               str=Def.Consts.ONNX_WARNING):
-            assert True, Def.Consts.ASSERT_MSG.format(
-                Def.Consts.ONNX_WARNING, "Not found")
+        assert find_string_in_logs(log_path=clres.stdout.name,
+                                   str=Def.Consts.ONNX_WARNING,
+                                   wait_and_find=True), \
+            Def.Consts.ASSERT_MSG.format(Def.Consts.ONNX_WARNING, "Not found")
 
     elif flag[0] == "-dg" or flag[0] == "--dump_gifs":
         """
@@ -414,28 +411,20 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
 
-        # wait until finish the experiment
-        find_string_in_logs(log_path=clres.stdout.name,
-                            str=Def.Consts.RESULTS_SORTED, timeout=240)
-
         # read csv file
         csv = pd.read_csv(csv_path[0])
 
-        # check total step value
-        totalstep = csv['Total steps'].values[-1]
-        assert (totalstep <= (Def.Consts.num_is + 300)
-                and totalstep >= (Def.Consts.num_is - 300)), \
-            Def.Consts.ASSERT_MSG.format("should be around" +
-                                         str(Def.Consts.num_is), totalstep)
-
         # check heatup value
-        last_row_heatup = len(np.nonzero(csv["In Heatup"].values)[0])
-        total_step_heatup = csv['Total steps'].values[last_row_heatup - 1]
-        assert (total_step_heatup <= (Def.Consts.num_hs + 30) and
-                total_step_heatup >= (Def.Consts.num_hs - 30)), \
-            Def.Consts.ASSERT_MSG.format("should be around" +
-                                         str(Def.Consts.num_hs),
-                                         total_step_heatup)
+        results = []
+        while csv["In Heatup"].values[-1] == 1:
+            csv = pd.read_csv(csv_path[0])
+            last_step = csv["Total steps"].values
+            time.sleep(1)
+            results.append(last_step[-1])
+
+        assert results[-1] >= Def.Consts.num_hs, \
+            Def.Consts.ASSERT_MSG.format("bigger than " + Def.Consts.num_hs,
+                                         results[-1])
 
     elif flag[0] == "-f" or flag[0] == "--framework":
         """

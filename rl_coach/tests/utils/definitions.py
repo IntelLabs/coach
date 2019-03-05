@@ -158,6 +158,7 @@ class Definitions:
     class Path:
         experiments = "./experiments"
         tensorboard = "tensorboard"
+        test_dir = "test_dir"
         gifs = "gifs"
         videos = "videos"
         checkpoint = "checkpoint"
@@ -183,10 +184,7 @@ class Definitions:
         NO_CHECKPOINT = "No checkpoint to restore in:"
         LOG_ERROR = "KeyError:"
 
-        num_is = 2000
-        num_sbep = 500
-        num_hs = 200
-        num_es = 1
+        num_hs = 200  # heat-up steps (used for agent custom parameters)
 
         f_comb = 2  # number of flags in cmd for creating flags combinations
 
