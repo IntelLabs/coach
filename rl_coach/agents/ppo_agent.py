@@ -107,6 +107,11 @@ class PPOAlgorithmParameters(AlgorithmParameters):
         An entropy regulaization term can be added to the loss function in order to control exploration. This term
         is weighted using the :math:`\beta` value defined by beta_entropy.
 
+    :param critic_train_epochs (int)
+        Number of training epochs to perform on critic network in train loop
+
+    :param actor_train_epochs (int)
+        Number of training epochs to perform on actor network in train loop
     """
     def __init__(self):
         super().__init__()
@@ -122,6 +127,8 @@ class PPOAlgorithmParameters(AlgorithmParameters):
         self.beta_entropy = 0.01
         self.num_consecutive_playing_steps = EnvironmentSteps(5000)
         self.act_for_full_episodes = True
+        self.critic_train_epochs = 1
+        self.actor_train_epochs = 10
 
 
 class PPOAgentParameters(AgentParameters):
@@ -372,8 +379,8 @@ class PPOAgent(ActorCriticAgent):
                 # take only the requested number of steps
                 dataset = dataset[:self.ap.algorithm.num_consecutive_playing_steps.num_steps]
 
-                value_loss = self.train_value_network(dataset, 1)
-                policy_loss = self.train_policy_network(dataset, 10)
+                value_loss = self.train_value_network(dataset, self.ap.algorithm.critic_train_epochs)
+                policy_loss = self.train_policy_network(dataset, self.ap.algorithm.actor_train_epochs)
 
                 self.value_loss.add_sample(value_loss)
                 self.policy_loss.add_sample(policy_loss)
