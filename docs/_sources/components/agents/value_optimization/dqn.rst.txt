@@ -26,7 +26,7 @@ Training the network
    use the current states from the sampled batch, and run the online network to get the current Q values predictions.
    Set those values as the targets for the actions that were not actually played.
 
-4. For each action that was played, use the following equation for calculating the targets of the network:​                                                         $$ y_t=r(s_t,a_t)+γ\cdot max_a {Q(s_{t+1},a)} $$ 
+4. For each action that was played, use the following equation for calculating the targets of the network:​
    :math:`y_t=r(s_t,a_t )+\gamma \cdot max_a Q(s_{t+1})`
 
 5. Finally, train the online network using the current states as inputs, and with the aforementioned targets.

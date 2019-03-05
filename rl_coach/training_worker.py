@@ -21,6 +21,7 @@ import time
 
 from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchronizationType
 from rl_coach import core_types
+from rl_coach.logger import screen
 
 
 def data_store_ckpt_save(data_store):
@@ -29,9 +30,12 @@ def data_store_ckpt_save(data_store):
         time.sleep(10)
 
 
-def training_worker(graph_manager, task_parameters):
+def training_worker(graph_manager, task_parameters, is_multi_node_test):
     """
     restore a checkpoint then perform rollouts using the restored model
+    :param graph_manager: An instance of the graph manager
+    :param task_parameters: An instance of task parameters
+    :param is_multi_node_test: If this is a multi node test insted of a normal run.
     """
     # initialize graph
     graph_manager.create_graph(task_parameters)
@@ -50,6 +54,11 @@ def training_worker(graph_manager, task_parameters):
     while steps < graph_manager.improve_steps.num_steps:
 
         graph_manager.phase = core_types.RunPhase.TRAIN
+        if is_multi_node_test and graph_manager.get_current_episodes_count() > graph_manager.preset_validation_params.max_episodes_to_achieve_reward:
+            # Test failed as it has not reached the required success rate
+            graph_manager.flush_finished()
+            screen.error("Could not reach required success by {} episodes.".format(graph_manager.preset_validation_params.max_episodes_to_achieve_reward), crash=True)
+
         graph_manager.fetch_from_worker(graph_manager.agent_params.algorithm.num_consecutive_playing_steps)
         graph_manager.phase = core_types.RunPhase.UNDEFINED
 
