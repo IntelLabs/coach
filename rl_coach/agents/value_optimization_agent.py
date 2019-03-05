@@ -115,6 +115,16 @@ class ValueOptimizationAgent(Agent):
                                   q_network=self.networks['main'].online_network,
                                   network_keys=list(self.ap.network_wrappers['main'].input_embedders_parameters.keys()))
 
+        # get the estimators out to the screen
+        log = OrderedDict()
+        log['Epoch'] = self.training_epoch
+        log['IPS'] = ips
+        log['DM'] = dm
+        log['DR'] = dr
+        log['Sequential-DR'] = seq_dr
+        screen.log_dict(log, prefix='Off-Policy Evaluation')
+
+        # get the estimators out to dashboard
         self.agent_logger.set_current_time(self.get_current_time() + 1)
         self.agent_logger.create_signal_value('Inverse Propensity Score', ips)
         self.agent_logger.create_signal_value('Direct Method Reward', dm)
@@ -138,8 +148,8 @@ class ValueOptimizationAgent(Agent):
                 batch = Batch(batch)
                 current_rewards_prediction_for_all_actions = self.networks['reward_model'].online_network.predict(batch.states(network_keys))
                 current_rewards_prediction_for_all_actions[range(batch_size), batch.actions()] = batch.rewards()
-                loss += self.networks['reward_model'].train_and_sync_networks(batch.states(network_keys),
-                                                                             current_rewards_prediction_for_all_actions)[0]
+                loss += self.networks['reward_model'].train_and_sync_networks(
+                    batch.states(network_keys), current_rewards_prediction_for_all_actions)[0]
             # print(self.networks['reward_model'].online_network.predict(batch.states(network_keys))[0])
 
             log = OrderedDict()

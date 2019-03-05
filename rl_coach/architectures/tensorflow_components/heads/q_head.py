@@ -50,6 +50,10 @@ class QHead(Head):
         # Standard Q Network
         self.output = self.dense_layer(self.num_actions)(input_layer, name='output')
 
+        temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
+        temperature_scaled_outputs = self.output / temperature
+        self.softmax = tf.nn.softmax(temperature_scaled_outputs, name="softmax")
+
     def __str__(self):
         result = [
             "Dense (num outputs = {})".format(self.num_actions)

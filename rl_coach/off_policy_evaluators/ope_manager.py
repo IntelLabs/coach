@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 
 import numpy as np
 from typing import List
 
 from rl_coach.architectures.architecture import Architecture
 from rl_coach.core_types import Episode, Batch
-from rl_coach.logger import screen
 from rl_coach.off_policy_evaluators.bandits.doubly_robust import DoublyRobust
 from rl_coach.off_policy_evaluators.rl.sequential_doubly_robust import SequentialDoublyRobust
 
@@ -54,13 +53,6 @@ class OpeManager(object):
         :return:
         """
         # IPS
-        # TODO have softmax calculated as part of the Q network
-        def softmax(x, temperature):
-            """Compute softmax values for each sets of scores in x."""
-            x = x / temperature
-            e_x = np.exp(x - np.max(x, axis=1, keepdims=True))
-            return e_x / e_x.sum(axis=1, keepdims=True)
-
         all_reward_model_rewards, all_policy_probs, all_old_policy_probs = [], [], []
         all_v_values_reward_model_based, all_v_values_q_model_based, all_rewards, all_actions = [], [], [], []
 
@@ -70,8 +62,14 @@ class OpeManager(object):
 
             all_reward_model_rewards.append(reward_model.predict(
                 batch_for_inference.states(network_keys)))
-            q_values = q_network.predict(batch_for_inference.states(network_keys))
-            all_policy_probs.append(softmax(q_values, temperature))
+            # TODO can we get rid of the 'output_heads[0]', and have some way of a cleaner API?
+            q_values, sm_values = q_network.predict(batch_for_inference.states(network_keys),
+                                                    outputs=[q_network.output_heads[0].output,
+                                                             q_network.output_heads[0].softmax])
+            # TODO why is this needed?
+            q_values = q_values[0]
+
+            all_policy_probs.append(sm_values)
             all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))
             all_v_values_q_model_based.append(np.sum(all_policy_probs[-1] * q_values, axis=1))
             all_rewards.append(batch_for_inference.rewards())
@@ -116,7 +114,7 @@ class OpeManager(object):
         :return: An OpeEstimation tuple which groups together all the OPE estimations
         """
         # TODO this should use the evaluation dataset, and not the training dataset
-
+        # TODO this seems kind of slow, review performance
         dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
 
         # TODO extract a temperature hyper-parameter
@@ -127,13 +125,5 @@ class OpeManager(object):
 
         ips, dm, dr = self.doubly_robust.evaluate(ope_shared_stats)
         seq_dr = self.sequential_doubly_robust.evaluate(dataset_as_episodes, discount_factor)
-
-        log = OrderedDict()
-        log['IPS'] = ips
-        log['DM'] = dm
-        log['DR'] = dr
-        log['Sequential-DR'] = seq_dr
-        screen.log_dict(log, prefix='Off-Policy Evaluation')
-
         return OpeEstimation(ips, dm, dr, seq_dr)
 
