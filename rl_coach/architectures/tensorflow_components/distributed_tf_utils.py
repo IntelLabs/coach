@@ -74,8 +74,8 @@ def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_ind
     return server.target, device
 
 
-def create_monitored_session(target: tf.train.Server, task_index: int,
-                             checkpoint_dir: str, checkpoint_save_secs: int, config: tf.ConfigProto=None) -> tf.Session:
+def create_monitored_session(target: tf.train.Server, task_index: int, checkpoint_dir: str, checkpoint_save_secs: int,
+                             scaffold: tf.train.Scaffold, config: tf.ConfigProto=None) -> tf.Session:
     """
     Create a monitored session for the worker
     :param target: the target string for the tf.Session

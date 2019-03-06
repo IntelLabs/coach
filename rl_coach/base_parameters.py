@@ -583,8 +583,8 @@ class TaskParameters(Parameters):
 
 
 class DistributedTaskParameters(TaskParameters):
-    def __init__(self, framework_type: Frameworks, parameters_server_hosts: str, worker_hosts: str, job_type: str,
-                 task_index: int, evaluate_only: int=None, num_tasks: int=None,
+    def __init__(self, framework_type: Frameworks=None, parameters_server_hosts: str=None, worker_hosts: str=None,
+                 job_type: str=None, task_index: int=None, evaluate_only: int=None, num_tasks: int=None,
                  num_training_tasks: int=None, use_cpu: bool=False, experiment_path=None, dnd=None,
                  shared_memory_scratchpad=None, seed=None, checkpoint_save_secs=None, checkpoint_restore_dir=None,
                  checkpoint_save_dir=None, export_onnx_graph: bool=False, apply_stop_condition: bool=False):

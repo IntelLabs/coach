@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+import argparse
 import importlib
 import importlib.util
 import inspect
@@ -24,7 +25,8 @@ import sys
 import threading
 import time
 import traceback
-from multiprocessing import Manager
+from multiprocessing import Manager, Process
+from multiprocessing.managers import BaseManager
 from subprocess import Popen
 from typing import List, Tuple, Union
 
@@ -532,3 +534,58 @@ def start_shell_command_and_wait(command):
 
 def indent_string(string):
     return '\t' + string.replace('\n', '\n\t')
+
+
+def start_multi_threaded_learning(target_func, target_func_args, task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
+        total_tasks = args.num_workers
+        if args.evaluation_worker:
+            total_tasks += 1
+
+        ps_hosts = "localhost:{}".format(get_open_port())
+        worker_hosts = ",".join(["localhost:{}".format(get_open_port()) for i in range(total_tasks)])
+
+        # Shared memory
+        class CommManager(BaseManager):
+            pass
+        CommManager.register('SharedMemoryScratchPad', SharedMemoryScratchPad, exposed=['add', 'get', 'internal_call'])
+        comm_manager = CommManager()
+        comm_manager.start()
+        shared_memory_scratchpad = comm_manager.SharedMemoryScratchPad()
+
+        def start_distributed_task(job_type, task_index, evaluation_worker=False,
+                                   shared_memory_scratchpad=shared_memory_scratchpad):
+            task_parameters.parameters_server_hosts = ps_hosts
+            task_parameters.worker_hosts = worker_hosts
+            task_parameters.job_type = job_type
+            task_parameters.task_index = task_index
+            task_parameters.evaluate_only = 0 if evaluation_worker else None # 0 value for evaluation worker as it should run infinitely
+            task_parameters.num_tasks = total_tasks  # training tasks + 1 evaluation task
+            task_parameters.shared_memory_scratchpad = shared_memory_scratchpad
+            task_parameters.seed = args.seed+task_index if args.seed is not None else None  # each worker gets a different seed
+
+            # we assume that only the evaluation workers are rendering
+            graph_manager.visualization_parameters.render = args.render and evaluation_worker
+            p = Process(target=target_func, args=target_func_args)
+            # p.daemon = True
+            p.start()
+            return p
+
+        # parameter server
+        parameter_server = start_distributed_task("ps", 0)
+
+        # training workers
+        # wait a bit before spawning the non chief workers in order to make sure the session is already created
+        workers = []
+        workers.append(start_distributed_task("worker", 0))
+        time.sleep(2)
+        for task_index in range(1, args.num_workers):
+            workers.append(start_distributed_task("worker", task_index))
+
+        # evaluation worker
+        if args.evaluation_worker or args.render:
+            evaluation_worker = start_distributed_task("worker", args.num_workers, evaluation_worker=True)
+
+        # wait for all workers
+        [w.join() for w in workers]
+        if args.evaluation_worker:
+            evaluation_worker.terminate()

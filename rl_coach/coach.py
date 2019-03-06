@@ -34,7 +34,8 @@ from multiprocessing import Process
 from multiprocessing.managers import BaseManager
 import subprocess
 from rl_coach.graph_managers.graph_manager import HumanPlayScheduleParameters, GraphManager
-from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, get_base_dir
+from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, \
+    get_base_dir, start_multi_threaded_learning
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.memories.backend.redis import RedisPubSubMemoryBackendParameters
@@ -87,6 +88,17 @@ def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'
 
 def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
     ckpt_inside_container = "/checkpoint"
+    non_dist_task_parameters = TaskParameters(
+        framework_type=args.framework,
+        evaluate_only=args.evaluate,
+        experiment_path=args.experiment_path,
+        seed=args.seed,
+        use_cpu=args.use_cpu,
+        checkpoint_save_secs=args.checkpoint_save_secs,
+        checkpoint_save_dir=args.checkpoint_save_dir,
+        export_onnx_graph=args.export_onnx_graph,
+        apply_stop_condition=args.apply_stop_condition
+    )
 
     memory_backend_params = None
     if args.memory_backend_params:
@@ -102,15 +114,18 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         graph_manager.data_store_params = data_store_params
 
     if args.distributed_coach_run_type == RunType.TRAINER:
+        if not args.distributed_training:
+            task_parameters = non_dist_task_parameters
         task_parameters.checkpoint_save_dir = ckpt_inside_container
         training_worker(
             graph_manager=graph_manager,
             task_parameters=task_parameters,
+            args=args,
             is_multi_node_test=args.is_multi_node_test
         )
 
     if args.distributed_coach_run_type == RunType.ROLLOUT_WORKER:
-        task_parameters.checkpoint_restore_dir = ckpt_inside_container
+        non_dist_task_parameters.checkpoint_restore_dir = ckpt_inside_container
 
         data_store = None
         if args.data_store_params:
@@ -120,7 +135,7 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
             graph_manager=graph_manager,
             data_store=data_store,
             num_workers=args.num_workers,
-            task_parameters=task_parameters
+            task_parameters=non_dist_task_parameters
         )
 
 
@@ -552,6 +567,11 @@ class CoachLauncher(object):
         parser.add_argument('-dc', '--distributed_coach',
                             help="(flag) Use distributed Coach.",
                             action='store_true')
+        parser.add_argument('-dt', '--distributed_training',
+                            help="(flag) Use distributed training with Coach."
+                                 "Used only with --distributed_coach flag."
+                                 "Ignored if --distributed_coach flag is not used.",
+                            action='store_true')
         parser.add_argument('-dcp', '--distributed_coach_config_path',
                             help="(string) Path to config file when using distributed rollout workers."
                                  "Only distributed Coach parameters should be provided through this config file."
@@ -607,18 +627,31 @@ class CoachLauncher(object):
             atexit.register(logger.summarize_experiment)
             screen.change_terminal_title(args.experiment_name)
 
-        task_parameters = TaskParameters(
-            framework_type=args.framework,
-            evaluate_only=args.evaluate,
-            experiment_path=args.experiment_path,
-            seed=args.seed,
-            use_cpu=args.use_cpu,
-            checkpoint_save_secs=args.checkpoint_save_secs,
-            checkpoint_restore_dir=args.checkpoint_restore_dir,
-            checkpoint_save_dir=args.checkpoint_save_dir,
-            export_onnx_graph=args.export_onnx_graph,
-            apply_stop_condition=args.apply_stop_condition
-        )
+        if args.num_workers == 1:
+            task_parameters = TaskParameters(
+                framework_type=args.framework,
+                evaluate_only=args.evaluate,
+                experiment_path=args.experiment_path,
+                seed=args.seed,
+                use_cpu=args.use_cpu,
+                checkpoint_save_secs=args.checkpoint_save_secs,
+                checkpoint_restore_dir=args.checkpoint_restore_dir,
+                checkpoint_save_dir=args.checkpoint_save_dir,
+                export_onnx_graph=args.export_onnx_graph,
+                apply_stop_condition=args.apply_stop_condition
+            )
+        else:
+            task_parameters = DistributedTaskParameters(
+                framework_type=args.framework,
+                use_cpu=args.use_cpu,
+                num_training_tasks=args.num_workers,
+                experiment_path=args.experiment_path,
+                checkpoint_save_secs=args.checkpoint_save_secs,
+                checkpoint_restore_dir=args.checkpoint_restore_dir,
+                checkpoint_save_dir=args.checkpoint_save_dir,
+                export_onnx_graph=args.export_onnx_graph,
+                apply_stop_condition=args.apply_stop_condition
+            )
 
         # open dashboard
         if args.open_dashboard:
@@ -633,77 +666,15 @@ class CoachLauncher(object):
 
         # Single-threaded runs
         if args.num_workers == 1:
-            self.start_single_threaded(task_parameters, graph_manager, args)
+            self.start_single_threaded_learning(task_parameters, graph_manager, args)
         else:
-            self.start_multi_threaded(graph_manager, args)
+            global start_graph
+            start_multi_threaded_learning(start_graph, (graph_manager, task_parameters),
+                                          task_parameters, graph_manager, args)
 
-    def start_single_threaded(self, task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
+    def start_single_threaded_learning(self, task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
         # Start the training or evaluation
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
-
-    def start_multi_threaded(self, graph_manager: 'GraphManager', args: argparse.Namespace):
-        total_tasks = args.num_workers
-        if args.evaluation_worker:
-            total_tasks += 1
-
-        ps_hosts = "localhost:{}".format(get_open_port())
-        worker_hosts = ",".join(["localhost:{}".format(get_open_port()) for i in range(total_tasks)])
-
-        # Shared memory
-        class CommManager(BaseManager):
-            pass
-        CommManager.register('SharedMemoryScratchPad', SharedMemoryScratchPad, exposed=['add', 'get', 'internal_call'])
-        comm_manager = CommManager()
-        comm_manager.start()
-        shared_memory_scratchpad = comm_manager.SharedMemoryScratchPad()
-
-        def start_distributed_task(job_type, task_index, evaluation_worker=False,
-                                   shared_memory_scratchpad=shared_memory_scratchpad):
-            task_parameters = DistributedTaskParameters(
-                framework_type=args.framework,
-                parameters_server_hosts=ps_hosts,
-                worker_hosts=worker_hosts,
-                job_type=job_type,
-                task_index=task_index,
-                evaluate_only=0 if evaluation_worker else None, # 0 value for evaluation worker as it should run infinitely
-                use_cpu=args.use_cpu,
-                num_tasks=total_tasks,  # training tasks + 1 evaluation task
-                num_training_tasks=args.num_workers,
-                experiment_path=args.experiment_path,
-                shared_memory_scratchpad=shared_memory_scratchpad,
-                seed=args.seed+task_index if args.seed is not None else None,  # each worker gets a different seed
-                checkpoint_save_secs=args.checkpoint_save_secs,
-                checkpoint_restore_dir=args.checkpoint_restore_dir,
-                checkpoint_save_dir=args.checkpoint_save_dir,
-                export_onnx_graph=args.export_onnx_graph,
-                apply_stop_condition=args.apply_stop_condition
-            )
-            # we assume that only the evaluation workers are rendering
-            graph_manager.visualization_parameters.render = args.render and evaluation_worker
-            p = Process(target=start_graph, args=(graph_manager, task_parameters))
-            # p.daemon = True
-            p.start()
-            return p
-
-        # parameter server
-        parameter_server = start_distributed_task("ps", 0)
-
-        # training workers
-        # wait a bit before spawning the non chief workers in order to make sure the session is already created
-        workers = []
-        workers.append(start_distributed_task("worker", 0))
-        time.sleep(2)
-        for task_index in range(1, args.num_workers):
-            workers.append(start_distributed_task("worker", task_index))
-
-        # evaluation worker
-        if args.evaluation_worker or args.render:
-            evaluation_worker = start_distributed_task("worker", args.num_workers, evaluation_worker=True)
-
-        # wait for all workers
-        [w.join() for w in workers]
-        if args.evaluation_worker:
-            evaluation_worker.terminate()
 
 
 def main():
