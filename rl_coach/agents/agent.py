@@ -397,8 +397,7 @@ class Agent(AgentInterface):
             success_rate = self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed
             self.agent_logger.create_signal_value(
                 "Success Rate",
-                success_rate
-            )
+                success_rate)
             if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
                 screen.log_title("{}: Finished evaluation phase. Success rate = {}, Avg Total Reward = {}"
                                  .format(self.name, np.round(success_rate, 2), np.round(evaluation_reward, 2)))
@@ -488,10 +487,11 @@ class Agent(AgentInterface):
         self.agent_logger.create_signal_value('Update Target Network', 0, overwrite=False)
         self.agent_logger.update_wall_clock_time(self.current_episode)
 
-        if self._phase != RunPhase.TEST:
-            self.agent_logger.create_signal_value('Evaluation Reward', np.nan, overwrite=False)
-            self.agent_logger.create_signal_value('Shaped Evaluation Reward', np.nan, overwrite=False)
-            self.agent_logger.create_signal_value('Success Rate', np.nan, overwrite=False)
+        # The following signals are created with meaningful values only when an evaluation phase is completed.
+        # Creating with default NaNs for any HEATUP/TRAIN/TEST episode which is not the last in an evaluation phase
+        self.agent_logger.create_signal_value('Evaluation Reward', np.nan, overwrite=False)
+        self.agent_logger.create_signal_value('Shaped Evaluation Reward', np.nan, overwrite=False)
+        self.agent_logger.create_signal_value('Success Rate', np.nan, overwrite=False)
 
         for signal in self.episode_signals:
             self.agent_logger.create_signal_value("{}/Mean".format(signal.name), signal.get_mean())
@@ -1026,7 +1026,7 @@ class Agent(AgentInterface):
         """
         Collect all of agent's network savers
         :param parent_path_suffix: path suffix of the parent of the agent
-            (could be name of level manager or composite agent)
+        (could be name of level manager or composite agent)
         :return: collection of all agent savers
         """
         parent_path_suffix = "{}.{}".format(parent_path_suffix, self.name)

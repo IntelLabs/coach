@@ -56,6 +56,8 @@ agent_params.pre_network_filter.add_observation_filter('observation', 'normalize
 # Environment #
 ###############
 env_params = GymVectorEnvironment(level=SingleLevelSelection(mujoco_v2))
+# Set the target success
+env_params.target_success_rate = 1.0
 
 ########
 # Test #

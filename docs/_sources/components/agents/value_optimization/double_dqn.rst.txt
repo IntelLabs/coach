@@ -19,7 +19,7 @@ Training the network
 
 1. Sample a batch of transitions from the replay buffer.
 
-2. Using the next states from the sampled batch, run the online network in order to find the $Q$ maximizing
+2. Using the next states from the sampled batch, run the online network in order to find the :math:`Q` maximizing
    action :math:`argmax_a Q(s_{t+1},a)`. For these actions, use the corresponding next states and run the target
    network to calculate :math:`Q(s_{t+1},argmax_a Q(s_{t+1},a))`.
 
