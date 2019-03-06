@@ -20,7 +20,6 @@ import signal
 import time
 import pandas as pd
 import numpy as np
-from itertools import combinations
 from rl_coach.tests.utils.test_utils import get_csv_path, get_files_from_dir, \
     find_string_in_logs
 from rl_coach.tests.utils.definitions import Definitions as Def
@@ -73,35 +72,6 @@ def collect_args():
         yield i
 
 
-def collect_args_comb():
-    """
-    Collect args from the cmd args list - in each test iteration, it will,
-    yield a bunch of args (depends on the Consts.f_comb value).
-    :yield: bunch of flags
-    """
-    comb = combinations(Def.Flags.cmd_args_combination, Def.Consts.f_comb)
-    for i in list(comb):
-        assert i, Def.Consts.ASSERT_MSG.format("flag list", str(i))
-        yield i
-
-
-def add_combination_flags(comb_flags):
-    """
-    Extend flag list to one list
-    :param comb_flags: list of flags with values
-    :return: |list| list of all flags together
-    """
-    assert len(comb_flags) == Def.Consts.f_comb, Def.Consts.ASSERT_MSG.format(
-        "combination flag should be equal to const" + Def.Consts.f_comb,
-        len(comb_flags))
-
-    flags_arr = []
-    for flag in comb_flags:
-        flags_arr.extend(add_one_flag_value(flag))
-
-    return flags_arr
-
-
 def add_one_flag_value(flag):
     """
     Add value to flag format in order to run the python command with arguments.
@@ -128,9 +98,6 @@ def add_one_flag_value(flag):
 
     elif Def.Flags.cp in flag[1]:
         flag[1] = "heatup_steps=EnvironmentSteps({})".format(Def.Consts.num_hs)
-
-    elif Def.Flags.crd in flag[1]:
-        flag[1] = Def.Path.experiments
 
     return flag
 
@@ -330,10 +297,11 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         --nocolor: Once selected, check if color prefix is replacing the actual
                    color; example: '## agent: ...'
         """
-        if find_string_in_logs(log_path=clres.stdout.name,
-                               str=Def.Consts.COLOR_PREFIX):
-            assert True, Def.Consts.ASSERT_MSG. \
-                format(Def.Consts.COLOR_PREFIX, "Color Prefix Not Found")
+        assert find_string_in_logs(log_path=clres.stdout.name,
+                                   str=Def.Consts.COLOR_PREFIX,
+                                   wait_and_find=True), \
+            Def.Consts.ASSERT_MSG.format(Def.Consts.COLOR_PREFIX,
+                                         "Color Prefix Not Found")
 
     elif flag[0] == "--evaluate":
         """
@@ -341,6 +309,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         """
         # wait until files created
         get_csv_path(clres=clres)
+        time.sleep(15)
         assert not find_string_in_logs(log_path=clres.stdout.name,
                                        str=Def.Consts.TRAINING), \
             Def.Consts.ASSERT_MSG.format("Training Not Found",
@@ -351,20 +320,18 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         --play: Once selected alone, an warning message should appear, it 
                 should be with another flag.
         """
-        if find_string_in_logs(log_path=clres.stdout.name,
-                               str=Def.Consts.PLAY_WARNING):
-            assert True, Def.Consts.ASSERT_MSG.format(
-                  Def.Consts.PLAY_WARNING, "Not found")
+        assert find_string_in_logs(log_path=clres.stdout.name,
+                                   str=Def.Consts.PLAY_WARNING,
+                                   wait_and_find=True), \
+            Def.Consts.ASSERT_MSG.format(Def.Consts.PLAY_WARNING, "Not found")
 
     elif flag[0] == "-et" or flag[0] == "--environment_type":
         """
-        -et, --environment_type: Once selected alone, an warning message should
-                appear, it should be with another flag.
+        -et, --environment_type: Once selected check csv results is created.
         """
-        if find_string_in_logs(log_path=clres.stdout.name,
-                               str=Def.Consts.PLAY_WARNING):
-            assert True, Def.Consts.ASSERT_MSG.format(
-                  Def.Consts.PLAY_WARNING, "Not found")
+        csv_path = get_csv_path(clres)
+        assert len(csv_path) > 0, \
+            Def.Consts.ASSERT_MSG.format("path not found", csv_path)
 
     elif flag[0] == "-s" or flag[0] == "--checkpoint_save_secs":
         """
@@ -414,7 +381,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         # read csv file
         csv = pd.read_csv(csv_path[0])
 
-        # check heatup value
+        # check heat-up value
         results = []
         while csv["In Heatup"].values[-1] == 1:
             csv = pd.read_csv(csv_path[0])

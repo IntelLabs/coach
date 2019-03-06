@@ -21,7 +21,7 @@ import rl_coach.tests.utils.presets_utils as p_utils
 from rl_coach.tests.utils.definitions import Definitions as Def
 
 
-@pytest.mark.integration_test
+@pytest.mark.functional_test
 def test_preset_args(preset_args, flag, clres, start_time=time.time(),
                      time_limit=Def.TimeOuts.test_time_limit):
     """ Test command arguments - the test will check all flags one-by-one."""
@@ -58,7 +58,7 @@ def test_preset_args(preset_args, flag, clres, start_time=time.time(),
     proc.kill()
 
 
-@pytest.mark.integration_test
+@pytest.mark.functional_test
 def test_preset_mxnet_framework(preset_for_mxnet_args, clres,
                                 start_time=time.time(),
                                 time_limit=Def.TimeOuts.test_time_limit):
@@ -94,7 +94,7 @@ def test_preset_mxnet_framework(preset_for_mxnet_args, clres,
     proc.kill()
 
 
-@pytest.mark.integration_test
+@pytest.mark.functional_test
 def test_preset_seed(preset_args_for_seed, clres, start_time=time.time(),
                      time_limit=Def.TimeOuts.test_time_limit):
     """

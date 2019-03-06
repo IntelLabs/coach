@@ -64,7 +64,7 @@ class Definitions:
             ['-onnx'],
             ['-asc'],
             ['--dump_worker_logs'],
-            ['-et', et],
+            # ['-et', et],
             # '-lvl': '{level}',  # TODO: Add test validation on args_utils
             # '-e': '{}',  # TODO: Add test validation on args_utils
             # '-l': None,  # TODO: Add test validation on args_utils
@@ -79,25 +79,6 @@ class Definitions:
             # '-tfv': None,  # No automation test
             # '-ept': '{' + ept + '}',  # No automation test - not supported
         ]
-        # TODO: 1- add params that still not tested (from above list)
-        #       2- remove irrelevant args
-        cmd_args_combination = [
-            ['-ew'],
-            ['-f', fw_ten],
-            ['--evaluate'],
-            ['-s', css],
-            ['-dg'],
-            ['-dm'],
-            ['-cp', cp],
-            ['-tb'],
-            ['-ns'],
-            ['-onnx'],
-            ['-asc'],
-        ]
-
-        cam_args_three = [
-
-        ]
 
     class Presets:
         # Preset list for testing the flags/ arguments of python coach command
@@ -107,7 +88,6 @@ class Definitions:
 
         # Preset list for mxnet framework testing
         mxnet_args_test = [
-            "Doom_Basic_DQN",
             "CartPole_DQN"
         ]
 

@@ -18,7 +18,6 @@
 import os
 import shutil
 import sys
-
 import pytest
 import rl_coach.tests.utils.args_utils as a_utils
 import rl_coach.tests.utils.presets_utils as p_utils
@@ -38,14 +37,6 @@ def preset_name(request):
 def flag(request):
     """
     Return flags names in function scope
-    """
-    yield request.param
-
-
-@pytest.fixture(scope="function", params=list(a_utils.collect_args_comb()))
-def comb_flag(request):
-    """
-    Return a combination of relevant flags
     """
     yield request.param
 

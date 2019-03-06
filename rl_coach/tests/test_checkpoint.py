@@ -24,7 +24,6 @@ import numpy as np
 import pandas as pd
 import rl_coach.tests.utils.args_utils as a_utils
 import rl_coach.tests.utils.test_utils as test_utils
-import rl_coach.tests.utils.presets_utils as p_utils
 from rl_coach import checkpoint
 from rl_coach.tests.utils.definitions import Definitions as Def
 
@@ -54,7 +53,7 @@ def test_get_checkpoint_state():
         assert [ckp.num for ckp in reader.get_all()] == [1, 2, 3, 4]
 
 
-@pytest.mark.integration_test
+@pytest.mark.functional_test
 def test_restore_checkpoint(preset_args, clres, start_time=time.time()):
     """ Create checkpoint and restore them in second run."""
 
@@ -72,8 +71,7 @@ def test_restore_checkpoint(preset_args, clres, start_time=time.time()):
 
         return p
 
-    p_valid_params = p_utils.validation_params(preset_args)
-    create_cp_proc = _create_cmd_and_run(flag=['--checkpoint_save_secs', '8'])
+    create_cp_proc = _create_cmd_and_run(flag=['--checkpoint_save_secs', '5'])
 
     # wait for checkpoint files
     csv_list = a_utils.get_csv_path(clres=clres)
@@ -86,12 +84,13 @@ def test_restore_checkpoint(preset_args, clres, start_time=time.time()):
     if os.path.exists(checkpoint_test_dir):
         shutil.rmtree(checkpoint_test_dir)
 
-    assert a_utils.is_reward_reached(csv_path=csv_list[0],
-                                     p_valid_params=p_valid_params,
-                                     start_time=start_time,
-                                     time_limit=Def.TimeOuts.test_time_limit)
-
     entities = a_utils.get_files_from_dir(checkpoint_dir)
+
+    while not any("10_Step" in file for file in entities) and time.time() - \
+            start_time < Def.TimeOuts.test_time_limit:
+        entities = a_utils.get_files_from_dir(checkpoint_dir)
+        time.sleep(1)
+
     assert len(entities) > 0
     assert "checkpoint" in entities
     assert any(".ckpt." in file for file in entities)
@@ -102,7 +101,7 @@ def test_restore_checkpoint(preset_args, clres, start_time=time.time()):
     csv = pd.read_csv(csv_list[0])
     rewards = csv['Evaluation Reward'].values
     rewards = rewards[~np.isnan(rewards)]
-    max_reward = np.amax(rewards)
+    min_reward = np.amin(rewards)
 
     if os.path.isdir(checkpoint_dir):
         shutil.copytree(exp_dir, checkpoint_test_dir)
@@ -116,11 +115,11 @@ def test_restore_checkpoint(preset_args, clres, start_time=time.time()):
                                                 '--evaluate'])
 
     new_csv_list = test_utils.get_csv_path(clres=clres)
-    time.sleep(Def.TimeOuts.test_run)
+    time.sleep(10)
 
     csv = pd.read_csv(new_csv_list[0])
     res = csv['Episode Length'].values[-1]
-    assert res == max_reward, \
-        Def.Consts.ASSERT_MSG.format(str(max_reward) + "==" + str(max_reward),
-                                     str(res) + " != " + str(max_reward))
+    assert res >= min_reward, \
+        Def.Consts.ASSERT_MSG.format(str(res) + ">=" + str(min_reward),
+                                     str(res) + " < " + str(min_reward))
     restore_cp_proc.kill()
