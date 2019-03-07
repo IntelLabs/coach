@@ -45,8 +45,7 @@ class BitFlip(gym.Env):
         self.action_space = spaces.Discrete(bit_length)
         self.observation_space = spaces.Dict({
             'state': spaces.Box(low=0, high=1, shape=(bit_length, )),
-            'desired_goal': spaces.Box(low=0, high=1, shape=(bit_length, )),
-            'achieved_goal': spaces.Box(low=0, high=1, shape=(bit_length, ))
+            'desired_goal': spaces.Box(low=0, high=1, shape=(bit_length, ))
         })
 
         self.reset()
@@ -85,8 +84,7 @@ class BitFlip(gym.Env):
     def _get_obs(self):
         return {
             'state': self._mean_zero(self.state),
-            'desired_goal': self._mean_zero(self.goal),
-            'achieved_goal': self._mean_zero(self.state)
+            'desired_goal': self._mean_zero(self.goal)
         }
 
     def render(self, mode='human', close=False):
