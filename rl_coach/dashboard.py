@@ -68,6 +68,8 @@ def main():
     command = 'bokeh serve --show {path} --port {port}'.format(path=dashboard_path, port=port)
 
     if args.allow_remote_connection:
+        # when allowing remote connection, selecting an experiment or a file via the GUI buttons do not seem to work
+        # well from remote. Instead, we only allow entering an experiment dir from command line.
         if not args.experiment_dir and not args.experiment_files:
             raise ValueError("The allow_remote_connection flag only works in conjunction with either the experiment_dir"
                              " or the experiment_files flag. ")
