@@ -38,8 +38,8 @@ class OpeManager(object):
 
     @staticmethod
     def _prepare_ope_shared_stats(dataset_as_transitions: List[Transition], batch_size: int,
-                                  reward_model: Architecture, q_network: Architecture, network_keys: List,
-                                  temperature: float) -> OpeSharedStats:
+                                  reward_model: Architecture, q_network: Architecture,
+                                  network_keys: List) -> OpeSharedStats:
         """
         Do the preparations needed for different estimators.
         Some of the calcuations are shared, so we centralize all the work here.
@@ -49,7 +49,6 @@ class OpeManager(object):
         :param reward_model: A reward model to be used by DR
         :param q_network: The Q network whose its policy we evaluate.
         :param network_keys: The network keys used for feeding the neural networks.
-        :param temperature: The Softmax temperature to use for estimating a probability from Q values.
         :return:
         """
         # IPS
@@ -62,6 +61,7 @@ class OpeManager(object):
 
             all_reward_model_rewards.append(reward_model.predict(
                 batch_for_inference.states(network_keys)))
+
             # TODO can we get rid of the 'output_heads[0]', and have some way of a cleaner API?
             q_values, sm_values = q_network.predict(batch_for_inference.states(network_keys),
                                                     outputs=[q_network.output_heads[0].output,
@@ -93,7 +93,7 @@ class OpeManager(object):
         all_old_policy_probs = np.concatenate(all_old_policy_probs, axis=0)
 
         # generate model probabilities
-        new_policy_prob = np.max(all_policy_probs, axis=1)
+        new_policy_prob = all_policy_probs[np.arange(all_actions.shape[0]), all_actions]
         rho_all_dataset = new_policy_prob / all_old_policy_probs
 
         return OpeSharedStats(all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based,
@@ -116,12 +116,8 @@ class OpeManager(object):
         # TODO this should use the evaluation dataset, and not the training dataset
         # TODO this seems kind of slow, review performance
         dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
-
-        # TODO extract a temperature hyper-parameter
-        temperature = 0.2
-
         ope_shared_stats = self._prepare_ope_shared_stats(dataset_as_transitions, batch_size, reward_model,
-                                                          q_network, network_keys, temperature)
+                                                          q_network, network_keys)
 
         ips, dm, dr = self.doubly_robust.evaluate(ope_shared_stats)
         seq_dr = self.sequential_doubly_robust.evaluate(dataset_as_episodes, discount_factor)

@@ -141,7 +141,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
             # self.save_checkpoint()
 
             # run off-policy evaluation estimators to evaluate the agent's performance against the dataset
-            self.run_ope()
+            self.run_off_policy_evaluation()
 
             if self.env_params is not None and self.evaluate(self.evaluation_steps):
                 # if we do have a simulator (although we are in a batch RL setting we might have a simulator, e.g. when
@@ -157,7 +157,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
         screen.log_title("Training a regression model for estimating MDP rewards")
         self.level_managers[0].agents['agent'].improve_reward_model(epochs=self.reward_model_num_epochs)
 
-    def run_ope(self):
+    def run_off_policy_evaluation(self):
         """
         Run off-policy evaluation estimators to evaluate the trained policy performance against the dataset
         :return:

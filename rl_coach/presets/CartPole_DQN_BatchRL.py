@@ -29,7 +29,7 @@ schedule_params.heatup_steps = EnvironmentSteps(DATASET_SIZE)
 # Agent #
 #########
 agent_params = DDQNAgentParameters()
-agent_params.network_wrappers['main'].batch_size = 8192
+agent_params.network_wrappers['main'].batch_size = 1024
 
 # DQN params
 # agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(100)
