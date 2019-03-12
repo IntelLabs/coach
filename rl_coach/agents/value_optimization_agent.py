@@ -108,7 +108,10 @@ class ValueOptimizationAgent(Agent):
         assert self.ope_manager
 
         ips, dm, dr, seq_dr = self.ope_manager.evaluate(
-                                  dataset_as_episodes=self.call_memory('get_all_complete_episodes'),
+                                  dataset_as_episodes=
+                                  self.call_memory('get_all_complete_episodes_from_to',
+                                                   (self.call_memory('get_last_training_set_episode_id') + 1,
+                                                    self.call_memory('num_complete_episodes'))),
                                   batch_size=self.ap.network_wrappers['main'].batch_size,
                                   discount_factor=self.ap.algorithm.discount,
                                   reward_model=self.networks['reward_model'].online_network,

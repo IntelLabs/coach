@@ -78,8 +78,9 @@ class BatchRLGraphManager(BasicRLGraphManager):
         agent = short_dynamic_import(self.agent_params.path)(self.agent_params)
 
         if not env and not self.agent_params.memory.load_memory_from_file_path:
-            raise ValueError("A BatchRLGraph requires setting a dataset to load into the agent's memory or "
-                             "alternatively using an environment to create a (random) dataset from. ")
+            screen.warning("A BatchRLGraph requires setting a dataset to load into the agent's memory or alternatively "
+                           "using an environment to create a (random) dataset from. This agent should only be used for "
+                           "inference. ")
         # set level manager
         level_manager = LevelManager(agents=agent, environment=env, name="main_level",
                                      spaces_definition=self.spaces_definition)

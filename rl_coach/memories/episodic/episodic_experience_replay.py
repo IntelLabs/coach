@@ -57,6 +57,8 @@ class EpisodicExperienceReplay(Memory):
         self._num_transitions = 0
         self._num_transitions_in_complete_episodes = 0
         self.reader_writer_lock = ReaderWriterLock()
+        self.last_training_set_episode_id = None  # used in batch-rl
+        self.last_training_set_transition_id = None  # used in batch-rl
 
     def length(self, lock: bool = False) -> int:
         """
@@ -79,6 +81,9 @@ class EpisodicExperienceReplay(Memory):
 
     def num_transitions_in_complete_episodes(self):
         return self._num_transitions_in_complete_episodes
+
+    def get_last_training_set_episode_id(self):
+        return self.last_training_set_episode_id
 
     def sample(self, size: int, is_consecutive_transitions=False) -> List[Transition]:
         """
@@ -121,7 +126,7 @@ class EpisodicExperienceReplay(Memory):
         :return: a batch (list) of selected transitions from the replay buffer
         """
         self.reader_writer_lock.lock_writing()
-        shuffled_transition_indices = list(range(self.num_transitions_in_complete_episodes()))
+        shuffled_transition_indices = list(range(self.last_training_set_transition_id))
         random.shuffle(shuffled_transition_indices)
 
         # we deliberately drop some of the ending data which is left after dividing to batches of size `size`
@@ -144,7 +149,14 @@ class EpisodicExperienceReplay(Memory):
         Get all the transitions from all the complete episodes in the buffer
         :return: a list of transitions
         """
-        return self._buffer[:self.num_complete_episodes()]
+        return self.get_all_complete_episodes_from_to(0, self.num_complete_episodes())
+
+    def get_all_complete_episodes_from_to(self, start_episode_id, end_episode_id) -> List[Episode]:
+        """
+        Get all the transitions from all the complete episodes in the buffer matching the given episode range
+        :return: a list of transitions
+        """
+        return self._buffer[start_episode_id:end_episode_id]
 
     def _enforce_max_length(self) -> None:
         """
@@ -363,6 +375,10 @@ class EpisodicExperienceReplay(Memory):
         The pickle file is assumed to include a list of transitions.
         :param file_path: The path to a pickle file to restore
         """
+        # TODO extract hyper-param
+        train_to_eval_ratio = 0.8
+        if train_to_eval_ratio <= 0 or train_to_eval_ratio >= 1:
+            raise ValueError('train_to_eval_ratio should be in the (0, 1) range.')
 
         df = pd.read_csv(file_path)
         if len(df) > self.max_size[1]:
@@ -371,7 +387,19 @@ class EpisodicExperienceReplay(Memory):
                            "not be stored.".format(len(df), self.max_size[1]))
 
         episode_ids = df['episode_id'].unique()
-        progress_bar = ProgressBar(len(episode_ids) - 1)
+        if len(episode_ids) < 2:
+            raise ValueError("Not enough episodes to properly split between training and evaluation set. Total "
+                             "# episodes in the dataset is {}.".format(len(episode_ids)))
+        progress_bar = ProgressBar(len(episode_ids))
+        self.last_training_set_episode_id = df.iloc[round(train_to_eval_ratio * len(df))].episode_id
+        if self.last_training_set_episode_id == max(episode_ids):
+            screen.warning('train_to_eval_ratio is too high causing evaluation set to be empty. Decreasing training set'
+                           ' size by a single episode. ')
+            self.last_training_set_episode_id -= 1
+
+        # we're decreasing one since in an episode with n states, there are n - 1 transitions
+        self.last_training_set_transition_id = df[
+            df['episode_id'] == self.last_training_set_episode_id].tail(1).index.item() - 1
 
         for e_id in episode_ids:
             progress_bar.update(e_id)
@@ -395,4 +423,7 @@ class EpisodicExperienceReplay(Memory):
             episode.get_last_transition().game_over = True
 
             self.store_episode(episode)
+
+        # close the progress bar
+        progress_bar.update(len(episode_ids))
         progress_bar.close()

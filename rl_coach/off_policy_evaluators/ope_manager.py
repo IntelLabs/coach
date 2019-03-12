@@ -113,7 +113,6 @@ class OpeManager(object):
 
         :return: An OpeEstimation tuple which groups together all the OPE estimations
         """
-        # TODO this should use the evaluation dataset, and not the training dataset
         # TODO this seems kind of slow, review performance
         dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
         ope_shared_stats = self._prepare_ope_shared_stats(dataset_as_transitions, batch_size, reward_model,
