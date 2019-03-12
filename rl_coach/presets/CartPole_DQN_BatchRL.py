@@ -3,8 +3,7 @@ from copy import deepcopy
 from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
-from rl_coach.environments.environment import SingleLevelSelection
-from rl_coach.environments.gym_environment import GymVectorEnvironment, Atari, atari_deterministic_v4
+from rl_coach.environments.gym_environment import GymVectorEnvironment
 from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.reward import RewardRescaleFilter
 from rl_coach.graph_managers.batch_rl_graph_manager import BatchRLGraphManager
@@ -73,7 +72,6 @@ agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/200
 #  Environment #
 ################
 env_params = GymVectorEnvironment(level='CartPole-v0')
-# env_params = Atari(level='BreakoutDeterministic-v4')
 
 ########
 # Test #

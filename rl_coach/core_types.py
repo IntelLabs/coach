@@ -46,6 +46,7 @@ class TimeTypes(Enum):
     TrainingIteration = Record(name='Training Iter', label='Training Iteration')
     EnvironmentSteps = Record(name='Total steps', label='Total steps (per worker)')
     WallClockTime = Record(name='Wall-Clock Time', label='Wall-Clock Time (minutes)')
+    Epoch = Record(name='Epoch', label='Epoch #')
 
 
 # step methods
