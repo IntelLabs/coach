@@ -730,7 +730,7 @@ class Agent(AgentInterface):
                         self.log_to_screen()
 
             if self.ap.visualization.dump_csv and \
-                    self.parent_level_manager.parent_graph_manager.time_metric == TimeTypes.TrainingIteration:
+                    self.parent_level_manager.parent_graph_manager.time_metric == TimeTypes.Epoch:
                 # in BatchRL, or imitation learning, the agent never acts, so we have to get the stats out here.
                 # we dump the data out every epoch
                 self.update_log()
@@ -1079,5 +1079,5 @@ class Agent(AgentInterface):
                 TimeTypes.EpisodeNumber: self.current_episode,
                 TimeTypes.TrainingIteration: self.training_iteration,
                 TimeTypes.EnvironmentSteps: self.total_steps_counter,
-                TimeTypes.WallClockTime: self.agent_logger.get_current_wall_clock_time()
-                }[self.parent_level_manager.parent_graph_manager.time_metric]
+                TimeTypes.WallClockTime: self.agent_logger.get_current_wall_clock_time(),
+                TimeTypes.Epoch: self.training_epoch}[self.parent_level_manager.parent_graph_manager.time_metric]
