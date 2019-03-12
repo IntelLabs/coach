@@ -86,7 +86,7 @@ extras['all'] = all_deps
 
 setup(
     name='rl-coach' if not slim_package else 'rl-coach-slim',
-    version='0.11.0',
+    version='0.11.1',
     description='Reinforcement Learning Coach enables easy experimentation with state of the art Reinforcement Learning algorithms.',
     url='https://github.com/NervanaSystems/coach',
     author='Intel AI Lab',
