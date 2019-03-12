@@ -240,7 +240,7 @@ class ExperienceReplay(Memory):
         with open(file_path, 'wb') as file:
             pickle.dump(self.transitions, file)
 
-    def load(self, file_path: str) -> None:
+    def load_pickled(self, file_path: str) -> None:
         """
         Restore the replay buffer contents from a pickle file.
         The pickle file is assumed to include a list of transitions.
@@ -263,3 +263,4 @@ class ExperienceReplay(Memory):
                     progress_bar.update(transition_idx)
 
             progress_bar.close()
+

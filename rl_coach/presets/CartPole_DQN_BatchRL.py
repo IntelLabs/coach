@@ -27,6 +27,7 @@ schedule_params.heatup_steps = EnvironmentSteps(DATASET_SIZE)
 #########
 # Agent #
 #########
+# TODO add a preset which uses a dataset to train a BatchRL graph. e.g. save a cartpole dataset in a csv format.
 agent_params = DDQNAgentParameters()
 agent_params.network_wrappers['main'].batch_size = 1024
 

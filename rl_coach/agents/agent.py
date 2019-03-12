@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+import os
 import copy
 import random
 from collections import OrderedDict
@@ -34,9 +35,7 @@ from rl_coach.spaces import SpacesDefinition, VectorObservationSpace, GoalsSpace
 from rl_coach.utils import Signal, force_list
 from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
 from rl_coach.memories.backend.memory_impl import get_memory_backend
-
 from rl_coach.core_types import TimeTypes
-
 from rl_coach.off_policy_evaluators.ope_manager import OpeManager
 
 
@@ -88,9 +87,19 @@ class Agent(AgentInterface):
                     self.memory.set_memory_backend(self.memory_backend)
 
             if agent_parameters.memory.load_memory_from_file_path:
-                screen.log_title("Loading replay buffer from pickle. Pickle path: {}"
-                                 .format(agent_parameters.memory.load_memory_from_file_path))
-                self.memory.load(agent_parameters.memory.load_memory_from_file_path)
+                _, file_extension = os.path.splitext(agent_parameters.memory.load_memory_from_file_path)
+
+                if file_extension == '.p':
+                    screen.log_title("Loading replay buffer from pickle. Pickle path: {}"
+                                     .format(agent_parameters.memory.load_memory_from_file_path))
+                    self.memory.load_pickled(agent_parameters.memory.load_memory_from_file_path)
+                elif file_extension == '.csv':
+                    screen.log_title("Loading replay buffer from a CSV file. CSV path: {}"
+                                     .format(agent_parameters.memory.load_memory_from_file_path))
+                    self.memory.load_csv(agent_parameters.memory.load_memory_from_file_path)
+                else:
+                    raise ValueError('Loading a replay buffer from a file with a {} extension is not supported. '
+                                     .format(file_extension))
 
             if self.shared_memory and self.is_chief:
                 self.shared_memory_scratchpad.add(self.memory_lookup_name, self.memory)
@@ -518,8 +527,7 @@ class Agent(AgentInterface):
             self.agent_logger.create_signal_value("{}/Min".format(signal.name), signal.get_min())
 
         # dump
-        if self.current_episode % self.ap.visualization.dump_signals_to_csv_every_x_episodes == 0 \
-                and self.current_episode > 0:
+        if self.current_episode % self.ap.visualization.dump_signals_to_csv_every_x_episodes == 0:
             self.agent_logger.dump_output_csv()
 
     def handle_episode_ended(self) -> None:

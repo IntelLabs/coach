@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from copy import deepcopy
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters, TaskParameters, \
@@ -26,6 +26,7 @@ from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 
 from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen
+from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import short_dynamic_import
 
 from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
@@ -37,16 +38,17 @@ class BatchRLGraphManager(BasicRLGraphManager):
     """
     A batch RL graph manager creates scenario of learning from a dataset without a simulator.
     """
-    def __init__(self, agent_params: AgentParameters, env_params: EnvironmentParameters,
+    def __init__(self, agent_params: AgentParameters, env_params: Union[EnvironmentParameters, None],
                  schedule_params: ScheduleParameters,
                  vis_params: VisualizationParameters = VisualizationParameters(),
                  preset_validation_params: PresetValidationParameters = PresetValidationParameters(),
-                 name='batch_rl_graph', reward_model_num_epochs=100):
+                 name='batch_rl_graph', spaces_definition: SpacesDefinition = None, reward_model_num_epochs=100):
 
         super().__init__(agent_params, env_params, schedule_params, vis_params, preset_validation_params, name)
         self.is_batch_rl = True
-        self.time_metric = TimeTypes.TrainingIteration
+        self.time_metric = TimeTypes.Epoch
         self.reward_model_num_epochs = reward_model_num_epochs
+        self.spaces_definition = spaces_definition
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
         if self.env_params:
@@ -75,15 +77,17 @@ class BatchRLGraphManager(BasicRLGraphManager):
 
         agent = short_dynamic_import(self.agent_params.path)(self.agent_params)
 
-        # TODO load dataset into the agent's replay buffer. optionally normalize it, and clean it from outliers.
-        # agent.memory.load_dataset()
-
+        if not env and not self.agent_params.memory.load_memory_from_file_path:
+            raise ValueError("A BatchRLGraph requires setting a dataset to load into the agent's memory or "
+                             "alternatively using an environment to create a (random) dataset from. ")
         # set level manager
-        # TODO how to handle not having an environment?
-        #  allow for no environment through the entire pipe?
-        #  use a dummy batch RL env?
-        level_manager = LevelManager(agents=agent, environment=env, name="main_level")
-        return [level_manager], [env]
+        level_manager = LevelManager(agents=agent, environment=env, name="main_level",
+                                     spaces_definition=self.spaces_definition)
+
+        if env:
+            return [level_manager], [env]
+        else:
+            return [level_manager], []
 
     def improve(self):
         """
@@ -107,11 +111,12 @@ class BatchRLGraphManager(BasicRLGraphManager):
         #  last ran episode ended increased the total to 1040 steps, but the ER will contain only 1014 steps.
         #  The last episode is not there. Is this a bug in my changes or also on master?
 
-        # TODO make the heatup optional, for cases that we do batch RL with an environment where we collect the dataset
-        #  from. Useful mainly for tutorial and debug purposes.
+        # Creating a dataset during the heatup phase is useful mainly for tutorial and debug purposes. If we have both
+        # an environment and a dataset to load from, we will use the environment only for evaluating the policy,
+        # and will not run heatup.
+
         # heatup
-        # if self.env_params is not None and no dataset:
-        if self.env_params is not None:
+        if self.env_params is not None and not self.agent_params.memory.load_memory_from_file_path:
             self.heatup(self.heatup_steps)
 
         self.improve_reward_model()
@@ -125,7 +130,9 @@ class BatchRLGraphManager(BasicRLGraphManager):
         # the outer most training loop
         improve_steps_end = self.total_steps_counters[RunPhase.TRAIN] + self.improve_steps
         while self.total_steps_counters[RunPhase.TRAIN] < improve_steps_end:
-
+            # TODO if we have an environment, do we want to use it to have the agent train against, and use the
+            #  collected replay buffer as a dataset? (as oppose to what we currently have, where the dataset is built
+            #  during heatup, and is composed on random actions)
             # perform several steps of training
             if self.steps_between_evaluation_periods.num_steps > 0:
                 with self.phase_context(RunPhase.TRAIN):
@@ -137,8 +144,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
 
             # the output of batch RL training is always a checkpoint of the trained agent. we always save a checkpoint,
             # each epoch, regardless of the user's command line arguments.
-            # TODO uncomment
-            # self.save_checkpoint()
+            self.save_checkpoint()
 
             # run off-policy evaluation estimators to evaluate the agent's performance against the dataset
             self.run_off_policy_evaluation()

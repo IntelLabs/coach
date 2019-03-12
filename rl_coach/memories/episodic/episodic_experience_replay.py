@@ -14,15 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import ast
 
-from typing import List, Tuple, Union, Dict, Any
-
+import pandas as pd
+from typing import List, Tuple, Union
 import numpy as np
 import random
 
 from rl_coach.core_types import Transition, Episode
+from rl_coach.logger import screen
 from rl_coach.memories.memory import Memory, MemoryGranularity, MemoryParameters
-from rl_coach.utils import ReaderWriterLock
+from rl_coach.utils import ReaderWriterLock, ProgressBar
 
 
 class EpisodicExperienceReplayParameters(MemoryParameters):
@@ -42,7 +44,8 @@ class EpisodicExperienceReplay(Memory):
     calculations of total return and other values that depend on the sequential behavior of the transitions
     in the episode.
     """
-    def __init__(self, max_size: Tuple[MemoryGranularity, int]=(MemoryGranularity.Transitions, 1000000), n_step=-1):
+
+    def __init__(self, max_size: Tuple[MemoryGranularity, int] = (MemoryGranularity.Transitions, 1000000), n_step=-1):
         """
         :param max_size: the maximum number of transitions or episodes to hold in the memory
         """
@@ -55,7 +58,7 @@ class EpisodicExperienceReplay(Memory):
         self._num_transitions_in_complete_episodes = 0
         self.reader_writer_lock = ReaderWriterLock()
 
-    def length(self, lock: bool=False) -> int:
+    def length(self, lock: bool = False) -> int:
         """
         Get the number of episodes in the ER (even if they are not complete)
         """
@@ -94,7 +97,7 @@ class EpisodicExperienceReplay(Memory):
                     batch = self._buffer[episode_idx].transitions
                 else:
                     transition_idx = np.random.randint(size, self._buffer[episode_idx].length())
-                    batch = self._buffer[episode_idx].transitions[transition_idx-size:transition_idx]
+                    batch = self._buffer[episode_idx].transitions[transition_idx - size:transition_idx]
             else:
                 transitions_idx = np.random.randint(self.num_transitions_in_complete_episodes(), size=size)
                 batch = [self.transitions[i] for i in transitions_idx]
@@ -226,7 +229,7 @@ class EpisodicExperienceReplay(Memory):
 
         self.reader_writer_lock.release_writing_and_reading()
 
-    def store_episode(self, episode: Episode, lock: bool=True) -> None:
+    def store_episode(self, episode: Episode, lock: bool = True) -> None:
         """
         Store a new episode in the memory.
         :param episode: the new episode to store
@@ -249,7 +252,7 @@ class EpisodicExperienceReplay(Memory):
         if lock:
             self.reader_writer_lock.release_writing_and_reading()
 
-    def get_episode(self, episode_index: int, lock: bool=True) -> Union[None, Episode]:
+    def get_episode(self, episode_index: int, lock: bool = True) -> Union[None, Episode]:
         """
         Returns the episode in the given index. If the episode does not exist, returns None instead.
         :param episode_index: the index of the episode to return
@@ -294,7 +297,7 @@ class EpisodicExperienceReplay(Memory):
         self.reader_writer_lock.release_writing_and_reading()
 
     # for API compatibility
-    def get(self, episode_index: int, lock: bool=True) -> Union[None, Episode]:
+    def get(self, episode_index: int, lock: bool = True) -> Union[None, Episode]:
         """
         Returns the episode in the given index. If the episode does not exist, returns None instead.
         :param episode_index: the index of the episode to return
@@ -353,3 +356,43 @@ class EpisodicExperienceReplay(Memory):
 
         self.reader_writer_lock.release_writing()
         return mean
+
+    def load_csv(self, file_path: str) -> None:
+        """
+        Restore the replay buffer contents from a pickle file.
+        The pickle file is assumed to include a list of transitions.
+        :param file_path: The path to a pickle file to restore
+        """
+
+        df = pd.read_csv(file_path)
+        if len(df) > self.max_size[1]:
+            screen.warning("Warning! The number of transitions to load into the replay buffer ({}) is "
+                           "bigger than the max size of the replay buffer ({}). The excessive transitions will "
+                           "not be stored.".format(len(df), self.max_size[1]))
+
+        episode_ids = df['episode_id'].unique()
+        progress_bar = ProgressBar(len(episode_ids) - 1)
+
+        for e_id in episode_ids:
+            progress_bar.update(e_id)
+            df_episode_transitions = df[df['episode_id'] == e_id]
+            episode = Episode()
+            column_names = df.columns
+
+            for (_, current_transition), (_, next_transition) in zip(df_episode_transitions[:-1].iterrows(),
+                                                                     df_episode_transitions[1:].iterrows()):
+                state = np.array([current_transition[col] for col in column_names if col.startswith('state_feature')])
+                next_state = np.array([next_transition[col] for col in column_names if col.startswith('state_feature')])
+
+                episode.insert(
+                    Transition(state={'observation': state},
+                               action=current_transition['action'], reward=current_transition['reward'],
+                               next_state={'observation': next_state}, game_over=False,
+                               info={'all_action_probabilities':
+                                         ast.literal_eval(current_transition['all_action_probabilities'])}))
+
+            # Set the last transition to end the episode
+            episode.get_last_transition().game_over = True
+
+            self.store_episode(episode)
+        progress_bar.close()
