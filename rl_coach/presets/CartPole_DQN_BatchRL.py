@@ -86,4 +86,4 @@ graph_manager = BatchRLGraphManager(agent_params=agent_params, env_params=env_pa
                                     schedule_params=schedule_params,
                                     vis_params=VisualizationParameters(dump_signals_to_csv_every_x_episodes=1),
                                     preset_validation_params=preset_validation_params,
-                                    reward_model_num_epochs=100)
+                                    reward_model_num_epochs=50)

@@ -115,6 +115,13 @@ class EpisodicExperienceReplay(Memory):
 
         return batch
 
+    def get_episode_for_transition(self, transition: Transition) -> (int, Episode):
+        # TODO add doc
+        for i, episode in enumerate(self._buffer):
+            if transition in episode.transitions:
+                return i, episode
+        return -1, None
+
     def get_shuffled_data_generator(self, size: int) -> List[Transition]:
         """
         Get an generator for iterating through the shuffled replay buffer, for processing the data in epochs.
@@ -126,6 +133,29 @@ class EpisodicExperienceReplay(Memory):
         :return: a batch (list) of selected transitions from the replay buffer
         """
         self.reader_writer_lock.lock_writing()
+        # TODO extract hyper-param
+        train_to_eval_ratio = 0.8
+        if self.last_training_set_transition_id is None:
+            if train_to_eval_ratio <= 0 or train_to_eval_ratio >= 1:
+                raise ValueError('train_to_eval_ratio should be in the (0, 1) range.')
+            if self.num_complete_episodes() < 2:
+                raise ValueError("Not enough episodes to properly split between training and evaluation set. Total "
+                                 "# episodes in the dataset is {}.".format(self.num_complete_episodes()))
+
+            transition = self.transitions[round(train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
+            episode_num, episode = self.get_episode_for_transition(transition)
+            if episode is None:
+                # TODO fill me
+                raise ValueError('fill me')
+            self.last_training_set_episode_id = episode_num
+            self.last_training_set_transition_id = \
+                len([t for e in self.get_all_complete_episodes_from_to(0, self.last_training_set_episode_id + 1) for t in e])
+            if self.last_training_set_episode_id == self.num_complete_episodes() - 1:
+                screen.warning(
+                    'train_to_eval_ratio is too high causing evaluation set to be empty. Decreasing training set'
+                    ' size by a single episode. ')
+                self.last_training_set_episode_id -= 1
+
         shuffled_transition_indices = list(range(self.last_training_set_transition_id))
         random.shuffle(shuffled_transition_indices)
 
@@ -375,11 +405,6 @@ class EpisodicExperienceReplay(Memory):
         The pickle file is assumed to include a list of transitions.
         :param file_path: The path to a pickle file to restore
         """
-        # TODO extract hyper-param
-        train_to_eval_ratio = 0.8
-        if train_to_eval_ratio <= 0 or train_to_eval_ratio >= 1:
-            raise ValueError('train_to_eval_ratio should be in the (0, 1) range.')
-
         df = pd.read_csv(file_path)
         if len(df) > self.max_size[1]:
             screen.warning("Warning! The number of transitions to load into the replay buffer ({}) is "
@@ -387,19 +412,7 @@ class EpisodicExperienceReplay(Memory):
                            "not be stored.".format(len(df), self.max_size[1]))
 
         episode_ids = df['episode_id'].unique()
-        if len(episode_ids) < 2:
-            raise ValueError("Not enough episodes to properly split between training and evaluation set. Total "
-                             "# episodes in the dataset is {}.".format(len(episode_ids)))
         progress_bar = ProgressBar(len(episode_ids))
-        self.last_training_set_episode_id = df.iloc[round(train_to_eval_ratio * len(df))].episode_id
-        if self.last_training_set_episode_id == max(episode_ids):
-            screen.warning('train_to_eval_ratio is too high causing evaluation set to be empty. Decreasing training set'
-                           ' size by a single episode. ')
-            self.last_training_set_episode_id -= 1
-
-        # we're decreasing one since in an episode with n states, there are n - 1 transitions
-        self.last_training_set_transition_id = df[
-            df['episode_id'] == self.last_training_set_episode_id].tail(1).index.item() - 1
 
         for e_id in episode_ids:
             progress_bar.update(e_id)
