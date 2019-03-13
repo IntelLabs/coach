@@ -32,6 +32,7 @@ class EpisodicExperienceReplayParameters(MemoryParameters):
         super().__init__()
         self.max_size = (MemoryGranularity.Transitions, 1000000)
         self.n_step = -1
+        self.train_to_eval_ratio = 1  # for OPE we'll want a value < 1
 
     @property
     def path(self):
@@ -45,7 +46,8 @@ class EpisodicExperienceReplay(Memory):
     in the episode.
     """
 
-    def __init__(self, max_size: Tuple[MemoryGranularity, int] = (MemoryGranularity.Transitions, 1000000), n_step=-1):
+    def __init__(self, max_size: Tuple[MemoryGranularity, int] = (MemoryGranularity.Transitions, 1000000), n_step=-1,
+                 train_to_eval_ratio: int = 1):
         """
         :param max_size: the maximum number of transitions or episodes to hold in the memory
         """
@@ -59,6 +61,7 @@ class EpisodicExperienceReplay(Memory):
         self.reader_writer_lock = ReaderWriterLock()
         self.last_training_set_episode_id = None  # used in batch-rl
         self.last_training_set_transition_id = None  # used in batch-rl
+        self.train_to_eval_ratio = train_to_eval_ratio  # used in batch-rl
 
     def length(self, lock: bool = False) -> int:
         """
@@ -133,16 +136,11 @@ class EpisodicExperienceReplay(Memory):
         :return: a batch (list) of selected transitions from the replay buffer
         """
         self.reader_writer_lock.lock_writing()
-        # TODO extract hyper-param
-        train_to_eval_ratio = 0.8
         if self.last_training_set_transition_id is None:
-            if train_to_eval_ratio <= 0 or train_to_eval_ratio >= 1:
-                raise ValueError('train_to_eval_ratio should be in the (0, 1) range.')
-            if self.num_complete_episodes() < 2:
-                raise ValueError("Not enough episodes to properly split between training and evaluation set. Total "
-                                 "# episodes in the dataset is {}.".format(self.num_complete_episodes()))
+            if self.train_to_eval_ratio < 0 or self.train_to_eval_ratio >= 1:
+                raise ValueError('train_to_eval_ratio should be in the (0, 1] range.')
 
-            transition = self.transitions[round(train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
+            transition = self.transitions[round(self.train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
             episode_num, episode = self.get_episode_for_transition(transition)
             if episode is None:
                 # TODO fill me
@@ -150,11 +148,6 @@ class EpisodicExperienceReplay(Memory):
             self.last_training_set_episode_id = episode_num
             self.last_training_set_transition_id = \
                 len([t for e in self.get_all_complete_episodes_from_to(0, self.last_training_set_episode_id + 1) for t in e])
-            if self.last_training_set_episode_id == self.num_complete_episodes() - 1:
-                screen.warning(
-                    'train_to_eval_ratio is too high causing evaluation set to be empty. Decreasing training set'
-                    ' size by a single episode. ')
-                self.last_training_set_episode_id -= 1
 
         shuffled_transition_indices = list(range(self.last_training_set_transition_id))
         random.shuffle(shuffled_transition_indices)

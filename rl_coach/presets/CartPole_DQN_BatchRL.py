@@ -61,6 +61,7 @@ agent_params.network_wrappers['reward_model'].l2_regularization = 0
 agent_params.memory = EpisodicExperienceReplayParameters()
 agent_params.memory.max_size = (MemoryGranularity.Transitions, DATASET_SIZE)
 
+
 # E-Greedy schedule
 agent_params.exploration.epsilon_schedule = LinearSchedule(0, 0, 10000)
 agent_params.exploration.evaluation_epsilon = 0
@@ -86,4 +87,5 @@ graph_manager = BatchRLGraphManager(agent_params=agent_params, env_params=env_pa
                                     schedule_params=schedule_params,
                                     vis_params=VisualizationParameters(dump_signals_to_csv_every_x_episodes=1),
                                     preset_validation_params=preset_validation_params,
-                                    reward_model_num_epochs=50)
+                                    reward_model_num_epochs=50,
+                                    train_to_eval_ratio=0.8)

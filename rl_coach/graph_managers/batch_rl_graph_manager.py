@@ -42,13 +42,18 @@ class BatchRLGraphManager(BasicRLGraphManager):
                  schedule_params: ScheduleParameters,
                  vis_params: VisualizationParameters = VisualizationParameters(),
                  preset_validation_params: PresetValidationParameters = PresetValidationParameters(),
-                 name='batch_rl_graph', spaces_definition: SpacesDefinition = None, reward_model_num_epochs=100):
+                 name='batch_rl_graph', spaces_definition: SpacesDefinition = None, reward_model_num_epochs: int = 100,
+                 train_to_eval_ratio: float = 0.8):
 
         super().__init__(agent_params, env_params, schedule_params, vis_params, preset_validation_params, name)
         self.is_batch_rl = True
         self.time_metric = TimeTypes.Epoch
         self.reward_model_num_epochs = reward_model_num_epochs
         self.spaces_definition = spaces_definition
+
+        # setting this here to make sure that, by default, train_to_eval_ratio gets a value < 1
+        # (its default value in the memory is 1)
+        self.agent_params.memory.train_to_eval_ratio = train_to_eval_ratio
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
         if self.env_params:
