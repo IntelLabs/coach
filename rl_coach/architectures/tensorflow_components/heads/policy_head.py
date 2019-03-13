@@ -78,8 +78,6 @@ class PolicyHead(Head):
                 self.entropy = tf.add_n([tf.reduce_mean(dist.entropy()) for dist in self.policy_distributions])
                 self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
 
-            tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES, self.regularizations)
-
             # calculate loss
             self.action_log_probs_wrt_policy = \
                 tf.add_n([dist.log_prob(action) for dist, action in zip(self.policy_distributions, self.actions)])
