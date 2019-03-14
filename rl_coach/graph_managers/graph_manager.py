@@ -226,11 +226,15 @@ class GraphManager(object):
             else:
                 checkpoint_dir = task_parameters.checkpoint_save_dir
 
+            self.checkpoint_saver = tf.train.Saver()
+            scaffold = tf.train.Scaffold(saver=self.checkpoint_saver)
+
             self.sess = create_monitored_session(target=task_parameters.worker_target,
                                                  task_index=task_parameters.task_index,
                                                  checkpoint_dir=checkpoint_dir,
                                                  checkpoint_save_secs=task_parameters.checkpoint_save_secs,
-                                                 config=config)
+                                                 config=config,
+                                                 scaffold=scaffold)
             # set the session for all the modules
             self.set_session(self.sess)
         else:
@@ -258,9 +262,11 @@ class GraphManager(object):
             raise ValueError('Invalid framework {}'.format(task_parameters.framework_type))
 
         # Create parameter saver
-        self.checkpoint_saver = SaverCollection()
-        for level in self.level_managers:
-            self.checkpoint_saver.update(level.collect_savers())
+        if not isinstance(task_parameters, DistributedTaskParameters):
+            self.checkpoint_saver = SaverCollection()
+            for level in self.level_managers:
+                self.checkpoint_saver.update(level.collect_savers())
+
         # restore from checkpoint if given
         self.restore_checkpoint()
 
@@ -540,8 +546,9 @@ class GraphManager(object):
         count_end = self.total_steps_counters[RunPhase.TRAIN] + self.improve_steps
         while self.total_steps_counters[RunPhase.TRAIN] < count_end:
             self.train_and_act(self.steps_between_evaluation_periods)
-            if self.evaluate(self.evaluation_steps):
-                break
+            if self.task_parameters.task_index == 0 or self.task_parameters.task_index is None:
+                if self.evaluate(self.evaluation_steps):
+                    break
 
     def restore_checkpoint(self):
         self.verify_graph_was_created()
@@ -599,7 +606,9 @@ class GraphManager(object):
         if not isinstance(self.task_parameters, DistributedTaskParameters):
             saved_checkpoint_path = self.checkpoint_saver.save(self.sess, checkpoint_path)
         else:
-            saved_checkpoint_path = checkpoint_path
+            # FIXME: Explicitly managing Saver inside monitored training session is not recommended.
+            # https://github.com/tensorflow/tensorflow/issues/8425#issuecomment-286927528.
+            saved_checkpoint_path = self.checkpoint_saver.save(self.sess._tf_sess(), checkpoint_path)
 
         # this is required in order for agents to save additional information like a DND for example
         [manager.save_checkpoint(checkpoint_name) for manager in self.level_managers]

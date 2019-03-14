@@ -22,6 +22,7 @@ import time
 from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchronizationType
 from rl_coach import core_types
 from rl_coach.logger import screen
+from rl_coach.utils import start_multi_threaded_learning
 
 
 def data_store_ckpt_save(data_store):
@@ -30,7 +31,15 @@ def data_store_ckpt_save(data_store):
         time.sleep(10)
 
 
-def training_worker(graph_manager, task_parameters, is_multi_node_test):
+def training_worker(graph_manager, task_parameters, args, is_multi_node_test):
+    if args.distributed_training:
+        start_multi_threaded_learning(train, (graph_manager, task_parameters, is_multi_node_test),
+                                      task_parameters, graph_manager, args)
+    else:
+        train(graph_manager, task_parameters, is_multi_node_test)
+
+
+def train(graph_manager, task_parameters, is_multi_node_test):
     """
     restore a checkpoint then perform rollouts using the restored model
     :param graph_manager: An instance of the graph manager
@@ -40,8 +49,9 @@ def training_worker(graph_manager, task_parameters, is_multi_node_test):
     # initialize graph
     graph_manager.create_graph(task_parameters)
 
-    # save randomly initialized graph
-    graph_manager.save_checkpoint()
+    # save randomly initialized graph using one trainer
+    if task_parameters.task_index == 0 or task_parameters.task_index is None:
+        graph_manager.save_checkpoint()
 
     # training loop
     steps = 0
@@ -71,10 +81,12 @@ def training_worker(graph_manager, task_parameters, is_multi_node_test):
 
             if steps * graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps > graph_manager.steps_between_evaluation_periods.num_steps * eval_offset:
                 eval_offset += 1
-                if graph_manager.evaluate(graph_manager.evaluation_steps):
-                    break
+                if task_parameters.task_index == 0 or task_parameters.task_index is None:
+                    if graph_manager.evaluate(graph_manager.evaluation_steps):
+                        break
 
             if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
-                graph_manager.save_checkpoint()
+                if task_parameters.task_index == 0 or task_parameters.task_index is None:
+                    graph_manager.save_checkpoint()
             else:
                 graph_manager.occasionally_save_checkpoint()

@@ -88,16 +88,20 @@ class S3DataStore(DataStore):
             # Acquire lock
             self.mc.put_object(self.params.bucket_name, SyncFiles.LOCKFILE.value, io.BytesIO(b''), 0)
 
+            ckpt_state_filename = CheckpointStateFile.checkpoint_state_filename
             state_file = CheckpointStateFile(os.path.abspath(self.params.checkpoint_dir))
             if state_file.exists():
                 ckpt_state = state_file.read()
+                ckpt_name_prefix = ckpt_state.name
+
+            if ckpt_state_filename is not None and ckpt_name_prefix is not None:
                 checkpoint_file = None
                 for root, dirs, files in os.walk(self.params.checkpoint_dir):
                     for filename in files:
-                        if filename == CheckpointStateFile.checkpoint_state_filename:
+                        if filename == ckpt_state_filename:
                             checkpoint_file = (root, filename)
                             continue
-                        if filename.startswith(ckpt_state.name):
+                        if filename.startswith(ckpt_name_prefix):
                             abs_name = os.path.abspath(os.path.join(root, filename))
                             rel_name = os.path.relpath(abs_name, self.params.checkpoint_dir)
                             self.mc.fput_object(self.params.bucket_name, rel_name, abs_name)
@@ -131,6 +135,8 @@ class S3DataStore(DataStore):
         """
         try:
             state_file = CheckpointStateFile(os.path.abspath(self.params.checkpoint_dir))
+            ckpt_state_filename = state_file.filename
+            ckpt_state_file_path = state_file.path
 
             # wait until lock is removed
             while True:
@@ -139,7 +145,7 @@ class S3DataStore(DataStore):
                 if next(objects, None) is None:
                     try:
                         # fetch checkpoint state file from S3
-                        self.mc.fget_object(self.params.bucket_name, state_file.filename, state_file.path)
+                        self.mc.fget_object(self.params.bucket_name, ckpt_state_filename, ckpt_state_file_path)
                     except Exception as e:
                         continue
                     break
@@ -156,10 +162,12 @@ class S3DataStore(DataStore):
                     )
                 except Exception as e:
                     pass
+            state_file = CheckpointStateFile(os.path.abspath(self.params.checkpoint_dir))
+            ckpt_state = state_file.read()
+            ckpt_name_prefix = ckpt_state.name
 
-            checkpoint_state = state_file.read()
-            if checkpoint_state is not None:
-                objects = self.mc.list_objects_v2(self.params.bucket_name, prefix=checkpoint_state.name, recursive=True)
+            if ckpt_name_prefix is not None:
+                objects = self.mc.list_objects_v2(self.params.bucket_name, prefix=ckpt_name_prefix, recursive=True)
                 for obj in objects:
                     filename = os.path.abspath(os.path.join(self.params.checkpoint_dir, obj.object_name))
                     if not os.path.exists(filename):
