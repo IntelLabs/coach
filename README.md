@@ -226,6 +226,12 @@ dashboard
 
     https://github.com/carla-simulator/carla/releases
 
+    Install the python client and dependencies from the release tarball:
+    ```
+    pip3 install -r PythonClient/requirements.txt
+    pip3 install PythonClient
+    ```
+
     Create a new CARLA_ROOT environment variable pointing to CARLA's installation directory.
 
     A simple CARLA settings file (```CarlaSettings.ini```) is supplied with Coach, and is located in the ```environments``` directory.
