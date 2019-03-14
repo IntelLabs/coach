@@ -562,11 +562,11 @@ class GraphManager(object):
                     # restore the model, as the checkpoint names defined do not match the actual checkpoint names.
                     checkpoint = self._get_checkpoint_state_tf(self.task_parameters.checkpoint_restore_path)
                 else:
-                    checkpoint = get_checkpoint_state(self.task_parameters.checkpoint_restore_dir)
+                    checkpoint = get_checkpoint_state(self.task_parameters.checkpoint_restore_path)
 
                 if checkpoint is None:
                     raise ValueError("No checkpoint to restore in: {}".format(
-                        self.task_parameters.checkpoint_restore_dir))
+                        self.task_parameters.checkpoint_restore_path))
                 model_checkpoint_path = checkpoint.model_checkpoint_path
                 checkpoint_restore_dir = self.task_parameters.checkpoint_restore_path
             else:
