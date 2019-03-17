@@ -67,7 +67,7 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
     """
     wait for first checkpoint then perform rollouts using the model
     """
-    checkpoint_dir = task_parameters.checkpoint_restore_dir
+    checkpoint_dir = task_parameters.checkpoint_restore_path
     wait_for_checkpoint(checkpoint_dir, data_store)
 
     graph_manager.create_graph(task_parameters)

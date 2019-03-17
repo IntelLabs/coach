@@ -56,7 +56,7 @@ def test_basic_rl_graph_manager_with_cartpole_dqn_and_repeated_checkpoint_restor
     # graph_manager.evaluate(EnvironmentSteps(1000))
     # graph_manager.save_checkpoint()
     #
-    # graph_manager.task_parameters.checkpoint_restore_dir = "./experiments/test/checkpoint"
+    # graph_manager.task_parameters.checkpoint_restore_path = "./experiments/test/checkpoint"
     # while True:
     #     graph_manager.restore_checkpoint()
     #     graph_manager.evaluate(EnvironmentSteps(1000))
