@@ -881,3 +881,16 @@ class SelectedPhaseOnlyDumpFilter(object):
             return True
         else:
             return False
+
+
+# TODO move to a NamedTuple, once we move to Python3.6
+#        https://stackoverflow.com/questions/34269772/type-hints-in-namedtuple/34269877
+class CsvDataset(object):
+    def __init__(self, filepath: str, is_episodic: bool = True):
+        self.filepath = filepath
+        self.is_episodic = is_episodic
+
+
+class PickledReplayBuffer(object):
+    def __init__(self, filepath: str):
+        self.filepath = filepath

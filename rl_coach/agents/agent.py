@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-import os
 import copy
 import random
 from collections import OrderedDict
@@ -37,6 +36,7 @@ from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.core_types import TimeTypes
 from rl_coach.off_policy_evaluators.ope_manager import OpeManager
+from rl_coach.core_types import PickledReplayBuffer, CsvDataset
 
 
 class Agent(AgentInterface):
@@ -87,19 +87,17 @@ class Agent(AgentInterface):
                     self.memory.set_memory_backend(self.memory_backend)
 
             if agent_parameters.memory.load_memory_from_file_path:
-                _, file_extension = os.path.splitext(agent_parameters.memory.load_memory_from_file_path)
-
-                if file_extension == '.p':
-                    screen.log_title("Loading replay buffer from pickle. Pickle path: {}"
-                                     .format(agent_parameters.memory.load_memory_from_file_path))
-                    self.memory.load_pickled(agent_parameters.memory.load_memory_from_file_path)
-                elif file_extension == '.csv':
-                    screen.log_title("Loading replay buffer from a CSV file. CSV path: {}"
-                                     .format(agent_parameters.memory.load_memory_from_file_path))
+                if isinstance(agent_parameters.memory.load_memory_from_file_path, PickledReplayBuffer):
+                    screen.log_title("Loading a pickled replay buffer. Pickled file path: {}"
+                                     .format(agent_parameters.memory.load_memory_from_file_path.filepath))
+                    self.memory.load_pickled(agent_parameters.memory.load_memory_from_file_path.filepath)
+                elif isinstance(agent_parameters.memory.load_memory_from_file_path, CsvDataset):
+                    screen.log_title("Loading a replay buffer from a CSV file. CSV file path: {}"
+                                     .format(agent_parameters.memory.load_memory_from_file_path.filepath))
                     self.memory.load_csv(agent_parameters.memory.load_memory_from_file_path)
                 else:
-                    raise ValueError('Loading a replay buffer from a file with a {} extension is not supported. '
-                                     .format(file_extension))
+                    raise ValueError('Trying to load a replay buffer using an unsupported method - {}. '
+                                     .format(agent_parameters.memory.load_memory_from_file_path))
 
             if self.shared_memory and self.is_chief:
                 self.shared_memory_scratchpad.add(self.memory_lookup_name, self.memory)

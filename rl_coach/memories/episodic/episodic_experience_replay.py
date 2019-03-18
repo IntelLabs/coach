@@ -25,6 +25,7 @@ from rl_coach.core_types import Transition, Episode
 from rl_coach.logger import screen
 from rl_coach.memories.memory import Memory, MemoryGranularity, MemoryParameters
 from rl_coach.utils import ReaderWriterLock, ProgressBar
+from rl_coach.core_types import CsvDataset
 
 
 class EpisodicExperienceReplayParameters(MemoryParameters):
@@ -119,11 +120,24 @@ class EpisodicExperienceReplay(Memory):
         return batch
 
     def get_episode_for_transition(self, transition: Transition) -> (int, Episode):
-        # TODO add doc
+        """
+        Get the episode from which that transition came from.
+        :param transition: The transition to lookup the episode for
+        :return: (Episode number, the episode) or (-1, None) if could not find a matching episode.
+        """
+
         for i, episode in enumerate(self._buffer):
             if transition in episode.transitions:
                 return i, episode
         return -1, None
+
+    def shuffle_episodes(self):
+        """
+        Shuffle all the episodes in the replay buffer
+        :return:
+        """
+        random.shuffle(self._buffer)
+        self.transitions = [t for e in self._buffer for t in e.transitions]
 
     def get_shuffled_data_generator(self, size: int) -> List[Transition]:
         """
@@ -142,9 +156,6 @@ class EpisodicExperienceReplay(Memory):
 
             transition = self.transitions[round(self.train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
             episode_num, episode = self.get_episode_for_transition(transition)
-            if episode is None:
-                # TODO fill me
-                raise ValueError('fill me')
             self.last_training_set_episode_id = episode_num
             self.last_training_set_transition_id = \
                 len([t for e in self.get_all_complete_episodes_from_to(0, self.last_training_set_episode_id + 1) for t in e])
@@ -392,13 +403,13 @@ class EpisodicExperienceReplay(Memory):
         self.reader_writer_lock.release_writing()
         return mean
 
-    def load_csv(self, file_path: str) -> None:
+    def load_csv(self, csv_dataset: CsvDataset) -> None:
         """
-        Restore the replay buffer contents from a pickle file.
-        The pickle file is assumed to include a list of transitions.
-        :param file_path: The path to a pickle file to restore
+        Restore the replay buffer contents from a csv file.
+        The csv file is assumed to include a list of transitions.
+        :param csv_dataset: A construct which holds the dataset parameters
         """
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(csv_dataset.filepath)
         if len(df) > self.max_size[1]:
             screen.warning("Warning! The number of transitions to load into the replay buffer ({}) is "
                            "bigger than the max size of the replay buffer ({}). The excessive transitions will "
@@ -406,17 +417,16 @@ class EpisodicExperienceReplay(Memory):
 
         episode_ids = df['episode_id'].unique()
         progress_bar = ProgressBar(len(episode_ids))
+        state_columns = [col for col in df.columns if col.startswith('state_feature')]
 
         for e_id in episode_ids:
             progress_bar.update(e_id)
             df_episode_transitions = df[df['episode_id'] == e_id]
             episode = Episode()
-            column_names = df.columns
-
             for (_, current_transition), (_, next_transition) in zip(df_episode_transitions[:-1].iterrows(),
                                                                      df_episode_transitions[1:].iterrows()):
-                state = np.array([current_transition[col] for col in column_names if col.startswith('state_feature')])
-                next_state = np.array([next_transition[col] for col in column_names if col.startswith('state_feature')])
+                state = np.array([current_transition[col] for col in state_columns])
+                next_state = np.array([next_transition[col] for col in state_columns])
 
                 episode.insert(
                     Transition(state={'observation': state},
@@ -426,10 +436,13 @@ class EpisodicExperienceReplay(Memory):
                                          ast.literal_eval(current_transition['all_action_probabilities'])}))
 
             # Set the last transition to end the episode
-            episode.get_last_transition().game_over = True
+            if csv_dataset.is_episodic:
+                episode.get_last_transition().game_over = True
 
             self.store_episode(episode)
 
         # close the progress bar
         progress_bar.update(len(episode_ids))
         progress_bar.close()
+
+        self.shuffle_episodes()
