@@ -43,8 +43,9 @@ class DNDQHead(QHead):
             self.shared_memory_scratchpad = self.ap.task_parameters.shared_memory_scratchpad
 
     def _build_module(self, input_layer):
-        if hasattr(self.ap.task_parameters, 'checkpoint_restore_dir') and self.ap.task_parameters.checkpoint_restore_dir:
-            self.DND = differentiable_neural_dictionary.load_dnd(self.ap.task_parameters.checkpoint_restore_dir)
+        if hasattr(self.ap.task_parameters, 'checkpoint_restore_path') and\
+                self.ap.task_parameters.checkpoint_restore_path:
+            self.DND = differentiable_neural_dictionary.load_dnd(self.ap.task_parameters.checkpoint_restore_path)
         else:
             self.DND = differentiable_neural_dictionary.QDND(
                 self.DND_size, input_layer.get_shape()[-1], self.num_actions, self.new_value_shift_coefficient,
