@@ -165,6 +165,26 @@ jobs:
             kubectl delete ns integration-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
+  functional_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run functional tests
+          command: |
+            python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn functional-test -tc 'make functional_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 60m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=integration-test-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns functional-test-${CIRCLE_BUILD_NUM} || true
+          when: always
+
   golden_test_gym:
     <<: *executor_prep
     steps:
@@ -364,6 +384,9 @@ workflows:
       - integration_tests:
           requires:
             - build_base
+      - functional_tests:
+          requires:
+            - build_base
       - multinode_approval:
           type: approval
           requires:
@@ -418,6 +441,7 @@ workflows:
           requires:
             - unit_tests
             - integration_tests
+            - functional_test
           filters:
             branches:
               only: master
@@ -432,6 +456,7 @@ workflows:
     jobs:
       - unit_tests
       - integration_tests
+      - functional_test
       - build_gym_env
       - build_doom_env
       - build_mujoco_env
