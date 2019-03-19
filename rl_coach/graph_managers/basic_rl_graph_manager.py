@@ -44,6 +44,10 @@ class BasicRLGraphManager(GraphManager):
             if env_params is not None:
                 self.agent_params.input_filter = env_params.default_input_filter()
             else:
+                # In cases where there is no environment (e.g. batch-rl and imitation learning), there is nowhere to get
+                # a default filter from. So using a default no-filter.
+                # When there is no environment, the user is expected to define input/output filters (if required) using
+                # the preset.
                 self.agent_params.input_filter = NoInputFilter()
         if self.agent_params.output_filter is None:
             if env_params is not None:

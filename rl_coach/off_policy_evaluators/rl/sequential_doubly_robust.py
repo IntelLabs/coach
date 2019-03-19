@@ -27,6 +27,8 @@ class SequentialDoublyRobust(object):
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
 
+        Paper: https://arxiv.org/pdf/1511.03722.pdf
+
         :return: the evaluation score
         """
 

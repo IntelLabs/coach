@@ -24,6 +24,10 @@ class DoublyRobust(object):
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
 
+        Papers:
+        https://arxiv.org/abs/1103.4601
+        https://arxiv.org/pdf/1612.01205 (some more clearer explanations)
+
         :return: the evaluation score
         """
 
