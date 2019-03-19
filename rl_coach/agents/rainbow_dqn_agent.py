@@ -96,7 +96,7 @@ class RainbowDQNAgent(CategoricalDQNAgent):
         ])
 
         # add Q value samples for logging
-        self.q_values.add_sample(TD_targets)
+        self.q_values.add_sample(self.distribution_prediction_to_q_values(TD_targets))
 
         # only update the action that we have actually done in this transition (using the Double-DQN selected actions)
         target_actions = ddqn_selected_actions

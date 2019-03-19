@@ -101,7 +101,7 @@ class CategoricalDQNAgent(ValueOptimizationAgent):
         ])
 
         # add Q value samples for logging
-        self.q_values.add_sample(TD_targets)
+        self.q_values.add_sample(self.distribution_prediction_to_q_values(TD_targets))
 
         # select the optimal actions for the next state
         target_actions = np.argmax(self.distribution_prediction_to_q_values(distributional_q_st_plus_1), axis=1)
