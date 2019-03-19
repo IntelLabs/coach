@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from collections import namedtuple
 
 import copy
 from enum import Enum
@@ -36,6 +36,17 @@ class GoalTypes(Enum):
     EmbeddingChange = 2
     Observation = 3
     Measurements = 4
+
+
+Record = namedtuple('Record', ['name', 'label'])
+
+
+class TimeTypes(Enum):
+    EpisodeNumber = Record(name='Episode #', label='Episode #')
+    TrainingIteration = Record(name='Training Iter', label='Training Iteration')
+    EnvironmentSteps = Record(name='Total steps', label='Total steps (per worker)')
+    WallClockTime = Record(name='Wall-Clock Time', label='Wall-Clock Time (minutes)')
+    Epoch = Record(name='Epoch', label='Epoch #')
 
 
 # step methods
@@ -247,6 +258,9 @@ class Transition(object):
             raise ValueError("The new info dictionary can not be appended to the existing info dictionary since there "
                              "are overlapping keys between the two. old keys: {}, new keys: {}"
                              .format(self.info.keys(), new_info.keys()))
+        self.info.update(new_info)
+
+    def update_info(self, new_info: Dict[str, Any]) -> None:
         self.info.update(new_info)
 
     def __copy__(self):
@@ -867,3 +881,16 @@ class SelectedPhaseOnlyDumpFilter(object):
             return True
         else:
             return False
+
+
+# TODO move to a NamedTuple, once we move to Python3.6
+#        https://stackoverflow.com/questions/34269772/type-hints-in-namedtuple/34269877
+class CsvDataset(object):
+    def __init__(self, filepath: str, is_episodic: bool = True):
+        self.filepath = filepath
+        self.is_episodic = is_episodic
+
+
+class PickledReplayBuffer(object):
+    def __init__(self, filepath: str):
+        self.filepath = filepath

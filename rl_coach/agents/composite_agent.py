@@ -432,3 +432,4 @@ class CompositeAgent(AgentInterface):
             savers.update(agent.collect_savers(
                 parent_path_suffix="{}.{}".format(parent_path_suffix, self.name)))
         return savers
+
