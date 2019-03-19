@@ -181,7 +181,7 @@ jobs:
       - run:
           name: cleanup
           command: |
-            kubectl delete --all pods --namespace=integration-test-${CIRCLE_BUILD_NUM} || true
+            kubectl delete --all pods --namespace=functional-test-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns functional-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
@@ -385,7 +385,6 @@ workflows:
           requires:
             - build_base
       - functional_tests:
-          type: approval
           requires:
             - build_base
       - multinode_approval:
