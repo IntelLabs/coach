@@ -33,7 +33,6 @@ class ValueOptimizationAgent(Agent):
         super().__init__(agent_parameters, parent)
         self.q_values = self.register_signal("Q")
         self.q_value_for_action = {}
-        self.first = True
 
     def init_environment_dependent_modules(self):
         super().init_environment_dependent_modules()
