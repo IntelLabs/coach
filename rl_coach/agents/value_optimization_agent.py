@@ -80,10 +80,12 @@ class ValueOptimizationAgent(Agent):
             # this is for bootstrapped dqn
             if type(actions_q_values) == list and len(actions_q_values) > 0:
                 actions_q_values = self.exploration_policy.last_action_values
-            actions_q_values = actions_q_values.squeeze()
 
             # store the q values statistics for logging
-            self.q_values.add_sample(np.expand_dims(actions_q_values, 0))
+            self.q_values.add_sample(actions_q_values)
+
+            actions_q_values = actions_q_values.squeeze()
+
             for i, q_value in enumerate(actions_q_values):
                 self.q_value_for_action[i].add_sample(q_value)
 
