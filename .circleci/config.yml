@@ -384,9 +384,6 @@ workflows:
       - integration_tests:
           requires:
             - build_base
-      - functional_tests:
-          requires:
-            - build_base
       - multinode_approval:
           type: approval
           requires:
@@ -441,7 +438,6 @@ workflows:
           requires:
             - unit_tests
             - integration_tests
-            - functional_tests
           filters:
             branches:
               only: master
