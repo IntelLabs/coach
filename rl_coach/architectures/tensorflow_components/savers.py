@@ -42,7 +42,7 @@ class GlobalVariableSaver(Saver):
             self._variable_placeholders.append(variable_placeholder)
             self._variable_update_ops.append(v.assign(variable_placeholder))
 
-        self._saver = tf.train.Saver(self._variables)
+        self._saver = tf.train.Saver(self._variables, max_to_keep=None)
 
     @property
     def path(self):
