@@ -648,7 +648,7 @@ class SpacesDefinition(object):
     """
     def __init__(self,
                  state: StateSpace,
-                 goal: ObservationSpace,
+                 goal: Union[ObservationSpace, None],
                  action: ActionSpace,
                  reward: RewardSpace):
         self.state = state

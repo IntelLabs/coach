@@ -100,6 +100,9 @@ class CategoricalDQNAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        # add Q value samples for logging
+        self.q_values.add_sample(self.distribution_prediction_to_q_values(TD_targets))
+
         # select the optimal actions for the next state
         target_actions = np.argmax(self.distribution_prediction_to_q_values(distributional_q_st_plus_1), axis=1)
         m = np.zeros((self.ap.network_wrappers['main'].batch_size, self.z_values.size))
