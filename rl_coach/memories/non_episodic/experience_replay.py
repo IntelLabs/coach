@@ -113,10 +113,6 @@ class ExperienceReplay(Memory):
 
             yield sample_data
 
-        ## usage example
-        # for o in random_seq_generator(list(range(10)), 4):
-        #     print(o)
-
     def _enforce_max_length(self) -> None:
         """
         Make sure that the size of the replay buffer does not pass the maximum size allowed.

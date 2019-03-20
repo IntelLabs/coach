@@ -48,9 +48,9 @@ class QHead(Head):
 
     def _build_module(self, input_layer):
         # Standard Q Network
-        self.output = self.dense_layer(self.num_actions)(input_layer, name='output')
+        self.q_values = self.output = self.dense_layer(self.num_actions)(input_layer, name='output')
 
-        # TODO add this to other Q heads. e.g. dueling.
+        # used in batch-rl to estimate a probablity distribution over actions
         temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
         temperature_scaled_outputs = self.output / temperature
         self.softmax = tf.nn.softmax(temperature_scaled_outputs, name="softmax")

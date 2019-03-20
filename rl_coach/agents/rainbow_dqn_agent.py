@@ -100,9 +100,9 @@ class RainbowDQNAgent(CategoricalDQNAgent):
 
         # only update the action that we have actually done in this transition (using the Double-DQN selected actions)
         target_actions = ddqn_selected_actions
-        m = np.zeros((self.ap.network_wrappers['main'].batch_size, self.z_values.size))
+        m = np.zeros((batch.size, self.z_values.size))
 
-        batches = np.arange(self.ap.network_wrappers['main'].batch_size)
+        batches = np.arange(batch.size)
         for j in range(self.z_values.size):
             # we use batch.info('should_bootstrap_next_state') instead of (1 - batch.game_overs()) since with n-step,
             # we will not bootstrap for the last n-step transitions in the episode

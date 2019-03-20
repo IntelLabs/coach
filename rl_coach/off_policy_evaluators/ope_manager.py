@@ -62,12 +62,11 @@ class OpeManager(object):
             all_reward_model_rewards.append(reward_model.predict(
                 batch_for_inference.states(network_keys)))
 
-            # TODO can we get rid of the 'output_heads[0]', and have some way of a cleaner API?
+            # we always use the first Q head to calculate OPEs. might want to change this in the future.
+            # for instance, this means that for bootstrapped we always use the first QHead to calculate the OPEs.
             q_values, sm_values = q_network.predict(batch_for_inference.states(network_keys),
-                                                    outputs=[q_network.output_heads[0].output,
+                                                    outputs=[q_network.output_heads[0].q_values,
                                                              q_network.output_heads[0].softmax])
-            # TODO why is this needed?
-            q_values = q_values[0]
 
             all_policy_probs.append(sm_values)
             all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))

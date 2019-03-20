@@ -56,10 +56,15 @@ class DNDQHead(QHead):
 
         # Retrieve info from DND dictionary
         # We assume that all actions have enough entries in the DND
-        self.output = tf.transpose([
+        self.q_values = self.output = tf.transpose([
             self._q_value(input_layer, action)
             for action in range(self.num_actions)
         ])
+
+        # used in batch-rl to estimate a probablity distribution over actions
+        temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
+        temperature_scaled_outputs = self.output / temperature
+        self.softmax = tf.nn.softmax(temperature_scaled_outputs, name="softmax")
 
     def _q_value(self, input_layer, action):
         result = tf.py_func(self.DND.query,

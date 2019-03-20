@@ -15,6 +15,7 @@
 #
 
 import tensorflow as tf
+import numpy as np
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head
@@ -34,6 +35,9 @@ class QuantileRegressionQHead(Head):
         self.num_atoms = agent_parameters.algorithm.atoms  # we use atom / quantile interchangeably
         self.huber_loss_interval = agent_parameters.algorithm.huber_loss_interval  # k
         self.return_type = QActionStateValue
+        self.quantile_probabilities = tf.cast(
+            tf.constant(np.ones(self.ap.algorithm.atoms) / float(self.ap.algorithm.atoms), dtype=tf.float32),
+            dtype=tf.float64)
 
     def _build_module(self, input_layer):
         self.actions = tf.placeholder(tf.int32, [None, 2], name="actions")
@@ -71,6 +75,13 @@ class QuantileRegressionQHead(Head):
         quantile_regression_loss = tf.reduce_sum(quantile_huber_loss) / float(self.num_atoms)
         self.loss = quantile_regression_loss
         tf.losses.add_loss(self.loss)
+
+        self.q_values = tf.tensordot(tf.cast(self.output, tf.float64), self.quantile_probabilities, 1)
+
+        # used in batch-rl to estimate a probablity distribution over actions
+        temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
+        temperature_scaled_outputs = self.q_values / temperature
+        self.softmax = tf.nn.softmax(temperature_scaled_outputs, name="softmax")
 
     def __str__(self):
         result = [
