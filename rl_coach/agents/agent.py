@@ -398,7 +398,10 @@ class Agent(AgentInterface):
             self.accumulated_shaped_rewards_across_evaluation_episodes = 0
             self.num_successes_across_evaluation_episodes = 0
             self.num_evaluation_episodes_completed = 0
-            if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
+
+            # TODO verbosity was mistakenly removed from task_parameters on release 0.11.0, need to bring it back
+            # if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
+            if self.ap.is_a_highest_level_agent:
                 screen.log_title("{}: Starting evaluation phase".format(self.name))
 
         elif ending_evaluation:
@@ -416,7 +419,10 @@ class Agent(AgentInterface):
             self.agent_logger.create_signal_value(
                 "Success Rate",
                 success_rate)
-            if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
+
+            # TODO verbosity was mistakenly removed from task_parameters on release 0.11.0, need to bring it back
+            # if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
+            if self.ap.is_a_highest_level_agent:
                 screen.log_title("{}: Finished evaluation phase. Success rate = {}, Avg Total Reward = {}"
                                  .format(self.name, np.round(success_rate, 2), np.round(evaluation_reward, 2)))
 
@@ -565,7 +571,9 @@ class Agent(AgentInterface):
                 self.parent_level_manager.parent_graph_manager.time_metric == TimeTypes.EpisodeNumber:
             self.update_log()
 
-        if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
+        # TODO verbosity was mistakenly removed from task_parameters on release 0.11.0, need to bring it back
+        # if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
+        if self.ap.is_a_highest_level_agent:
             self.log_to_screen()
 
     def reset_internal_state(self) -> None:
