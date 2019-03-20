@@ -64,6 +64,9 @@ class BootstrappedDQNAgent(ValueOptimizationAgent):
         q_st_plus_1 = result[:self.ap.exploration.architecture_num_q_heads]
         TD_targets = result[self.ap.exploration.architecture_num_q_heads:]
 
+        # add Q value samples for logging
+        self.q_values.add_sample(TD_targets)
+
         # initialize with the current prediction so that we will
         #  only update the action that we have actually done in this transition
         for i in range(self.ap.network_wrappers['main'].batch_size):

@@ -273,6 +273,11 @@ def create_files_signal(files, use_dir_name=False):
     files_selector.value = filenames[0]
     selected_file = new_signal_files[0]
 
+    # update x axis according to the file's default x-axis (which is the index, and thus the first column)
+    idx = x_axis_options.index(new_signal_files[0].csv.columns[0])
+    change_x_axis(idx)
+    x_axis_selector.active = idx
+
 
 def display_files(files):
     pause_auto_update()

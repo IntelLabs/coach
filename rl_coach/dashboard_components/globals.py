@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from collections import OrderedDict
 
 import os
 from genericpath import isdir, isfile
@@ -26,12 +26,14 @@ import tkinter as tk
 from tkinter import filedialog
 import colorsys
 
+from rl_coach.core_types import TimeTypes
+
 patches = {}
 signals_files = {}
 selected_file = None
 x_axis = ['Episode #']
-x_axis_options = ['Episode #', 'Total steps', 'Wall-Clock Time']
-x_axis_labels = ['Episode #', 'Total steps (per worker)', 'Wall-Clock Time (minutes)']
+x_axis_options = [time_type.value.name for time_type in TimeTypes]
+x_axis_labels = [time_type.value.label for time_type in TimeTypes]
 current_color = 0
 
 # spinner

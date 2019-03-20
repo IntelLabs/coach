@@ -173,3 +173,12 @@ class AgentInterface(object):
         :return: None
         """
         raise NotImplementedError("")
+    
+    def run_off_policy_evaluation(self) -> None:
+        """
+        Run off-policy evaluation estimators to evaluate the trained policy performance against a dataset.
+        Should only be implemented for off-policy RL algorithms.
+
+        :return: None
+        """
+        raise NotImplementedError("")

@@ -25,6 +25,7 @@ from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import ConstantSchedule
 from rl_coach.spaces import ImageObservationSpace
 from rl_coach.utilities.carla_dataset_to_replay_buffer import create_dataset
+from rl_coach.core_types import PickledReplayBuffer
 
 ####################
 # Graph Scheduling #
@@ -130,7 +131,7 @@ agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 
 # use the following command line to download and extract the CARLA dataset:
 # python rl_coach/utilities/carla_dataset_to_replay_buffer.py
-agent_params.memory.load_memory_from_file_path = "./datasets/carla_train_set_replay_buffer.p"
+agent_params.memory.load_memory_from_file_path = PickledReplayBuffer("./datasets/carla_train_set_replay_buffer.p")
 agent_params.memory.state_key_with_the_class_index = 'high_level_command'
 agent_params.memory.num_classes = 4
 
