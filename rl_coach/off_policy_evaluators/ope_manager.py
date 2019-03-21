@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import math
 from collections import namedtuple
 
 import numpy as np
@@ -55,7 +56,7 @@ class OpeManager(object):
         all_reward_model_rewards, all_policy_probs, all_old_policy_probs = [], [], []
         all_v_values_reward_model_based, all_v_values_q_model_based, all_rewards, all_actions = [], [], [], []
 
-        for i in range(int(len(dataset_as_transitions) / batch_size) + 1):
+        for i in range(math.ceil(len(dataset_as_transitions) / batch_size)):
             batch = dataset_as_transitions[i * batch_size: (i + 1) * batch_size]
             batch_for_inference = Batch(batch)
 

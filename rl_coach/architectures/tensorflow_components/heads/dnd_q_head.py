@@ -62,9 +62,7 @@ class DNDQHead(QHead):
         ])
 
         # used in batch-rl to estimate a probablity distribution over actions
-        temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
-        temperature_scaled_outputs = self.output / temperature
-        self.softmax = tf.nn.softmax(temperature_scaled_outputs, name="softmax")
+        self.softmax = self.add_softmax_with_temperature()
 
     def _q_value(self, input_layer, action):
         result = tf.py_func(self.DND.query,

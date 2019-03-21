@@ -47,9 +47,7 @@ class DuelingQHead(QHead):
         self.q_values = self.output = tf.add(self.state_value, self.action_advantage, name='output')
 
         # used in batch-rl to estimate a probablity distribution over actions
-        temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
-        temperature_scaled_outputs = self.output / temperature
-        self.softmax = tf.nn.softmax(temperature_scaled_outputs, name="softmax")
+        self.softmax = self.add_softmax_with_temperature()
 
     def __str__(self):
         result = [
