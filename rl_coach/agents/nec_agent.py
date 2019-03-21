@@ -133,7 +133,7 @@ class NECAgent(ValueOptimizationAgent):
         TD_targets = self.networks['main'].online_network.predict(batch.states(network_keys))
         bootstrapped_return_from_old_policy = batch.n_step_discounted_rewards()
         #  only update the action that we have actually done in this transition
-        for i in range(self.ap.network_wrappers['main'].batch_size):
+        for i in range(batch.size):
             TD_targets[i, batch.actions()[i]] = bootstrapped_return_from_old_policy[i]
 
         # set the gradients to fetch for the DND update

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import ast
+import math
 
 import pandas as pd
 from typing import List, Tuple, Union
@@ -163,9 +164,8 @@ class EpisodicExperienceReplay(Memory):
         shuffled_transition_indices = list(range(self.last_training_set_transition_id))
         random.shuffle(shuffled_transition_indices)
 
-        # we deliberately drop some of the ending data which is left after dividing to batches of size `size`
-        # for i in range(math.ceil(len(shuffled_transition_indices) / size)):
-        for i in range(int(len(shuffled_transition_indices) / size)):
+        # The last batch drawn will usually be < batch_size (=the size variable)
+        for i in range(math.ceil(len(shuffled_transition_indices) / size)):
             sample_data = [self.transitions[j] for j in shuffled_transition_indices[i * size: (i + 1) * size]]
             self.reader_writer_lock.release_writing()
 
