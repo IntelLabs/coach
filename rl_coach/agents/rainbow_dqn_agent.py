@@ -60,9 +60,12 @@ class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
     def __init__(self):
         super().__init__()
         self.algorithm = RainbowDQNAlgorithmParameters()
+
+        # ParameterNoiseParameters is changing the network wrapper parameters. This line needs to be done first.
+        self.network_wrappers = {"main": RainbowDQNNetworkParameters()}
+
         self.exploration = ParameterNoiseParameters(self)
         self.memory = PrioritizedExperienceReplayParameters()
-        self.network_wrappers = {"main": RainbowDQNNetworkParameters()}
 
     @property
     def path(self):
