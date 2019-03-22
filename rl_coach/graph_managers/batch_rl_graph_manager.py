@@ -17,6 +17,7 @@ from copy import deepcopy
 from typing import Tuple, List, Union
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters
+from rl_coach.agents.nec_agent import NECAgentParameters
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters, TaskParameters, \
     PresetValidationParameters
 from rl_coach.core_types import RunPhase
@@ -65,8 +66,8 @@ class BatchRLGraphManager(BasicRLGraphManager):
         else:
             env = None
 
-        # Only DQN variants are supported at this point.
-        assert(isinstance(self.agent_params, DQNAgentParameters))
+        # Only DQN variants and NEC are supported at this point.
+        assert(isinstance(self.agent_params, DQNAgentParameters) or isinstance(self.agent_params, NECAgentParameters))
         # Only Episodic memories are supported,
         # for evaluating the sequential doubly robust estimator
         assert(isinstance(self.agent_params.memory, EpisodicExperienceReplayParameters))

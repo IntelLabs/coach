@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import math
 from collections import namedtuple
 
 import numpy as np
@@ -55,19 +56,18 @@ class OpeManager(object):
         all_reward_model_rewards, all_policy_probs, all_old_policy_probs = [], [], []
         all_v_values_reward_model_based, all_v_values_q_model_based, all_rewards, all_actions = [], [], [], []
 
-        for i in range(int(len(dataset_as_transitions) / batch_size) + 1):
+        for i in range(math.ceil(len(dataset_as_transitions) / batch_size)):
             batch = dataset_as_transitions[i * batch_size: (i + 1) * batch_size]
             batch_for_inference = Batch(batch)
 
             all_reward_model_rewards.append(reward_model.predict(
                 batch_for_inference.states(network_keys)))
 
-            # TODO can we get rid of the 'output_heads[0]', and have some way of a cleaner API?
+            # we always use the first Q head to calculate OPEs. might want to change this in the future.
+            # for instance, this means that for bootstrapped we always use the first QHead to calculate the OPEs.
             q_values, sm_values = q_network.predict(batch_for_inference.states(network_keys),
-                                                    outputs=[q_network.output_heads[0].output,
+                                                    outputs=[q_network.output_heads[0].q_values,
                                                              q_network.output_heads[0].softmax])
-            # TODO why is this needed?
-            q_values = q_values[0]
 
             all_policy_probs.append(sm_values)
             all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))
