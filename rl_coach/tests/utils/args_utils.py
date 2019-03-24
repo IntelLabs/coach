@@ -20,6 +20,9 @@ import signal
 import time
 import pandas as pd
 import numpy as np
+from numpy.ma.core import _extrema_operation
+from pip._internal.cli.cmdoptions import extra_index_url
+
 from rl_coach.tests.utils.test_utils import get_csv_path, get_files_from_dir, \
     find_string_in_logs
 from rl_coach.tests.utils.definitions import Definitions as Def
@@ -56,7 +59,7 @@ def collect_preset_for_seed():
     definitions (args_test under Presets).
     :return: preset(s) list
     """
-    for pn in Def.Presets.seed_args_test:
+    for pn in Def.Presets.args_for_seed_test:
         assert pn, Def.Consts.ASSERT_MSG.format("Preset name", pn)
         yield pn
 
@@ -363,7 +366,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                                   csv file is created.        
         """
         # wait until files created
-        csv_path = get_csv_path(clres=clres)
+        csv_path = get_csv_path(clres=clres, extra_tries=10)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
 
@@ -475,3 +478,18 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
     elif flag[0] == "-c" or flag[0] == "--use_cpu":
         pass
+
+    elif flag[0] == "-n" or flag[0] == "--num_workers":
+
+        """
+        -n, --num_workers: Once selected alone, check that csv created for each
+                           worker, and check results.
+        """
+        # wait until files created
+        csv_path = get_csv_path(clres=clres, extra_tries=20)
+
+        expected_files = int(flag[1])
+        assert len(csv_path) >= expected_files, \
+            Def.Consts.ASSERT_MSG.format(str(expected_files),
+                                         str(len(csv_path)))
+
