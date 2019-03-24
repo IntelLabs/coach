@@ -52,7 +52,7 @@ class ValueOptimizationAgent(Agent):
 
     def get_prediction(self, states, outputs=None):
         return self.networks['main'].online_network.predict(self.prepare_batch_for_inference(states, 'main'),
-                                                            outputs=outputs)
+                                                            outputs=outputs, squeeze_output=False)
 
     def update_transition_priorities_and_get_weights(self, TD_errors, batch):
         # update errors in prioritized replay buffer
