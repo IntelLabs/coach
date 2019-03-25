@@ -12,7 +12,7 @@ ARG MUJOCO_KEY
 ENV MUJOCO_KEY=$MUJOCO_KEY
 ENV LD_LIBRARY_PATH /root/.mujoco/mjpro150/bin:$LD_LIBRARY_PATH
 RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
-RUN pip3 install mujoco_py
+RUN pip3 install mujoco_py==1.50.1.68
 # Vizdoom
 RUN pip3 install vizdoom
 
