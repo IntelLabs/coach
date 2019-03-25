@@ -179,7 +179,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run functional tests
           command: |
