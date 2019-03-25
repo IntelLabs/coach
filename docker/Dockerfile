@@ -29,5 +29,5 @@ COPY --from=builder /root/.cache /root/.cache
 COPY setup.py /root/src/.
 COPY requirements.txt /root/src/.
 COPY README.md /root/src/.
-RUN pip3 install gym[atari] box2d mujoco_py vizdoom && pip3 install -e .[all] && rm -rf /root/.cache
+RUN pip3 install gym[atari] box2d mujoco_py==1.50.1.68 vizdoom && pip3 install -e .[all] && rm -rf /root/.cache
 COPY . /root/src
