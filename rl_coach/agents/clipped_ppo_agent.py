@@ -207,6 +207,8 @@ class ClippedPPOAgent(ActorCriticAgent):
                        self.networks['main'].online_network.output_heads[1].likelihood_ratio,
                        self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
 
+            # TODO-fixme if batch.size / self.ap.network_wrappers['main'].batch_size is not an integer, we do not train on
+            #  some of the data
             for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
                 start = i * self.ap.network_wrappers['main'].batch_size
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size

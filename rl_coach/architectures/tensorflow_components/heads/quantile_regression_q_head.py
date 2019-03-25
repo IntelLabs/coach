@@ -15,15 +15,14 @@
 #
 
 import tensorflow as tf
-
+import numpy as np
+from rl_coach.architectures.tensorflow_components.heads import QHead
 from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
-from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition
 
 
-class QuantileRegressionQHead(Head):
+class QuantileRegressionQHead(QHead):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
                  dense_layer=Dense):
@@ -33,7 +32,10 @@ class QuantileRegressionQHead(Head):
         self.num_actions = len(self.spaces.action.actions)
         self.num_atoms = agent_parameters.algorithm.atoms  # we use atom / quantile interchangeably
         self.huber_loss_interval = agent_parameters.algorithm.huber_loss_interval  # k
-        self.return_type = QActionStateValue
+        self.quantile_probabilities = tf.cast(
+            tf.constant(np.ones(self.ap.algorithm.atoms) / float(self.ap.algorithm.atoms), dtype=tf.float32),
+            dtype=tf.float64)
+        self.loss_type = []
 
     def _build_module(self, input_layer):
         self.actions = tf.placeholder(tf.int32, [None, 2], name="actions")
@@ -71,6 +73,11 @@ class QuantileRegressionQHead(Head):
         quantile_regression_loss = tf.reduce_sum(quantile_huber_loss) / float(self.num_atoms)
         self.loss = quantile_regression_loss
         tf.losses.add_loss(self.loss)
+
+        self.q_values = tf.tensordot(tf.cast(self.output, tf.float64), self.quantile_probabilities, 1)
+
+        # used in batch-rl to estimate a probablity distribution over actions
+        self.softmax = self.add_softmax_with_temperature()
 
     def __str__(self):
         result = [

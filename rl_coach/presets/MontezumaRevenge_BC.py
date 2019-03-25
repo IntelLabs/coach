@@ -5,6 +5,7 @@ from rl_coach.environments.gym_environment import Atari
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
+from rl_coach.core_types import PickledReplayBuffer
 
 ####################
 # Graph Scheduling #
@@ -25,7 +26,7 @@ agent_params.memory.max_size = (MemoryGranularity.Transitions, 1000000)
 # agent_params.memory.discount = 0.99
 agent_params.algorithm.discount = 0.99
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
-agent_params.memory.load_memory_from_file_path = 'datasets/montezuma_revenge.p'
+agent_params.memory.load_memory_from_file_path = PickledReplayBuffer('datasets/montezuma_revenge.p')
 
 ###############
 # Environment #

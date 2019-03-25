@@ -67,7 +67,12 @@ class SignalsFile(SignalsFileBase):
         for k, v in new_csv.isna().all().items():
             if v and k not in x_axis_options:
                 del new_csv[k]
-        new_csv.fillna(value=0, inplace=True)
+
+        # only fill the missing values that the previous interploation did not deal with (usually the ones before the
+        # first update to the signal was made). We do so again by interpolation (averaging the previous and the next
+        # values)
+        new_csv = ((new_csv.fillna(method='bfill') + new_csv.fillna(method='ffill')) / 2).fillna(method='bfill').fillna(
+            method='ffill')
 
         self.csv = new_csv
 
