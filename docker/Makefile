@@ -37,6 +37,7 @@ RUN_ARGUMENTS+=-v /tmp/checkpoint:/checkpoint
 
 UNIT_TESTS=python3 -m pytest rl_coach/tests -m unit_test
 INTEGRATION_TESTS=python3 -m pytest rl_coach/tests -m integration_test --tb=short
+FUNCTIONAL_TESTS=python3 -m pytest rl_coach/tests -s -v -m functional_test
 
 # Golden Tests
 ifdef GOLDEN_PRESETS
@@ -80,6 +81,9 @@ unit_tests: build
 integration_tests: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} ${INTEGRATION_TESTS}
 
+functional_tests: build
+	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} ${FUNCTIONAL_TESTS}
+
 golden_tests: build
 	${DOCKER} run ${RUN_ARGUMENTS} -it ${IMAGE} ${GOLDEN_TESTS}
 
@@ -118,6 +122,9 @@ unit_tests_without_docker:
 
 integration_tests_without_docker:
 	cd .. && ${INTEGRATION_TESTS}
+
+functional_tests_without_docker:
+	cd .. && ${FUNCTIONAL_TESTS}
 
 golden_tests_without_docker:
 	cd .. && ${GOLDEN_TESTS}
