@@ -25,16 +25,6 @@ from rl_coach.tests.utils.definitions import Definitions as Def
 from os import path
 
 
-def pytest_runtest_setup(item):
-    """Called before test's run."""
-
-    # the following marker is used for special container which includes all the
-    # required modules.
-    if item.get_closest_marker("functional_special_preset_env_test") and \
-            item.config.getoption("-m") == "functional_special_preset_env_test":
-        Def.Presets.args_for_seed_test = Def.Presets.args_for_special_env_test
-
-
 @pytest.fixture(scope="module", params=list(p_utils.collect_presets()))
 def preset_name(request):
     """

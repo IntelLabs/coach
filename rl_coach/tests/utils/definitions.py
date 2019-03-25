@@ -91,22 +91,18 @@ class Definitions:
             "CartPole_DQN"
         ]
 
-        # Preset for special environment container
-        args_for_special_env_test = [
-            "CARLA_Dueling_DDQN",
-            "ControlSuite_DDPG",
-            "ExplorationChain_Dueling_DDQN",
-            "Fetch_DDPG_HER_baselines",
-            "Mujoco_ClippedPPO",
-            "Starcraft_CollectMinerals_Dueling_DDQN",
-        ]
-
         # Preset for testing seed argument
         args_for_seed_test = [
             "Atari_DQN",
             "Doom_Basic_DQN",
             "BitFlip_DQN",
             "CartPole_DQN",
+            "CARLA_Dueling_DDQN",
+            "ControlSuite_DDPG",
+            "ExplorationChain_Dueling_DDQN",
+            "Fetch_DDPG_HER_baselines",
+            "Mujoco_ClippedPPO",
+            "Starcraft_CollectMinerals_Dueling_DDQN",
         ]
 
     class Path:

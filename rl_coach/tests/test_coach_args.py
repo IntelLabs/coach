@@ -95,7 +95,6 @@ def test_preset_mxnet_framework(preset_for_mxnet_args, clres,
 
 
 @pytest.mark.functional_test
-@pytest.mark.functional_special_preset_env_test
 def test_preset_seed(preset_args_for_seed, clres, start_time=time.time(),
                      time_limit=Def.TimeOuts.test_time_limit):
     """

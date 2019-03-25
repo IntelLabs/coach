@@ -20,9 +20,6 @@ import signal
 import time
 import pandas as pd
 import numpy as np
-from numpy.ma.core import _extrema_operation
-from pip._internal.cli.cmdoptions import extra_index_url
-
 from rl_coach.tests.utils.test_utils import get_csv_path, get_files_from_dir, \
     find_string_in_logs
 from rl_coach.tests.utils.definitions import Definitions as Def
@@ -386,11 +383,14 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
         # check heat-up value
         results = []
-        while csv["In Heatup"].values[-1] == 1:
-            csv = pd.read_csv(csv_path[0])
-            last_step = csv["Total steps"].values
-            time.sleep(1)
-            results.append(last_step[-1])
+        if csv["In Heatup"].values[-1] == 0:
+            results.append(csv["Total steps"].values[-1])
+        else:
+            while csv["In Heatup"].values[-1] == 1:
+                csv = pd.read_csv(csv_path[0])
+                last_step = csv["Total steps"].values
+                results.append(last_step[-1])
+                time.sleep(1)
 
         assert results[-1] >= Def.Consts.num_hs, \
             Def.Consts.ASSERT_MSG.format("bigger than " + Def.Consts.num_hs,
