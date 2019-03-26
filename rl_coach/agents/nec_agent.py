@@ -162,7 +162,7 @@ class NECAgent(ValueOptimizationAgent):
             embedding = self.networks['main'].online_network.predict(
                 self.prepare_batch_for_inference(self.curr_state, 'main'),
                 outputs=self.networks['main'].online_network.state_embedding)
-            self.current_episode_state_embeddings.append(embedding)
+            self.current_episode_state_embeddings.append(embedding.squeeze())
 
         return super().act()
 
