@@ -45,6 +45,7 @@ class DDQNAgent(ValueOptimizationAgent):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
         selected_actions = np.argmax(self.networks['main'].online_network.predict(batch.next_states(network_keys)), 1)
+
         q_st_plus_1, TD_targets = self.networks['main'].parallel_prediction([
             (self.networks['main'].target_network, batch.next_states(network_keys)),
             (self.networks['main'].online_network, batch.states(network_keys))
@@ -70,3 +71,4 @@ class DDQNAgent(ValueOptimizationAgent):
         total_loss, losses, unclipped_grads = result[:3]
 
         return total_loss, losses, unclipped_grads
+

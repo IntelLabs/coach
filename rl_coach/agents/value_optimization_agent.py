@@ -166,9 +166,3 @@ class ValueOptimizationAgent(Agent):
             log['loss'] = loss / total_transitions_processed
             screen.log_dict(log, prefix='Training Reward Model')
 
-
-
-
-
-
-

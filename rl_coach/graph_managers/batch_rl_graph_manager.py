@@ -43,13 +43,13 @@ class BatchRLGraphManager(BasicRLGraphManager):
                  schedule_params: ScheduleParameters,
                  vis_params: VisualizationParameters = VisualizationParameters(),
                  preset_validation_params: PresetValidationParameters = PresetValidationParameters(),
-                 name='batch_rl_graph', spaces_definition: SpacesDefinition = None, reward_model_num_epochs: int = 100,
+                 name='batch_rl_graph', spaces_definition: SpacesDefinition = None, batch_rl_models_num_epochs: int = 100,
                  train_to_eval_ratio: float = 0.8):
 
         super().__init__(agent_params, env_params, schedule_params, vis_params, preset_validation_params, name)
         self.is_batch_rl = True
         self.time_metric = TimeTypes.Epoch
-        self.reward_model_num_epochs = reward_model_num_epochs
+        self.batch_rl_models_num_epochs = batch_rl_models_num_epochs
         self.spaces_definition = spaces_definition
 
         # setting this here to make sure that, by default, train_to_eval_ratio gets a value < 1
@@ -77,8 +77,9 @@ class BatchRLGraphManager(BasicRLGraphManager):
         self.agent_params.name = "agent"
         self.agent_params.is_batch_rl_training = True
 
-        # user hasn't defined params for the reward model. we will use the same params as used for the 'main' network.
         if 'reward_model' not in self.agent_params.network_wrappers:
+            # user hasn't defined params for the reward model. we will use the same params as used for the 'main'
+            # network.
             self.agent_params.network_wrappers['reward_model'] = deepcopy(self.agent_params.network_wrappers['main'])
 
         agent = short_dynamic_import(self.agent_params.path)(self.agent_params)
@@ -168,7 +169,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
         :return:
         """
         screen.log_title("Training a regression model for estimating MDP rewards")
-        self.level_managers[0].agents['agent'].improve_reward_model(epochs=self.reward_model_num_epochs)
+        self.level_managers[0].agents['agent'].improve_reward_model(epochs=self.batch_rl_models_num_epochs)
 
     def run_off_policy_evaluation(self):
         """

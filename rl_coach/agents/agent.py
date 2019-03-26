@@ -688,13 +688,16 @@ class Agent(AgentInterface):
             for network in self.networks.values():
                 network.set_is_training(True)
 
-            # TODO: this should be network dependent
-            network_parameters = list(self.ap.network_wrappers.values())[0]
+            # At the moment we only support a single batch size for all the networks
+            networks_parameters = list(self.ap.network_wrappers.values())
+            assert all(net.batch_size == networks_parameters[0] for net in networks_parameters)
+
+            batch_size = networks_parameters[0].batch_size
 
             # we either go sequentially through the entire replay buffer in the batch RL mode,
             # or sample randomly for the basic RL case.
-            training_schedule = self.call_memory('get_shuffled_data_generator', network_parameters.batch_size) if \
-                self.ap.is_batch_rl_training else [self.call_memory('sample', network_parameters.batch_size) for _ in
+            training_schedule = self.call_memory('get_shuffled_data_generator', batch_size) if \
+                self.ap.is_batch_rl_training else [self.call_memory('sample', batch_size) for _ in
                                       range(self.ap.algorithm.num_consecutive_training_steps)]
 
             for batch in training_schedule:
@@ -713,13 +716,16 @@ class Agent(AgentInterface):
 
                     self.unclipped_grads.add_sample(unclipped_grads)
 
-                    # TODO: the learning rate decay should be done through the network instead of here
+                    # TODO: this only deals with the main network (if exists), need to do the same for other networks
+                    #  for instance, for DDPG, the LR signal is currently not shown. Probably should be done through the
+                    #  network directly instead of here
                     # decay learning rate
-                    if network_parameters.learning_rate_decay_rate != 0:
+                    if 'main' in self.ap.network_wrappers and \
+                            self.ap.network_wrappers['main'].learning_rate_decay_rate != 0:
                         self.curr_learning_rate.add_sample(self.networks['main'].sess.run(
                             self.networks['main'].online_network.current_learning_rate))
                     else:
-                        self.curr_learning_rate.add_sample(network_parameters.learning_rate)
+                        self.curr_learning_rate.add_sample(self.ap.network_wrappers['main'].learning_rate)
 
                     if any([network.has_target for network in self.networks.values()]) \
                             and self._should_update_online_weights_to_target():
