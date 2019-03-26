@@ -191,6 +191,7 @@ def test_preset_n_and_ew(preset_args, clres, start_time=time.time(),
 
 
 @pytest.mark.functional_test
+@pytest.mark.xfail(reason="https://github.com/NervanaSystems/coach/issues/257")
 def test_preset_n_and_ew_and_onnx(preset_args, clres, start_time=time.time(),
                                   time_limit=Def.TimeOuts.test_time_limit):
     """

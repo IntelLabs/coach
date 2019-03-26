@@ -20,6 +20,7 @@ import signal
 import time
 import pandas as pd
 import numpy as np
+import pytest
 from rl_coach.tests.utils.test_utils import get_csv_path, get_files_from_dir, \
     find_string_in_logs
 from rl_coach.tests.utils.definitions import Definitions as Def
@@ -251,6 +252,8 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         -dg, --dump_gifs: Once selected, a new folder should be created in 
                           experiment folder for gifs files.
         """
+        pytest.xfail(reason="GUI issue on CI")
+
         csv_path = get_csv_path(clres)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
@@ -267,13 +270,14 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
         # check if folder contain files
         get_files_from_dir(dir_path=gifs_path)
-        # TODO: check if play window is opened
 
     elif flag[0] == "-dm" or flag[0] == "--dump_mp4":
         """
         -dm, --dump_mp4: Once selected, a new folder should be created in 
                          experiment folder for videos files.
         """
+        pytest.xfail(reason="GUI issue on CI")
+
         csv_path = get_csv_path(clres)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
@@ -290,7 +294,6 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
         # check if folder contain files
         get_files_from_dir(dir_path=videos_path)
-        # TODO: check if play window is opened
 
     elif flag[0] == "--nocolor":
         """
