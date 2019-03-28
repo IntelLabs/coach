@@ -55,7 +55,9 @@ def test_get_checkpoint_state():
 
 
 @pytest.mark.functional_test
-def test_restore_checkpoint(preset_args, clres, start_time=time.time(),
+@pytest.mark.parametrize("framework", ["mxnet", "tensorflow"])
+def test_restore_checkpoint(preset_args, clres, framework,
+                            start_time=time.time(),
                             timeout=Def.TimeOuts.test_time_limit):
     """ Create checkpoint and restore them in second run."""
 
@@ -65,13 +67,19 @@ def test_restore_checkpoint(preset_args, clres, start_time=time.time(),
             'python3', 'rl_coach/coach.py',
             '-p', '{}'.format(preset_args),
             '-e', '{}'.format("ExpName_" + preset_args),
+            '--seed', '{}'.format(42),
+            '-f', '{}'.format(framework),
         ]
+
         test_flag = a_utils.add_one_flag_value(flag=flag)
         run_cmd.extend(test_flag)
-
+        print(str(run_cmd))
         p = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
 
         return p
+
+    if framework == "mxnet":
+        preset_args = Def.Presets.mxnet_args_test
 
     p_valid_params = p_utils.validation_params(preset_args)
     create_cp_proc = _create_cmd_and_run(flag=['--checkpoint_save_secs', '5'])
