@@ -84,7 +84,7 @@ def get_files_from_dir(dir_path):
     :return: |list| return files in folder
     """
     start_time = time.time()
-    entities = None
+    entities = []
     while time.time() - start_time < Def.TimeOuts.wait_for_files:
         # wait until logs created
         if os.path.exists(dir_path):
@@ -118,17 +118,15 @@ def find_string_in_logs(log_path, str, timeout=Def.TimeOuts.wait_for_files,
     if not os.path.exists(log_path):
         return False
 
-    with open(log_path, 'r') as fr:
-        if str in fr.read():
-            return True
-        fr.close()
-
-    while time.time() - start_time < Def.TimeOuts.test_time_limit \
-            and wait_and_find:
+    while time.time() - start_time < Def.TimeOuts.test_time_limit:
         with open(log_path, 'r') as fr:
             if str in fr.read():
                 return True
             fr.close()
+
+        if not wait_and_find:
+            break
+
     return False
 
 

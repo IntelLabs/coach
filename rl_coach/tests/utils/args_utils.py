@@ -20,6 +20,7 @@ import signal
 import time
 import pandas as pd
 import numpy as np
+import pytest
 from rl_coach.tests.utils.test_utils import get_csv_path, get_files_from_dir, \
     find_string_in_logs
 from rl_coach.tests.utils.definitions import Definitions as Def
@@ -56,7 +57,7 @@ def collect_preset_for_seed():
     definitions (args_test under Presets).
     :return: preset(s) list
     """
-    for pn in Def.Presets.seed_args_test:
+    for pn in Def.Presets.args_for_seed_test:
         assert pn, Def.Consts.ASSERT_MSG.format("Preset name", pn)
         yield pn
 
@@ -251,6 +252,8 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         -dg, --dump_gifs: Once selected, a new folder should be created in 
                           experiment folder for gifs files.
         """
+        pytest.xfail(reason="GUI issue on CI")
+
         csv_path = get_csv_path(clres)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
@@ -267,13 +270,14 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
         # check if folder contain files
         get_files_from_dir(dir_path=gifs_path)
-        # TODO: check if play window is opened
 
     elif flag[0] == "-dm" or flag[0] == "--dump_mp4":
         """
         -dm, --dump_mp4: Once selected, a new folder should be created in 
                          experiment folder for videos files.
         """
+        pytest.xfail(reason="GUI issue on CI")
+
         csv_path = get_csv_path(clres)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
@@ -290,7 +294,6 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
         # check if folder contain files
         get_files_from_dir(dir_path=videos_path)
-        # TODO: check if play window is opened
 
     elif flag[0] == "--nocolor":
         """
@@ -363,7 +366,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                                   csv file is created.        
         """
         # wait until files created
-        csv_path = get_csv_path(clres=clres)
+        csv_path = get_csv_path(clres=clres, extra_tries=10)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
 
@@ -383,11 +386,14 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
         # check heat-up value
         results = []
-        while csv["In Heatup"].values[-1] == 1:
-            csv = pd.read_csv(csv_path[0])
-            last_step = csv["Total steps"].values
-            time.sleep(1)
-            results.append(last_step[-1])
+        if csv["In Heatup"].values[-1] == 0:
+            results.append(csv["Total steps"].values[-1])
+        else:
+            while csv["In Heatup"].values[-1] == 1:
+                csv = pd.read_csv(csv_path[0])
+                last_step = csv["Total steps"].values
+                results.append(last_step[-1])
+                time.sleep(1)
 
         assert results[-1] >= Def.Consts.num_hs, \
             Def.Consts.ASSERT_MSG.format("bigger than " + Def.Consts.num_hs,
@@ -475,3 +481,18 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
     elif flag[0] == "-c" or flag[0] == "--use_cpu":
         pass
+
+    elif flag[0] == "-n" or flag[0] == "--num_workers":
+
+        """
+        -n, --num_workers: Once selected alone, check that csv created for each
+                           worker, and check results.
+        """
+        # wait until files created
+        csv_path = get_csv_path(clres=clres, extra_tries=20)
+
+        expected_files = int(flag[1])
+        assert len(csv_path) >= expected_files, \
+            Def.Consts.ASSERT_MSG.format(str(expected_files),
+                                         str(len(csv_path)))
+
