@@ -65,7 +65,7 @@ class MixedMonteCarloAgent(ValueOptimizationAgent):
 
         total_returns = batch.n_step_discounted_rewards()
 
-        for i in range(self.ap.network_wrappers['main'].batch_size):
+        for i in range(batch.size):
             one_step_target = batch.rewards()[i] + \
                               (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * \
                               q_st_plus_1[i][selected_actions[i]]
