@@ -33,7 +33,7 @@ import pytest
 from rl_coach.logger import screen
 
 
-def read_csv_paths(test_path, filename_pattern, read_csv_tries=100):
+def read_csv_paths(test_path, filename_pattern, read_csv_tries=200):
     csv_paths = []
     tries_counter = 0
     while not csv_paths:
@@ -155,7 +155,7 @@ def test_preset_reward(preset_name, no_progress_bar=True, time_limit=60 * 60, ve
         if not no_progress_bar:
             print_progress(averaged_rewards, last_num_episodes, preset_validation_params, start_time, time_limit)
 
-        while csv is None or (csv['Episode #'].values[
+        while csv is None or (csv[csv.columns[0]].values[
                                   -1] < preset_validation_params.max_episodes_to_achieve_reward and time.time() - start_time < time_limit):
             try:
                 csv = pd.read_csv(csv_path)
@@ -179,10 +179,10 @@ def test_preset_reward(preset_name, no_progress_bar=True, time_limit=60 * 60, ve
             if not no_progress_bar:
                 print_progress(averaged_rewards, last_num_episodes, preset_validation_params, start_time, time_limit)
 
-            if csv['Episode #'].shape[0] - last_num_episodes <= 0:
+            if csv[csv.columns[0]].shape[0] - last_num_episodes <= 0:
                 continue
 
-            last_num_episodes = csv['Episode #'].values[-1]
+            last_num_episodes = csv[csv.columns[0]].values[-1]
 
             # check if reward is enough
             if np.any(averaged_rewards >= preset_validation_params.min_reward_threshold):
@@ -213,6 +213,7 @@ def test_preset_reward(preset_name, no_progress_bar=True, time_limit=60 * 60, ve
                 preset_validation_params.min_reward_threshold), crash=False)
             screen.error("averaged_rewards: {}".format(averaged_rewards), crash=False)
             screen.error("episode number: {}".format(csv['Episode #'].values[-1]), crash=False)
+            screen.error("training iteration: {}".format(csv['Training Iter'].values[-1]), crash=False)
         else:
             screen.error("csv file never found", crash=False)
             if verbose:
