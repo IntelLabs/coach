@@ -81,9 +81,12 @@ class DQNAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        # add Q value samples for logging
+        self.q_values.add_sample(TD_targets)
+
         #  only update the action that we have actually done in this transition
         TD_errors = []
-        for i in range(self.ap.network_wrappers['main'].batch_size):
+        for i in range(batch.size):
             new_target = batch.rewards()[i] +\
                          (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * np.max(q_st_plus_1[i], 0)
             TD_errors.append(np.abs(new_target - TD_targets[i, batch.actions()[i]]))

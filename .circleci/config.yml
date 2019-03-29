@@ -157,12 +157,33 @@ jobs:
           name: run integration tests
           command: |
             python3 rl_coach/tests/test_eks.py  -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn integration-test -tc 'make integration_tests_without_docker' -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
-          no_output_timeout: 20m
+          no_output_timeout: 30m
       - run:
           name: cleanup
           command: |
             kubectl delete --all pods --namespace=integration-test-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns integration-test-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  functional_tests:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run functional tests
+          command: |
+            export FUNCTIONAL_PRESETS='not mujoco and not CARLA and not doom'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn functional-test -tc "export FUNCTIONAL_PRESETS=${FUNCTIONAL_PRESETS} && make functional_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=functional-test-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns functional-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
   golden_test_gym:
@@ -226,6 +247,69 @@ jobs:
           command: |
             kubectl delete --all pods --namespace=golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  functional_test_mujoco:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run mujoco related functional tests
+          command: |
+            export FUNCTIONAL_PRESETS='Mujoco'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn functional-test-mujoco -tc "export FUNCTIONAL_PRESETS=${FUNCTIONAL_PRESETS} && make functional_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=functional-test-mujoco-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns functional-test-mujoco-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  functional_test_doom:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run doom related functional tests
+          command: |
+            export FUNCTIONAL_PRESETS='Doom'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn functional-test-doom -tc "export FUNCTIONAL_PRESETS=${FUNCTIONAL_PRESETS} && make functional_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=functional-test-doom-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns functional-test-doom-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  functional_test_Starcraft:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - *docker_prep
+      - run:
+          name: run Starcraft related functional tests
+          command: |
+            export FUNCTIONAL_PRESETS='Starcraft'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn functional-test-starcraft -tc "export FUNCTIONAL_PRESETS=${FUNCTIONAL_PRESETS} && make functional_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-starcraft_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=functional-test-starcraft-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns functional-test-starcraft-${CIRCLE_BUILD_NUM} || true
           when: always
 
   trace_test_gym:
@@ -384,6 +468,9 @@ workflows:
       - build_mujoco_env:
           requires:
             - e2e_approval
+#      - build_starcraft_env:
+#          requires:
+#            - e2e_approval
       - gym_approval:
           type: approval
           requires:
@@ -432,9 +519,19 @@ workflows:
     jobs:
       - unit_tests
       - integration_tests
+      - functional_tests
       - build_gym_env
       - build_doom_env
       - build_mujoco_env
+#      - functional_test_starcraft:
+#            requires:
+#              - build_starcraft_env
+      - functional_test_doom:
+            requires:
+              - build_doom_env
+      - functional_test_mujoco:
+            requires:
+              - build_mujoco_env
       - golden_test_gym:
           requires:
             - build_gym_env

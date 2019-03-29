@@ -16,6 +16,7 @@
 """Manage all preset"""
 
 import os
+import pytest
 from importlib import import_module
 from rl_coach.tests.utils.definitions import Definitions as Def
 
@@ -26,7 +27,13 @@ def import_preset(preset_name):
     :param preset_name: preset name
     :return: imported module
     """
-    return import_module('{}.presets.{}'.format(Def.GROUP_NAME, preset_name))
+    try:
+        module = import_module('{}.presets.{}'
+                               .format(Def.GROUP_NAME, preset_name))
+    except:
+        pytest.skip("Can't import module: {}".format(preset_name))
+
+    return module
 
 
 def validation_params(preset_name):

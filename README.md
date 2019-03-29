@@ -226,6 +226,12 @@ dashboard
 
     https://github.com/carla-simulator/carla/releases
 
+    Install the python client and dependencies from the release tarball:
+    ```
+    pip3 install -r PythonClient/requirements.txt
+    pip3 install PythonClient
+    ```
+
     Create a new CARLA_ROOT environment variable pointing to CARLA's installation directory.
 
     A simple CARLA settings file (```CarlaSettings.ini```) is supplied with Coach, and is located in the ```environments``` directory.
@@ -280,7 +286,7 @@ dashboard
 * [Conditional Imitation Learning](https://arxiv.org/abs/1710.02410) ([code](rl_coach/agents/cil_agent.py))
 
 ### Hierarchical Reinforcement Learning Agents
-* [Hierarchical Actor Critic (HAC)](https://arxiv.org/abs/1712.00948.pdf) ([code](rl_coach/agents/ddpg_hac_agent.py))
+* [Hierarchical Actor Critic (HAC)](https://arxiv.org/abs/1712.00948.pdf) ([code](rl_coach/agents/hac_ddpg_agent.py))
 
 ### Memory Types
 * [Hindsight Experience Replay (HER)](https://arxiv.org/abs/1707.01495.pdf) ([code](rl_coach/memories/episodic/episodic_hindsight_experience_replay.py))

@@ -60,9 +60,12 @@ class RainbowDQNAgentParameters(CategoricalDQNAgentParameters):
     def __init__(self):
         super().__init__()
         self.algorithm = RainbowDQNAlgorithmParameters()
+
+        # ParameterNoiseParameters is changing the network wrapper parameters. This line needs to be done first.
+        self.network_wrappers = {"main": RainbowDQNNetworkParameters()}
+
         self.exploration = ParameterNoiseParameters(self)
         self.memory = PrioritizedExperienceReplayParameters()
-        self.network_wrappers = {"main": RainbowDQNNetworkParameters()}
 
     @property
     def path(self):
@@ -95,11 +98,14 @@ class RainbowDQNAgent(CategoricalDQNAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        # add Q value samples for logging
+        self.q_values.add_sample(self.distribution_prediction_to_q_values(TD_targets))
+
         # only update the action that we have actually done in this transition (using the Double-DQN selected actions)
         target_actions = ddqn_selected_actions
-        m = np.zeros((self.ap.network_wrappers['main'].batch_size, self.z_values.size))
+        m = np.zeros((batch.size, self.z_values.size))
 
-        batches = np.arange(self.ap.network_wrappers['main'].batch_size)
+        batches = np.arange(batch.size)
         for j in range(self.z_values.size):
             # we use batch.info('should_bootstrap_next_state') instead of (1 - batch.game_overs()) since with n-step,
             # we will not bootstrap for the last n-step transitions in the episode

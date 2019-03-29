@@ -84,7 +84,7 @@ class PALAgent(ValueOptimizationAgent):
         # calculate TD error
         TD_targets = np.copy(q_st_online)
         total_returns = batch.n_step_discounted_rewards()
-        for i in range(self.ap.network_wrappers['main'].batch_size):
+        for i in range(batch.size):
             TD_targets[i, batch.actions()[i]] = batch.rewards()[i] + \
                                         (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * \
                                                      q_st_plus_1_target[i][selected_actions[i]]
