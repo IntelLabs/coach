@@ -37,11 +37,19 @@ RUN_ARGUMENTS+=-v /tmp/checkpoint:/checkpoint
 
 UNIT_TESTS=python3 -m pytest rl_coach/tests -m unit_test
 INTEGRATION_TESTS=python3 -m pytest rl_coach/tests -m integration_test --tb=short
-FUNCTIONAL_TESTS=python3 -m pytest rl_coach/tests -s -v -m functional_test
+
+# Functional Tests
+ifdef FUNCTIONAL_PRESETS
+	FUNCTIONAL_PRESETS:=-k "${FUNCTIONAL_PRESETS}"
+endif
+ifndef FUNCTIONAL_PRESETS
+	FUNCTIONAL_PRESETS=
+endif
+FUNCTIONAL_TESTS=python3 -m pytest rl_coach/tests -s -v -k ${FUNCTIONAL_PRESETS} -m functional_test
 
 # Golden Tests
 ifdef GOLDEN_PRESETS
- 	GOLDEN_PRESETS:=-k "${GOLDEN_PRESETS}"
+	GOLDEN_PRESETS:=-k "${GOLDEN_PRESETS}"
 endif
 ifndef GOLDEN_PRESETS
 	GOLDEN_PRESETS=
