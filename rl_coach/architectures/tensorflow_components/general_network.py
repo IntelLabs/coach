@@ -185,6 +185,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         embedder_path = embedder_params.path(emb_type)
         embedder_params_copy = copy.copy(embedder_params)
+        embedder_params_copy.is_training = self.is_training
         embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
         embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
         embedder_params_copy.input_offset = embedder_params_copy.input_offset[emb_type]
@@ -204,6 +205,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         middleware_path = middleware_params.path
         middleware_params_copy = copy.copy(middleware_params)
         middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
+        middleware_params_copy.is_training = self.is_training
         module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
         return module
 
