@@ -43,13 +43,13 @@ class BatchRLGraphManager(BasicRLGraphManager):
                  schedule_params: ScheduleParameters,
                  vis_params: VisualizationParameters = VisualizationParameters(),
                  preset_validation_params: PresetValidationParameters = PresetValidationParameters(),
-                 name='batch_rl_graph', spaces_definition: SpacesDefinition = None, batch_rl_models_num_epochs: int = 100,
+                 name='batch_rl_graph', spaces_definition: SpacesDefinition = None, reward_model_num_epochs: int = 100,
                  train_to_eval_ratio: float = 0.8):
 
         super().__init__(agent_params, env_params, schedule_params, vis_params, preset_validation_params, name)
         self.is_batch_rl = True
         self.time_metric = TimeTypes.Epoch
-        self.batch_rl_models_num_epochs = batch_rl_models_num_epochs
+        self.reward_model_num_epochs = reward_model_num_epochs
         self.spaces_definition = spaces_definition
 
         # setting this here to make sure that, by default, train_to_eval_ratio gets a value < 1
@@ -169,7 +169,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
         :return:
         """
         screen.log_title("Training a regression model for estimating MDP rewards")
-        self.level_managers[0].agents['agent'].improve_reward_model(epochs=self.batch_rl_models_num_epochs)
+        self.level_managers[0].agents['agent'].improve_reward_model(epochs=self.reward_model_num_epochs)
 
     def run_off_policy_evaluation(self):
         """

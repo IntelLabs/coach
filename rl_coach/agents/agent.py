@@ -690,7 +690,7 @@ class Agent(AgentInterface):
 
             # At the moment we only support a single batch size for all the networks
             networks_parameters = list(self.ap.network_wrappers.values())
-            assert all(net.batch_size == networks_parameters[0] for net in networks_parameters)
+            assert all(net.batch_size == networks_parameters[0].batch_size for net in networks_parameters)
 
             batch_size = networks_parameters[0].batch_size
 

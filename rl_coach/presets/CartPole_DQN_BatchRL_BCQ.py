@@ -33,20 +33,21 @@ schedule_params.heatup_steps = EnvironmentSteps(DATASET_SIZE)
 # using a set of 'unstable' hyper-params to showcase the value of BCQ. Using the same hyper-params with standard DDQN
 # will cause Q values to unboundedly increase, and the policy convergence to be unstable.
 agent_params = DDQNBCQAgentParameters()
-agent_params.network_wrappers['main'].batch_size = 1024
+agent_params.network_wrappers['main'].batch_size = 128
+# agent_params.network_wrappers['main'].batch_size = 1024
 
 # DQN params
 
 # For making this become Fitted Q-Iteration we can keep the targets constant for the entire dataset size -
-# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
-#     DATASET_SIZE / agent_params.network_wrappers['main'].batch_size)
-
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
-    3)
+    DATASET_SIZE / agent_params.network_wrappers['main'].batch_size)
+#
+# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
+#     3)
 
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 agent_params.algorithm.discount = 0.98
-
+agent_params.algorithm.imitation_model_num_epochs = 500
 
 # NN configuration
 agent_params.network_wrappers['main'].learning_rate = 0.0001
@@ -99,6 +100,5 @@ graph_manager = BatchRLGraphManager(agent_params=agent_params, env_params=env_pa
                                     schedule_params=schedule_params,
                                     vis_params=VisualizationParameters(dump_signals_to_csv_every_x_episodes=1),
                                     preset_validation_params=preset_validation_params,
-                                    # the very big number of epochs is governed by the imitation model to actually learn
-                                    batch_rl_models_num_epochs=1000,
+                                    reward_model_num_epochs=30,
                                     train_to_eval_ratio=0.8)
