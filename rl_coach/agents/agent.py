@@ -725,7 +725,7 @@ class Agent(AgentInterface):
                         self.curr_learning_rate.add_sample(self.networks['main'].sess.run(
                             self.networks['main'].online_network.current_learning_rate))
                     else:
-                        self.curr_learning_rate.add_sample(self.ap.network_wrappers['main'].learning_rate)
+                        self.curr_learning_rate.add_sample(networks_parameters[0].learning_rate)
 
                     if any([network.has_target for network in self.networks.values()]) \
                             and self._should_update_online_weights_to_target():
