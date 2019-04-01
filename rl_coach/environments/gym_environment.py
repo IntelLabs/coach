@@ -497,9 +497,13 @@ class GymEnvironment(Environment):
             self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
 
     def _get_robotics_image(self):
-        self.env.render()
-        image = self.env.unwrapped._get_viewer().read_pixels(1600, 900, depth=False)[::-1, :, :]
-        image = scipy.misc.imresize(image, (270, 480, 3))
+        # self.env.render()
+        # image = self.env.unwrapped._get_viewer().read_pixels(1600, 900, depth=False)[::-1, :, :]
+        # image = scipy.misc.imresize(image, (270, 480, 3))
+        # return image
+        image = self.env.unwrapped.sim.render(600, 600)[::-1, :, :]
+        # image = self.env.unwrapped.sim.render(1600, 900)
+        # image = scipy.misc.imresize(image, (270, 480, 3))
         return image
 
     def _render(self):

@@ -167,6 +167,7 @@ class Agent(AgentInterface):
         self.num_successes_across_evaluation_episodes = 0
         self.num_evaluation_episodes_completed = 0
         self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step)
+        self.best_evaluation_reward = -np.inf
         # TODO: add agents observation rendering for debugging purposes (not the same as the environment rendering)
 
         # environment parameters
@@ -402,6 +403,10 @@ class Agent(AgentInterface):
             if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == "high":
                 screen.log_title("{}: Finished evaluation phase. Success rate = {}, Avg Total Reward = {}"
                                  .format(self.name, np.round(success_rate, 2), np.round(evaluation_reward, 2)))
+
+            if evaluation_reward > self.best_evaluation_reward:
+                self.best_evaluation_reward = evaluation_reward
+                self.parent_level_manager.parent_graph_manager.save_checkpoint()
 
     def call_memory(self, func, args=()):
         """
@@ -982,7 +987,7 @@ class Agent(AgentInterface):
         self.total_reward_in_current_episode += transition.reward
         self.shaped_reward.add_sample(transition.reward)
         self.reward.add_sample(transition.reward)
-        
+
         # create and store the transition
         if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
             # for episodic memories we keep the transitions in a local buffer until the episode is ended.

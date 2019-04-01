@@ -836,7 +836,7 @@ class MaxDumpFilter(VideoDumpFilter):
             return False
 
 
-class EveryNEpisodesDumpFilter(object):
+class EveryNEpisodesDumpFilter(VideoDumpFilter):
     """
     Dump videos once in every N episodes
     """
@@ -855,7 +855,7 @@ class EveryNEpisodesDumpFilter(object):
             return False
 
 
-class SelectedPhaseOnlyDumpFilter(object):
+class SelectedPhaseOnlyDumpFilter(VideoDumpFilter):
     """
     Dump videos when the phase of the environment matches a predefined phase
     """
@@ -867,3 +867,24 @@ class SelectedPhaseOnlyDumpFilter(object):
             return True
         else:
             return False
+
+
+class ComboDumpFilter(VideoDumpFilter):
+    """
+    Dump videos when the phase of the environment matches a predefined phase
+    """
+    def __init__(self, run_phases: Union[RunPhase, List[RunPhase]], num_episodes_between_dumps: int):
+        self.run_phases = force_list(run_phases)
+
+        self.num_episodes_between_dumps = num_episodes_between_dumps
+        self.last_dumped_episode = 0
+        if num_episodes_between_dumps < 1:
+            raise ValueError("the number of episodes between dumps should be a positive number")
+
+    def should_dump(self, episode_terminated=False, **kwargs):
+        if kwargs['_phase'] in self.run_phases:
+            if kwargs['episode_idx'] >= self.last_dumped_episode + self.num_episodes_between_dumps - 1:
+                self.last_dumped_episode = kwargs['episode_idx']
+                return True
+
+        return False
