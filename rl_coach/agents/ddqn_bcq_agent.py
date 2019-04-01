@@ -14,21 +14,39 @@
 # limitations under the License.
 #
 from collections import OrderedDict
+
 from copy import deepcopy
-from typing import Union
+from typing import Union, List, Dict
 import numpy as np
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters, DQNAlgorithmParameters, DQNAgent
-from rl_coach.core_types import EnvironmentSteps, Batch
+from rl_coach.base_parameters import Parameters
+from rl_coach.core_types import EnvironmentSteps, Batch, StateType
+from rl_coach.graph_managers.batch_rl_graph_manager import BatchRLGraphManager
 from rl_coach.logger import screen
+from rl_coach.memories.non_episodic.differentiable_neural_dictionary import AnnoyDictionary
 from rl_coach.schedules import LinearSchedule
+
+
+class NNImitationModelParameters(Parameters):
+    def __init__(self):
+        super().__init__()
+        self.imitation_model_num_epochs = 100
+        self.mask_out_actions_threshold = 0.35
+
+
+class KNNParameters(Parameters):
+    def __init__(self):
+        super().__init__()
+        self.average_dist_coefficient = 1
+        self.knn_size = 50000
+        self.use_state_embedding_instead_of_state = True  # useful when the state is too big to be used for kNN
 
 
 class DDQNBCQAlgorithmParameters(DQNAlgorithmParameters):
     def __init__(self):
         super().__init__()
-        self.imitation_model_num_epochs = 100
-        self.mask_out_actions_threshold = 0.35
+        self.action_drop_method_parameters = KNNParameters()
         self.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(30000)
 
 
@@ -49,14 +67,47 @@ class DDQNBCQAgentParameters(DQNAgentParameters):
 class DDQNBCQAgent(DQNAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
-        if 'imitation_model' not in self.ap.network_wrappers:
-            # user hasn't defined params for the reward model. we will use the same params as used for the 'main'
-            # network.
-            self.ap.network_wrappers['imitation_model'] = deepcopy(self.ap.network_wrappers['reward_model'])
+
+        if isinstance(self.ap.algorithm.action_drop_method_parameters, KNNParameters):
+            self.knn_trees = []  # will be filled out later, as we don't have the action space size yet
+            self.average_dist = 0
+
+            def to_embedding(states: Union[List[StateType], Dict]):
+                if isinstance(states, list):
+                    states = self.prepare_batch_for_inference(states, 'reward_model')
+                if self.ap.algorithm.action_drop_method_parameters.use_state_embedding_instead_of_state:
+                    return self.networks['reward_model'].online_network.predict(
+                        states,
+                        outputs=[self.networks['reward_model'].online_network.state_embedding])
+                else:
+                    return states['observation']
+            self.embedding = to_embedding
+
+        elif isinstance(self.ap.algorithm.action_drop_method_parameters, NNImitationModelParameters):
+            if 'imitation_model' not in self.ap.network_wrappers:
+                # user hasn't defined params for the reward model. we will use the same params as used for the 'main'
+                # network.
+                self.ap.network_wrappers['imitation_model'] = deepcopy(self.ap.network_wrappers['reward_model'])
+        else:
+            raise ValueError('Unsupported action drop method {} for DDQNBCQAgent'.format(
+                type(self.ap.algorithm.action_drop_method_parameters)))
 
     def select_actions(self, next_states, q_st_plus_1):
-        familiarity = self.networks['imitation_model'].online_network.predict(next_states)
-        actions_to_mask_out = familiarity < self.ap.algorithm.mask_out_actions_threshold
+        if isinstance(self.ap.algorithm.action_drop_method_parameters, KNNParameters):
+            familiarity = np.array([[distance[0] for distance in
+                            knn_tree._get_k_nearest_neighbors_indices(self.embedding(next_states), 1)[0]]
+                                    for knn_tree in self.knn_trees]).transpose()
+            actions_to_mask_out = familiarity > self.ap.algorithm.action_drop_method_parameters.average_dist_coefficient \
+                                  * self.average_dist
+
+        elif isinstance(self.ap.algorithm.action_drop_method_parameters, NNImitationModelParameters):
+            familiarity = self.networks['imitation_model'].online_network.predict(next_states)
+            actions_to_mask_out = familiarity < \
+                                    self.ap.algorithm.action_drop_method_parameters.mask_out_actions_threshold
+        else:
+            raise ValueError('Unsupported action drop method {} for DDQNBCQAgent'.format(
+                type(self.ap.algorithm.action_drop_method_parameters)))
+
         masked_next_q_values = self.networks['main'].online_network.predict(next_states)
         masked_next_q_values[actions_to_mask_out] = -np.inf
 
@@ -64,7 +115,7 @@ class DDQNBCQAgent(DQNAgent):
 
     def improve_reward_model(self, epochs: int):
         """
-        Train both a reward model to be used by the doubly-robust estimator, and a imitation model to be used for BCQ
+        Train both a reward model to be used by the doubly-robust estimator, and some model to be used for BCQ
 
         :param epochs: The total number of epochs to use for training a reward model
         :return: None
@@ -74,7 +125,12 @@ class DDQNBCQAgent(DQNAgent):
         batch_size = self.ap.network_wrappers['reward_model'].batch_size
         network_keys = self.ap.network_wrappers['reward_model'].input_embedders_parameters.keys()
 
-        total_epochs = max(epochs, self.ap.algorithm.imitation_model_num_epochs)
+        # if using a NN to decide which actions to drop, we'll train the NN here
+        if isinstance(self.ap.algorithm.action_drop_method_parameters, NNImitationModelParameters):
+            total_epochs = max(epochs, self.ap.algorithm.action_drop_method_parameters.imitation_model_num_epochs)
+        else:
+            total_epochs = epochs
+
         for epoch in range(total_epochs):
             # this is fitted from the training dataset
             reward_model_loss = 0
@@ -92,7 +148,8 @@ class DDQNBCQAgent(DQNAgent):
                         batch.states(network_keys), current_rewards_prediction_for_all_actions)[0]
 
                 # imitation model
-                if epoch < self.ap.algorithm.imitation_model_num_epochs:
+                if isinstance(self.ap.algorithm.action_drop_method_parameters, NNImitationModelParameters) and \
+                        epoch < self.ap.algorithm.action_drop_method_parameters.imitation_model_num_epochs:
                     target_actions = np.zeros((batch.size, len(self.spaces.action.actions)))
                     target_actions[range(batch.size), batch.actions()] = 1
                     imitation_model_loss += self.networks['imitation_model'].train_and_sync_networks(
@@ -110,5 +167,42 @@ class DDQNBCQAgent(DQNAgent):
 
             screen.log_dict(log, prefix='Training Batch RL Models')
 
-# TODO instead of a NN, try using several AnnoyDictionary and manage those directly to do a NN search for embeddings to the state.
-#  Try doing it both for embeddings and to the state directly. Can maybe use the reward model embedding as an input query to the NN tree.
+        # if using a kNN based model, we'll initialize and build it here.
+        # initialization cannot be moved to the constructor as we don't have the agent's spaces initialized yet.
+        if isinstance(self.ap.algorithm.action_drop_method_parameters, KNNParameters):
+            knn_size = self.ap.algorithm.action_drop_method_parameters.knn_size
+            if self.ap.algorithm.action_drop_method_parameters.use_state_embedding_instead_of_state:
+                self.knn_trees = [AnnoyDictionary(
+                    dict_size=knn_size,
+                    key_width=int(self.networks['reward_model'].online_network.state_embedding.shape[-1]),
+                    batch_size=knn_size)
+                    for _ in range(len(self.spaces.action.actions))]
+            else:
+                self.knn_trees = [AnnoyDictionary(
+                    dict_size=knn_size,
+                    key_width=self.spaces.state['observation'].shape[0],
+                    batch_size=knn_size)
+                    for _ in range(len(self.spaces.action.actions))]
+
+            for i, knn_tree in enumerate(self.knn_trees):
+                state_embeddings = self.embedding([transition.state for transition in self.memory.transitions
+                                if transition.action == i])
+                knn_tree.add(
+                    keys=state_embeddings,
+                    values=np.expand_dims(np.array([0] * state_embeddings.shape[0]), axis=1))
+
+            for knn_tree in self.knn_trees:
+                knn_tree._rebuild_index()
+
+            self.average_dist = [[dist[0] for dist in knn_tree._get_k_nearest_neighbors_indices(
+                keys=self.embedding([transition.state for transition in self.memory.transitions]),
+                k=1)[0]] for knn_tree in self.knn_trees]
+            self.average_dist = sum([x for l in self.average_dist for x in l])  # flatten and sum
+            self.average_dist /= len(self.memory.transitions)
+
+    def set_session(self, sess) -> None:
+        super().set_session(sess)
+
+        # we check here if we are in batch-rl, since this is the only place where we have a graph_manager to question
+        assert isinstance(self.parent_level_manager.parent_graph_manager, BatchRLGraphManager),\
+            'DDQNBCQ agent can only be used in BatchRL'

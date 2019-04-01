@@ -14,6 +14,9 @@ from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
 from rl_coach.architectures.head_parameters import ClassificationHeadParameters
 from rl_coach.agents.ddqn_bcq_agent import DDQNBCQAgentParameters
 
+from rl_coach.agents.ddqn_bcq_agent import KNNParameters
+from rl_coach.agents.ddqn_bcq_agent import NNImitationModelParameters
+
 DATASET_SIZE = 10000
 
 ####################
@@ -47,7 +50,11 @@ agent_params.algorithm.num_steps_between_copying_online_weights_to_target = Trai
 
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 agent_params.algorithm.discount = 0.98
-agent_params.algorithm.imitation_model_num_epochs = 500
+
+# can use either a kNN or a NN based model for predicting which actions not to max over in the bellman equation
+agent_params.algorithm.action_drop_method_parameters = KNNParameters()
+# agent_params.algorithm.action_drop_method_parameters = NNImitationModelParameters()
+# agent_params.algorithm.action_drop_method_parameters.imitation_model_num_epochs = 500
 
 # NN configuration
 agent_params.network_wrappers['main'].learning_rate = 0.0001
