@@ -49,7 +49,6 @@ class EKSHandler():
             stdin=True,
             tty=True
         )
-        print("Ayoob: " + str(container))
         pod_spec = client.V1PodSpec(
             containers=[container],
             restart_policy='Never'
