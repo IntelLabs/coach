@@ -446,7 +446,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         lst_csv = []
         # wait until files created
         csv_path = get_csv_path(clres=clres, extra_tries=20,
-                                expected_files=int(flag[1]))
+                                num_expected_files=int(flag[1]))
 
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("paths are not found", csv_path)
@@ -492,8 +492,8 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         # wait until files created
         csv_path = get_csv_path(clres=clres, extra_tries=20)
 
-        expected_files = int(flag[1])
-        assert len(csv_path) >= expected_files, \
-            Def.Consts.ASSERT_MSG.format(str(expected_files),
+        num_expected_files = int(flag[1])
+        assert len(csv_path) >= num_expected_files, \
+            Def.Consts.ASSERT_MSG.format(str(num_expected_files),
                                          str(len(csv_path)))
 
