@@ -1,7 +1,7 @@
 from rl_coach.agents.actor_critic_agent import ActorCriticAgentParameters
 from rl_coach.agents.policy_optimization_agent import PolicyGradientRescaler
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
-from rl_coach.base_parameters import VisualizationParameters
+from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.starcraft2_environment import StarCraft2EnvironmentParameters
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
@@ -53,5 +53,17 @@ env_params = StarCraft2EnvironmentParameters(level='CollectMineralShards')
 env_params.feature_screen_maps_to_use = [5]
 env_params.feature_minimap_maps_to_use = [5]
 
+########
+# Test #
+########
+preset_validation_params = PresetValidationParameters()
+preset_validation_params.test = True
+preset_validation_params.min_reward_threshold = 50
+preset_validation_params.max_episodes_to_achieve_reward = 200
+preset_validation_params.num_workers = 1
+
+
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=VisualizationParameters())
+                                    schedule_params=schedule_params,
+                                    vis_params=VisualizationParameters(),
+                                    preset_validation_params=preset_validation_params)
