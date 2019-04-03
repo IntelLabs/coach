@@ -32,7 +32,6 @@ class Definitions:
         css = "checkpoint_save_secs"
         crd = "checkpoint_restore_dir"
         et = "environment_type"
-        ept = "exploration_policy_type"
         cp = "custom_parameter"
         seed = "seed"
         dccp = "distributed_coach_config_path"
