@@ -186,3 +186,16 @@ class ACERPolicyHeadParameters(HeadParameters):
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
                          loss_weight=loss_weight)
+
+
+class SACPolicyHeadParameters(HeadParameters):
+    def __init__(self, activation_function: str ='relu', name: str='sac_policy_head_params', dense_layer=None):
+        super().__init__(parameterized_class_name='SACPolicyHead', activation_function=activation_function, name=name,
+                         dense_layer=dense_layer)
+
+class SACQHeadParameters(HeadParameters):
+    def __init__(self, activation_function: str ='relu', name: str='sac_q_head_params', dense_layer=None,
+                 layers_sizes: tuple = (256, 256)):
+        super().__init__(parameterized_class_name='SACQHead', activation_function=activation_function, name=name,
+                         dense_layer=dense_layer)
+        self.network_layers_sizes = layers_sizes

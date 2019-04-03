@@ -39,8 +39,12 @@ class VHead(Head):
 
     def _build_module(self, input_layer):
         # Standard V Network
-        self.output = self.dense_layer(1)(input_layer, name='output',
-                                          kernel_initializer=normalized_columns_initializer(1.0))
+        # self.output = self.dense_layer(1)(input_layer, name='output',
+        #                                   kernel_initializer=normalized_columns_initializer(1.0))
+
+        # for debug SAC - try with default kernel initialization
+        self.output = self.dense_layer(1)(input_layer, name='output')
+
 
     def __str__(self):
         result = [
