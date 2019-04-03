@@ -512,14 +512,6 @@ class CoachLauncher(object):
                             help="(string) Choose an environment type class to override on top of the selected preset.",
                             default=None,
                             type=str)
-        parser.add_argument('-ept', '--exploration_policy_type',
-                            help="(string) Choose an exploration policy type class to override on top of the selected "
-                                 "preset."
-                                 "If no preset is defined, a preset can be set from the command-line by combining settings "
-                                 "which are set by using --agent_type, --experiment_type, --environemnt_type"
-                            ,
-                            default=None,
-                            type=str)
         parser.add_argument('-lvl', '--level',
                             help="(string) Choose the level that will be played in the environment that was selected."
                                  "This value will override the level parameter in the environment class."
