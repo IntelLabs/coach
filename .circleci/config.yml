@@ -30,11 +30,6 @@ aliases:
         aws eks update-kubeconfig --name coach-aws-cicd
         sudo curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         sudo chmod a+x /usr/local/bin/kubectl
-  - &docker_prep
-    run:
-      name: Prepare dockerfiles
-      command: |
-        aws s3 cp --recursive s3://coach-ci-dockerfiles docker
 
 version: 2
 jobs:
@@ -45,7 +40,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push base and main container
           command: |
@@ -76,7 +70,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push gym environment container
           command: |
@@ -95,7 +88,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push vizdoom environment container
           command: |
@@ -114,7 +106,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Build and push mujoco environment container
           command: |
@@ -126,6 +117,24 @@ jobs:
             docker push ${REGISTRY}/coach-mujoco_environment:${TAG}
           no_output_timeout: 10m
 
+  build_starcraft_env:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: Build and push starcraft environment container
+          command: |
+            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
+            TAG=$(git describe --tags --always --dirty)
+            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
+            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-starcraft_environment:${TAG} -f docker/Dockerfile.starcraft_environment .
+            docker push ${REGISTRY}/coach-starcraft_environment:${TAG}
+          no_output_timeout: 10m
+
   unit_tests:
     <<: *executor_prep
     steps:
@@ -133,7 +142,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run unit tests
           command: |
@@ -152,7 +160,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run integration tests
           command: |
@@ -172,7 +179,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run functional tests
           command: |
@@ -193,7 +199,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run gym related golden tests
           command: |
@@ -214,7 +219,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run doom related golden tests
           command: |
@@ -235,7 +239,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run mujoco related golden tests
           command: |
@@ -249,6 +252,26 @@ jobs:
             kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
           when: always
 
+  golden_test_starcraft:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run starcraft related golden tests
+          command: |
+            export GOLDEN_PRESETS='Starcraft'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn golden-test-starcraft -tc "export GOLDEN_PRESETS=${GOLDEN_PRESETS} && make golden_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-starcraft_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=golden-test-starcraft-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns golden-test-starcraft-${CIRCLE_BUILD_NUM} || true
+          when: always
+
   functional_test_mujoco:
     <<: *executor_prep
     steps:
@@ -256,7 +279,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run mujoco related functional tests
           command: |
@@ -277,7 +299,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run doom related functional tests
           command: |
@@ -298,7 +319,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run Starcraft related functional tests
           command: |
@@ -319,7 +339,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run gym related trace tests
           command: |
@@ -340,7 +359,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run doom related trace tests
           command: |
@@ -361,7 +379,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run mujoco related trace tests
           command: |
@@ -375,6 +392,26 @@ jobs:
             kubectl delete ns trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
           when: always
 
+  trace_test_starcraft:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run starcraft related trace tests
+          command: |
+            export TRACE_PRESETS='Starcraft_CollectMinerals_Arc,Starcraft_CollectMinerals_Deuling_DDQN'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-starcraft -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-starcraft_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=trace-test-starcraft-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns trace-test-starcraft-${CIRCLE_BUILD_NUM} || true
+          when: always
+
   multinode_test:
     <<: *executor_prep
     steps:
@@ -382,7 +419,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: run multinode test
           command: |
@@ -417,7 +453,6 @@ jobs:
       - *remote_docker
       - *restore_cache
       - *aws_prep
-      - *docker_prep
       - run:
           name: Tag and push updated base and main container
           command: |
@@ -468,9 +503,9 @@ workflows:
       - build_mujoco_env:
           requires:
             - e2e_approval
-#      - build_starcraft_env:
-#          requires:
-#            - e2e_approval
+      - build_starcraft_env:
+          requires:
+            - e2e_approval
       - gym_approval:
           type: approval
           requires:
@@ -483,6 +518,10 @@ workflows:
           type: approval
           requires:
             - golden_test_mujoco
+      - starcraft_approval:
+          type: approval
+          requires:
+            - golden_test_starcraft
       - golden_test_gym:
           requires:
             - build_gym_env
@@ -492,6 +531,9 @@ workflows:
       - golden_test_mujoco:
           requires:
             - build_mujoco_env
+      - golden_test_starcraft:
+          requires:
+            - build_starcraft_env
       - trace_test_gym:
           requires:
             - gym_approval
@@ -501,6 +543,9 @@ workflows:
       - trace_test_mujoco:
           requires:
             - mujoco_approval
+      - trace_test_starcraft:
+          requires:
+            - starcraft_approval
       - container_deploy:
           requires:
             - unit_tests
@@ -523,15 +568,18 @@ workflows:
       - build_gym_env
       - build_doom_env
       - build_mujoco_env
-#      - functional_test_starcraft:
-#            requires:
-#              - build_starcraft_env
+      - build_starcraft_env
       - functional_test_doom:
             requires:
               - build_doom_env
       - functional_test_mujoco:
             requires:
               - build_mujoco_env
+              - functional_test_doom
+      - functional_test_starcraft:
+            requires:
+              - build_starcraft_env
+              - functional_test_mujoco
       - golden_test_gym:
           requires:
             - build_gym_env
@@ -543,12 +591,22 @@ workflows:
           requires:
             - build_mujoco_env
             - golden_test_doom
+      - golden_test_starcraft:
+          requires:
+            - build_starcraft_env
+            - golden_test_mujoco
       # - trace_test_gym:
       #    requires:
       #      - build_gym_env
       # - trace_test_doom:
       #    requires:
       #      - build_doom_env
+      #      - trace_test_gym
       # - trace_test_mujoco:
       #    requires:
       #      - build_mujoco_env
+      #      - trace_test_doom
+      # - trace_test_starcraft:
+      #    requires:
+      #      - build_mujoco_env
+      #      - trace_test_mujoco
