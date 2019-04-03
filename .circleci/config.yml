@@ -568,6 +568,7 @@ workflows:
       - build_gym_env
       - build_doom_env
       - build_mujoco_env
+      # Starcraft disabled from nightly because tests are un-stabled
       #- build_starcraft_env
       - functional_test_doom:
             requires:
@@ -576,6 +577,7 @@ workflows:
             requires:
               - build_mujoco_env
               - functional_test_doom
+      # Starcraft disabled from nightly because tests are un-stabled
       #- functional_test_starcraft:
       #      requires:
       #        - build_starcraft_env
@@ -591,6 +593,7 @@ workflows:
           requires:
             - build_mujoco_env
             - golden_test_doom
+      # Starcraft disabled from nightly because tests are un-stabled
       #- golden_test_starcraft:
       #    requires:
       #      - build_starcraft_env
