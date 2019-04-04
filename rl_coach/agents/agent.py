@@ -894,9 +894,6 @@ class Agent(AgentInterface):
             # make agent specific changes to the transition if needed
             transition = self.update_transition_before_adding_to_replay_buffer(transition)
 
-            # merge the intrinsic reward in
-            transition.reward = transition.reward + self.last_action_info.action_intrinsic_reward
-
             # sum up the total shaped reward
             self.total_shaped_reward_in_current_episode += transition.reward
             self.total_reward_in_current_episode += env_response.reward

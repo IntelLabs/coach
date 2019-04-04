@@ -344,8 +344,7 @@ class ActionInfo(object):
     """
 
     def __init__(self, action: ActionType, all_action_probabilities: float=0,
-                 action_value: float=0., state_value: float=0., max_action_value: float=None,
-                 action_intrinsic_reward: float=0):
+                 action_value: float=0., state_value: float=0., max_action_value: float=None):
         """
         :param action: the action
         :param all_action_probabilities: the probability that the action was given when selecting it
@@ -354,8 +353,6 @@ class ActionInfo(object):
         :param max_action_value: in case this is an action that was selected randomly, this is the value of the action
                                  that received the maximum value. if no value is given, the action is assumed to be the
                                  action with the maximum value
-        :param action_intrinsic_reward: can contain any intrinsic reward that the agent wants to add to this action
-                                        selection
         """
         self.action = action
         self.all_action_probabilities = all_action_probabilities
@@ -365,7 +362,6 @@ class ActionInfo(object):
             self.max_action_value = action_value
         else:
             self.max_action_value = max_action_value
-        self.action_intrinsic_reward = action_intrinsic_reward
 
 
 class Batch(object):
