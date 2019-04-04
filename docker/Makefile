@@ -45,7 +45,7 @@ endif
 ifndef FUNCTIONAL_PRESETS
 	FUNCTIONAL_PRESETS=
 endif
-FUNCTIONAL_TESTS=python3 -m pytest rl_coach/tests -s -v -k ${FUNCTIONAL_PRESETS} -m functional_test
+FUNCTIONAL_TESTS=python3 -m pytest rl_coach/tests -s -v ${FUNCTIONAL_PRESETS} -m functional_test
 
 # Golden Tests
 ifdef GOLDEN_PRESETS
