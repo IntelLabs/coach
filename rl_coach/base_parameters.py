@@ -200,9 +200,6 @@ class AlgorithmParameters(Parameters):
         # distributed agents params
         self.share_statistics_between_workers = True
 
-        # intrinsic reward
-        self.scale_external_reward_by_intrinsic_reward_value = False
-
         # n-step returns
         self.n_step = -1  # calculate the total return (no bootstrap, by default)
 

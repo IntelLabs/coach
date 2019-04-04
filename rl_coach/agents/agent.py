@@ -895,10 +895,7 @@ class Agent(AgentInterface):
             transition = self.update_transition_before_adding_to_replay_buffer(transition)
 
             # merge the intrinsic reward in
-            if self.ap.algorithm.scale_external_reward_by_intrinsic_reward_value:
-                transition.reward = transition.reward * (1 + self.last_action_info.action_intrinsic_reward)
-            else:
-                transition.reward = transition.reward + self.last_action_info.action_intrinsic_reward
+            transition.reward = transition.reward + self.last_action_info.action_intrinsic_reward
 
             # sum up the total shaped reward
             self.total_shaped_reward_in_current_episode += transition.reward
@@ -1026,7 +1023,7 @@ class Agent(AgentInterface):
         self.total_reward_in_current_episode += transition.reward
         self.shaped_reward.add_sample(transition.reward)
         self.reward.add_sample(transition.reward)
-        
+
         # create and store the transition
         if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
             # for episodic memories we keep the transitions in a local buffer until the episode is ended.
