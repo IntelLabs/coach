@@ -16,6 +16,7 @@
 from collections import namedtuple
 
 import copy
+import math
 from enum import Enum
 from random import shuffle
 from typing import List, Union, Dict, Any, Type
@@ -62,6 +63,37 @@ class StepMethod(object):
     @num_steps.setter
     def num_steps(self, val: int) -> None:
         self._num_steps = val
+
+    def __eq__(self, other):
+        return self.num_steps == other.num_steps
+
+    def __truediv__(self, other):
+        """
+        divide this step method with other. If other is an integer, returns an object of the same
+        type as self. If other is the same type of self, returns an integer. In either case, any
+        floating point value is rounded up under the assumption that if we are dividing Steps, we
+        would rather overestimate than underestimate.
+        """
+        if isinstance(other, type(self)):
+            return math.ceil(self.num_steps / other.num_steps)
+        elif isinstance(other, int):
+            return type(self)(math.ceil(self.num_steps / other))
+        else:
+            raise TypeError("cannot divide {} by {}".format(type(self), type(other)))
+
+    def __rtruediv__(self, other):
+        """
+        divide this step method with other. If other is an integer, returns an object of the same
+        type as self. If other is the same type of self, returns an integer. In either case, any
+        floating point value is rounded up under the assumption that if we are dividing Steps, we
+        would rather overestimate than underestimate.
+        """
+        if isinstance(other, type(self)):
+            return math.ceil(other.num_steps / self.num_steps)
+        elif isinstance(other, int):
+            return type(self)(math.ceil(other / self.num_steps))
+        else:
+            raise TypeError("cannot divide {} by {}".format(type(other), type(self)))
 
 
 class Frames(StepMethod):
