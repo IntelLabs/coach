@@ -77,7 +77,7 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
         last_checkpoint = 0
 
         # this worker should play a fraction of the total playing steps per rollout
-        act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps)/num_workers)
+        act_steps = math.ceil(graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps/num_workers)
 
         for i in range(math.ceil(graph_manager.improve_steps.num_steps/act_steps)):
 
