@@ -125,23 +125,6 @@ class AgentInterface(object):
         """
         raise NotImplementedError("")
 
-    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
-    #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_observe_on_trainer(self, transition: Transition) -> bool:
-        """
-        This emulates the act using the transition obtained from the rollout worker on the training worker
-        in case of distributed training.
-        Gets a response from the environment.
-        Processes this information for later use. For example, create a transition and store it in memory.
-        The action info (a class containing any info the agent wants to store regarding its action decision process) is
-        stored by the agent itself when deciding on the action.
-        :param env_response: a EnvResponse containing the response from the environment
-        :return: a done signal which is based on the agent knowledge. This can be different from the done signal from
-                 the environment. For example, an agent can decide to finish the episode each time it gets some
-                 intrinsic reward
-        """
-        raise NotImplementedError("")
-
     def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
         """
         Collect all of agent savers
