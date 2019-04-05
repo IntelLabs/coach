@@ -205,6 +205,13 @@ class LevelManager(EnvironmentInterface):
         for agent in self.agents.values():
             agent.phase = val
 
+    def acting_agent(self) -> AgentInterface:
+        """
+        Return the agent in this level that gets to act in the environment
+        :return: Agent
+        """
+        return list(self.agents.values())[0]
+
     def step(self, action: Union[None, Dict[str, ActionType]]) -> EnvResponse:
         """
         Run a single step of following the behavioral scheme set for this environment.
@@ -225,7 +232,7 @@ class LevelManager(EnvironmentInterface):
 
         # step for several time steps
         accumulated_reward = 0
-        acting_agent = list(self.agents.values())[0]
+        acting_agent = self.acting_agent()
 
         for i in range(self.steps_limit.num_steps):
             # let the agent observe the result and decide if it wants to terminate the episode
@@ -301,7 +308,7 @@ class LevelManager(EnvironmentInterface):
         if self.reset_required:
             self.reset_internal_state()
 
-        acting_agent = list(self.agents.values())[0]
+        acting_agent = self.acting_agent()
 
         # for i in range(self.steps_limit.num_steps):
         # let the agent observe the result and decide if it wants to terminate the episode
