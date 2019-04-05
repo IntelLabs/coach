@@ -142,16 +142,6 @@ class AgentInterface(object):
         """
         raise NotImplementedError("")
 
-    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
-    #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_act_on_trainer(self, action: ActionType) -> ActionInfo:
-        """
-        This emulates the act using the transition obtained from the rollout worker on the training worker
-        in case of distributed training.
-        :return: A tuple containing the actual action
-        """
-        raise NotImplementedError("")
-
     def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
         """
         Collect all of agent savers
