@@ -813,6 +813,7 @@ class Agent(AgentInterface):
                 curr_state = self.curr_state
             self.last_action_info = self.choose_action(curr_state)
 
+        # is it intentional that self.last_action_info is not filtered?
         filtered_action_info = self.output_filter.filter(self.last_action_info)
 
         return filtered_action_info
@@ -1037,7 +1038,7 @@ class Agent(AgentInterface):
 
     # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
     #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_act_on_trainer(self, transition: Transition) -> ActionInfo:
+    def emulate_act_on_trainer(self, action: ActionType) -> ActionInfo:
         """
         This emulates the act using the transition obtained from the rollout worker on the training worker
         in case of distributed training.
@@ -1053,7 +1054,8 @@ class Agent(AgentInterface):
             self.total_steps_counter += 1
         self.current_episode_steps_counter += 1
 
-        self.last_action_info = transition.action
+        # these types don't match: ActionInfo = ActionType
+        self.last_action_info = action
 
         return self.last_action_info
 
