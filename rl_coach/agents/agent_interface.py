@@ -144,14 +144,11 @@ class AgentInterface(object):
 
     # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
     #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_act_on_trainer(self, transition: Transition) -> ActionInfo:
+    def emulate_act_on_trainer(self, action: ActionType) -> ActionInfo:
         """
         This emulates the act using the transition obtained from the rollout worker on the training worker
         in case of distributed training.
-        Get a decision of the next action to take.
-        The action is dependent on the current state which the agent holds from resetting the environment or from
-        the observe function.
-        :return: A tuple containing the actual action and additional info on the action
+        :return: A tuple containing the actual action
         """
         raise NotImplementedError("")
 
@@ -173,7 +170,7 @@ class AgentInterface(object):
         :return: None
         """
         raise NotImplementedError("")
-    
+
     def run_off_policy_evaluation(self) -> None:
         """
         Run off-policy evaluation estimators to evaluate the trained policy performance against a dataset.

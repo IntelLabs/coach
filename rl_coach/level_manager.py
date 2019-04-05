@@ -313,7 +313,7 @@ class LevelManager(EnvironmentInterface):
         # for i in range(self.steps_limit.num_steps):
         # let the agent observe the result and decide if it wants to terminate the episode
         done = acting_agent.emulate_observe_on_trainer(transition)
-        acting_agent.emulate_act_on_trainer(transition)
+        acting_agent.emulate_act_on_trainer(transition.action)
 
         if done:
             self.handle_episode_ended()
