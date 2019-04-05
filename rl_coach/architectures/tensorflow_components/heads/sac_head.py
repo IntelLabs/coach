@@ -113,15 +113,18 @@ class SACPolicyHead(Head):
 
         # policy_action_logprob is a tensor through which gradients can flow
         self.sampled_actions_logprob = self.policy_distribution.log_prob(self.raw_actions) - squash_correction_for_sampled
+        self.sampled_actions_logprob_mean = tf.reduce_mean(self.sampled_actions_logprob)
 
         # calculate the log prob of the given actions
-        self.given_action_logprob = self.policy_distribution.log_prob(self.given_raw_actions) - squash_correction_for_given
-        self.given_action_logprob_mean = tf.reduce_mean(self.given_action_logprob)
+        # self.given_action_logprob = self.policy_distribution.log_prob(self.given_raw_actions) - squash_correction_for_given
+        # self.given_action_logprob_mean = tf.reduce_mean(self.given_action_logprob)
 
         self.output.append(self.raw_actions)    # output[2] : sampled raw action (before squash)
         self.output.append(self.actions)        # output[3] : squashed (if needed) version of sampled raw_actions
-        self.output.append(self.given_action_logprob)   # output[4]: log prob of given action (squash corrected)
-        self.output.append(self.given_action_logprob_mean)    # output[5]: mean of log prob of given actions (squash corrected)
+        # self.output.append(self.given_action_logprob)   # output[4]: log prob of given action (squash corrected)
+        # self.output.append(self.given_action_logprob_mean)    # output[5]: mean of log prob of given actions (squash corrected)
+        self.output.append(self.sampled_actions_logprob)   # output[4]: log prob of sampled action (squash corrected)
+        self.output.append(self.sampled_actions_logprob_mean)    # output[5]: mean of log prob of sampled actions (squash corrected)
 
         # apply weight decay using l2 regularization -> set self.l2_regularization=1e-3
 

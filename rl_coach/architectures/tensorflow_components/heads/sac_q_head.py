@@ -86,8 +86,13 @@ class SACQHead(Head):
 
         # take the minimum as the network's output. this is the log_target (in the original implementation)
         self.q_output = tf.minimum(self.q1_output,self.q2_output,name='q_output')
+        # Note: in both author implementation and spinningup, they use q1 (and not min(q1,q2)) to calculate
+        # the policy gradients
+        self.q_output_mean = tf.reduce_mean(self.q1_output)         # option 1: use q1 - according to implementations
+        # self.q_output_mean = tf.reduce_mean(self.q_output)        # option 2: use min(q1,q2) according to the paper
 
         self.output.append(self.q_output)
+        self.output.append(self.q_output_mean)
 
         # defining the loss - like in ppo_v_head
         # Note that in the parent (Header) loss, it is calculated given the targets per each output.

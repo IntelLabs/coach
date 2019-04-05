@@ -130,7 +130,7 @@ class SoftActorCriticAgentParameters(AgentParameters):
     @property
     def path(self):
         return 'rl_coach.agents.soft_actor_critic_agent:SoftActorCriticAgent'
-        # return 'rl_coach.contrib.sac.soft_actor_critic_agent:SoftActorCriticAgent'
+
 
 # Soft Actor Critic - https://arxiv.org/abs/1801.01290
 class SoftActorCriticAgent(PolicyOptimizationAgent):
@@ -222,87 +222,55 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
 
         # Actor (policy) Network
         policy_network = self.networks['policy'].online_network
-        policy_head = policy_network.output_heads[0]
         policy_network_keys = self.ap.network_wrappers['policy'].input_embedders_parameters.keys()
 
         ##########################################
         # 1. updating the actor - according to (13) in the paper
         policy_inputs = copy.copy(batch.states(policy_network_keys))
-        policy_results = policy_network.predict(policy_inputs,
-                                                outputs=[policy_head.raw_actions,policy_head.actions])
+        policy_results = policy_network.predict(policy_inputs)
 
-        sampled_raw_actions,sampled_actions = policy_results
-
-
-        policy_mu,policy_std = policy_network.predict(policy_inputs,
-                                                      outputs=[policy_head.policy_mean,policy_head.policy_log_std])
+        policy_mu,policy_std,sampled_raw_actions,sampled_actions,sampled_actions_logprob,\
+        sampled_actions_logprob_mean = policy_results
 
         self.policy_means.add_sample(policy_mu)
         self.policy_logsig.add_sample(policy_std)
-        # self.action_signal.add_sample(sampled_actions)
-
-        # now feed the sampled raw actions to get their log probability
-        policy_inputs['output_0_0'] = sampled_raw_actions
-        sampled_actions_logprob = policy_network.predict(policy_inputs,
-                                                         outputs=[policy_head.given_action_logprob])
-        self.policy_logprob_sampled.add_sample(sampled_actions_logprob)
+        self.policy_logprob_sampled.add_sample(sampled_actions_logprob_mean)
 
         # get the state-action values for the replayed states and their corresponding actions from the policy
-        # should we do parallel prediction here ? what does it give us ?
         q_inputs = copy.copy(batch.states(q_network_keys))
         q_inputs['output_0_0'] = sampled_actions
-        log_target = q_network.predict(q_inputs).squeeze()
+        log_target = q_network.predict(q_inputs)[0].squeeze()
 
         # log internal q values
-        q1_vals,q2_vals = q_network.predict(q_inputs,outputs=[q_head.q1_output,q_head.q2_output])
+        q1_vals, q2_vals = q_network.predict(q_inputs,outputs=[q_head.q1_output,q_head.q2_output])
         self.q1_values.add_sample(q1_vals)
         self.q2_values.add_sample(q2_vals)
 
-
-
         # calculate the gradients according to (13)
-        # to get grads (unweighted) we need to feed weights of ones and ask for the weighted gradients
-        # log prob of the given action is index 4 in the sac head's outputs list
-
-        initial_feed_dict = {policy_network.gradients_weights_ph[5]:np.array(1.0)}
         # get the gradients of log_prob w.r.t the weights (parameters) - indicated as phi in the paper
+        initial_feed_dict = {policy_network.gradients_weights_ph[5]:np.array(1.0)}
         dlogp_dphi = policy_network.predict(policy_inputs,
                                             outputs=policy_network.weighted_gradients[5],
                                             initial_feed_dict=initial_feed_dict)
 
-        # the inputs that are defined in the policy head are added to the networks input's dictionary with
-        # key 'output_0_i' where i is the index of the input.
-        # in this case, we have given_actions as placeholder and its saved with key output_0_0
-        dlogp_dra = policy_network.predict(policy_inputs,
-                                           outputs=policy_network.gradients_wrt_inputs[4]['output_0_0'])
-        dlogp_dra_normalized = np.divide(dlogp_dra,batch.size)
-
-        # dra_dphi is the gradient of the sampled raw actions w.r.t the weights
-        initial_feed_dict = {policy_network.gradients_weights_ph[2]: dlogp_dra_normalized}
-        dra_dphi = policy_network.predict(policy_inputs,
-                                          outputs=policy_network.weighted_gradients[2],
-                                          initial_feed_dict=initial_feed_dict)
-
         # calculate dq_da
         dq_da = q_network.predict(q_inputs,
-                                  outputs=q_network.gradients_wrt_inputs[0]['output_0_0'])
-        dq_da_normalized = np.divide(dq_da,batch.size)
+                                  outputs=q_network.gradients_wrt_inputs[1]['output_0_0'])
 
         # calculate da_dphi
-        initial_feed_dict = {policy_network.gradients_weights_ph[3]: dq_da_normalized}
-        da_dphi = policy_network.predict(policy_inputs,
+        initial_feed_dict = {policy_network.gradients_weights_ph[3]: dq_da}
+        dq_dphi = policy_network.predict(policy_inputs,
                                          outputs=policy_network.weighted_gradients[3],
                                          initial_feed_dict=initial_feed_dict)
 
-        # now given dlogp_dphi, dra_dphi and da_dphi we need to calculate the policy gradients according to (13)
-        # policy_grads = [(grads_wrt_weights[layer],weights[layer]) for layer in policy_network]
-        # where: grads_wrt_weights[layer] = dlogp_dphi[layer]+dra_dphi[layer]-da_dphi[layer]
-        policy_grads = [dlogp_dphi[l]+dra_dphi[l]-da_dphi[l] for l in range(len(dlogp_dphi))]
+        # now given dlogp_dphi, dq_dphi we need to calculate the policy gradients according to (13)
+        policy_grads = [dlogp_dphi[l] - dq_dphi[l] for l in range(len(dlogp_dphi))]
 
         # apply the gradients to policy networks
         policy_network.apply_gradients(policy_grads)
         grads_sumabs=np.sum([np.sum(np.abs(policy_grads[l])) for l in range(len(policy_grads))])
         self.policy_grads.add_sample(grads_sumabs)
+
         ##########################################
         # 2. updating the state value online network weights
         # done by calculating the targets for the v head according to (5) in the paper
@@ -312,13 +280,8 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
 
         self.v_onl_ys.add_sample(value_targets)
 
-
         # call value_network apply gradients with this target
         value_loss = value_network.online_network.train_on_batch(value_inputs,value_targets[:,None])[0]
-        # todo: what do I do with the value_loss ?
-
-        # v_tgt_state = value_network.target_network.predict(value_inputs)    # need v_tgt_state for debug
-        # self.v_tgt_s.add_sample(v_tgt_state)
 
         ##########################################
         # 3. updating the critic (q networks)
@@ -343,7 +306,6 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         q1_loss,q2_loss = result[3]
         self.TD_err1.add_sample(q1_loss)
         self.TD_err2.add_sample(q2_loss)
-
 
         ##########################################
         # 4. updating the value target network
