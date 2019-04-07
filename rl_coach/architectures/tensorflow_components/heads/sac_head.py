@@ -19,25 +19,15 @@ import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head
-from rl_coach.architectures.head_parameters import HeadParameters
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import eps
 
 
 
 LOG_SIG_CAP_MAX = 2
 LOG_SIG_CAP_MIN = -20
-# LOG_SIG_CAP_MIN = -5
 EPS = 1e-6
-
-# moved to head_parameters.py
-# class SACPolicyHeadParameters(HeadParameters):
-#     def __init__(self, activation_function: str ='relu', name: str='policy_head_params', dense_layer=Dense):
-#         super().__init__(parameterized_class_name='SACPolicyHead', activation_function=activation_function, name=name,
-#                          dense_layer=dense_layer)
-
 
 class SACPolicyHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
@@ -77,14 +67,8 @@ class SACPolicyHead(Head):
         # todo: handle activation
         self.policy_mu_and_logsig = self.dense_layer(2*num_actions)(input_layer, name='policy_mu_logsig')
         self.policy_mean = tf.identity(self.policy_mu_and_logsig[...,:num_actions],name='policy_mean')
-        self.policy_log_std = tf.clip_by_value(self.policy_mu_and_logsig[...,num_actions:]
-                                               , LOG_SIG_CAP_MIN, LOG_SIG_CAP_MAX,name='policy_log_std')
-
-        # mean
-        # self.policy_mean = self.dense_layer(num_actions)(input_layer, name='policy_mean')
-        # log standard deviation
-        # policy_log_std = self.dense_layer(num_actions)(input_layer,name='fc_log_std')
-        # self.policy_log_std = tf.clip_by_value(policy_log_std, LOG_SIG_CAP_MIN, LOG_SIG_CAP_MAX,name='policy_log_std')
+        self.policy_log_std = tf.clip_by_value(self.policy_mu_and_logsig[...,num_actions:],
+                                               LOG_SIG_CAP_MIN, LOG_SIG_CAP_MAX,name='policy_log_std')
 
         self.output.append(self.policy_mean)        # output[0]
         self.output.append(self.policy_log_std)     # output[1]
@@ -99,36 +83,26 @@ class SACPolicyHead(Head):
         # note that tensorflow supports reparametrization. i.e. policy_action_sample is a tensor through which gradients can flow
 
         self.raw_actions = self.policy_distribution.sample()
-        # self.raw_actions = self.policy_distribution.loc         # comp_deriv_debug
 
         if self.squash:
             self.actions = tf.tanh(self.raw_actions)
             # correct log_prob in case of squash (see appendix C in the paper)
-            squash_correction_for_sampled = self._squash_correction(self.raw_actions)
-            squash_correction_for_given = self._squash_correction(self.given_raw_actions)
+            squash_correction = self._squash_correction(self.raw_actions)
         else:
             self.actions = self.raw_actions
-            squash_correction_for_sampled = 0
-            squash_correction_for_given = 0
+            squash_correction = 0
 
         # policy_action_logprob is a tensor through which gradients can flow
-        self.sampled_actions_logprob = self.policy_distribution.log_prob(self.raw_actions) - squash_correction_for_sampled
+        self.sampled_actions_logprob = self.policy_distribution.log_prob(self.raw_actions) - squash_correction
         self.sampled_actions_logprob_mean = tf.reduce_mean(self.sampled_actions_logprob)
-
-        # calculate the log prob of the given actions
-        # self.given_action_logprob = self.policy_distribution.log_prob(self.given_raw_actions) - squash_correction_for_given
-        # self.given_action_logprob_mean = tf.reduce_mean(self.given_action_logprob)
 
         self.output.append(self.raw_actions)    # output[2] : sampled raw action (before squash)
         self.output.append(self.actions)        # output[3] : squashed (if needed) version of sampled raw_actions
-        # self.output.append(self.given_action_logprob)   # output[4]: log prob of given action (squash corrected)
-        # self.output.append(self.given_action_logprob_mean)    # output[5]: mean of log prob of given actions (squash corrected)
         self.output.append(self.sampled_actions_logprob)   # output[4]: log prob of sampled action (squash corrected)
         self.output.append(self.sampled_actions_logprob_mean)    # output[5]: mean of log prob of sampled actions (squash corrected)
 
         # apply weight decay using l2 regularization -> set self.l2_regularization=1e-3
 
-    # todo in SAC: update the string to represent the head's architecture
     def __str__(self):
         result = [
             "policy head:"

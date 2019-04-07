@@ -150,55 +150,8 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         self.TD_err2 = self.register_signal("TD err2")
         self.v_tgt_ns = self.register_signal('V_tgt_ns')
         self.v_onl_ys = self.register_signal('V_onl_ys')
-
-
-
         self.action_signal = self.register_signal("actions")
 
-    def dump_state(self,batch,sampled_raw_actions,sampled_actions):
-
-        # State Value Network
-        value_network = self.networks['v']
-
-        # Critic Network
-        q_network = self.networks['q'].online_network
-
-        # Actor (policy) Network
-        policy_network = self.networks['policy'].online_network
-        policy_network_keys = self.ap.network_wrappers['policy'].input_embedders_parameters.keys()
-
-
-        # dump batch observations
-        with open('batch_obs.pkl', 'wb') as f:
-            pickle.dump(batch.states(policy_network_keys)['observation'], f, pickle.HIGHEST_PROTOCOL)
-
-        # dump sampled actions and raw actions
-        with open('sampled_actions.pkl', 'wb') as f:
-            pickle.dump(sampled_raw_actions, f, pickle.HIGHEST_PROTOCOL)
-            pickle.dump(sampled_actions, f, pickle.HIGHEST_PROTOCOL)
-
-        # dump policy network parameters
-        polnet = [policy_network.weights[l].eval(policy_network.sess) for l in range(len(policy_network.weights))]
-        with open('c_policy.pkl', 'wb') as f:
-            pickle.dump(polnet, f, pickle.HIGHEST_PROTOCOL)
-
-
-
-        vnet_onl = [value_network.online_network.weights[l].eval(value_network.sess) for l in
-                    range(len(value_network.online_network.weights))]
-        vnet_tgt = [value_network.target_network.weights[l].eval(value_network.sess) for l in
-                    range(len(value_network.target_network.weights))]
-        with open('c_v_tgt.pkl', 'wb') as f:
-            pickle.dump(vnet_tgt, f, pickle.HIGHEST_PROTOCOL)
-
-        with open('c_v_onl.pkl', 'wb') as f:
-            pickle.dump(vnet_onl, f, pickle.HIGHEST_PROTOCOL)
-
-        qnet = [q_network.weights[l].eval(q_network.sess) for l in range(len(q_network.weights))]
-        with open('c_q.pkl', 'wb') as f:
-            pickle.dump(qnet, f, pickle.HIGHEST_PROTOCOL)
-
-        return
 
     def learn_from_batch(self, batch):
         #########################################
@@ -351,15 +304,10 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         action_mean,action_sample = result
 
         # if using deterministic policy, take the mean values. else, use exploration policy to sample from the pdf
-        # todo in sac : use the exploration policy to distinguish between training and evaluation.
         if self.phase == RunPhase.TEST and self.ap.algorithm.use_deterministic_for_evaluation:
             action = action_mean[0]
         else:
             action = action_sample[0]
-
-        # todo in SAC: delete the below. kept for reference during debug
-        # action_values = actor_network.predict(tf_input_state).squeeze()
-        # action = self.exploration_policy.get_action(action_values)
 
         self.action_signal.add_sample(action)
 

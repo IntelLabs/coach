@@ -23,14 +23,6 @@ from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition, BoxActionSpace
 
-# moved to head_parameters.py
-# class SACQHeadParameters(HeadParameters):
-#     def __init__(self, activation_function: str ='relu', name: str='q_head_params', dense_layer=Dense,
-#                  layers_sizes: tuple = (256, 256)):
-#         super().__init__(parameterized_class_name='SACQHead', activation_function=activation_function, name=name,
-#                          dense_layer=dense_layer)
-#         self.network_layers_sizes = layers_sizes
-
 class SACQHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
@@ -88,16 +80,13 @@ class SACQHead(Head):
         self.q_output = tf.minimum(self.q1_output,self.q2_output,name='q_output')
         # Note: in both author implementation and spinningup, they use q1 (and not min(q1,q2)) to calculate
         # the policy gradients
-        self.q_output_mean = tf.reduce_mean(self.q1_output)         # option 1: use q1 - according to implementations
-        # self.q_output_mean = tf.reduce_mean(self.q_output)        # option 2: use min(q1,q2) according to the paper
+        # self.q_output_mean = tf.reduce_mean(self.q1_output)         # option 1: use q1 - according to implementations
+        self.q_output_mean = tf.reduce_mean(self.q_output)        # option 2: use min(q1,q2) according to the paper
 
         self.output.append(self.q_output)
         self.output.append(self.q_output_mean)
 
-        # defining the loss - like in ppo_v_head
-        # Note that in the parent (Header) loss, it is calculated given the targets per each output.
-        # here we have targets for 2 interim networks and do not have target for the output (self.q_output)
-        # so we need to override the loss and calculate it here. see example in PPOVHead
+        # defining the loss
         self.q1_loss = 0.5*tf.reduce_mean(tf.square(self.q1_output - self.target))
         self.q2_loss = 0.5*tf.reduce_mean(tf.square(self.q2_output - self.target))
         # eventually both losses are depends on different parameters so we can sum them up
