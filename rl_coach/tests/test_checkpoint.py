@@ -55,23 +55,43 @@ def test_get_checkpoint_state():
 
 
 @pytest.mark.functional_test
-def test_restore_checkpoint(preset_args, clres, start_time=time.time(),
+@pytest.mark.parametrize("framework", ["mxnet", "tensorflow"])
+def test_restore_checkpoint(preset_args, clres, framework,
+                            start_time=time.time(),
                             timeout=Def.TimeOuts.test_time_limit):
-    """ Create checkpoint and restore them in second run."""
+    """
+    Create checkpoints and restore them in second run.
+    :param preset_args: all preset that can be tested for argument tests
+    :param clres: logs and csv files
+    :param framework: name of the test framework
+    :param start_time: test started time
+    :param timeout: max time for test
+    """
 
     def _create_cmd_and_run(flag):
-
+        """
+        Create default command with given flag and run it
+        :param flag: name of the tested flag, this flag will be extended to the
+                     running command line
+        :return: active process
+        """
         run_cmd = [
             'python3', 'rl_coach/coach.py',
             '-p', '{}'.format(preset_args),
             '-e', '{}'.format("ExpName_" + preset_args),
+            '--seed', '{}'.format(42),
+            '-f', '{}'.format(framework),
         ]
+
         test_flag = a_utils.add_one_flag_value(flag=flag)
         run_cmd.extend(test_flag)
-
+        print(str(run_cmd))
         p = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
 
         return p
+
+    if framework == "mxnet":
+        preset_args = Def.Presets.mxnet_args_test
 
     p_valid_params = p_utils.validation_params(preset_args)
     create_cp_proc = _create_cmd_and_run(flag=['--checkpoint_save_secs', '5'])
