@@ -818,7 +818,10 @@ class Agent(AgentInterface):
 
         self.last_action_info = action
 
-        # is it intentional that self.last_action_info is not filtered?
+        # output filters are explicitly applied after recording self.last_action_info. This is
+        # because the output filters may change the representation of the action so that the agent
+        # can no longer use the transition in it's replay buffer. It is possible that these filters
+        # could be moved to the environment instead, but they are here now for historical reasons.
         filtered_action_info = self.output_filter.filter(self.last_action_info)
 
         return filtered_action_info
