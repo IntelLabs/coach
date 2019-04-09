@@ -40,7 +40,7 @@ import subprocess
 # 3. Run `python setup.py sdist`
 # 4. Run `twine upload dist/*`
 
-slim_package = False  # if true build aws package with partial dependencies, otherwise, build full package
+slim_package = True  # if true build aws package with partial dependencies, otherwise, build full package
 
 here = path.abspath(path.dirname(__file__))
 
