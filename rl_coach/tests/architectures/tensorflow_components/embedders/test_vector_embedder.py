@@ -22,8 +22,7 @@ def test_embedder(reset):
         embedder = VectorEmbedder(np.array([10, 10]), name="test")
 
     # creating a simple vector embedder
-    is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
-    embedder = VectorEmbedder(np.array([10]), name="test", is_training=is_training)
+    embedder = VectorEmbedder(np.array([10]), name="test")
 
     # make sure the ops where not created yet
     assert len(tf.get_default_graph().get_operations()) == 0
@@ -52,8 +51,7 @@ def test_embedder(reset):
 @pytest.mark.unit_test
 def test_complex_embedder(reset):
     # creating a deep vector embedder
-    is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
-    embedder = VectorEmbedder(np.array([10]), name="test", scheme=EmbedderScheme.Deep, is_training=is_training)
+    embedder = VectorEmbedder(np.array([10]), name="test", scheme=EmbedderScheme.Deep)
 
     # call the embedder
     embedder()
@@ -69,9 +67,8 @@ def test_complex_embedder(reset):
 @pytest.mark.unit_test
 def test_activation_function(reset):
     # creating a deep vector embedder with relu
-    is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
     embedder = VectorEmbedder(np.array([10]), name="relu", scheme=EmbedderScheme.Deep,
-                              activation_function=tf.nn.relu, is_training=is_training)
+                              activation_function=tf.nn.relu)
 
     # call the embedder
     embedder()
