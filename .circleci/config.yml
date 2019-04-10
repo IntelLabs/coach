@@ -506,6 +506,7 @@ workflows:
           requires:
             - build_base
       - integration_tests:
+          type: approval
           requires:
             - build_base
       - multinode_approval:
