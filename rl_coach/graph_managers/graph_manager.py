@@ -232,18 +232,14 @@ class GraphManager(object):
             else:
                 checkpoint_dir = task_parameters.checkpoint_save_dir
 
-            self.sess = create_monitored_session(target=task_parameters.worker_target,
-                                                 task_index=task_parameters.task_index,
-                                                 checkpoint_dir=checkpoint_dir,
-                                                 checkpoint_save_secs=task_parameters.checkpoint_save_secs,
-                                                 config=config)
-            # set the session for all the modules
-            self.set_session(self.sess)
+            self.set_session(create_monitored_session(target=task_parameters.worker_target,
+                                                      task_index=task_parameters.task_index,
+                                                      checkpoint_dir=checkpoint_dir,
+                                                      checkpoint_save_secs=task_parameters.checkpoint_save_secs,
+                                                      config=config))
         else:
             # regular session
-            self.sess = tf.Session(config=config)
-            # set the session for all the modules
-            self.set_session(self.sess)
+            self.set_session(tf.Session(config=config))
 
         # the TF graph is static, and therefore is saved once - in the beginning of the experiment
         if hasattr(self.task_parameters, 'checkpoint_save_dir') and self.task_parameters.checkpoint_save_dir:
@@ -366,6 +362,8 @@ class GraphManager(object):
         Set the deep learning framework session for all the modules in the graph
         :return: None
         """
+        self.sess = sess
+        
         [manager.set_session(sess) for manager in self.level_managers]
 
     def heatup(self, steps: PlayingStepsType) -> None:
