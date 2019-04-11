@@ -320,7 +320,8 @@ class Environment(EnvironmentInterface):
 
         # store observations for video / gif dumping
         if self.should_dump_video_of_the_current_episode(episode_terminated=False) and \
-            (self.visualization_parameters.dump_mp4 or self.visualization_parameters.dump_gifs):
+            (self.visualization_parameters.dump_mp4 or self.visualization_parameters.dump_gifs
+                or self.visualization_parameters.dump_pickle):
             self.last_episode_images.append(self.get_rendered_image())
 
         return self.last_env_response
@@ -442,6 +443,9 @@ class Environment(EnvironmentInterface):
             logger.create_gif(self.last_episode_images[::frame_skipping], name=file_name, fps=fps)
         if self.visualization_parameters.dump_mp4:
             logger.create_mp4(self.last_episode_images[::frame_skipping], name=file_name, fps=fps)
+        if self.visualization_parameters.dump_pickle:
+            logger.create_pickle(self.last_episode_images[::frame_skipping], name=file_name)
+
 
     # The following functions define the interaction with the environment.
     # Any new environment that inherits the Environment class should use these signatures.
