@@ -395,7 +395,8 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                 results.append(last_step[-1])
                 time.sleep(1)
 
-        # get the first value after heat-up (should be bigger than the cp value
+        # get the first value after heat-up
+        time.sleep(1)
         results.append(csv["Total steps"].values[-1])
 
         assert int(results[-1]) >= Def.Consts.num_hs, \
