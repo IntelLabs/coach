@@ -564,7 +564,6 @@ workflows:
           requires:
             - gym_approval
       - update_gym_trace_test:
-          type: approval
           requires:
             - gym_approval
       - trace_test_doom:
