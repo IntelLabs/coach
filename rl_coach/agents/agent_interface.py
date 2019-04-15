@@ -125,36 +125,6 @@ class AgentInterface(object):
         """
         raise NotImplementedError("")
 
-    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
-    #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_observe_on_trainer(self, transition: Transition) -> bool:
-        """
-        This emulates the act using the transition obtained from the rollout worker on the training worker
-        in case of distributed training.
-        Gets a response from the environment.
-        Processes this information for later use. For example, create a transition and store it in memory.
-        The action info (a class containing any info the agent wants to store regarding its action decision process) is
-        stored by the agent itself when deciding on the action.
-        :param env_response: a EnvResponse containing the response from the environment
-        :return: a done signal which is based on the agent knowledge. This can be different from the done signal from
-                 the environment. For example, an agent can decide to finish the episode each time it gets some
-                 intrinsic reward
-        """
-        raise NotImplementedError("")
-
-    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
-    #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_act_on_trainer(self, transition: Transition) -> ActionInfo:
-        """
-        This emulates the act using the transition obtained from the rollout worker on the training worker
-        in case of distributed training.
-        Get a decision of the next action to take.
-        The action is dependent on the current state which the agent holds from resetting the environment or from
-        the observe function.
-        :return: A tuple containing the actual action and additional info on the action
-        """
-        raise NotImplementedError("")
-
     def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
         """
         Collect all of agent savers
@@ -173,7 +143,7 @@ class AgentInterface(object):
         :return: None
         """
         raise NotImplementedError("")
-    
+
     def run_off_policy_evaluation(self) -> None:
         """
         Run off-policy evaluation estimators to evaluate the trained policy performance against a dataset.

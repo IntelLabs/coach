@@ -52,7 +52,7 @@ def print_progress(averaged_rewards, last_num_episodes, start_time, time_limit,
 
 
 def read_csv_paths(test_path, filename_pattern, read_csv_tries=120,
-                   extra_tries=0):
+                   extra_tries=0, num_expected_files=None):
     """
     Return file path once it found
     :param test_path: test folder path
@@ -60,6 +60,7 @@ def read_csv_paths(test_path, filename_pattern, read_csv_tries=120,
     :param read_csv_tries: number of iterations until file found
     :param extra_tries: add number of extra tries to check after getting all
                         the paths.
+    :param num_expected_files: find all expected file in experiment folder.
     :return: |string| return csv file path
     """
     csv_paths = []
@@ -68,6 +69,10 @@ def read_csv_paths(test_path, filename_pattern, read_csv_tries=120,
         csv_paths = glob.glob(path.join(test_path, '*', filename_pattern))
         if tries_counter > read_csv_tries:
             break
+
+        if num_expected_files and num_expected_files == len(csv_paths):
+            break
+
         time.sleep(1)
         tries_counter += 1
 
@@ -84,7 +89,7 @@ def get_files_from_dir(dir_path):
     :return: |list| return files in folder
     """
     start_time = time.time()
-    entities = None
+    entities = []
     while time.time() - start_time < Def.TimeOuts.wait_for_files:
         # wait until logs created
         if os.path.exists(dir_path):
@@ -118,32 +123,32 @@ def find_string_in_logs(log_path, str, timeout=Def.TimeOuts.wait_for_files,
     if not os.path.exists(log_path):
         return False
 
-    with open(log_path, 'r') as fr:
-        if str in fr.read():
-            return True
-        fr.close()
-
-    while time.time() - start_time < Def.TimeOuts.test_time_limit \
-            and wait_and_find:
+    while time.time() - start_time < Def.TimeOuts.test_time_limit:
         with open(log_path, 'r') as fr:
             if str in fr.read():
                 return True
             fr.close()
+
+        if not wait_and_find:
+            break
+
     return False
 
 
 def get_csv_path(clres, tries_for_csv=Def.TimeOuts.wait_for_csv,
-                 extra_tries=0):
+                 extra_tries=0, num_expected_files=None):
     """
     Get the csv path with the results - reading csv paths will take some time
     :param clres: object of files that test is creating
     :param tries_for_csv: timeout of tires until getting all csv files
     :param extra_tries: add number of extra tries to check after getting all
                         the paths.
+    :param num_expected_files: find all expected file in experiment folder.
     :return: |list| csv path
     """
     return read_csv_paths(test_path=clres.exp_path,
                           filename_pattern=clres.fn_pattern,
                           read_csv_tries=tries_for_csv,
-                          extra_tries=extra_tries)
+                          extra_tries=extra_tries,
+                          num_expected_files=num_expected_files)
 

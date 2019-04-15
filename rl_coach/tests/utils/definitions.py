@@ -32,14 +32,13 @@ class Definitions:
         css = "checkpoint_save_secs"
         crd = "checkpoint_restore_dir"
         et = "environment_type"
-        ept = "exploration_policy_type"
         cp = "custom_parameter"
         seed = "seed"
         dccp = "distributed_coach_config_path"
         enw = "num_workers"
         fw_ten = "framework_tensorflow"
         fw_mx = "framework_mxnet"
-        et = "rl_coach.environments.gym_environment:Atari"
+        # et = "rl_coach.environments.gym_environment:Atari" TODO
 
         """
         Arguments that can be tested for python coach command
@@ -92,46 +91,16 @@ class Definitions:
         ]
 
         # Preset for testing seed argument
-        seed_args_test = [
-            "Atari_A3C",
-            "Atari_A3C_LSTM",
-            "Atari_Bootstrapped_DQN",
-            "Atari_C51",
-            "Atari_DDQN",
-            "Atari_DQN_with_PER",
+        args_for_seed_test = [
             "Atari_DQN",
-            "Atari_DQN_with_PER",
-            "Atari_Dueling_DDQN",
-            "Atari_Dueling_DDQN_with_PER_OpenAI",
-            "Atari_NStepQ",
-            "Atari_QR_DQN",
-            "Atari_Rainbow",
-            "Atari_UCB_with_Q_Ensembles",
+            "Doom_Basic_DQN",
             "BitFlip_DQN",
-            "BitFlip_DQN_HER",
-            "CartPole_A3C",
-            "CartPole_ClippedPPO",
-            "CartPole_DFP",
             "CartPole_DQN",
-            "CartPole_Dueling_DDQN",
-            "CartPole_NStepQ",
-            "CartPole_PAL",
-            "CartPole_PG",
+            "CARLA_Dueling_DDQN",
             "ControlSuite_DDPG",
-            "ExplorationChain_Bootstrapped_DQN",
             "ExplorationChain_Dueling_DDQN",
-            "ExplorationChain_UCB_Q_ensembles",
             "Fetch_DDPG_HER_baselines",
-            "InvertedPendulum_PG",
-            "MontezumaRevenge_BC",
-            "Mujoco_A3C",
-            "Mujoco_A3C_LSTM",
             "Mujoco_ClippedPPO",
-            "Mujoco_DDPG",
-            "Mujoco_NAF",
-            "Mujoco_PPO",
-            "Pendulum_HAC",
-            "Starcraft_CollectMinerals_A3C",
             "Starcraft_CollectMinerals_Dueling_DDQN",
         ]
 

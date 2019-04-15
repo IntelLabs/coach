@@ -85,7 +85,7 @@ class CategoricalDQNAgent(ValueOptimizationAgent):
     def get_all_q_values_for_states(self, states: StateType):
         if self.exploration_policy.requires_action_values():
             q_values = self.get_prediction(states,
-                                           outputs=self.networks['main'].online_network.output_heads[0].q_values)
+                                           outputs=[self.networks['main'].online_network.output_heads[0].q_values])
         else:
             q_values = None
         return q_values
