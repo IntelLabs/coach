@@ -29,6 +29,9 @@ from rl_coach.schedules import LinearSchedule
 
 
 class NNImitationModelParameters(Parameters):
+    """
+    A parameters module grouping together parameters related to a neural network based action selection.
+    """
     def __init__(self):
         super().__init__()
         self.imitation_model_num_epochs = 100
@@ -36,6 +39,9 @@ class NNImitationModelParameters(Parameters):
 
 
 class KNNParameters(Parameters):
+    """
+    A parameters module grouping together parameters related to a k-Nearest Neighbor based action selection.
+    """
     def __init__(self):
         super().__init__()
         self.average_dist_coefficient = 1
@@ -44,6 +50,12 @@ class KNNParameters(Parameters):
 
 
 class DDQNBCQAlgorithmParameters(DQNAlgorithmParameters):
+    """
+    :param action_drop_method_parameters: (Parameters)
+        Defines the mode and related parameters according to which low confidence actions will be filtered out
+    :param num_steps_between_copying_online_weights_to_target (StepMethod)
+        Defines the number of between every phase of copying online network's weights to the target network's weights
+    """
     def __init__(self):
         super().__init__()
         self.action_drop_method_parameters = KNNParameters()
@@ -111,6 +123,13 @@ class DDQNBCQAgent(DQNAgent):
         masked_next_q_values = self.networks['main'].online_network.predict(next_states)
         masked_next_q_values[actions_to_mask_out] = -np.inf
 
+        # occassionaly there are states in the batch for which our model shows no confidence for either of the actions
+        # in that case, we will just randomly assign q_values to argmax upon, since otherwise argmax will always return
+        # the first action
+        zero_confidence_rows = (masked_next_q_values.max(axis=1) == -np.inf)
+        masked_next_q_values[zero_confidence_rows] = np.random.rand(np.sum(zero_confidence_rows),
+                                                                    masked_next_q_values.shape[1])
+
         return np.argmax(masked_next_q_values, 1)
 
     def improve_reward_model(self, epochs: int):
@@ -141,11 +160,7 @@ class DDQNBCQAgent(DQNAgent):
 
                 # reward model
                 if epoch < epochs:
-                    current_rewards_prediction_for_all_actions = self.networks['reward_model'].online_network.predict(
-                        batch.states(network_keys))
-                    current_rewards_prediction_for_all_actions[range(batch.size), batch.actions()] = batch.rewards()
-                    reward_model_loss += self.networks['reward_model'].train_and_sync_networks(
-                        batch.states(network_keys), current_rewards_prediction_for_all_actions)[0]
+                    reward_model_loss += self.get_reward_model_loss(batch)
 
                 # imitation model
                 if isinstance(self.ap.algorithm.action_drop_method_parameters, NNImitationModelParameters) and \
@@ -189,7 +204,7 @@ class DDQNBCQAgent(DQNAgent):
                                 if transition.action == i])
                 knn_tree.add(
                     keys=state_embeddings,
-                    values=np.expand_dims(np.array([0] * state_embeddings.shape[0]), axis=1))
+                    values=np.expand_dims(np.zeros(state_embeddings.shape[0]), axis=1))
 
             for knn_tree in self.knn_trees:
                 knn_tree._rebuild_index()

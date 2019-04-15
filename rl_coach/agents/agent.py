@@ -45,6 +45,15 @@ class Agent(AgentInterface):
         :param agent_parameters: A AgentParameters class instance with all the agent parameters
         """
         super().__init__()
+        # use seed
+        if agent_parameters.task_parameters.seed is not None:
+            random.seed(agent_parameters.task_parameters.seed)
+            np.random.seed(agent_parameters.task_parameters.seed)
+        else:
+            # we need to seed the RNG since the different processes are initialized with the same parent seed
+            random.seed()
+            np.random.seed()
+
         self.ap = agent_parameters
         self.task_id = self.ap.task_parameters.task_index
         self.is_chief = self.task_id == 0
@@ -196,15 +205,6 @@ class Agent(AgentInterface):
         self.discounted_return = self.register_signal('Discounted Return')
         if isinstance(self.in_action_space, GoalsSpace):
             self.distance_from_goal = self.register_signal('Distance From Goal', dump_one_value_per_step=True)
-
-        # use seed
-        if self.ap.task_parameters.seed is not None:
-            random.seed(self.ap.task_parameters.seed)
-            np.random.seed(self.ap.task_parameters.seed)
-        else:
-            # we need to seed the RNG since the different processes are initialized with the same parent seed
-            random.seed()
-            np.random.seed()
 
         # batch rl
         self.ope_manager = OpeManager() if self.ap.is_batch_rl_training else None
