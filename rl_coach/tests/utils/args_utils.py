@@ -395,9 +395,9 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                 results.append(last_step[-1])
                 time.sleep(1)
 
-        assert results[-1] >= Def.Consts.num_hs, \
-            Def.Consts.ASSERT_MSG.format("bigger than " + Def.Consts.num_hs,
-                                         results[-1])
+        assert int(results[-1]) >= Def.Consts.num_hs, \
+            Def.Consts.ASSERT_MSG.format("bigger than " +
+                                         str(Def.Consts.num_hs), results[-1])
 
     elif flag[0] == "-f" or flag[0] == "--framework":
         """
@@ -445,7 +445,8 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         """
         lst_csv = []
         # wait until files created
-        csv_path = get_csv_path(clres=clres, extra_tries=10)
+        csv_path = get_csv_path(clres=clres, extra_tries=20,
+                                num_expected_files=int(flag[1]))
 
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("paths are not found", csv_path)
@@ -491,8 +492,8 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         # wait until files created
         csv_path = get_csv_path(clres=clres, extra_tries=20)
 
-        expected_files = int(flag[1])
-        assert len(csv_path) >= expected_files, \
-            Def.Consts.ASSERT_MSG.format(str(expected_files),
+        num_expected_files = int(flag[1])
+        assert len(csv_path) >= num_expected_files, \
+            Def.Consts.ASSERT_MSG.format(str(num_expected_files),
                                          str(len(csv_path)))
 

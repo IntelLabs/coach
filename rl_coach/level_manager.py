@@ -17,6 +17,7 @@ import copy
 from typing import Union, Dict
 
 from rl_coach.agents.composite_agent import CompositeAgent
+from rl_coach.agents.agent_interface import AgentInterface
 from rl_coach.core_types import EnvResponse, ActionInfo, RunPhase, ActionType, EnvironmentSteps, Transition
 from rl_coach.environments.environment import Environment
 from rl_coach.environments.environment_interface import EnvironmentInterface
@@ -38,7 +39,7 @@ class LevelManager(EnvironmentInterface):
     """
     def __init__(self,
                  name: str,
-                 agents: Union['Agent', CompositeAgent, Dict[str, Union['Agent', CompositeAgent]]],
+                 agents: Union[AgentInterface, Dict[str, AgentInterface]],
                  environment: Union['LevelManager', Environment],
                  real_environment: Environment = None,
                  steps_limit: EnvironmentSteps = EnvironmentSteps(1),
@@ -48,7 +49,7 @@ class LevelManager(EnvironmentInterface):
         """
         A level manager controls a single or multiple composite agents and a single environment.
         The environment can be either a real environment or another level manager behaving as an environment.
-        :param agents: a list of agents or composite agents to control
+        :param agents: a single agent or a dictionary of agents or composite agents to control
         :param environment: an environment or level manager to control
         :param real_environment: the real environment that is is acted upon. if this is None (which it should be for
          the most bottom level), it will be replaced by the environment parameter. For simple RL schemes, where there
@@ -204,6 +205,13 @@ class LevelManager(EnvironmentInterface):
         for agent in self.agents.values():
             agent.phase = val
 
+    def acting_agent(self) -> AgentInterface:
+        """
+        Return the agent in this level that gets to act in the environment
+        :return: Agent
+        """
+        return list(self.agents.values())[0]
+
     def step(self, action: Union[None, Dict[str, ActionType]]) -> EnvResponse:
         """
         Run a single step of following the behavioral scheme set for this environment.
@@ -224,7 +232,7 @@ class LevelManager(EnvironmentInterface):
 
         # step for several time steps
         accumulated_reward = 0
-        acting_agent = list(self.agents.values())[0]
+        acting_agent = self.acting_agent()
 
         for i in range(self.steps_limit.num_steps):
             # let the agent observe the result and decide if it wants to terminate the episode
@@ -300,12 +308,12 @@ class LevelManager(EnvironmentInterface):
         if self.reset_required:
             self.reset_internal_state()
 
-        acting_agent = list(self.agents.values())[0]
+        acting_agent = self.acting_agent()
 
         # for i in range(self.steps_limit.num_steps):
         # let the agent observe the result and decide if it wants to terminate the episode
-        done = acting_agent.emulate_observe_on_trainer(transition)
-        acting_agent.emulate_act_on_trainer(transition)
+        done = acting_agent.observe_transition(transition)
+        acting_agent.act(transition.action)
 
         if done:
             self.handle_episode_ended()
