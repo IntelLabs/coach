@@ -91,7 +91,7 @@ def test_restore_checkpoint(preset_args, clres, framework,
         return p
 
     if framework == "mxnet":
-        preset_args = Def.Presets.mxnet_args_test
+        preset_args = Def.Presets.mxnet_args_test[0]
 
     p_valid_params = p_utils.validation_params(preset_args)
     create_cp_proc = _create_cmd_and_run(flag=['--checkpoint_save_secs', '5'])
