@@ -26,16 +26,20 @@ from rl_coach.off_policy_evaluators.rl.sequential_doubly_robust import Sequentia
 
 from rl_coach.core_types import Transition
 
+from rl_coach.off_policy_evaluators.rl.weighted_importance_sampling import WeightedImportanceSampling
+
 OpeSharedStats = namedtuple("OpeSharedStats", ['all_reward_model_rewards', 'all_policy_probs',
                                                'all_v_values_reward_model_based', 'all_rewards', 'all_actions',
                                                'all_old_policy_probs', 'new_policy_prob', 'rho_all_dataset'])
-OpeEstimation = namedtuple("OpeEstimation", ['ips', 'dm', 'dr', 'seq_dr'])
+OpeEstimation = namedtuple("OpeEstimation", ['ips', 'dm', 'dr', 'seq_dr', 'wis'])
 
 
 class OpeManager(object):
     def __init__(self):
         self.doubly_robust = DoublyRobust()
         self.sequential_doubly_robust = SequentialDoublyRobust()
+        self.weighted_importance_sampling = WeightedImportanceSampling()
+
 
     @staticmethod
     def _prepare_ope_shared_stats(dataset_as_transitions: List[Transition], batch_size: int,
@@ -64,7 +68,7 @@ class OpeManager(object):
                 batch_for_inference.states(network_keys)))
 
             # we always use the first Q head to calculate OPEs. might want to change this in the future.
-            # for instance, this means that for bootstrapped we always use the first QHead to calculate the OPEs.
+            # for instance, this means that for bootstrapped dqn we always use the first QHead to calculate the OPEs.
             q_values, sm_values = q_network.predict(batch_for_inference.states(network_keys),
                                                     outputs=[q_network.output_heads[0].q_values,
                                                              q_network.output_heads[0].softmax])
@@ -72,6 +76,9 @@ class OpeManager(object):
             all_policy_probs.append(sm_values)
             all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))
             all_v_values_q_model_based.append(np.sum(all_policy_probs[-1] * q_values, axis=1))
+            # TODO need to account for reward filtering all over the OPE code. Currently there's a mishmash,
+            #  as Q values are using the filtered rewards, and the IPS use unfiltered. So in sequential DR for instance,
+            #  we get a mess.
             all_rewards.append(batch_for_inference.rewards())
             all_actions.append(batch_for_inference.actions())
             all_old_policy_probs.append(batch_for_inference.info('all_action_probabilities')
@@ -120,5 +127,7 @@ class OpeManager(object):
 
         ips, dm, dr = self.doubly_robust.evaluate(ope_shared_stats)
         seq_dr = self.sequential_doubly_robust.evaluate(dataset_as_episodes, discount_factor)
-        return OpeEstimation(ips, dm, dr, seq_dr)
+        wis = self.weighted_importance_sampling.evaluate(dataset_as_episodes, discount_factor)
+        
+        return OpeEstimation(ips, dm, dr, seq_dr, wis)
 

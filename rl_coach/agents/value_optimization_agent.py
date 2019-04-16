@@ -115,7 +115,7 @@ class ValueOptimizationAgent(Agent):
             raise ValueError('train_to_eval_ratio is too high causing the evaluation set to be empty. '
                              'Consider decreasing its value.')
 
-        ips, dm, dr, seq_dr = self.ope_manager.evaluate(
+        ips, dm, dr, seq_dr, wis = self.ope_manager.evaluate(
                                   dataset_as_episodes=dataset_as_episodes,
                                   batch_size=self.ap.network_wrappers['main'].batch_size,
                                   discount_factor=self.ap.algorithm.discount,
@@ -129,6 +129,7 @@ class ValueOptimizationAgent(Agent):
         log['IPS'] = ips
         log['DM'] = dm
         log['DR'] = dr
+        log['WIS'] = wis
         log['Sequential-DR'] = seq_dr
         screen.log_dict(log, prefix='Off-Policy Evaluation')
 
@@ -138,6 +139,7 @@ class ValueOptimizationAgent(Agent):
         self.agent_logger.create_signal_value('Direct Method Reward', dm)
         self.agent_logger.create_signal_value('Doubly Robust', dr)
         self.agent_logger.create_signal_value('Sequential Doubly Robust', seq_dr)
+        self.agent_logger.create_signal_value('Weighted Importance Sampling', wis)
 
     def get_reward_model_loss(self, batch: Batch):
         network_keys = self.ap.network_wrappers['reward_model'].input_embedders_parameters.keys()
