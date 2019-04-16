@@ -173,7 +173,7 @@ def update_repo():
     repo.git.status()
 
     print("create commit")
-    repo.index.commit(m="auto: files updated")
+    repo.index.commit(message="auto: files updated")
 
     repo.git.status()
 
