@@ -159,10 +159,6 @@ def update_repo():
     update files on repo, be careful when using this function, it will add
     a new commit to PR
     """
-    print("update environment")
-    global_git = git.Git()
-    global_git.update_environment(**os.environ)
-
     print("Configure repo")
     git_path = os.path.join('.')
     repo = git.Repo(git_path)
@@ -171,6 +167,8 @@ def update_repo():
     repo.config_writer().set_value("user", "name", "anabwan").release()
     repo.config_writer().set_value("user", "email", "ayoob.nabwani@intel.com").release()
     print(repo.git.status())
+
+    # repo.config_writer().set_value("url", "git@github.com:", "insteadOf", "https://github.com/").release()
 
     print("add all un-tracked files")
     repo.git.add('.')
@@ -181,6 +179,7 @@ def update_repo():
 
     print(repo.git.status())
 
-    print("push commit")
-    print(repo.active_branch)
-    repo.git.push("--set-upstream", "origin", "traces_ayoob")
+    print("push commit to branch: " + repo.active_branch)
+    g = git.cmd.Git(git_path)
+    print(g.execute("git push origin " + repo.active_branch))
+    # repo.git.push("--set-upstream", "origin", repo.active_branch)
