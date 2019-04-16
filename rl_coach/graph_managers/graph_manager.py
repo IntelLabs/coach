@@ -363,7 +363,7 @@ class GraphManager(object):
         :return: None
         """
         self.sess = sess
-        
+
         [manager.set_session(sess) for manager in self.level_managers]
 
     def heatup(self, steps: PlayingStepsType) -> None:
@@ -703,8 +703,9 @@ class GraphManager(object):
 
     def fetch_from_worker(self, num_consecutive_playing_steps=None):
         if hasattr(self, 'memory_backend'):
-            for transition in self.memory_backend.fetch(num_consecutive_playing_steps):
-                self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
+            with self.phase_context(RunPhase.TRAIN):
+                for transition in self.memory_backend.fetch(num_consecutive_playing_steps):
+                    self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
 
     def setup_memory_backend(self) -> None:
         if hasattr(self.agent_params.memory, 'memory_backend_params'):
