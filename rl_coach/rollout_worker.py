@@ -26,6 +26,7 @@ this rollout worker:
 import time
 import os
 import math
+from collections import defaultdict
 
 from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchronizationType
 from rl_coach.checkpoint import CheckpointStateFile, CheckpointStateReader
@@ -33,11 +34,11 @@ from rl_coach.core_types import EnvironmentSteps, RunPhase, EnvironmentEpisodes
 from rl_coach.data_stores.data_store import SyncFiles
 
 
-def wait_for_checkpoint(checkpoint_dir, data_store=None, timeout=10):
+def wait_for_checkpoint(checkpoint_directory, data_store=None, timeout=10):
     """
-    block until there is a checkpoint in checkpoint_dir
+    block until there is a checkpoint in checkpoint_directory
     """
-    chkpt_state_file = CheckpointStateFile(checkpoint_dir)
+    chkpt_state_file = CheckpointStateFile(checkpoint_directory)
     for i in range(timeout):
         if data_store:
             data_store.load_from_store()
@@ -52,54 +53,55 @@ def wait_for_checkpoint(checkpoint_dir, data_store=None, timeout=10):
 
     raise ValueError((
         'Waited {timeout} seconds, but checkpoint never found in '
-        '{checkpoint_dir}'
+        '{checkpoint_directory}'
     ).format(
         timeout=timeout,
-        checkpoint_dir=checkpoint_dir,
+        checkpoint_directory=checkpoint_directory,
     ))
 
 
-def should_stop(checkpoint_dir):
-    return os.path.exists(os.path.join(checkpoint_dir, SyncFiles.FINISHED.value))
+def should_stop(checkpoint_directory):
+    return os.path.exists(os.path.join(checkpoint_directory, SyncFiles.FINISHED.value))
+
+
+last_checkpoints = defaultdict(int)
+
+
+def new_checkpoint_exists(checkpoint_directory, data_store, wait):
+    checkpoint_state_reader = CheckpointStateReader(checkpoint_directory, checkpoint_state_optional=False)
+    checkpoint = None
+    while wait or checkpoint is None:
+        if should_stop(checkpoint_directory):
+            return False
+        if data_store:
+            data_store.load_from_store()
+        checkpoint = checkpoint_state_reader.get_latest()
+        if checkpoint is not None and checkpoint.num > last_checkpoints[checkpoint_directory]:
+            last_checkpoints[checkpoint_directory] = checkpoint.num
+            return True
+
+    return False
 
 
 def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
     """
     wait for first checkpoint then perform rollouts using the model
     """
-    checkpoint_dir = task_parameters.checkpoint_restore_path
-    wait_for_checkpoint(checkpoint_dir, data_store)
+    checkpoint_directory = task_parameters.checkpoint_restore_path
+    wait_for_checkpoint(checkpoint_directory, data_store)
+
+    wait = graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC
 
     graph_manager.create_graph(task_parameters)
+
     with graph_manager.phase_context(RunPhase.TRAIN):
-
-        chkpt_state_reader = CheckpointStateReader(checkpoint_dir, checkpoint_state_optional=False)
-        last_checkpoint = 0
-
         # this worker should play a fraction of the total playing steps per rollout
         act_steps = graph_manager.agent_params.algorithm.num_consecutive_playing_steps / num_workers
-
         for i in range(graph_manager.improve_steps / act_steps):
-
-            if should_stop(checkpoint_dir):
+            if should_stop(checkpoint_directory):
                 break
 
             graph_manager.act(act_steps, wait_for_full_episodes=graph_manager.agent_params.algorithm.act_for_full_episodes)
 
-            new_checkpoint = chkpt_state_reader.get_latest()
-            if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
-                while new_checkpoint is None or new_checkpoint.num < last_checkpoint + 1:
-                    if should_stop(checkpoint_dir):
-                        break
-                    if data_store:
-                        data_store.load_from_store()
-                    new_checkpoint = chkpt_state_reader.get_latest()
-
+            if new_checkpoint_exists(checkpoint_directory, data_store, wait):
                 graph_manager.restore_checkpoint()
-
-            if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.ASYNC:
-                if new_checkpoint is not None and new_checkpoint.num > last_checkpoint:
-                    graph_manager.restore_checkpoint()
-
-            if new_checkpoint is not None:
-                last_checkpoint = new_checkpoint.num
