@@ -155,13 +155,17 @@ def get_csv_path(clres, tries_for_csv=Def.TimeOuts.wait_for_csv,
 
 
 def update_repo():
+    """
+    update files on repo, be careful when using this function, it will add
+    a new commit to PR
+    """
     git_path = os.path.join('.')
     repo = Repo(git_path)
 
     print(repo.git.status())
 
     repo.git.add(A=True)
-    repo.git.commit(message="auto: traces updated")
+    repo.git.commit(message="auto: files updated")
 
     print(repo.git.status())
-
+    repo.git.push()
