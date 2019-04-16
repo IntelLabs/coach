@@ -12,6 +12,7 @@ from .quantile_regression_q_head import QuantileRegressionQHead
 from .rainbow_q_head import RainbowQHead
 from .v_head import VHead
 from .acer_policy_head import ACERPolicyHead
+from .classification_head import ClassificationHead
 from .cil_head import RegressionHead
 
 __all__ = [
@@ -29,5 +30,6 @@ __all__ = [
     'RainbowQHead',
     'VHead',
     'ACERPolicyHead',
+    'ClassificationHead'
     'RegressionHead'
 ]
