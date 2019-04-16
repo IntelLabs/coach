@@ -21,7 +21,7 @@ import time
 import os
 from os import path
 from rl_coach.tests.utils.definitions import Definitions as Def
-from git import Repo
+import git
 
 
 def print_progress(averaged_rewards, last_num_episodes, start_time, time_limit,
@@ -159,21 +159,23 @@ def update_repo():
     update files on repo, be careful when using this function, it will add
     a new commit to PR
     """
-    git_path = os.path.join('.')
     print("Configure repo")
-    repo = Repo(git_path)
+    git_path = os.path.join('.')
+    repo = git.Repo(git_path)
+
     print("Configure username and email")
     repo.config_writer().set_value("user", "name", "anabwan").release()
     repo.config_writer().set_value("user", "email", "ayoob.nabwani@intel.com").release()
-    print(repo.git.status())
+    repo.git.status()
 
-    print("add all untacked files")
+    print("add all un-tracked files")
     repo.git.add(update=True)
-    print("create commit")
-    repo.index.commit("auto: files updated")
+    repo.git.status()
 
-    print(repo.git.status())
+    print("create commit")
+    repo.index.commit(m="auto: files updated")
+
+    repo.git.status()
 
     print("push commit")
-    origin = repo.remote(name='origin')
-    origin.push()
+    repo.git.push("--set-upstream", "origin", "traces_ayoob")
