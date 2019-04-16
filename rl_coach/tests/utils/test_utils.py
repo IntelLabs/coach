@@ -168,11 +168,12 @@ def update_repo():
     print(repo.git.status())
 
     print("add all untacked files")
-    repo.git.add(A=True)
-    print("create commi")
-    repo.git.commit(message="auto: files updated")
+    repo.git.add(update=True)
+    print("create commit")
+    repo.index.commit("auto: files updated")
 
     print(repo.git.status())
 
     print("push commit")
-    repo.git.push()
+    origin = repo.remote(name='origin')
+    origin.push()
