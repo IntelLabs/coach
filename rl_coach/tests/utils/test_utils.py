@@ -160,12 +160,19 @@ def update_repo():
     a new commit to PR
     """
     git_path = os.path.join('.')
+    print("Configure repo")
     repo = Repo(git_path)
-
+    print("Configure username and email")
+    repo.config_writer().set_value("user", "name", "anabwan").release()
+    repo.config_writer().set_value("user", "email", "ayoob.nabwani@intel.com").release()
     print(repo.git.status())
 
+    print("add all untacked files")
     repo.git.add(A=True)
+    print("create commi")
     repo.git.commit(message="auto: files updated")
 
     print(repo.git.status())
+
+    print("push commit")
     repo.git.push()
