@@ -54,7 +54,7 @@ class DDQNBCQAlgorithmParameters(DQNAlgorithmParameters):
     :param action_drop_method_parameters: (Parameters)
         Defines the mode and related parameters according to which low confidence actions will be filtered out
     :param num_steps_between_copying_online_weights_to_target (StepMethod)
-        Defines the number of between every phase of copying online network's weights to the target network's weights
+        Defines the number of steps between every phase of copying online network's weights to the target network's weights
     """
     def __init__(self):
         super().__init__()
@@ -124,7 +124,7 @@ class DDQNBCQAgent(DQNAgent):
         masked_next_q_values[actions_to_mask_out] = -np.inf
 
         # occassionaly there are states in the batch for which our model shows no confidence for either of the actions
-        # in that case, we will just randomly assign q_values to argmax upon, since otherwise argmax will always return
+        # in that case, we will just randomly assign q_values to actions, since otherwise argmax will always return
         # the first action
         zero_confidence_rows = (masked_next_q_values.max(axis=1) == -np.inf)
         masked_next_q_values[zero_confidence_rows] = np.random.rand(np.sum(zero_confidence_rows),
