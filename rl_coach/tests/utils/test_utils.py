@@ -21,6 +21,7 @@ import time
 import os
 from os import path
 from rl_coach.tests.utils.definitions import Definitions as Def
+from git import Repo
 
 
 def print_progress(averaged_rewards, last_num_episodes, start_time, time_limit,
@@ -151,4 +152,16 @@ def get_csv_path(clres, tries_for_csv=Def.TimeOuts.wait_for_csv,
                           read_csv_tries=tries_for_csv,
                           extra_tries=extra_tries,
                           num_expected_files=num_expected_files)
+
+
+def update_repo():
+    git_path = os.path.join('.')
+    repo = Repo(git_path)
+
+    print(repo.git.status())
+
+    repo.git.add(A=True)
+    repo.git.commit(message="auto: traces updated")
+
+    print(repo.git.status())
 

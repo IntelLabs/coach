@@ -10,7 +10,6 @@ test_log.txt
 tf_logs
 bullet3
 roboschool
-*.csv
 *.doc
 *.orig
 docs/site

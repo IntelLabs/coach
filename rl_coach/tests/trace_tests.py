@@ -22,14 +22,14 @@ import subprocess
 import multiprocessing
 import sys
 import signal
+import pandas as pd
+import time
+import rl_coach.tests.utils.test_utils as test_utils
 from importlib import import_module
 from os import path
 sys.path.append('.')
-import pandas as pd
-import time
-
-# -*- coding: utf-8 -*-
 from rl_coach.logger import screen
+
 
 processes = []
 
@@ -44,6 +44,7 @@ def sigint_handler(signum, frame):
         if 'trace_test_log' in f:
             os.remove(f)
     exit()
+
 
 signal.signal(signal.SIGINT, sigint_handler)
 
@@ -166,6 +167,24 @@ def wait_and_check(args, processes, force=False):
     return test_passed
 
 
+def replace_new_csv_files():
+    """
+    replace old trace files with new csv files
+    """
+    trace_dir_path = os.path.join('./rl_coach', 'traces')
+    entities = os.listdir(trace_dir_path)
+
+    for preset in entities:
+        trace_preset_path = os.path.join(trace_dir_path, preset)
+
+        if os.path.exists(trace_preset_path):
+            old_file = os.path.join(trace_preset_path, "trace.csv")
+            new_file = os.path.join(trace_preset_path, "trace_new.csv")
+
+            if os.path.exists(new_file):
+                shutil.move(new_file, old_file)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--preset', '--presets',
@@ -187,6 +206,9 @@ def main():
                         action='store_true')
     parser.add_argument('-prl', '--parallel',
                         help="(flag) run tests in parallel",
+                        action='store_true')
+    parser.add_argument('-ut', '--update_traces',
+                        help="(flag) update traces on repository",
                         action='store_true')
     parser.add_argument('-mt', '--max_threads',
                         help="(int) maximum number of threads to run in parallel",
@@ -251,7 +273,11 @@ def main():
     if fail_count == 0:
         screen.success(" Summary: " + str(test_count) + "/" + str(test_count) + " tests passed successfully")
     else:
-        screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully")
+        screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
+
+    if args.update_traces:
+        replace_new_csv_files()
+        test_utils.update_repo()
 
 
 if __name__ == '__main__':
