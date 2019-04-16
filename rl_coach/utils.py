@@ -220,7 +220,7 @@ def force_list(var):
 
 
 def squeeze_list(var):
-    if len(var) == 1:
+    if type(var) == list and len(var) == 1:
         return var[0]
     else:
         return var

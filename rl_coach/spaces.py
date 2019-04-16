@@ -403,7 +403,8 @@ class DiscreteActionSpace(ActionSpace):
         return np.random.choice(self.actions)
 
     def sample_with_info(self) -> ActionInfo:
-        return ActionInfo(self.sample(), action_probability=1. / (self.high[0] - self.low[0] + 1))
+        return ActionInfo(self.sample(),
+                          all_action_probabilities=np.full(len(self.actions), 1. / (self.high[0] - self.low[0] + 1)))
 
     def get_description(self, action: int) -> str:
         if type(self.descriptions) == list and 0 <= action < len(self.descriptions):
@@ -450,7 +451,7 @@ class MultiSelectActionSpace(ActionSpace):
         return random.choice(self.actions)
 
     def sample_with_info(self) -> ActionInfo:
-        return ActionInfo(self.sample(), action_probability=1. / len(self.actions))
+        return ActionInfo(self.sample(), all_action_probabilities=np.full(len(self.actions), 1. / len(self.actions)))
 
     def get_description(self, action: np.ndarray) -> str:
         if np.sum(len(np.where(action == 0)[0])) + np.sum(len(np.where(action == 1)[0])) != self.shape or \
@@ -647,7 +648,7 @@ class SpacesDefinition(object):
     """
     def __init__(self,
                  state: StateSpace,
-                 goal: ObservationSpace,
+                 goal: Union[ObservationSpace, None],
                  action: ActionSpace,
                  reward: RewardSpace):
         self.state = state

@@ -166,7 +166,7 @@ class Kubernetes(Deploy):
                         name="nfs-pvc",
                         persistent_volume_claim=self.nfs_pvc
                     )],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 ),
             )
         else:
@@ -185,7 +185,7 @@ class Kubernetes(Deploy):
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
                 spec=k8sclient.V1PodSpec(
                     containers=[container],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 ),
             )
 
@@ -329,7 +329,7 @@ class Kubernetes(Deploy):
                         name="nfs-pvc",
                         persistent_volume_claim=self.nfs_pvc
                     )],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 ),
             )
         else:
@@ -348,7 +348,7 @@ class Kubernetes(Deploy):
                 metadata=k8sclient.V1ObjectMeta(labels={'app': name}),
                 spec=k8sclient.V1PodSpec(
                     containers=[container],
-                    restart_policy='OnFailure'
+                    restart_policy='Never'
                 )
             )
 
@@ -398,7 +398,7 @@ class Kubernetes(Deploy):
             return
 
         for pod in pods.items:
-            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path)).start()
+            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path), daemon=True).start()
     
     def eval_logs(self, path='./logs'):
         """
@@ -424,7 +424,7 @@ class Kubernetes(Deploy):
             return
 
         for pod in pods.items:
-            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path)).start()
+            Process(target=self._tail_log_file, args=(pod.metadata.name, api_client, self.params.namespace, path), daemon=True).start()
 
     def _tail_log_file(self, pod_name, api_client, namespace, path):
         if not os.path.exists(path):
@@ -456,7 +456,7 @@ class Kubernetes(Deploy):
         if not pod:
             return
 
-        self.tail_log(pod.metadata.name, api_client)
+        return self.tail_log(pod.metadata.name, api_client)
 
     def tail_log(self, pod_name, corev1_api):
         while True:
@@ -490,9 +490,9 @@ class Kubernetes(Deploy):
                        container_status.state.waiting.reason == 'CrashLoopBackOff' or \
                        container_status.state.waiting.reason == 'ImagePullBackOff' or \
                        container_status.state.waiting.reason == 'ErrImagePull':
-                        return
+                        return 1
                 if container_status.state.terminated is not None:
-                    return
+                    return container_status.state.terminated.exit_code
 
     def undeploy(self):
         """

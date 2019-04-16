@@ -156,20 +156,17 @@ def create_files_group_signal(files):
 
 
 # load files from disk as a group
-def load_files_group():
-    show_spinner("Loading files group...")
-    files = open_file_dialog()
-    # no files selected
-    if not files or not files[0]:
+def load_file():
+    file = open_file_dialog()
+    show_spinner("Loading file...")
+    # no file selected
+    if not file:
         hide_spinner()
         return
 
     display_boards()
 
-    if len(files) == 1:
-        create_files_signal(files)
-    else:
-        create_files_group_signal(files)
+    create_files_signal([file])
 
     change_selected_signals_in_data_selector([""])
     hide_spinner()
@@ -230,8 +227,8 @@ def handle_dir(dir_path, run_type):
 
 # load directory from disk as a group
 def load_directory_group():
-    show_spinner("Loading directories group...")
     directory = open_directory_dialog()
+    show_spinner("Loading directories group...")
     # no files selected
     if not directory:
         hide_spinner()
@@ -276,18 +273,10 @@ def create_files_signal(files, use_dir_name=False):
     files_selector.value = filenames[0]
     selected_file = new_signal_files[0]
 
-
-# load files from disk
-def load_files():
-    show_spinner("Loading files...")
-    files = open_file_dialog()
-
-    # no files selected
-    if not files or not files[0]:
-        hide_spinner()
-        return
-
-    display_files(files)
+    # update x axis according to the file's default x-axis (which is the index, and thus the first column)
+    idx = x_axis_options.index(new_signal_files[0].csv.columns[0])
+    change_x_axis(idx)
+    x_axis_selector.active = idx
 
 
 def display_files(files):
@@ -497,8 +486,8 @@ plot.y_range = Range1d(0, 100)
 plot.extra_y_ranges['secondary'] = Range1d(0, 100)
 
 # select file
-file_selection_button = Button(label="Select Files", button_type="success", width=120)
-file_selection_button.on_click(load_files_group)
+file_selection_button = Button(label="Select File", button_type="success", width=120)
+file_selection_button.on_click(load_file)
 
 files_selector_spacer = Spacer(width=10)
 

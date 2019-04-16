@@ -5,6 +5,7 @@ from rl_coach.environments.doom_environment import DoomEnvironmentParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.schedules import LinearSchedule
+from rl_coach.core_types import PickledReplayBuffer
 
 ####################
 # Graph Scheduling #
@@ -29,7 +30,7 @@ agent_params.exploration.evaluation_epsilon = 0
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
 agent_params.network_wrappers['main'].batch_size = 120
-agent_params.memory.load_memory_from_file_path = 'datasets/doom_basic.p'
+agent_params.memory.load_memory_from_file_path = PickledReplayBuffer('datasets/doom_basic.p')
 
 
 ###############

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from collections import OrderedDict
 
 import os
 from genericpath import isdir, isfile
@@ -22,15 +22,18 @@ from os.path import join
 from enum import Enum
 from bokeh.models import Div
 from bokeh.plotting import curdoc
-import wx
+import tkinter as tk
+from tkinter import filedialog
 import colorsys
+
+from rl_coach.core_types import TimeTypes
 
 patches = {}
 signals_files = {}
 selected_file = None
 x_axis = ['Episode #']
-x_axis_options = ['Episode #', 'Total steps', 'Wall-Clock Time']
-x_axis_labels = ['Episode #', 'Total steps (per worker)', 'Wall-Clock Time (minutes)']
+x_axis_options = [time_type.value.name for time_type in TimeTypes]
+x_axis_labels = [time_type.value.label for time_type in TimeTypes]
 current_color = 0
 
 # spinner
@@ -96,7 +99,7 @@ def hide_spinner():
     spinner.text = ""
 
 
-# takes path to dir and recursively adds all it's files to paths
+# takes path to dir and recursively adds all its files to paths
 def add_directory_csv_files(dir_path, paths=None):
     if not paths:
         paths = []
@@ -113,24 +116,37 @@ def add_directory_csv_files(dir_path, paths=None):
     return paths
 
 
-class DialogApp(wx.App):
+
+
+class DialogApp():
+
     def getFileDialog(self):
-        with wx.FileDialog(None, "Open CSV file", wildcard="CSV files (*.csv)|*.csv",
-                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_CHANGE_DIR | wx.FD_MULTIPLE) as fileDialog:
-            if fileDialog.ShowModal() == wx.ID_CANCEL:
-                return None  # the user changed their mind
-            else:
-                # Proceed loading the file chosen by the user
-                return fileDialog.GetPaths()
+        application_window = tk.Tk()
+
+        # Build a list of tuples for each file type the file dialog should display
+        my_filetypes = [('csv files', '.csv')]
+
+        # Ask the user to select a one or more file names.
+        answer = filedialog.askopenfilename(parent=application_window,
+                                             initialdir=os.getcwd(),
+                                             title="Please select a file",
+                                             filetypes=my_filetypes)
+        application_window.destroy()
+        return answer
+
 
     def getDirDialog(self):
-        with wx.DirDialog(None, "Choose input directory", "",
-                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_CHANGE_DIR) as dirDialog:
-            if dirDialog.ShowModal() == wx.ID_CANCEL:
-                return None  # the user changed their mind
-            else:
-                # Proceed loading the dir chosen by the user
-                return dirDialog.GetPath()
+        application_window = tk.Tk()
+
+        # Ask the user to select a folder.
+        answer = filedialog.askdirectory(parent=application_window,
+                                         initialdir=os.getcwd(),
+                                         title="Please select a folder")
+        application_window.destroy()
+        return answer
+
+
+
 
 
 class RunType(Enum):
@@ -149,5 +165,6 @@ class FolderType(Enum):
 
 
 dialog = DialogApp()
+
 
 doc = curdoc()

@@ -57,14 +57,16 @@ def test_preset_runs(preset):
 
     experiment_name = ".test-" + preset
 
-    params = ["python3", "rl_coach/coach.py", "-p", preset, "-ns", "-e", experiment_name]
+    # overriding heatup steps to some small number of steps (1000), so to finish the heatup stage, and get to train
+    params = ["python3", "rl_coach/coach.py", "-p", preset, "-ns", "-e", experiment_name, '-cp',
+              'heatup_steps=EnvironmentSteps(1000)']
     if level != "":
         params += ["-lvl", level]
 
     p = Popen(params)
 
-    # wait 10 seconds overhead of initialization etc.
-    time.sleep(10)
+    # wait 30 seconds overhead of initialization, and finishing heatup.
+    time.sleep(30)
     return_value = p.poll()
 
     if return_value is None:

@@ -107,6 +107,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Agents</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ac.html">Actor-Critic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/acer.html">ACER</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../imitation/bc.html">Behavioral Cloning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/bs_dqn.html">Bootstrapped DQN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/categorical_dqn.html">Categorical DQN</a></li>
@@ -239,10 +240,9 @@ and the result is a single vector of future values for each action.</li>
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <p>Given a batch of transitions, run them through the network to get the current predictions of the future measurements
 per action, and set them as the initial targets for training the network. For each transition
-<span class="math notranslate nohighlight">\((s_t,a_t,r_t,s_{t+1} )\)</span> in the batch, the target of the network for the action that was taken, is the actual</p>
-<blockquote>
-<div>measurements that were seen in time-steps <span class="math notranslate nohighlight">\(t+1,t+2,t+4,t+8,t+16\)</span> and <span class="math notranslate nohighlight">\(t+32\)</span>.
-For the actions that were not taken, the targets are the current values.</div></blockquote>
+<span class="math notranslate nohighlight">\((s_t,a_t,r_t,s_{t+1} )\)</span> in the batch, the target of the network for the action that was taken, is the actual
+measurements that were seen in time-steps <span class="math notranslate nohighlight">\(t+1,t+2,t+4,t+8,t+16\)</span> and <span class="math notranslate nohighlight">\(t+32\)</span>.
+For the actions that were not taken, the targets are the current values.</p>
 <dl class="class">
 <dt id="rl_coach.agents.dfp_agent.DFPAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.dfp_agent.</code><code class="descname">DFPAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/dfp_agent.html#DFPAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.dfp_agent.DFPAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
@@ -253,7 +253,8 @@ For the actions that were not taken, the targets are the current values.</div></
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>num_predicted_steps_ahead</strong> – (int)
 Number of future steps to predict measurements for. The future steps won’t be sequential, but rather jump
-in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4</li>
+in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4.
+The predicted steps will be [t + 2**i for i in range(num_predicted_steps_ahead)]</li>
 <li><strong>goal_vector</strong> – (List[float])
 The goal vector will weight each of the measurements to form an optimization goal. The vector should have
 the same length as the number of measurements, and it will be vector multiplied by the measurements.
@@ -329,7 +330,8 @@ have a different scale and you want to normalize them to the same scale.</li>
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

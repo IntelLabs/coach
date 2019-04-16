@@ -59,6 +59,7 @@ class InputEmbedder(object):
         # layers order is conv -> batchnorm -> activation -> dropout
         if isinstance(self.scheme, EmbedderScheme):
             self.layers_params = copy.copy(self.schemes[self.scheme])
+            self.layers_params = [convert_layer(l) for l in self.layers_params]
         else:
             # if scheme is specified directly, convert to TF layer if it's not a callable object
             # NOTE: if layer object is callable, it must return a TF tensor when invoked

@@ -15,6 +15,7 @@ roboschool
 *.orig
 docs/site
 coach_env
+venv
 build
 rl_coach.egg*
 rl_coach_slim.egg*
@@ -32,4 +33,3 @@ trace_test*
 .cache/
 *.pyc
 coachenv
-

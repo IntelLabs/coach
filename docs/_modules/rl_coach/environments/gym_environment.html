@@ -559,6 +559,11 @@
                 <span class="n">num_actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
                 <span class="n">descriptions</span><span class="o">=</span><span class="n">actions_description</span>
             <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">((</span>
+                <span class="s2">&quot;Failed to instantiate gym environment class </span><span class="si">{}</span><span class="s2"> due to unsupported &quot;</span>
+                <span class="s2">&quot;action space </span><span class="si">{}</span><span class="s2">. Expected BoxActionSpace or DiscreteActionSpace.&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">env_class</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_control</span><span class="p">:</span>
             <span class="c1"># TODO: add this to the action space</span>
@@ -741,7 +746,8 @@
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   
