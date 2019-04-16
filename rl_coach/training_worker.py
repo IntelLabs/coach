@@ -53,21 +53,17 @@ def training_worker(graph_manager, task_parameters, is_multi_node_test):
 
     while steps < graph_manager.improve_steps.num_steps:
 
-        graph_manager.phase = core_types.RunPhase.TRAIN
         if is_multi_node_test and graph_manager.get_current_episodes_count() > graph_manager.preset_validation_params.max_episodes_to_achieve_reward:
             # Test failed as it has not reached the required success rate
             graph_manager.flush_finished()
             screen.error("Could not reach required success by {} episodes.".format(graph_manager.preset_validation_params.max_episodes_to_achieve_reward), crash=True)
 
         graph_manager.fetch_from_worker(graph_manager.agent_params.algorithm.num_consecutive_playing_steps)
-        graph_manager.phase = core_types.RunPhase.UNDEFINED
 
         if graph_manager.should_train():
             steps += 1
 
-            graph_manager.phase = core_types.RunPhase.TRAIN
             graph_manager.train()
-            graph_manager.phase = core_types.RunPhase.UNDEFINED
 
             if steps * graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps > graph_manager.steps_between_evaluation_periods.num_steps * eval_offset:
                 eval_offset += 1
