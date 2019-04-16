@@ -125,7 +125,7 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         data_store = None
         if args.data_store_params:
             data_store = get_data_store(data_store_params)
-        
+
         rollout_worker(
             graph_manager=graph_manager,
             data_store=data_store,
