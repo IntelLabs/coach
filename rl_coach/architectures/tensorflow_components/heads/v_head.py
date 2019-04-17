@@ -45,7 +45,6 @@ class VHead(Head):
         # for debug SAC - try with default kernel initialization
         self.output = self.dense_layer(1)(input_layer, name='output')
 
-
     def __str__(self):
         result = [
             "Dense (num outputs = 1)"

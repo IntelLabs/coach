@@ -1,7 +1,7 @@
 from rl_coach.agents.soft_actor_critic_agent import SoftActorCriticAgentParameters
 from rl_coach.architectures.layers import Dense
-from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters, EmbedderScheme
-from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps, TrainingSteps
+from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
+from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.reward.reward_rescale_filter import RewardRescaleFilter
 from rl_coach.environments.environment import SingleLevelSelection
@@ -42,19 +42,15 @@ agent_params.network_wrappers['policy'].batch_size = 256
 agent_params.network_wrappers['policy'].learning_rate = 0.0003
 agent_params.network_wrappers['policy'].middleware_parameters.scheme = [Dense(256)]
 
-# Algorithm params
-
-
-
 # Input Filter
 # SAC requires reward scaling for Mujoco environments.
 # according to the paper:
 # Hopper, Walker-2d, HalfCheetah, Ant - requires scaling of 5
 # Humanoid - requires scaling of 20
 
-# disabled for debug only
 agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(5))
+
 ###############
 # Environment #
 ###############
@@ -66,7 +62,7 @@ env_params = GymVectorEnvironment(level=SingleLevelSelection(mujoco_v2))
 preset_validation_params = PresetValidationParameters()
 preset_validation_params.test = True
 preset_validation_params.min_reward_threshold = 400
-preset_validation_params.max_episodes_to_achieve_reward = 1000
+preset_validation_params.max_episodes_to_achieve_reward = 2200
 preset_validation_params.reward_test_level = 'inverted_pendulum'
 preset_validation_params.trace_test_levels = ['inverted_pendulum', 'hopper']
 

@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-import numpy as np
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
@@ -22,12 +21,11 @@ from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import SpacesDefinition
-
-
+from rl_coach.utils import eps
 
 LOG_SIG_CAP_MAX = 2
 LOG_SIG_CAP_MIN = -20
-EPS = 1e-6
+
 
 class SACPolicyHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
@@ -40,8 +38,6 @@ class SACPolicyHead(Head):
         self.num_actions = self.spaces.action.shape     # continuous actions
         self.squash = squash        # squashing using tanh
 
-
-
     def _build_module(self, input_layer):
         self.given_raw_actions = tf.placeholder(tf.float32, [None, self.num_actions], name="actions")
         self.input = [self.given_raw_actions]
@@ -50,7 +46,6 @@ class SACPolicyHead(Head):
         # build the network
         self._build_continuous_net(input_layer, self.spaces.action)
 
-
     def _squash_correction(self,actions):
         '''
         correct squash operation (in case of bounded actions) according to appendix C in the paper.
@@ -58,16 +53,16 @@ class SACPolicyHead(Head):
         :param actions: unbounded actions
         :return: the correction to be applied to the log_prob of the actions, assuming tanh squash
         '''
-        if not self.squash: return 0
-        return tf.reduce_sum(tf.log(1 - tf.tanh(actions) ** 2 + EPS), axis=1)
-
+        if not self.squash:
+            return 0
+        return tf.reduce_sum(tf.log(1 - tf.tanh(actions) ** 2 + eps), axis=1)
 
     def _build_continuous_net(self, input_layer, action_space):
-        num_actions = action_space.shape
-        # todo: handle activation
+        num_actions = action_space.shape[0]
+
         self.policy_mu_and_logsig = self.dense_layer(2*num_actions)(input_layer, name='policy_mu_logsig')
-        self.policy_mean = tf.identity(self.policy_mu_and_logsig[...,:num_actions],name='policy_mean')
-        self.policy_log_std = tf.clip_by_value(self.policy_mu_and_logsig[...,num_actions:],
+        self.policy_mean = tf.identity(self.policy_mu_and_logsig[..., :num_actions], name='policy_mean')
+        self.policy_log_std = tf.clip_by_value(self.policy_mu_and_logsig[..., num_actions:],
                                                LOG_SIG_CAP_MIN, LOG_SIG_CAP_MAX,name='policy_log_std')
 
         self.output.append(self.policy_mean)        # output[0]
@@ -80,8 +75,8 @@ class SACPolicyHead(Head):
                                                               scale_diag=tf.exp(self.policy_log_std))
 
         # define network outputs
-        # note that tensorflow supports reparametrization. i.e. policy_action_sample is a tensor through which gradients can flow
-
+        # note that tensorflow supports reparametrization.
+        # i.e. policy_action_sample is a tensor through which gradients can flow
         self.raw_actions = self.policy_distribution.sample()
 
         if self.squash:

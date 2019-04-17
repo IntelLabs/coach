@@ -17,11 +17,11 @@
 import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.head_parameters import HeadParameters
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition, BoxActionSpace
+
 
 class SACQHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
@@ -48,7 +48,7 @@ class SACQHead(Head):
         # each is calculating q value  : q1(s,a) and q2(s,a)
         # the output of the head is min(q1,q2)
         self.actions = tf.placeholder(tf.float32, [None, self.num_actions], name="actions")
-        self.target = tf.placeholder(tf.float32, [None,1], name="q_targets")
+        self.target = tf.placeholder(tf.float32, [None, 1], name="q_targets")
         self.input = [self.actions]
         self.output = []
         # Note (1) : in the author's implementation of sac (in rllab) they summarize the embedding of observation and
@@ -57,8 +57,8 @@ class SACQHead(Head):
         # build q1 network head
         with tf.variable_scope("q1_head"):
             layer_size = self.network_layers_sizes[0]
-            qi_obs_emb = self.dense_layer(layer_size)(input_layer,activation=self.activation_function)
-            qi_act_emb = self.dense_layer(layer_size)(self.actions,activation=self.activation_function)
+            qi_obs_emb = self.dense_layer(layer_size)(input_layer, activation=self.activation_function)
+            qi_act_emb = self.dense_layer(layer_size)(self.actions, activation=self.activation_function)
             qi_output = qi_obs_emb + qi_act_emb     # merging the inputs by summarizing them (see Note (1))
             for layer_size in self.network_layers_sizes[1:]:
                 qi_output = self.dense_layer(layer_size)(qi_output, activation=self.activation_function)
@@ -68,8 +68,8 @@ class SACQHead(Head):
         # build q2 network head
         with tf.variable_scope("q2_head"):
             layer_size = self.network_layers_sizes[0]
-            qi_obs_emb = self.dense_layer(layer_size)(input_layer,activation=self.activation_function)
-            qi_act_emb = self.dense_layer(layer_size)(self.actions,activation=self.activation_function)
+            qi_obs_emb = self.dense_layer(layer_size)(input_layer, activation=self.activation_function)
+            qi_act_emb = self.dense_layer(layer_size)(self.actions, activation=self.activation_function)
             qi_output = qi_obs_emb + qi_act_emb     # merging the inputs by summarizing them (see Note (1))
             for layer_size in self.network_layers_sizes[1:]:
                 qi_output = self.dense_layer(layer_size)(qi_output, activation=self.activation_function)
@@ -77,11 +77,10 @@ class SACQHead(Head):
             self.q2_output = self.dense_layer(1)(qi_output, name='q2_output')
 
         # take the minimum as the network's output. this is the log_target (in the original implementation)
-        self.q_output = tf.minimum(self.q1_output,self.q2_output,name='q_output')
-        # Note: in both author implementation and spinningup, they use q1 (and not min(q1,q2)) to calculate
+        self.q_output = tf.minimum(self.q1_output, self.q2_output, name='q_output')
         # the policy gradients
-        # self.q_output_mean = tf.reduce_mean(self.q1_output)         # option 1: use q1 - according to implementations
-        self.q_output_mean = tf.reduce_mean(self.q_output)        # option 2: use min(q1,q2) according to the paper
+        # self.q_output_mean = tf.reduce_mean(self.q1_output)         # option 1: use q1
+        self.q_output_mean = tf.reduce_mean(self.q_output)        # option 2: use min(q1,q2)
 
         self.output.append(self.q_output)
         self.output.append(self.q_output_mean)
@@ -92,9 +91,6 @@ class SACQHead(Head):
         # eventually both losses are depends on different parameters so we can sum them up
         self.loss = self.q1_loss+self.q2_loss
         tf.losses.add_loss(self.loss)
-
-
-
 
     def __str__(self):
         result = [

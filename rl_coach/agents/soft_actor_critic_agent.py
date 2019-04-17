@@ -18,18 +18,15 @@ from typing import Union
 import copy
 import numpy as np
 from collections import OrderedDict
-import pickle
 
 from rl_coach.agents.agent import Agent
 from rl_coach.agents.policy_optimization_agent import PolicyOptimizationAgent
 
-# import heads
 from rl_coach.architectures.head_parameters import SACQHeadParameters,SACPolicyHeadParameters,VHeadParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, AgentParameters, EmbedderScheme, MiddlewareScheme
 from rl_coach.core_types import ActionInfo, EnvironmentSteps, RunPhase
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
-# from rl_coach.logger import screen
 from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.spaces import BoxActionSpace
@@ -79,7 +76,7 @@ class SACCriticNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(scheme=EmbedderScheme.Empty)}
         self.middleware_parameters = FCMiddlewareParameters(scheme=MiddlewareScheme.Empty)
         self.heads_parameters = [SACQHeadParameters()]      # SACQHeadParameters includes the topology of the head
-        self.rescale_gradient_from_head_by_factor = [1]     # todo: its not in the NetworkParameters base. shouldnt it be ? Yes !
+        self.rescale_gradient_from_head_by_factor = [1]
         self.optimizer_type = 'Adam'
         self.batch_size = 256
         self.async_training = False
@@ -120,7 +117,7 @@ class SoftActorCriticAlgorithmParameters(AlgorithmParameters):
 class SoftActorCriticAgentParameters(AgentParameters):
     def __init__(self):
         super().__init__(algorithm=SoftActorCriticAlgorithmParameters(),
-                         exploration=AdditiveNoiseParameters(),     # todo in SAC: should be re-examined
+                         exploration=AdditiveNoiseParameters(),
                          memory=ExperienceReplayParameters(),   # SAC doesnt use episodic related data
                          # network wrappers:
                          networks=OrderedDict([("policy", SACPolicyNetworkParameters()),
@@ -152,7 +149,6 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         self.v_onl_ys = self.register_signal('V_onl_ys')
         self.action_signal = self.register_signal("actions")
 
-
     def learn_from_batch(self, batch):
         #########################################
         # need to update the following networks:
@@ -182,7 +178,7 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         policy_inputs = copy.copy(batch.states(policy_network_keys))
         policy_results = policy_network.predict(policy_inputs)
 
-        policy_mu,policy_std,sampled_raw_actions,sampled_actions,sampled_actions_logprob,\
+        policy_mu, policy_std, sampled_raw_actions, sampled_actions, sampled_actions_logprob, \
         sampled_actions_logprob_mean = policy_results
 
         self.policy_means.add_sample(policy_mu)
@@ -195,13 +191,13 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         log_target = q_network.predict(q_inputs)[0].squeeze()
 
         # log internal q values
-        q1_vals, q2_vals = q_network.predict(q_inputs,outputs=[q_head.q1_output,q_head.q2_output])
+        q1_vals, q2_vals = q_network.predict(q_inputs, outputs=[q_head.q1_output, q_head.q2_output])
         self.q1_values.add_sample(q1_vals)
         self.q2_values.add_sample(q2_vals)
 
         # calculate the gradients according to (13)
         # get the gradients of log_prob w.r.t the weights (parameters) - indicated as phi in the paper
-        initial_feed_dict = {policy_network.gradients_weights_ph[5]:np.array(1.0)}
+        initial_feed_dict = {policy_network.gradients_weights_ph[5]: np.array(1.0)}
         dlogp_dphi = policy_network.predict(policy_inputs,
                                             outputs=policy_network.weighted_gradients[5],
                                             initial_feed_dict=initial_feed_dict)
@@ -221,7 +217,7 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
 
         # apply the gradients to policy networks
         policy_network.apply_gradients(policy_grads)
-        grads_sumabs=np.sum([np.sum(np.abs(policy_grads[l])) for l in range(len(policy_grads))])
+        grads_sumabs = np.sum([np.sum(np.abs(policy_grads[l])) for l in range(len(policy_grads))])
         self.policy_grads.add_sample(grads_sumabs)
 
         ##########################################
@@ -234,7 +230,7 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         self.v_onl_ys.add_sample(value_targets)
 
         # call value_network apply gradients with this target
-        value_loss = value_network.online_network.train_on_batch(value_inputs,value_targets[:,None])[0]
+        value_loss = value_network.online_network.train_on_batch(value_inputs, value_targets[:,None])[0]
 
         ##########################################
         # 3. updating the critic (q networks)
@@ -254,9 +250,9 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
                      (1.0 - batch.game_overs(expand_dims=True)) * self.ap.algorithm.discount * v_target_next_state
 
         # call critic network update
-        result = q_network.train_on_batch(q_inputs,TD_targets,additional_fetches=[q_head.q1_loss,q_head.q2_loss])
+        result = q_network.train_on_batch(q_inputs, TD_targets, additional_fetches=[q_head.q1_loss, q_head.q2_loss])
         total_loss, losses, unclipped_grads = result[:3]
-        q1_loss,q2_loss = result[3]
+        q1_loss, q2_loss = result[3]
         self.TD_err1.add_sample(q1_loss)
         self.TD_err2.add_sample(q2_loss)
 
@@ -268,14 +264,13 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         return total_loss, losses, unclipped_grads
 
     def get_prediction(self, states):
-        '''
+        """
         get the mean and stdev of the policy distribution given 'states'
         :param states: the states for which we need to sample actions from the policy
         :return: mean and stdev ? what about logprob ?
-        '''
+        """
         tf_input_state = self.prepare_batch_for_inference(states, 'policy')
         return self.networks['policy'].online_network.predict(tf_input_state)
-
 
     def train(self):
         # since the algorithm works with experience replay buffer (non-episodic),
@@ -284,14 +279,13 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         return Agent.train(self)
 
     def choose_action(self, curr_state):
-        '''
+        """
         choose_action - chooses the most likely action
         if 'deterministic' - take the mean of the policy which is the prediction of the policy network.
         else - use the exploration policy
         :param curr_state:
         :return: action wrapped in ActionInfo
-        '''
-
+        """
         if not isinstance(self.spaces.action, BoxActionSpace):
             raise ValueError("SAC works only for continuous control problems")
         # convert to batch so we can run it through the network
@@ -300,7 +294,7 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         policy_network = self.networks['policy'].online_network
         policy_head = policy_network.output_heads[0]
         result = policy_network.predict(tf_input_state,
-                                        outputs=[policy_head.policy_mean,policy_head.actions])
+                                        outputs=[policy_head.policy_mean, policy_head.actions])
         action_mean,action_sample = result
 
         # if using deterministic policy, take the mean values. else, use exploration policy to sample from the pdf
