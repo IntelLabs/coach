@@ -74,11 +74,8 @@ def training_worker(graph_manager, task_parameters, is_multi_node_test, data_sto
             else:
                 graph_manager.occasionally_save_checkpoint()
 
-            print('checking finished...')
             if data_store:
                 data_store.check_finished_from_store()
             if should_stop(task_parameters.checkpoint_save_dir):
                 screen.log_title('Reached required success rate. Exiting.')
                 break
-            else:
-                print('finished not found')

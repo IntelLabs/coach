@@ -115,7 +115,7 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
             graph_manager=graph_manager,
             task_parameters=task_parameters,
             is_multi_node_test=args.is_multi_node_test,
-            data_store
+            data_store=data_store
         )
 
     if args.distributed_coach_run_type == RunType.ROLLOUT_WORKER:
