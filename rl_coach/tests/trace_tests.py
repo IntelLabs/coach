@@ -219,10 +219,6 @@ def main():
     if not args.parallel:
         args.max_threads = 1
 
-    if args.update_traces:
-        replace_new_csv_files()
-        test_utils.update_repo()
-
     if args.preset is not None:
         presets_lists = args.preset.split(',')
     else:
