@@ -77,8 +77,9 @@ class BatchRLGraphManager(BasicRLGraphManager):
         self.agent_params.name = "agent"
         self.agent_params.is_batch_rl_training = True
 
-        # user hasn't defined params for the reward model. we will use the same params as used for the 'main' network.
         if 'reward_model' not in self.agent_params.network_wrappers:
+            # user hasn't defined params for the reward model. we will use the same params as used for the 'main'
+            # network.
             self.agent_params.network_wrappers['reward_model'] = deepcopy(self.agent_params.network_wrappers['main'])
 
         agent = short_dynamic_import(self.agent_params.path)(self.agent_params)
