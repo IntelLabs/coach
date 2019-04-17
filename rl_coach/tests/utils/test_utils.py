@@ -161,19 +161,16 @@ def update_repo():
     """
     print("Configure repo")
     git_path = os.path.join('.')
-    # repo = git.Repo(git_path)
+
     g = git.cmd.Git(git_path)
 
     print("Configure username and email")
-    # repo.config_writer().set_value("user", "name", "anabwan").release()
-    # repo.config_writer().set_value("user", "email", "ayoob.nabwani@intel.com").release()
-    # print(repo.git.status())
-    print(g.execute(["git", "status"]))
-
-    # repo.config_writer().set_value("url", "git@github.com:", "insteadOf", "https://github.com/").release()
-    # repo.config_writer().set_value("gc", "auto", "0").release()
+    print(g.execute(["git", "config", "--global", "user.name", "anabwan"]))
+    print(g.execute(["git", "config", "--global", "user.email", "ayoob.nabwani@intel.com"]))
+    print(g.execute(["git", "config", "--global", "url.ssh://git@github.com/.insteadOf", "https://github.com/"]))
 
     print("add all un-tracked files")
+    print(g.execute(["git", "status"]))
     print(g.execute(["git", "add", "."]))
     print(g.execute(["git", "status"]))
 
