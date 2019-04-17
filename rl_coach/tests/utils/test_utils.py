@@ -162,24 +162,25 @@ def update_repo():
     print("Configure repo")
     git_path = os.path.join('.')
     repo = git.Repo(git_path)
+    g = git.cmd.Git(git_path)
 
     print("Configure username and email")
-    repo.config_writer().set_value("user", "name", "anabwan").release()
-    repo.config_writer().set_value("user", "email", "ayoob.nabwani@intel.com").release()
-    print(repo.git.status())
+    # repo.config_writer().set_value("user", "name", "anabwan").release()
+    # repo.config_writer().set_value("user", "email", "ayoob.nabwani@intel.com").release()
+    # print(repo.git.status())
+    g.execute(["git", "status"])
 
     # repo.config_writer().set_value("url", "git@github.com:", "insteadOf", "https://github.com/").release()
+    # repo.config_writer().set_value("gc", "auto", "0").release()
 
     print("add all un-tracked files")
-    repo.git.add('.')
-    print(repo.git.status())
+    g.execute(["git", "add", "."])
+    g.execute(["git", "status"])
 
     print("create commit")
-    repo.index.commit(message="auto: files updated")
-
-    print(repo.git.status())
+    g.execute(["git", "commit", "-m", "auto: files updated"])
+    g.execute(["git", "status"])
 
     print("push commit to branch: " + repo.active_branch)
-    g = git.cmd.Git(git_path)
-    print(g.execute("git push origin " + repo.active_branch))
+    g.execute(["git", "push", "origin", repo.active_branch])
     # repo.git.push("--set-upstream", "origin", repo.active_branch)
