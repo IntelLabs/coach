@@ -531,7 +531,7 @@ workflows:
       - gym_approval:
           type: approval
           requires:
-            - golden_test_gym
+            - build_gym_env
       - doom_approval:
           type: approval
           requires:
