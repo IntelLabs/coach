@@ -1,7 +1,11 @@
-# REGISTRY=gcr.io
+REGISTRY=gcr.io
 REGISTRY=docker.io
 ORGANIZATION=nervana
-IMAGE=coach
+
+# REGISTRY=amr-registry.caas.intel.com
+# ORGANIZATION=aipg
+# IMAGE=coach
+
 CONTEXT = $(realpath ..)
 
 BUILD_ARGUMENTS=
@@ -111,15 +115,16 @@ bootstrap_kubernetes: build push
 	kubectl run -i --tty --attach --image=${REGISTRY}/${IMAGE} --restart=Never distributed-coach -- python3 rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE} -ns 10.63.249.182 -np /
 
 stop_kubernetes:
-	kubectl delete service --ignore-not-found redis-service
-	kubectl delete pv --ignore-not-found nfs-checkpoint-pv
-	kubectl delete pvc --ignore-not-found nfs-checkpoint-pvc
-	kubectl delete deployment --ignore-not-found redis-server
-	kubectl get jobs | grep train | awk "{print $\1}" | xargs kubectl delete jobs
-	kubectl get jobs | grep worker | awk "{print $\1}" | xargs kubectl delete jobs
+	kubectl get deployments | grep redis-server | awk "{print $$1}" | xargs kubectl delete deployments --ignore-not-found | true
+	kubectl get services | grep redis-service | awk "{print $$1}" | xargs kubectl delete services --ignore-not-found | true
+	kubectl get jobs | grep train | awk "{print $$1}" | xargs kubectl delete jobs --ignore-not-found | true
+	kubectl get jobs | grep worker | awk "{print $$1}" | xargs kubectl delete jobs --ignore-not-found | true
 
 kubernetes: stop_kubernetes
 	python3 ${CONTEXT}/rl_coach/orchestrators/start_training.py --preset CartPole_DQN_distributed --image ${IMAGE} -ns 10.63.249.182 -np /
+
+distributed: build push stop_kubernetes
+	python3 ${CONTEXT}/rl_coach/coach.py -p Mujoco_PPO -lvl humanoid --distributed_coach --distributed_coach_config_path ${CONTEXT}/distributed-coach.config -e stop_asking --num_workers 8
 
 push: build
 	${DOCKER} tag ${IMAGE} ${REGISTRY}/${ORGANIZATION}/${IMAGE}
