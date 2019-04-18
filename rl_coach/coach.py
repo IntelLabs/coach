@@ -263,7 +263,7 @@ class CoachLauncher(object):
                 graph_manager.env_params.level = args.level
 
         # set the seed for the environment
-        if args.seed is not None:
+        if args.seed is not None and graph_manager.env_params is not None:
             graph_manager.env_params.seed = args.seed
 
         # visualization
