@@ -115,6 +115,12 @@ class TrainingSteps(StepMethod):
     def __init__(self, num_steps):
         super().__init__(num_steps)
 
+    def __truediv__(self, other):
+        if isinstance(other, EnvironmentSteps):
+            return math.ceil(self.num_steps / other.num_steps)
+        else:
+            super().__truediv__(self, other)
+
 
 class Time(StepMethod):
     def __init__(self, num_steps):
