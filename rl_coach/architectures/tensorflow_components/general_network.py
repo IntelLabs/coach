@@ -222,7 +222,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         head_params_copy.activation_function = utils.get_activation_function(head_params_copy.activation_function)
         return dynamic_import_and_instantiate_module_from_params(head_params_copy, path=head_path, extra_kwargs={
             'agent_parameters': self.ap, 'spaces': self.spaces, 'network_name': self.network_wrapper_name,
-            'head_idx': head_idx, 'is_local': self.network_is_local, 'is_training': self.is_training})
+            'head_idx': head_idx, 'is_local': self.network_is_local})
 
     def get_model(self) -> List:
         # validate the configuration
