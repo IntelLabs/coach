@@ -45,6 +45,15 @@ class Agent(AgentInterface):
         :param agent_parameters: A AgentParameters class instance with all the agent parameters
         """
         super().__init__()
+        # use seed
+        if agent_parameters.task_parameters.seed is not None:
+            random.seed(agent_parameters.task_parameters.seed)
+            np.random.seed(agent_parameters.task_parameters.seed)
+        else:
+            # we need to seed the RNG since the different processes are initialized with the same parent seed
+            random.seed()
+            np.random.seed()
+
         self.ap = agent_parameters
         self.task_id = self.ap.task_parameters.task_index
         self.is_chief = self.task_id == 0
@@ -196,15 +205,6 @@ class Agent(AgentInterface):
         self.discounted_return = self.register_signal('Discounted Return')
         if isinstance(self.in_action_space, GoalsSpace):
             self.distance_from_goal = self.register_signal('Distance From Goal', dump_one_value_per_step=True)
-
-        # use seed
-        if self.ap.task_parameters.seed is not None:
-            random.seed(self.ap.task_parameters.seed)
-            np.random.seed(self.ap.task_parameters.seed)
-        else:
-            # we need to seed the RNG since the different processes are initialized with the same parent seed
-            random.seed()
-            np.random.seed()
 
         # batch rl
         self.ope_manager = OpeManager() if self.ap.is_batch_rl_training else None
@@ -688,13 +688,16 @@ class Agent(AgentInterface):
             for network in self.networks.values():
                 network.set_is_training(True)
 
-            # TODO: this should be network dependent
-            network_parameters = list(self.ap.network_wrappers.values())[0]
+            # At the moment we only support a single batch size for all the networks
+            networks_parameters = list(self.ap.network_wrappers.values())
+            assert all(net.batch_size == networks_parameters[0].batch_size for net in networks_parameters)
+
+            batch_size = networks_parameters[0].batch_size
 
             # we either go sequentially through the entire replay buffer in the batch RL mode,
             # or sample randomly for the basic RL case.
-            training_schedule = self.call_memory('get_shuffled_data_generator', network_parameters.batch_size) if \
-                self.ap.is_batch_rl_training else [self.call_memory('sample', network_parameters.batch_size) for _ in
+            training_schedule = self.call_memory('get_shuffled_data_generator', batch_size) if \
+                self.ap.is_batch_rl_training else [self.call_memory('sample', batch_size) for _ in
                                       range(self.ap.algorithm.num_consecutive_training_steps)]
 
             for batch in training_schedule:
@@ -713,13 +716,16 @@ class Agent(AgentInterface):
 
                     self.unclipped_grads.add_sample(unclipped_grads)
 
-                    # TODO: the learning rate decay should be done through the network instead of here
+                    # TODO: this only deals with the main network (if exists), need to do the same for other networks
+                    #  for instance, for DDPG, the LR signal is currently not shown. Probably should be done through the
+                    #  network directly instead of here
                     # decay learning rate
-                    if network_parameters.learning_rate_decay_rate != 0:
+                    if 'main' in self.ap.network_wrappers and \
+                            self.ap.network_wrappers['main'].learning_rate_decay_rate != 0:
                         self.curr_learning_rate.add_sample(self.networks['main'].sess.run(
                             self.networks['main'].online_network.current_learning_rate))
                     else:
-                        self.curr_learning_rate.add_sample(network_parameters.learning_rate)
+                        self.curr_learning_rate.add_sample(networks_parameters[0].learning_rate)
 
                     if any([network.has_target for network in self.networks.values()]) \
                             and self._should_update_online_weights_to_target():
@@ -783,10 +789,11 @@ class Agent(AgentInterface):
 
         return batches_dict
 
-    def act(self) -> ActionInfo:
+    def act(self, action: Union[None, ActionType]=None) -> ActionInfo:
         """
         Given the agents current knowledge, decide on the next action to apply to the environment
 
+        :param action: An action to take, overriding whatever the current policy is
         :return: An ActionInfo object, which contains the action and any additional info from the action decision process
         """
         if self.phase == RunPhase.TRAIN and self.ap.algorithm.num_consecutive_playing_steps.num_steps == 0:
@@ -799,20 +806,28 @@ class Agent(AgentInterface):
         self.current_episode_steps_counter += 1
 
         # decide on the action
-        if self.phase == RunPhase.HEATUP and not self.ap.algorithm.heatup_using_network_decisions:
-            # random action
-            self.last_action_info = self.spaces.action.sample_with_info()
-        else:
-            # informed action
-            if self.pre_network_filter is not None:
-                # before choosing an action, first use the pre_network_filter to filter out the current state
-                update_filter_internal_state = self.phase is not RunPhase.TEST
-                curr_state = self.run_pre_network_filter_for_inference(self.curr_state, update_filter_internal_state)
-
+        if action is None:
+            if self.phase == RunPhase.HEATUP and not self.ap.algorithm.heatup_using_network_decisions:
+                # random action
+                action = self.spaces.action.sample_with_info()
             else:
-                curr_state = self.curr_state
-            self.last_action_info = self.choose_action(curr_state)
+                # informed action
+                if self.pre_network_filter is not None:
+                    # before choosing an action, first use the pre_network_filter to filter out the current state
+                    update_filter_internal_state = self.phase is not RunPhase.TEST
+                    curr_state = self.run_pre_network_filter_for_inference(self.curr_state, update_filter_internal_state)
 
+                else:
+                    curr_state = self.curr_state
+                action = self.choose_action(curr_state)
+                assert isinstance(action, ActionInfo)
+
+        self.last_action_info = action
+
+        # output filters are explicitly applied after recording self.last_action_info. This is
+        # because the output filters may change the representation of the action so that the agent
+        # can no longer use the transition in it's replay buffer. It is possible that these filters
+        # could be moved to the environment instead, but they are here now for historical reasons.
         filtered_action_info = self.output_filter.filter(self.last_action_info)
 
         return filtered_action_info
@@ -894,37 +909,35 @@ class Agent(AgentInterface):
             # make agent specific changes to the transition if needed
             transition = self.update_transition_before_adding_to_replay_buffer(transition)
 
-            # merge the intrinsic reward in
-            if self.ap.algorithm.scale_external_reward_by_intrinsic_reward_value:
-                transition.reward = transition.reward * (1 + self.last_action_info.action_intrinsic_reward)
-            else:
-                transition.reward = transition.reward + self.last_action_info.action_intrinsic_reward
-
-            # sum up the total shaped reward
-            self.total_shaped_reward_in_current_episode += transition.reward
-            self.total_reward_in_current_episode += env_response.reward
-            self.shaped_reward.add_sample(transition.reward)
-            self.reward.add_sample(env_response.reward)
-
             # add action info to transition
             if type(self.parent).__name__ == 'CompositeAgent':
                 transition.add_info(self.parent.last_action_info.__dict__)
             else:
                 transition.add_info(self.last_action_info.__dict__)
 
-            # create and store the transition
-            if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
-                # for episodic memories we keep the transitions in a local buffer until the episode is ended.
-                # for regular memories we insert the transitions directly to the memory
-                self.current_episode_buffer.insert(transition)
-                if not isinstance(self.memory, EpisodicExperienceReplay) \
-                        and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
-                    self.call_memory('store', transition)
+            self.total_reward_in_current_episode += env_response.reward
+            self.reward.add_sample(env_response.reward)
 
-            if self.ap.visualization.dump_in_episode_signals:
-                self.update_step_in_episode_log()
+            return self.observe_transition(transition)
 
-            return transition.game_over
+    def observe_transition(self, transition):
+        # sum up the total shaped reward
+        self.total_shaped_reward_in_current_episode += transition.reward
+        self.shaped_reward.add_sample(transition.reward)
+
+        # create and store the transition
+        if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
+            # for episodic memories we keep the transitions in a local buffer until the episode is ended.
+            # for regular memories we insert the transitions directly to the memory
+            self.current_episode_buffer.insert(transition)
+            if not isinstance(self.memory, EpisodicExperienceReplay) \
+                    and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
+                self.call_memory('store', transition)
+
+        if self.ap.visualization.dump_in_episode_signals:
+            self.update_step_in_episode_log()
+
+        return transition.game_over
 
     def post_training_commands(self) -> None:
         """
@@ -1008,60 +1021,6 @@ class Agent(AgentInterface):
         """
         for network in self.networks.values():
             network.sync()
-
-    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
-    #               an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_observe_on_trainer(self, transition: Transition) -> bool:
-        """
-        This emulates the observe using the transition obtained from the rollout worker on the training worker
-        in case of distributed training.
-        Given a response from the environment, distill the observation from it and store it for later use.
-        The response should be a dictionary containing the performed action, the new observation and measurements,
-        the reward, a game over flag and any additional information necessary.
-        :return:
-        """
-
-        # sum up the total shaped reward
-        self.total_shaped_reward_in_current_episode += transition.reward
-        self.total_reward_in_current_episode += transition.reward
-        self.shaped_reward.add_sample(transition.reward)
-        self.reward.add_sample(transition.reward)
-        
-        # create and store the transition
-        if self.phase in [RunPhase.TRAIN, RunPhase.HEATUP]:
-            # for episodic memories we keep the transitions in a local buffer until the episode is ended.
-            # for regular memories we insert the transitions directly to the memory
-            self.current_episode_buffer.insert(transition)
-            if not isinstance(self.memory, EpisodicExperienceReplay) \
-                    and not self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
-                self.call_memory('store', transition)
-
-        if self.ap.visualization.dump_in_episode_signals:
-            self.update_step_in_episode_log()
-
-        return transition.game_over
-
-    # TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create
-    #         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]
-    def emulate_act_on_trainer(self, transition: Transition) -> ActionInfo:
-        """
-        This emulates the act using the transition obtained from the rollout worker on the training worker
-        in case of distributed training.
-        Given the agents current knowledge, decide on the next action to apply to the environment
-        :return: an action and a dictionary containing any additional info from the action decision process
-        """
-        if self.phase == RunPhase.TRAIN and self.ap.algorithm.num_consecutive_playing_steps.num_steps == 0:
-            # This agent never plays  while training (e.g. behavioral cloning)
-            return None
-
-        # count steps (only when training or if we are in the evaluation worker)
-        if self.phase != RunPhase.TEST or self.ap.task_parameters.evaluate_only:
-            self.total_steps_counter += 1
-        self.current_episode_steps_counter += 1
-
-        self.last_action_info = transition.action
-
-        return self.last_action_info
 
     def get_success_rate(self) -> float:
         return self.num_successes_across_evaluation_episodes / self.num_evaluation_episodes_completed

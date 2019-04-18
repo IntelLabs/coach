@@ -259,7 +259,7 @@ class CoachLauncher(object):
                 graph_manager.env_params.level = args.level
 
         # set the seed for the environment
-        if args.seed is not None:
+        if args.seed is not None and graph_manager.env_params is not None:
             graph_manager.env_params.seed = args.seed
 
         # visualization
@@ -510,14 +510,6 @@ class CoachLauncher(object):
                             action='store_true')
         parser.add_argument('-et', '--environment_type',
                             help="(string) Choose an environment type class to override on top of the selected preset.",
-                            default=None,
-                            type=str)
-        parser.add_argument('-ept', '--exploration_policy_type',
-                            help="(string) Choose an exploration policy type class to override on top of the selected "
-                                 "preset."
-                                 "If no preset is defined, a preset can be set from the command-line by combining settings "
-                                 "which are set by using --agent_type, --experiment_type, --environemnt_type"
-                            ,
                             default=None,
                             type=str)
         parser.add_argument('-lvl', '--level',

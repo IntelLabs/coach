@@ -70,6 +70,9 @@ class DQNAgent(ValueOptimizationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
 
+    def select_actions(self, next_states, q_st_plus_1):
+        return np.argmax(q_st_plus_1, 1)
+
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
@@ -81,6 +84,8 @@ class DQNAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        selected_actions = self.select_actions(batch.next_states(network_keys), q_st_plus_1)
+
         # add Q value samples for logging
         self.q_values.add_sample(TD_targets)
 
@@ -88,7 +93,7 @@ class DQNAgent(ValueOptimizationAgent):
         TD_errors = []
         for i in range(batch.size):
             new_target = batch.rewards()[i] +\
-                         (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * np.max(q_st_plus_1[i], 0)
+                         (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * q_st_plus_1[i][selected_actions[i]]
             TD_errors.append(np.abs(new_target - TD_targets[i, batch.actions()[i]]))
             TD_targets[i, batch.actions()[i]] = new_target
 

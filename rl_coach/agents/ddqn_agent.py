@@ -17,9 +17,7 @@
 from typing import Union
 
 import numpy as np
-
-from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
+from rl_coach.agents.dqn_agent import DQNAgent, DQNAgentParameters
 from rl_coach.core_types import EnvironmentSteps
 from rl_coach.schedules import LinearSchedule
 
@@ -37,36 +35,10 @@ class DDQNAgentParameters(DQNAgentParameters):
 
 
 # Double DQN - https://arxiv.org/abs/1509.06461
-class DDQNAgent(ValueOptimizationAgent):
+class DDQNAgent(DQNAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
 
-    def learn_from_batch(self, batch):
-        network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+    def select_actions(self, next_states, q_st_plus_1):
+        return np.argmax(self.networks['main'].online_network.predict(next_states), 1)
 
-        selected_actions = np.argmax(self.networks['main'].online_network.predict(batch.next_states(network_keys)), 1)
-        q_st_plus_1, TD_targets = self.networks['main'].parallel_prediction([
-            (self.networks['main'].target_network, batch.next_states(network_keys)),
-            (self.networks['main'].online_network, batch.states(network_keys))
-        ])
-
-        # add Q value samples for logging
-        self.q_values.add_sample(TD_targets)
-
-        # initialize with the current prediction so that we will
-        #  only update the action that we have actually done in this transition
-        TD_errors = []
-        for i in range(batch.size):
-            new_target = batch.rewards()[i] + \
-                         (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * q_st_plus_1[i][selected_actions[i]]
-            TD_errors.append(np.abs(new_target - TD_targets[i, batch.actions()[i]]))
-            TD_targets[i, batch.actions()[i]] = new_target
-
-        # update errors in prioritized replay buffer
-        importance_weights = self.update_transition_priorities_and_get_weights(TD_errors, batch)
-
-        result = self.networks['main'].train_and_sync_networks(batch.states(network_keys), TD_targets,
-                                                               importance_weights=importance_weights)
-        total_loss, losses, unclipped_grads = result[:3]
-
-        return total_loss, losses, unclipped_grads
