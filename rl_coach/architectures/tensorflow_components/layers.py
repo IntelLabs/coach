@@ -26,6 +26,7 @@ from rl_coach.architectures.tensorflow_components import utils
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout_rate, is_training, name):
     layers = [input_layer]
 
+    # Rationale: passing a bool here will mean that batchnorm and or activation will never activate
     assert not isinstance(is_training, bool)
 
     # batchnorm
