@@ -484,28 +484,11 @@ class GymEnvironment(Environment):
         # initialize the number of lives
         self._update_ale_lives()
 
-    def _set_mujoco_camera(self, camera_idx: int):
-        """
-        This function can be used to set the camera for rendering the mujoco simulator
-        :param camera_idx: The index of the camera to use. Should be defined in the model
-        :return: None
-        """
-        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx:
-            from mujoco_py.generated import const
-            self.env.unwrapped.viewer.cam.type = const.CAMERA_FIXED
-            self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
-
     def _render(self):
         self.env.render(mode='human')
-        # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env and not self.is_roboschool_env:
-            self._set_mujoco_camera(0)
 
     def get_rendered_image(self):
         image = self.env.render(mode='rgb_array')
-        # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env and not self.is_roboschool_env:
-            self._set_mujoco_camera(0)
         return image
 
     def get_target_success_rate(self) -> float:
