@@ -127,6 +127,9 @@ class BatchRLGraphManager(BasicRLGraphManager):
         if self.env_params is not None and not self.agent_params.memory.load_memory_from_file_path:
             self.heatup(self.heatup_steps)
 
+        # from this point onwards, the dataset cannot be changed anymore. Allows for performance improvements.
+        self.level_managers[0].agents['agent'].memory.freeze()
+
         self.improve_reward_model()
 
         # improve

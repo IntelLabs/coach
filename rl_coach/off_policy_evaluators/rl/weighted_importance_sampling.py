@@ -47,9 +47,16 @@ class WeightedImportanceSampling(object):
 
             per_episode_w_i.append(w_i)
         total_w_i_sum_across_episodes = sum(per_episode_w_i)
-
+        # print (per_episode_w_i)
         wis = 0
         for i, episode in enumerate(dataset_as_episodes):
+            if total_w_i_sum_across_episodes == 0:
+                print("total_w_i_sum_across_episodes = 0!!!!")
+            if len(episode.transitions) == 0:
+                print ("empty episode", i)
+                continue
+                # TODO bug in dataset?
+
             wis += per_episode_w_i[i]/total_w_i_sum_across_episodes * episode.transitions[0].n_step_discounted_rewards
             # print(transition.n_step_discounted_rewards)
 

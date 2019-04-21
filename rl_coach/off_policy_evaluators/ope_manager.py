@@ -36,13 +36,17 @@ OpeEstimation = namedtuple("OpeEstimation", ['ips', 'dm', 'dr', 'seq_dr', 'wis']
 
 class OpeManager(object):
     def __init__(self):
+        self.dataset_as_transitions = None
         self.doubly_robust = DoublyRobust()
         self.sequential_doubly_robust = SequentialDoublyRobust()
         self.weighted_importance_sampling = WeightedImportanceSampling()
+        self.all_reward_model_rewards = []
+        self.all_old_policy_probs = []
+        self.all_rewards = []
+        self.all_actions = []
+        self.not_initialized_yet = True
 
-
-    @staticmethod
-    def _prepare_ope_shared_stats(dataset_as_transitions: List[Transition], batch_size: int,
+    def _prepare_ope_shared_stats(self, dataset_as_transitions: List[Transition], batch_size: int,
                                   reward_model: Architecture, q_network: Architecture,
                                   network_keys: List) -> OpeSharedStats:
         """
@@ -57,15 +61,20 @@ class OpeManager(object):
         :return:
         """
         # IPS
-        all_reward_model_rewards, all_policy_probs, all_old_policy_probs = [], [], []
-        all_v_values_reward_model_based, all_v_values_q_model_based, all_rewards, all_actions = [], [], [], []
+        all_policy_probs = []
+        all_v_values_reward_model_based, all_v_values_q_model_based = [], []
 
         for i in range(math.ceil(len(dataset_as_transitions) / batch_size)):
             batch = dataset_as_transitions[i * batch_size: (i + 1) * batch_size]
             batch_for_inference = Batch(batch)
 
-            all_reward_model_rewards.append(reward_model.predict(
-                batch_for_inference.states(network_keys)))
+            if self.not_initialized_yet:
+                self.all_reward_model_rewards.append(reward_model.predict(batch_for_inference.states(network_keys)))
+                self.all_rewards.append(batch_for_inference.rewards())
+                self.all_actions.append(batch_for_inference.actions())
+                self.all_old_policy_probs.append(batch_for_inference.info('all_action_probabilities')
+                                                 [range(len(batch_for_inference.actions())),
+                                                  batch_for_inference.actions()])
 
             # we always use the first Q head to calculate OPEs. might want to change this in the future.
             # for instance, this means that for bootstrapped dqn we always use the first QHead to calculate the OPEs.
@@ -74,15 +83,9 @@ class OpeManager(object):
                                                              q_network.output_heads[0].softmax])
 
             all_policy_probs.append(sm_values)
-            all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * all_reward_model_rewards[-1], axis=1))
+            all_v_values_reward_model_based.append(np.sum(all_policy_probs[-1] * self.all_reward_model_rewards[i],
+                                                          axis=1))
             all_v_values_q_model_based.append(np.sum(all_policy_probs[-1] * q_values, axis=1))
-            # TODO need to account for reward filtering all over the OPE code. Currently there's a mishmash,
-            #  as Q values are using the filtered rewards, and the IPS use unfiltered. So in sequential DR for instance,
-            #  we get a mess.
-            all_rewards.append(batch_for_inference.rewards())
-            all_actions.append(batch_for_inference.actions())
-            all_old_policy_probs.append(batch_for_inference.info('all_action_probabilities')
-                                        [range(len(batch_for_inference.actions())), batch_for_inference.actions()])
 
             for j, t in enumerate(batch):
                 t.update_info({
@@ -92,19 +95,24 @@ class OpeManager(object):
 
                 })
 
-        all_reward_model_rewards = np.concatenate(all_reward_model_rewards, axis=0)
+        if self.not_initialized_yet:
+            self.all_reward_model_rewards_np = np.concatenate(self.all_reward_model_rewards, axis=0)
+            self.all_old_policy_probs = np.concatenate(self.all_old_policy_probs, axis=0)
+            self.all_rewards = np.concatenate(self.all_rewards, axis=0)
+            self.all_actions = np.concatenate(self.all_actions, axis=0)
+
+            self.not_initialized_yet = False
+
         all_policy_probs = np.concatenate(all_policy_probs, axis=0)
         all_v_values_reward_model_based = np.concatenate(all_v_values_reward_model_based, axis=0)
-        all_rewards = np.concatenate(all_rewards, axis=0)
-        all_actions = np.concatenate(all_actions, axis=0)
-        all_old_policy_probs = np.concatenate(all_old_policy_probs, axis=0)
 
         # generate model probabilities
-        new_policy_prob = all_policy_probs[np.arange(all_actions.shape[0]), all_actions]
-        rho_all_dataset = new_policy_prob / all_old_policy_probs
+        new_policy_prob = all_policy_probs[np.arange(self.all_actions.shape[0]), self.all_actions]
+        rho_all_dataset = new_policy_prob / self.all_old_policy_probs
 
-        return OpeSharedStats(all_reward_model_rewards, all_policy_probs, all_v_values_reward_model_based,
-                              all_rewards, all_actions, all_old_policy_probs, new_policy_prob, rho_all_dataset)
+        return OpeSharedStats(self.all_reward_model_rewards_np, all_policy_probs, all_v_values_reward_model_based,
+                              self.all_rewards, self.all_actions, self.all_old_policy_probs, new_policy_prob,
+                              rho_all_dataset)
 
     def evaluate(self, dataset_as_episodes: List[Episode], batch_size: int, discount_factor: float,
                  reward_model: Architecture, q_network: Architecture, network_keys: List) -> OpeEstimation:
@@ -120,9 +128,10 @@ class OpeManager(object):
 
         :return: An OpeEstimation tuple which groups together all the OPE estimations
         """
-        # TODO this seems kind of slow, review performance
-        dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
-        ope_shared_stats = self._prepare_ope_shared_stats(dataset_as_transitions, batch_size, reward_model,
+        if self.dataset_as_transitions is None:
+            self.dataset_as_transitions = [t for e in dataset_as_episodes for t in e.transitions]
+
+        ope_shared_stats = self._prepare_ope_shared_stats(self.dataset_as_transitions, batch_size, reward_model,
                                                           q_network, network_keys)
 
         ips, dm, dr = self.doubly_robust.evaluate(ope_shared_stats)
