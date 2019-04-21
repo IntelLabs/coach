@@ -65,19 +65,25 @@ def read_csv_paths(test_path, filename_pattern, read_csv_tries=120,
     """
     csv_paths = []
     tries_counter = 0
-    while not csv_paths or extra_tries > 0:
-        csv_paths = glob.glob(path.join(test_path, '*', filename_pattern))
-        if tries_counter > read_csv_tries:
-            break
 
-        if num_expected_files and num_expected_files == len(csv_paths):
+    if extra_tries > 0:
+        read_csv_tries += extra_tries
+
+    while tries_counter < read_csv_tries:
+        csv_paths = glob.glob(path.join(test_path, '*', filename_pattern))
+
+        if num_expected_files:
+            if num_expected_files == len(csv_paths):
+                break
+            else:
+                time.sleep(1)
+                tries_counter += 1
+                continue
+        elif csv_paths:
             break
 
         time.sleep(1)
         tries_counter += 1
-
-        if csv_paths and extra_tries > 0:
-            extra_tries -= 1
 
     return csv_paths
 
