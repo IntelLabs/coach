@@ -300,7 +300,6 @@ class GymEnvironment(Environment):
             random.seed(self.seed)
 
         # frame skip and max between consecutive frames
-        self.is_robotics_env = 'robotics' in str(self.env.unwrapped.__class__)
         self.is_mujoco_env = 'mujoco' in str(self.env.unwrapped.__class__)
         self.is_roboschool_env = 'roboschool' in str(self.env.unwrapped.__class__)
         self.is_atari_env = 'Atari' in str(self.env.unwrapped.__class__)
@@ -496,12 +495,6 @@ class GymEnvironment(Environment):
             self.env.unwrapped.viewer.cam.type = const.CAMERA_FIXED
             self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
 
-    def _get_robotics_image(self):
-        self.env.render()
-        image = self.env.unwrapped._get_viewer().read_pixels(1600, 900, depth=False)[::-1, :, :]
-        image = scipy.misc.imresize(image, (270, 480, 3))
-        return image
-
     def _render(self):
         self.env.render(mode='human')
         # required for setting up a fixed camera for mujoco
@@ -509,11 +502,7 @@ class GymEnvironment(Environment):
             self._set_mujoco_camera(0)
 
     def get_rendered_image(self):
-        if self.is_robotics_env:
-            # necessary for fetch since the rendered image is cropped to an irrelevant part of the simulator
-            image = self._get_robotics_image()
-        else:
-            image = self.env.render(mode='rgb_array')
+        image = self.env.render(mode='rgb_array')
         # required for setting up a fixed camera for mujoco
         if self.is_mujoco_env and not self.is_roboschool_env:
             self._set_mujoco_camera(0)
