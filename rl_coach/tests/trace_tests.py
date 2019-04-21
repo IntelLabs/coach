@@ -277,7 +277,6 @@ def main():
 
     if args.update_traces:
         replace_new_csv_files()
-        test_utils.update_repo()
 
 
 if __name__ == '__main__':

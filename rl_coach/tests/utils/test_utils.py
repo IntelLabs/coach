@@ -21,7 +21,6 @@ import time
 import os
 from os import path
 from rl_coach.tests.utils.definitions import Definitions as Def
-import git
 
 
 def print_progress(averaged_rewards, last_num_episodes, start_time, time_limit,
@@ -152,33 +151,3 @@ def get_csv_path(clres, tries_for_csv=Def.TimeOuts.wait_for_csv,
                           read_csv_tries=tries_for_csv,
                           extra_tries=extra_tries,
                           num_expected_files=num_expected_files)
-
-
-def update_repo():
-    """
-    update files on repo, be careful when using this function, it will add
-    a new commit to PR
-    """
-    print("Configure repo")
-    git_path = os.path.join('.')
-
-    g = git.cmd.Git(git_path)
-
-    print("Configure username and email")
-    print(g.execute(["git", "config", "--global", "user.name", "anabwan"]))
-    print(g.execute(["git", "config", "--global", "user.email", "ayoob.nabwani@intel.com"]))
-    print(g.execute(["git", "config", "--global", "url.ssh://git@github.com/.insteadOf", "https://github.com/"]))
-
-    print("add all un-tracked files")
-    print(g.execute(["git", "status"]))
-    print(g.execute(["git", "add", "."]))
-    print(g.execute(["git", "status"]))
-
-    print("create commit")
-    print(g.execute(["git", "commit", "-m", "auto: files updated"]))
-    print(g.execute(["git", "status"]))
-    branch_name = g.execute(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-
-    print("push commit to branch: " + branch_name)
-    print(g.execute(["git", "push", "origin", branch_name]))
-    # repo.git.push("--set-upstream", "origin", repo.active_branch)
