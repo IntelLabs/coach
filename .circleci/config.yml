@@ -546,7 +546,7 @@ workflows:
             - doom_approval
       - trace_test_mujoco:
           requires:
-#            - mujoco_approval
+            - mujoco_approval
 #      - trace_test_starcraft:
 #          requires:
 #            - starcraft_approval
