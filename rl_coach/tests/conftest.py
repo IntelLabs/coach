@@ -115,7 +115,6 @@ def clres(request):
 
     # get the stdout for logs results
     log_file_name = 'test_log_{}.txt'.format(p_name)
-    # stdout = open(log_file_name, 'w')
     fn_pattern = '*.csv' if p_valid_params.num_workers > 1 else 'worker_0*.csv'
 
     res = CreateCsvLog(test_path, log_file_name, fn_pattern)

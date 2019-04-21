@@ -91,7 +91,7 @@ def test_restore_checkpoint(preset_args, clres, framework,
         return p
 
     if framework == "mxnet":
-        # update presetnamw
+        # update preset name - for mxnet framework we are using *_DQN
         preset_args = Def.Presets.mxnet_args_test[0]
         # update logs paths
         test_name = 'ExpName_{}'.format(preset_args)
