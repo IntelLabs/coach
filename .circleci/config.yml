@@ -116,7 +116,8 @@ jobs:
             docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach-mujoco_environment:${TAG} -f docker/Dockerfile.mujoco_environment .
             docker push ${REGISTRY}/coach-mujoco_environment:${TAG}
           no_output_timeout: 10m
-#  Starcraft still not ready for CircleCI
+
+#  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
 #  build_starcraft_env:
 #    <<: *executor_prep
 #    steps:
@@ -252,7 +253,7 @@ jobs:
             kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
           when: always
 
-#  Starcraft still not ready for CircleCI
+#  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
 #  golden_test_starcraft:
 #    <<: *executor_prep
 #    steps:
@@ -313,7 +314,7 @@ jobs:
             kubectl delete ns functional-test-doom-${CIRCLE_BUILD_NUM} || true
           when: always
 
-#  Starcraft still not ready for CircleCI
+#  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
 #  functional_test_Starcraft:
 #    <<: *executor_prep
 #    steps:
@@ -394,7 +395,7 @@ jobs:
             kubectl delete ns trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
           when: always
 
-#  Starcraft still not ready for CircleCI
+#  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
 #  trace_test_starcraft:
 #    <<: *executor_prep
 #    steps:
@@ -571,7 +572,7 @@ workflows:
       - build_gym_env
       - build_doom_env
       - build_mujoco_env
-      # Starcraft disabled from nightly because tests are un-stabled
+      #  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
       #- build_starcraft_env
       - functional_test_doom:
             requires:
@@ -580,7 +581,7 @@ workflows:
             requires:
               - build_mujoco_env
               - functional_test_doom
-      # Starcraft disabled from nightly because tests are un-stabled
+      #  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
       #- functional_test_starcraft:
       #      requires:
       #        - build_starcraft_env
@@ -596,7 +597,7 @@ workflows:
           requires:
             - build_mujoco_env
             - golden_test_doom
-      # Starcraft disabled from nightly because tests are un-stabled
+      #  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
       #- golden_test_starcraft:
       #    requires:
       #      - build_starcraft_env
