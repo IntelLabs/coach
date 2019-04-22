@@ -22,7 +22,7 @@ from rl_coach.core_types import Episode
 class WeightedImportanceSampling(object):
 # TODO rename and add PDIS
     @staticmethod
-    def evaluate(dataset_as_episodes: List[Episode], discount_factor: float) -> float:
+    def evaluate(dataset_as_episodes: List[Episode]) -> float:
         """
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
@@ -43,8 +43,8 @@ class WeightedImportanceSampling(object):
             for transition in episode.transitions:
                 w_i *= transition.info['softmax_policy_prob'][transition.action] / \
                       transition.info['all_action_probabilities'][transition.action]
-
             per_episode_w_i.append(w_i)
+
         total_w_i_sum_across_episodes = sum(per_episode_w_i)
         wis = 0
         for i, episode in enumerate(dataset_as_episodes):

@@ -20,6 +20,7 @@ import numpy as np
 
 from rl_coach.agents.agent import Agent
 from rl_coach.core_types import ActionInfo, StateType, Batch
+from rl_coach.filters.filter import NoInputFilter
 from rl_coach.logger import screen
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplay
 from rl_coach.spaces import DiscreteActionSpace
@@ -116,6 +117,12 @@ class ValueOptimizationAgent(Agent):
         if len(self.dataset_as_episodes) == 0:
             raise ValueError('train_to_eval_ratio is too high causing the evaluation set to be empty. '
                              'Consider decreasing its value.')
+
+        if not isinstance(self.pre_network_filter, NoInputFilter) and len(self.pre_network_filter.reward_filters) != 0:
+            raise ValueError("Defining a pre-network reward filter when OPEs are calculated will result in a mismatch "
+                             "between q values (which are scaled), and actual rewards, which are not. It is advisable "
+                             "to use an input_filter, if possible, instead, which will filter the transitions directly "
+                             "in the replay buffer, affecting both the q_values and the rewards themselves. ")
 
         ips, dm, dr, seq_dr, wis = self.ope_manager.evaluate(
                                   dataset_as_episodes=self.dataset_as_episodes,
