@@ -59,7 +59,7 @@ class SACValueNetworkParameters(NetworkParameters):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(activation_function='relu')}
         self.middleware_parameters = FCMiddlewareParameters(activation_function='relu')
-        self.heads_parameters = [VHeadParameters()]
+        self.heads_parameters = [VHeadParameters(initializer='xavier')]
         self.rescale_gradient_from_head_by_factor = [1]
         self.optimizer_type = 'Adam'
         self.batch_size = 256

@@ -36,7 +36,6 @@ class HeadParameters(NetworkComponentParameters):
         return 'rl_coach.architectures.tensorflow_components.heads:' + self.parameterized_class_name
 
 
-
 class PPOHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='tanh', name: str='ppo_head_params',
                  num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
@@ -50,7 +49,7 @@ class PPOHeadParameters(HeadParameters):
 class VHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='relu', name: str='v_head_params',
                  num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
-                 loss_weight: float = 1.0, dense_layer=None):
+                 loss_weight: float = 1.0, dense_layer=None, initializer='normalized_columns'):
         super().__init__(parameterized_class_name="VHead", activation_function=activation_function, name=name,
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
@@ -202,6 +201,7 @@ class SACPolicyHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='relu', name: str='sac_policy_head_params', dense_layer=None):
         super().__init__(parameterized_class_name='SACPolicyHead', activation_function=activation_function, name=name,
                          dense_layer=dense_layer)
+
 
 class SACQHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='relu', name: str='sac_q_head_params', dense_layer=None,
