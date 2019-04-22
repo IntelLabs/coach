@@ -24,14 +24,54 @@ import sys
 import signal
 import pandas as pd
 import time
-import rl_coach.tests.utils.test_utils as test_utils
+from configparser import ConfigParser
 from importlib import import_module
+from minio import Minio
 from os import path
 sys.path.append('.')
 from rl_coach.logger import screen
 
 
 processes = []
+
+
+def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+    """
+    Generate the s3 config file to be used and also the dist-coach-config.template to be used for the test
+    It reads the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` env vars and fails if they are not provided.
+    """
+    # Write s3 creds
+    aws_config = ConfigParser({
+        'aws_access_key_id': os.environ.get('AWS_ACCESS_KEY_ID'),
+        'aws_secret_access_key': os.environ.get('AWS_SECRET_ACCESS_KEY')
+    }, default_section='default')
+    with open(s3_creds_file, 'w') as f:
+        aws_config.write(f)
+
+    coach_config = ConfigParser({
+        'image': image,
+        'memory_backend': memory_backend,
+        'data_store': 's3',
+        's3_end_point': s3_end_point,
+        's3_bucket_name': s3_bucket_name,
+        's3_creds_file': s3_creds_file
+    }, default_section="coach")
+    with open(config_file, 'w') as f:
+        coach_config.write(f)
+
+
+def clear_bucket(s3_end_point, s3_bucket_name):
+    """
+    Clear the bucket before starting the test.
+    """
+    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+    secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    minio_client = Minio(s3_end_point, access_key=access_key, secret_key=secret_access_key)
+    try:
+        for obj in minio_client.list_objects_v2(s3_bucket_name, recursive=True):
+            minio_client.remove_object(s3_bucket_name, obj.object_name)
+    except Exception:
+        pass
 
 
 def sigint_handler(signum, frame):
@@ -214,6 +254,12 @@ def main():
                         help="(int) maximum number of threads to run in parallel",
                         default=multiprocessing.cpu_count()-2,
                         type=int)
+    parser.add_argument('-i', '--image', help="(string) Name of the testing image", type=str, default=None)
+    parser.add_argument('-mb', '--memory_backend', help="(string) Name of the memory backend", type=str, default="redispubsub")
+    parser.add_argument('-e', '--endpoint', help="(string) Name of the s3 endpoint", type=str, default='s3.amazonaws.com')
+    parser.add_argument('-cr', '--creds_file', help="(string) Path of the s3 creds file", type=str, default='.aws_creds')
+    parser.add_argument('-b', '--bucket', help="(string) Name of the bucket for s3", type=str, default=None)
+    parser.add_argument('-tc', '--test-command', help="(string) command to execute", type=str, required=True)
 
     args = parser.parse_args()
     if not args.parallel:
@@ -224,6 +270,13 @@ def main():
     else:
         presets_lists = [f[:-3] for f in os.listdir(os.path.join('rl_coach', 'presets')) if
                          f[-3:] == '.py' and not f == '__init__.py']
+
+    if args.update_traces:
+        config_file = './tmp.cred'
+        generate_config(args.image, args.memory_backend, args.endpoint,
+                        args.bucket, args.creds_file, config_file)
+
+        clear_bucket(args.endpoint, args.bucket)
 
     fail_count = 0
     test_count = 0
