@@ -375,7 +375,7 @@ jobs:
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-gym-test-${CIRCLE_BUILD_NUM} \
-                          && python3 rl_coach/tests/trace_tests.py -p ${TRACE_PRESETS} -prl -ut -b coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM}' -tc  -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty)
+                          && python3 rl_coach/tests/trace_tests.py -prl -p ${TRACE_PRESETS} -ut -b coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM} -tc  -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty)'
             docker ps -a -q | head -n 1  | xargs -I% docker cp %:/root/src/experiments . || true
           no_output_timeout: 45m
       - store_artifacts:
@@ -579,8 +579,6 @@ workflows:
       - update_gym_traces_test:
           requires:
             - build_gym_env
-            - build_doom_env
-            - build_mujoco_env
 #            - gym_approval
 #            - doom_approval
 #            - mujoco_approval
