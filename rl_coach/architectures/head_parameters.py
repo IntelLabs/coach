@@ -54,6 +54,7 @@ class VHeadParameters(HeadParameters):
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
                          loss_weight=loss_weight)
+        self.initializer = initializer
 
 
 class CategoricalQHeadParameters(HeadParameters):
