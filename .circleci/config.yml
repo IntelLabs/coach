@@ -383,10 +383,7 @@ jobs:
       - run:
           name: cleanup
           command: |
-            kubectl delete --all pods --namespace=golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
-            kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
-            aws s3 rm --recursive s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM} || true
-            aws s3 rb s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM} || true
+            kubectl delete --all pods --namespace=trace-gym-test-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns trace-gym-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
