@@ -380,12 +380,6 @@ jobs:
           no_output_timeout: 45m
       - store_artifacts:
           path: ~/repo/rl_coach/traces
-      - run:
-          name: cleanup
-          command: |
-            kubectl delete --all pods --namespace=trace-gym-test-${CIRCLE_BUILD_NUM} || true
-            kubectl delete ns trace-gym-test-${CIRCLE_BUILD_NUM} || true
-          when: always
 
   trace_test_doom:
     <<: *executor_prep
