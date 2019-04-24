@@ -220,11 +220,11 @@ def replace_new_csv_files():
         trace_preset_path = os.path.join(trace_dir_path, preset)
 
         if os.path.exists(trace_preset_path):
-            screen.success("updating trace files: " + trace_preset_path)
             old_file = os.path.join(trace_preset_path, "trace.csv")
             new_file = os.path.join(trace_preset_path, "trace_new.csv")
 
             if os.path.exists(new_file):
+                screen.success("updating trace files: " + trace_preset_path)
                 shutil.move(new_file, old_file)
 
 
