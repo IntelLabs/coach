@@ -107,7 +107,7 @@ def clean_df(df):
     return df
 
 
-def run_trace_based_test(preset_name, num_env_steps, level=None):
+def run_trace_based_test(preset_name, num_env_steps, config_file, level=None):
     test_name = '__test_trace_{}{}'.format(preset_name, '_' + level if level else '').replace(':', '_')
     test_path = os.path.join('./experiments', test_name)
     if path.exists(test_path):
@@ -123,6 +123,7 @@ def run_trace_based_test(preset_name, num_env_steps, level=None):
         '-e {test_name} '
         '--seed 42 '
         '-c '
+        '-dcp {template}'
         '--no_summary '
         '-cp {custom_param} '
         '{level} '
@@ -130,6 +131,7 @@ def run_trace_based_test(preset_name, num_env_steps, level=None):
     ).format(
         preset_name=preset_name,
         test_name=test_name,
+        template=config_file,
         log_file_name=log_file_name,
         level='-lvl ' + level if level else '',
         custom_param='\"improve_steps=EnvironmentSteps({n});'
@@ -278,12 +280,10 @@ def main():
         presets_lists = [f[:-3] for f in os.listdir(os.path.join('rl_coach', 'presets')) if
                          f[-3:] == '.py' and not f == '__init__.py']
 
+    config_file = './tmp.cred'
     if args.update_traces:
-        config_file = './tmp.cred'
         generate_config(args.image, args.memory_backend, args.endpoint,
                         args.bucket, args.creds_file, config_file)
-
-        # clear_bucket(args.endpoint, args.bucket)
 
     fail_count = 0
     test_count = 0
@@ -305,20 +305,23 @@ def main():
                 test_count += 1
                 continue
 
+            if args.endpoint and args.bucket:
+                clear_bucket(args.endpoint, args.bucket)
+
             preset_validation_params = preset.graph_manager.preset_validation_params
             num_env_steps = preset_validation_params.trace_max_env_steps
             if preset_validation_params.test_using_a_trace_test:
                 if preset_validation_params.trace_test_levels:
                     for level in preset_validation_params.trace_test_levels:
                         test_count += 1
-                        test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, level)
+                        test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, config_file, level)
                         processes.append((test_path, log_file, p))
                         test_passed = wait_and_check(args, processes)
                         if test_passed is not None and not test_passed:
                             fail_count += 1
                 else:
                     test_count += 1
-                    test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps)
+                    test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, config_file)
                     processes.append((test_path, log_file, p))
                     test_passed = wait_and_check(args, processes)
                     if test_passed is not None and not test_passed:
