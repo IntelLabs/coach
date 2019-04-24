@@ -55,7 +55,7 @@ def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_cred
         's3_end_point': s3_end_point,
         's3_bucket_name': s3_bucket_name,
         's3_creds_file': s3_creds_file
-    }, default_section="coach-gym_environment")
+    }, default_section="coach")
     with open(config_file, 'w') as f:
         coach_config.write(f)
 
