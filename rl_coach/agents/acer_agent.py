@@ -68,7 +68,7 @@ class ACERAlgorithmParameters(AlgorithmParameters):
         self.num_steps_between_gradient_updates = 5000
         self.ratio_of_replay = 4
         self.num_transitions_to_start_replay = 10000
-        self.rate_for_copying_weights_to_target = 0.99
+        self.rate_for_copying_weights_to_target = 0.01
         self.importance_weight_truncation = 10.0
         self.use_trust_region_optimization = True
         self.max_KL_divergence = 1.0

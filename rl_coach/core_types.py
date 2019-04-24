@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from collections import namedtuple
 
 import copy
+import math
 from enum import Enum
 from random import shuffle
 from typing import List, Union, Dict, Any, Type
@@ -38,6 +39,17 @@ class GoalTypes(Enum):
     Measurements = 4
 
 
+Record = namedtuple('Record', ['name', 'label'])
+
+
+class TimeTypes(Enum):
+    EpisodeNumber = Record(name='Episode #', label='Episode #')
+    TrainingIteration = Record(name='Training Iter', label='Training Iteration')
+    EnvironmentSteps = Record(name='Total steps', label='Total steps (per worker)')
+    WallClockTime = Record(name='Wall-Clock Time', label='Wall-Clock Time (minutes)')
+    Epoch = Record(name='Epoch', label='Epoch #')
+
+
 # step methods
 
 class StepMethod(object):
@@ -51,6 +63,37 @@ class StepMethod(object):
     @num_steps.setter
     def num_steps(self, val: int) -> None:
         self._num_steps = val
+
+    def __eq__(self, other):
+        return self.num_steps == other.num_steps
+
+    def __truediv__(self, other):
+        """
+        divide this step method with other. If other is an integer, returns an object of the same
+        type as self. If other is the same type of self, returns an integer. In either case, any
+        floating point value is rounded up under the assumption that if we are dividing Steps, we
+        would rather overestimate than underestimate.
+        """
+        if isinstance(other, type(self)):
+            return math.ceil(self.num_steps / other.num_steps)
+        elif isinstance(other, int):
+            return type(self)(math.ceil(self.num_steps / other))
+        else:
+            raise TypeError("cannot divide {} by {}".format(type(self), type(other)))
+
+    def __rtruediv__(self, other):
+        """
+        divide this step method with other. If other is an integer, returns an object of the same
+        type as self. If other is the same type of self, returns an integer. In either case, any
+        floating point value is rounded up under the assumption that if we are dividing Steps, we
+        would rather overestimate than underestimate.
+        """
+        if isinstance(other, type(self)):
+            return math.ceil(other.num_steps / self.num_steps)
+        elif isinstance(other, int):
+            return type(self)(math.ceil(other / self.num_steps))
+        else:
+            raise TypeError("cannot divide {} by {}".format(type(other), type(self)))
 
 
 class Frames(StepMethod):
@@ -249,6 +292,9 @@ class Transition(object):
                              .format(self.info.keys(), new_info.keys()))
         self.info.update(new_info)
 
+    def update_info(self, new_info: Dict[str, Any]) -> None:
+        self.info.update(new_info)
+
     def __copy__(self):
         new_transition = type(self)()
         new_transition.__dict__.update(self.__dict__)
@@ -330,8 +376,7 @@ class ActionInfo(object):
     """
 
     def __init__(self, action: ActionType, all_action_probabilities: float=0,
-                 action_value: float=0., state_value: float=0., max_action_value: float=None,
-                 action_intrinsic_reward: float=0):
+                 action_value: float=0., state_value: float=0., max_action_value: float=None):
         """
         :param action: the action
         :param all_action_probabilities: the probability that the action was given when selecting it
@@ -340,8 +385,6 @@ class ActionInfo(object):
         :param max_action_value: in case this is an action that was selected randomly, this is the value of the action
                                  that received the maximum value. if no value is given, the action is assumed to be the
                                  action with the maximum value
-        :param action_intrinsic_reward: can contain any intrinsic reward that the agent wants to add to this action
-                                        selection
         """
         self.action = action
         self.all_action_probabilities = all_action_probabilities
@@ -351,7 +394,6 @@ class ActionInfo(object):
             self.max_action_value = action_value
         else:
             self.max_action_value = max_action_value
-        self.action_intrinsic_reward = action_intrinsic_reward
 
 
 class Batch(object):
@@ -867,3 +909,16 @@ class SelectedPhaseOnlyDumpFilter(object):
             return True
         else:
             return False
+
+
+# TODO move to a NamedTuple, once we move to Python3.6
+#        https://stackoverflow.com/questions/34269772/type-hints-in-namedtuple/34269877
+class CsvDataset(object):
+    def __init__(self, filepath: str, is_episodic: bool = True):
+        self.filepath = filepath
+        self.is_episodic = is_episodic
+
+
+class PickledReplayBuffer(object):
+    def __init__(self, filepath: str):
+        self.filepath = filepath

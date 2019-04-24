@@ -18,11 +18,9 @@ from typing import Union
 
 import numpy as np
 
-from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAlgorithmParameters
+from rl_coach.agents.dqn_agent import DQNNetworkParameters, DQNAgentParameters
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
-from rl_coach.base_parameters import AgentParameters
 from rl_coach.exploration_policies.bootstrapped import BootstrappedParameters
-from rl_coach.memories.non_episodic.experience_replay import ExperienceReplayParameters
 
 
 class BootstrappedDQNNetworkParameters(DQNNetworkParameters):
@@ -32,12 +30,11 @@ class BootstrappedDQNNetworkParameters(DQNNetworkParameters):
         self.heads_parameters[0].rescale_gradient_from_head_by_factor = 1.0/self.heads_parameters[0].num_output_head_copies
 
 
-class BootstrappedDQNAgentParameters(AgentParameters):
+class BootstrappedDQNAgentParameters(DQNAgentParameters):
     def __init__(self):
-        super().__init__(algorithm=DQNAlgorithmParameters(),
-                         exploration=BootstrappedParameters(),
-                         memory=ExperienceReplayParameters(),
-                         networks={"main": BootstrappedDQNNetworkParameters()})
+        super().__init__()
+        self.exploration = BootstrappedParameters()
+        self.network_wrappers = {"main": BootstrappedDQNNetworkParameters()}
 
     @property
     def path(self):
@@ -64,11 +61,15 @@ class BootstrappedDQNAgent(ValueOptimizationAgent):
         q_st_plus_1 = result[:self.ap.exploration.architecture_num_q_heads]
         TD_targets = result[self.ap.exploration.architecture_num_q_heads:]
 
+        # add Q value samples for logging
+
         # initialize with the current prediction so that we will
         #  only update the action that we have actually done in this transition
-        for i in range(self.ap.network_wrappers['main'].batch_size):
+        for i in range(batch.size):
             mask = batch[i].info['mask']
             for head_idx in range(self.ap.exploration.architecture_num_q_heads):
+                self.q_values.add_sample(TD_targets[head_idx])
+
                 if mask[head_idx] == 1:
                     selected_action = np.argmax(next_states_online_values[head_idx][i], 0)
                     TD_targets[head_idx][i, batch.actions()[i]] = \

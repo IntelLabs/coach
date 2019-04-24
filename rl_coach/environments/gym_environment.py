@@ -300,7 +300,6 @@ class GymEnvironment(Environment):
             random.seed(self.seed)
 
         # frame skip and max between consecutive frames
-        self.is_robotics_env = 'robotics' in str(self.env.unwrapped.__class__)
         self.is_mujoco_env = 'mujoco' in str(self.env.unwrapped.__class__)
         self.is_roboschool_env = 'roboschool' in str(self.env.unwrapped.__class__)
         self.is_atari_env = 'Atari' in str(self.env.unwrapped.__class__)
@@ -321,7 +320,7 @@ class GymEnvironment(Environment):
         self.state_space = StateSpace({})
 
         # observations
-        if not isinstance(self.env.observation_space, gym.spaces.dict_space.Dict):
+        if not isinstance(self.env.observation_space, gym.spaces.dict.Dict):
             state_space = {'observation': self.env.observation_space}
         else:
             state_space = self.env.observation_space.spaces
@@ -485,38 +484,11 @@ class GymEnvironment(Environment):
         # initialize the number of lives
         self._update_ale_lives()
 
-    def _set_mujoco_camera(self, camera_idx: int):
-        """
-        This function can be used to set the camera for rendering the mujoco simulator
-        :param camera_idx: The index of the camera to use. Should be defined in the model
-        :return: None
-        """
-        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx:
-            from mujoco_py.generated import const
-            self.env.unwrapped.viewer.cam.type = const.CAMERA_FIXED
-            self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
-
-    def _get_robotics_image(self):
-        self.env.render()
-        image = self.env.unwrapped._get_viewer().read_pixels(1600, 900, depth=False)[::-1, :, :]
-        image = scipy.misc.imresize(image, (270, 480, 3))
-        return image
-
     def _render(self):
         self.env.render(mode='human')
-        # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env and not self.is_roboschool_env:
-            self._set_mujoco_camera(0)
 
     def get_rendered_image(self):
-        if self.is_robotics_env:
-            # necessary for fetch since the rendered image is cropped to an irrelevant part of the simulator
-            image = self._get_robotics_image()
-        else:
-            image = self.env.render(mode='rgb_array')
-        # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env and not self.is_roboschool_env:
-            self._set_mujoco_camera(0)
+        image = self.env.render(mode='rgb_array')
         return image
 
     def get_target_success_rate(self) -> float:

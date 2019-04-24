@@ -123,6 +123,9 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
         else:
             assert True, 'The available values for targets_horizon are: 1-Step, N-Step'
 
+        # add Q value samples for logging
+        self.q_values.add_sample(state_value_head_targets)
+
         # train
         result = self.networks['main'].online_network.accumulate_gradients(batch.states(network_keys), [state_value_head_targets])
 

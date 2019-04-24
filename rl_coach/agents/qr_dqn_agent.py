@@ -88,11 +88,14 @@ class QuantileRegressionDQNAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
+        # add Q value samples for logging
+        self.q_values.add_sample(self.get_q_values(current_quantiles))
+
         # get the optimal actions to take for the next states
         target_actions = np.argmax(self.get_q_values(next_state_quantiles), axis=1)
 
         # calculate the Bellman update
-        batch_idx = list(range(self.ap.network_wrappers['main'].batch_size))
+        batch_idx = list(range(batch.size))
 
         TD_targets = batch.rewards(True) + (1.0 - batch.game_overs(True)) * self.ap.algorithm.discount \
                                * next_state_quantiles[batch_idx, target_actions]
@@ -103,9 +106,9 @@ class QuantileRegressionDQNAgent(ValueOptimizationAgent):
         # calculate the cumulative quantile probabilities and reorder them to fit the sorted quantiles order
         cumulative_probabilities = np.array(range(self.ap.algorithm.atoms + 1)) / float(self.ap.algorithm.atoms) # tau_i
         quantile_midpoints = 0.5*(cumulative_probabilities[1:] + cumulative_probabilities[:-1])  # tau^hat_i
-        quantile_midpoints = np.tile(quantile_midpoints, (self.ap.network_wrappers['main'].batch_size, 1))
+        quantile_midpoints = np.tile(quantile_midpoints, (batch.size, 1))
         sorted_quantiles = np.argsort(current_quantiles[batch_idx, batch.actions()])
-        for idx in range(self.ap.network_wrappers['main'].batch_size):
+        for idx in range(batch.size):
             quantile_midpoints[idx, :] = quantile_midpoints[idx, sorted_quantiles[idx]]
 
         # train

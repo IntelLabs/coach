@@ -33,6 +33,8 @@ from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskPa
 from multiprocessing import Process
 from multiprocessing.managers import BaseManager
 import subprocess
+from glob import glob
+
 from rl_coach.graph_managers.graph_manager import HumanPlayScheduleParameters, GraphManager
 from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, get_base_dir
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -44,7 +46,7 @@ from rl_coach.data_stores.s3_data_store import S3DataStoreParameters
 from rl_coach.data_stores.nfs_data_store import NFSDataStoreParameters
 from rl_coach.data_stores.data_store_impl import get_data_store, construct_data_store_params
 from rl_coach.training_worker import training_worker
-from rl_coach.rollout_worker import rollout_worker, wait_for_checkpoint
+from rl_coach.rollout_worker import rollout_worker
 
 
 if len(set(failed_imports)) > 0:
@@ -76,8 +78,10 @@ def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'
     graph_manager.create_graph(task_parameters)
 
     # let the adventure begin
-    if task_parameters.evaluate_only:
-        graph_manager.evaluate(EnvironmentSteps(sys.maxsize))
+    if task_parameters.evaluate_only is not None:
+        steps_to_evaluate = task_parameters.evaluate_only if task_parameters.evaluate_only > 0 \
+            else sys.maxsize
+        graph_manager.evaluate(EnvironmentSteps(steps_to_evaluate))
     else:
         graph_manager.improve()
     graph_manager.close()
@@ -108,11 +112,12 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         training_worker(
             graph_manager=graph_manager,
             task_parameters=task_parameters,
-            data_store=data_store
+            data_store=data_store,
+            is_multi_node_test=args.is_multi_node_test
         )
 
     if args.distributed_coach_run_type == RunType.ROLLOUT_WORKER:
-        task_parameters.checkpoint_restore_dir = ckpt_inside_container
+        task_parameters.checkpoint_restore_path = ckpt_inside_container
 
         rollout_worker(
             graph_manager=graph_manager,
@@ -167,30 +172,32 @@ def handle_distributed_coach_orchestrator(args):
     orchestrator = Kubernetes(orchestration_params)
     if not orchestrator.setup(args.checkpoint_restore_dir):
         print("Could not setup.")
-        return
+        return 1
 
     if orchestrator.deploy_trainer():
         print("Successfully deployed trainer.")
     else:
         print("Could not deploy trainer.")
-        return
+        return 1
 
     if orchestrator.deploy_worker():
         print("Successfully deployed rollout worker(s).")
     else:
         print("Could not deploy rollout worker(s).")
-        return
+        return 1
 
     if args.dump_worker_logs:
         screen.log_title("Dumping rollout worker logs in: {}".format(args.experiment_path))
         orchestrator.worker_logs(path=args.experiment_path)
 
+    exit_code = 1
     try:
-        orchestrator.trainer_logs()
+        exit_code = orchestrator.trainer_logs()
     except KeyboardInterrupt:
         pass
 
     orchestrator.undeploy()
+    return exit_code
 
 
 class CoachLauncher(object):
@@ -253,7 +260,7 @@ class CoachLauncher(object):
                 graph_manager.env_params.level = args.level
 
         # set the seed for the environment
-        if args.seed is not None:
+        if args.seed is not None and graph_manager.env_params is not None:
             graph_manager.env_params.seed = args.seed
 
         # visualization
@@ -332,7 +339,7 @@ class CoachLauncher(object):
         # if no arg is given
         if len(sys.argv) == 1:
             parser.print_help()
-            sys.exit(0)
+            sys.exit(1)
 
         # list available presets
         if args.list:
@@ -391,6 +398,10 @@ class CoachLauncher(object):
             # If distributed trainer, the checkpoint dir is not yet available so skipping the check in that case.
             if not (args.distributed_coach and args.distributed_coach_run_type in [RunType.TRAINER, RunType.ROLLOUT_WORKER]):
                 screen.error("The requested checkpoint folder to load from does not exist.")
+
+        # validate the checkpoints args
+        if args.checkpoint_restore_file is not None and not glob(args.checkpoint_restore_file + '*'):
+            screen.error("The requested checkpoint file to load from does not exist.")
 
         # no preset was given. check if the user requested to play some environment on its own
         if args.preset is None and args.play and not args.environment_type:
@@ -466,9 +477,13 @@ class CoachLauncher(object):
                                  "This option will save a replay buffer with the game play.",
                             action='store_true')
         parser.add_argument('--evaluate',
-                            help="(flag) Run evaluation only. This is a convenient way to disable "
-                                 "training in order to evaluate an existing checkpoint.",
-                            action='store_true')
+                            help="(int) Run evaluation only, for at least the given number of steps (note that complete "
+                                "episodes are evaluated). This is a convenient way to disable training in order "
+                                "to evaluate an existing checkpoint. If value is 0, or no value is provided, "
+                                "evaluation will run for an infinite number of steps.",
+                            nargs='?',
+                            const=0,
+                            type=int)
         parser.add_argument('-v', '--verbosity',
                             help="(flag) Sets the verbosity level of Coach print outs. Can be either low or high.",
                             default="low",
@@ -487,6 +502,9 @@ class CoachLauncher(object):
         parser.add_argument('-crd', '--checkpoint_restore_dir',
                             help='(string) Path to a folder containing a checkpoint to restore the model from.',
                             type=str)
+        parser.add_argument('-crf', '--checkpoint_restore_file',
+                            help='(string) Path to a checkpoint file to restore the model from.',
+                            type=str)
         parser.add_argument('-dg', '--dump_gifs',
                             help="(flag) Enable the gif saving functionality.",
                             action='store_true')
@@ -495,14 +513,6 @@ class CoachLauncher(object):
                             action='store_true')
         parser.add_argument('-et', '--environment_type',
                             help="(string) Choose an environment type class to override on top of the selected preset.",
-                            default=None,
-                            type=str)
-        parser.add_argument('-ept', '--exploration_policy_type',
-                            help="(string) Choose an exploration policy type class to override on top of the selected "
-                                 "preset."
-                                 "If no preset is defined, a preset can be set from the command-line by combining settings "
-                                 "which are set by using --agent_type, --experiment_type, --environemnt_type"
-                            ,
                             default=None,
                             type=str)
         parser.add_argument('-lvl', '--level',
@@ -572,6 +582,9 @@ class CoachLauncher(object):
         parser.add_argument('--dump_worker_logs',
                             help="(flag) Only used in distributed coach. If set, the worker logs are saved in the experiment dir",
                             action='store_true')
+        parser.add_argument('--is_multi_node_test',
+                            help=argparse.SUPPRESS,
+                            action='store_true')
 
         return parser
 
@@ -598,6 +611,12 @@ class CoachLauncher(object):
             atexit.register(logger.summarize_experiment)
             screen.change_terminal_title(args.experiment_name)
 
+        if args.checkpoint_restore_dir is not None and args.checkpoint_restore_file is not None:
+            raise ValueError("Only one of the checkpoint_restore_dir and checkpoint_restore_file arguments can be used"
+                             " simulatenously.")
+        checkpoint_restore_path = args.checkpoint_restore_dir if args.checkpoint_restore_dir \
+            else args.checkpoint_restore_file
+
         task_parameters = TaskParameters(
             framework_type=args.framework,
             evaluate_only=args.evaluate,
@@ -605,7 +624,7 @@ class CoachLauncher(object):
             seed=args.seed,
             use_cpu=args.use_cpu,
             checkpoint_save_secs=args.checkpoint_save_secs,
-            checkpoint_restore_dir=args.checkpoint_restore_dir,
+            checkpoint_restore_path=checkpoint_restore_path,
             checkpoint_save_dir=args.checkpoint_save_dir,
             export_onnx_graph=args.export_onnx_graph,
             apply_stop_condition=args.apply_stop_condition
@@ -620,8 +639,7 @@ class CoachLauncher(object):
             return
 
         if args.distributed_coach and args.distributed_coach_run_type == RunType.ORCHESTRATOR:
-            handle_distributed_coach_orchestrator(args)
-            return
+            exit(handle_distributed_coach_orchestrator(args))
 
         # Single-threaded runs
         if args.num_workers == 1:
@@ -629,11 +647,13 @@ class CoachLauncher(object):
         else:
             self.start_multi_threaded(graph_manager, args)
 
-    def start_single_threaded(self, task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
+    @staticmethod
+    def start_single_threaded(task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
         # Start the training or evaluation
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
 
-    def start_multi_threaded(self, graph_manager: 'GraphManager', args: argparse.Namespace):
+    @staticmethod
+    def start_multi_threaded(graph_manager: 'GraphManager', args: argparse.Namespace):
         total_tasks = args.num_workers
         if args.evaluation_worker:
             total_tasks += 1
@@ -649,6 +669,10 @@ class CoachLauncher(object):
         comm_manager.start()
         shared_memory_scratchpad = comm_manager.SharedMemoryScratchPad()
 
+        if args.checkpoint_restore_file:
+            raise ValueError("Multi-Process runs only support restoring checkpoints from a directory, "
+                             "and not from a file. ")
+
         def start_distributed_task(job_type, task_index, evaluation_worker=False,
                                    shared_memory_scratchpad=shared_memory_scratchpad):
             task_parameters = DistributedTaskParameters(
@@ -657,7 +681,7 @@ class CoachLauncher(object):
                 worker_hosts=worker_hosts,
                 job_type=job_type,
                 task_index=task_index,
-                evaluate_only=evaluation_worker,
+                evaluate_only=0 if evaluation_worker else None, # 0 value for evaluation worker as it should run infinitely
                 use_cpu=args.use_cpu,
                 num_tasks=total_tasks,  # training tasks + 1 evaluation task
                 num_training_tasks=args.num_workers,
@@ -665,7 +689,7 @@ class CoachLauncher(object):
                 shared_memory_scratchpad=shared_memory_scratchpad,
                 seed=args.seed+task_index if args.seed is not None else None,  # each worker gets a different seed
                 checkpoint_save_secs=args.checkpoint_save_secs,
-                checkpoint_restore_dir=args.checkpoint_restore_dir,
+                checkpoint_restore_path=args.checkpoint_restore_dir,  # MonitoredTrainingSession only supports a dir
                 checkpoint_save_dir=args.checkpoint_save_dir,
                 export_onnx_graph=args.export_onnx_graph,
                 apply_stop_condition=args.apply_stop_condition

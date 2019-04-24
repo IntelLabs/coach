@@ -25,7 +25,7 @@ import contextlib
 from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, Frameworks, \
     VisualizationParameters, \
     Parameters, PresetValidationParameters, RunType
-from rl_coach.checkpoint import CheckpointStateUpdater, get_checkpoint_state, SingleCheckpoint
+from rl_coach.checkpoint import CheckpointStateUpdater, get_checkpoint_state, SingleCheckpoint, CheckpointState
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
     EnvironmentSteps, \
     StepMethod, Transition
@@ -38,6 +38,8 @@ from rl_coach.data_stores.data_store_impl import get_data_store as data_store_cr
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.data_stores.data_store import SyncFiles
 from rl_coach.checkpoint import CheckpointStateReader
+
+from rl_coach.core_types import TimeTypes
 
 
 class ScheduleParameters(Parameters):
@@ -120,6 +122,8 @@ class GraphManager(object):
         self.checkpoint_state_updater = None
         self.graph_logger = Logger()
         self.data_store = None
+        self.is_batch_rl = False
+        self.time_metric = TimeTypes.EpisodeNumber
 
     def create_graph(self, task_parameters: TaskParameters=TaskParameters()):
         self.graph_creation_time = time.time()
@@ -219,11 +223,13 @@ class GraphManager(object):
         if isinstance(task_parameters, DistributedTaskParameters):
             # the distributed tensorflow setting
             from rl_coach.architectures.tensorflow_components.distributed_tf_utils import create_monitored_session
-            if hasattr(self.task_parameters, 'checkpoint_restore_dir') and self.task_parameters.checkpoint_restore_dir:
+            if hasattr(self.task_parameters, 'checkpoint_restore_path') and self.task_parameters.checkpoint_restore_path:
                 checkpoint_dir = os.path.join(task_parameters.experiment_path, 'checkpoint')
                 if os.path.exists(checkpoint_dir):
                     remove_tree(checkpoint_dir)
-                copy_tree(task_parameters.checkpoint_restore_dir, checkpoint_dir)
+                # in the locally distributed case, checkpoints are always restored from a directory (and not from a
+                # file)
+                copy_tree(task_parameters.checkpoint_restore_path, checkpoint_dir)
             else:
                 checkpoint_dir = task_parameters.checkpoint_save_dir
 
@@ -444,15 +450,16 @@ class GraphManager(object):
             result = self.top_level_manager.step(None)
             steps_end = self.environments[0].total_steps_counter
 
-            # add the diff between the total steps before and after stepping, such that environment initialization steps
-            # (like in Atari) will not be counted.
-            # We add at least one step so that even if no steps were made (in case no actions are taken in the training
-            # phase), the loop will end eventually.
-            self.current_step_counter[EnvironmentSteps] += max(1, steps_end - steps_begin)
-
             if result.game_over:
                 self.handle_episode_ended()
                 self.reset_required = True
+
+            self.current_step_counter[EnvironmentSteps] += (steps_end - steps_begin)
+
+            # if no steps were made (can happen when no actions are taken while in the TRAIN phase, either in batch RL
+            # or in imitation learning), we force end the loop, so that it will not continue forever.
+            if (steps_end - steps_begin) == 0:
+                break
 
     def train_and_act(self, steps: StepMethod) -> None:
         """
@@ -471,9 +478,9 @@ class GraphManager(object):
                 while self.current_step_counter < count_end:
                     # The actual number of steps being done on the environment
                     # is decided by the agent, though this inner loop always
-                    # takes at least one step in the environment. Depending on
-                    # internal counters and parameters, it doesn't always train
-                    # or save checkpoints.
+                    # takes at least one step in the environment (at the GraphManager level).
+                    # The agent might also decide to skip acting altogether.
+                    # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     self.act(EnvironmentSteps(1))
                     self.train()
                     self.occasionally_save_checkpoint()
@@ -505,12 +512,7 @@ class GraphManager(object):
                     self.act(EnvironmentEpisodes(1))
                     self.sync()
         if self.should_stop():
-            if self.task_parameters.checkpoint_save_dir and os.path.exists(self.task_parameters.checkpoint_save_dir):
-                open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.FINISHED.value), 'w').close()
-            if hasattr(self, 'data_store_params'):
-                data_store = self.get_data_store(self.data_store_params)
-                data_store.save_to_store()
-
+            self.flush_finished()
             screen.success("Reached required success rate. Exiting.")
             return True
         return False
@@ -553,34 +555,48 @@ class GraphManager(object):
         self.verify_graph_was_created()
 
         # TODO: find better way to load checkpoints that were saved with a global network into the online network
-        if self.task_parameters.checkpoint_restore_dir:
-            if self.task_parameters.framework_type == Frameworks.tensorflow and\
-                    'checkpoint' in os.listdir(self.task_parameters.checkpoint_restore_dir):
-                # TODO-fixme checkpointing
-                # MonitoredTrainingSession manages save/restore checkpoints autonomously. Doing so,
-                # it creates it own names for the saved checkpoints, which do not match the "{}_Step-{}.ckpt" filename
-                # pattern. The names used are maintained in a CheckpointState protobuf file named 'checkpoint'. Using
-                # Coach's '.coach_checkpoint' protobuf file, results in an error when trying to restore the model, as
-                # the checkpoint names defined do not match the actual checkpoint names.
-                checkpoint = self._get_checkpoint_state_tf()
-            else:
-                checkpoint = get_checkpoint_state(self.task_parameters.checkpoint_restore_dir)
+        if self.task_parameters.checkpoint_restore_path:
+            if os.path.isdir(self.task_parameters.checkpoint_restore_path):
+                # a checkpoint dir
+                if self.task_parameters.framework_type == Frameworks.tensorflow and\
+                        'checkpoint' in os.listdir(self.task_parameters.checkpoint_restore_path):
+                    # TODO-fixme checkpointing
+                    # MonitoredTrainingSession manages save/restore checkpoints autonomously. Doing so,
+                    # it creates it own names for the saved checkpoints, which do not match the "{}_Step-{}.ckpt"
+                    # filename pattern. The names used are maintained in a CheckpointState protobuf file named
+                    # 'checkpoint'. Using Coach's '.coach_checkpoint' protobuf file, results in an error when trying to
+                    # restore the model, as the checkpoint names defined do not match the actual checkpoint names.
+                    checkpoint = self._get_checkpoint_state_tf(self.task_parameters.checkpoint_restore_path)
+                else:
+                    checkpoint = get_checkpoint_state(self.task_parameters.checkpoint_restore_path)
 
-            if checkpoint is None:
-                screen.warning("No checkpoint to restore in: {}".format(self.task_parameters.checkpoint_restore_dir))
+                if checkpoint is None:
+                    raise ValueError("No checkpoint to restore in: {}".format(
+                        self.task_parameters.checkpoint_restore_path))
+                model_checkpoint_path = checkpoint.model_checkpoint_path
+                checkpoint_restore_dir = self.task_parameters.checkpoint_restore_path
             else:
-                screen.log_title("Loading checkpoint: {}".format(checkpoint.model_checkpoint_path))
-                self.checkpoint_saver.restore(self.sess, checkpoint.model_checkpoint_path)
+                # a checkpoint file
+                if self.task_parameters.framework_type == Frameworks.tensorflow:
+                    model_checkpoint_path = self.task_parameters.checkpoint_restore_path
+                    checkpoint_restore_dir = os.path.dirname(model_checkpoint_path)
+                else:
+                    raise ValueError("Currently restoring a checkpoint using the --checkpoint_restore_file argument is"
+                                     " only supported when with tensorflow.")
 
-            [manager.restore_checkpoint(self.task_parameters.checkpoint_restore_dir) for manager in self.level_managers]
+            screen.log_title("Loading checkpoint: {}".format(model_checkpoint_path))
+
+            self.checkpoint_saver.restore(self.sess, model_checkpoint_path)
+
+            [manager.restore_checkpoint(checkpoint_restore_dir) for manager in self.level_managers]
 
             # Set the last checkpoint ID
             chkpt_state_reader = CheckpointStateReader(self.task_parameters.checkpoint_restore_dir, checkpoint_state_optional=False)
             self.checkpoint_id = chkpt_state_reader.get_latest().num + 1
 
-    def _get_checkpoint_state_tf(self):
+    def _get_checkpoint_state_tf(self, checkpoint_restore_dir):
         import tensorflow as tf
-        return tf.train.get_checkpoint_state(self.task_parameters.checkpoint_restore_dir)
+        return tf.train.get_checkpoint_state(checkpoint_restore_dir)
 
     def occasionally_save_checkpoint(self):
         # only the chief process saves checkpoints
@@ -725,3 +741,20 @@ class GraphManager(object):
         """
         for env in self.environments:
             env.close()
+
+    def get_current_episodes_count(self):
+        """
+        Returns the current EnvironmentEpisodes counter
+        """
+        return self.current_step_counter[EnvironmentEpisodes]
+
+    def flush_finished(self):
+        """
+        To indicate the training has finished, writes a `.finished` file to the checkpoint directory and calls
+        the data store to updload that file.
+        """
+        if self.task_parameters.checkpoint_save_dir and os.path.exists(self.task_parameters.checkpoint_save_dir):
+            open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.FINISHED.value), 'w').close()
+        if hasattr(self, 'data_store_params'):
+            data_store = self.get_data_store(self.data_store_params)
+            data_store.save_to_store()
