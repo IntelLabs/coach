@@ -259,7 +259,6 @@ def main():
     parser.add_argument('-e', '--endpoint', help="(string) Name of the s3 endpoint", type=str, default='s3.amazonaws.com')
     parser.add_argument('-cr', '--creds_file', help="(string) Path of the s3 creds file", type=str, default='.aws_creds')
     parser.add_argument('-b', '--bucket', help="(string) Name of the bucket for s3", type=str, default=None)
-    parser.add_argument('-tc', '--test-command', help="(string) command to execute", type=str, required=True)
 
     args = parser.parse_args()
     if not args.parallel:
