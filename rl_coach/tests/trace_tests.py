@@ -55,7 +55,7 @@ def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_cred
         's3_end_point': s3_end_point,
         's3_bucket_name': s3_bucket_name,
         's3_creds_file': s3_creds_file
-    }, default_section="coach")
+    }, default_section="coach-gym_environment")
     with open(config_file, 'w') as f:
         coach_config.write(f)
 
@@ -220,6 +220,7 @@ def replace_new_csv_files():
         trace_preset_path = os.path.join(trace_dir_path, preset)
 
         if os.path.exists(trace_preset_path):
+            screen.success("updating trace files: " + trace_preset_path)
             old_file = os.path.join(trace_preset_path, "trace.csv")
             new_file = os.path.join(trace_preset_path, "trace_new.csv")
 
