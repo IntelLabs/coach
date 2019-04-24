@@ -64,7 +64,7 @@ class SACValueNetworkParameters(NetworkParameters):
         self.optimizer_type = 'Adam'
         self.batch_size = 256
         self.async_training = False
-        self.learning_rate = 0.0003     # 3e-4 see annex D in the paper
+        self.learning_rate = 0.0003     # 3e-4 see appendix D in the paper
         self.create_target_network = True   # tau is set in SoftActorCriticAlgorithmParameters.rate_for_copying_weights_to_target
 
 
@@ -107,10 +107,22 @@ class SACPolicyNetworkParameters(NetworkParameters):
 # Algorithm Parameters
 
 class SoftActorCriticAlgorithmParameters(AlgorithmParameters):
+    """
+    :param num_steps_between_copying_online_weights_to_target: (StepMethod)
+        The number of steps between copying the online network weights to the target network weights.
+
+    :param rate_for_copying_weights_to_target: (float)
+        When copying the online network weights to the target network weights, a soft update will be used, which
+        weight the new online network weights by rate_for_copying_weights_to_target. (Tau as defined in the paper)
+
+    :param use_deterministic_for_evaluation: (bool)
+        If True, during the evaluation phase, action are chosen deterministically according to the policy mean
+        and not sampled from the policy distribution.
+    """
     def __init__(self):
         super().__init__()
         self.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(1)
-        self.rate_for_copying_weights_to_target = 0.005     # = Tau as defined in the paper
+        self.rate_for_copying_weights_to_target = 0.005
         self.use_deterministic_for_evaluation = True    # evaluate agent using deterministic policy (i.e. take the mean value)
 
 
@@ -295,7 +307,7 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         policy_head = policy_network.output_heads[0]
         result = policy_network.predict(tf_input_state,
                                         outputs=[policy_head.policy_mean, policy_head.actions])
-        action_mean,action_sample = result
+        action_mean, action_sample = result
 
         # if using deterministic policy, take the mean values. else, use exploration policy to sample from the pdf
         if self.phase == RunPhase.TEST and self.ap.algorithm.use_deterministic_for_evaluation:

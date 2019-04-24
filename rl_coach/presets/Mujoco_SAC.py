@@ -33,7 +33,7 @@ agent_params.network_wrappers['v'].learning_rate = 0.0003
 agent_params.network_wrappers['v'].middleware_parameters.scheme = [Dense(256)]
 
 # critic (q) network parameters
-agent_params.network_wrappers['q'].heads_parameters[0].network_layers_sizes = (256,256)
+agent_params.network_wrappers['q'].heads_parameters[0].network_layers_sizes = (256, 256)
 agent_params.network_wrappers['q'].batch_size = 256
 agent_params.network_wrappers['q'].learning_rate = 0.0003
 

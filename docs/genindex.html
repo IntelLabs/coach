@@ -18,13 +18,21 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -32,21 +40,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -191,7 +194,6 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
- | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -288,8 +290,6 @@
         <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.call_memory">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
 </li>
       </ul></li>
-      <li><a href="components/environments/index.html#rl_coach.environments.carla_environment.CarlaEnvironment">CarlaEnvironment (class in rl_coach.environments.carla_environment)</a>
-</li>
       <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.categorical.Categorical">Categorical (class in rl_coach.exploration_policies.categorical)</a>
 </li>
       <li><a href="components/agents/value_optimization/categorical_dqn.html#rl_coach.agents.categorical_dqn_agent.CategoricalDQNAlgorithmParameters">CategoricalDQNAlgorithmParameters (class in rl_coach.agents.categorical_dqn_agent)</a>
@@ -342,8 +342,6 @@
       </ul></li>
       <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.continuous_entropy.ContinuousEntropy">ContinuousEntropy (class in rl_coach.exploration_policies.continuous_entropy)</a>
 </li>
-      <li><a href="components/environments/index.html#rl_coach.environments.control_suite_environment.ControlSuiteEnvironment">ControlSuiteEnvironment (class in rl_coach.environments.control_suite_environment)</a>
-</li>
       <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.create_networks">create_networks() (rl_coach.agents.agent.Agent method)</a>
 
       <ul>
@@ -382,26 +380,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/exploration_policies/index.html#rl_coach.exploration_policies.e_greedy.EGreedy">EGreedy (class in rl_coach.exploration_policies.e_greedy)</a>
 </li>
-      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.emulate_act_on_trainer">emulate_act_on_trainer() (rl_coach.agents.agent.Agent method)</a>
-
-      <ul>
-        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.emulate_act_on_trainer">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
-</li>
-      </ul></li>
-      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.emulate_observe_on_trainer">emulate_observe_on_trainer() (rl_coach.agents.agent.Agent method)</a>
-
-      <ul>
-        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.emulate_observe_on_trainer">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
-</li>
-      </ul></li>
       <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment">Environment (class in rl_coach.environments.environment)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/core_types.html#rl_coach.core_types.EnvResponse">EnvResponse (class in rl_coach.core_types)</a>
 </li>
       <li><a href="components/core_types.html#rl_coach.core_types.Episode">Episode (class in rl_coach.core_types)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/memories/index.html#rl_coach.memories.episodic.EpisodicExperienceReplay">EpisodicExperienceReplay (class in rl_coach.memories.episodic)</a>
 </li>
       <li><a href="components/memories/index.html#rl_coach.memories.episodic.EpisodicHindsightExperienceReplay">EpisodicHindsightExperienceReplay (class in rl_coach.memories.episodic)</a>
@@ -504,6 +490,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/spaces.html#rl_coach.spaces.ImageObservationSpace">ImageObservationSpace (class in rl_coach.spaces)</a>
 </li>
+      <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.improve_reward_model">improve_reward_model() (rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
       <li><a href="components/core_types.html#rl_coach.core_types.Batch.info">info() (rl_coach.core_types.Batch method)</a>
 </li>
       <li><a href="components/core_types.html#rl_coach.core_types.Batch.info_as_list">info_as_list() (rl_coach.core_types.Batch method)</a>
@@ -530,14 +518,6 @@
         <li><a href="components/spaces.html#rl_coach.spaces.Space.is_valid_index">(rl_coach.spaces.Space method)</a>
 </li>
       </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="K">K</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="components/orchestrators/index.html#rl_coach.orchestrators.kubernetes_orchestrator.Kubernetes">Kubernetes (class in rl_coach.orchestrators.kubernetes_orchestrator)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -738,8 +718,6 @@
         <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.reset_evaluation_state">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.reset_internal_state">reset_internal_state() (rl_coach.agents.agent.Agent method)</a>
 
       <ul>
@@ -748,6 +726,8 @@
         <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.reset_internal_state">(rl_coach.environments.environment.Environment method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.restore_checkpoint">restore_checkpoint() (rl_coach.agents.agent.Agent method)</a>
 
       <ul>
@@ -762,6 +742,12 @@
 </li>
       <li><a href="components/core_types.html#rl_coach.core_types.Batch.rewards">rewards() (rl_coach.core_types.Batch method)</a>
 </li>
+      <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.run_off_policy_evaluation">run_off_policy_evaluation() (rl_coach.agents.agent.Agent method)</a>
+
+      <ul>
+        <li><a href="test.html#rl_coach.agents.dqn_agent.DQNAgent.run_off_policy_evaluation">(rl_coach.agents.dqn_agent.DQNAgent method)</a>
+</li>
+      </ul></li>
       <li><a href="components/agents/index.html#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference">run_pre_network_filter_for_inference() (rl_coach.agents.agent.Agent method)</a>
 
       <ul>
@@ -840,9 +826,9 @@
 </li>
       <li><a href="components/core_types.html#rl_coach.core_types.Batch.slice">slice() (rl_coach.core_types.Batch method)</a>
 </li>
-      <li><a href="components/spaces.html#rl_coach.spaces.Space">Space (class in rl_coach.spaces)</a>
+      <li><a href="components/agents/policy_optimization/sac.html#rl_coach.agents.soft_actor_critic_agent.SoftActorCriticAlgorithmParameters">SoftActorCriticAlgorithmParameters (class in rl_coach.agents.soft_actor_critic_agent)</a>
 </li>
-      <li><a href="components/environments/index.html#rl_coach.environments.starcraft2_environment.StarCraft2Environment">StarCraft2Environment (class in rl_coach.environments.starcraft2_environment)</a>
+      <li><a href="components/spaces.html#rl_coach.spaces.Space">Space (class in rl_coach.spaces)</a>
 </li>
       <li><a href="components/environments/index.html#rl_coach.environments.environment.Environment.state_space">state_space (rl_coach.environments.environment.Environment attribute)</a>
 </li>
@@ -962,27 +948,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
