@@ -379,7 +379,7 @@ jobs:
             docker ps -a -q | head -n 1  | xargs -I% docker cp %:/root/src/rl_coach/traces . || true
           no_output_timeout: 45m
       - store_artifacts:
-          path: ~/repo/rl_coach/traces
+          path: /home/circlieci/repo/rl_coach/traces
       - run:
           name: cleanup
           command: |

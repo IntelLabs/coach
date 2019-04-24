@@ -261,6 +261,14 @@ def main():
     parser.add_argument('-b', '--bucket', help="(string) Name of the bucket for s3", type=str, default=None)
 
     args = parser.parse_args()
+
+    if not args.bucket:
+        print("bucket_name required for s3")
+        exit(1)
+    if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
+        print("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars need to be set")
+        exit(1)
+
     if not args.parallel:
         args.max_threads = 1
 
@@ -275,7 +283,7 @@ def main():
         generate_config(args.image, args.memory_backend, args.endpoint,
                         args.bucket, args.creds_file, config_file)
 
-        clear_bucket(args.endpoint, args.bucket)
+        # clear_bucket(args.endpoint, args.bucket)
 
     fail_count = 0
     test_count = 0
