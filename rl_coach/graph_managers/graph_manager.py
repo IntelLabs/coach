@@ -591,7 +591,7 @@ class GraphManager(object):
             [manager.restore_checkpoint(checkpoint_restore_dir) for manager in self.level_managers]
 
             # Set the last checkpoint ID
-            chkpt_state_reader = CheckpointStateReader(self.task_parameters.checkpoint_restore_dir, checkpoint_state_optional=False)
+            chkpt_state_reader = CheckpointStateReader(self.task_parameters.checkpoint_restore_path, checkpoint_state_optional=False)
             self.checkpoint_id = chkpt_state_reader.get_latest().num + 1
 
     def _get_checkpoint_state_tf(self, checkpoint_restore_dir):

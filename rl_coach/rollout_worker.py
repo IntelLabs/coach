@@ -99,8 +99,8 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
 
         # this worker should play a fraction of the total playing steps per rollout
         act_steps = graph_manager.agent_params.algorithm.num_consecutive_playing_steps / num_workers
-
-        for i in range(graph_manager.improve_steps / act_steps):
+        training_steps = (graph_manager.improve_steps / act_steps.num_steps).num_steps
+        for i in range(training_steps):
 
             if should_stop(checkpoint_dir):
                 break
