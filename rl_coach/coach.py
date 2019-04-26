@@ -104,6 +104,10 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         data_store_params.checkpoint_dir = ckpt_inside_container
         graph_manager.data_store_params = data_store_params
 
+    data_store = None
+    if args.data_store_params:
+        data_store = get_data_store(data_store_params)
+
     if args.distributed_coach_run_type == RunType.TRAINER:
         task_parameters.checkpoint_save_dir = ckpt_inside_container
 
@@ -114,17 +118,13 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         training_worker(
             graph_manager=graph_manager,
             task_parameters=task_parameters,
-            is_multi_node_test=args.is_multi_node_test,
-            data_store=data_store
+            data_store=data_store,
+            is_multi_node_test=args.is_multi_node_test
         )
 
     if args.distributed_coach_run_type == RunType.ROLLOUT_WORKER:
         task_parameters.checkpoint_restore_path = ckpt_inside_container
         task_parameters.checkpoint_save_dir = ckpt_inside_container
-
-        data_store = None
-        if args.data_store_params:
-            data_store = get_data_store(data_store_params)
 
         rollout_worker(
             graph_manager=graph_manager,
@@ -194,7 +194,7 @@ def handle_distributed_coach_orchestrator(args):
                                                 memory_backend_parameters=memory_backend_params,
                                                 data_store_params=ds_params_instance)
     orchestrator = Kubernetes(orchestration_params)
-    if not orchestrator.setup():
+    if not orchestrator.setup(args.checkpoint_restore_dir):
         print("Could not setup.")
         return 1
 
@@ -426,7 +426,9 @@ class CoachLauncher(object):
 
         # validate the checkpoints args
         if args.checkpoint_restore_dir is not None and not os.path.exists(args.checkpoint_restore_dir):
-            screen.error("The requested checkpoint folder to load from does not exist.")
+            # If distributed trainer, the checkpoint dir is not yet available so skipping the check in that case.
+            if not (args.distributed_coach and args.distributed_coach_run_type in [RunType.TRAINER, RunType.ROLLOUT_WORKER]):
+                screen.error("The requested checkpoint folder to load from does not exist.")
 
         # validate the checkpoints args
         if args.checkpoint_restore_file is not None and not glob(args.checkpoint_restore_file + '*'):

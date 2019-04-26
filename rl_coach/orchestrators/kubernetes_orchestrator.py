@@ -118,7 +118,7 @@ class Kubernetes(Deploy):
                 self.s3_access_key = os.environ.get('ACCESS_KEY_ID')
                 self.s3_secret_key = os.environ.get('SECRET_ACCESS_KEY')
 
-    def setup(self) -> bool:
+    def setup(self, crd=None) -> bool:
         """
         Deploys the memory backend and data stores if required.
         """
@@ -128,6 +128,9 @@ class Kubernetes(Deploy):
             return False
         if self.params.data_store_params.store_type == "nfs":
             self.nfs_pvc = self.data_store.get_info()
+
+        # Upload checkpoints in checkpoint_restore_dir (if provided) to the data store
+        self.data_store.setup_checkpoint_dir(crd)
         return True
 
     def deploy_trainer(self) -> bool:
@@ -141,7 +144,6 @@ class Kubernetes(Deploy):
 
         trainer_params.command += ['--memory_backend_params', json.dumps(self.params.memory_backend_parameters.__dict__)]
         trainer_params.command += ['--data_store_params', json.dumps(self.params.data_store_params.__dict__)]
-
         name = "{}-{}".format(trainer_params.run_type, uuid.uuid4())
 
         if self.params.data_store_params.store_type == "nfs":

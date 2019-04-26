@@ -50,7 +50,11 @@ class DataStore(object):
     def check_finished_from_store(self):
         pass
 
+    def setup_checkpoint_dir(self, crd=None):
+        pass
+
 
 class SyncFiles(Enum):
     FINISHED = ".finished"
     LOCKFILE = ".lock"
+    TRAINER_READY = ".ready"

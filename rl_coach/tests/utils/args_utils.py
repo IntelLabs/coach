@@ -453,10 +453,10 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                                 num_expected_files=int(flag[1]))
 
         assert len(csv_path) > 0, \
-            Def.Consts.ASSERT_MSG.format("paths are not found", csv_path)
+            Def.Consts.ASSERT_MSG.format("paths are not found", str(csv_path))
 
         assert int(flag[1]) == len(csv_path), Def.Consts.ASSERT_MSG. \
-            format(len(csv_path), int(flag[1]))
+            format(int(flag[1]), len(csv_path))
 
         # wait for getting results in csv's
         for i in range(len(csv_path)):
