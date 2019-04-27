@@ -184,7 +184,7 @@ class S3DataStore(DataStore):
 
         except ResponseError as e:
             print("Got exception: %s\n while loading from S3", e)
-    
+
     def save_finished_to_store(self):
         """
         save_finished_to_store() uploads the finished file, which signifies a reached success rate.

@@ -111,10 +111,6 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
     if args.distributed_coach_run_type == RunType.TRAINER:
         task_parameters.checkpoint_save_dir = ckpt_inside_container
 
-        data_store = None
-        if args.data_store_params:
-            data_store = get_data_store(data_store_params)
-
         training_worker(
             graph_manager=graph_manager,
             task_parameters=task_parameters,
@@ -136,10 +132,6 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
         task_parameters.checkpoint_restore_dir = ckpt_inside_container
         task_parameters.checkpoint_save_dir = ckpt_inside_container
 
-        data_store = None
-        if args.data_store_params:
-            data_store = get_data_store(data_store_params)
-            
         eval_worker(
             graph_manager=graph_manager,
             data_store=data_store,
