@@ -129,7 +129,7 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
             task_parameters=task_parameters
         )
     if args.distributed_coach_run_type == RunType.EVAL_WORKER:
-        task_parameters.checkpoint_restore_dir = ckpt_inside_container
+        task_parameters.checkpoint_restore_path = ckpt_inside_container
         task_parameters.checkpoint_save_dir = ckpt_inside_container
 
         eval_worker(
