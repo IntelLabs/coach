@@ -53,7 +53,7 @@ def eval_worker(graph_manager, data_store, num_workers, task_parameters):
         act_steps = math.ceil((graph_manager.agent_params.algorithm.num_consecutive_playing_steps.num_steps) / num_workers)
         for i in range(int(graph_manager.improve_steps.num_steps / act_steps)):
 
-            if should_stop(task_parameters.checkpoint_dir):
+            if should_stop(checkpoint_dir):
                 break
 
             if graph_manager.evaluate(graph_manager.evaluation_steps):
@@ -63,7 +63,7 @@ def eval_worker(graph_manager, data_store, num_workers, task_parameters):
             new_checkpoint = chkpt_state_reader.get_latest()
             if graph_manager.agent_params.algorithm.distributed_coach_synchronization_type == DistributedCoachSynchronizationType.SYNC:
                 while new_checkpoint is None or new_checkpoint.num < last_checkpoint + 1:
-                    if should_stop(task_parameters.checkpoint_dir):
+                    if should_stop(checkpoint_dir):
                         break
                     if data_store:
                         data_store.load_from_store()
