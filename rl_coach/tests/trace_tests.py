@@ -22,16 +22,56 @@ import subprocess
 import multiprocessing
 import sys
 import signal
-from importlib import import_module
-from os import path
-sys.path.append('.')
 import pandas as pd
 import time
-
-# -*- coding: utf-8 -*-
+from configparser import ConfigParser
+from importlib import import_module
+from minio import Minio
+from os import path
+sys.path.append('.')
 from rl_coach.logger import screen
 
+
 processes = []
+
+
+def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+    """
+    Generate the s3 config file to be used and also the dist-coach-config.template to be used for the test
+    It reads the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` env vars and fails if they are not provided.
+    """
+    # Write s3 creds
+    aws_config = ConfigParser({
+        'aws_access_key_id': os.environ.get('AWS_ACCESS_KEY_ID'),
+        'aws_secret_access_key': os.environ.get('AWS_SECRET_ACCESS_KEY')
+    }, default_section='default')
+    with open(s3_creds_file, 'w') as f:
+        aws_config.write(f)
+
+    coach_config = ConfigParser({
+        'image': image,
+        'memory_backend': memory_backend,
+        'data_store': 's3',
+        's3_end_point': s3_end_point,
+        's3_bucket_name': s3_bucket_name,
+        's3_creds_file': s3_creds_file
+    }, default_section="coach")
+    with open(config_file, 'w') as f:
+        coach_config.write(f)
+
+
+def clear_bucket(s3_end_point, s3_bucket_name):
+    """
+    Clear the bucket before starting the test.
+    """
+    access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+    secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    minio_client = Minio(s3_end_point, access_key=access_key, secret_key=secret_access_key)
+    try:
+        for obj in minio_client.list_objects_v2(s3_bucket_name, recursive=True):
+            minio_client.remove_object(s3_bucket_name, obj.object_name)
+    except Exception:
+        pass
 
 
 def sigint_handler(signum, frame):
@@ -44,6 +84,7 @@ def sigint_handler(signum, frame):
         if 'trace_test_log' in f:
             os.remove(f)
     exit()
+
 
 signal.signal(signal.SIGINT, sigint_handler)
 
@@ -66,7 +107,7 @@ def clean_df(df):
     return df
 
 
-def run_trace_based_test(preset_name, num_env_steps, level=None):
+def run_trace_based_test(preset_name, num_env_steps, config_file, level=None):
     test_name = '__test_trace_{}{}'.format(preset_name, '_' + level if level else '').replace(':', '_')
     test_path = os.path.join('./experiments', test_name)
     if path.exists(test_path):
@@ -82,6 +123,7 @@ def run_trace_based_test(preset_name, num_env_steps, level=None):
         '-e {test_name} '
         '--seed 42 '
         '-c '
+        '-dcp {template}'
         '--no_summary '
         '-cp {custom_param} '
         '{level} '
@@ -89,6 +131,7 @@ def run_trace_based_test(preset_name, num_env_steps, level=None):
     ).format(
         preset_name=preset_name,
         test_name=test_name,
+        template=config_file,
         log_file_name=log_file_name,
         level='-lvl ' + level if level else '',
         custom_param='\"improve_steps=EnvironmentSteps({n});'
@@ -166,6 +209,25 @@ def wait_and_check(args, processes, force=False):
     return test_passed
 
 
+def replace_new_csv_files():
+    """
+    replace old trace files with new csv files
+    """
+    trace_dir_path = os.path.join('./rl_coach', 'traces')
+    entities = os.listdir(trace_dir_path)
+
+    for preset in entities:
+        trace_preset_path = os.path.join(trace_dir_path, preset)
+
+        if os.path.exists(trace_preset_path):
+            old_file = os.path.join(trace_preset_path, "trace.csv")
+            new_file = os.path.join(trace_preset_path, "trace_new.csv")
+
+            if os.path.exists(new_file):
+                screen.success("updating trace files: " + trace_preset_path)
+                shutil.move(new_file, old_file)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--preset', '--presets',
@@ -188,12 +250,29 @@ def main():
     parser.add_argument('-prl', '--parallel',
                         help="(flag) run tests in parallel",
                         action='store_true')
+    parser.add_argument('-ut', '--update_traces',
+                        help="(flag) update traces on repository",
+                        action='store_true')
     parser.add_argument('-mt', '--max_threads',
                         help="(int) maximum number of threads to run in parallel",
                         default=multiprocessing.cpu_count()-2,
                         type=int)
+    parser.add_argument('-i', '--image', help="(string) Name of the testing image", type=str, default=None)
+    parser.add_argument('-mb', '--memory_backend', help="(string) Name of the memory backend", type=str, default="redispubsub")
+    parser.add_argument('-e', '--endpoint', help="(string) Name of the s3 endpoint", type=str, default='s3.amazonaws.com')
+    parser.add_argument('-cr', '--creds_file', help="(string) Path of the s3 creds file", type=str, default='.aws_creds')
+    parser.add_argument('-b', '--bucket', help="(string) Name of the bucket for s3", type=str, default=None)
 
     args = parser.parse_args()
+
+    if args.update_traces:
+        if not args.bucket:
+            print("bucket_name required for s3")
+            exit(1)
+        if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
+            print("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars need to be set")
+            exit(1)
+
     if not args.parallel:
         args.max_threads = 1
 
@@ -202,6 +281,11 @@ def main():
     else:
         presets_lists = [f[:-3] for f in os.listdir(os.path.join('rl_coach', 'presets')) if
                          f[-3:] == '.py' and not f == '__init__.py']
+
+    config_file = './tmp.cred'
+    if args.update_traces:
+        generate_config(args.image, args.memory_backend, args.endpoint,
+                        args.bucket, args.creds_file, config_file)
 
     fail_count = 0
     test_count = 0
@@ -223,20 +307,23 @@ def main():
                 test_count += 1
                 continue
 
+            # if args.endpoint and args.bucket:
+            #     clear_bucket(args.endpoint, args.bucket)
+
             preset_validation_params = preset.graph_manager.preset_validation_params
             num_env_steps = preset_validation_params.trace_max_env_steps
             if preset_validation_params.test_using_a_trace_test:
                 if preset_validation_params.trace_test_levels:
                     for level in preset_validation_params.trace_test_levels:
                         test_count += 1
-                        test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, level)
+                        test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, config_file, level)
                         processes.append((test_path, log_file, p))
                         test_passed = wait_and_check(args, processes)
                         if test_passed is not None and not test_passed:
                             fail_count += 1
                 else:
                     test_count += 1
-                    test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps)
+                    test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, config_file)
                     processes.append((test_path, log_file, p))
                     test_passed = wait_and_check(args, processes)
                     if test_passed is not None and not test_passed:
@@ -251,10 +338,14 @@ def main():
     if fail_count == 0:
         screen.success(" Summary: " + str(test_count) + "/" + str(test_count) + " tests passed successfully")
     else:
-        screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully")
+        screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
+
+    # if args.update_traces:
+    #     replace_new_csv_files()
 
 
 if __name__ == '__main__':
     os.environ['DISABLE_MUJOCO_RENDERING'] = '1'
+    screen.success("Ayoob path: " + str(os.path.dirname(os.path.realpath(__file__))))
     main()
     del os.environ['DISABLE_MUJOCO_RENDERING']
