@@ -183,7 +183,7 @@ def replace_new_csv_files():
             new_file = os.path.join(trace_preset_path, "trace_new.csv")
 
             if os.path.exists(new_file):
-                screen.success("updating trace files: " + trace_preset_path)
+                screen.success("Replacing trace files: " + trace_preset_path)
                 shutil.move(new_file, old_file)
 
 
@@ -282,7 +282,8 @@ def main():
         screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
 
     if args.update_traces:
-        replace_new_csv_files()
+        # replace_new_csv_files()
+        screen.success(" we will replace file here ")
 
 
 if __name__ == '__main__':
