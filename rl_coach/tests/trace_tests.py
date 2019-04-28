@@ -143,6 +143,7 @@ def wait_and_check(args, processes, force=False):
             test_df = pd.read_csv(csv_paths[0])
             test_df = clean_df(test_df)
             new_trace_csv_path = os.path.join(trace_path, 'trace_new.csv')
+            print("debug path: " + os.path.abspath(new_trace_csv_path))
             test_df.to_csv(new_trace_csv_path, index=False)
             test_df = pd.read_csv(new_trace_csv_path)
             trace_csv_path = glob.glob(path.join(trace_path, 'trace.csv'))
