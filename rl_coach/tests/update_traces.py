@@ -14,18 +14,19 @@
 # limitations under the License.
 #
 
+import pytest
+from configparser import ConfigParser
 import argparse
 import glob
 import os
 import shutil
-import subprocess
 import multiprocessing
 import sys
 import signal
 import pandas as pd
 import time
-from configparser import ConfigParser
 from importlib import import_module
+from rl_coach.coach import CoachLauncher
 from minio import Minio
 from os import path
 sys.path.append('.')
@@ -60,6 +61,17 @@ def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_cred
         coach_config.write(f)
 
 
+def test_command(command):
+    """
+    Launches the actual training.
+    """
+    sys.argv = command
+    launcher = CoachLauncher()
+    with pytest.raises(SystemExit) as e:
+        launcher.launch()
+    assert e.value.code == 0
+
+
 def clear_bucket(s3_end_point, s3_bucket_name):
     """
     Clear the bucket before starting the test.
@@ -72,6 +84,15 @@ def clear_bucket(s3_end_point, s3_bucket_name):
             minio_client.remove_object(s3_bucket_name, obj.object_name)
     except Exception:
         pass
+
+
+def test_dc(command, image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
+    """
+    Entry point into the test
+    """
+    clear_bucket(s3_end_point, s3_bucket_name)
+    command = command.format(template=config_file).split(' ')
+    test_command(command)
 
 
 def sigint_handler(signum, frame):
@@ -107,45 +128,7 @@ def clean_df(df):
     return df
 
 
-def run_trace_based_test(preset_name, num_env_steps, config_file, level=None):
-    test_name = '__test_trace_{}{}'.format(preset_name, '_' + level if level else '').replace(':', '_')
-    test_path = os.path.join('./experiments', test_name)
-    if path.exists(test_path):
-        shutil.rmtree(test_path)
-
-    # run the experiment in a separate thread
-    screen.log_title("Running test {}{}".format(preset_name, ' - ' + level if level else ''))
-    log_file_name = 'trace_test_log_{preset_name}.txt'.format(preset_name=test_name[13:])
-
-    cmd = (
-        'python3 rl_coach/coach.py '
-        '-p {preset_name} ' 
-        '-e {test_name} '
-        '--seed 42 '
-        '-c '
-        '-dcp {template}'
-        '--no_summary '
-        '-cp {custom_param} '
-        '{level} '
-        '&> {log_file_name} '
-    ).format(
-        preset_name=preset_name,
-        test_name=test_name,
-        template=config_file,
-        log_file_name=log_file_name,
-        level='-lvl ' + level if level else '',
-        custom_param='\"improve_steps=EnvironmentSteps({n});'
-                     'steps_between_evaluation_periods=EnvironmentSteps({n});'
-                     'evaluation_steps=EnvironmentSteps(1);'
-                     'heatup_steps=EnvironmentSteps(1024)\"'.format(n=num_env_steps)
-    )
-
-    p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", preexec_fn=os.setsid)
-
-    return test_path, log_file_name, p
-
-
-def wait_and_check(args, processes, force=False):
+def wait_and_check(args, force=False):
     if not force and len(processes) < args.max_threads:
         return None
 
@@ -209,59 +192,105 @@ def wait_and_check(args, processes, force=False):
     return test_passed
 
 
-def replace_new_csv_files():
+def get_tests():
     """
-    replace old trace files with new csv files
+    All the presets to test. New presets should be added here.
     """
-    trace_dir_path = os.path.join('./rl_coach', 'traces')
-    entities = os.listdir(trace_dir_path)
+    tests = [
 
-    for preset in entities:
-        trace_preset_path = os.path.join(trace_dir_path, preset)
+    ]
+    return tests
 
-        if os.path.exists(trace_preset_path):
-            old_file = os.path.join(trace_preset_path, "trace.csv")
-            new_file = os.path.join(trace_preset_path, "trace_new.csv")
 
-            if os.path.exists(new_file):
-                screen.success("updating trace files: " + trace_preset_path)
-                shutil.move(new_file, old_file)
+def get_command(preset_name, num_env_steps, config_file, level=None):
+    test_name = '__test_trace_{}{}'.format(preset_name, '_' + level if level else '').replace(':', '_')
+    test_path = os.path.join('./experiments', test_name)
+    if path.exists(test_path):
+        shutil.rmtree(test_path)
+
+    # run the experiment in a separate thread
+    screen.log_title("Running test {}{}".format(preset_name, ' - ' + level if level else ''))
+    log_file_name = 'trace_test_log_{preset_name}.txt'.format(preset_name=test_name[13:])
+
+    cmd = (
+        'rl_coach/coach.py '
+        '-p {preset_name} ' 
+        '-e {test_name} '
+        '--seed 42 '
+        '-c '
+        '-dcp {template}'
+        '--no_summary '
+        '-cp {custom_param} '
+        '{level} '
+        '&> {log_file_name} '
+    ).format(
+        preset_name=preset_name,
+        test_name=test_name,
+        template=config_file,
+        log_file_name=log_file_name,
+        level='-lvl ' + level if level else '',
+        custom_param='\"improve_steps=EnvironmentSteps({n});'
+                     'steps_between_evaluation_periods=EnvironmentSteps({n});'
+                     'evaluation_steps=EnvironmentSteps(1);'
+                     'heatup_steps=EnvironmentSteps(1024)\"'.format(n=num_env_steps)
+    )
+
+    print(str(cmd))
+    return test_path, log_file_name, cmd
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--preset', '--presets',
-                        help="(string) Name of preset(s) to run (comma separated, as configured in presets.py)",
-                        default=None,
-                        type=str)
-    parser.add_argument('-ip', '--ignore_presets',
-                        help="(string) Name of preset(s) to ignore (comma separated, and as configured in presets.py)",
-                        default=None,
-                        type=str)
-    parser.add_argument('-v', '--verbose',
-                        help="(flag) display verbose logs in the event of an error",
-                        action='store_true')
-    parser.add_argument('--stop_after_first_failure',
-                        help="(flag) stop executing tests after the first error",
-                        action='store_true')
-    parser.add_argument('-ow', '--overwrite',
-                        help="(flag) overwrite old trace with new ones in trace testing mode",
-                        action='store_true')
-    parser.add_argument('-prl', '--parallel',
-                        help="(flag) run tests in parallel",
-                        action='store_true')
-    parser.add_argument('-ut', '--update_traces',
-                        help="(flag) update traces on repository",
-                        action='store_true')
-    parser.add_argument('-mt', '--max_threads',
-                        help="(int) maximum number of threads to run in parallel",
-                        default=multiprocessing.cpu_count()-2,
-                        type=int)
-    parser.add_argument('-i', '--image', help="(string) Name of the testing image", type=str, default=None)
-    parser.add_argument('-mb', '--memory_backend', help="(string) Name of the memory backend", type=str, default="redispubsub")
-    parser.add_argument('-e', '--endpoint', help="(string) Name of the s3 endpoint", type=str, default='s3.amazonaws.com')
-    parser.add_argument('-cr', '--creds_file', help="(string) Path of the s3 creds file", type=str, default='.aws_creds')
-    parser.add_argument('-b', '--bucket', help="(string) Name of the bucket for s3", type=str, default=None)
+
+    parser.add_argument(
+        '-p', '--preset', '--presets',
+        help="(string) Name of preset(s) to run (comma separated, as configured in presets.py)",
+        default=None, type=str
+    )
+    parser.add_argument(
+        '-ip', '--ignore_presets',
+        help="(string) Name of preset(s) to ignore (comma separated, and as configured in presets.py)",
+        default=None,
+        type=str)
+    parser.add_argument(
+        '-v', '--verbose',
+        help="(flag) display verbose logs in the event of an error",
+        action='store_true'
+    )
+    parser.add_argument(
+        '--stop_after_first_failure',
+        help="(flag) stop executing tests after the first error",
+        action='store_true'
+    )
+    parser.add_argument(
+        '-ow', '--overwrite',
+        help="(flag) overwrite old trace with new ones in trace testing mode",
+        action='store_true'
+    )
+    parser.add_argument(
+        '-prl', '--parallel', help="(flag) run tests in parallel",
+        action='store_true'
+    )
+    parser.add_argument(
+        '-mt', '--max_threads',
+        help="(int) maximum number of threads to run in parallel",
+        default=multiprocessing.cpu_count()-2, type=int
+    )
+    parser.add_argument(
+        '-i', '--image', help="(string) Name of the testing image", type=str, default=None
+    )
+    parser.add_argument(
+        '-mb', '--memory_backend', help="(string) Name of the memory backend", type=str, default="redispubsub"
+    )
+    parser.add_argument(
+        '-e', '--endpoint', help="(string) Name of the s3 endpoint", type=str, default='s3.amazonaws.com'
+    )
+    parser.add_argument(
+        '-cr', '--creds_file', help="(string) Path of the s3 creds file", type=str, default='.aws_creds'
+    )
+    parser.add_argument(
+        '-b', '--bucket', help="(string) Name of the bucket for s3", type=str, default=None
+    )
 
     args = parser.parse_args()
 
@@ -281,11 +310,6 @@ def main():
         presets_lists = [f[:-3] for f in os.listdir(os.path.join('rl_coach', 'presets')) if
                          f[-3:] == '.py' and not f == '__init__.py']
 
-    config_file = './tmp.cred'
-    if args.update_traces:
-        generate_config(args.image, args.memory_backend, args.endpoint,
-                        args.bucket, args.creds_file, config_file)
-
     fail_count = 0
     test_count = 0
 
@@ -293,6 +317,9 @@ def main():
         presets_to_ignore = args.ignore_presets.split(',')
     else:
         presets_to_ignore = []
+
+    config_file = './tmp.cred'
+    generate_config(args.image, args.memory_backend, args.endpoint, args.bucket, args.creds_file, config_file)
 
     for idx, preset_name in enumerate(sorted(presets_lists)):
         if args.stop_after_first_failure and fail_count > 0:
@@ -312,35 +339,25 @@ def main():
                 if preset_validation_params.trace_test_levels:
                     for level in preset_validation_params.trace_test_levels:
                         test_count += 1
-                        test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, config_file, level)
-                        processes.append((test_path, log_file, p))
-                        test_passed = wait_and_check(args, processes)
+
+                        test_path, log_file, command = get_command(preset_name, num_env_steps, config_file, level)
+                        test_dc(command, args.image, args.memory_backend, args.endpoint, args.bucket, args.creds_file, config_file)
+
+                        processes.append((test_path, log_file))
+                        test_passed = wait_and_check(args)
                         if test_passed is not None and not test_passed:
                             fail_count += 1
                 else:
                     test_count += 1
-                    test_path, log_file, p = run_trace_based_test(preset_name, num_env_steps, config_file)
-                    processes.append((test_path, log_file, p))
-                    test_passed = wait_and_check(args, processes)
+                    test_path, log_file, command = get_command(preset_name, num_env_steps, config_file)
+                    test_dc(command, args.image, args.memory_backend, args.endpoint, args.bucket, args.creds_file, config_file)
+                    processes.append((test_path, log_file))
+                    test_passed = wait_and_check(args)
                     if test_passed is not None and not test_passed:
                         fail_count += 1
 
-    while len(processes) > 0:
-        test_passed = wait_and_check(args, processes, force=True)
-        if test_passed is not None and not test_passed:
-            fail_count += 1
 
-    screen.separator()
-    if fail_count == 0:
-        screen.success(" Summary: " + str(test_count) + "/" + str(test_count) + " tests passed successfully")
-    else:
-        screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
-
-    if args.update_traces:
-        replace_new_csv_files()
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     os.environ['DISABLE_MUJOCO_RENDERING'] = '1'
     main()
     del os.environ['DISABLE_MUJOCO_RENDERING']
