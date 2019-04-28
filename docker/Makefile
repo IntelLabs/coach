@@ -71,7 +71,7 @@ ifdef TRACE_UPDATE
 else
     TRACE_UPDATE :=
 endif
-TRACE_TESTS=python3 rl_coach/tests/trace_tests.py -prl ${TRACE_PRESETS} ${TRACEUPDATE}
+TRACE_TESTS=python3 rl_coach/tests/trace_tests.py -prl ${TRACE_PRESETS} ${TRACE_UPDATE}
 
 
 
