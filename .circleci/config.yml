@@ -377,6 +377,7 @@ jobs:
                           && TRACE_PRESETS="CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL" \
                           && python3 rl_coach/tests/trace_tests.py -prl -p ${TRACE_PRESETS} -ut -b coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM} -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:${TAG}'
             aws s3 cp ~/repo/rl_coach/traces s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM}/ --recursive
+            ls -la
 #            docker ps -a -q | head -n 1  | xargs -I% docker cp -a %:/root/src/rl_coach/traces . || true
           no_output_timeout: 45m
 
