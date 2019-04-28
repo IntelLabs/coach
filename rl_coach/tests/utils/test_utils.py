@@ -32,7 +32,6 @@ def print_progress(averaged_rewards, last_num_episodes, start_time, time_limit,
     :param start_time: start time of test
     :param time_limit: time out of test
     :param p_valid_params: preset validation parameters
-    :return:
     """
     max_episodes_to_archive = p_valid_params.max_episodes_to_achieve_reward
     min_reward = p_valid_params.min_reward_threshold
@@ -55,29 +54,35 @@ def read_csv_paths(test_path, filename_pattern, read_csv_tries=120,
                    extra_tries=0, num_expected_files=None):
     """
     Return file path once it found
-    :param test_path: test folder path
-    :param filename_pattern: csv file pattern
-    :param read_csv_tries: number of iterations until file found
-    :param extra_tries: add number of extra tries to check after getting all
-                        the paths.
+    :param test_path: |string| test folder path
+    :param filename_pattern: |string| csv file pattern
+    :param read_csv_tries: |int| number of iterations until file found
+    :param extra_tries: |int| add number of extra tries to check after getting
+                        all the paths.
     :param num_expected_files: find all expected file in experiment folder.
     :return: |string| return csv file path
     """
     csv_paths = []
     tries_counter = 0
-    while not csv_paths or extra_tries > 0:
-        csv_paths = glob.glob(path.join(test_path, '*', filename_pattern))
-        if tries_counter > read_csv_tries:
-            break
 
-        if num_expected_files and num_expected_files == len(csv_paths):
+    if isinstance(extra_tries, int) and extra_tries >= 0:
+        read_csv_tries += extra_tries
+
+    while tries_counter < read_csv_tries:
+        csv_paths = glob.glob(path.join(test_path, '*', filename_pattern))
+
+        if num_expected_files:
+            if num_expected_files == len(csv_paths):
+                break
+            else:
+                time.sleep(1)
+                tries_counter += 1
+                continue
+        elif csv_paths:
             break
 
         time.sleep(1)
         tries_counter += 1
-
-        if csv_paths and extra_tries > 0:
-            extra_tries -= 1
 
     return csv_paths
 

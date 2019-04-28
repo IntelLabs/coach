@@ -82,8 +82,24 @@ def clres(request):
         """
         def __init__(self, csv, log, pattern):
             self.exp_path = csv
-            self.stdout = log
+            self.stdout = open(log, 'w')
             self.fn_pattern = pattern
+
+        @property
+        def experiment_path(self):
+            return self.exp_path
+
+        @property
+        def stdout_path(self):
+            return self.stdout
+
+        @experiment_path.setter
+        def experiment_path(self, val):
+            self.exp_path = val
+
+        @stdout_path.setter
+        def stdout_path(self, val):
+            self.stdout = open(val, 'w')
 
     # get preset name from test request params
     idx = 0 if 'preset' in list(request.node.funcargs.items())[0][0] else 1
@@ -99,10 +115,9 @@ def clres(request):
 
     # get the stdout for logs results
     log_file_name = 'test_log_{}.txt'.format(p_name)
-    stdout = open(log_file_name, 'w')
     fn_pattern = '*.csv' if p_valid_params.num_workers > 1 else 'worker_0*.csv'
 
-    res = CreateCsvLog(test_path, stdout, fn_pattern)
+    res = CreateCsvLog(test_path, log_file_name, fn_pattern)
 
     yield res
 
