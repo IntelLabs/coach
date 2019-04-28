@@ -340,8 +340,8 @@ def main():
     else:
         screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
 
-    if args.update_traces:
-        replace_new_csv_files()
+    # if args.update_traces:
+    #     replace_new_csv_files()
 
 
 if __name__ == '__main__':
