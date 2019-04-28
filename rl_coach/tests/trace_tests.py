@@ -306,6 +306,9 @@ def main():
                 test_count += 1
                 continue
 
+            # if args.endpoint and args.bucket:
+            #     clear_bucket(args.endpoint, args.bucket)
+
             preset_validation_params = preset.graph_manager.preset_validation_params
             num_env_steps = preset_validation_params.trace_max_env_steps
             if preset_validation_params.test_using_a_trace_test:
