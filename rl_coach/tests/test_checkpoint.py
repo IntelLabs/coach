@@ -120,7 +120,6 @@ def test_restore_checkpoint(preset_args, clres, framework,
     entities = a_utils.get_files_from_dir(checkpoint_dir)
 
     assert len(entities) > 0
-    assert "checkpoint" in entities
     assert any(".ckpt." in file for file in entities)
 
     # send CTRL+C to close experiment
