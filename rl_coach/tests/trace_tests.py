@@ -265,12 +265,13 @@ def main():
 
     args = parser.parse_args()
 
-    if not args.bucket:
-        print("bucket_name required for s3")
-        exit(1)
-    if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
-        print("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars need to be set")
-        exit(1)
+    if args.update_traces:
+        if not args.bucket:
+            print("bucket_name required for s3")
+            exit(1)
+        if not os.environ.get('AWS_ACCESS_KEY_ID') or not os.environ.get('AWS_SECRET_ACCESS_KEY'):
+            print("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY env vars need to be set")
+            exit(1)
 
     if not args.parallel:
         args.max_threads = 1
@@ -345,5 +346,6 @@ def main():
 
 if __name__ == '__main__':
     os.environ['DISABLE_MUJOCO_RENDERING'] = '1'
+    screen.success("Ayoob path: " + str(os.path.dirname(os.path.realpath(__file__))))
     main()
     del os.environ['DISABLE_MUJOCO_RENDERING']
