@@ -66,7 +66,14 @@ ifdef TRACE_PRESETS
 else
 	TRACE_PRESETS :=
 endif
-TRACE_TESTS=python3 rl_coach/tests/trace_tests.py -prl ${TRACE_PRESETS}
+ifdef TRACE_UPDATE
+    TRACE_UPDATE := -ut
+else
+    TRACE_UPDATE :=
+endif
+TRACE_TESTS=python3 rl_coach/tests/trace_tests.py -prl ${TRACE_PRESETS} ${TRACEUPDATE}
+
+
 
 ifndef DOCKER
 	DOCKER = docker
