@@ -369,7 +369,7 @@ jobs:
             export TRACE_PRESETS="CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL"
             aws s3 mb s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM}
             python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn update-trace-test-gym -tc "export TRACE_PRESETS=${TRACE_PRESETS} && export TRACE_UPDATE=${TRACE_UPDATE} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
-            docker cp ./rl_coach/traces s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM} || true
+            docker cp rl_coach/traces s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM} || true
           no_output_timeout: 45m
       - run:
           name: cleanup
