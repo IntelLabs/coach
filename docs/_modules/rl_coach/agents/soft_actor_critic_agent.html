@@ -182,7 +182,7 @@
             
   <h1>Source code for rl_coach.agents.soft_actor_critic_agent</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
-<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1"># Copyright (c) 2019 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
@@ -462,7 +462,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        get the mean and stdev of the policy distribution given &#39;states&#39;</span>
 <span class="sd">        :param states: the states for which we need to sample actions from the policy</span>
-<span class="sd">        :return: mean and stdev ? what about logprob ?</span>
+<span class="sd">        :return: mean and stdev</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tf_input_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_batch_for_inference</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="s1">&#39;policy&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;policy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">tf_input_state</span><span class="p">)</span>

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,8 +95,6 @@ class SACPolicyHead(Head):
         self.output.append(self.actions)        # output[3] : squashed (if needed) version of sampled raw_actions
         self.output.append(self.sampled_actions_logprob)   # output[4]: log prob of sampled action (squash corrected)
         self.output.append(self.sampled_actions_logprob_mean)    # output[5]: mean of log prob of sampled actions (squash corrected)
-
-        # apply weight decay using l2 regularization -> set self.l2_regularization=1e-3
 
     def __str__(self):
         result = [

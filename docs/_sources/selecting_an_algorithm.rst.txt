@@ -203,7 +203,7 @@ The algorithms are ordered by their release date in descending order.
                <a href="components/agents/policy_optimization/sac.html">SAC</a>
                <br>
                Soft Actor-Critic is an algorithm which optimizes a stochastic policy in an off-policy way.
-               One of the key features of SAC is that solves a maximum entropy reinforcement learning problem.
+               One of the key features of SAC is that it solves a maximum entropy reinforcement learning problem.
             </span>
          </div>
          <div class="algorithm continuous off-policy" data-year="201509">

@@ -3,8 +3,7 @@ Soft Actor-Critic
 
 **Actions space:** Continuous
 
-**References:** `Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor
- <https://arxiv.org/abs/1801.01290>`_
+**References:** `Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor <https://arxiv.org/abs/1801.01290>`_
 
 Network Structure
 -----------------

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -279,7 +279,7 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         """
         get the mean and stdev of the policy distribution given 'states'
         :param states: the states for which we need to sample actions from the policy
-        :return: mean and stdev ? what about logprob ?
+        :return: mean and stdev
         """
         tf_input_state = self.prepare_batch_for_inference(states, 'policy')
         return self.networks['policy'].online_network.predict(tf_input_state)
