@@ -24,9 +24,7 @@ import sys
 import signal
 import pandas as pd
 import time
-from configparser import ConfigParser
 from importlib import import_module
-from minio import Minio
 from os import path
 sys.path.append('.')
 from rl_coach.logger import screen
