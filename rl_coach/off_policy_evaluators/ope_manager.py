@@ -44,7 +44,7 @@ class OpeManager(object):
         self.all_old_policy_probs = []
         self.all_rewards = []
         self.all_actions = []
-        self.not_initialized_yet = True
+        self.has_gathered_fixed_data = False
 
     def _prepare_ope_shared_stats(self, dataset_as_transitions: List[Transition], batch_size: int,
                                   reward_model: Architecture, q_network: Architecture,
@@ -68,7 +68,7 @@ class OpeManager(object):
             batch = dataset_as_transitions[i * batch_size: (i + 1) * batch_size]
             batch_for_inference = Batch(batch)
 
-            if self.not_initialized_yet:
+            if not self.has_gathered_fixed_data:
                 self.all_reward_model_rewards.append(reward_model.predict(batch_for_inference.states(network_keys)))
                 self.all_rewards.append(batch_for_inference.rewards())
                 self.all_actions.append(batch_for_inference.actions())
@@ -95,13 +95,13 @@ class OpeManager(object):
 
                 })
 
-        if self.not_initialized_yet:
+        if not self.has_gathered_fixed_data:
             self.all_reward_model_rewards_np = np.concatenate(self.all_reward_model_rewards, axis=0)
             self.all_old_policy_probs = np.concatenate(self.all_old_policy_probs, axis=0)
             self.all_rewards = np.concatenate(self.all_rewards, axis=0)
             self.all_actions = np.concatenate(self.all_actions, axis=0)
 
-            self.not_initialized_yet = False
+            self.has_gathered_fixed_data = True
 
         all_policy_probs = np.concatenate(all_policy_probs, axis=0)
         all_v_values_reward_model_based = np.concatenate(all_v_values_reward_model_based, axis=0)
@@ -136,7 +136,7 @@ class OpeManager(object):
 
         ips, dm, dr = self.doubly_robust.evaluate(ope_shared_stats)
         seq_dr = self.sequential_doubly_robust.evaluate(dataset_as_episodes, discount_factor)
-        wis = self.weighted_importance_sampling.evaluate(dataset_as_episodes, discount_factor)
+        wis = self.weighted_importance_sampling.evaluate(dataset_as_episodes)
         
         return OpeEstimation(ips, dm, dr, seq_dr, wis)
 
