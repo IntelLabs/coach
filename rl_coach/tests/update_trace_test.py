@@ -72,7 +72,7 @@ def get_tests():
     All the presets to test. New presets should be added here.
     """
     tests = [
-        'rl_coach/tests/trace_tests.py -prl -p CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL -ut',
+        'rl_coach/tests/trace_tests.py -prl -p CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL',
     ]
     return tests
 

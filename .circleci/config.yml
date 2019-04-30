@@ -382,8 +382,6 @@ jobs:
       - run:
           name: cleanup
           command: |
-            kubectl delete --all pods --namespace=golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
-            kubectl delete ns golden-test-mujoco-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns trace-test-gym-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
