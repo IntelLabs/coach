@@ -24,7 +24,6 @@ import sys
 import signal
 import pandas as pd
 import time
-from minio import Minio
 from configparser import ConfigParser
 from importlib import import_module
 from os import path
@@ -173,25 +172,6 @@ def wait_and_check(args, processes, force=False):
     return test_passed
 
 
-def replace_new_csv_files():
-    """
-    replace old trace files with new csv files
-    """
-    trace_dir_path = os.path.join('./rl_coach', 'traces')
-    entities = os.listdir(trace_dir_path)
-
-    for preset in entities:
-        trace_preset_path = os.path.join(trace_dir_path, preset)
-
-        if os.path.exists(trace_preset_path):
-            old_file = os.path.join(trace_preset_path, "trace.csv")
-            new_file = os.path.join(trace_preset_path, "trace_new.csv")
-
-            if os.path.exists(new_file):
-                screen.success("Replacing trace files: " + trace_preset_path)
-                shutil.move(new_file, old_file)
-
-
 def generate_config(image, memory_backend, s3_end_point, s3_bucket_name, s3_creds_file, config_file):
     """
     Generate the s3 config file to be used and also the dist-coach-config.template to be used for the test
@@ -336,10 +316,6 @@ def main():
         screen.success(" Summary: " + str(test_count) + "/" + str(test_count) + " tests passed successfully")
     else:
         screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
-
-    if args.update_traces:
-        # replace_new_csv_files()
-        screen.success(" we will replace file here ")
 
 
 if __name__ == '__main__':
