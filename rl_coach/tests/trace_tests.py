@@ -146,7 +146,6 @@ def wait_and_check(args, processes, force=False):
             test_df = pd.read_csv(csv_paths[0])
             test_df = clean_df(test_df)
             new_trace_csv_path = os.path.join(trace_path, 'trace_new.csv')
-            print("debug path: " + os.path.abspath(new_trace_csv_path))
             test_df.to_csv(new_trace_csv_path, index=False)
             test_df = pd.read_csv(new_trace_csv_path)
             trace_csv_path = glob.glob(path.join(trace_path, 'trace.csv'))
@@ -283,9 +282,6 @@ def main():
                 fail_count += 1
                 test_count += 1
                 continue
-
-            # if args.endpoint and args.bucket:
-            #     clear_bucket(args.endpoint, args.bucket)
 
             preset_validation_params = preset.graph_manager.preset_validation_params
             num_env_steps = preset_validation_params.trace_max_env_steps

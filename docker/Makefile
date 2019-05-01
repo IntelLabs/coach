@@ -68,8 +68,6 @@ else
 endif
 TRACE_TESTS=python3 rl_coach/tests/trace_tests.py -prl ${TRACE_PRESETS}
 
-
-
 ifndef DOCKER
 	DOCKER = docker
 endif
