@@ -109,14 +109,6 @@ class ValueOptimizationAgent(Agent):
         :return: None
         """
         assert self.ope_manager
-        if not hasattr(self, 'dataset_as_episodes'):
-            self.dataset_as_episodes = deepcopy(self.call_memory('get_all_complete_episodes_from_to',
-                                                        (self.call_memory('get_last_training_set_episode_id') + 1,
-                                                         self.call_memory('num_complete_episodes'))))
-
-        if len(self.dataset_as_episodes) == 0:
-            raise ValueError('train_to_eval_ratio is too high causing the evaluation set to be empty. '
-                             'Consider decreasing its value.')
 
         if not isinstance(self.pre_network_filter, NoInputFilter) and len(self.pre_network_filter.reward_filters) != 0:
             raise ValueError("Defining a pre-network reward filter when OPEs are calculated will result in a mismatch "
@@ -125,10 +117,10 @@ class ValueOptimizationAgent(Agent):
                              "in the replay buffer, affecting both the q_values and the rewards themselves. ")
 
         ips, dm, dr, seq_dr, wis = self.ope_manager.evaluate(
-                                  dataset_as_episodes=self.dataset_as_episodes,
+                                  evaluation_dataset_as_episodes=self.memory.evaluation_dataset_as_episodes,
+                                  evaluation_dataset_as_transitions=self.memory.evaluation_dataset_as_transitions,
                                   batch_size=self.ap.network_wrappers['main'].batch_size,
                                   discount_factor=self.ap.algorithm.discount,
-                                  reward_model=self.networks['reward_model'].online_network,
                                   q_network=self.networks['main'].online_network,
                                   network_keys=list(self.ap.network_wrappers['main'].input_embedders_parameters.keys()))
 

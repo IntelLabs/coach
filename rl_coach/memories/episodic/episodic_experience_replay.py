@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 import ast
+from copy import deepcopy
+
 import math
 
 import pandas as pd
@@ -64,6 +66,9 @@ class EpisodicExperienceReplay(Memory):
         self.last_training_set_episode_id = None  # used in batch-rl
         self.last_training_set_transition_id = None  # used in batch-rl
         self.train_to_eval_ratio = train_to_eval_ratio  # used in batch-rl
+        self.evaluation_dataset_as_episodes = None
+        self.evaluation_dataset_as_transitions = None
+
         self.frozen = False
 
     def length(self, lock: bool = False) -> int:
@@ -472,3 +477,19 @@ class EpisodicExperienceReplay(Memory):
         :return:
         """
         assert self.frozen is False, "Memory is frozen, and cannot be changed."
+
+    def prepare_evaluation_dataset(self):
+        """
+        Gather the memory content that will be used for off-policy evaluation in episodes and transitions format
+        :return:
+        """
+        self.evaluation_dataset_as_episodes = deepcopy(
+                self.get_all_complete_episodes_from_to(self.get_last_training_set_episode_id() + 1,
+                                                       self.num_complete_episodes()))
+
+        if len(self.evaluation_dataset_as_episodes) == 0:
+            raise ValueError('train_to_eval_ratio is too high causing the evaluation set to be empty. '
+                             'Consider decreasing its value.')
+
+        self.evaluation_dataset_as_transitions = [t for e in self.evaluation_dataset_as_episodes
+                                                  for t in e.transitions]
