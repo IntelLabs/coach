@@ -1,0 +1,484 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.environments.starcraft2_environment &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.environments.starcraft2_environment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.environments.starcraft2_environment</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_move_axis_filter</span> <span class="k">import</span> <span class="n">ObservationMoveAxisFilter</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pysc2</span> <span class="k">import</span> <span class="n">maps</span>
+    <span class="kn">from</span> <span class="nn">pysc2.env</span> <span class="k">import</span> <span class="n">sc2_env</span>
+    <span class="kn">from</span> <span class="nn">pysc2.env</span> <span class="k">import</span> <span class="n">available_actions_printer</span>
+    <span class="kn">from</span> <span class="nn">pysc2.lib</span> <span class="k">import</span> <span class="n">actions</span>
+    <span class="kn">from</span> <span class="nn">pysc2.lib</span> <span class="k">import</span> <span class="n">features</span>
+    <span class="kn">from</span> <span class="nn">pysc2.env</span> <span class="k">import</span> <span class="n">environment</span>
+    <span class="kn">from</span> <span class="nn">absl</span> <span class="k">import</span> <span class="n">app</span>
+    <span class="kn">from</span> <span class="nn">absl</span> <span class="k">import</span> <span class="n">flags</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
+    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PySc2&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.environments.environment</span> <span class="k">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EnvironmentParameters</span><span class="p">,</span> <span class="n">LevelSelection</span>
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">VisualizationParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">VectorObservationSpace</span><span class="p">,</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">,</span> <span class="n">StateSpace</span><span class="p">,</span> <span class="n">CompoundActionSpace</span><span class="p">,</span> \
+    <span class="n">DiscreteActionSpace</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">InputFilter</span><span class="p">,</span> <span class="n">OutputFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rescale_to_size_filter</span> <span class="k">import</span> <span class="n">ObservationRescaleToSizeFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.action.linear_box_to_box_map</span> <span class="k">import</span> <span class="n">LinearBoxToBoxMap</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_to_uint8_filter</span> <span class="k">import</span> <span class="n">ObservationToUInt8Filter</span>
+
+<span class="n">FLAGS</span> <span class="o">=</span> <span class="n">flags</span><span class="o">.</span><span class="n">FLAGS</span>
+<span class="n">FLAGS</span><span class="p">([</span><span class="s1">&#39;coach.py&#39;</span><span class="p">])</span>
+
+<span class="n">SCREEN_SIZE</span> <span class="o">=</span> <span class="mi">84</span>  <span class="c1"># will also impact the action space size</span>
+
+<span class="c1"># Starcraft Constants</span>
+<span class="n">_NOOP</span> <span class="o">=</span> <span class="n">actions</span><span class="o">.</span><span class="n">FUNCTIONS</span><span class="o">.</span><span class="n">no_op</span><span class="o">.</span><span class="n">id</span>
+<span class="n">_MOVE_SCREEN</span> <span class="o">=</span> <span class="n">actions</span><span class="o">.</span><span class="n">FUNCTIONS</span><span class="o">.</span><span class="n">Move_screen</span><span class="o">.</span><span class="n">id</span>
+<span class="n">_SELECT_ARMY</span> <span class="o">=</span> <span class="n">actions</span><span class="o">.</span><span class="n">FUNCTIONS</span><span class="o">.</span><span class="n">select_army</span><span class="o">.</span><span class="n">id</span>
+<span class="n">_PLAYER_RELATIVE</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">SCREEN_FEATURES</span><span class="o">.</span><span class="n">player_relative</span><span class="o">.</span><span class="n">index</span>
+<span class="n">_NOT_QUEUED</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">_SELECT_ALL</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">StarcraftObservationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Features</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">RGB</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="n">StarcraftInputFilter</span> <span class="o">=</span> <span class="n">InputFilter</span><span class="p">(</span><span class="n">is_a_reference_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">StarcraftInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;screen&#39;</span><span class="p">,</span> <span class="s1">&#39;move_axis&#39;</span><span class="p">,</span> <span class="n">ObservationMoveAxisFilter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">StarcraftInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;screen&#39;</span><span class="p">,</span> <span class="s1">&#39;rescaling&#39;</span><span class="p">,</span>
+                                            <span class="n">ObservationRescaleToSizeFilter</span><span class="p">(</span>
+                                                <span class="n">PlanarMapsObservationSpace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+                                                                           <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">channels_axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)))</span>
+<span class="n">StarcraftInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;screen&#39;</span><span class="p">,</span> <span class="s1">&#39;to_uint8&#39;</span><span class="p">,</span> <span class="n">ObservationToUInt8Filter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+<span class="n">StarcraftInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;minimap&#39;</span><span class="p">,</span> <span class="s1">&#39;move_axis&#39;</span><span class="p">,</span> <span class="n">ObservationMoveAxisFilter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">StarcraftInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;minimap&#39;</span><span class="p">,</span> <span class="s1">&#39;rescaling&#39;</span><span class="p">,</span>
+                                            <span class="n">ObservationRescaleToSizeFilter</span><span class="p">(</span>
+                                                <span class="n">PlanarMapsObservationSpace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+                                                                           <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">channels_axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)))</span>
+<span class="n">StarcraftInputFilter</span><span class="o">.</span><span class="n">add_observation_filter</span><span class="p">(</span><span class="s1">&#39;minimap&#39;</span><span class="p">,</span> <span class="s1">&#39;to_uint8&#39;</span><span class="p">,</span> <span class="n">ObservationToUInt8Filter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+
+<span class="n">StarcraftNormalizingOutputFilter</span> <span class="o">=</span> <span class="n">OutputFilter</span><span class="p">(</span><span class="n">is_a_reference_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">StarcraftNormalizingOutputFilter</span><span class="o">.</span><span class="n">add_action_filter</span><span class="p">(</span>
+    <span class="s1">&#39;normalization&#39;</span><span class="p">,</span> <span class="n">LinearBoxToBoxMap</span><span class="p">(</span><span class="n">input_space_low</span><span class="o">=-</span><span class="n">SCREEN_SIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">input_space_high</span><span class="o">=</span><span class="n">SCREEN_SIZE</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">StarCraft2EnvironmentParameters</span><span class="p">(</span><span class="n">EnvironmentParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_size</span> <span class="o">=</span> <span class="mi">84</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimap_size</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_minimap_maps_to_use</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_screen_maps_to_use</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">=</span> <span class="n">StarcraftObservationType</span><span class="o">.</span><span class="n">Features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_fog</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_select_all_army</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_input_filter</span> <span class="o">=</span> <span class="n">StarcraftInputFilter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_output_filter</span> <span class="o">=</span> <span class="n">StarcraftNormalizingOutputFilter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_full_action_space</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.environments.starcraft2_environment:StarCraft2Environment&#39;</span>
+
+
+<span class="c1"># Environment</span>
+<div class="viewcode-block" id="StarCraft2Environment"><a class="viewcode-back" href="../../../components/environments/index.html#rl_coach.environments.starcraft2_environment.StarCraft2Environment">[docs]</a><span class="k">class</span> <span class="nc">StarCraft2Environment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LevelSelection</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">visualization_parameters</span><span class="p">:</span> <span class="n">VisualizationParameters</span><span class="p">,</span>
+                 <span class="n">target_success_rate</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">human_control</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">custom_reward_threshold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">screen_size</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">84</span><span class="p">,</span> <span class="n">minimap_size</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+                 <span class="n">feature_minimap_maps_to_use</span><span class="p">:</span> <span class="n">List</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="n">feature_screen_maps_to_use</span><span class="p">:</span> <span class="n">List</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">),</span>
+                 <span class="n">observation_type</span><span class="p">:</span> <span class="n">StarcraftObservationType</span><span class="o">=</span><span class="n">StarcraftObservationType</span><span class="o">.</span><span class="n">Features</span><span class="p">,</span>
+                 <span class="n">disable_fog</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto_select_all_army</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">use_full_action_space</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">,</span> <span class="n">human_control</span><span class="p">,</span> <span class="n">custom_reward_threshold</span><span class="p">,</span> <span class="n">visualization_parameters</span><span class="p">,</span> <span class="n">target_success_rate</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_size</span> <span class="o">=</span> <span class="n">screen_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimap_size</span> <span class="o">=</span> <span class="n">minimap_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_minimap_maps_to_use</span> <span class="o">=</span> <span class="n">feature_minimap_maps_to_use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_screen_maps_to_use</span> <span class="o">=</span> <span class="n">feature_screen_maps_to_use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">=</span> <span class="n">observation_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_screen_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_minimap_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rgb_screen_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rgb_minimap_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">==</span> <span class="n">StarcraftObservationType</span><span class="o">.</span><span class="n">Features</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">features_screen_size</span> <span class="o">=</span> <span class="n">screen_size</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_minimap_size</span> <span class="o">=</span> <span class="n">minimap_size</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">==</span> <span class="n">StarcraftObservationType</span><span class="o">.</span><span class="n">RGB</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_screen_size</span> <span class="o">=</span> <span class="n">screen_size</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rgb_minimap_size</span> <span class="o">=</span> <span class="n">minimap_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_fog</span> <span class="o">=</span> <span class="n">disable_fog</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_select_all_army</span> <span class="o">=</span> <span class="n">auto_select_all_army</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_full_action_space</span> <span class="o">=</span> <span class="n">use_full_action_space</span>
+
+        <span class="c1"># step_mul is the equivalent to frame skipping. Not sure if it repeats actions in between or not though.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">sc2_env</span><span class="o">.</span><span class="n">SC2Env</span><span class="p">(</span><span class="n">map_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env_id</span><span class="p">,</span> <span class="n">step_mul</span><span class="o">=</span><span class="n">frame_skip</span><span class="p">,</span>
+                                  <span class="n">visualize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_rendered</span><span class="p">,</span>
+                                  <span class="n">agent_interface_format</span><span class="o">=</span><span class="n">sc2_env</span><span class="o">.</span><span class="n">AgentInterfaceFormat</span><span class="p">(</span>
+                                      <span class="n">feature_dimensions</span><span class="o">=</span><span class="n">sc2_env</span><span class="o">.</span><span class="n">Dimensions</span><span class="p">(</span>
+                                          <span class="n">screen</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">features_screen_size</span><span class="p">,</span>
+                                          <span class="n">minimap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_minimap_size</span>
+                                      <span class="p">)</span>
+                                      <span class="c1"># rgb_dimensions=sc2_env.Dimensions(</span>
+                                      <span class="c1">#     screen=self.rgb_screen_size,</span>
+                                      <span class="c1">#     minimap=self.rgb_screen_size</span>
+                                      <span class="c1"># )</span>
+                                  <span class="p">),</span>
+                                  <span class="c1"># feature_screen_size=self.features_screen_size,</span>
+                                  <span class="c1"># feature_minimap_size=self.feature_minimap_size,</span>
+                                  <span class="c1"># rgb_screen_size=self.rgb_screen_size,</span>
+                                  <span class="c1"># rgb_minimap_size=self.rgb_screen_size,</span>
+                                  <span class="n">disable_fog</span><span class="o">=</span><span class="n">disable_fog</span><span class="p">,</span>
+                                  <span class="n">random_seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span>
+                                  <span class="p">)</span>
+
+        <span class="c1"># print all the available actions</span>
+        <span class="c1"># self.env = available_actions_printer.AvailableActionsPrinter(self.env)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_internal_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        feature_screen:  [height_map, visibility_map, creep, power, player_id, player_relative, unit_type, selected,</span>
+<span class="sd">                          unit_hit_points, unit_hit_points_ratio, unit_energy, unit_energy_ratio, unit_shields,</span>
+<span class="sd">                          unit_shields_ratio, unit_density, unit_density_aa, effects]</span>
+<span class="sd">        feature_minimap: [height_map, visibility_map, creep, camera, player_id, player_relative, selecte</span>
+<span class="sd">        d]</span>
+<span class="sd">        player:          [player_id, minerals, vespene, food_cap, food_army, food_workers, idle_worker_dount,</span>
+<span class="sd">                          army_count, warp_gate_count, larva_count]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;feature_screen&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_screen_maps_to_use</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimap_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;feature_minimap&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimap_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_minimap_maps_to_use</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span> <span class="o">=</span> <span class="n">StateSpace</span><span class="p">({</span>
+            <span class="s2">&quot;screen&quot;</span><span class="p">:</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_shape</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">channels_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;minimap&quot;</span><span class="p">:</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minimap_shape</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">channels_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;measurements&quot;</span><span class="p">:</span> <span class="n">VectorObservationSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;player&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">})</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_full_action_space</span><span class="p">:</span>
+            <span class="n">action_identifiers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">functions</span><span class="p">)</span>
+            <span class="n">num_action_identifiers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">action_identifiers</span><span class="p">)</span>
+            <span class="n">action_arguments</span> <span class="o">=</span> <span class="p">[(</span><span class="n">arg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">arg</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">types</span><span class="p">]</span>
+            <span class="n">sub_action_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">DiscreteActionSpace</span><span class="p">(</span><span class="n">num_action_identifiers</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">argument</span> <span class="ow">in</span> <span class="n">action_arguments</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="n">argument</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">sub_action_spaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DiscreteActionSpace</span><span class="p">(</span><span class="n">dimension</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">CompoundActionSpace</span><span class="p">(</span><span class="n">sub_action_spaces</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">BoxActionSpace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;X-Axis, Y-Axis&quot;</span><span class="p">],</span>
+                                               <span class="n">default_action</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_size</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen_size</span><span class="o">/</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span> <span class="o">=</span> <span class="n">target_success_rate</span>
+
+    <span class="k">def</span> <span class="nf">_update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="n">timestep</span><span class="p">]</span><span class="o">.</span><span class="n">observation</span><span class="o">.</span><span class="n">feature_screen</span>
+        <span class="c1"># extract only the requested segmentation maps from the observation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_screen_maps_to_use</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="n">timestep</span><span class="p">]</span><span class="o">.</span><span class="n">observation</span><span class="o">.</span><span class="n">feature_minimap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="n">timestep</span><span class="p">]</span><span class="o">.</span><span class="n">observation</span><span class="o">.</span><span class="n">player</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="n">timestep</span><span class="p">]</span><span class="o">.</span><span class="n">reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="n">timestep</span><span class="p">]</span><span class="o">.</span><span class="n">step_type</span> <span class="o">==</span> <span class="n">environment</span><span class="o">.</span><span class="n">StepType</span><span class="o">.</span><span class="n">LAST</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;screen&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
+            <span class="s1">&#39;minimap&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimap</span><span class="p">,</span>
+            <span class="s1">&#39;measurements&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_full_action_space</span><span class="p">:</span>
+            <span class="n">action_identifier</span> <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">action_arguments</span> <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">actions</span><span class="o">.</span><span class="n">FunctionCall</span><span class="p">(</span><span class="n">action_identifier</span><span class="p">,</span> <span class="n">action_arguments</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">noop</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">round</span><span class="p">()</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SCREEN_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_action_idx</span> <span class="o">=</span> <span class="n">coord</span>
+
+            <span class="k">if</span> <span class="n">noop</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">actions</span><span class="o">.</span><span class="n">FunctionCall</span><span class="p">(</span><span class="n">_NOOP</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">actions</span><span class="o">.</span><span class="n">FunctionCall</span><span class="p">(</span><span class="n">_MOVE_SCREEN</span><span class="p">,</span> <span class="p">[</span><span class="n">_NOT_QUEUED</span><span class="p">,</span> <span class="n">coord</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="o">=</span><span class="p">[</span><span class="n">action</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_restart_environment_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_environment_reset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># reset the environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="c1"># select all the units on the screen</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_select_all_army</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="o">=</span><span class="p">[</span><span class="n">actions</span><span class="o">.</span><span class="n">FunctionCall</span><span class="p">(</span><span class="n">_SELECT_ARMY</span><span class="p">,</span> <span class="p">[</span><span class="n">_SELECT_ALL</span><span class="p">])])</span>
+
+    <span class="k">def</span> <span class="nf">get_rendered_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">screen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+        <span class="n">screen</span> <span class="o">=</span> <span class="n">screen</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span>
+        <span class="k">return</span> <span class="n">screen</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">dump_video_of_last_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">experiment_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">_run_config</span><span class="o">.</span><span class="n">replay_dir</span> <span class="o">=</span> <span class="n">experiment_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">save_replay</span><span class="p">(</span><span class="s1">&#39;replays&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dump_video_of_last_episode</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_target_success_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

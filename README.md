@@ -25,11 +25,11 @@ coach -p CartPole_DQN -r
 <img src="img/doom_health.gif" alt="Doom Health Gathering"/> <img src="img/minitaur.gif" alt="PyBullet Minitaur" width = "249" height ="200"/> <img src="img/ant.gif" alt="Gym Extensions Ant"/>
 <br><br>
 
-Blog posts from the Intel® AI website:
 * [Release 0.8.0](https://ai.intel.com/reinforcement-learning-coach-intel/) (initial release)
 * [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/)
 * [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/)
-* [Release 0.11.0](https://ai.intel.com/rl-coach-data-science-at-scale) (current release)
+* [Release 0.11.0](https://ai.intel.com/rl-coach-data-science-at-scale)
+* [Release 0.12.0] (current release)
 
 Contacting the Coach development team is also possible through the email [coach@intel.com](coach@intel.com)
 

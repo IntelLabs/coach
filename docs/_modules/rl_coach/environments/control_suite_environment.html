@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rl_coach.environments.control_suite_environment &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
+
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Reinforcement Learning Coach
+          
+
+          
+            
+            <img src="../../../_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Intro</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dist_usage.html">Usage - Distributed Coach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/index.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dashboard.html">Coach Dashboard</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Design</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/control_flow.html">Control Flow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/network.html">Network Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design/horizontal_scaling.html">Distributed Coach - Horizontal Scale-Out</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contributing</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_agent.html">Adding a New Agent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/add_env.html">Adding a New Environment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Components</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/architectures/index.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/data_stores/index.html">Data Stores</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/environments/index.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/exploration_policies/index.html">Exploration Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/filters/index.html">Filters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memories/index.html">Memories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/memory_backends/index.html">Memory Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/orchestrators/index.html">Orchestrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/core_types.html">Core Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/spaces.html">Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components/additional_parameters.html">Additional Parameters</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Reinforcement Learning Coach</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>rl_coach.environments.control_suite_environment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for rl_coach.environments.control_suite_environment</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2017 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">dm_control</span> <span class="k">import</span> <span class="n">suite</span>
+    <span class="kn">from</span> <span class="nn">dm_control.suite.wrappers</span> <span class="k">import</span> <span class="n">pixels</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
+    <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DeepMind Control Suite&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">VisualizationParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.environments.environment</span> <span class="k">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EnvironmentParameters</span><span class="p">,</span> <span class="n">LevelSelection</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">NoInputFilter</span><span class="p">,</span> <span class="n">NoOutputFilter</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">ImageObservationSpace</span><span class="p">,</span> <span class="n">VectorObservationSpace</span><span class="p">,</span> <span class="n">StateSpace</span>
+
+
+<span class="k">class</span> <span class="nc">ObservationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Measurements</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">Image</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">Image_and_Measurements</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<span class="c1"># Parameters</span>
+<span class="k">class</span> <span class="nc">ControlSuiteEnvironmentParameters</span><span class="p">(</span><span class="n">EnvironmentParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">=</span> <span class="n">ObservationType</span><span class="o">.</span><span class="n">Measurements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_input_filter</span> <span class="o">=</span> <span class="n">ControlSuiteInputFilter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_output_filter</span> <span class="o">=</span> <span class="n">ControlSuiteOutputFilter</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;rl_coach.environments.control_suite_environment:ControlSuiteEnvironment&#39;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ControlSuite Environment Components</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">ControlSuiteInputFilter</span> <span class="o">=</span> <span class="n">NoInputFilter</span><span class="p">()</span>
+<span class="n">ControlSuiteOutputFilter</span> <span class="o">=</span> <span class="n">NoOutputFilter</span><span class="p">()</span>
+
+<span class="n">control_suite_envs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env</span><span class="p">):</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">suite</span><span class="o">.</span><span class="n">BENCHMARKING</span><span class="p">}</span>
+
+
+<span class="c1"># Environment</span>
+<div class="viewcode-block" id="ControlSuiteEnvironment"><a class="viewcode-back" href="../../../components/environments/index.html#rl_coach.environments.control_suite_environment.ControlSuiteEnvironment">[docs]</a><span class="k">class</span> <span class="nc">ControlSuiteEnvironment</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n">LevelSelection</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">visualization_parameters</span><span class="p">:</span> <span class="n">VisualizationParameters</span><span class="p">,</span>
+                 <span class="n">target_success_rate</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">human_control</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">observation_type</span><span class="p">:</span> <span class="n">ObservationType</span><span class="o">=</span><span class="n">ObservationType</span><span class="o">.</span><span class="n">Measurements</span><span class="p">,</span>
+                 <span class="n">custom_reward_threshold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param level: (str)</span>
+<span class="sd">            A string representing the control suite level to run. This can also be a LevelSelection object.</span>
+<span class="sd">            For example, cartpole:swingup.</span>
+
+<span class="sd">        :param frame_skip: (int)</span>
+<span class="sd">            The number of frames to skip between any two actions given by the agent. The action will be repeated</span>
+<span class="sd">            for all the skipped frames.</span>
+
+<span class="sd">        :param visualization_parameters: (VisualizationParameters)</span>
+<span class="sd">            The parameters used for visualizing the environment, such as the render flag, storing videos etc.</span>
+
+<span class="sd">        :param target_success_rate: (float)</span>
+<span class="sd">            Stop experiment if given target success rate was achieved.</span>
+
+<span class="sd">        :param seed: (int)</span>
+<span class="sd">            A seed to use for the random number generator when running the environment.</span>
+
+<span class="sd">        :param human_control: (bool)</span>
+<span class="sd">            A flag that allows controlling the environment using the keyboard keys.</span>
+
+<span class="sd">        :param observation_type: (ObservationType)</span>
+<span class="sd">            An enum which defines which observation to use. The current options are to use:</span>
+<span class="sd">            * Measurements only - a vector of joint torques and similar measurements</span>
+<span class="sd">            * Image only - an image of the environment as seen by a camera attached to the simulator</span>
+<span class="sd">            * Measurements &amp; Image - both type of observations will be returned in the state using the keys</span>
+<span class="sd">            &#39;measurements&#39; and &#39;pixels&#39; respectively.</span>
+
+<span class="sd">        :param custom_reward_threshold: (float)</span>
+<span class="sd">            Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">frame_skip</span><span class="p">,</span> <span class="n">human_control</span><span class="p">,</span> <span class="n">custom_reward_threshold</span><span class="p">,</span> <span class="n">visualization_parameters</span><span class="p">,</span> <span class="n">target_success_rate</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">=</span> <span class="n">observation_type</span>
+
+        <span class="c1"># load and initialize environment</span>
+        <span class="n">domain_name</span><span class="p">,</span> <span class="n">task_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">domain_name</span><span class="o">=</span><span class="n">domain_name</span><span class="p">,</span> <span class="n">task_name</span><span class="o">=</span><span class="n">task_name</span><span class="p">,</span> <span class="n">task_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;random&#39;</span><span class="p">:</span> <span class="n">seed</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">observation_type</span> <span class="o">!=</span> <span class="n">ObservationType</span><span class="o">.</span><span class="n">Measurements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">pixels</span><span class="o">.</span><span class="n">Wrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span> <span class="n">pixels_only</span><span class="o">=</span><span class="n">observation_type</span> <span class="o">==</span> <span class="n">ObservationType</span><span class="o">.</span><span class="n">Image</span><span class="p">)</span>
+
+        <span class="c1"># seed</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span> <span class="o">=</span> <span class="n">StateSpace</span><span class="p">({})</span>
+
+        <span class="c1"># image observations</span>
+        <span class="k">if</span> <span class="n">observation_type</span> <span class="o">!=</span> <span class="n">ObservationType</span><span class="o">.</span><span class="n">Measurements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="s1">&#39;pixels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ImageObservationSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">()[</span><span class="s1">&#39;pixels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                                               <span class="n">high</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+
+        <span class="c1"># measurements observations</span>
+        <span class="k">if</span> <span class="n">observation_type</span> <span class="o">!=</span> <span class="n">ObservationType</span><span class="o">.</span><span class="n">Image</span><span class="p">:</span>
+            <span class="n">measurements_space_size</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">measurements_names</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">observation_space_name</span><span class="p">,</span> <span class="n">observation_space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_spec</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">measurements_space_size</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">measurements_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">observation_space_name</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">measurements_space_size</span> <span class="o">+=</span> <span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">measurements_names</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">observation_space_name</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span>
+                                               <span class="nb">range</span><span class="p">(</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VectorObservationSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">measurements_space_size</span><span class="p">,</span>
+                                                                      <span class="n">measurements_names</span><span class="o">=</span><span class="n">measurements_names</span><span class="p">)</span>
+
+        <span class="c1"># actions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">BoxActionSpace</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">low</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">()</span><span class="o">.</span><span class="n">minimum</span><span class="p">,</span>
+            <span class="n">high</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_spec</span><span class="p">()</span><span class="o">.</span><span class="n">maximum</span>
+        <span class="p">)</span>
+
+        <span class="c1"># initialize the state by getting a new state from the environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_internal_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># render</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_rendered</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rendered_image</span><span class="p">()</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_control</span><span class="p">:</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_rendering</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">create_screen</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">scale</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">scale</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span> <span class="o">=</span> <span class="n">target_success_rate</span>
+
+    <span class="k">def</span> <span class="nf">_update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">!=</span> <span class="n">ObservationType</span><span class="o">.</span><span class="n">Measurements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="o">.</span><span class="n">observation</span><span class="p">[</span><span class="s1">&#39;pixels&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;pixels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_type</span> <span class="o">!=</span> <span class="n">ObservationType</span><span class="o">.</span><span class="n">Image</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">sub_observation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="o">.</span><span class="n">observation</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_observation</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_observation</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">measurements</span><span class="p">,</span> <span class="n">sub_observation</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">measurements</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sub_observation</span><span class="p">])))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="o">.</span><span class="n">reward</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="o">.</span><span class="n">reward</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">done</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span> <span class="o">==</span> <span class="n">BoxActionSpace</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">clip_action_to_space</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_restart_environment_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force_environment_reset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">get_rendered_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">physics</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">camera_id</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_target_success_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_success_rate</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Intel AI Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
