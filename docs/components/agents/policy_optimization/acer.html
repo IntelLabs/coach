@@ -122,6 +122,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/double_dqn.html">Double DQN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/dqn.html">Deep Q Networks</a></li>
@@ -247,21 +248,20 @@ and <span class="math notranslate nohighlight">\(n\)</span> (replay ratio) off-p
 \[\text{where} \quad \bar{\rho}_{t} = \min{\left\{c,\rho_t\right\}},\quad \rho_t=\frac{\pi (a_t \mid s_t)}{\mu (a_t \mid s_t)}\]</div>
 </div></blockquote>
 </li>
-<li><dl class="first docutils">
-<dt><strong>Accumulate gradients:</strong></dt>
-<dd><p class="first"><span class="math notranslate nohighlight">\(\bullet\)</span> <strong>Policy gradients (with bias correction):</strong></p>
+<li><p class="first"><strong>Accumulate gradients:</strong></p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\bullet\)</span> <strong>Policy gradients (with bias correction):</strong></p>
 <blockquote>
 <div><div class="math notranslate nohighlight">
 \[\begin{split}\hat{g}_t^{policy} &amp; = &amp; \bar{\rho}_{t} \nabla \log \pi (a_t \mid s_t) [Q^{ret}(s_t,a_t) - V(s_t)] \\
 &amp; &amp; + \mathbb{E}_{a \sim \pi} \left(\left[\frac{\rho_t(a)-c}{\rho_t(a)}\right] \nabla \log \pi (a \mid s_t) [Q(s_t,a) - V(s_t)] \right)\end{split}\]</div>
 </div></blockquote>
 <p><span class="math notranslate nohighlight">\(\bullet\)</span> <strong>Q-Head gradients (MSE):</strong></p>
-<blockquote class="last">
+<blockquote>
 <div><div class="math notranslate nohighlight">
 \[\begin{split}\hat{g}_t^{Q} = (Q^{ret}(s_t,a_t) - Q(s_t,a_t)) \nabla Q(s_t,a_t)\\\end{split}\]</div>
 </div></blockquote>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 <li><p class="first"><strong>(Optional) Trust region update:</strong> change the policy loss gradient w.r.t network output:</p>
 <blockquote>
