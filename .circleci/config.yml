@@ -494,13 +494,13 @@ workflows:
       - multinode_test:
           requires:
             - multinode_approval
-      - functional_tests:
-          - requires:
-              - build_base
       - e2e_approval:
           type: approval
           requires:
             - build_base
+      - functional_tests:
+          requires:
+            - e2e_approval
       - build_gym_env:
           requires:
             - e2e_approval
