@@ -494,6 +494,9 @@ workflows:
       - multinode_test:
           requires:
             - multinode_approval
+      - functional_tests:
+          - requires:
+              - build_base
       - e2e_approval:
           type: approval
           requires:
