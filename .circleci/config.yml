@@ -633,22 +633,16 @@ workflows:
             - gym_approval
       - update_gym_traces_test:
           requires:
-            - build_gym_env
-#            - gym_approval
-#            - doom_approval
-#            - mujoco_approval
+            - gym_approval
+          type: approval
       - update_doom_traces_test:
           requires:
-            - build_doom_env
-#            - gym_approval
-#            - doom_approval
-#            - mujoco_approval
+            - doom_approval
+          type: approval
       - update_mujoco_traces_test:
           requires:
-            - build_mujoco_env
-#            - gym_approval
-#            - doom_approval
-#            - mujoco_approval
+            - mujoco_approval
+          type: approval
       - trace_test_doom:
           requires:
             - doom_approval
