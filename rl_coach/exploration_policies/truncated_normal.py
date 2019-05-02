@@ -38,7 +38,7 @@ class TruncatedNormalParameters(ExplorationParameters):
         return 'rl_coach.exploration_policies.truncated_normal:TruncatedNormal'
 
 
-class TruncatedNormal(ExplorationPolicy):
+class TruncatedNormal(ContinuousActionExplorationPolicy):
     """
     The TruncatedNormal exploration policy is intended for continuous action spaces. It samples the action from a
     normal distribution, where the mean action is given by the agent, and the standard deviation can be given in t

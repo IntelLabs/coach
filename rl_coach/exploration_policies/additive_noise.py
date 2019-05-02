@@ -17,14 +17,17 @@
 from typing import List
 
 import numpy as np
+import scipy.stats
 
 from rl_coach.core_types import RunPhase, ActionType
-from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy, ExplorationParameters
+from rl_coach.exploration_policies.exploration_policy import ContinuousActionExplorationPolicy, ExplorationParameters
 from rl_coach.schedules import Schedule, LinearSchedule
 from rl_coach.spaces import ActionSpace, BoxActionSpace
 
 
 # TODO: consider renaming to gaussian sampling
+
+
 class AdditiveNoiseParameters(ExplorationParameters):
     def __init__(self):
         super().__init__()
@@ -36,7 +39,7 @@ class AdditiveNoiseParameters(ExplorationParameters):
         return 'rl_coach.exploration_policies.additive_noise:AdditiveNoise'
 
 
-class AdditiveNoise(ExplorationPolicy):
+class AdditiveNoise(ContinuousActionExplorationPolicy):
     """
     AdditiveNoise is an exploration policy intended for continuous action spaces. It takes the action from the agent
     and adds a Gaussian distributed noise to it. The amount of noise added to the action follows the noise amount that

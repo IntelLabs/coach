@@ -1,4 +1,5 @@
 from copy import deepcopy
+from rl_coach.agents.dqn_agent import DQNAgentParameters
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
@@ -17,7 +18,7 @@ from rl_coach.agents.ddqn_bcq_agent import DDQNBCQAgentParameters
 from rl_coach.agents.ddqn_bcq_agent import KNNParameters
 from rl_coach.agents.ddqn_bcq_agent import NNImitationModelParameters
 
-DATASET_SIZE = 10000
+DATASET_SIZE = 1500
 
 ####################
 # Graph Scheduling #
@@ -45,10 +46,10 @@ agent_params.network_wrappers['main'].batch_size = 128
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
     DATASET_SIZE / agent_params.network_wrappers['main'].batch_size)
 #
-# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
-#     3)
+agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
+    100)
+# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(100)
 
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
 agent_params.algorithm.discount = 0.98
 
 # can use either a kNN or a NN based model for predicting which actions not to max over in the bellman equation
@@ -79,16 +80,48 @@ agent_params.network_wrappers['imitation_model'].middleware_parameters.scheme = 
 
 # ER size
 agent_params.memory = EpisodicExperienceReplayParameters()
-agent_params.memory.max_size = (MemoryGranularity.Transitions, DATASET_SIZE)
-
 
 # E-Greedy schedule
 agent_params.exploration.epsilon_schedule = LinearSchedule(0, 0, 10000)
 agent_params.exploration.evaluation_epsilon = 0
 
-
+# Input filtering
 agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_reward_filter('rescale', RewardRescaleFilter(1/200.))
+
+
+
+
+# Experience Generating Agent parameters
+experience_generating_agent_params = DQNAgentParameters()
+
+# schedule parameters
+experience_generating_schedule_params = ScheduleParameters()
+experience_generating_schedule_params.heatup_steps = EnvironmentSteps(1000)
+experience_generating_schedule_params.improve_steps = TrainingSteps(
+    DATASET_SIZE - experience_generating_schedule_params.heatup_steps.num_steps)
+experience_generating_schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(10)
+experience_generating_schedule_params.evaluation_steps = EnvironmentEpisodes(1)
+
+# DQN params
+experience_generating_agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(100)
+experience_generating_agent_params.algorithm.discount = 0.99
+experience_generating_agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1)
+
+# NN configuration
+experience_generating_agent_params.network_wrappers['main'].learning_rate = 0.00025
+experience_generating_agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
+
+# ER size
+experience_generating_agent_params.memory = EpisodicExperienceReplayParameters()
+experience_generating_agent_params.memory.max_size = \
+    (MemoryGranularity.Transitions,
+     experience_generating_schedule_params.heatup_steps.num_steps +
+     experience_generating_schedule_params.improve_steps.num_steps)
+
+# E-Greedy schedule
+experience_generating_agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 10000)
+
 
 ################
 #  Environment #
@@ -103,9 +136,12 @@ preset_validation_params.test = True
 preset_validation_params.min_reward_threshold = 150
 preset_validation_params.max_episodes_to_achieve_reward = 2000
 
-graph_manager = BatchRLGraphManager(agent_params=agent_params, env_params=env_params,
+graph_manager = BatchRLGraphManager(agent_params=agent_params,
+                                    experience_generating_agent_params=experience_generating_agent_params,
+                                    env_params=env_params,
                                     schedule_params=schedule_params,
                                     vis_params=VisualizationParameters(dump_signals_to_csv_every_x_episodes=1),
                                     preset_validation_params=preset_validation_params,
                                     reward_model_num_epochs=30,
-                                    train_to_eval_ratio=0.8)
+                                    train_to_eval_ratio=0.4,
+                                    experience_generating_schedule_params=experience_generating_schedule_params)

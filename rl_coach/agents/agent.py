@@ -685,7 +685,10 @@ class Agent(AgentInterface):
         """
         loss = 0
         if self._should_train():
-            self.training_epoch += 1
+            if self.ap.is_batch_rl_training:
+                # when training an agent for generating a dataset in batch-rl, we don't want it to be counted as part of
+                # the training epochs. we only care for training epochs in batch-rl anyway.
+                self.training_epoch += 1
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -1047,3 +1050,11 @@ class Agent(AgentInterface):
                 TimeTypes.EnvironmentSteps: self.total_steps_counter,
                 TimeTypes.WallClockTime: self.agent_logger.get_current_wall_clock_time(),
                 TimeTypes.Epoch: self.training_epoch}[self.parent_level_manager.parent_graph_manager.time_metric]
+
+    def freeze_memory(self):
+        """
+        Shuffle episodes in the memory and freeze it to make sure that no extra data is being pushed anymore.
+        :return: None
+        """
+        self.call_memory('shuffle_episodes')
+        self.call_memory('freeze')

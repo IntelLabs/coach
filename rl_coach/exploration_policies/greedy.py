@@ -41,9 +41,12 @@ class Greedy(ExplorationPolicy):
         """
         super().__init__(action_space)
 
-    def get_action(self, action_values: List[ActionType]) -> ActionType:
+    def get_action(self, action_values: List[ActionType]):
         if type(self.action_space) == DiscreteActionSpace:
-            return np.argmax(action_values)
+            action = np.argmax(action_values)
+            one_hot_action_probabilities = np.zeros(len(self.action_space.actions))
+            one_hot_action_probabilities[action] = 1
+            return action, one_hot_action_probabilities
         if type(self.action_space) == BoxActionSpace:
             return action_values
 

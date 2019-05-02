@@ -40,6 +40,7 @@ class NECNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [DNDQHeadParameters()]
         self.optimizer_type = 'Adam'
+        self.should_get_softmax_probabilities = False
 
 
 class NECAlgorithmParameters(AlgorithmParameters):
