@@ -194,7 +194,7 @@
 <h2>ActionInfo<a class="headerlink" href="#actioninfo" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.core_types.ActionInfo">
-<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">ActionInfo</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List], all_action_probabilities: float = 0, action_value: float = 0.0, state_value: float = 0.0, max_action_value: float = None, action_intrinsic_reward: float = 0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#ActionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.ActionInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">ActionInfo</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List], all_action_probabilities: float = 0, action_value: float = 0.0, state_value: float = 0.0, max_action_value: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#ActionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.ActionInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Action info is a class that holds an action and various additional information details about it</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -208,8 +208,6 @@
 <li><strong>max_action_value</strong> – in case this is an action that was selected randomly, this is the value of the action
 that received the maximum value. if no value is given, the action is assumed to be the
 action with the maximum value</li>
-<li><strong>action_intrinsic_reward</strong> – can contain any intrinsic reward that the agent wants to add to this action
-selection</li>
 </ul>
 </td>
 </tr>

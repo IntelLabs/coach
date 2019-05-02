@@ -278,7 +278,8 @@ To do so, you should select an environment type and level through the command li
 </dl>
 </li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Doom_Basic_BC</span> <span class="o">-</span><span class="n">cp</span><span class="o">=</span><span class="s1">&#39;agent.load_memory_from_file_path=</span><span class="se">\&quot;</span><span class="s1">&lt;experiment dir&gt;/replay_buffer.p</span><span class="se">\&quot;</span><span class="s1">&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="kn">import</span> <span class="n">PickledReplayBuffer</span>
+<span class="n">coach</span> <span class="o">-</span><span class="n">p</span> <span class="n">Doom_Basic_BC</span> <span class="o">-</span><span class="n">cp</span><span class="o">=</span><span class="s1">&#39;agent.load_memory_from_file_path=PickledReplayBuffer(</span><span class="se">\&quot;</span><span class="s1">&lt;experiment dir&gt;/replay_buffer.p</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

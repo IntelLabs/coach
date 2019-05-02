@@ -1,6 +1,6 @@
 # DDPG
 
-Each experiment uses 3 seeds and is trained for 2k environment steps.
+Each experiment uses 3 seeds and is trained for 2M environment steps.
 The parameters used for DDPG are the same parameters as described in the [original paper](https://arxiv.org/abs/1509.02971).
 
 ### Inverted Pendulum DDPG - single worker
