@@ -522,6 +522,7 @@ class Agent(AgentInterface):
         self.agent_logger.create_signal_value('Inverse Propensity Score', np.nan, overwrite=False)
         self.agent_logger.create_signal_value('Direct Method Reward', np.nan, overwrite=False)
         self.agent_logger.create_signal_value('Doubly Robust', np.nan, overwrite=False)
+        self.agent_logger.create_signal_value('Weighted Importance Sampling', np.nan, overwrite=False)
         self.agent_logger.create_signal_value('Sequential Doubly Robust', np.nan, overwrite=False)
 
         for signal in self.episode_signals:
