@@ -114,6 +114,7 @@
 <li class="toctree-l2"><a class="reference internal" href="imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="value_optimization/double_dqn.html">Double DQN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="value_optimization/dqn.html">Deep Q Networks</a></li>
@@ -221,6 +222,7 @@ A detailed description of those algorithms can be found by navigating to each of
 <li class="toctree-l1"><a class="reference internal" href="imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="value_optimization/double_dqn.html">Double DQN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="value_optimization/dqn.html">Deep Q Networks</a></li>
@@ -280,13 +282,15 @@ used for visualization purposes, such as printing to the screen, rendering, and 
 </table>
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.act">
-<code class="descname">act</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.act" title="Permalink to this definition">¶</a></dt>
+<code class="descname">act</code><span class="sig-paren">(</span><em>action: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray</em>, <em>List] = None</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.act" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given the agents current knowledge, decide on the next action to apply to the environment</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An ActionInfo object, which contains the action and any additional info from the action decision process</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – An action to take, overriding whatever the current policy is</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An ActionInfo object, which contains the action and any additional info from the action decision process</td>
 </tr>
 </tbody>
 </table>
@@ -355,26 +359,6 @@ for creating the network.</p>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="method">
-<dt id="rl_coach.agents.agent.Agent.emulate_act_on_trainer">
-<code class="descname">emulate_act_on_trainer</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.emulate_act_on_trainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.emulate_act_on_trainer" title="Permalink to this definition">¶</a></dt>
-<dd><p>This emulates the act using the transition obtained from the rollout worker on the training worker
-in case of distributed training.
-Given the agents current knowledge, decide on the next action to apply to the environment
-:return: an action and a dictionary containing any additional info from the action decision process</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="rl_coach.agents.agent.Agent.emulate_observe_on_trainer">
-<code class="descname">emulate_observe_on_trainer</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.emulate_observe_on_trainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.emulate_observe_on_trainer" title="Permalink to this definition">¶</a></dt>
-<dd><p>This emulates the observe using the transition obtained from the rollout worker on the training worker
-in case of distributed training.
-Given a response from the environment, distill the observation from it and store it for later use.
-The response should be a dictionary containing the performed action, the new observation and measurements,
-the reward, a game over flag and any additional information necessary.
-:return:</p>
 </dd></dl>
 
 <dl class="method">
@@ -540,7 +524,7 @@ given observation</td>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.prepare_batch_for_inference">
-<code class="descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em>states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.core.multiarray.array]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.prepare_batch_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
+<code class="descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em>states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.array]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.prepare_batch_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
 observations together, measurements together, etc.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -627,6 +611,21 @@ by val, and by the current phase set in self.phase.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_dir</strong> – The checkpoint dir to restore from</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="rl_coach.agents.agent.Agent.run_off_policy_evaluation">
+<code class="descname">run_off_policy_evaluation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.agent.Agent.run_off_policy_evaluation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run off-policy evaluation estimators to evaluate the trained policy performance against a dataset.
+Should only be implemented for off-policy RL algorithms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>
