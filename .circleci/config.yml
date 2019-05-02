@@ -557,6 +557,41 @@ workflows:
           filters:
             branches:
               only: master
+  weekly:
+    triggers:
+      - schedule:
+          cron: "0 4 * * 6"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build_gym_env
+      - build_doom_env
+      - build_mujoco_env
+      - golden_test_gym:
+          requires:
+            - build_gym_env
+      - golden_test_doom:
+          requires:
+            - build_doom_env
+            - golden_test_gym
+      - golden_test_mujoco:
+          requires:
+            - build_mujoco_env
+            - golden_test_doom
+       - update_gym_traces_test:
+          requires:
+            - build_gym_env
+       - update_doom_traces_test:
+          requires:
+            - build_doom_env
+            - trace_test_gym
+       - update_mujoco_traces_test:
+          requires:
+            - build_mujoco_env
+            - trace_test_doom
+
   nightly:
     triggers:
       - schedule:
