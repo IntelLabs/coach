@@ -639,7 +639,7 @@ workflows:
           requires:
             - build_gym_env
 #            - gym_approval
-          type: approval
+#          type: approval
       - update_doom_traces_test:
           requires:
             - doom_approval
