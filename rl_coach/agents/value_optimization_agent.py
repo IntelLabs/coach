@@ -97,6 +97,8 @@ class ValueOptimizationAgent(Agent):
         # choose action according to the exploration policy and the current phase (evaluating or training the agent)
         action, action_probabilities = self.exploration_policy.get_action(actions_q_values)
         if self.should_get_softmax_probabilities and softmax_probabilities is not None:
+            # override the exploration policy's generated probabilities when an action was taken
+            # with the agent's actual policy
             action_probabilities = softmax_probabilities
 
         self._validate_action(self.exploration_policy, action)

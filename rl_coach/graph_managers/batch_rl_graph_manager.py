@@ -270,9 +270,3 @@ class BatchRLGraphManager(BasicRLGraphManager):
         :return:
         """
         self.level_managers[0].agents['agent'].run_off_policy_evaluation()
-
-
-
-
-
-

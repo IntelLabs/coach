@@ -18,7 +18,7 @@ from rl_coach.agents.ddqn_bcq_agent import DDQNBCQAgentParameters
 from rl_coach.agents.ddqn_bcq_agent import KNNParameters
 from rl_coach.agents.ddqn_bcq_agent import NNImitationModelParameters
 
-DATASET_SIZE = 1500
+DATASET_SIZE = 10000
 
 ####################
 # Graph Scheduling #
