@@ -488,7 +488,7 @@ jobs:
             kubectl delete ns trace-test-mujoco-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
-#  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
+#  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test
 #  trace_test_starcraft:
 #    <<: *executor_prep
 #    steps:
