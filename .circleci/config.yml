@@ -365,7 +365,7 @@ jobs:
       - run:
           name: run update GYM trace tests
           command: |
-            aws s3 mb s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM}
+            aws cp s3://coach-traces-aws ~/repo/traces --recursive || true
             kubectl create ns trace-test-gym-test-${CIRCLE_BUILD_NUM}
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
@@ -377,7 +377,7 @@ jobs:
                           && TRACE_PRESETS="CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL" \
                           && python3 rl_coach/tests/trace_tests.py -p ${TRACE_PRESETS} -prl -ow -ut -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:${TAG} -b coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM}'
             docker ps -a -q | head -n 1  | xargs -I% docker cp %:/root/src/rl_coach/traces . || true
-            aws s3 cp ~/repo/traces s3://coach-trace-gym-aws-test-${CIRCLE_BUILD_NUM} --recursive || true
+            aws s3 sync ~/repo/traces s3://coach-traces-aws || true
           no_output_timeout: 30m
       - run:
           name: cleanup
@@ -637,7 +637,8 @@ workflows:
             - gym_approval
       - update_gym_traces_test:
           requires:
-            - gym_approval
+            - build_gym_env
+#            - gym_approval
           type: approval
       - update_doom_traces_test:
           requires:
