@@ -50,34 +50,22 @@ class ValueOptimizationAgent(Agent):
                                                                   dump_one_value_per_episode=False,
                                                                   dump_one_value_per_step=True)
 
-    def get_all_q_values_for_states_with_softmax_probabilities(self, states: StateType):
-        action_q_values, additional_outputs = self.get_all_q_values_for_states(
-            states, [self.networks['main'].online_network.output_heads[0].softmax])
-        return action_q_values, additional_outputs[0]
-
     # Algorithms for which q_values are calculated from predictions will override this function
-    def get_all_q_values_for_states(self, states: StateType, additional_outputs: List = None):
+    def get_all_q_values_for_states(self, states: StateType):
         actions_q_values = None
-        returned_additional_outputs = [None]
-
         if self.exploration_policy.requires_action_values():
-            outputs = self.networks['main'].online_network.outputs
-            if additional_outputs is not None:
-                outputs = copy(outputs)
-                outputs.extend(additional_outputs)
+            actions_q_values = self.get_prediction(states)
 
-            returned_outputs = self.get_prediction(states, outputs=outputs)
+        return actions_q_values
 
-            if additional_outputs is not None:
-                actions_q_values = returned_outputs[0]
-                returned_additional_outputs = returned_outputs[1:]
-            else:
-                actions_q_values = returned_outputs
+    def get_all_q_values_for_states_and_softmax_probabilities(self, states: StateType):
+        actions_q_values, softmax_probabilities = None, None
+        if self.exploration_policy.requires_action_values():
+            outputs = copy(self.networks['main'].online_network.outputs)
+            outputs.append(self.networks['main'].online_network.output_heads[0].softmax)
 
-        if additional_outputs is not None:
-            return actions_q_values, returned_additional_outputs
-        else:
-            return actions_q_values
+            actions_q_values, softmax_probabilities = self.get_prediction(states, outputs=outputs)
+        return actions_q_values, softmax_probabilities
 
     def get_prediction(self, states, outputs=None):
         return self.networks['main'].online_network.predict(self.prepare_batch_for_inference(states, 'main'),
@@ -102,7 +90,7 @@ class ValueOptimizationAgent(Agent):
     def choose_action(self, curr_state):
         if self.should_get_softmax_probabilities:
             actions_q_values, softmax_probabilities = \
-                self.get_all_q_values_for_states_with_softmax_probabilities(curr_state)
+                self.get_all_q_values_for_states_and_softmax_probabilities(curr_state)
         else:
             actions_q_values = self.get_all_q_values_for_states(curr_state)
 

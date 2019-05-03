@@ -146,7 +146,7 @@ class OpeManager(object):
 
         ips, dm, dr = self.doubly_robust.evaluate(ope_shared_stats)
         seq_dr = self.sequential_doubly_robust.evaluate(evaluation_dataset_as_episodes, discount_factor)
-        wis = self.weighted_importance_sampling.evaluate(dataset_as_episodes)
+        wis = self.weighted_importance_sampling.evaluate(evaluation_dataset_as_episodes)
         
         return OpeEstimation(ips, dm, dr, seq_dr, wis)
 

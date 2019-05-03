@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from copy import copy
 from typing import Union
 
 import numpy as np
@@ -83,12 +83,21 @@ class CategoricalDQNAgent(ValueOptimizationAgent):
 
     # prediction's format is (batch,actions,atoms)
     def get_all_q_values_for_states(self, states: StateType):
+        q_values = None
         if self.exploration_policy.requires_action_values():
             q_values = self.get_prediction(states,
                                            outputs=[self.networks['main'].online_network.output_heads[0].q_values])
-        else:
-            q_values = None
+
         return q_values
+
+    def get_all_q_values_for_states_and_softmax_probabilities(self, states: StateType):
+        actions_q_values, softmax_probabilities = None, None
+        if self.exploration_policy.requires_action_values():
+            outputs = [self.networks['main'].online_network.output_heads[0].q_values,
+                       self.networks['main'].online_network.output_heads[0].softmax]
+            actions_q_values, softmax_probabilities = self.get_prediction(states, outputs=outputs)
+
+        return actions_q_values, softmax_probabilities
 
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
