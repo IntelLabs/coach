@@ -356,6 +356,48 @@ jobs:
             kubectl delete ns trace-test-gym-${CIRCLE_BUILD_NUM} || true
           when: always
 
+  trace_test_doom:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run doom related trace tests
+          command: |
+            aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
+            export TRACE_PRESETS='Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-doom -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 30m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=trace-test-doom-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns trace-test-doom-${CIRCLE_BUILD_NUM} || true
+          when: always
+
+  trace_test_mujoco:
+    <<: *executor_prep
+    steps:
+      - checkout
+      - *remote_docker
+      - *restore_cache
+      - *aws_prep
+      - run:
+          name: run mujoco related trace tests
+          command: |
+            aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
+            export TRACE_PRESETS='BitFlip_DQN_HER,BitFlip_DQN,Mujoco_A3C,Mujoco_A3C_LSTM,Mujoco_PPO,Mujoco_ClippedPPO,Mujoco_DDPG'
+            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-mujoco -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
+          no_output_timeout: 45m
+      - run:
+          name: cleanup
+          command: |
+            kubectl delete --all pods --namespace=trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
+            kubectl delete ns trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
+          when: always
+
   update_gym_traces_test:
     <<: *executor_prep
     steps:
@@ -383,28 +425,8 @@ jobs:
       - run:
           name: cleanup
           command: |
+            kubectl delete --all pods --namespace=trace-test-gym-test-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns trace-test-gym-test-${CIRCLE_BUILD_NUM} || true
-          when: always
-
-  trace_test_doom:
-    <<: *executor_prep
-    steps:
-      - checkout
-      - *remote_docker
-      - *restore_cache
-      - *aws_prep
-      - run:
-          name: run doom related trace tests
-          command: |
-            aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
-            export TRACE_PRESETS='Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP'
-            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-doom -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
-          no_output_timeout: 30m
-      - run:
-          name: cleanup
-          command: |
-            kubectl delete --all pods --namespace=trace-test-doom-${CIRCLE_BUILD_NUM} || true
-            kubectl delete ns trace-test-doom-${CIRCLE_BUILD_NUM} || true
           when: always
 
   update_doom_traces_test:
@@ -434,28 +456,8 @@ jobs:
       - run:
           name: cleanup
           command: |
+            kubectl delete --all pods --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns trace-test-doom-test-${CIRCLE_BUILD_NUM} || true
-          when: always
-
-  trace_test_mujoco:
-    <<: *executor_prep
-    steps:
-      - checkout
-      - *remote_docker
-      - *restore_cache
-      - *aws_prep
-      - run:
-          name: run mujoco related trace tests
-          command: |
-            aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
-            export TRACE_PRESETS='BitFlip_DQN_HER,BitFlip_DQN,Mujoco_A3C,Mujoco_A3C_LSTM,Mujoco_PPO,Mujoco_ClippedPPO,Mujoco_DDPG'
-            python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-mujoco -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
-          no_output_timeout: 45m
-      - run:
-          name: cleanup
-          command: |
-            kubectl delete --all pods --namespace=trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
-            kubectl delete ns trace-test-mujoco-${CIRCLE_BUILD_NUM} || true
           when: always
 
   update_mujoco_traces_test:
@@ -485,6 +487,7 @@ jobs:
       - run:
           name: cleanup
           command: |
+            kubectl delete --all pods --namespace=trace-test-mujoco-test-${CIRCLE_BUILD_NUM} || true
             kubectl delete ns trace-test-mujoco-test-${CIRCLE_BUILD_NUM} || true
           when: always
 
@@ -635,24 +638,21 @@ workflows:
 #      - golden_test_starcraft:
 #          requires:
 #            - build_starcraft_env
+      - update_gym_traces_test:
+          requires:
+            - trace_test_gym
+          type: approval
+      - update_doom_traces_test:
+          requires:
+            - trace_test_doom
+          type: approval
+      - update_mujoco_traces_test:
+          requires:
+            - trace_test_mujoco
+          type: approval
       - trace_test_gym:
           requires:
             - gym_approval
-      - update_gym_traces_test:
-          requires:
-            - build_gym_env
-#            - gym_approval
-#          type: approval
-      - update_doom_traces_test:
-          requires:
-            - build_doom_env
-#            - doom_approval
-#          type: approval
-      - update_mujoco_traces_test:
-          requires:
-            - build_mujoco_env
-#            - mujoco_approval
-#          type: approval
       - trace_test_doom:
           requires:
             - doom_approval
