@@ -365,7 +365,7 @@ jobs:
       - run:
           name: run update GYM trace tests
           command: |
-            aws cp s3://coach-traces-aws ~/repo/traces --recursive || true
+            aws s3 cp s3://coach-traces-aws ~/repo/traces --recursive || true
             kubectl create ns trace-test-gym-test-${CIRCLE_BUILD_NUM}
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
