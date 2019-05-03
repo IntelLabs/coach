@@ -345,6 +345,7 @@ jobs:
       - run:
           name: run gym related trace tests
           command: |
+            aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
             export TRACE_PRESETS='CartPole_A3C,CartPole_Dueling_DDQN,CartPole_NStepQ,CartPole_DQN,CartPole_DFP,CartPole_PG,CartPole_NEC,CartPole_ClippedPPO,CartPole_PAL'
             python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-gym -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
           no_output_timeout: 30m
@@ -363,7 +364,7 @@ jobs:
       - *restore_cache
       - *aws_prep
       - run:
-          name: run update GYM trace tests
+          name: Update GYM traces
           command: |
             kubectl create ns trace-test-gym-test-${CIRCLE_BUILD_NUM}
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) \
@@ -395,6 +396,7 @@ jobs:
       - run:
           name: run doom related trace tests
           command: |
+            aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
             export TRACE_PRESETS='Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP'
             python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-doom -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
           no_output_timeout: 30m
@@ -413,9 +415,8 @@ jobs:
       - *restore_cache
       - *aws_prep
       - run:
-          name: run update doom trace tests
+          name: Update DOOM traces
           command: |
-            aws s3 mb s3://coach-trace-doom-aws-test-${CIRCLE_BUILD_NUM}
             kubectl create ns trace-test-doom-test-${CIRCLE_BUILD_NUM}
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
@@ -424,10 +425,11 @@ jobs:
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} \
+                          && aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
                           && TRACE_PRESETS="Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP" \
                           && python3 rl_coach/tests/trace_tests.py -p ${TRACE_PRESETS} -prl -ow -ut -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:${TAG} -b coach-trace-doom-aws-test-${CIRCLE_BUILD_NUM}'
             docker ps -a -q | head -n 1  | xargs -I% docker cp %:/root/src/rl_coach/traces . || true
-            aws s3 cp ~/repo/traces s3://coach-trace-doom-aws-test-${CIRCLE_BUILD_NUM} --recursive || true
+            aws s3 sync ~/repo/traces s3://coach-traces-aws || true
           no_output_timeout: 30m
       - run:
           name: cleanup
@@ -445,6 +447,7 @@ jobs:
       - run:
           name: run mujoco related trace tests
           command: |
+            aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
             export TRACE_PRESETS='BitFlip_DQN_HER,BitFlip_DQN,Mujoco_A3C,Mujoco_A3C_LSTM,Mujoco_PPO,Mujoco_ClippedPPO,Mujoco_DDPG'
             python3 rl_coach/tests/test_eks.py -c coach-test -bn ${CIRCLE_BUILD_NUM} -tn trace-test-mujoco -tc "export TRACE_PRESETS=${TRACE_PRESETS} && make trace_tests_without_docker" -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) -cpu 2048 -mem 4096
           no_output_timeout: 45m
@@ -463,9 +466,8 @@ jobs:
       - *restore_cache
       - *aws_prep
       - run:
-          name: run update mujoco trace tests
+          name: Update MUJOCO traces
           command: |
-            aws s3 mb s3://coach-trace-mujoco-aws-test-${CIRCLE_BUILD_NUM}
             kubectl create ns trace-test-mujoco-test-${CIRCLE_BUILD_NUM}
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
@@ -474,10 +476,11 @@ jobs:
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-mujoco-test-${CIRCLE_BUILD_NUM} \
+                          && aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
                           && TRACE_PRESETS="BitFlip_DQN_HER,BitFlip_DQN,Mujoco_A3C,Mujoco_A3C_LSTM,Mujoco_PPO,Mujoco_ClippedPPO,Mujoco_DDPG" \
                           && python3 rl_coach/tests/trace_tests.py -p ${TRACE_PRESETS} -prl -ow -ut -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:${TAG} -b coach-trace-mujoco-aws-test-${CIRCLE_BUILD_NUM}'
             docker ps -a -q | head -n 1  | xargs -I% docker cp %:/root/src/rl_coach/traces . || true
-            aws s3 cp ~/repo/traces s3://coach-trace-mujoco-aws-test-${CIRCLE_BUILD_NUM} --recursive || true
+            aws s3 sync ~/repo/traces s3://coach-traces-aws || true
           no_output_timeout: 30m
       - run:
           name: cleanup
@@ -642,12 +645,14 @@ workflows:
 #          type: approval
       - update_doom_traces_test:
           requires:
-            - doom_approval
-          type: approval
+            - build_doom_env
+#            - doom_approval
+#          type: approval
       - update_mujoco_traces_test:
           requires:
-            - mujoco_approval
-          type: approval
+            - build_mujoco_env
+#            - mujoco_approval
+#          type: approval
       - trace_test_doom:
           requires:
             - doom_approval
