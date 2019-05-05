@@ -19,33 +19,35 @@ import numpy as np
 from rl_coach.core_types import Episode
 
 
-class SequentialDoublyRobust(object):
-
+class WeightedImportanceSampling(object):
+# TODO rename and add PDIS
     @staticmethod
-    def evaluate(evaluation_dataset_as_episodes: List[Episode], discount_factor: float) -> float:
+    def evaluate(evaluation_dataset_as_episodes: List[Episode]) -> float:
         """
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
 
-        Paper: https://arxiv.org/pdf/1511.03722.pdf
+        References:
+        - Sutton, R. S. & Barto, A. G. Reinforcement Learning: An Introduction. Chapter 5.5.
+        - https://people.cs.umass.edu/~pthomas/papers/Thomas2015c.pdf
+        - http://videolectures.net/deeplearning2017_thomas_safe_rl/
 
         :return: the evaluation score
         """
 
-        # Sequential Doubly Robust
-        per_episode_seq_dr = []
+        # Weighted Importance Sampling
+        per_episode_w_i = []
 
         for episode in evaluation_dataset_as_episodes:
-            episode_seq_dr = 0
+            w_i = 1
             for transition in episode.transitions:
-                rho = transition.info['softmax_policy_prob'][transition.action] / \
+                w_i *= transition.info['softmax_policy_prob'][transition.action] / \
                       transition.info['all_action_probabilities'][transition.action]
-                episode_seq_dr = transition.info['v_value_q_model_based'] + rho * (transition.reward + discount_factor
-                                                                                   * episode_seq_dr -
-                                                                                   transition.info['q_value'][
-                                                                                       transition.action])
-            per_episode_seq_dr.append(episode_seq_dr)
+            per_episode_w_i.append(w_i)
 
-        seq_dr = np.array(per_episode_seq_dr).mean()
+        total_w_i_sum_across_episodes = sum(per_episode_w_i)
+        wis = 0
+        for i, episode in enumerate(evaluation_dataset_as_episodes):
+            wis += per_episode_w_i[i]/total_w_i_sum_across_episodes * episode.transitions[0].n_step_discounted_rewards
 
-        return seq_dr
+        return wis
