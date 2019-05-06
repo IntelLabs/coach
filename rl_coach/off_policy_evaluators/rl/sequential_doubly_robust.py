@@ -22,7 +22,7 @@ from rl_coach.core_types import Episode
 class SequentialDoublyRobust(object):
 
     @staticmethod
-    def evaluate(dataset_as_episodes: List[Episode], discount_factor: float) -> float:
+    def evaluate(evaluation_dataset_as_episodes: List[Episode], discount_factor: float) -> float:
         """
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
@@ -35,7 +35,7 @@ class SequentialDoublyRobust(object):
         # Sequential Doubly Robust
         per_episode_seq_dr = []
 
-        for episode in dataset_as_episodes:
+        for episode in evaluation_dataset_as_episodes:
             episode_seq_dr = 0
             for transition in episode.transitions:
                 rho = transition.info['softmax_policy_prob'][transition.action] / \

@@ -37,6 +37,7 @@ The environments that were used for testing include:
 |**[ACER](acer)**                | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
 |**[Clipped PPO](clipped_ppo)**  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Mujoco          | |
 |**[DDPG](ddpg)**                | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Mujoco          | |
+|**[SAC](sac)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Mujoco          | |
 |**[NEC](nec)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Atari           | |
 |**[HER](ddpg_her)**                  | ![#2E8B57](https://placehold.it/15/2E8B57/000000?text=+) |Fetch           | |
 |**[DFP](dfp)**                  | ![#ceffad](https://placehold.it/15/ceffad/000000?text=+) |Doom            | Doom Battle was not verified |
