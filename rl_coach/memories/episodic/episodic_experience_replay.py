@@ -148,7 +148,7 @@ class EpisodicExperienceReplay(Memory):
         random.shuffle(self._buffer)
         self.transitions = [t for e in self._buffer for t in e.transitions]
 
-    def get_shuffled_data_generator(self, size: int) -> List[Transition]:
+    def get_shuffled_training_data_generator(self, size: int) -> List[Transition]:
         """
         Get an generator for iterating through the shuffled replay buffer, for processing the data in epochs.
         If the requested size is larger than the number of samples available in the replay buffer then the batch will
@@ -483,6 +483,16 @@ class EpisodicExperienceReplay(Memory):
         Gather the memory content that will be used for off-policy evaluation in episodes and transitions format
         :return:
         """
+        if self.last_training_set_transition_id is None:
+            if self.train_to_eval_ratio < 0 or self.train_to_eval_ratio >= 1:
+                raise ValueError('train_to_eval_ratio should be in the (0, 1] range.')
+
+            transition = self.transitions[round(self.train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
+            episode_num, episode = self.get_episode_for_transition(transition)
+            self.last_training_set_episode_id = episode_num
+            self.last_training_set_transition_id = \
+                len([t for e in self.get_all_complete_episodes_from_to(0, self.last_training_set_episode_id + 1) for t in e])
+
         self.evaluation_dataset_as_episodes = deepcopy(
                 self.get_all_complete_episodes_from_to(self.get_last_training_set_episode_id() + 1,
                                                        self.num_complete_episodes()))
