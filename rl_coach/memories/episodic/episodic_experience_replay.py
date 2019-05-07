@@ -159,15 +159,7 @@ class EpisodicExperienceReplay(Memory):
         :return: a batch (list) of selected transitions from the replay buffer
         """
         self.reader_writer_lock.lock_writing()
-        if self.last_training_set_transition_id is None:
-            if self.train_to_eval_ratio < 0 or self.train_to_eval_ratio >= 1:
-                raise ValueError('train_to_eval_ratio should be in the (0, 1] range.')
-
-            transition = self.transitions[round(self.train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
-            episode_num, episode = self.get_episode_for_transition(transition)
-            self.last_training_set_episode_id = episode_num
-            self.last_training_set_transition_id = \
-                len([t for e in self.get_all_complete_episodes_from_to(0, self.last_training_set_episode_id + 1) for t in e])
+        self.split_training_and_evaluation_datasets()
 
         shuffled_transition_indices = list(range(self.last_training_set_transition_id))
         random.shuffle(shuffled_transition_indices)
@@ -483,16 +475,7 @@ class EpisodicExperienceReplay(Memory):
         Gather the memory content that will be used for off-policy evaluation in episodes and transitions format
         :return:
         """
-        if self.last_training_set_transition_id is None:
-            if self.train_to_eval_ratio < 0 or self.train_to_eval_ratio >= 1:
-                raise ValueError('train_to_eval_ratio should be in the (0, 1] range.')
-
-            transition = self.transitions[round(self.train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
-            episode_num, episode = self.get_episode_for_transition(transition)
-            self.last_training_set_episode_id = episode_num
-            self.last_training_set_transition_id = \
-                len([t for e in self.get_all_complete_episodes_from_to(0, self.last_training_set_episode_id + 1) for t in e])
-
+        self.split_training_and_evaluation_datasets()
         self.evaluation_dataset_as_episodes = deepcopy(
                 self.get_all_complete_episodes_from_to(self.get_last_training_set_episode_id() + 1,
                                                        self.num_complete_episodes()))
@@ -503,3 +486,19 @@ class EpisodicExperienceReplay(Memory):
 
         self.evaluation_dataset_as_transitions = [t for e in self.evaluation_dataset_as_episodes
                                                   for t in e.transitions]
+
+    def split_training_and_evaluation_datasets(self):
+        """
+        If the data in the buffer was not split to training and evaluation yet, split it accordingly.
+        :return: None
+        """
+
+        if self.last_training_set_transition_id is None:
+            if self.train_to_eval_ratio < 0 or self.train_to_eval_ratio >= 1:
+                raise ValueError('train_to_eval_ratio should be in the (0, 1] range.')
+
+            transition = self.transitions[round(self.train_to_eval_ratio * self.num_transitions_in_complete_episodes())]
+            episode_num, episode = self.get_episode_for_transition(transition)
+            self.last_training_set_episode_id = episode_num
+            self.last_training_set_transition_id = \
+                len([t for e in self.get_all_complete_episodes_from_to(0, self.last_training_set_episode_id + 1) for t in e])
