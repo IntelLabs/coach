@@ -159,7 +159,6 @@ class EpisodicExperienceReplay(Memory):
         :return: a batch (list) of selected transitions from the replay buffer
         """
         self.reader_writer_lock.lock_writing()
-        self.split_training_and_evaluation_datasets()
 
         shuffled_transition_indices = list(range(self.last_training_set_transition_id))
         random.shuffle(shuffled_transition_indices)
@@ -475,7 +474,9 @@ class EpisodicExperienceReplay(Memory):
         Gather the memory content that will be used for off-policy evaluation in episodes and transitions format
         :return:
         """
-        self.split_training_and_evaluation_datasets()
+        self.reader_writer_lock.lock_writing_and_reading()
+
+        self._split_training_and_evaluation_datasets()
         self.evaluation_dataset_as_episodes = deepcopy(
                 self.get_all_complete_episodes_from_to(self.get_last_training_set_episode_id() + 1,
                                                        self.num_complete_episodes()))
@@ -486,8 +487,9 @@ class EpisodicExperienceReplay(Memory):
 
         self.evaluation_dataset_as_transitions = [t for e in self.evaluation_dataset_as_episodes
                                                   for t in e.transitions]
+        self.reader_writer_lock.release_writing_and_reading()
 
-    def split_training_and_evaluation_datasets(self):
+    def _split_training_and_evaluation_datasets(self):
         """
         If the data in the buffer was not split to training and evaluation yet, split it accordingly.
         :return: None
