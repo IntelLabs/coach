@@ -40,6 +40,12 @@ def test_preset_args(preset_args, flag, clres, start_time=time.time(),
 
     # add flags to run command
     test_flag = a_utils.add_one_flag_value(flag=flag)
+
+    if flag[0] == "-cp":
+        seed = ['--seed', '42']
+        seed_flag = a_utils.add_one_flag_value(flag=seed)
+        run_cmd.extend(seed_flag)
+
     run_cmd.extend(test_flag)
     print(str(run_cmd))
 
