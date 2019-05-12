@@ -19,8 +19,7 @@ from typing import List
 import numpy as np
 
 from rl_coach.core_types import ActionType
-from rl_coach.exploration_policies.exploration_policy import ExplorationParameters, \
-    DiscreteActionExplorationPolicy
+from rl_coach.exploration_policies.exploration_policy import ExplorationParameters, ExplorationPolicy
 from rl_coach.spaces import ActionSpace, DiscreteActionSpace, BoxActionSpace
 
 
@@ -30,7 +29,7 @@ class GreedyParameters(ExplorationParameters):
         return 'rl_coach.exploration_policies.greedy:Greedy'
 
 
-class Greedy(DiscreteActionExplorationPolicy):
+class Greedy(ExplorationPolicy):
     """
     The Greedy exploration policy is intended for both discrete and continuous action spaces.
     For discrete action spaces, it always selects the action with the maximum value, as given by the agent.

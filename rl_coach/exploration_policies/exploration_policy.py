@@ -18,7 +18,7 @@ from typing import List
 
 from rl_coach.base_parameters import Parameters
 from rl_coach.core_types import RunPhase, ActionType
-from rl_coach.spaces import ActionSpace, DiscreteActionSpace, BoxActionSpace
+from rl_coach.spaces import ActionSpace, DiscreteActionSpace, BoxActionSpace, GoalsSpace
 
 
 class ExplorationParameters(Parameters):
@@ -120,5 +120,5 @@ class ContinuousActionExplorationPolicy(ExplorationPolicy):
         """
         :param action_space: the action space used by the environment
         """
-        assert isinstance(action_space, BoxActionSpace)
+        assert isinstance(action_space, BoxActionSpace) or isinstance(action_space, GoalsSpace)
         super().__init__(action_space)

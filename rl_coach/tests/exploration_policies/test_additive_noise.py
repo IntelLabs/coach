@@ -16,10 +16,6 @@ def test_init():
     action_space = DiscreteActionSpace(3)
     noise_schedule = LinearSchedule(1.0, 1.0, 1000)
 
-    # additive noise doesn't work for discrete controls
-    with pytest.raises(ValueError):
-        policy = AdditiveNoise(action_space, noise_schedule, 0)
-
     # additive noise requires a bounded range for the actions
     action_space = BoxActionSpace(np.array([10]))
     with pytest.raises(ValueError):

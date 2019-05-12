@@ -57,10 +57,6 @@ class OUProcess(ContinuousActionExplorationPolicy):
         self.state = np.zeros(self.action_space.shape)
         self.dt = dt
 
-        if not (isinstance(action_space, BoxActionSpace) or isinstance(action_space, GoalsSpace)):
-            raise ValueError("OU process exploration works only for continuous controls."
-                             "The given action space is of type: {}".format(action_space.__class__.__name__))
-
     def reset(self):
         self.state = np.zeros(self.action_space.shape)
 

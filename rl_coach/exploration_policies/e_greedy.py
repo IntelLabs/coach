@@ -20,8 +20,7 @@ import numpy as np
 
 from rl_coach.core_types import RunPhase, ActionType
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
-from rl_coach.exploration_policies.exploration_policy import ExplorationParameters
-from rl_coach.exploration_policies.exploration_policy import DiscreteActionExplorationPolicy
+from rl_coach.exploration_policies.exploration_policy import ExplorationParameters, ExplorationPolicy
 from rl_coach.schedules import Schedule, LinearSchedule
 from rl_coach.spaces import ActionSpace, DiscreteActionSpace, BoxActionSpace
 from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
@@ -42,7 +41,7 @@ class EGreedyParameters(ExplorationParameters):
         return 'rl_coach.exploration_policies.e_greedy:EGreedy'
 
 
-class EGreedy(DiscreteActionExplorationPolicy):
+class EGreedy(ExplorationPolicy):
     """
     e-greedy is an exploration policy that is intended for both discrete and continuous action spaces.
 
