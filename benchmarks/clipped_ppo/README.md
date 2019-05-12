@@ -1,6 +1,6 @@
 # Clipped PPO
 
-Each experiment uses 3 seeds and is trained for 10k environment steps.
+Each experiment uses 3 seeds and is trained for 10M environment steps.
 The parameters used for Clipped PPO are the same parameters as described in the [original paper](https://arxiv.org/abs/1707.06347).
 
 ### Inverted Pendulum Clipped PPO - single worker

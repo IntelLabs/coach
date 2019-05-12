@@ -193,9 +193,10 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">shuffle</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Type</span>
@@ -218,6 +219,17 @@
     <span class="n">Measurements</span> <span class="o">=</span> <span class="mi">4</span>
 
 
+<span class="n">Record</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Record&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">])</span>
+
+
+<span class="k">class</span> <span class="nc">TimeTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">EpisodeNumber</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Episode #&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Episode #&#39;</span><span class="p">)</span>
+    <span class="n">TrainingIteration</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Training Iter&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Training Iteration&#39;</span><span class="p">)</span>
+    <span class="n">EnvironmentSteps</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Total steps&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total steps (per worker)&#39;</span><span class="p">)</span>
+    <span class="n">WallClockTime</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Wall-Clock Time&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Wall-Clock Time (minutes)&#39;</span><span class="p">)</span>
+    <span class="n">Epoch</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Epoch&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Epoch #&#39;</span><span class="p">)</span>
+
+
 <span class="c1"># step methods</span>
 
 <span class="k">class</span> <span class="nc">StepMethod</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -231,6 +243,37 @@
     <span class="nd">@num_steps</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">num_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">num_steps</span>
+
+    <span class="k">def</span> <span class="nf">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        divide this step method with other. If other is an integer, returns an object of the same</span>
+<span class="sd">        type as self. If other is the same type of self, returns an integer. In either case, any</span>
+<span class="sd">        floating point value is rounded up under the assumption that if we are dividing Steps, we</span>
+<span class="sd">        would rather overestimate than underestimate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">/</span> <span class="n">other</span><span class="o">.</span><span class="n">num_steps</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">/</span> <span class="n">other</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;cannot divide </span><span class="si">{}</span><span class="s2"> by </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">__rtruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        divide this step method with other. If other is an integer, returns an object of the same</span>
+<span class="sd">        type as self. If other is the same type of self, returns an integer. In either case, any</span>
+<span class="sd">        floating point value is rounded up under the assumption that if we are dividing Steps, we</span>
+<span class="sd">        would rather overestimate than underestimate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">other</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;cannot divide </span><span class="si">{}</span><span class="s2"> by </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
 
 
 <span class="k">class</span> <span class="nc">Frames</span><span class="p">(</span><span class="n">StepMethod</span><span class="p">):</span>
@@ -429,6 +472,9 @@
                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">new_info</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_info</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">update_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_info</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">new_transition</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)()</span>
         <span class="n">new_transition</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
@@ -510,8 +556,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionType</span><span class="p">,</span> <span class="n">all_action_probabilities</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                 <span class="n">action_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">state_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">max_action_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">action_intrinsic_reward</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+                 <span class="n">action_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">state_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">max_action_value</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param action: the action</span>
 <span class="sd">        :param all_action_probabilities: the probability that the action was given when selecting it</span>
@@ -520,8 +565,6 @@
 <span class="sd">        :param max_action_value: in case this is an action that was selected randomly, this is the value of the action</span>
 <span class="sd">                                 that received the maximum value. if no value is given, the action is assumed to be the</span>
 <span class="sd">                                 action with the maximum value</span>
-<span class="sd">        :param action_intrinsic_reward: can contain any intrinsic reward that the agent wants to add to this action</span>
-<span class="sd">                                        selection</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">all_action_probabilities</span> <span class="o">=</span> <span class="n">all_action_probabilities</span>
@@ -530,8 +573,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">max_action_value</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">max_action_value</span> <span class="o">=</span> <span class="n">action_value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">max_action_value</span> <span class="o">=</span> <span class="n">max_action_value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">action_intrinsic_reward</span> <span class="o">=</span> <span class="n">action_intrinsic_reward</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_action_value</span> <span class="o">=</span> <span class="n">max_action_value</span></div>
 
 
 <div class="viewcode-block" id="Batch"><a class="viewcode-back" href="../../components/core_types.html#rl_coach.core_types.Batch">[docs]</a><span class="k">class</span> <span class="nc">Batch</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1047,6 +1089,19 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="c1"># TODO move to a NamedTuple, once we move to Python3.6</span>
+<span class="c1">#        https://stackoverflow.com/questions/34269772/type-hints-in-namedtuple/34269877</span>
+<span class="k">class</span> <span class="nc">CsvDataset</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_episodic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_episodic</span> <span class="o">=</span> <span class="n">is_episodic</span>
+
+
+<span class="k">class</span> <span class="nc">PickledReplayBuffer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
 </pre></div>
 
            </div>

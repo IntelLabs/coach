@@ -38,6 +38,7 @@ Each update perform the following procedure:
     .. math::   \text{where} \quad \bar{\rho}_{t} = \min{\left\{c,\rho_t\right\}},\quad \rho_t=\frac{\pi (a_t \mid s_t)}{\mu (a_t \mid s_t)}
 
 3. **Accumulate gradients:**
+
     :math:`\bullet` **Policy gradients (with bias correction):**
 
         .. math::  \hat{g}_t^{policy} & = & \bar{\rho}_{t} \nabla \log \pi (a_t \mid s_t) [Q^{ret}(s_t,a_t) - V(s_t)] \\

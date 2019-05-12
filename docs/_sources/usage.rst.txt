@@ -113,7 +113,8 @@ In Coach, this can be done in two steps -
 
 .. code-block:: python
 
-    coach -p Doom_Basic_BC -cp='agent.load_memory_from_file_path=\"<experiment dir>/replay_buffer.p\"'
+    from rl_coach.core_types import PickledReplayBuffer
+    coach -p Doom_Basic_BC -cp='agent.load_memory_from_file_path=PickledReplayBuffer(\"<experiment dir>/replay_buffer.p\"')
 
 
 Visualizations

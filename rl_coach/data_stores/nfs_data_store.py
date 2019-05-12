@@ -284,3 +284,8 @@ class NFSDataStore(DataStore):
             return False
 
         return True
+
+    def setup_checkpoint_dir(self, crd=None):
+        if crd:
+            # TODO: find a way to upload this to the deployed nfs store.
+            pass
