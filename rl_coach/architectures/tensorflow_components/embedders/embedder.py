@@ -147,11 +147,11 @@ class InputEmbedder(object):
         return self.name
 
     def __str__(self):
-        result = []
+        result = ['Input size = {}'.format(self._input_size)]
         if self.input_rescaling != 1.0 or self.input_offset != 0.0:
             result.append('Input Normalization (scale = {}, offset = {})'.format(self.input_rescaling, self.input_offset))
         result.extend([str(l) for l in self.layers_params])
-        if self.layers_params:
-            return '\n'.join(result)
-        else:
-            return 'No layers'
+        if not self.layers_params:
+            result.append('No layers')
+
+        return '\n'.join(result)
