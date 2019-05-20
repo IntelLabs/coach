@@ -463,7 +463,12 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Got exception: </span><span class="si">%s</span><span class="se">\n</span><span class="s2"> while deleting NFS PVC&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">setup_checkpoint_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">crd</span><span class="p">:</span>
+            <span class="c1"># TODO: find a way to upload this to the deployed nfs store.</span>
+            <span class="k">pass</span></div>
 </pre></div>
 
            </div>

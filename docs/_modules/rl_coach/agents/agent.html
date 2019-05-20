@@ -214,6 +214,9 @@
 <span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">Signal</span><span class="p">,</span> <span class="n">force_list</span>
 <span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">dynamic_import_and_instantiate_module_from_params</span>
 <span class="kn">from</span> <span class="nn">rl_coach.memories.backend.memory_impl</span> <span class="k">import</span> <span class="n">get_memory_backend</span>
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">TimeTypes</span>
+<span class="kn">from</span> <span class="nn">rl_coach.off_policy_evaluators.ope_manager</span> <span class="k">import</span> <span class="n">OpeManager</span>
+<span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">PickledReplayBuffer</span><span class="p">,</span> <span class="n">CsvDataset</span>
 
 
 <div class="viewcode-block" id="Agent"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent">[docs]</a><span class="k">class</span> <span class="nc">Agent</span><span class="p">(</span><span class="n">AgentInterface</span><span class="p">):</span>
@@ -222,6 +225,15 @@
 <span class="sd">        :param agent_parameters: A AgentParameters class instance with all the agent parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># use seed</span>
+        <span class="k">if</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># we need to seed the RNG since the different processes are initialized with the same parent seed</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">ap</span> <span class="o">=</span> <span class="n">agent_parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">task_index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_chief</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_id</span> <span class="o">==</span> <span class="mi">0</span>
@@ -229,10 +241,10 @@
                              <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">shared_memory</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="c1"># TODO this needs to be sorted out. Why the duplicates for the agent&#39;s name?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">full_name_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">name</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">)</span> <span class="o">==</span> <span class="n">DistributedTaskParameters</span><span class="p">:</span>
             <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;Creating agent - name: </span><span class="si">{}</span><span class="s2"> task id: </span><span class="si">{}</span><span class="s2"> (may take up to 30 seconds due to &quot;</span>
@@ -264,9 +276,17 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">set_memory_backend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_backend</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">:</span>
-                <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;Loading replay buffer from pickle. Pickle path: </span><span class="si">{}</span><span class="s2">&quot;</span>
-                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">,</span> <span class="n">PickledReplayBuffer</span><span class="p">):</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;Loading a pickled replay buffer. Pickled file path: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_pickled</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">,</span> <span class="n">CsvDataset</span><span class="p">):</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;Loading a replay buffer from a CSV file. CSV file path: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="o">.</span><span class="n">filepath</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_csv</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Trying to load a replay buffer using an unsupported method - </span><span class="si">{}</span><span class="s1">. &#39;</span>
+                                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">agent_parameters</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load_memory_from_file_path</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_chief</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory_scratchpad</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_lookup_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
@@ -327,6 +347,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">running_reward</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_epoch</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_target_network_update_step</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_training_phase_step</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">=</span> <span class="mi">0</span>
@@ -364,14 +385,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">discounted_return</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Discounted Return&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_action_space</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">distance_from_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">register_signal</span><span class="p">(</span><span class="s1">&#39;Distance From Goal&#39;</span><span class="p">,</span> <span class="n">dump_one_value_per_step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="c1"># use seed</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># we need to seed the RNG since the different processes are initialized with the same parent seed</span>
-            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
+
+        <span class="c1"># batch rl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ope_manager</span> <span class="o">=</span> <span class="n">OpeManager</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_batch_rl_training</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;LevelManager&#39;</span><span class="p">:</span>
@@ -408,6 +424,7 @@
             <span class="nb">format</span><span class="p">(</span><span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">parent_graph_manager</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                    <span class="n">level_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                    <span class="n">agent_full_id</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_name_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_index_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">parent_graph_manager</span><span class="o">.</span><span class="n">time_metric</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_logger_filenames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">logger_prefix</span><span class="o">=</span><span class="n">logger_prefix</span><span class="p">,</span>
                                                <span class="n">add_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">task_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
@@ -561,13 +578,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_shaped_rewards_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+
+            <span class="c1"># TODO verbosity was mistakenly removed from task_parameters on release 0.11.0, need to bring it back</span>
+            <span class="c1"># if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == &quot;high&quot;:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span><span class="p">:</span>
                 <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Starting evaluation phase&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
         <span class="k">elif</span> <span class="n">ending_evaluation</span><span class="p">:</span>
             <span class="c1"># we write to the next episode, because it could be that the current episode was already written</span>
             <span class="c1"># to disk and then we won&#39;t write it again</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_current_time</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
             <span class="n">evaluation_reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accumulated_rewards_across_evaluation_episodes</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span>
                 <span class="s1">&#39;Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">evaluation_reward</span><span class="p">)</span>
@@ -577,9 +598,11 @@
             <span class="n">success_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span>
                 <span class="s2">&quot;Success Rate&quot;</span><span class="p">,</span>
-                <span class="n">success_rate</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+                <span class="n">success_rate</span><span class="p">)</span>
+
+            <span class="c1"># TODO verbosity was mistakenly removed from task_parameters on release 0.11.0, need to bring it back</span>
+            <span class="c1"># if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == &quot;high&quot;:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span><span class="p">:</span>
                 <span class="n">screen</span><span class="o">.</span><span class="n">log_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: Finished evaluation phase. Success rate = </span><span class="si">{}</span><span class="s2">, Avg Total Reward = </span><span class="si">{}</span><span class="s2">&quot;</span>
                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">success_rate</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">evaluation_reward</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span></div>
 
@@ -652,8 +675,11 @@
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># log all the signals to file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">)</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">set_current_time</span><span class="p">(</span><span class="n">current_time</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Training Iter&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Episode #&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Epoch&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_epoch</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;In Heatup&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;ER #Transitions&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;num_transitions&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;ER #Episodes&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">))</span>
@@ -666,12 +692,17 @@
                                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Update Target Network&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">update_wall_clock_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">update_wall_clock_time</span><span class="p">(</span><span class="n">current_time</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phase</span> <span class="o">!=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Shaped Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Success Rate&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># The following signals are created with meaningful values only when an evaluation phase is completed.</span>
+        <span class="c1"># Creating with default NaNs for any HEATUP/TRAIN/TEST episode which is not the last in an evaluation phase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Shaped Evaluation Reward&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Success Rate&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Inverse Propensity Score&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Direct Method Reward&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Doubly Robust&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Sequential Doubly Robust&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_signals</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/Mean&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_mean</span><span class="p">())</span>
@@ -680,8 +711,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/Min&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">signal</span><span class="o">.</span><span class="n">get_min</span><span class="p">())</span>
 
         <span class="c1"># dump</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_signals_to_csv_every_x_episodes</span> <span class="o">==</span> <span class="mi">0</span> \
-                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_signals_to_csv_every_x_episodes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">dump_output_csv</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Agent.handle_episode_ended"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.handle_episode_ended">[docs]</a>    <span class="k">def</span> <span class="nf">handle_episode_ended</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -717,10 +747,13 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">reward_success_threshold</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_csv</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_csv</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">parent_graph_manager</span><span class="o">.</span><span class="n">time_metric</span> <span class="o">==</span> <span class="n">TimeTypes</span><span class="o">.</span><span class="n">EpisodeNumber</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_log</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+        <span class="c1"># TODO verbosity was mistakenly removed from task_parameters on release 0.11.0, need to bring it back</span>
+        <span class="c1"># if self.ap.is_a_highest_level_agent or self.ap.task_parameters.verbosity == &quot;high&quot;:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_a_highest_level_agent</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">log_to_screen</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Agent.reset_internal_state"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.reset_internal_state">[docs]</a>    <span class="k">def</span> <span class="nf">reset_internal_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -831,18 +864,25 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_train</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">training_epoch</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">network</span><span class="o">.</span><span class="n">set_is_training</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">training_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_training_steps</span><span class="p">):</span>
-                <span class="c1"># TODO: this should be network dependent</span>
-                <span class="n">network_parameters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># At the moment we only support a single batch size for all the networks</span>
+            <span class="n">networks_parameters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">==</span> <span class="n">networks_parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span> <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">networks_parameters</span><span class="p">)</span>
 
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="n">networks_parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span>
+
+            <span class="c1"># we either go sequentially through the entire replay buffer in the batch RL mode,</span>
+            <span class="c1"># or sample randomly for the basic RL case.</span>
+            <span class="n">training_schedule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;get_shuffled_data_generator&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span> <span class="k">if</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">is_batch_rl_training</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;sample&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span>
+                                      <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_training_steps</span><span class="p">)]</span>
+
+            <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">training_schedule</span><span class="p">:</span>
                 <span class="c1"># update counters</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span> <span class="o">+=</span> <span class="mi">1</span>
-
-                <span class="c1"># sample a batch and train on it</span>
-                <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;sample&#39;</span><span class="p">,</span> <span class="n">network_parameters</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">update_internal_state</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">deep_copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -853,15 +893,19 @@
                     <span class="n">batch</span> <span class="o">=</span> <span class="n">Batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
                     <span class="n">total_loss</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">unclipped_grads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">learn_from_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
                     <span class="n">loss</span> <span class="o">+=</span> <span class="n">total_loss</span>
+
                     <span class="bp">self</span><span class="o">.</span><span class="n">unclipped_grads</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">unclipped_grads</span><span class="p">)</span>
 
-                    <span class="c1"># TODO: the learning rate decay should be done through the network instead of here</span>
+                    <span class="c1"># TODO: this only deals with the main network (if exists), need to do the same for other networks</span>
+                    <span class="c1">#  for instance, for DDPG, the LR signal is currently not shown. Probably should be done through the</span>
+                    <span class="c1">#  network directly instead of here</span>
                     <span class="c1"># decay learning rate</span>
-                    <span class="k">if</span> <span class="n">network_parameters</span><span class="o">.</span><span class="n">learning_rate_decay_rate</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;main&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span> <span class="ow">and</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">learning_rate_decay_rate</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">curr_learning_rate</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">current_learning_rate</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">curr_learning_rate</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">network_parameters</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">curr_learning_rate</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">networks_parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">network</span><span class="o">.</span><span class="n">has_target</span> <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span> \
                             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_update_online_weights_to_target</span><span class="p">():</span>
@@ -876,6 +920,12 @@
 
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">imitation</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">log_to_screen</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_csv</span> <span class="ow">and</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">parent_graph_manager</span><span class="o">.</span><span class="n">time_metric</span> <span class="o">==</span> <span class="n">TimeTypes</span><span class="o">.</span><span class="n">Epoch</span><span class="p">:</span>
+                <span class="c1"># in BatchRL, or imitation learning, the agent never acts, so we have to get the stats out here.</span>
+                <span class="c1"># we dump the data out every epoch</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_log</span><span class="p">()</span>
 
             <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">network</span><span class="o">.</span><span class="n">set_is_training</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -919,10 +969,11 @@
 
         <span class="k">return</span> <span class="n">batches_dict</span></div>
 
-<div class="viewcode-block" id="Agent.act"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.act">[docs]</a>    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionInfo</span><span class="p">:</span>
+<div class="viewcode-block" id="Agent.act"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.act">[docs]</a>    <span class="k">def</span> <span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">ActionType</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionInfo</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given the agents current knowledge, decide on the next action to apply to the environment</span>
 
+<span class="sd">        :param action: An action to take, overriding whatever the current policy is</span>
 <span class="sd">        :return: An ActionInfo object, which contains the action and any additional info from the action decision process</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -935,20 +986,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="c1"># decide on the action</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">heatup_using_network_decisions</span><span class="p">:</span>
-            <span class="c1"># random action</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">sample_with_info</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># informed action</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># before choosing an action, first use the pre_network_filter to filter out the current state</span>
-                <span class="n">update_filter_internal_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span>
-                <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span><span class="p">,</span> <span class="n">update_filter_internal_state</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">heatup_using_network_decisions</span><span class="p">:</span>
+                <span class="c1"># random action</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">sample_with_info</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_action</span><span class="p">(</span><span class="n">curr_state</span><span class="p">)</span>
+                <span class="c1"># informed action</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># before choosing an action, first use the pre_network_filter to filter out the current state</span>
+                    <span class="n">update_filter_internal_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span>
+                    <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_pre_network_filter_for_inference</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span><span class="p">,</span> <span class="n">update_filter_internal_state</span><span class="p">)</span>
 
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">curr_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curr_state</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choose_action</span><span class="p">(</span><span class="n">curr_state</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ActionInfo</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="n">action</span>
+
+        <span class="c1"># output filters are explicitly applied after recording self.last_action_info. This is</span>
+        <span class="c1"># because the output filters may change the representation of the action so that the agent</span>
+        <span class="c1"># can no longer use the transition in it&#39;s replay buffer. It is possible that these filters</span>
+        <span class="c1"># could be moved to the environment instead, but they are here now for historical reasons.</span>
         <span class="n">filtered_action_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_filter</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">filtered_action_info</span></div>
@@ -1030,37 +1089,35 @@
             <span class="c1"># make agent specific changes to the transition if needed</span>
             <span class="n">transition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_transition_before_adding_to_replay_buffer</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
 
-            <span class="c1"># merge the intrinsic reward in</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">scale_external_reward_by_intrinsic_reward_value</span><span class="p">:</span>
-                <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="n">action_intrinsic_reward</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="n">action_intrinsic_reward</span>
-
-            <span class="c1"># sum up the total shaped reward</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">env_response</span><span class="o">.</span><span class="n">reward</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">env_response</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
-
             <span class="c1"># add action info to transition</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;CompositeAgent&#39;</span><span class="p">:</span>
                 <span class="n">transition</span><span class="o">.</span><span class="n">add_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">transition</span><span class="o">.</span><span class="n">add_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
 
-            <span class="c1"># create and store the transition</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]:</span>
-                <span class="c1"># for episodic memories we keep the transitions in a local buffer until the episode is ended.</span>
-                <span class="c1"># for regular memories we insert the transitions directly to the memory</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">)</span> \
-                        <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">env_response</span><span class="o">.</span><span class="n">reward</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">env_response</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">update_step_in_episode_log</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observe_transition</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span></div>
 
-            <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span></div>
+    <span class="k">def</span> <span class="nf">observe_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">):</span>
+        <span class="c1"># sum up the total shaped reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
+
+        <span class="c1"># create and store the transition</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]:</span>
+            <span class="c1"># for episodic memories we keep the transitions in a local buffer until the episode is ended.</span>
+            <span class="c1"># for regular memories we insert the transitions directly to the memory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">)</span> \
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_step_in_episode_log</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span>
 
 <div class="viewcode-block" id="Agent.post_training_commands"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.post_training_commands">[docs]</a>    <span class="k">def</span> <span class="nf">post_training_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1145,60 +1202,6 @@
         <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">network</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span></div>
 
-    <span class="c1"># TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create</span>
-    <span class="c1">#               an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]</span>
-<div class="viewcode-block" id="Agent.emulate_observe_on_trainer"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.emulate_observe_on_trainer">[docs]</a>    <span class="k">def</span> <span class="nf">emulate_observe_on_trainer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">:</span> <span class="n">Transition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This emulates the observe using the transition obtained from the rollout worker on the training worker</span>
-<span class="sd">        in case of distributed training.</span>
-<span class="sd">        Given a response from the environment, distill the observation from it and store it for later use.</span>
-<span class="sd">        The response should be a dictionary containing the performed action, the new observation and measurements,</span>
-<span class="sd">        the reward, a game over flag and any additional information necessary.</span>
-<span class="sd">        :return:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># sum up the total shaped reward</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">total_shaped_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">total_reward_in_current_episode</span> <span class="o">+=</span> <span class="n">transition</span><span class="o">.</span><span class="n">reward</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shaped_reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reward</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">transition</span><span class="o">.</span><span class="n">reward</span><span class="p">)</span>
-        
-        <span class="c1"># create and store the transition</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">,</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">HEATUP</span><span class="p">]:</span>
-            <span class="c1"># for episodic memories we keep the transitions in a local buffer until the episode is ended.</span>
-            <span class="c1"># for regular memories we insert the transitions directly to the memory</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_buffer</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">EpisodicExperienceReplay</span><span class="p">)</span> \
-                    <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">store_transitions_only_when_episodes_are_terminated</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">transition</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">dump_in_episode_signals</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_step_in_episode_log</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">transition</span><span class="o">.</span><span class="n">game_over</span></div>
-
-    <span class="c1"># TODO-remove - this is a temporary flow, used by the trainer worker, duplicated from observe() - need to create</span>
-    <span class="c1">#         an external trainer flow reusing the existing flow and methods [e.g. observe(), step(), act()]</span>
-<div class="viewcode-block" id="Agent.emulate_act_on_trainer"><a class="viewcode-back" href="../../../components/agents/index.html#rl_coach.agents.agent.Agent.emulate_act_on_trainer">[docs]</a>    <span class="k">def</span> <span class="nf">emulate_act_on_trainer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">:</span> <span class="n">Transition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionInfo</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This emulates the act using the transition obtained from the rollout worker on the training worker</span>
-<span class="sd">        in case of distributed training.</span>
-<span class="sd">        Given the agents current knowledge, decide on the next action to apply to the environment</span>
-<span class="sd">        :return: an action and a dictionary containing any additional info from the action decision process</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">num_consecutive_playing_steps</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># This agent never plays  while training (e.g. behavioral cloning)</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-        <span class="c1"># count steps (only when training or if we are in the evaluation worker)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">!=</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">task_parameters</span><span class="o">.</span><span class="n">evaluate_only</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_episode_steps_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span> <span class="o">=</span> <span class="n">transition</span><span class="o">.</span><span class="n">action</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_action_info</span></div>
-
     <span class="k">def</span> <span class="nf">get_success_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_successes_across_evaluation_episodes</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_evaluation_episodes_completed</span>
 
@@ -1213,7 +1216,16 @@
         <span class="n">savers</span> <span class="o">=</span> <span class="n">SaverCollection</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">savers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">collect_savers</span><span class="p">(</span><span class="n">parent_path_suffix</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">savers</span></div></div>
+        <span class="k">return</span> <span class="n">savers</span></div>
+
+    <span class="k">def</span> <span class="nf">get_current_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+        <span class="k">return</span> <span class="p">{</span>
+                <span class="n">TimeTypes</span><span class="o">.</span><span class="n">EpisodeNumber</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_episode</span><span class="p">,</span>
+                <span class="n">TimeTypes</span><span class="o">.</span><span class="n">TrainingIteration</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_iteration</span><span class="p">,</span>
+                <span class="n">TimeTypes</span><span class="o">.</span><span class="n">EnvironmentSteps</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_steps_counter</span><span class="p">,</span>
+                <span class="n">TimeTypes</span><span class="o">.</span><span class="n">WallClockTime</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">get_current_wall_clock_time</span><span class="p">(),</span>
+                <span class="n">TimeTypes</span><span class="o">.</span><span class="n">Epoch</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">training_epoch</span><span class="p">}[</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_level_manager</span><span class="o">.</span><span class="n">parent_graph_manager</span><span class="o">.</span><span class="n">time_metric</span><span class="p">]</span></div>
 </pre></div>
 
            </div>

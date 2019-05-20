@@ -264,8 +264,8 @@
     <span class="c1"># prediction&#39;s format is (batch,actions,atoms)</span>
     <span class="k">def</span> <span class="nf">get_all_q_values_for_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">StateType</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exploration_policy</span><span class="o">.</span><span class="n">requires_action_values</span><span class="p">():</span>
-            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prediction</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
-            <span class="n">q_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution_prediction_to_q_values</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+            <span class="n">q_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prediction</span><span class="p">(</span><span class="n">states</span><span class="p">,</span>
+                                           <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">output_heads</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">q_values</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">q_values</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">q_values</span>
@@ -280,11 +280,14 @@
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">network_keys</span><span class="p">))</span>
         <span class="p">])</span>
 
+        <span class="c1"># add Q value samples for logging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution_prediction_to_q_values</span><span class="p">(</span><span class="n">TD_targets</span><span class="p">))</span>
+
         <span class="c1"># select the optimal actions for the next state</span>
         <span class="n">target_actions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution_prediction_to_q_values</span><span class="p">(</span><span class="n">distributional_q_st_plus_1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_values</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">batch</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_values</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
 
-        <span class="n">batches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="n">batches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
 
         <span class="c1"># an alternative to the for loop. 3.7x perf improvement vs. the same code done with for looping.</span>
         <span class="c1"># only 10% speedup overall - leaving commented out as the code is not as clear.</span>
@@ -297,7 +300,7 @@
         <span class="c1"># bj_ = (tzj_ - self.z_values[0]) / (self.z_values[1] - self.z_values[0])</span>
         <span class="c1"># u_ = (np.ceil(bj_)).astype(int)</span>
         <span class="c1"># l_ = (np.floor(bj_)).astype(int)</span>
-        <span class="c1"># m_ = np.zeros((self.ap.network_wrappers[&#39;main&#39;].batch_size, self.z_values.size))</span>
+        <span class="c1"># m_ = np.zeros((batch.size, self.z_values.size))</span>
         <span class="c1"># np.add.at(m_, [batches, l_],</span>
         <span class="c1">#           np.transpose(distributional_q_st_plus_1[batches, target_actions], (1, 0)) * (u_ - bj_))</span>
         <span class="c1"># np.add.at(m_, [batches, u_],</span>

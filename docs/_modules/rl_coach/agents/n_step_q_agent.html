@@ -303,6 +303,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;The available values for targets_horizon are: 1-Step, N-Step&#39;</span>
 
+        <span class="c1"># add Q value samples for logging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_values</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">state_value_head_targets</span><span class="p">)</span>
+
         <span class="c1"># train</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">accumulate_gradients</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">network_keys</span><span class="p">),</span> <span class="p">[</span><span class="n">state_value_head_targets</span><span class="p">])</span>
 

@@ -396,7 +396,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                 time.sleep(1)
 
         # get the first value after heat-up
-        time.sleep(1)
+        time.sleep(3)
         results.append(csv["Total steps"].values[-1])
 
         assert int(results[-1]) >= Def.Consts.num_hs, \
@@ -453,10 +453,10 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                                 num_expected_files=int(flag[1]))
 
         assert len(csv_path) > 0, \
-            Def.Consts.ASSERT_MSG.format("paths are not found", csv_path)
+            Def.Consts.ASSERT_MSG.format("paths are not found", str(csv_path))
 
         assert int(flag[1]) == len(csv_path), Def.Consts.ASSERT_MSG. \
-            format(len(csv_path), int(flag[1]))
+            format(int(flag[1]), len(csv_path))
 
         # wait for getting results in csv's
         for i in range(len(csv_path)):
@@ -494,9 +494,10 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                            worker, and check results.
         """
         # wait until files created
-        csv_path = get_csv_path(clres=clres, extra_tries=20)
-
         num_expected_files = int(flag[1])
+        csv_path = get_csv_path(clres=clres, extra_tries=20,
+                                num_expected_files=num_expected_files)
+
         assert len(csv_path) >= num_expected_files, \
             Def.Consts.ASSERT_MSG.format(str(num_expected_files),
                                          str(len(csv_path)))
