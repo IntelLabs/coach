@@ -640,15 +640,15 @@ workflows:
 #            - build_starcraft_env
       - update_gym_traces_test:
           requires:
-            - trace_test_gym
+            - gym_approval
           type: approval
       - update_doom_traces_test:
           requires:
-            - trace_test_doom
+            - doom_approval
           type: approval
       - update_mujoco_traces_test:
           requires:
-            - trace_test_mujoco
+            - mujoco_approval
           type: approval
       - trace_test_gym:
           requires:
