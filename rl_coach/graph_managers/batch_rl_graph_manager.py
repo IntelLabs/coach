@@ -173,11 +173,11 @@ class BatchRLGraphManager(BasicRLGraphManager):
         """
         agent = self.level_managers[0].agents['agent']
 
-        screen.log_title("Training a regression model for estimating MDP rewards")
-        agent.improve_reward_model(epochs=self.reward_model_num_epochs)
-
         # prepare dataset to be consumed in the expected formats for OPE
         agent.memory.prepare_evaluation_dataset()
+
+        screen.log_title("Training a regression model for estimating MDP rewards")
+        agent.improve_reward_model(epochs=self.reward_model_num_epochs)
 
         screen.log_title("Collecting static statistics for OPE")
         agent.ope_manager.gather_static_shared_stats(evaluation_dataset_as_transitions=
