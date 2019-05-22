@@ -26,9 +26,9 @@ from rl_coach.spaces import SpacesDefinition
 class DDPGActor(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh',
-                 batchnorm: bool=True, dense_layer=Dense):
+                 batchnorm: bool=True, dense_layer=Dense, is_training=False):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
-                         dense_layer=dense_layer)
+                         dense_layer=dense_layer, is_training=is_training)
         self.name = 'ddpg_actor_head'
         self.return_type = ActionProbabilities
 
@@ -47,10 +47,10 @@ class DDPGActor(Head):
         # mean
         pre_activation_policy_values_mean = self.dense_layer(self.num_actions)(input_layer, name='fc_mean')
         policy_values_mean = batchnorm_activation_dropout(input_layer=pre_activation_policy_values_mean,
-                                                          batchnorm=self.batchnorm,
+                                                          batchnorm=None, #self.batchnorm,
                                                           activation_function=self.activation_function,
                                                           dropout_rate=0,
-                                                          is_training=False,
+                                                          is_training=self.is_training,
                                                           name="BatchnormActivationDropout_0")[-1]
         self.policy_mean = tf.multiply(policy_values_mean, self.output_scale, name='output_mean')
 
