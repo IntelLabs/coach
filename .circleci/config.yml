@@ -607,25 +607,6 @@ workflows:
       - build_mujoco_env:
           requires:
             - e2e_approval
-#      - build_starcraft_env:
-#          requires:
-#            - e2e_approval
-      - gym_approval:
-          type: approval
-          requires:
-            - golden_test_gym
-      - doom_approval:
-          type: approval
-          requires:
-            - golden_test_doom
-      - mujoco_approval:
-          type: approval
-          requires:
-            - golden_test_mujoco
-#      - starcraft_approval:
-#          type: approval
-#          requires:
-#            - golden_test_starcraft
       - golden_test_gym:
           requires:
             - build_gym_env
@@ -641,15 +622,15 @@ workflows:
       - update_gym_approval:
           type: approval
           requires:
-            - gym_approval
+            - build_gym_env
       - update_doom_approval:
           type: approval
           requires:
-            - doom_approval
+            - build_doom_env
       - update_mujoco_approval:
           type: approval
           requires:
-            - mujoco_approval
+            - build_mujoco_env
       - update_gym_traces:
           requires:
             - update_gym_approval
@@ -661,13 +642,13 @@ workflows:
             - update_mujoco_approval
       - trace_test_gym:
           requires:
-            - gym_approval
+            - build_gym_env
       - trace_test_doom:
           requires:
-            - doom_approval
+            - build_doom_env
       - trace_test_mujoco:
           requires:
-            - mujoco_approval
+            - build_mujoco_env
 #      - trace_test_starcraft:
 #          requires:
 #            - starcraft_approval

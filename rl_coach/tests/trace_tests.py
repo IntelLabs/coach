@@ -85,7 +85,7 @@ def run_trace_based_test(preset_name, num_env_steps, level=None):
         '-e {test_name} '
         '--seed 42 '
         '-c '
-        '-dcp {template}'
+        '-dcp {template} '
         '--no_summary '
         '-cp {custom_param} '
         '{level} '
