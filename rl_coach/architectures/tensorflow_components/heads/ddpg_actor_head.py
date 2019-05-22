@@ -47,7 +47,7 @@ class DDPGActor(Head):
         # mean
         pre_activation_policy_values_mean = self.dense_layer(self.num_actions)(input_layer, name='fc_mean')
         policy_values_mean = batchnorm_activation_dropout(input_layer=pre_activation_policy_values_mean,
-                                                          batchnorm=None, #self.batchnorm,
+                                                          batchnorm=self.batchnorm,
                                                           activation_function=self.activation_function,
                                                           dropout_rate=0,
                                                           is_training=self.is_training,
