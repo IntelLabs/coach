@@ -383,7 +383,7 @@ jobs:
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} \
                           && aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
-                          && TRACE_PRESETS="Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP" \
+                          && TRACE_PRESETS="Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP,Doom_Basic_Dueling_DDQN,Doom_Basic_DFP" \
                           && python3 rl_coach/tests/trace_tests.py -p ${TRACE_PRESETS} -prl -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:${TAG} -b coach-trace-doom-aws-test-${CIRCLE_BUILD_NUM}'
           no_output_timeout: 50m
       - run:
@@ -472,7 +472,7 @@ jobs:
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} \
                           && aws s3 cp s3://coach-traces-aws rl_coach/traces --recursive \
-                          && TRACE_PRESETS="Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP" \
+                          && TRACE_PRESETS="Doom_Basic_DQN,Doom_Basic_A3C,Doom_Health_DFP,Doom_Basic_Dueling_DDQN,Doom_Basic_DFP" \
                           && python3 rl_coach/tests/trace_tests.py -p ${TRACE_PRESETS} -prl -ow -ut -i 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:${TAG} -b coach-trace-doom-aws-test-${CIRCLE_BUILD_NUM}'
             docker ps -a -q | head -n 1  | xargs -I% docker cp %:/root/src/rl_coach/traces . || true
             aws s3 sync ~/repo/traces s3://coach-traces-aws || true

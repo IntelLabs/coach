@@ -313,6 +313,8 @@ def main():
     else:
         screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
 
+    assert fail_count == 0
+
 
 if __name__ == '__main__':
     os.environ['DISABLE_MUJOCO_RENDERING'] = '1'
