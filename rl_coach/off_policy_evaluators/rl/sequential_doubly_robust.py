@@ -26,7 +26,9 @@ class SequentialDoublyRobust(object):
         """
         Run the off-policy evaluator to get a score for the goodness of the new policy, based on the dataset,
         which was collected using other policy(ies).
-
+        When the epsiodes are of changing lengths, this estimator might prove problematic due to its nature of recursion
+        of adding rewards up to the end of the episode (horizon). It will probably work best with episodes of fixed
+        length.
         Paper: https://arxiv.org/pdf/1511.03722.pdf
 
         :return: the evaluation score
@@ -37,7 +39,7 @@ class SequentialDoublyRobust(object):
 
         for episode in evaluation_dataset_as_episodes:
             episode_seq_dr = 0
-            for transition in episode.transitions:
+            for transition in reversed(episode.transitions):
                 rho = transition.info['softmax_policy_prob'][transition.action] / \
                       transition.info['all_action_probabilities'][transition.action]
                 episode_seq_dr = transition.info['v_value_q_model_based'] + rho * (transition.reward + discount_factor
