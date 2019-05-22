@@ -652,13 +652,13 @@ workflows:
             - mujoco_approval
       - update_gym_traces:
           requires:
-            - gym_approval
+            - update_gym_approval
       - update_doom_traces:
           requires:
-            - doom_approval
+            - update_doom_approval
       - update_mujoco_traces:
           requires:
-            - mujoco_approval
+            - update_mujoco_approval
       - trace_test_gym:
           requires:
             - gym_approval
