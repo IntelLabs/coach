@@ -57,12 +57,7 @@ class ExplorationPolicy(object):
         :return: The chosen action,
                  The probability of the action (if available, otherwise 1 for absolute certainty in the action)
         """
-        if self.__class__ == ExplorationPolicy:
-            raise ValueError("The ExplorationPolicy class is an abstract class and should not be used directly. "
-                             "Please set the exploration parameters to point to an inheriting class like EGreedy or "
-                             "AdditiveNoise")
-        else:
-            raise ValueError("The get_action function should be overridden in the inheriting exploration class")
+        raise NotImplementedError()
 
     def change_phase(self, phase):
         """
