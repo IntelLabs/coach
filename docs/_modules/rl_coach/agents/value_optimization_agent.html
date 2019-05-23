@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rl_coach.agents.value_optimization_agent &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>rl_coach.agents.value_optimization_agent &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -31,21 +39,16 @@
     <link rel="search" title="Search" href="../../../search.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -200,6 +203,7 @@
 
 <span class="kn">from</span> <span class="nn">rl_coach.agents.agent</span> <span class="k">import</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">ActionInfo</span><span class="p">,</span> <span class="n">StateType</span><span class="p">,</span> <span class="n">Batch</span>
+<span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">NoInputFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">screen</span>
 <span class="kn">from</span> <span class="nn">rl_coach.memories.non_episodic.prioritized_experience_replay</span> <span class="k">import</span> <span class="n">PrioritizedExperienceReplay</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">DiscreteActionSpace</span>
@@ -288,18 +292,18 @@
 <span class="sd">        :return: None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">ope_manager</span>
-        <span class="n">dataset_as_episodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;get_all_complete_episodes_from_to&#39;</span><span class="p">,</span>
-                                               <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;get_last_training_set_episode_id&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-                                                <span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;num_complete_episodes&#39;</span><span class="p">)))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_as_episodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;train_to_eval_ratio is too high causing the evaluation set to be empty. &#39;</span>
-                             <span class="s1">&#39;Consider decreasing its value.&#39;</span><span class="p">)</span>
 
-        <span class="n">ips</span><span class="p">,</span> <span class="n">dm</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">seq_dr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ope_manager</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
-                                  <span class="n">dataset_as_episodes</span><span class="o">=</span><span class="n">dataset_as_episodes</span><span class="p">,</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="p">,</span> <span class="n">NoInputFilter</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_network_filter</span><span class="o">.</span><span class="n">reward_filters</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Defining a pre-network reward filter when OPEs are calculated will result in a mismatch &quot;</span>
+                             <span class="s2">&quot;between q values (which are scaled), and actual rewards, which are not. It is advisable &quot;</span>
+                             <span class="s2">&quot;to use an input_filter, if possible, instead, which will filter the transitions directly &quot;</span>
+                             <span class="s2">&quot;in the replay buffer, affecting both the q_values and the rewards themselves. &quot;</span><span class="p">)</span>
+
+        <span class="n">ips</span><span class="p">,</span> <span class="n">dm</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">seq_dr</span><span class="p">,</span> <span class="n">wis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ope_manager</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+                                  <span class="n">evaluation_dataset_as_episodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">evaluation_dataset_as_episodes</span><span class="p">,</span>
+                                  <span class="n">evaluation_dataset_as_transitions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">evaluation_dataset_as_transitions</span><span class="p">,</span>
                                   <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
                                   <span class="n">discount_factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">discount</span><span class="p">,</span>
-                                  <span class="n">reward_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;reward_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="p">,</span>
                                   <span class="n">q_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">online_network</span><span class="p">,</span>
                                   <span class="n">network_keys</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;main&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
@@ -309,6 +313,7 @@
         <span class="n">log</span><span class="p">[</span><span class="s1">&#39;IPS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ips</span>
         <span class="n">log</span><span class="p">[</span><span class="s1">&#39;DM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dm</span>
         <span class="n">log</span><span class="p">[</span><span class="s1">&#39;DR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dr</span>
+        <span class="n">log</span><span class="p">[</span><span class="s1">&#39;WIS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wis</span>
         <span class="n">log</span><span class="p">[</span><span class="s1">&#39;Sequential-DR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq_dr</span>
         <span class="n">screen</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;Off-Policy Evaluation&#39;</span><span class="p">)</span>
 
@@ -318,6 +323,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Direct Method Reward&#39;</span><span class="p">,</span> <span class="n">dm</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Doubly Robust&#39;</span><span class="p">,</span> <span class="n">dr</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Sequential Doubly Robust&#39;</span><span class="p">,</span> <span class="n">seq_dr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_logger</span><span class="o">.</span><span class="n">create_signal_value</span><span class="p">(</span><span class="s1">&#39;Weighted Importance Sampling&#39;</span><span class="p">,</span> <span class="n">wis</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_reward_model_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">Batch</span><span class="p">):</span>
         <span class="n">network_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ap</span><span class="o">.</span><span class="n">network_wrappers</span><span class="p">[</span><span class="s1">&#39;reward_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">input_embedders_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -341,7 +347,7 @@
         <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
             <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">total_transitions_processed</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;get_shuffled_data_generator&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call_memory</span><span class="p">(</span><span class="s1">&#39;get_shuffled_training_data_generator&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)):</span>
                 <span class="n">batch</span> <span class="o">=</span> <span class="n">Batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
                 <span class="n">loss</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reward_model_loss</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
                 <span class="n">total_transitions_processed</span> <span class="o">+=</span> <span class="n">batch</span><span class="o">.</span><span class="n">size</span>
@@ -363,7 +369,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -380,27 +386,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Coach Dashboard &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Coach Dashboard &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Selecting an Algorithm" href="selecting_an_algorithm.html" />
     <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -191,8 +194,8 @@
 <p>Coach Dashboard exposes a convenient user interface for visualizing the training signals. The signals are dynamically updated - during the agent training. Additionaly, it allows selecting a subset of the available signals, and then overlaying them on top of each other.</p>
 <a class="reference internal image-reference" href="_images/updating_dynamically.gif"><img alt="_images/updating_dynamically.gif" class="align-center" src="_images/updating_dynamically.gif" style="width: 800px;" /></a>
 <ul class="simple">
-<li>Holding the CTRL key, while selecting signals, will allow visualizing more than one signal.</li>
-<li>Signals can be visualized, using either of the Y-axes, in order to visualize signals with different scales. To move a signal to the second Y-axis, select it and press the ‘Toggle Second Axis’ button.</li>
+<li><p>Holding the CTRL key, while selecting signals, will allow visualizing more than one signal.</p></li>
+<li><p>Signals can be visualized, using either of the Y-axes, in order to visualize signals with different scales. To move a signal to the second Y-axis, select it and press the ‘Toggle Second Axis’ button.</p></li>
 </ul>
 </div>
 <div class="section" id="tracking-statistics">
@@ -200,11 +203,11 @@
 <p>When running parallel algorithms, such as A3C, it often helps visualizing the learning of all the workers, at the same time. Coach Dashboard allows viewing multiple signals (and even smooth them out, if required) from multiple workers. In addition, it supports viewing the mean and standard deviation of the same signal, across different workers, using Bollinger bands.</p>
 <div class="figure align-center" id="id1">
 <a class="reference internal image-reference" href="_images/bollinger_bands.png"><img alt="_images/bollinger_bands.png" src="_images/bollinger_bands.png" style="width: 800px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Displaying Bollinger Bands</strong></span></p>
+<p class="caption"><span class="caption-text"><strong>Displaying Bollinger Bands</strong></span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/separate_signals.png"><img alt="_images/separate_signals.png" src="_images/separate_signals.png" style="width: 800px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Displaying all the Workers</strong></span></p>
+<p class="caption"><span class="caption-text"><strong>Displaying all the Workers</strong></span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 <div class="section" id="comparing-runs">
@@ -213,11 +216,11 @@
 <p>In RL, there are several interesting performance metrics to consider, and this is easy to do by controlling the X-axis units in Coach Dashboard. It is possible to switch between several options such as the total number of steps or the total training time.</p>
 <div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/compare_by_time.png"><img alt="_images/compare_by_time.png" src="_images/compare_by_time.png" style="width: 800px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Comparing Several Algorithms According to the Time Passed</strong></span></p>
+<p class="caption"><span class="caption-text"><strong>Comparing Several Algorithms According to the Time Passed</strong></span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
 </div>
 <div class="figure align-center" id="id4">
 <a class="reference internal image-reference" href="_images/compare_by_num_episodes.png"><img alt="_images/compare_by_num_episodes.png" src="_images/compare_by_num_episodes.png" style="width: 800px;" /></a>
-<p class="caption"><span class="caption-text"><strong>Comparing Several Algorithms According to the Number of Episodes Played</strong></span></p>
+<p class="caption"><span class="caption-text"><strong>Comparing Several Algorithms According to the Number of Episodes Played</strong></span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
 </div>
 </div>
 </div>
@@ -233,7 +236,7 @@
         <a href="design/control_flow.html" class="btn btn-neutral float-right" title="Control Flow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="selecting_an_algorithm.html" class="btn btn-neutral" title="Selecting an Algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="selecting_an_algorithm.html" class="btn btn-neutral float-left" title="Selecting an Algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -242,7 +245,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -259,27 +262,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

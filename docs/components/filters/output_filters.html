@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Output Filters &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Output Filters &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Input Filters" href="input_filters.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -203,18 +206,14 @@ as choosing sub-boxes in a given box. For example, consider an image of size 100
 a crop window of size 20x20 to attend to in the image. AttentionDiscretization allows discretizing the possible crop
 windows to choose into a finite number of options, and map a discrete action space into those crop windows.</p>
 <p>Warning! this will currently only work for attention spaces with 2 dimensions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_bins_per_dimension</strong> – Number of discrete bins to use for each dimension of the action space</li>
-<li><strong>force_int_bins</strong> – If set to True, all the bins will represent integer coordinates in space.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_bins_per_dimension</strong> – Number of discrete bins to use for each dimension of the action space</p></li>
+<li><p><strong>force_int_bins</strong> – If set to True, all the bins will represent integer coordinates in space.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <img alt="../../_images/attention_discretization.png" class="align-center" src="../../_images/attention_discretization.png" />
@@ -227,21 +226,17 @@ original continuous action space is uniformly separated into the given number of
 action index. Each discrete action is mapped to a single N dimensional action in the BoxActionSpace action space.
 For example, if the original actions space is between -1 and 1 and 5 bins were selected, the new action
 space will consist of 5 actions mapped to -1, -0.5, 0, 0.5 and 1.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_bins_per_dimension</strong> – The number of bins to use for each dimension of the target action space.
-The bins will be spread out uniformly over this space</li>
-<li><strong>force_int_bins</strong> – force the bins to represent only integer actions. for example, if the action space is in
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_bins_per_dimension</strong> – The number of bins to use for each dimension of the target action space.
+The bins will be spread out uniformly over this space</p></li>
+<li><p><strong>force_int_bins</strong> – force the bins to represent only integer actions. for example, if the action space is in
 the range 0-10 and there are 5 bins, then the bins will be placed at 0, 2, 5, 7, 10,
-instead of 0, 2.5, 5, 7.5, 10.</li>
+instead of 0, 2.5, 5, 7.5, 10.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <img alt="../../_images/box_discretization.png" class="align-center" src="../../_images/box_discretization.png" />
@@ -252,18 +247,14 @@ instead of 0, 2.5, 5, 7.5, 10.</li>
 if the original action space is between -1 and 1, then this filter can be used in order to constrain the agent actions
 to the range 0 and 1 instead. This essentially masks the range -1 and 0 from the agent.
 The resulting action space will be shifted and will always start from 0 and have the size of the unmasked area.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>masked_target_space_low</strong> – the lowest values that can be chosen in the target action space</li>
-<li><strong>masked_target_space_high</strong> – the highest values that can be chosen in the target action space</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>masked_target_space_low</strong> – the lowest values that can be chosen in the target action space</p></li>
+<li><p><strong>masked_target_space_high</strong> – the highest values that can be chosen in the target action space</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <img alt="../../_images/box_masking.png" class="align-center" src="../../_images/box_masking.png" />
@@ -275,18 +266,14 @@ with a MultiSelect action space (select multiple actions at the same time, such 
 MultiSelect actions. If we want the agent to be able to select only 5 of those actions by their index (0-4), we can
 map a discrete action space with 5 actions into the 5 selected MultiSelect actions. This will both allow the agent to
 use regular discrete actions, and mask 3 of the actions from the agent.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>target_actions</strong> – A partial list of actions from the target space to map to.</li>
-<li><strong>descriptions</strong> – a list of descriptions of each of the actions</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_actions</strong> – A partial list of actions from the target space to map to.</p></li>
+<li><p><strong>descriptions</strong> – a list of descriptions of each of the actions</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <img alt="../../_images/partial_discrete_action_space_map.png" class="align-center" src="../../_images/partial_discrete_action_space_map.png" />
@@ -309,18 +296,14 @@ environment consists of continuous actions between 0 and 1, and we want the agen
 the LinearBoxToBoxMap can be used to map the range -1 and 1 to the range 0 and 1 in a linear way. This means that the
 action -1 will be mapped to 0, the action 1 will be mapped to 1, and the rest of the actions will be linearly mapped
 between those values.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_space_low</strong> – the low values of the desired action space</li>
-<li><strong>input_space_high</strong> – the high values of the desired action space</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_space_low</strong> – the low values of the desired action space</p></li>
+<li><p><strong>input_space_high</strong> – the high values of the desired action space</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <img alt="../../_images/linear_box_to_box_map.png" class="align-center" src="../../_images/linear_box_to_box_map.png" />
@@ -338,7 +321,7 @@ between those values.</p>
         <a href="../memories/index.html" class="btn btn-neutral float-right" title="Memories" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="input_filters.html" class="btn btn-neutral" title="Input Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="input_filters.html" class="btn btn-neutral float-left" title="Input Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -347,7 +330,7 @@ between those values.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -364,27 +347,16 @@ between those values.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

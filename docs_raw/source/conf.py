@@ -20,13 +20,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath('.'))))
 # -- Project information -----------------------------------------------------
 
 project = 'Reinforcement Learning Coach'
-copyright = '2018, Intel AI Lab'
+copyright = '2018-2019, Intel AI Lab'
 author = 'Intel AI Lab'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.11.0'
+release = '0.12.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -48,6 +48,10 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinxarg.ext'
 ]
+
+# add the thid-party modules to be mocked to the autodoc_mod_imports configuration value
+autodoc_mock_imports = ['carla', 'suite', 'flags', 'vizdoom', 'dm_control', 'pybullet',
+                        'roboschool', 'pysc2', 'gymextensions']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Input Filters &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Input Filters &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Filters" href="index.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -223,18 +226,14 @@
 For example, if the observation consists of measurements in an arbitrary range,
 and we want to control the minimum and maximum values of these observations,
 we can define a range and clip the values of the measurements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>clipping_low</strong> – The minimum value to allow after normalizing the observation</li>
-<li><strong>clipping_high</strong> – The maximum value to allow after normalizing the observation</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clipping_low</strong> – The minimum value to allow after normalizing the observation</p></li>
+<li><p><strong>clipping_high</strong> – The maximum value to allow after normalizing the observation</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -246,20 +245,16 @@ we can define a range and clip the values of the measurements.</p>
 <dd><p>Crops the size of the observation to a given crop window. For example, in Atari, the
 observations are images with a shape of 210x160. Usually, we will want to crop the size of the observation to a
 square of 160x160 before rescaling them.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>crop_low</strong> – a vector where each dimension describes the start index for cropping the observation in the
-corresponding dimension. a negative value of -1 will be mapped to the max size</li>
-<li><strong>crop_high</strong> – a vector where each dimension describes the end index for cropping the observation in the
-corresponding dimension. a negative value of -1 will be mapped to the max size</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>crop_low</strong> – a vector where each dimension describes the start index for cropping the observation in the
+corresponding dimension. a negative value of -1 will be mapped to the max size</p></li>
+<li><p><strong>crop_high</strong> – a vector where each dimension describes the end index for cropping the observation in the
+corresponding dimension. a negative value of -1 will be mapped to the max size</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -270,18 +265,14 @@ corresponding dimension. a negative value of -1 will be mapped to the max size</
 <em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationMoveAxisFilter</code><span class="sig-paren">(</span><em>axis_origin: int = None</em>, <em>axis_target: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_move_axis_filter.html#ObservationMoveAxisFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationMoveAxisFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorders the axes of the observation. This can be useful when the observation is an
 image, and we want to move the channel axis to be the last axis instead of the first axis.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axis_origin</strong> – The axis to move</li>
-<li><strong>axis_target</strong> – Where to move the selected axis to</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis_origin</strong> – The axis to move</p></li>
+<li><p><strong>axis_target</strong> – Where to move the selected axis to</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -293,18 +284,14 @@ image, and we want to move the channel axis to be the last axis instead of the f
 <dd><p>Normalizes the observation values with a running mean and standard deviation of
 all the observations seen so far. The normalization is performed element-wise. Additionally, when working with
 multiple workers, the statistics used for the normalization operation are accumulated over all the workers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>clip_min</strong> – The minimum value to allow after normalizing the observation</li>
-<li><strong>clip_max</strong> – The maximum value to allow after normalizing the observation</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clip_min</strong> – The minimum value to allow after normalizing the observation</p></li>
+<li><p><strong>clip_max</strong> – The maximum value to allow after normalizing the observation</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -319,18 +306,14 @@ measurements, but you want the agent to only see some of the measurements and no
 For example, the CARLA environment extracts multiple measurements that can be used by the agent, such as
 speed and location. If we want to only use the speed, it can be done using this filter.
 This will currently work only for VectorObservationSpace observations</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>part_names</strong> – A list of part names to reduce</li>
-<li><strong>reduction_method</strong> – A reduction method to use - keep or discard the given parts</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>part_names</strong> – A list of part names to reduce</p></li>
+<li><p><strong>reduction_method</strong> – A reduction method to use - keep or discard the given parts</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -342,18 +325,14 @@ This will currently work only for VectorObservationSpace observations</p>
 <dd><p>Rescales an image observation by some factor. For example, the image size
 can be reduced by a factor of 2.
 Warning: this requires the input observation to be of type uint8 due to scipy requirements!</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>rescale_factor</strong> – the factor by which the observation will be rescaled</li>
-<li><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rescale_factor</strong> – the factor by which the observation will be rescaled</p></li>
+<li><p><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -365,18 +344,14 @@ Warning: this requires the input observation to be of type uint8 due to scipy re
 <dd><p>Rescales an image observation to a given size. The target size does not
 necessarily keep the aspect ratio of the original observation.
 Warning: this requires the input observation to be of type uint8 due to scipy requirements!</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>output_observation_space</strong> – the output observation space</li>
-<li><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_observation_space</strong> – the output observation space</p></li>
+<li><p><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -398,14 +373,11 @@ The channels axis is assumed to be the last axis</p>
 <dt id="rl_coach.filters.observation.ObservationSqueezeFilter">
 <em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationSqueezeFilter</code><span class="sig-paren">(</span><em>axis: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_squeeze_filter.html#ObservationSqueezeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationSqueezeFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes redundant axes from the observation, which are axes with a dimension of 1.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> – Specifies which axis to remove. If set to None, all the axes of size 1 will be removed.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>axis</strong> – Specifies which axis to remove. If set to None, all the axes of size 1 will be removed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -423,18 +395,14 @@ The filter adds an additional dimension to the output observation.</p>
 <p>Warning!!! The filter replaces the observation with a LazyStack object, so no filters should be
 applied after this filter. applying more filters will cause the LazyStack object to be converted to a numpy array
 and increase the memory footprint.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stack_size</strong> – the number of previous observations in the stack</li>
-<li><strong>stacking_axis</strong> – the axis on which to stack the observation on</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stack_size</strong> – the number of previous observations in the stack</p></li>
+<li><p><strong>stacking_axis</strong> – the axis on which to stack the observation on</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -446,18 +414,14 @@ and increase the memory footprint.</p>
 <dd><p>Converts a floating point observation into an unsigned int 8 bit observation. This is
 mostly useful for reducing memory consumption and is usually used for image observations. The filter will first
 spread the observation values over the range 0-255 and then discretize them into integer values.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_low</strong> – The lowest value currently present in the observation</li>
-<li><strong>input_high</strong> – The highest value currently present in the observation</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_low</strong> – The lowest value currently present in the observation</p></li>
+<li><p><strong>input_high</strong> – The highest value currently present in the observation</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -471,18 +435,14 @@ spread the observation values over the range 0-255 and then discretize them into
 <em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardClippingFilter</code><span class="sig-paren">(</span><em>clipping_low: float = -inf</em>, <em>clipping_high: float = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_clipping_filter.html#RewardClippingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardClippingFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clips the reward values into a given range. For example, in DQN, the Atari rewards are
 clipped into the range -1 and 1 in order to control the scale of the returns.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>clipping_low</strong> – The low threshold for reward clipping</li>
-<li><strong>clipping_high</strong> – The high threshold for reward clipping</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clipping_low</strong> – The low threshold for reward clipping</p></li>
+<li><p><strong>clipping_high</strong> – The high threshold for reward clipping</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -494,18 +454,14 @@ clipped into the range -1 and 1 in order to control the scale of the returns.</p
 <dd><p>Normalizes the reward values with a running mean and standard deviation of
 all the rewards seen so far. When working with multiple workers, the statistics used for the normalization operation
 are accumulated over all the workers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>clip_min</strong> – The minimum value to allow after normalizing the reward</li>
-<li><strong>clip_max</strong> – The maximum value to allow after normalizing the reward</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clip_min</strong> – The minimum value to allow after normalizing the reward</p></li>
+<li><p><strong>clip_max</strong> – The maximum value to allow after normalizing the reward</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -516,14 +472,11 @@ are accumulated over all the workers.</p>
 <em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardRescaleFilter</code><span class="sig-paren">(</span><em>rescale_factor: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_rescale_filter.html#RewardRescaleFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardRescaleFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rescales the reward by a given factor. Rescaling the rewards of the environment has been
 observed to have a large effect (negative or positive) on the behavior of the learning process.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rescale_factor</strong> – The reward rescaling factor by which the reward will be multiplied</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rescale_factor</strong> – The reward rescaling factor by which the reward will be multiplied</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -541,7 +494,7 @@ observed to have a large effect (negative or positive) on the behavior of the le
         <a href="output_filters.html" class="btn btn-neutral float-right" title="Output Filters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -550,7 +503,7 @@ observed to have a large effect (negative or positive) on the behavior of the le
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -567,27 +520,16 @@ observed to have a large effect (negative or positive) on the behavior of the le
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

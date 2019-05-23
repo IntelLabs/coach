@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Environments &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Environments &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Data Stores" href="../data_stores/index.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -193,106 +196,84 @@
 <dl class="class">
 <dt id="rl_coach.environments.environment.Environment">
 <em class="property">class </em><code class="descclassname">rl_coach.environments.environment.</code><code class="descname">Environment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>level</strong> – The environment level. Each environment can have multiple levels</li>
-<li><strong>seed</strong> – a seed for the random number generator of the environment</li>
-<li><strong>frame_skip</strong> – number of frames to skip (while repeating the same action) between each two agent directives</li>
-<li><strong>human_control</strong> – human should control the environment</li>
-<li><strong>visualization_parameters</strong> – a blob of parameters used for visualization of the environment</li>
-<li><strong>**kwargs</strong> – <p>as the class is instantiated by EnvironmentParameters, this is used to support having
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> – The environment level. Each environment can have multiple levels</p></li>
+<li><p><strong>seed</strong> – a seed for the random number generator of the environment</p></li>
+<li><p><strong>frame_skip</strong> – number of frames to skip (while repeating the same action) between each two agent directives</p></li>
+<li><p><strong>human_control</strong> – human should control the environment</p></li>
+<li><p><strong>visualization_parameters</strong> – a blob of parameters used for visualization of the environment</p></li>
+<li><p><strong>**kwargs</strong> – <p>as the class is instantiated by EnvironmentParameters, this is used to support having
 additional arguments which will be ignored by this class, but might be used by others</p>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="rl_coach.environments.environment.Environment.action_space">
 <code class="descname">action_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.action_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the action space of the environment</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the action space</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the action space</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.close">
 <code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean up steps.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_action_from_user">
 <code class="descname">get_action_from_user</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_action_from_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_action_from_user" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get an action from the user keyboard</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">action index</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>action index</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_available_keys">
 <code class="descname">get_available_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Tuple[str, Union[int, float, numpy.ndarray, List]]]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_available_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_available_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of tuples mapping between action names and the keyboard key that triggers them</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of tuples mapping between action names and the keyboard key that triggers them</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a list of tuples mapping between action names and the keyboard key that triggers them</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_goal">
 <code class="descname">get_goal</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[None, numpy.ndarray]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_goal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current goal that the agents needs to achieve in the environment</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The goal</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The goal</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_random_action">
 <code class="descname">get_random_action</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_random_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_random_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an action picked uniformly from the available actions</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a numpy array with a random action</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a numpy array with a random action</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -300,56 +281,44 @@ additional arguments which will be ignored by this class, but might be used by o
 <code class="descname">get_rendered_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_rendered_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_rendered_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a numpy array containing the image that will be rendered to the screen.
 This can be different from the observation. For example, mujoco’s observation is a measurements vector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">numpy array containing the image that will be rendered to the screen</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>numpy array containing the image that will be rendered to the screen</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rl_coach.environments.environment.Environment.goal_space">
 <code class="descname">goal_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.goal_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the state space of the environment</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the observation space</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the observation space</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.handle_episode_ended">
 <code class="descname">handle_episode_ended</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.handle_episode_ended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.handle_episode_ended" title="Permalink to this definition">¶</a></dt>
 <dd><p>End an episode</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rl_coach.environments.environment.Environment.last_env_response">
 <code class="descname">last_env_response</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.last_env_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the last environment response</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary that contains the state, reward, etc.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a dictionary that contains the state, reward, etc.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -363,76 +332,64 @@ This can be different from the observation. For example, mujoco’s observation 
 <dt id="rl_coach.environments.environment.Environment.render">
 <code class="descname">render</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the environment function for rendering to the screen</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.reset_internal_state">
 <code class="descname">reset_internal_state</code><span class="sig-paren">(</span><em>force_environment_reset=False</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.EnvResponse<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.reset_internal_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.reset_internal_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset the environment and all the variable of the wrapper</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>force_environment_reset</strong> – forces environment reset even when the game did not end</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing the observation, reward, done flag, action and measurements</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>force_environment_reset</strong> – forces environment reset even when the game did not end</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing the observation, reward, done flag, action and measurements</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.set_goal">
 <code class="descname">set_goal</code><span class="sig-paren">(</span><em>goal: Union[None, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.set_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.set_goal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the current goal that the agent needs to achieve in the environment</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>goal</strong> – the goal that needs to be achieved</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>goal</strong> – the goal that needs to be achieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rl_coach.environments.environment.Environment.state_space">
 <code class="descname">state_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.state_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the state space of the environment</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the observation space</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the observation space</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.step">
 <code class="descname">step</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.EnvResponse<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a single step in the environment using the given action</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – an action to use for stepping the environment. Should follow the definition of the action space.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the environment response as returned in get_last_env_response</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action</strong> – an action to use for stepping the environment. Should follow the definition of the action space.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the environment response as returned in get_last_env_response</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -444,38 +401,34 @@ This can be different from the observation. For example, mujoco’s observation 
 <dl class="class">
 <dt id="rl_coach.environments.control_suite_environment.ControlSuiteEnvironment">
 <em class="property">class </em><code class="descclassname">rl_coach.environments.control_suite_environment.</code><code class="descname">ControlSuiteEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection</em>, <em>frame_skip: int</em>, <em>visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em>target_success_rate: float = 1.0</em>, <em>seed: Union[None</em>, <em>int] = None</em>, <em>human_control: bool = False</em>, <em>observation_type: rl_coach.environments.control_suite_environment.ObservationType = &lt;ObservationType.Measurements: 1&gt;</em>, <em>custom_reward_threshold: Union[int</em>, <em>float] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/control_suite_environment.html#ControlSuiteEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.control_suite_environment.ControlSuiteEnvironment" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>level</strong> – (str)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> – (str)
 A string representing the control suite level to run. This can also be a LevelSelection object.
-For example, cartpole:swingup.</li>
-<li><strong>frame_skip</strong> – (int)
+For example, cartpole:swingup.</p></li>
+<li><p><strong>frame_skip</strong> – (int)
 The number of frames to skip between any two actions given by the agent. The action will be repeated
-for all the skipped frames.</li>
-<li><strong>visualization_parameters</strong> – (VisualizationParameters)
-The parameters used for visualizing the environment, such as the render flag, storing videos etc.</li>
-<li><strong>target_success_rate</strong> – (float)
-Stop experiment if given target success rate was achieved.</li>
-<li><strong>seed</strong> – (int)
-A seed to use for the random number generator when running the environment.</li>
-<li><strong>human_control</strong> – (bool)
-A flag that allows controlling the environment using the keyboard keys.</li>
-<li><strong>observation_type</strong> – (ObservationType)
+for all the skipped frames.</p></li>
+<li><p><strong>visualization_parameters</strong> – (VisualizationParameters)
+The parameters used for visualizing the environment, such as the render flag, storing videos etc.</p></li>
+<li><p><strong>target_success_rate</strong> – (float)
+Stop experiment if given target success rate was achieved.</p></li>
+<li><p><strong>seed</strong> – (int)
+A seed to use for the random number generator when running the environment.</p></li>
+<li><p><strong>human_control</strong> – (bool)
+A flag that allows controlling the environment using the keyboard keys.</p></li>
+<li><p><strong>observation_type</strong> – (ObservationType)
 An enum which defines which observation to use. The current options are to use:
 * Measurements only - a vector of joint torques and similar measurements
 * Image only - an image of the environment as seen by a camera attached to the simulator
 * Measurements &amp; Image - both type of observations will be returned in the state using the keys
-‘measurements’ and ‘pixels’ respectively.</li>
-<li><strong>custom_reward_threshold</strong> – (float)
-Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.</li>
+‘measurements’ and ‘pixels’ respectively.</p></li>
+<li><p><strong>custom_reward_threshold</strong> – (float)
+Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -496,47 +449,39 @@ Allows defining a custom reward that will be used to decide when the agent succe
 <dl class="class">
 <dt id="rl_coach.environments.doom_environment.DoomEnvironment">
 <em class="property">class </em><code class="descclassname">rl_coach.environments.doom_environment.</code><code class="descname">DoomEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, cameras: List[rl_coach.environments.doom_environment.DoomEnvironment.CameraTypes], target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/doom_environment.html#DoomEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.doom_environment.DoomEnvironment" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>level</strong> – (str)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> – (str)
 A string representing the doom level to run. This can also be a LevelSelection object.
-This should be one of the levels defined in the DoomLevel enum. For example, HEALTH_GATHERING.</li>
-<li><strong>seed</strong> – (int)
-A seed to use for the random number generator when running the environment.</li>
-<li><strong>frame_skip</strong> – (int)
+This should be one of the levels defined in the DoomLevel enum. For example, HEALTH_GATHERING.</p></li>
+<li><p><strong>seed</strong> – (int)
+A seed to use for the random number generator when running the environment.</p></li>
+<li><p><strong>frame_skip</strong> – (int)
 The number of frames to skip between any two actions given by the agent. The action will be repeated
-for all the skipped frames.</li>
-<li><strong>human_control</strong> – (bool)
-A flag that allows controlling the environment using the keyboard keys.</li>
-<li><strong>custom_reward_threshold</strong> – (float)
-Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.</li>
-<li><strong>visualization_parameters</strong> – (VisualizationParameters)
-The parameters used for visualizing the environment, such as the render flag, storing videos etc.</li>
-<li><strong>cameras</strong> – <p>(List[CameraTypes])
+for all the skipped frames.</p></li>
+<li><p><strong>human_control</strong> – (bool)
+A flag that allows controlling the environment using the keyboard keys.</p></li>
+<li><p><strong>custom_reward_threshold</strong> – (float)
+Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.</p></li>
+<li><p><strong>visualization_parameters</strong> – (VisualizationParameters)
+The parameters used for visualizing the environment, such as the render flag, storing videos etc.</p></li>
+<li><p><strong>cameras</strong> – <p>(List[CameraTypes])
 A list of camera types to use as observation in the state returned from the environment.
 Each camera should be an enum from CameraTypes, and there are several options like an RGB observation,
 a depth map, a segmentation map, and a top down map of the enviornment.</p>
 <blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">param target_success_rate:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body">(float)
-Stop experiment if given target success rate was achieved.</td>
-</tr>
-</tbody>
-</table>
+<div><dl class="field-list simple">
+<dt class="field-odd">param target_success_rate</dt>
+<dd class="field-odd"><p>(float)
+Stop experiment if given target success rate was achieved.</p>
+</dd>
+</dl>
 </div></blockquote>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -557,54 +502,50 @@ Additionally, it can be extended using the API defined by the authors.</p>
 <p>Website: <a class="reference external" href="https://gym.openai.com/">OpenAI Gym</a></p>
 <p>In Coach, we support all the native environments in Gym, along with several extensions such as:</p>
 <ul class="simple">
-<li><a class="reference external" href="https://github.com/openai/roboschool">Roboschool</a>  - a set of environments powered by the PyBullet engine,
-that offer a free alternative to MuJoCo.</li>
-<li><a class="reference external" href="https://github.com/Breakend/gym-extensions">Gym Extensions</a>  - a set of environments that extends Gym for
-auxiliary tasks (multitask learning, transfer learning, inverse reinforcement learning, etc.)</li>
-<li><a class="reference external" href="https://github.com/bulletphysics/bullet3/tree/master/examples/pybullet">PyBullet</a>  - a physics engine that
-includes a set of robotics environments.</li>
+<li><p><a class="reference external" href="https://github.com/openai/roboschool">Roboschool</a>  - a set of environments powered by the PyBullet engine,
+that offer a free alternative to MuJoCo.</p></li>
+<li><p><a class="reference external" href="https://github.com/Breakend/gym-extensions">Gym Extensions</a>  - a set of environments that extends Gym for
+auxiliary tasks (multitask learning, transfer learning, inverse reinforcement learning, etc.)</p></li>
+<li><p><a class="reference external" href="https://github.com/bulletphysics/bullet3/tree/master/examples/pybullet">PyBullet</a>  - a physics engine that
+includes a set of robotics environments.</p></li>
 </ul>
 <dl class="class">
 <dt id="rl_coach.environments.gym_environment.GymEnvironment">
 <em class="property">class </em><code class="descclassname">rl_coach.environments.gym_environment.</code><code class="descname">GymEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection</em>, <em>frame_skip: int</em>, <em>visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em>target_success_rate: float = 1.0</em>, <em>additional_simulator_parameters: Dict[str</em>, <em>Any] = {}</em>, <em>seed: Union[None</em>, <em>int] = None</em>, <em>human_control: bool = False</em>, <em>custom_reward_threshold: Union[int</em>, <em>float] = None</em>, <em>random_initialization_steps: int = 1</em>, <em>max_over_num_frames: int = 1</em>, <em>observation_space_type: rl_coach.environments.gym_environment.ObservationSpaceType = None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/gym_environment.html#GymEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.gym_environment.GymEnvironment" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>level</strong> – (str)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> – (str)
 A string representing the gym level to run. This can also be a LevelSelection object.
-For example, BreakoutDeterministic-v0</li>
-<li><strong>frame_skip</strong> – (int)
+For example, BreakoutDeterministic-v0</p></li>
+<li><p><strong>frame_skip</strong> – (int)
 The number of frames to skip between any two actions given by the agent. The action will be repeated
-for all the skipped frames.</li>
-<li><strong>visualization_parameters</strong> – (VisualizationParameters)
-The parameters used for visualizing the environment, such as the render flag, storing videos etc.</li>
-<li><strong>additional_simulator_parameters</strong> – (Dict[str, Any])
+for all the skipped frames.</p></li>
+<li><p><strong>visualization_parameters</strong> – (VisualizationParameters)
+The parameters used for visualizing the environment, such as the render flag, storing videos etc.</p></li>
+<li><p><strong>additional_simulator_parameters</strong> – (Dict[str, Any])
 Any additional parameters that the user can pass to the Gym environment. These parameters should be
-accepted by the __init__ function of the implemented Gym environment.</li>
-<li><strong>seed</strong> – (int)
-A seed to use for the random number generator when running the environment.</li>
-<li><strong>human_control</strong> – (bool)
-A flag that allows controlling the environment using the keyboard keys.</li>
-<li><strong>custom_reward_threshold</strong> – (float)
+accepted by the __init__ function of the implemented Gym environment.</p></li>
+<li><p><strong>seed</strong> – (int)
+A seed to use for the random number generator when running the environment.</p></li>
+<li><p><strong>human_control</strong> – (bool)
+A flag that allows controlling the environment using the keyboard keys.</p></li>
+<li><p><strong>custom_reward_threshold</strong> – (float)
 Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.
-If not set, this value will be taken from the Gym environment definition.</li>
-<li><strong>random_initialization_steps</strong> – (int)
+If not set, this value will be taken from the Gym environment definition.</p></li>
+<li><p><strong>random_initialization_steps</strong> – (int)
 The number of random steps that will be taken in the environment after each reset.
-This is a feature presented in the DQN paper, which improves the variability of the episodes the agent sees.</li>
-<li><strong>max_over_num_frames</strong> – (int)
+This is a feature presented in the DQN paper, which improves the variability of the episodes the agent sees.</p></li>
+<li><p><strong>max_over_num_frames</strong> – (int)
 This value will be used for merging multiple frames into a single frame by taking the maximum value for each
 of the pixels in the frame. This is particularly used in Atari games, where the frames flicker, and objects
-can be seen in one frame but disappear in the next.</li>
-<li><strong>observation_space_type</strong> – This value will be used for generating observation space. Allows a custom space. Should be one of
+can be seen in one frame but disappear in the next.</p></li>
+<li><p><strong>observation_space_type</strong> – This value will be used for generating observation space. Allows a custom space. Should be one of
 ObservationSpaceType. If not specified, observation space is inferred from the number of dimensions
-of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, PlanarMaps space otherwise.</li>
+of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, PlanarMaps space otherwise.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -621,7 +562,7 @@ of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, Planar
         <a href="../exploration_policies/index.html" class="btn btn-neutral float-right" title="Exploration Policies" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../data_stores/index.html" class="btn btn-neutral" title="Data Stores" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../data_stores/index.html" class="btn btn-neutral float-left" title="Data Stores" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -630,7 +571,7 @@ of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, Planar
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -647,27 +588,16 @@ of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, Planar
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

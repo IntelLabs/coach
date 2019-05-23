@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Categorical DQN &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Categorical DQN &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Bootstrapped DQN" href="bs_dqn.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -227,43 +230,36 @@
 <div class="section" id="training-the-network">
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
-<li><p class="first">Sample a batch of transitions from the replay buffer.</p>
-</li>
-<li><p class="first">The Bellman update is projected to the set of atoms representing the <span class="math notranslate nohighlight">\(Q\)</span> values distribution, such
+<li><p>Sample a batch of transitions from the replay buffer.</p></li>
+<li><p>The Bellman update is projected to the set of atoms representing the <span class="math notranslate nohighlight">\(Q\)</span> values distribution, such
 that the <span class="math notranslate nohighlight">\(i-th\)</span> component of the projected update is calculated as follows:</p>
 <p><span class="math notranslate nohighlight">\((\Phi \hat{T} Z_{\theta}(s_t,a_t))_i=\sum_{j=0}^{N-1}\Big[1-\frac{\lvert[\hat{T}_{z_{j}}]^{V_{MAX}}_{V_{MIN}}-z_i\rvert}{\Delta z}\Big]^1_0 \ p_j(s_{t+1}, \pi(s_{t+1}))\)</span></p>
 <p>where:
 *  <span class="math notranslate nohighlight">\([ \cdot ]\)</span> bounds its argument in the range <span class="math notranslate nohighlight">\([a, b]\)</span>
 *  <span class="math notranslate nohighlight">\(\hat{T}_{z_{j}}\)</span> is the Bellman update for atom <span class="math notranslate nohighlight">\(z_j\)</span>: <span class="math notranslate nohighlight">\(\hat{T}_{z_{j}} := r+\gamma z_j\)</span></p>
 </li>
-<li><p class="first">Network is trained with the cross entropy loss between the resulting probability distribution and the target
-probability distribution.   Only the target of the actions that were actually taken is updated.</p>
-</li>
-<li><p class="first">Once in every few thousand steps, weights are copied from the online network to the target network.</p>
-</li>
+<li><p>Network is trained with the cross entropy loss between the resulting probability distribution and the target
+probability distribution.   Only the target of the actions that were actually taken is updated.</p></li>
+<li><p>Once in every few thousand steps, weights are copied from the online network to the target network.</p></li>
 </ol>
 <dl class="class">
 <dt id="rl_coach.agents.categorical_dqn_agent.CategoricalDQNAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.categorical_dqn_agent.</code><code class="descname">CategoricalDQNAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/categorical_dqn_agent.html#CategoricalDQNAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.categorical_dqn_agent.CategoricalDQNAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>v_min</strong> – (float)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v_min</strong> – (float)
 The minimal value that will be represented in the network output for predicting the Q value.
-Corresponds to <span class="math notranslate nohighlight">\(v_{min}\)</span> in the paper.</li>
-<li><strong>v_max</strong> – (float)
+Corresponds to <span class="math notranslate nohighlight">\(v_{min}\)</span> in the paper.</p></li>
+<li><p><strong>v_max</strong> – (float)
 The maximum value that will be represented in the network output for predicting the Q value.
-Corresponds to <span class="math notranslate nohighlight">\(v_{max}\)</span> in the paper.</li>
-<li><strong>atoms</strong> – (int)
+Corresponds to <span class="math notranslate nohighlight">\(v_{max}\)</span> in the paper.</p></li>
+<li><p><strong>atoms</strong> – (int)
 The number of atoms that will be used to discretize the range between v_min and v_max.
-For the C51 algorithm described in the paper, the number of atoms is 51.</li>
+For the C51 algorithm described in the paper, the number of atoms is 51.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -281,7 +277,7 @@ For the C51 algorithm described in the paper, the number of atoms is 51.</li>
         <a href="../imitation/cil.html" class="btn btn-neutral float-right" title="Conditional Imitation Learning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="bs_dqn.html" class="btn btn-neutral" title="Bootstrapped DQN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="bs_dqn.html" class="btn btn-neutral float-left" title="Bootstrapped DQN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -290,7 +286,7 @@ For the C51 algorithm described in the paper, the number of atoms is 51.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -307,27 +303,16 @@ For the C51 algorithm described in the paper, the number of atoms is 51.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

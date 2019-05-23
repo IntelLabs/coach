@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Usage &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Reinforcement Learning Coach" href="index.html" />
     <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -228,8 +231,8 @@ For more details and instructions on how to use distributed Coach, see <a class=
 <h2>Evaluating an Agent<a class="headerlink" href="#evaluating-an-agent" title="Permalink to this headline">¶</a></h2>
 <p>There are several options for evaluating an agent during the training:</p>
 <ul class="simple">
-<li>For multi-threaded runs, an evaluation agent will constantly run in the background and evaluate the model during the training.</li>
-<li>For single-threaded runs, it is possible to define an evaluation period through the preset. This will run several episodes of evaluation once in a while.</li>
+<li><p>For multi-threaded runs, an evaluation agent will constantly run in the background and evaluate the model during the training.</p></li>
+<li><p>For single-threaded runs, it is possible to define an evaluation period through the preset. This will run several episodes of evaluation once in a while.</p></li>
 </ul>
 <p>Additionally, it is possible to save checkpoints of the agents networks and then run only in evaluation mode.
 Saving checkpoints can be done by specifying the number of seconds between storing checkpoints using the <code class="code docutils literal notranslate"><span class="pre">-s</span></code> flag.
@@ -257,7 +260,7 @@ Pressing the escape key when finished will end the simulation and store the repl
 <p>Learning through imitation of human behavior is a nice way to speedup the learning.
 In Coach, this can be done in two steps -</p>
 <ol class="arabic">
-<li><p class="first">Create a dataset of demonstrations by playing with the environment as a human.
+<li><p>Create a dataset of demonstrations by playing with the environment as a human.
 After this step, a pickle of the replay buffer containing your game play will be stored in the experiment directory.
 The path to this replay buffer will be printed to the screen.
 To do so, you should select an environment type and level through the command line, and specify the <code class="code docutils literal notranslate"><span class="pre">--play</span></code> flag.</p>
@@ -270,10 +273,9 @@ To do so, you should select an environment type and level through the command li
 </pre></div>
 </div>
 <ol class="arabic" start="2">
-<li><dl class="first docutils">
-<dt>Next, use an imitation learning preset and set the replay buffer path accordingly.</dt>
-<dd><p class="first">The path can be set either from the command line or from the preset itself.</p>
-<p class="last"><em>Example:</em></p>
+<li><dl>
+<dt>Next, use an imitation learning preset and set the replay buffer path accordingly.</dt><dd><p>The path can be set either from the command line or from the preset itself.</p>
+<p><em>Example:</em></p>
 </dd>
 </dl>
 </li>
@@ -336,7 +338,7 @@ The most up to date description can be found by using the <code class="code docu
         <a href="dist_usage.html" class="btn btn-neutral float-right" title="Usage - Distributed Coach" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Reinforcement Learning Coach" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Reinforcement Learning Coach" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -345,7 +347,7 @@ The most up to date description can be found by using the <code class="code docu
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -362,27 +364,16 @@ The most up to date description can be found by using the <code class="code docu
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
