@@ -164,7 +164,7 @@ class ValueOptimizationAgent(Agent):
         for epoch in range(epochs):
             loss = 0
             total_transitions_processed = 0
-            for i, batch in enumerate(self.call_memory('get_shuffled_data_generator', batch_size)):
+            for i, batch in enumerate(self.call_memory('get_shuffled_training_data_generator', batch_size)):
                 batch = Batch(batch)
                 loss += self.get_reward_model_loss(batch)
                 total_transitions_processed += batch.size
