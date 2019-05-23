@@ -198,24 +198,12 @@
 <span class="c1">#</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
-
+<span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="k">import</span> <span class="n">resize</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
 
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">ObservationType</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_filter</span> <span class="k">import</span> <span class="n">ObservationFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ObservationSpace</span><span class="p">,</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">,</span> <span class="n">ImageObservationSpace</span>
-
-
-<span class="c1"># imresize interpolation types as defined by scipy here:</span>
-<span class="c1"># https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.misc.imresize.html</span>
-<span class="k">class</span> <span class="nc">RescaleInterpolationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">NEAREST</span> <span class="o">=</span> <span class="s1">&#39;nearest&#39;</span>
-    <span class="n">LANCZOS</span> <span class="o">=</span> <span class="s1">&#39;lanczos&#39;</span>
-    <span class="n">BILINEAR</span> <span class="o">=</span> <span class="s1">&#39;bilinear&#39;</span>
-    <span class="n">BICUBIC</span> <span class="o">=</span> <span class="s1">&#39;bicubic&#39;</span>
-    <span class="n">CUBIC</span> <span class="o">=</span> <span class="s1">&#39;cubic&#39;</span>
 
 
 <div class="viewcode-block" id="ObservationRescaleToSizeFilter"><a class="viewcode-back" href="../../../../components/filters/input_filters.html#rl_coach.filters.observation.ObservationRescaleToSizeFilter">[docs]</a><span class="k">class</span> <span class="nc">ObservationRescaleToSizeFilter</span><span class="p">(</span><span class="n">ObservationFilter</span><span class="p">):</span>
@@ -224,15 +212,12 @@
 <span class="sd">    necessarily keep the aspect ratio of the original observation.</span>
 <span class="sd">    Warning: this requires the input observation to be of type uint8 due to scipy requirements!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_observation_space</span><span class="p">:</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">,</span>
-                 <span class="n">rescaling_interpolation_type</span><span class="p">:</span> <span class="n">RescaleInterpolationType</span><span class="o">=</span><span class="n">RescaleInterpolationType</span><span class="o">.</span><span class="n">BILINEAR</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_observation_space</span><span class="p">:</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param output_observation_space: the output observation space</span>
-<span class="sd">        :param rescaling_interpolation_type: the interpolation type for rescaling</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span> <span class="o">=</span> <span class="n">output_observation_space</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rescaling_interpolation_type</span> <span class="o">=</span> <span class="n">rescaling_interpolation_type</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_observation_space</span><span class="p">,</span> <span class="n">PlanarMapsObservationSpace</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The rescale filter only applies to observation spaces that inherit from &quot;</span>
@@ -258,20 +243,19 @@
                              <span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">channels_axis</span><span class="p">]))</span>
 
     <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">:</span> <span class="n">ObservationType</span><span class="p">,</span> <span class="n">update_internal_state</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObservationType</span><span class="p">:</span>
-        <span class="c1"># scipy works only with uint8</span>
         <span class="n">observation</span> <span class="o">=</span> <span class="n">observation</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
 
         <span class="c1"># rescale</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="p">,</span> <span class="n">ImageObservationSpace</span><span class="p">):</span>
-            <span class="n">observation</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">imresize</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span>
-                                              <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
-                                              <span class="n">interp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rescaling_interpolation_type</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">observation</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">anti_aliasing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                 <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">new_observation</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">channels_axis</span><span class="p">]):</span>
-                <span class="n">new_observation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">imresize</span><span class="p">(</span><span class="n">observation</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">channels_axis</span><span class="p">),</span>
-                                                  <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planar_map_output_shape</span><span class="p">),</span>
-                                                  <span class="n">interp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rescaling_interpolation_type</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+                <span class="n">new_observation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resize</span><span class="p">(</span><span class="n">observation</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">channels_axis</span><span class="p">),</span>
+                                              <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planar_map_output_shape</span><span class="p">),</span>
+                                              <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">))</span>
             <span class="n">new_observation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_observation</span><span class="p">)</span>
             <span class="n">observation</span> <span class="o">=</span> <span class="n">new_observation</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_observation_space</span><span class="o">.</span><span class="n">channels_axis</span><span class="p">)</span>
 

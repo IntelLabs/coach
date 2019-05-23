@@ -321,16 +321,12 @@ This will currently work only for VectorObservationSpace observations</p>
 <h3>ObservationRescaleSizeByFactorFilter<a class="headerlink" href="#observationrescalesizebyfactorfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleSizeByFactorFilter</code><span class="sig-paren">(</span><em>rescale_factor: float</em>, <em>rescaling_interpolation_type: rl_coach.filters.observation.observation_rescale_size_by_factor_filter.RescaleInterpolationType</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_size_by_factor_filter.html#ObservationRescaleSizeByFactorFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleSizeByFactorFilter</code><span class="sig-paren">(</span><em>rescale_factor: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_size_by_factor_filter.html#ObservationRescaleSizeByFactorFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rescales an image observation by some factor. For example, the image size
-can be reduced by a factor of 2.
-Warning: this requires the input observation to be of type uint8 due to scipy requirements!</p>
+can be reduced by a factor of 2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>rescale_factor</strong> – the factor by which the observation will be rescaled</p></li>
-<li><p><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</p></li>
-</ul>
+<dd class="field-odd"><p><strong>rescale_factor</strong> – the factor by which the observation will be rescaled</p>
 </dd>
 </dl>
 </dd></dl>
@@ -340,16 +336,13 @@ Warning: this requires the input observation to be of type uint8 due to scipy re
 <h3>ObservationRescaleToSizeFilter<a class="headerlink" href="#observationrescaletosizefilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationRescaleToSizeFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleToSizeFilter</code><span class="sig-paren">(</span><em>output_observation_space: rl_coach.spaces.PlanarMapsObservationSpace</em>, <em>rescaling_interpolation_type: rl_coach.filters.observation.observation_rescale_to_size_filter.RescaleInterpolationType = &lt;RescaleInterpolationType.BILINEAR: 'bilinear'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_to_size_filter.html#ObservationRescaleToSizeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleToSizeFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleToSizeFilter</code><span class="sig-paren">(</span><em>output_observation_space: rl_coach.spaces.PlanarMapsObservationSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_to_size_filter.html#ObservationRescaleToSizeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleToSizeFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rescales an image observation to a given size. The target size does not
 necessarily keep the aspect ratio of the original observation.
 Warning: this requires the input observation to be of type uint8 due to scipy requirements!</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>output_observation_space</strong> – the output observation space</p></li>
-<li><p><strong>rescaling_interpolation_type</strong> – the interpolation type for rescaling</p></li>
-</ul>
+<dd class="field-odd"><p><strong>output_observation_space</strong> – the output observation space</p>
 </dd>
 </dl>
 </dd></dl>
