@@ -18,7 +18,7 @@ import time
 import pytest
 import rl_coach.tests.utils.args_utils as a_utils
 import rl_coach.tests.utils.presets_utils as p_utils
-from logger import screen
+from rl_coach.logger import screen
 from rl_coach.tests.utils.definitions import Definitions as Def
 
 
