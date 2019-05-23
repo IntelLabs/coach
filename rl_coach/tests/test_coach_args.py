@@ -62,6 +62,7 @@ def test_preset_args(preset_args, flag, clres, start_time=time.time(),
         proc.kill()
         # if test failed - print logs
         screen.error(open(clres.stdout.name).read(), crash=False)
+        assert False
 
     proc.kill()
 
