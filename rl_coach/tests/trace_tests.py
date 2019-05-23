@@ -313,7 +313,9 @@ def main():
     else:
         screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
 
-    assert fail_count == 0
+    # check fail counts just if update traces is not activated!
+    if not args.update_traces:
+        assert fail_count == 0
 
 
 if __name__ == '__main__':
