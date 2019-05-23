@@ -405,12 +405,6 @@ class GymEnvironment(Environment):
             if not self.native_rendering:
                 self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
-        # measurements
-        if self.env.spec is not None:
-            self.timestep_limit = self.env.spec.timestep_limit
-        else:
-            self.timestep_limit = None
-
         # the info is only updated after the first step
         self.state = self.step(self.action_space.default_action).next_state
         self.state_space['measurements'] = VectorObservationSpace(shape=len(self.info.keys()))
