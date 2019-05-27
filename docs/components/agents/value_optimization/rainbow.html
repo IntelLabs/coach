@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Rainbow &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Rainbow &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Proximal Policy Optimization" href="../policy_optimization/ppo.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -226,19 +229,18 @@
 <h2>Algorithm Description<a class="headerlink" href="#algorithm-description" title="Permalink to this headline">¶</a></h2>
 <p>Rainbow combines 6 recent advancements in reinforcement learning:</p>
 <ul class="simple">
-<li>N-step returns</li>
-<li>Distributional state-action value learning</li>
-<li>Dueling networks</li>
-<li>Noisy Networks</li>
-<li>Double DQN</li>
-<li>Prioritized Experience Replay</li>
+<li><p>N-step returns</p></li>
+<li><p>Distributional state-action value learning</p></li>
+<li><p>Dueling networks</p></li>
+<li><p>Noisy Networks</p></li>
+<li><p>Double DQN</p></li>
+<li><p>Prioritized Experience Replay</p></li>
 </ul>
 <div class="section" id="training-the-network">
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic">
-<li><p class="first">Sample a batch of transitions from the replay buffer.</p>
-</li>
-<li><p class="first">The Bellman update is projected to the set of atoms representing the <span class="math notranslate nohighlight">\(Q\)</span> values distribution, such
+<li><p>Sample a batch of transitions from the replay buffer.</p></li>
+<li><p>The Bellman update is projected to the set of atoms representing the <span class="math notranslate nohighlight">\(Q\)</span> values distribution, such
 that the <span class="math notranslate nohighlight">\(i-th\)</span> component of the projected update is calculated as follows:</p>
 <p><span class="math notranslate nohighlight">\((\Phi \hat{T} Z_{\theta}(s_t,a_t))_i=\sum_{j=0}^{N-1}\Big[1-\frac{\lvert[\hat{T}_{z_{j}}]^{V_{MAX}}_{V_{MIN}}-z_i\rvert}{\Delta z}\Big]^1_0 \ p_j(s_{t+1}, \pi(s_{t+1}))\)</span></p>
 <p>where:
@@ -246,36 +248,29 @@ that the <span class="math notranslate nohighlight">\(i-th\)</span> component of
 *  <span class="math notranslate nohighlight">\(\hat{T}_{z_{j}}\)</span> is the Bellman update for atom
 <span class="math notranslate nohighlight">\(z_j\)</span>: <span class="math notranslate nohighlight">\(\hat{T}_{z_{j}} := r_t+\gamma r_{t+1} + ... + \gamma r_{t+n-1} + \gamma^{n-1} z_j\)</span></p>
 </li>
-<li><p class="first">Network is trained with the cross entropy loss between the resulting probability distribution and the target
-probability distribution.   Only the target of the actions that were actually taken is updated.</p>
-</li>
-<li><p class="first">Once in every few thousand steps, weights are copied from the online network to the target network.</p>
-</li>
-<li><p class="first">After every training step, the priorities of the batch transitions are updated in the prioritized replay buffer
-using the KL divergence loss that is returned from the network.</p>
-</li>
+<li><p>Network is trained with the cross entropy loss between the resulting probability distribution and the target
+probability distribution.   Only the target of the actions that were actually taken is updated.</p></li>
+<li><p>Once in every few thousand steps, weights are copied from the online network to the target network.</p></li>
+<li><p>After every training step, the priorities of the batch transitions are updated in the prioritized replay buffer
+using the KL divergence loss that is returned from the network.</p></li>
 </ol>
 <dl class="class">
 <dt id="rl_coach.agents.rainbow_dqn_agent.RainbowDQNAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.rainbow_dqn_agent.</code><code class="descname">RainbowDQNAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/rainbow_dqn_agent.html#RainbowDQNAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.rainbow_dqn_agent.RainbowDQNAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n_step</strong> – (int)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_step</strong> – (int)
 The number of steps to bootstrap the network over. The first N-1 steps actual rewards will be accumulated
 using an exponentially growing discount factor, and the Nth step will be bootstrapped from the network
-prediction.</li>
-<li><strong>store_transitions_only_when_episodes_are_terminated</strong> – (bool)
+prediction.</p></li>
+<li><p><strong>store_transitions_only_when_episodes_are_terminated</strong> – (bool)
 If set to True, the transitions will be stored in an Episode object until the episode ends, and just then
 written to the memory. This is useful since we want to calculate the N-step discounted rewards before saving the
-transitions into the memory, and to do so we need the entire episode first.</li>
+transitions into the memory, and to do so we need the entire episode first.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -293,7 +288,7 @@ transitions into the memory, and to do so we need the entire episode first.</li>
         <a href="qr_dqn.html" class="btn btn-neutral float-right" title="Quantile Regression DQN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../policy_optimization/ppo.html" class="btn btn-neutral" title="Proximal Policy Optimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../policy_optimization/ppo.html" class="btn btn-neutral float-left" title="Proximal Policy Optimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -302,7 +297,7 @@ transitions into the memory, and to do so we need the entire episode first.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -319,27 +314,16 @@ transitions into the memory, and to do so we need the entire episode first.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

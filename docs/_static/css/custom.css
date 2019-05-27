@@ -1,0 +1,61 @@
+/* Docs background */
+.wy-side-nav-search{
+  background-color: #043c74;
+}
+
+/* Mobile version */
+.wy-nav-top{
+  background-color: #043c74;
+}
+
+
+.green {
+    color: green;
+}
+
+.red {
+    color: red;
+}
+
+.blue {
+    color: blue;
+}
+
+.yellow {
+    color: yellow;
+}
+
+.badge {
+    border: 2px;
+    border-style: solid;
+    border-color: #6C8EBF;
+    border-radius: 5px;
+    padding: 3px 15px 3px 15px;
+    margin: 5px;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 16px;
+    background: #DAE8FC;
+}
+
+.badge:hover {
+    cursor: pointer;
+}
+
+.badge > a {
+    color: black;
+}
+
+.bordered-container {
+    border: 0px;
+    border-style: solid;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #f2f2f2;
+}
+
+.questionnaire {
+    font-size: 1.2em;
+    line-height: 1.5em;
+}

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ACER &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>ACER &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Actor-Critic" href="ac.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -236,11 +239,11 @@ distribution assigned with these probabilities. When testing, the action with th
 and <span class="math notranslate nohighlight">\(n\)</span> (replay ratio) off-policy updates from batches of <span class="math notranslate nohighlight">\(T_{max}\)</span> transitions sampled from the replay buffer.</p>
 <p>Each update perform the following procedure:</p>
 <ol class="arabic">
-<li><p class="first"><strong>Calculate state values:</strong></p>
+<li><p><strong>Calculate state values:</strong></p>
 <div class="math notranslate nohighlight">
 \[V(s_t) = \mathbb{E}_{a \sim \pi} [Q(s_t,a)]\]</div>
 </li>
-<li><p class="first"><strong>Calculate Q retrace:</strong></p>
+<li><p><strong>Calculate Q retrace:</strong></p>
 <blockquote>
 <div><div class="math notranslate nohighlight">
 \[Q^{ret}(s_t,a_t) = r_t +\gamma \bar{\rho}_{t+1}[Q^{ret}(s_{t+1},a_{t+1}) - Q(s_{t+1},a_{t+1})] + \gamma V(s_{t+1})\]</div>
@@ -248,7 +251,7 @@ and <span class="math notranslate nohighlight">\(n\)</span> (replay ratio) off-p
 \[\text{where} \quad \bar{\rho}_{t} = \min{\left\{c,\rho_t\right\}},\quad \rho_t=\frac{\pi (a_t \mid s_t)}{\mu (a_t \mid s_t)}\]</div>
 </div></blockquote>
 </li>
-<li><p class="first"><strong>Accumulate gradients:</strong></p>
+<li><p><strong>Accumulate gradients:</strong></p>
 <blockquote>
 <div><p><span class="math notranslate nohighlight">\(\bullet\)</span> <strong>Policy gradients (with bias correction):</strong></p>
 <blockquote>
@@ -263,7 +266,7 @@ and <span class="math notranslate nohighlight">\(n\)</span> (replay ratio) off-p
 </div></blockquote>
 </div></blockquote>
 </li>
-<li><p class="first"><strong>(Optional) Trust region update:</strong> change the policy loss gradient w.r.t network output:</p>
+<li><p><strong>(Optional) Trust region update:</strong> change the policy loss gradient w.r.t network output:</p>
 <blockquote>
 <div><div class="math notranslate nohighlight">
 \[\hat{g}_t^{trust-region} = \hat{g}_t^{policy} - \max \left\{0, \frac{k^T \hat{g}_t^{policy} - \delta}{\lVert k \rVert_2^2}\right\} k\]</div>
@@ -277,39 +280,35 @@ The goal of the trust region update is to the difference between the updated pol
 <dl class="class">
 <dt id="rl_coach.agents.acer_agent.ACERAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.acer_agent.</code><code class="descname">ACERAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/acer_agent.html#ACERAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.acer_agent.ACERAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_steps_between_gradient_updates</strong> – (int)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_steps_between_gradient_updates</strong> – (int)
 Every num_steps_between_gradient_updates transitions will be considered as a single batch and use for
-accumulating gradients. This is also the number of steps used for bootstrapping according to the n-step formulation.</li>
-<li><strong>ratio_of_replay</strong> – (int)
-The number of off-policy training iterations in each ACER iteration.</li>
-<li><strong>num_transitions_to_start_replay</strong> – (int)
+accumulating gradients. This is also the number of steps used for bootstrapping according to the n-step formulation.</p></li>
+<li><p><strong>ratio_of_replay</strong> – (int)
+The number of off-policy training iterations in each ACER iteration.</p></li>
+<li><p><strong>num_transitions_to_start_replay</strong> – (int)
 Number of environment steps until ACER starts to train off-policy from the experience replay.
 This emulates a heat-up phase where the agents learns only on-policy until there are enough transitions in
-the experience replay to start the off-policy training.</li>
-<li><strong>rate_for_copying_weights_to_target</strong> – (float)
+the experience replay to start the off-policy training.</p></li>
+<li><p><strong>rate_for_copying_weights_to_target</strong> – (float)
 The rate of the exponential moving average for the average policy which is used for the trust region optimization.
-The target network in this algorithm is used as the average policy.</li>
-<li><strong>importance_weight_truncation</strong> – (float)
-The clipping constant for the importance weight truncation (not used in the Q-retrace calculation).</li>
-<li><strong>use_trust_region_optimization</strong> – (bool)
+The target network in this algorithm is used as the average policy.</p></li>
+<li><p><strong>importance_weight_truncation</strong> – (float)
+The clipping constant for the importance weight truncation (not used in the Q-retrace calculation).</p></li>
+<li><p><strong>use_trust_region_optimization</strong> – (bool)
 If set to True, the gradients of the network will be modified with a term dependant on the KL divergence between
-the average policy and the current one, to bound the change of the policy during the network update.</li>
-<li><strong>max_KL_divergence</strong> – (float)
+the average policy and the current one, to bound the change of the policy during the network update.</p></li>
+<li><p><strong>max_KL_divergence</strong> – (float)
 The upper bound parameter for the trust region optimization, use_trust_region_optimization needs to be set true
-for this parameter to have an effect.</li>
-<li><strong>beta_entropy</strong> – (float)
+for this parameter to have an effect.</p></li>
+<li><p><strong>beta_entropy</strong> – (float)
 An entropy regulaization term can be added to the loss function in order to control exploration. This term
-is weighted using the beta value defined by beta_entropy.</li>
+is weighted using the beta value defined by beta_entropy.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -327,7 +326,7 @@ is weighted using the beta value defined by beta_entropy.</li>
         <a href="../imitation/bc.html" class="btn btn-neutral float-right" title="Behavioral Cloning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="ac.html" class="btn btn-neutral" title="Actor-Critic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ac.html" class="btn btn-neutral float-left" title="Actor-Critic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -336,7 +335,7 @@ is weighted using the beta value defined by beta_entropy.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -353,27 +352,16 @@ is weighted using the beta value defined by beta_entropy.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

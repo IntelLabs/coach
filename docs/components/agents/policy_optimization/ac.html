@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Actor-Critic &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Actor-Critic &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Agents" href="../index.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -235,41 +238,37 @@ distribution assigned with these probabilities. When testing, the action with th
 <p>A batch of <span class="math notranslate nohighlight">\(T_{max}\)</span> transitions is used, and the advantages are calculated upon it.</p>
 <p>Advantages can be calculated by either of the following methods (configured by the selected preset) -</p>
 <ol class="arabic simple">
-<li><strong>A_VALUE</strong> - Estimating advantage directly:
+<li><p><strong>A_VALUE</strong> - Estimating advantage directly:
 <span class="math notranslate nohighlight">\(A(s_t, a_t) = \underbrace{\sum_{i=t}^{i=t + k - 1} \gamma^{i-t}r_i +\gamma^{k} V(s_{t+k})}_{Q(s_t, a_t)} - V(s_t)\)</span>
-where <span class="math notranslate nohighlight">\(k\)</span> is <span class="math notranslate nohighlight">\(T_{max} - State\_Index\)</span> for each state in the batch.</li>
-<li><strong>GAE</strong> - By following the <a class="reference external" href="https://arxiv.org/abs/1506.02438">Generalized Advantage Estimation</a> paper.</li>
+where <span class="math notranslate nohighlight">\(k\)</span> is <span class="math notranslate nohighlight">\(T_{max} - State\_Index\)</span> for each state in the batch.</p></li>
+<li><p><strong>GAE</strong> - By following the <a class="reference external" href="https://arxiv.org/abs/1506.02438">Generalized Advantage Estimation</a> paper.</p></li>
 </ol>
 <p>The advantages are then used in order to accumulate gradients according to
 <span class="math notranslate nohighlight">\(L = -\mathop{\mathbb{E}} [log (\pi) \cdot A]\)</span></p>
 <dl class="class">
 <dt id="rl_coach.agents.actor_critic_agent.ActorCriticAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.actor_critic_agent.</code><code class="descname">ActorCriticAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/actor_critic_agent.html#ActorCriticAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.actor_critic_agent.ActorCriticAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>policy_gradient_rescaler</strong> – (PolicyGradientRescaler)
-The value that will be used to rescale the policy gradient</li>
-<li><strong>apply_gradients_every_x_episodes</strong> – (int)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>policy_gradient_rescaler</strong> – (PolicyGradientRescaler)
+The value that will be used to rescale the policy gradient</p></li>
+<li><p><strong>apply_gradients_every_x_episodes</strong> – (int)
 The number of episodes to wait before applying the accumulated gradients to the network.
-The training iterations only accumulate gradients without actually applying them.</li>
-<li><strong>beta_entropy</strong> – (float)
-The weight that will be given to the entropy regularization which is used in order to improve exploration.</li>
-<li><strong>num_steps_between_gradient_updates</strong> – (int)
+The training iterations only accumulate gradients without actually applying them.</p></li>
+<li><p><strong>beta_entropy</strong> – (float)
+The weight that will be given to the entropy regularization which is used in order to improve exploration.</p></li>
+<li><p><strong>num_steps_between_gradient_updates</strong> – (int)
 Every num_steps_between_gradient_updates transitions will be considered as a single batch and use for
-accumulating gradients. This is also the number of steps used for bootstrapping according to the n-step formulation.</li>
-<li><strong>gae_lambda</strong> – (float)
+accumulating gradients. This is also the number of steps used for bootstrapping according to the n-step formulation.</p></li>
+<li><p><strong>gae_lambda</strong> – (float)
 If the policy gradient rescaler was defined as PolicyGradientRescaler.GAE, the generalized advantage estimation
-scheme will be used, in which case the lambda value controls the decay for the different n-step lengths.</li>
-<li><strong>estimate_state_value_using_gae</strong> – (bool)
-If set to True, the state value targets for the V head will be estimated using the GAE scheme.</li>
+scheme will be used, in which case the lambda value controls the decay for the different n-step lengths.</p></li>
+<li><p><strong>estimate_state_value_using_gae</strong> – (bool)
+If set to True, the state value targets for the V head will be estimated using the GAE scheme.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -287,7 +286,7 @@ If set to True, the state value targets for the V head will be estimated using t
         <a href="acer.html" class="btn btn-neutral float-right" title="ACER" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../index.html" class="btn btn-neutral" title="Agents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Agents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -296,7 +295,7 @@ If set to True, the state value targets for the V head will be estimated using t
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -313,27 +312,16 @@ If set to True, the state value targets for the V head will be estimated using t
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage - Distributed Coach &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Usage - Distributed Coach &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Usage" href="usage.html" />
     <link href="_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -192,20 +195,20 @@ get started with distributed Coach.</p>
 mode. These interfaces are the orchestrator, memory backend and the data store. Refer to <a class="reference internal" href="design/horizontal_scaling.html#dist-coach-design"><span class="std std-ref">Distributed Coach - Horizontal Scale-Out</span></a> for
 more information. The following implementation(s) are available for each interface:</p>
 <ul class="simple">
-<li><strong>Orchestrator</strong> - <a class="reference external" href="https://kubernetes.io">Kubernetes</a>.</li>
-<li><strong>Memory Backend</strong> - <a class="reference external" href="https://redis.io/topics/pubsub">Redis Pub/Sub</a>.</li>
-<li><strong>Data Store</strong> - <a class="reference external" href="https://aws.amazon.com/s3">S3</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Network_File_System">NFS</a>.</li>
+<li><p><strong>Orchestrator</strong> - <a class="reference external" href="https://kubernetes.io">Kubernetes</a>.</p></li>
+<li><p><strong>Memory Backend</strong> - <a class="reference external" href="https://redis.io/topics/pubsub">Redis Pub/Sub</a>.</p></li>
+<li><p><strong>Data Store</strong> - <a class="reference external" href="https://aws.amazon.com/s3">S3</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Network_File_System">NFS</a>.</p></li>
 </ul>
 </div>
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Building and pushing containers - <a class="reference external" href="https://docs.docker.com/install/linux/docker-ce/ubuntu">Docker</a>.</li>
-<li>Container registry access for hosting container images - <a class="reference external" href="https://hub.docker.com">Docker Hub</a></li>
-<li>Using Kubernetes for orchestration - <a class="reference external" href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Kubernetes configuration</a>.</li>
-<li>Using S3 for storing policy checkpoints - <a class="reference external" href="https://aws.amazon.com/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks">AWS CLI &lt;https://docs.aws.amazon.com/cli/latest/userguide/installing.html&gt;_,
+<li><p>Building and pushing containers - <a class="reference external" href="https://docs.docker.com/install/linux/docker-ce/ubuntu">Docker</a>.</p></li>
+<li><p>Container registry access for hosting container images - <a class="reference external" href="https://hub.docker.com">Docker Hub</a></p></li>
+<li><p>Using Kubernetes for orchestration - <a class="reference external" href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Kubernetes configuration</a>.</p></li>
+<li><p>Using S3 for storing policy checkpoints - <a class="reference external" href="https://aws.amazon.com/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks">AWS CLI &lt;https://docs.aws.amazon.com/cli/latest/userguide/installing.html&gt;_,
 `AWS credentials</a>
-and <a class="reference external" href="https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html">S3 bucket</a>.</li>
+and <a class="reference external" href="https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html">S3 bucket</a>.</p></li>
 </ul>
 </div>
 <div class="section" id="clone-the-repository">
@@ -403,7 +406,7 @@ with three rollout workers.</p>
         <a href="features/index.html" class="btn btn-neutral float-right" title="Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="usage.html" class="btn btn-neutral" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -412,7 +415,7 @@ with three rollout workers.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -429,27 +432,16 @@ with three rollout workers.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

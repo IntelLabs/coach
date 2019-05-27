@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Conditional Imitation Learning &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Conditional Imitation Learning &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Categorical DQN" href="../value_optimization/categorical_dqn.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -233,25 +236,22 @@ the expert for each state.
 In conditional imitation learning, each transition is assigned a class, which determines the goal that was pursuit
 in that transitions. For example, 3 possible classes can be: turn right, turn left and follow lane.</p>
 <ol class="arabic simple">
-<li>Sample a batch of transitions from the replay buffer, where the batch is balanced, meaning that an equal number
-of transitions will be sampled from each class index.</li>
-<li>Use the current states as input to the network, and assign the expert actions as the targets of the network heads
+<li><p>Sample a batch of transitions from the replay buffer, where the batch is balanced, meaning that an equal number
+of transitions will be sampled from each class index.</p></li>
+<li><p>Use the current states as input to the network, and assign the expert actions as the targets of the network heads
 corresponding to the state classes. For the other heads, set the targets to match the currently predicted values,
-so that the loss for the other heads will be zeroed out.</li>
-<li>We use a regression head, that minimizes the MSE loss between the network predicted values and the target values.</li>
+so that the loss for the other heads will be zeroed out.</p></li>
+<li><p>We use a regression head, that minimizes the MSE loss between the network predicted values and the target values.</p></li>
 </ol>
 <dl class="class">
 <dt id="rl_coach.agents.cil_agent.CILAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.cil_agent.</code><code class="descname">CILAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/cil_agent.html#CILAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.cil_agent.CILAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state_key_with_the_class_index</strong> – (str)
-The key of the state dictionary which corresponds to the value that will be used to control the class index.</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state_key_with_the_class_index</strong> – (str)
+The key of the state dictionary which corresponds to the value that will be used to control the class index.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -269,7 +269,7 @@ The key of the state dictionary which corresponds to the value that will be used
         <a href="../policy_optimization/cppo.html" class="btn btn-neutral float-right" title="Clipped Proximal Policy Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../value_optimization/categorical_dqn.html" class="btn btn-neutral" title="Categorical DQN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../value_optimization/categorical_dqn.html" class="btn btn-neutral float-left" title="Categorical DQN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -278,7 +278,7 @@ The key of the state dictionary which corresponds to the value that will be used
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -295,27 +295,16 @@ The key of the state dictionary which corresponds to the value that will be used
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

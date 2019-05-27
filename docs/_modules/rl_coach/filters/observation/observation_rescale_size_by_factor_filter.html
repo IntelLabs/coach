@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rl_coach.filters.observation.observation_rescale_size_by_factor_filter &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>rl_coach.filters.observation.observation_rescale_size_by_factor_filter &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
@@ -31,21 +39,16 @@
     <link rel="search" title="Search" href="../../../../search.html" />
     <link href="../../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -194,39 +197,25 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="k">import</span> <span class="n">resize</span>
 
-<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
 
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">ObservationType</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_filter</span> <span class="k">import</span> <span class="n">ObservationFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ObservationSpace</span>
 
 
-<span class="c1"># imresize interpolation types as defined by scipy here:</span>
-<span class="c1"># https://docs.scipy.org/doc/scipy-0.18.1/reference/generated/scipy.misc.imresize.html</span>
-<span class="k">class</span> <span class="nc">RescaleInterpolationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">NEAREST</span> <span class="o">=</span> <span class="s1">&#39;nearest&#39;</span>
-    <span class="n">LANCZOS</span> <span class="o">=</span> <span class="s1">&#39;lanczos&#39;</span>
-    <span class="n">BILINEAR</span> <span class="o">=</span> <span class="s1">&#39;bilinear&#39;</span>
-    <span class="n">BICUBIC</span> <span class="o">=</span> <span class="s1">&#39;bicubic&#39;</span>
-    <span class="n">CUBIC</span> <span class="o">=</span> <span class="s1">&#39;cubic&#39;</span>
-
-
 <div class="viewcode-block" id="ObservationRescaleSizeByFactorFilter"><a class="viewcode-back" href="../../../../components/filters/input_filters.html#rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter">[docs]</a><span class="k">class</span> <span class="nc">ObservationRescaleSizeByFactorFilter</span><span class="p">(</span><span class="n">ObservationFilter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Rescales an image observation by some factor. For example, the image size</span>
 <span class="sd">    can be reduced by a factor of 2.</span>
-<span class="sd">    Warning: this requires the input observation to be of type uint8 due to scipy requirements!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rescale_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rescaling_interpolation_type</span><span class="p">:</span> <span class="n">RescaleInterpolationType</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rescale_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param rescale_factor: the factor by which the observation will be rescaled</span>
-<span class="sd">        :param rescaling_interpolation_type: the interpolation type for rescaling</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rescale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rescale_factor</span><span class="p">)</span>  <span class="c1"># scipy requires float scale factors</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rescaling_interpolation_type</span> <span class="o">=</span> <span class="n">rescaling_interpolation_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rescale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rescale_factor</span><span class="p">)</span>
         <span class="c1"># TODO: allow selecting the channels dim</span>
 
     <span class="k">def</span> <span class="nf">validate_input_observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_observation_space</span><span class="p">:</span> <span class="n">ObservationSpace</span><span class="p">):</span>
@@ -238,13 +227,14 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Observations with 3 dimensions must have 3 channels in the last axis (RGB)&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation</span><span class="p">:</span> <span class="n">ObservationType</span><span class="p">,</span> <span class="n">update_internal_state</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObservationType</span><span class="p">:</span>
-        <span class="c1"># scipy works only with uint8</span>
         <span class="n">observation</span> <span class="o">=</span> <span class="n">observation</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+        <span class="n">rescaled_output_size</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rescale_factor</span> <span class="o">*</span> <span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">observation</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">observation</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">rescaled_output_size</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
 
         <span class="c1"># rescale</span>
-        <span class="n">observation</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">imresize</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span>
-                                          <span class="bp">self</span><span class="o">.</span><span class="n">rescale_factor</span><span class="p">,</span>
-                                          <span class="n">interp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rescaling_interpolation_type</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">observation</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">observation</span><span class="p">,</span> <span class="n">rescaled_output_size</span><span class="p">,</span> <span class="n">anti_aliasing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">preserve_range</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">observation</span>
 
@@ -263,7 +253,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -280,27 +270,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
