@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Policy Gradient &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Policy Gradient &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Persistent Advantage Learning" href="../value_optimization/pal.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -237,11 +240,11 @@ The <code class="code docutils literal notranslate"><span class="pre">PolicyGrad
 This is done in order to reduce the variance of the updates, since noisy gradient updates might destabilize the policy’s
 convergence. The rescaler is a configurable parameter and there are few options to choose from:</p>
 <ul class="simple">
-<li><strong>Total Episode Return</strong> - The sum of all the discounted rewards during the episode.</li>
-<li><strong>Future Return</strong> - Return from each transition until the end of the episode.</li>
-<li><strong>Future Return Normalized by Episode</strong> - Future returns across the episode normalized by the episode’s mean and standard deviation.</li>
-<li><strong>Future Return Normalized by Timestep</strong> - Future returns normalized using running means and standard deviations,
-which are calculated seperately for each timestep, across different episodes.</li>
+<li><p><strong>Total Episode Return</strong> - The sum of all the discounted rewards during the episode.</p></li>
+<li><p><strong>Future Return</strong> - Return from each transition until the end of the episode.</p></li>
+<li><p><strong>Future Return Normalized by Episode</strong> - Future returns across the episode normalized by the episode’s mean and standard deviation.</p></li>
+<li><p><strong>Future Return Normalized by Timestep</strong> - Future returns normalized using running means and standard deviations,
+which are calculated seperately for each timestep, across different episodes.</p></li>
 </ul>
 <p>Gradients are accumulated over a number of full played episodes. The gradients accumulation over several episodes
 serves the same purpose - reducing the update variance. After accumulating gradients for several episodes,
@@ -249,32 +252,28 @@ the gradients are then applied to the network.</p>
 <dl class="class">
 <dt id="rl_coach.agents.policy_gradients_agent.PolicyGradientAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.policy_gradients_agent.</code><code class="descname">PolicyGradientAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/policy_gradients_agent.html#PolicyGradientAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.policy_gradients_agent.PolicyGradientAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>policy_gradient_rescaler</strong> – (PolicyGradientRescaler)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>policy_gradient_rescaler</strong> – (PolicyGradientRescaler)
 The rescaler type to use for the policy gradient loss. For policy gradients, we calculate log probability of
 the action and then multiply it by the policy gradient rescaler. The most basic rescaler is the discounter
-return, but there are other rescalers that are intended for reducing the variance of the updates.</li>
-<li><strong>apply_gradients_every_x_episodes</strong> – (int)
+return, but there are other rescalers that are intended for reducing the variance of the updates.</p></li>
+<li><p><strong>apply_gradients_every_x_episodes</strong> – (int)
 The number of episodes between applying the accumulated gradients to the network. After every
 num_steps_between_gradient_updates steps, the agent will calculate the gradients for the collected data,
 it will then accumulate it in internal accumulators, and will only apply them to the network once in every
-apply_gradients_every_x_episodes episodes.</li>
-<li><strong>beta_entropy</strong> – (float)
+apply_gradients_every_x_episodes episodes.</p></li>
+<li><p><strong>beta_entropy</strong> – (float)
 A factor which defines the amount of entropy regularization to apply to the network. The entropy of the actions
-will be added to the loss and scaled by the given beta factor.</li>
-<li><strong>num_steps_between_gradient_updates</strong> – (int)
+will be added to the loss and scaled by the given beta factor.</p></li>
+<li><p><strong>num_steps_between_gradient_updates</strong> – (int)
 The number of steps between calculating gradients for the collected data. In the A3C paper, this parameter is
 called t_max. Since this algorithm is on-policy, only the steps collected between each two gradient calculations
-are used in the batch.</li>
+are used in the batch.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -292,7 +291,7 @@ are used in the batch.</li>
         <a href="ppo.html" class="btn btn-neutral float-right" title="Proximal Policy Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../value_optimization/pal.html" class="btn btn-neutral" title="Persistent Advantage Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../value_optimization/pal.html" class="btn btn-neutral float-left" title="Persistent Advantage Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -301,7 +300,7 @@ are used in the batch.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -318,27 +317,16 @@ are used in the batch.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

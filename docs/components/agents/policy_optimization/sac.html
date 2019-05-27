@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Soft Actor-Critic &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Soft Actor-Critic &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Deep Deterministic Policy Gradient" href="ddpg.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -235,19 +238,19 @@ by picking the mean value or sample from a gaussian distribution like in trainin
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <p>Start by sampling a batch <span class="math notranslate nohighlight">\(B\)</span> of transitions from the experience replay.</p>
 <ul>
-<li><p class="first">To train the <strong>Q network</strong>, use the following targets:</p>
+<li><p>To train the <strong>Q network</strong>, use the following targets:</p>
 <div class="math notranslate nohighlight">
 \[y_t^Q=r(s_t,a_t)+\gamma \cdot V(s_{t+1})\]</div>
 <p>The state value used in the above target is acquired by running the target state value network.</p>
 </li>
-<li><p class="first">To train the <strong>State Value network</strong>, use the following targets:</p>
+<li><p>To train the <strong>State Value network</strong>, use the following targets:</p>
 <div class="math notranslate nohighlight">
 \[y_t^V = \min_{i=1,2}Q_i(s_t,\tilde{a}) - log\pi (\tilde{a} \vert s),\,\,\,\, \tilde{a} \sim \pi(\cdot \vert s_t)\]</div>
 <p>The state value network is trained using a sample-based approximation of the connection between and state value and state
 action values, The actions used for constructing the target are <strong>not</strong> sampled from the replay buffer, but rather sampled
 from the current policy.</p>
 </li>
-<li><p class="first">To train the <strong>actor network</strong>, use the following equation:</p>
+<li><p>To train the <strong>actor network</strong>, use the following equation:</p>
 <div class="math notranslate nohighlight">
 \[\nabla_{\theta} J \approx \nabla_{\theta} \frac{1}{\vert B \vert} \sum_{s_t\in B} \left( Q \left(s_t, \tilde{a}_\theta(s_t)\right) - log\pi_{\theta}(\tilde{a}_{\theta}(s_t)\vert s_t) \right),\,\,\,\, \tilde{a} \sim \pi(\cdot \vert s_t)\]</div>
 </li>
@@ -256,24 +259,20 @@ from the current policy.</p>
 <dl class="class">
 <dt id="rl_coach.agents.soft_actor_critic_agent.SoftActorCriticAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.soft_actor_critic_agent.</code><code class="descname">SoftActorCriticAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/soft_actor_critic_agent.html#SoftActorCriticAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.soft_actor_critic_agent.SoftActorCriticAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_steps_between_copying_online_weights_to_target</strong> – (StepMethod)
-The number of steps between copying the online network weights to the target network weights.</li>
-<li><strong>rate_for_copying_weights_to_target</strong> – (float)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_steps_between_copying_online_weights_to_target</strong> – (StepMethod)
+The number of steps between copying the online network weights to the target network weights.</p></li>
+<li><p><strong>rate_for_copying_weights_to_target</strong> – (float)
 When copying the online network weights to the target network weights, a soft update will be used, which
-weight the new online network weights by rate_for_copying_weights_to_target. (Tau as defined in the paper)</li>
-<li><strong>use_deterministic_for_evaluation</strong> – (bool)
+weight the new online network weights by rate_for_copying_weights_to_target. (Tau as defined in the paper)</p></li>
+<li><p><strong>use_deterministic_for_evaluation</strong> – (bool)
 If True, during the evaluation phase, action are chosen deterministically according to the policy mean
-and not sampled from the policy distribution.</li>
+and not sampled from the policy distribution.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -291,7 +290,7 @@ and not sampled from the policy distribution.</li>
         <a href="../other/dfp.html" class="btn btn-neutral float-right" title="Direct Future Prediction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="ddpg.html" class="btn btn-neutral" title="Deep Deterministic Policy Gradient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ddpg.html" class="btn btn-neutral float-left" title="Deep Deterministic Policy Gradient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -300,7 +299,7 @@ and not sampled from the policy distribution.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -317,27 +316,16 @@ and not sampled from the policy distribution.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

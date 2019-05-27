@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Adding a New Agent &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Adding a New Agent &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Distributed Coach - Horizontal Scale-Out" href="../design/horizontal_scaling.html" />
     <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -188,11 +191,11 @@ We suggest using the following
 <a class="reference external" href="https://github.com/NervanaSystems/coach/blob/master/tutorials/1.%20Implementing%20an%20Algorithm.ipynb">Jupyter notebook tutorial</a>
 to ramp up on this process. In general, it involves the following steps:</p>
 <ol class="arabic">
-<li><p class="first">Implement your algorithm in a new file. The agent can inherit base classes such as <strong>ValueOptimizationAgent</strong> or
+<li><p>Implement your algorithm in a new file. The agent can inherit base classes such as <strong>ValueOptimizationAgent</strong> or
 <strong>ActorCriticAgent</strong>, or the more generic <strong>Agent</strong> base class.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><strong>ValueOptimizationAgent</strong>, <strong>PolicyOptimizationAgent</strong> and <strong>Agent</strong> are abstract classes.
+<p class="admonition-title">Note</p>
+<p><strong>ValueOptimizationAgent</strong>, <strong>PolicyOptimizationAgent</strong> and <strong>Agent</strong> are abstract classes.
 <code class="code docutils literal notranslate"><span class="pre">learn_from_batch()</span></code> should be overriden with the desired behavior for the algorithm being implemented.
 If deciding to inherit from <strong>Agent</strong>, also <code class="code docutils literal notranslate"><span class="pre">choose_action()</span></code> should be overriden.</p>
 </div>
@@ -214,25 +217,24 @@ If deciding to inherit from <strong>Agent</strong>, also <code class="code docut
 </pre></div>
 </div>
 </li>
-<li><p class="first">Implement your agent’s specific network head, if needed, at the implementation for the framework of your choice.
+<li><p>Implement your agent’s specific network head, if needed, at the implementation for the framework of your choice.
 For example <strong>architectures/neon_components/heads.py</strong>. The head will inherit the generic base class Head.
 A new output type should be added to configurations.py, and a mapping between the new head and output type should
-be defined in the get_output_head() function at <strong>architectures/neon_components/general_network.py</strong></p>
-</li>
-<li><p class="first">Define a new parameters class that inherits AgentParameters.
+be defined in the get_output_head() function at <strong>architectures/neon_components/general_network.py</strong></p></li>
+<li><p>Define a new parameters class that inherits AgentParameters.
 The parameters class defines all the hyperparameters for the agent, and is initialized with 4 main components:</p>
 <ul class="simple">
-<li><strong>algorithm</strong>: A class inheriting AlgorithmParameters which defines any algorithm specific parameters</li>
-<li><strong>exploration</strong>: A class inheriting ExplorationParameters which defines the exploration policy parameters.
+<li><p><strong>algorithm</strong>: A class inheriting AlgorithmParameters which defines any algorithm specific parameters</p></li>
+<li><p><strong>exploration</strong>: A class inheriting ExplorationParameters which defines the exploration policy parameters.
 There are several common exploration policies built-in which you can use, and are defined under
-the exploration sub directory. You can also define your own custom exploration policy.</li>
-<li><strong>memory</strong>: A class inheriting MemoryParameters which defined the memory parameters.
+the exploration sub directory. You can also define your own custom exploration policy.</p></li>
+<li><p><strong>memory</strong>: A class inheriting MemoryParameters which defined the memory parameters.
 There are several common memory types built-in which you can use, and are defined under the memories
-sub directory. You can also define your own custom memory.</li>
-<li><strong>networks</strong>: A dictionary defining all the networks that will be used by the agent. The keys of the dictionary
+sub directory. You can also define your own custom memory.</p></li>
+<li><p><strong>networks</strong>: A dictionary defining all the networks that will be used by the agent. The keys of the dictionary
 define the network name and will be used to access each network through the agent class.
 The dictionary values are a class inheriting NetworkParameters, which define the network structure
-and parameters.</li>
+and parameters.</p></li>
 </ul>
 <p>Additionally, set the path property to return the path to your agent class in the following format:</p>
 <p><code class="code docutils literal notranslate"><span class="pre">&lt;path</span> <span class="pre">to</span> <span class="pre">python</span> <span class="pre">module&gt;:&lt;name</span> <span class="pre">of</span> <span class="pre">agent</span> <span class="pre">class&gt;</span></code></p>
@@ -250,9 +252,8 @@ and parameters.</li>
 </pre></div>
 </div>
 </li>
-<li><p class="first">(Optional) Define a preset using the new agent type with a given environment, and the hyper-parameters that should
-be used for training on that environment.</p>
-</li>
+<li><p>(Optional) Define a preset using the new agent type with a given environment, and the hyper-parameters that should
+be used for training on that environment.</p></li>
 </ol>
 </div>
 
@@ -267,7 +268,7 @@ be used for training on that environment.</p>
         <a href="add_env.html" class="btn btn-neutral float-right" title="Adding a New Environment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../design/horizontal_scaling.html" class="btn btn-neutral" title="Distributed Coach - Horizontal Scale-Out" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../design/horizontal_scaling.html" class="btn btn-neutral float-left" title="Distributed Coach - Horizontal Scale-Out" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -276,7 +277,7 @@ be used for training on that environment.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -293,27 +294,16 @@ be used for training on that environment.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
