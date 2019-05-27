@@ -158,6 +158,7 @@ class Head(object):
         # add regularizations
         for regularization in self.regularizations:
             self.loss.append(regularization)
+            tf.losses.add_loss(regularization)
 
     @classmethod
     def path(cls):

@@ -300,11 +300,9 @@ class GymEnvironment(Environment):
             random.seed(self.seed)
 
         # frame skip and max between consecutive frames
-        self.is_robotics_env = 'robotics' in str(self.env.unwrapped.__class__)
         self.is_mujoco_env = 'mujoco' in str(self.env.unwrapped.__class__)
         self.is_roboschool_env = 'roboschool' in str(self.env.unwrapped.__class__)
         self.is_atari_env = 'Atari' in str(self.env.unwrapped.__class__)
-        self.timelimit_env_wrapper = self.env
         if self.is_atari_env:
             self.env.unwrapped.frameskip = 1  # this accesses the atari env that is wrapped with a timelimit wrapper env
             if self.env_id == "SpaceInvadersDeterministic-v4" and self.frame_skip == 4:
@@ -406,12 +404,6 @@ class GymEnvironment(Environment):
             if not self.native_rendering:
                 self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
-        # measurements
-        if self.env.spec is not None:
-            self.timestep_limit = self.env.spec.timestep_limit
-        else:
-            self.timestep_limit = None
-
         # the info is only updated after the first step
         self.state = self.step(self.action_space.default_action).next_state
         self.state_space['measurements'] = VectorObservationSpace(shape=len(self.info.keys()))
@@ -471,7 +463,7 @@ class GymEnvironment(Environment):
     def _restart_environment_episode(self, force_environment_reset=False):
         # prevent reset of environment if there are ale lives left
         if (self.is_atari_env and self.env.unwrapped.ale.lives() > 0) \
-                and not force_environment_reset and not self.timelimit_env_wrapper._past_limit():
+                and not force_environment_reset:
             self.step(self.action_space.default_action)
         else:
             self.state = self.env.reset()
@@ -485,38 +477,11 @@ class GymEnvironment(Environment):
         # initialize the number of lives
         self._update_ale_lives()
 
-    def _set_mujoco_camera(self, camera_idx: int):
-        """
-        This function can be used to set the camera for rendering the mujoco simulator
-        :param camera_idx: The index of the camera to use. Should be defined in the model
-        :return: None
-        """
-        if self.env.unwrapped.viewer is not None and self.env.unwrapped.viewer.cam.fixedcamid != camera_idx:
-            from mujoco_py.generated import const
-            self.env.unwrapped.viewer.cam.type = const.CAMERA_FIXED
-            self.env.unwrapped.viewer.cam.fixedcamid = camera_idx
-
-    def _get_robotics_image(self):
-        self.env.render()
-        image = self.env.unwrapped._get_viewer().read_pixels(1600, 900, depth=False)[::-1, :, :]
-        image = scipy.misc.imresize(image, (270, 480, 3))
-        return image
-
     def _render(self):
         self.env.render(mode='human')
-        # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env and not self.is_roboschool_env:
-            self._set_mujoco_camera(0)
 
     def get_rendered_image(self):
-        if self.is_robotics_env:
-            # necessary for fetch since the rendered image is cropped to an irrelevant part of the simulator
-            image = self._get_robotics_image()
-        else:
-            image = self.env.render(mode='rgb_array')
-        # required for setting up a fixed camera for mujoco
-        if self.is_mujoco_env and not self.is_roboschool_env:
-            self._set_mujoco_camera(0)
+        image = self.env.render(mode='rgb_array')
         return image
 
     def get_target_success_rate(self) -> float:

@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 import pytest
 
-from rl_coach.filters.observation.observation_rescale_to_size_filter import ObservationRescaleToSizeFilter, RescaleInterpolationType
+from rl_coach.filters.observation.observation_rescale_to_size_filter import ObservationRescaleToSizeFilter
 from rl_coach.filters.observation.observation_crop_filter import ObservationCropFilter
 from rl_coach.filters.reward.reward_clipping_filter import RewardClippingFilter
 from rl_coach.filters.observation.observation_stacking_filter import ObservationStackingFilter
@@ -31,7 +31,6 @@ def test_filter_stacking():
 
     filter1 = ObservationRescaleToSizeFilter(
         output_observation_space=ImageObservationSpace(np.array([110, 84]), high=255),
-        rescaling_interpolation_type=RescaleInterpolationType.BILINEAR
     )
 
     filter2 = ObservationCropFilter(
