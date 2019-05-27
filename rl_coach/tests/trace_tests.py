@@ -85,7 +85,7 @@ def run_trace_based_test(preset_name, num_env_steps, level=None):
         '-e {test_name} '
         '--seed 42 '
         '-c '
-        '-dcp {template}'
+        '-dcp {template} '
         '--no_summary '
         '-cp {custom_param} '
         '{level} '
@@ -312,6 +312,10 @@ def main():
         screen.success(" Summary: " + str(test_count) + "/" + str(test_count) + " tests passed successfully")
     else:
         screen.error(" Summary: " + str(test_count - fail_count) + "/" + str(test_count) + " tests passed successfully", crash=False)
+
+    # check fail counts just if update traces is not activated!
+    if not args.update_traces:
+        assert fail_count == 0
 
 
 if __name__ == '__main__':

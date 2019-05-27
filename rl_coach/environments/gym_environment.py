@@ -303,7 +303,6 @@ class GymEnvironment(Environment):
         self.is_mujoco_env = 'mujoco' in str(self.env.unwrapped.__class__)
         self.is_roboschool_env = 'roboschool' in str(self.env.unwrapped.__class__)
         self.is_atari_env = 'Atari' in str(self.env.unwrapped.__class__)
-        self.timelimit_env_wrapper = self.env
         if self.is_atari_env:
             self.env.unwrapped.frameskip = 1  # this accesses the atari env that is wrapped with a timelimit wrapper env
             if self.env_id == "SpaceInvadersDeterministic-v4" and self.frame_skip == 4:
@@ -405,12 +404,6 @@ class GymEnvironment(Environment):
             if not self.native_rendering:
                 self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
-        # measurements
-        if self.env.spec is not None:
-            self.timestep_limit = self.env.spec.timestep_limit
-        else:
-            self.timestep_limit = None
-
         # the info is only updated after the first step
         self.state = self.step(self.action_space.default_action).next_state
         self.state_space['measurements'] = VectorObservationSpace(shape=len(self.info.keys()))
@@ -470,7 +463,7 @@ class GymEnvironment(Environment):
     def _restart_environment_episode(self, force_environment_reset=False):
         # prevent reset of environment if there are ale lives left
         if (self.is_atari_env and self.env.unwrapped.ale.lives() > 0) \
-                and not force_environment_reset and not self.timelimit_env_wrapper._past_limit():
+                and not force_environment_reset:
             self.step(self.action_space.default_action)
         else:
             self.state = self.env.reset()
