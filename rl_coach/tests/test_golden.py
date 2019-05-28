@@ -140,7 +140,7 @@ def test_preset_reward(preset_name, no_progress_bar=True, time_limit=60 * 60, ve
     test_passed = False
 
     # get the csv with the results
-    csv_paths = read_csv_paths(test_path, filename_pattern)
+    csv_paths = read_csv_paths(test_path, filename_pattern, read_csv_tries=preset_validation_params.read_csv_tries)
 
     if csv_paths:
         csv_path = csv_paths[0]
