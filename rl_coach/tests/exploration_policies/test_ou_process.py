@@ -16,10 +16,6 @@ def test_init():
     # discrete control
     action_space = DiscreteActionSpace(3)
 
-    # OU process doesn't work for discrete controls
-    with pytest.raises(ValueError):
-        policy = OUProcess(action_space, mu=0, theta=0.1, sigma=0.2, dt=0.01)
-
 
 @pytest.mark.unit_test
 def test_get_action():

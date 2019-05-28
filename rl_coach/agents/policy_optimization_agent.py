@@ -147,7 +147,7 @@ class PolicyOptimizationAgent(Agent):
         if isinstance(self.spaces.action, DiscreteActionSpace):
             # DISCRETE
             action_probabilities = np.array(action_values).squeeze()
-            action = self.exploration_policy.get_action(action_probabilities)
+            action, _ = self.exploration_policy.get_action(action_probabilities)
             action_info = ActionInfo(action=action,
                                      all_action_probabilities=action_probabilities)
 

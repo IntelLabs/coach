@@ -19,12 +19,13 @@ from typing import List
 import numpy as np
 
 from rl_coach.core_types import RunPhase, ActionType
-from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy, ExplorationParameters
+from rl_coach.exploration_policies.exploration_policy import ContinuousActionExplorationPolicy, ExplorationParameters
 from rl_coach.spaces import ActionSpace, BoxActionSpace, GoalsSpace
 
 
 # Based on on the description in:
 # https://math.stackexchange.com/questions/1287634/implementing-ornstein-uhlenbeck-in-matlab
+
 class OUProcessParameters(ExplorationParameters):
     def __init__(self):
         super().__init__()
@@ -39,7 +40,7 @@ class OUProcessParameters(ExplorationParameters):
 
 
 # Ornstein-Uhlenbeck process
-class OUProcess(ExplorationPolicy):
+class OUProcess(ContinuousActionExplorationPolicy):
     """
     OUProcess exploration policy is intended for continuous action spaces, and selects the action according to
     an Ornstein-Uhlenbeck process. The Ornstein-Uhlenbeck process implements the action as a Gaussian process, where
@@ -55,10 +56,6 @@ class OUProcess(ExplorationPolicy):
         self.sigma = float(sigma) * np.ones(self.action_space.shape)
         self.state = np.zeros(self.action_space.shape)
         self.dt = dt
-
-        if not (isinstance(action_space, BoxActionSpace) or isinstance(action_space, GoalsSpace)):
-            raise ValueError("OU process exploration works only for continuous controls."
-                             "The given action space is of type: {}".format(action_space.__class__.__name__))
 
     def reset(self):
         self.state = np.zeros(self.action_space.shape)
