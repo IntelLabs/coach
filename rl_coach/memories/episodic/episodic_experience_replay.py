@@ -452,8 +452,6 @@ class EpisodicExperienceReplay(Memory):
         progress_bar.update(len(episode_ids))
         progress_bar.close()
 
-        self.shuffle_episodes()
-
     def freeze(self):
         """
         Freezing the replay buffer does not allow any new transitions to be added to the memory.
