@@ -135,6 +135,7 @@ preset_validation_params = PresetValidationParameters()
 preset_validation_params.test = True
 preset_validation_params.min_reward_threshold = 150
 preset_validation_params.max_episodes_to_achieve_reward = 50
+preset_validation_params.read_csv_tries = 500
 
 graph_manager = BatchRLGraphManager(agent_params=agent_params,
                                     experience_generating_agent_params=experience_generating_agent_params,
