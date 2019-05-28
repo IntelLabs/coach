@@ -19,7 +19,7 @@ from typing import List
 import numpy as np
 
 from rl_coach.core_types import RunPhase, ActionType
-from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy, ExplorationParameters
+from rl_coach.exploration_policies.exploration_policy import DiscreteActionExplorationPolicy, ExplorationParameters
 from rl_coach.schedules import Schedule
 from rl_coach.spaces import ActionSpace
 
@@ -34,8 +34,7 @@ class BoltzmannParameters(ExplorationParameters):
         return 'rl_coach.exploration_policies.boltzmann:Boltzmann'
 
 
-
-class Boltzmann(ExplorationPolicy):
+class Boltzmann(DiscreteActionExplorationPolicy):
     """
     The Boltzmann exploration policy is intended for discrete action spaces. It assumes that each of the possible
     actions has some value assigned to it (such as the Q value), and uses a softmax function to convert these values
@@ -50,7 +49,7 @@ class Boltzmann(ExplorationPolicy):
         super().__init__(action_space)
         self.temperature_schedule = temperature_schedule
 
-    def get_action(self, action_values: List[ActionType]) -> ActionType:
+    def get_action(self, action_values: List[ActionType]) -> (ActionType, List[float]):
         if self.phase == RunPhase.TRAIN:
             self.temperature_schedule.step()
         # softmax calculation
@@ -59,7 +58,8 @@ class Boltzmann(ExplorationPolicy):
         # make sure probs sum to 1
         probabilities[-1] = 1 - np.sum(probabilities[:-1])
         # choose actions according to the probabilities
-        return np.random.choice(range(self.action_space.shape), p=probabilities)
+        action = np.random.choice(range(self.action_space.shape), p=probabilities)
+        return action, probabilities
 
     def get_control_param(self):
         return self.temperature_schedule.current_value
