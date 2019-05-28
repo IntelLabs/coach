@@ -49,6 +49,7 @@ class DQNNetworkParameters(NetworkParameters):
         self.batch_size = 32
         self.replace_mse_with_huber_loss = True
         self.create_target_network = True
+        self.should_get_softmax_probabilities = False
 
 
 class DQNAgentParameters(AgentParameters):

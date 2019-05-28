@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Memories &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Memories &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Output Filters" href="../filters/output_filters.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -210,14 +213,11 @@
 <dd><p>A replay buffer that stores episodes of transitions. The additional structure allows performing various
 calculations of total return and other values that depend on the sequential behavior of the transitions
 in the episode.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -227,22 +227,18 @@ in the episode.</p>
 <dt id="rl_coach.memories.episodic.EpisodicHindsightExperienceReplay">
 <em class="property">class </em><code class="descclassname">rl_coach.memories.episodic.</code><code class="descname">EpisodicHindsightExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], hindsight_transitions_per_regular_transition: int, hindsight_goal_selection_method: rl_coach.memories.episodic.episodic_hindsight_experience_replay.HindsightGoalSelectionMethod, goals_space: rl_coach.spaces.GoalsSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/episodic/episodic_hindsight_experience_replay.html#EpisodicHindsightExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.episodic.EpisodicHindsightExperienceReplay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements Hindsight Experience Replay as described in the following paper: <a class="reference external" href="https://arxiv.org/pdf/1707.01495.pdf">https://arxiv.org/pdf/1707.01495.pdf</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_size</strong> – The maximum size of the memory. should be defined in a granularity of Transitions</li>
-<li><strong>hindsight_transitions_per_regular_transition</strong> – The number of hindsight artificial transitions to generate
-for each actual transition</li>
-<li><strong>hindsight_goal_selection_method</strong> – The method that will be used for generating the goals for the
-hindsight transitions. Should be one of HindsightGoalSelectionMethod</li>
-<li><strong>goals_space</strong> – A GoalsSpace which defines the base properties of the goals space</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_size</strong> – The maximum size of the memory. should be defined in a granularity of Transitions</p></li>
+<li><p><strong>hindsight_transitions_per_regular_transition</strong> – The number of hindsight artificial transitions to generate
+for each actual transition</p></li>
+<li><p><strong>hindsight_goal_selection_method</strong> – The method that will be used for generating the goals for the
+hindsight transitions. Should be one of HindsightGoalSelectionMethod</p></li>
+<li><p><strong>goals_space</strong> – A GoalsSpace which defines the base properties of the goals space</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -253,23 +249,19 @@ hindsight transitions. Should be one of HindsightGoalSelectionMethod</li>
 <em class="property">class </em><code class="descclassname">rl_coach.memories.episodic.</code><code class="descname">EpisodicHRLHindsightExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], hindsight_transitions_per_regular_transition: int, hindsight_goal_selection_method: rl_coach.memories.episodic.episodic_hindsight_experience_replay.HindsightGoalSelectionMethod, goals_space: rl_coach.spaces.GoalsSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/episodic/episodic_hrl_hindsight_experience_replay.html#EpisodicHRLHindsightExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.episodic.EpisodicHRLHindsightExperienceReplay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements HRL Hindsight Experience Replay as described in the following paper:  <a class="reference external" href="https://arxiv.org/abs/1805.08180">https://arxiv.org/abs/1805.08180</a></p>
 <p>This is the memory you should use if you want a shared hindsight experience replay buffer between multiple workers</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_size</strong> – The maximum size of the memory. should be defined in a granularity of Transitions</li>
-<li><strong>hindsight_transitions_per_regular_transition</strong> – The number of hindsight artificial transitions to generate
-for each actual transition</li>
-<li><strong>hindsight_goal_selection_method</strong> – The method that will be used for generating the goals for the
-hindsight transitions. Should be one of HindsightGoalSelectionMethod</li>
-<li><strong>goals_space</strong> – A GoalsSpace  which defines the properties of the goals</li>
-<li><strong>do_action_hindsight</strong> – Replace the action (sub-goal) given to a lower layer, with the actual achieved goal</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_size</strong> – The maximum size of the memory. should be defined in a granularity of Transitions</p></li>
+<li><p><strong>hindsight_transitions_per_regular_transition</strong> – The number of hindsight artificial transitions to generate
+for each actual transition</p></li>
+<li><p><strong>hindsight_goal_selection_method</strong> – The method that will be used for generating the goals for the
+hindsight transitions. Should be one of HindsightGoalSelectionMethod</p></li>
+<li><p><strong>goals_space</strong> – A GoalsSpace  which defines the properties of the goals</p></li>
+<li><p><strong>do_action_hindsight</strong> – Replace the action (sub-goal) given to a lower layer, with the actual achieved goal</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -289,21 +281,17 @@ hindsight transitions. Should be one of HindsightGoalSelectionMethod</li>
 <dl class="class">
 <dt id="rl_coach.memories.non_episodic.BalancedExperienceReplay">
 <em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">BalancedExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], allow_duplicates_in_batch_sampling: bool = True, num_classes: int = 0, state_key_with_the_class_index: Any = 'class'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/balanced_experience_replay.html#BalancedExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.BalancedExperienceReplay" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</li>
-<li><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</li>
-<li><strong>num_classes</strong> – the number of classes in the replayed data</li>
-<li><strong>state_key_with_the_class_index</strong> – the class index is assumed to be a value in the state dictionary.
-this parameter determines the key to retrieve the class index value</li>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</p></li>
+<li><p><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</p></li>
+<li><p><strong>num_classes</strong> – the number of classes in the replayed data</p></li>
+<li><p><strong>state_key_with_the_class_index</strong> – the class index is assumed to be a value in the state dictionary.
+this parameter determines the key to retrieve the class index value</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -321,18 +309,14 @@ this parameter determines the key to retrieve the class index value</li>
 <dt id="rl_coach.memories.non_episodic.ExperienceReplay">
 <em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">ExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], allow_duplicates_in_batch_sampling: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/experience_replay.html#ExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.ExperienceReplay" title="Permalink to this definition">¶</a></dt>
 <dd><p>A regular replay buffer which stores transition without any additional structure</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</li>
-<li><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</p></li>
+<li><p><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -343,21 +327,17 @@ this parameter determines the key to retrieve the class index value</li>
 <em class="property">class </em><code class="descclassname">rl_coach.memories.non_episodic.</code><code class="descname">PrioritizedExperienceReplay</code><span class="sig-paren">(</span><em>max_size: Tuple[rl_coach.memories.memory.MemoryGranularity, int], alpha: float = 0.6, beta: rl_coach.schedules.Schedule = &lt;rl_coach.schedules.ConstantSchedule object&gt;, epsilon: float = 1e-06, allow_duplicates_in_batch_sampling: bool = True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/memories/non_episodic/prioritized_experience_replay.html#PrioritizedExperienceReplay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.memories.non_episodic.PrioritizedExperienceReplay" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the proportional sampling variant of the prioritized experience replay as described
 in <a class="reference external" href="https://arxiv.org/pdf/1511.05952.pdf">https://arxiv.org/pdf/1511.05952.pdf</a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</li>
-<li><strong>alpha</strong> – the alpha prioritization coefficient</li>
-<li><strong>beta</strong> – the beta parameter used for importance sampling</li>
-<li><strong>epsilon</strong> – a small value added to the priority of each transition</li>
-<li><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_size</strong> – the maximum number of transitions or episodes to hold in the memory</p></li>
+<li><p><strong>alpha</strong> – the alpha prioritization coefficient</p></li>
+<li><p><strong>beta</strong> – the beta parameter used for importance sampling</p></li>
+<li><p><strong>epsilon</strong> – a small value added to the priority of each transition</p></li>
+<li><p><strong>allow_duplicates_in_batch_sampling</strong> – allow having the same transition multiple times in a batch</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -385,7 +365,7 @@ are constructed on top of.</p>
         <a href="../memory_backends/index.html" class="btn btn-neutral float-right" title="Memory Backends" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../filters/output_filters.html" class="btn btn-neutral" title="Output Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../filters/output_filters.html" class="btn btn-neutral float-left" title="Output Filters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -394,7 +374,7 @@ are constructed on top of.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -411,27 +391,16 @@ are constructed on top of.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

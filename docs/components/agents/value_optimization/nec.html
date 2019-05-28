@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Neural Episodic Control &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Neural Episodic Control &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Normalized Advantage Functions" href="naf.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -229,14 +232,14 @@
 <div class="section" id="choosing-an-action">
 <h3>Choosing an action<a class="headerlink" href="#choosing-an-action" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>Use the current state as an input to the online network and extract the state embedding, which is the intermediate
-output from the middleware.</li>
-<li>For each possible action <span class="math notranslate nohighlight">\(a_i\)</span>, run the DND head using the state embedding and the selected action <span class="math notranslate nohighlight">\(a_i\)</span> as inputs.
+<li><p>Use the current state as an input to the online network and extract the state embedding, which is the intermediate
+output from the middleware.</p></li>
+<li><p>For each possible action <span class="math notranslate nohighlight">\(a_i\)</span>, run the DND head using the state embedding and the selected action <span class="math notranslate nohighlight">\(a_i\)</span> as inputs.
 The DND is queried and returns the <span class="math notranslate nohighlight">\(P\)</span> nearest neighbor keys and values. The keys and values are used to calculate
-and return the action <span class="math notranslate nohighlight">\(Q\)</span> value from the network.</li>
-<li>Pass all the <span class="math notranslate nohighlight">\(Q\)</span> values to the exploration policy and choose an action accordingly.</li>
-<li>Store the state embeddings and actions taken during the current episode in a small buffer <span class="math notranslate nohighlight">\(B\)</span>, in order to
-accumulate transitions until it is possible to calculate the total discounted returns over the entire episode.</li>
+and return the action <span class="math notranslate nohighlight">\(Q\)</span> value from the network.</p></li>
+<li><p>Pass all the <span class="math notranslate nohighlight">\(Q\)</span> values to the exploration policy and choose an action accordingly.</p></li>
+<li><p>Store the state embeddings and actions taken during the current episode in a small buffer <span class="math notranslate nohighlight">\(B\)</span>, in order to
+accumulate transitions until it is possible to calculate the total discounted returns over the entire episode.</p></li>
 </ol>
 </div>
 <div class="section" id="finalizing-an-episode">
@@ -256,40 +259,36 @@ the network if necessary:
 <dl class="class">
 <dt id="rl_coach.agents.nec_agent.NECAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.nec_agent.</code><code class="descname">NECAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/nec_agent.html#NECAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.nec_agent.NECAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dnd_size</strong> – (int)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dnd_size</strong> – (int)
 Defines the number of transitions that will be stored in each one of the DNDs. Note that the total number
-of transitions that will be stored is dnd_size x num_actions.</li>
-<li><strong>l2_norm_added_delta</strong> – (float)
+of transitions that will be stored is dnd_size x num_actions.</p></li>
+<li><p><strong>l2_norm_added_delta</strong> – (float)
 A small value that will be added when calculating the weight of each of the DND entries. This follows the
-<span class="math notranslate nohighlight">\(\delta\)</span> patameter defined in the paper.</li>
-<li><strong>new_value_shift_coefficient</strong> – (float)
+<span class="math notranslate nohighlight">\(\delta\)</span> patameter defined in the paper.</p></li>
+<li><p><strong>new_value_shift_coefficient</strong> – (float)
 In the case where a ew embedding that was added to the DND was already present, the value that will be stored
 in the DND is a mix between the existing value and the new value. The mix rate is defined by
-new_value_shift_coefficient.</li>
-<li><strong>number_of_knn</strong> – (int)
-The number of neighbors that will be retrieved for each DND query.</li>
-<li><strong>DND_key_error_threshold</strong> – (float)
+new_value_shift_coefficient.</p></li>
+<li><p><strong>number_of_knn</strong> – (int)
+The number of neighbors that will be retrieved for each DND query.</p></li>
+<li><p><strong>DND_key_error_threshold</strong> – (float)
 When the DND is queried for a specific embedding, this threshold will be used to determine if the embedding
-exists in the DND, since exact matches of embeddings are very rare.</li>
-<li><strong>propagate_updates_to_DND</strong> – (bool)
+exists in the DND, since exact matches of embeddings are very rare.</p></li>
+<li><p><strong>propagate_updates_to_DND</strong> – (bool)
 If set to True, when the gradients of the network will be calculated, the gradients will also be
 backpropagated through the keys of the DND. The keys will then be updated as well, as if they were regular
-network weights.</li>
-<li><strong>n_step</strong> – (int)
-The bootstrap length that will be used when calculating the state values to store in the DND.</li>
-<li><strong>bootstrap_total_return_from_old_policy</strong> – (bool)
+network weights.</p></li>
+<li><p><strong>n_step</strong> – (int)
+The bootstrap length that will be used when calculating the state values to store in the DND.</p></li>
+<li><p><strong>bootstrap_total_return_from_old_policy</strong> – (bool)
 If set to True, the bootstrap that will be used to calculate each state-action value, is the network value
-when the state was first seen, and not the latest, most up-to-date network value.</li>
+when the state was first seen, and not the latest, most up-to-date network value.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -307,7 +306,7 @@ when the state was first seen, and not the latest, most up-to-date network value
         <a href="pal.html" class="btn btn-neutral float-right" title="Persistent Advantage Learning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="naf.html" class="btn btn-neutral" title="Normalized Advantage Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="naf.html" class="btn btn-neutral float-left" title="Normalized Advantage Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -316,7 +315,7 @@ when the state was first seen, and not the latest, most up-to-date network value
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -333,27 +332,16 @@ when the state was first seen, and not the latest, most up-to-date network value
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

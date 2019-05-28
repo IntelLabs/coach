@@ -3,7 +3,15 @@
 Coach uses Sphinx with a Read The Docs theme for its documentation website.
 The website is hosted on GitHub Pages, and is automatically pulled from the repository through the built docs directory.
 
-To build the documentation website locally, first install the following requirements:
+To build automatically, first go to 'docs_raw' directory; the following is installing all required packages, making html
+copying all new docs into 'coach/docs/'
+
+Run the following command (make sure the it's an executable file):
+```
+./build_docs.sh
+```
+
+To build manually the documentation website locally, first install the following requirements:
 
 ```
 pip install Sphinx

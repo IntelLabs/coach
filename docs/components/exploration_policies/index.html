@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Exploration Policies &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Exploration Policies &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Environments" href="../environments/index.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -202,62 +205,62 @@ predefined policy. This is one of the most important aspects of reinforcement le
 tuning to get it right. Coach supports several pre-defined exploration policies, and it can be easily extended with
 custom policies. Note that not all exploration policies are expected to work for both discrete and continuous action
 spaces.</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="35%" />
-<col width="37%" />
-<col width="29%" />
+<col style="width: 35%" />
+<col style="width: 37%" />
+<col style="width: 29%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Exploration Policy</th>
-<th class="head">Discrete Action Space</th>
-<th class="head">Box Action Space</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Exploration Policy</p></th>
+<th class="head"><p>Discrete Action Space</p></th>
+<th class="head"><p>Box Action Space</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>AdditiveNoise</td>
-<td><span class="red">X</span></td>
-<td><span class="green">V</span></td>
+<tbody>
+<tr class="row-even"><td><p>AdditiveNoise</p></td>
+<td><p><span class="red">X</span></p></td>
+<td><p><span class="green">V</span></p></td>
 </tr>
-<tr class="row-odd"><td>Boltzmann</td>
-<td><span class="green">V</span></td>
-<td><span class="red">X</span></td>
+<tr class="row-odd"><td><p>Boltzmann</p></td>
+<td><p><span class="green">V</span></p></td>
+<td><p><span class="red">X</span></p></td>
 </tr>
-<tr class="row-even"><td>Bootstrapped</td>
-<td><span class="green">V</span></td>
-<td><span class="red">X</span></td>
+<tr class="row-even"><td><p>Bootstrapped</p></td>
+<td><p><span class="green">V</span></p></td>
+<td><p><span class="red">X</span></p></td>
 </tr>
-<tr class="row-odd"><td>Categorical</td>
-<td><span class="green">V</span></td>
-<td><span class="red">X</span></td>
+<tr class="row-odd"><td><p>Categorical</p></td>
+<td><p><span class="green">V</span></p></td>
+<td><p><span class="red">X</span></p></td>
 </tr>
-<tr class="row-even"><td>ContinuousEntropy</td>
-<td><span class="red">X</span></td>
-<td><span class="green">V</span></td>
+<tr class="row-even"><td><p>ContinuousEntropy</p></td>
+<td><p><span class="red">X</span></p></td>
+<td><p><span class="green">V</span></p></td>
 </tr>
-<tr class="row-odd"><td>EGreedy</td>
-<td><span class="green">V</span></td>
-<td><span class="green">V</span></td>
+<tr class="row-odd"><td><p>EGreedy</p></td>
+<td><p><span class="green">V</span></p></td>
+<td><p><span class="green">V</span></p></td>
 </tr>
-<tr class="row-even"><td>Greedy</td>
-<td><span class="green">V</span></td>
-<td><span class="green">V</span></td>
+<tr class="row-even"><td><p>Greedy</p></td>
+<td><p><span class="green">V</span></p></td>
+<td><p><span class="green">V</span></p></td>
 </tr>
-<tr class="row-odd"><td>OUProcess</td>
-<td><span class="red">X</span></td>
-<td><span class="green">V</span></td>
+<tr class="row-odd"><td><p>OUProcess</p></td>
+<td><p><span class="red">X</span></p></td>
+<td><p><span class="green">V</span></p></td>
 </tr>
-<tr class="row-even"><td>ParameterNoise</td>
-<td><span class="green">V</span></td>
-<td><span class="green">V</span></td>
+<tr class="row-even"><td><p>ParameterNoise</p></td>
+<td><p><span class="green">V</span></p></td>
+<td><p><span class="green">V</span></p></td>
 </tr>
-<tr class="row-odd"><td>TruncatedNormal</td>
-<td><span class="red">X</span></td>
-<td><span class="green">V</span></td>
+<tr class="row-odd"><td><p>TruncatedNormal</p></td>
+<td><p><span class="red">X</span></p></td>
+<td><p><span class="green">V</span></p></td>
 </tr>
-<tr class="row-even"><td>UCB</td>
-<td><span class="green">V</span></td>
-<td><span class="red">X</span></td>
+<tr class="row-even"><td><p>UCB</p></td>
+<td><p><span class="green">V</span></p></td>
+<td><p><span class="red">X</span></p></td>
 </tr>
 </tbody>
 </table>
@@ -268,14 +271,11 @@ spaces.</p>
 <em class="property">class </em><code class="descclassname">rl_coach.exploration_policies.exploration_policy.</code><code class="descname">ExplorationPolicy</code><span class="sig-paren">(</span><em>action_space: rl_coach.spaces.ActionSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy" title="Permalink to this definition">¶</a></dt>
 <dd><p>An exploration policy takes the predicted actions or action values from the agent, and selects the action to
 actually apply to the environment using some predefined algorithm.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action_space</strong> – the action space used by the environment</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action_space</strong> – the action space used by the environment</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.change_phase">
 <code class="descname">change_phase</code><span class="sig-paren">(</span><em>phase</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/exploration_policies/exploration_policy.html#ExplorationPolicy.change_phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.change_phase" title="Permalink to this definition">¶</a></dt>
@@ -323,20 +323,16 @@ can be given in two different ways:
 1. Specified by the user as a noise schedule which is taken in percentiles out of the action space size
 2. Specified by the agents action. In case the agents action is a list with 2 values, the 1st one is assumed to
 be the mean of the action, and 2nd is assumed to be its standard deviation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>action_space</strong> – the action space used by the environment</li>
-<li><strong>noise_percentage_schedule</strong> – the schedule for the noise variance percentage relative to the absolute range
-of the action space</li>
-<li><strong>evaluation_noise_percentage</strong> – the noise variance percentage that will be used during evaluation phases</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_space</strong> – the action space used by the environment</p></li>
+<li><p><strong>noise_percentage_schedule</strong> – the schedule for the noise variance percentage relative to the absolute range
+of the action space</p></li>
+<li><p><strong>evaluation_noise_percentage</strong> – the noise variance percentage that will be used during evaluation phases</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -349,18 +345,14 @@ of the action space</li>
 actions has some value assigned to it (such as the Q value), and uses a softmax function to convert these values
 into a distribution over the actions. It then samples the action for playing out of the calculated distribution.
 An additional temperature schedule can be given by the user, and will control the steepness of the softmax function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>action_space</strong> – the action space used by the environment</li>
-<li><strong>temperature_schedule</strong> – the schedule for the temperature parameter of the softmax</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_space</strong> – the action space used by the environment</p></li>
+<li><p><strong>temperature_schedule</strong> – the schedule for the temperature parameter of the softmax</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -375,26 +367,22 @@ values for all the possible actions. For each episode, a single head is selected
 to its value predictions. In evaluation, the action is selected using a majority vote over all the heads
 predictions.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This exploration policy will only work for Discrete action spaces with Bootstrapped DQN style agents,
+<p class="admonition-title">Note</p>
+<p>This exploration policy will only work for Discrete action spaces with Bootstrapped DQN style agents,
 since it requires the agent to have a network with multiple heads.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>action_space</strong> – the action space used by the environment</li>
-<li><strong>epsilon_schedule</strong> – a schedule for the epsilon values</li>
-<li><strong>evaluation_epsilon</strong> – the epsilon value to use for evaluation phases</li>
-<li><strong>continuous_exploration_policy_parameters</strong> – the parameters of the continuous exploration policy to use
-if the e-greedy is used for a continuous policy</li>
-<li><strong>architecture_num_q_heads</strong> – the number of q heads to select from</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_space</strong> – the action space used by the environment</p></li>
+<li><p><strong>epsilon_schedule</strong> – a schedule for the epsilon values</p></li>
+<li><p><strong>evaluation_epsilon</strong> – the epsilon value to use for evaluation phases</p></li>
+<li><p><strong>continuous_exploration_policy_parameters</strong> – the parameters of the continuous exploration policy to use
+if the e-greedy is used for a continuous policy</p></li>
+<li><p><strong>architecture_num_q_heads</strong> – the number of q heads to select from</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -407,14 +395,11 @@ if the e-greedy is used for a continuous policy</li>
 represent a probability distribution over the action, from which a single action will be sampled.
 In evaluation, the action that has the highest probability will be selected. This is particularly useful for
 actor-critic schemes, where the actors output is a probability distribution over the actions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action_space</strong> – the action space used by the environment</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action_space</strong> – the action space used by the environment</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -429,24 +414,20 @@ implemented by adding a regularization factor to the network loss, which regular
 This exploration policy is only intended for continuous action spaces, and assumes that the entire calculation
 is implemented as part of the head.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">This exploration policy expects the agent or the network to implement the exploration functionality.
+<p class="admonition-title">Warning</p>
+<p>This exploration policy expects the agent or the network to implement the exploration functionality.
 There are only a few heads that actually are relevant and implement the entropy regularization factor.</p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>action_space</strong> – the action space used by the environment</li>
-<li><strong>noise_percentage_schedule</strong> – the schedule for the noise variance percentage relative to the absolute range
-of the action space</li>
-<li><strong>evaluation_noise_percentage</strong> – the noise variance percentage that will be used during evaluation phases</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_space</strong> – the action space used by the environment</p></li>
+<li><p><strong>noise_percentage_schedule</strong> – the schedule for the noise variance percentage relative to the absolute range
+of the action space</p></li>
+<li><p><strong>evaluation_noise_percentage</strong> – the noise variance percentage that will be used during evaluation phases</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -464,21 +445,17 @@ In evaluation, a different epsilon value can be specified.</p>
 it samples a random action out of the action space bounds. Otherwise, it selects the action according to a
 given continuous exploration policy, which is set to AdditiveNoise by default. In evaluation, the action is
 always selected according to the given continuous exploration policy (where its phase is set to evaluation as well).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>action_space</strong> – the action space used by the environment</li>
-<li><strong>epsilon_schedule</strong> – a schedule for the epsilon values</li>
-<li><strong>evaluation_epsilon</strong> – the epsilon value to use for evaluation phases</li>
-<li><strong>continuous_exploration_policy_parameters</strong> – the parameters of the continuous exploration policy to use
-if the e-greedy is used for a continuous policy</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_space</strong> – the action space used by the environment</p></li>
+<li><p><strong>epsilon_schedule</strong> – a schedule for the epsilon values</p></li>
+<li><p><strong>evaluation_epsilon</strong> – the epsilon value to use for evaluation phases</p></li>
+<li><p><strong>continuous_exploration_policy_parameters</strong> – the parameters of the continuous exploration policy to use
+if the e-greedy is used for a continuous policy</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -490,14 +467,11 @@ if the e-greedy is used for a continuous policy</li>
 <dd><p>The Greedy exploration policy is intended for both discrete and continuous action spaces.
 For discrete action spaces, it always selects the action with the maximum value, as given by the agent.
 For continuous action spaces, it always return the exact action, as it was given by the agent.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action_space</strong> – the action space used by the environment</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action_space</strong> – the action space used by the environment</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -509,14 +483,11 @@ For continuous action spaces, it always return the exact action, as it was given
 <dd><p>OUProcess exploration policy is intended for continuous action spaces, and selects the action according to
 an Ornstein-Uhlenbeck process. The Ornstein-Uhlenbeck process implements the action as a Gaussian process, where
 the samples are correlated between consequent time steps.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action_space</strong> – the action space used by the environment</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action_space</strong> – the action space used by the environment</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -531,14 +502,11 @@ The noisy layers have both weight means and weight standard deviations, and for 
 the weights are sampled from a normal distribution that follows the learned weights mean and standard deviation
 values.</p>
 <p>Warning: currently supported only by DQN variants</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action_space</strong> – the action space used by the environment</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action_space</strong> – the action space used by the environment</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -555,20 +523,16 @@ wo different ways:
 be the mean of the action, and 2nd is assumed to be its standard deviation.
 When the sampled action is outside of the action bounds given by the user, it is sampled again and again, until it
 is within the bounds.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>action_space</strong> – the action space used by the environment</li>
-<li><strong>noise_percentage_schedule</strong> – the schedule for the noise variance percentage relative to the absolute range
-of the action space</li>
-<li><strong>evaluation_noise_percentage</strong> – the noise variance percentage that will be used during evaluation phases</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_space</strong> – the action space used by the environment</p></li>
+<li><p><strong>noise_percentage_schedule</strong> – the schedule for the noise variance percentage relative to the absolute range
+of the action space</p></li>
+<li><p><strong>evaluation_noise_percentage</strong> – the noise variance percentage that will be used during evaluation phases</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -584,23 +548,19 @@ It then updates the action value estimates to by mean(actions)+lambda*stdev(acti
 given by the user. This exploration policy aims to take advantage of the uncertainty of the agent in its predictions,
 and select the action according to the tradeoff between how uncertain the agent is, and how large it predicts
 the outcome from those actions to be.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>action_space</strong> – the action space used by the environment</li>
-<li><strong>epsilon_schedule</strong> – a schedule for the epsilon values</li>
-<li><strong>evaluation_epsilon</strong> – the epsilon value to use for evaluation phases</li>
-<li><strong>architecture_num_q_heads</strong> – the number of q heads to select from</li>
-<li><strong>lamb</strong> – lambda coefficient for taking the standard deviation into account</li>
-<li><strong>continuous_exploration_policy_parameters</strong> – the parameters of the continuous exploration policy to use
-if the e-greedy is used for a continuous policy</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action_space</strong> – the action space used by the environment</p></li>
+<li><p><strong>epsilon_schedule</strong> – a schedule for the epsilon values</p></li>
+<li><p><strong>evaluation_epsilon</strong> – the epsilon value to use for evaluation phases</p></li>
+<li><p><strong>architecture_num_q_heads</strong> – the number of q heads to select from</p></li>
+<li><p><strong>lamb</strong> – lambda coefficient for taking the standard deviation into account</p></li>
+<li><p><strong>continuous_exploration_policy_parameters</strong> – the parameters of the continuous exploration policy to use
+if the e-greedy is used for a continuous policy</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -617,7 +577,7 @@ if the e-greedy is used for a continuous policy</li>
         <a href="../filters/index.html" class="btn btn-neutral float-right" title="Filters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../environments/index.html" class="btn btn-neutral" title="Environments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../environments/index.html" class="btn btn-neutral float-left" title="Environments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -626,7 +586,7 @@ if the e-greedy is used for a continuous policy</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -643,27 +603,16 @@ if the e-greedy is used for a continuous policy</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

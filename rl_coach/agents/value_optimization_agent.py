@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 
@@ -24,7 +24,8 @@ from rl_coach.filters.filter import NoInputFilter
 from rl_coach.logger import screen
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplay
 from rl_coach.spaces import DiscreteActionSpace
-from copy import deepcopy
+from copy import deepcopy, copy
+
 
 ## This is an abstract agent - there is no learn_from_batch method ##
 
@@ -34,6 +35,12 @@ class ValueOptimizationAgent(Agent):
         super().__init__(agent_parameters, parent)
         self.q_values = self.register_signal("Q")
         self.q_value_for_action = {}
+
+        # currently we use softmax action probabilities only in batch-rl,
+        # but we might want to extend this later at some point.
+        self.should_get_softmax_probabilities = \
+            hasattr(self.ap.network_wrappers['main'], 'should_get_softmax_probabilities') and  \
+            self.ap.network_wrappers['main'].should_get_softmax_probabilities
 
     def init_environment_dependent_modules(self):
         super().init_environment_dependent_modules()
@@ -45,11 +52,20 @@ class ValueOptimizationAgent(Agent):
 
     # Algorithms for which q_values are calculated from predictions will override this function
     def get_all_q_values_for_states(self, states: StateType):
+        actions_q_values = None
         if self.exploration_policy.requires_action_values():
             actions_q_values = self.get_prediction(states)
-        else:
-            actions_q_values = None
+
         return actions_q_values
+
+    def get_all_q_values_for_states_and_softmax_probabilities(self, states: StateType):
+        actions_q_values, softmax_probabilities = None, None
+        if self.exploration_policy.requires_action_values():
+            outputs = copy(self.networks['main'].online_network.outputs)
+            outputs.append(self.networks['main'].online_network.output_heads[0].softmax)
+
+            actions_q_values, softmax_probabilities = self.get_prediction(states, outputs=outputs)
+        return actions_q_values, softmax_probabilities
 
     def get_prediction(self, states, outputs=None):
         return self.networks['main'].online_network.predict(self.prepare_batch_for_inference(states, 'main'),
@@ -72,10 +88,19 @@ class ValueOptimizationAgent(Agent):
             ).format(policy.__class__.__name__))
 
     def choose_action(self, curr_state):
-        actions_q_values = self.get_all_q_values_for_states(curr_state)
+        if self.should_get_softmax_probabilities:
+            actions_q_values, softmax_probabilities = \
+                self.get_all_q_values_for_states_and_softmax_probabilities(curr_state)
+        else:
+            actions_q_values = self.get_all_q_values_for_states(curr_state)
 
         # choose action according to the exploration policy and the current phase (evaluating or training the agent)
-        action = self.exploration_policy.get_action(actions_q_values)
+        action, action_probabilities = self.exploration_policy.get_action(actions_q_values)
+        if self.should_get_softmax_probabilities and softmax_probabilities is not None:
+            # override the exploration policy's generated probabilities when an action was taken
+            # with the agent's actual policy
+            action_probabilities = softmax_probabilities
+
         self._validate_action(self.exploration_policy, action)
 
         if actions_q_values is not None:
@@ -87,15 +112,18 @@ class ValueOptimizationAgent(Agent):
             self.q_values.add_sample(actions_q_values)
 
             actions_q_values = actions_q_values.squeeze()
+            action_probabilities = action_probabilities.squeeze()
 
             for i, q_value in enumerate(actions_q_values):
                 self.q_value_for_action[i].add_sample(q_value)
 
             action_info = ActionInfo(action=action,
                                      action_value=actions_q_values[action],
-                                     max_action_value=np.max(actions_q_values))
+                                     max_action_value=np.max(actions_q_values),
+                                     all_action_probabilities=action_probabilities)
+
         else:
-            action_info = ActionInfo(action=action)
+            action_info = ActionInfo(action=action, all_action_probabilities=action_probabilities)
 
         return action_info
 

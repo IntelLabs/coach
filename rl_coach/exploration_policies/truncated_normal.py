@@ -20,7 +20,7 @@ import numpy as np
 from scipy.stats import truncnorm
 
 from rl_coach.core_types import RunPhase, ActionType
-from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy, ExplorationParameters
+from rl_coach.exploration_policies.exploration_policy import ExplorationParameters, ContinuousActionExplorationPolicy
 from rl_coach.schedules import Schedule, LinearSchedule
 from rl_coach.spaces import ActionSpace, BoxActionSpace
 
@@ -38,7 +38,7 @@ class TruncatedNormalParameters(ExplorationParameters):
         return 'rl_coach.exploration_policies.truncated_normal:TruncatedNormal'
 
 
-class TruncatedNormal(ExplorationPolicy):
+class TruncatedNormal(ContinuousActionExplorationPolicy):
     """
     The TruncatedNormal exploration policy is intended for continuous action spaces. It samples the action from a
     normal distribution, where the mean action is given by the agent, and the standard deviation can be given in t

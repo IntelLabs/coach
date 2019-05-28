@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Adding a New Environment &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Adding a New Environment &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Adding a New Agent" href="add_agent.html" />
     <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -209,9 +212,8 @@ As an alternative, we highly recommend following the corresponding
 <a class="reference external" href="https://github.com/NervanaSystems/coach/blob/master/tutorials/2.%20Adding%20an%20Environment.ipynb">tutorial</a>
 in the GitHub repo.</p>
 <ol class="arabic">
-<li><p class="first">Create a new class for your environment, and inherit the Environment class.</p>
-</li>
-<li><p class="first">Coach defines a simple API for implementing a new environment, which are defined in environment/environment.py.
+<li><p>Create a new class for your environment, and inherit the Environment class.</p></li>
+<li><p>Coach defines a simple API for implementing a new environment, which are defined in environment/environment.py.
 There are several functions to implement, but only some of them are mandatory.</p>
 <p>Here are the important ones:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_take_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_idx</span><span class="p">:</span> <span class="n">ActionType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
@@ -250,7 +252,7 @@ There are several functions to implement, but only some of them are mandatory.</
 </pre></div>
 </div>
 </li>
-<li><p class="first">Create a new parameters class for your environment, which inherits the EnvironmentParameters class.
+<li><p>Create a new parameters class for your environment, which inherits the EnvironmentParameters class.
 In the __init__ of your class, define all the parameters you used in your Environment class.
 Additionally, fill the path property of the class with the path to your Environment class.
 For example, take a look at the EnvironmentParameters class used for Doom:</p>
@@ -269,8 +271,7 @@ For example, take a look at the EnvironmentParameters class used for Doom:</p>
 </div>
 </div></blockquote>
 </li>
-<li><p class="first">And that’s it, you’re done. Now just add a new preset with your newly created environment, and start training an agent on top of it.</p>
-</li>
+<li><p>And that’s it, you’re done. Now just add a new preset with your newly created environment, and start training an agent on top of it.</p></li>
 </ol>
 </div>
 </div>
@@ -286,7 +287,7 @@ For example, take a look at the EnvironmentParameters class used for Doom:</p>
         <a href="../components/agents/index.html" class="btn btn-neutral float-right" title="Agents" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="add_agent.html" class="btn btn-neutral" title="Adding a New Agent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="add_agent.html" class="btn btn-neutral float-left" title="Adding a New Agent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -295,7 +296,7 @@ For example, take a look at the EnvironmentParameters class used for Doom:</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -312,27 +313,16 @@ For example, take a look at the EnvironmentParameters class used for Doom:</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
