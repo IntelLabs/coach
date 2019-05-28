@@ -385,23 +385,16 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         csv = pd.read_csv(csv_path[0])
 
         # check heat-up value
-        results = []
-        if csv["In Heatup"].values[-1] == 0:
-            results.append(csv["Total steps"].values[-1])
-        else:
-            while csv["In Heatup"].values[-1] == 1:
-                csv = pd.read_csv(csv_path[0])
-                last_step = csv["Total steps"].values
-                results.append(last_step[-1])
-                time.sleep(1)
+        while csv["In Heatup"].values[-1] == 1:
+            csv = pd.read_csv(csv_path[0])
+            time.sleep(1)
 
-        # get the first value after heat-up
-        time.sleep(3)
-        results.append(csv["Total steps"].values[-1])
-
-        assert int(results[-1]) >= Def.Consts.num_hs, \
+        csv.columns = [column.replace(" ", "_") for column in csv.columns]
+        results = csv.query("In_Heatup == 1")
+        last_val_in_heatup = results.Total_steps.values[-1]
+        assert int(last_val_in_heatup) >= Def.Consts.num_hs, \
             Def.Consts.ASSERT_MSG.format("bigger than " +
-                                         str(Def.Consts.num_hs), results[-1])
+                                         str(Def.Consts.num_hs), last_val_in_heatup)
 
     elif flag[0] == "-f" or flag[0] == "--framework":
         """

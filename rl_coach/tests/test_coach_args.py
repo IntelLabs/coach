@@ -18,6 +18,7 @@ import time
 import pytest
 import rl_coach.tests.utils.args_utils as a_utils
 import rl_coach.tests.utils.presets_utils as p_utils
+from rl_coach.logger import screen
 from rl_coach.tests.utils.definitions import Definitions as Def
 
 
@@ -59,6 +60,8 @@ def test_preset_args(preset_args, flag, clres, start_time=time.time(),
     except AssertionError:
         # close process once get assert false
         proc.kill()
+        # if test failed - print logs
+        screen.error(open(clres.stdout.name).read(), crash=False)
         assert False
 
     proc.kill()
