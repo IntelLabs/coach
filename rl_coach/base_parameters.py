@@ -1,4 +1,5 @@
 #
+#
 # Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -222,7 +223,8 @@ class PresetValidationParameters(Parameters):
                  reward_test_level=None,
                  test_using_a_trace_test=True,
                  trace_test_levels=None,
-                 trace_max_env_steps=5000):
+                 trace_max_env_steps=5000,
+                 read_csv_tries=200):
         """
         :param test:
             A flag which specifies if the preset should be tested as part of the validation process.
@@ -245,6 +247,8 @@ class PresetValidationParameters(Parameters):
         :param trace_max_env_steps:
             An integer representing the maximum number of environment steps to run when running this preset as part
             of the trace tests suite.
+        :param read_csv_tries:
+            The number of retries to attempt for reading the experiment csv file, before declaring failure.
         """
         super().__init__()
 
@@ -261,6 +265,7 @@ class PresetValidationParameters(Parameters):
         self.test_using_a_trace_test = test_using_a_trace_test
         self.trace_test_levels = trace_test_levels
         self.trace_max_env_steps = trace_max_env_steps
+        self.read_csv_tries = read_csv_tries
 
 
 class NetworkParameters(Parameters):
