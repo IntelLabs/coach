@@ -21,14 +21,14 @@ def test_get_action():
     # verify that test phase gives greedy actions (evaluation_epsilon = 0)
     policy.change_phase(RunPhase.TEST)
     for i in range(100):
-        best_action = policy.get_action(np.array([10, 20, 30]))
+        best_action, _ = policy.get_action(np.array([10, 20, 30]))
         assert best_action == 2
 
     # verify that train phase gives uniform actions (exploration = 1)
     policy.change_phase(RunPhase.TRAIN)
     counters = np.array([0, 0, 0])
     for i in range(30000):
-        best_action = policy.get_action(np.array([10, 20, 30]))
+        best_action, _ = policy.get_action(np.array([10, 20, 30]))
         counters[best_action] += 1
     assert np.all(counters > 9500)  # this is noisy so we allow 5% error
 

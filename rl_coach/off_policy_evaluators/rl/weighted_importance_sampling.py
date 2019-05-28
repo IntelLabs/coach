@@ -20,7 +20,7 @@ from rl_coach.core_types import Episode
 
 
 class WeightedImportanceSampling(object):
-# TODO rename and add PDIS
+# TODO add PDIS
     @staticmethod
     def evaluate(evaluation_dataset_as_episodes: List[Episode]) -> float:
         """
