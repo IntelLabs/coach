@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>N-Step Q Learning &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>N-Step Q Learning &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Mixed Monte Carlo" href="mmc.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -228,43 +231,39 @@
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <p>The <span class="math notranslate nohighlight">\(N\)</span>-step Q learning algorithm works in similar manner to DQN except for the following changes:</p>
 <ol class="arabic simple">
-<li>No replay buffer is used. Instead of sampling random batches of transitions, the network is trained every
-<span class="math notranslate nohighlight">\(N\)</span> steps using the latest <span class="math notranslate nohighlight">\(N\)</span> steps played by the agent.</li>
-<li>In order to stabilize the learning, multiple workers work together to update the network.
-This creates the same effect as uncorrelating the samples used for training.</li>
-<li>Instead of using single-step Q targets for the network, the rewards from $N$ consequent steps are accumulated
+<li><p>No replay buffer is used. Instead of sampling random batches of transitions, the network is trained every
+<span class="math notranslate nohighlight">\(N\)</span> steps using the latest <span class="math notranslate nohighlight">\(N\)</span> steps played by the agent.</p></li>
+<li><p>In order to stabilize the learning, multiple workers work together to update the network.
+This creates the same effect as uncorrelating the samples used for training.</p></li>
+<li><p>Instead of using single-step Q targets for the network, the rewards from $N$ consequent steps are accumulated
 to form the <span class="math notranslate nohighlight">\(N\)</span>-step Q targets, according to the following equation:
 <span class="math notranslate nohighlight">\(R(s_t, a_t) = \sum_{i=t}^{i=t + k - 1} \gamma^{i-t}r_i +\gamma^{k} V(s_{t+k})\)</span>
-where <span class="math notranslate nohighlight">\(k\)</span> is <span class="math notranslate nohighlight">\(T_{max} - State\_Index\)</span> for each state in the batch</li>
+where <span class="math notranslate nohighlight">\(k\)</span> is <span class="math notranslate nohighlight">\(T_{max} - State\_Index\)</span> for each state in the batch</p></li>
 </ol>
 <dl class="class">
 <dt id="rl_coach.agents.n_step_q_agent.NStepQAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.n_step_q_agent.</code><code class="descname">NStepQAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/n_step_q_agent.html#NStepQAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.n_step_q_agent.NStepQAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_steps_between_copying_online_weights_to_target</strong> – (StepMethod)
-The number of steps between copying the online network weights to the target network weights.</li>
-<li><strong>apply_gradients_every_x_episodes</strong> – (int)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_steps_between_copying_online_weights_to_target</strong> – (StepMethod)
+The number of steps between copying the online network weights to the target network weights.</p></li>
+<li><p><strong>apply_gradients_every_x_episodes</strong> – (int)
 The number of episodes between applying the accumulated gradients to the network. After every
 num_steps_between_gradient_updates steps, the agent will calculate the gradients for the collected data,
 it will then accumulate it in internal accumulators, and will only apply them to the network once in every
-apply_gradients_every_x_episodes episodes.</li>
-<li><strong>num_steps_between_gradient_updates</strong> – (int)
+apply_gradients_every_x_episodes episodes.</p></li>
+<li><p><strong>num_steps_between_gradient_updates</strong> – (int)
 The number of steps between calculating gradients for the collected data. In the A3C paper, this parameter is
 called t_max. Since this algorithm is on-policy, only the steps collected between each two gradient calculations
-are used in the batch.</li>
-<li><strong>targets_horizon</strong> – (str)
+are used in the batch.</p></li>
+<li><p><strong>targets_horizon</strong> – (str)
 Should be either ‘N-Step’ or ‘1-Step’, and defines the length for which to bootstrap the network values over.
 Essentially, 1-Step follows the regular 1 step bootstrapping Q learning update. For more information,
-please refer to the original paper (<a class="reference external" href="https://arxiv.org/abs/1602.01783">https://arxiv.org/abs/1602.01783</a>)</li>
+please refer to the original paper (<a class="reference external" href="https://arxiv.org/abs/1602.01783">https://arxiv.org/abs/1602.01783</a>)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -282,7 +281,7 @@ please refer to the original paper (<a class="reference external" href="https://
         <a href="naf.html" class="btn btn-neutral float-right" title="Normalized Advantage Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="mmc.html" class="btn btn-neutral" title="Mixed Monte Carlo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="mmc.html" class="btn btn-neutral float-left" title="Mixed Monte Carlo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -291,7 +290,7 @@ please refer to the original paper (<a class="reference external" href="https://
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -308,27 +307,16 @@ please refer to the original paper (<a class="reference external" href="https://
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

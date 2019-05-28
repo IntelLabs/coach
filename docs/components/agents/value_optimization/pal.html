@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Persistent Advantage Learning &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Persistent Advantage Learning &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Neural Episodic Control" href="nec.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -227,47 +230,43 @@
 <div class="section" id="training-the-network">
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>Sample a batch of transitions from the replay buffer.</li>
-<li>Start by calculating the initial target values in the same manner as they are calculated in DDQN
-<span class="math notranslate nohighlight">\(y_t^{DDQN}=r(s_t,a_t )+\gamma Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span></li>
-<li>The action gap <span class="math notranslate nohighlight">\(V(s_t )-Q(s_t,a_t)\)</span> should then be subtracted from each of the calculated targets.
+<li><p>Sample a batch of transitions from the replay buffer.</p></li>
+<li><p>Start by calculating the initial target values in the same manner as they are calculated in DDQN
+<span class="math notranslate nohighlight">\(y_t^{DDQN}=r(s_t,a_t )+\gamma Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span></p></li>
+<li><p>The action gap <span class="math notranslate nohighlight">\(V(s_t )-Q(s_t,a_t)\)</span> should then be subtracted from each of the calculated targets.
 To calculate the action gap, run the target network using the current states and get the <span class="math notranslate nohighlight">\(Q\)</span> values
 for all the actions. Then estimate <span class="math notranslate nohighlight">\(V\)</span> as the maximum predicted <span class="math notranslate nohighlight">\(Q\)</span> value for the current state:
-<span class="math notranslate nohighlight">\(V(s_t )=max_a Q(s_t,a)\)</span></li>
-<li>For <em>advantage learning (AL)</em>, reduce the action gap weighted by a predefined parameter <span class="math notranslate nohighlight">\(\alpha\)</span> from
+<span class="math notranslate nohighlight">\(V(s_t )=max_a Q(s_t,a)\)</span></p></li>
+<li><p>For <em>advantage learning (AL)</em>, reduce the action gap weighted by a predefined parameter <span class="math notranslate nohighlight">\(\alpha\)</span> from
 the targets <span class="math notranslate nohighlight">\(y_t^{DDQN}\)</span>:
-<span class="math notranslate nohighlight">\(y_t=y_t^{DDQN}-\alpha \cdot (V(s_t )-Q(s_t,a_t ))\)</span></li>
-<li>For <em>persistent advantage learning (PAL)</em>, the target network is also used in order to calculate the action
+<span class="math notranslate nohighlight">\(y_t=y_t^{DDQN}-\alpha \cdot (V(s_t )-Q(s_t,a_t ))\)</span></p></li>
+<li><p>For <em>persistent advantage learning (PAL)</em>, the target network is also used in order to calculate the action
 gap for the next state:
 <span class="math notranslate nohighlight">\(V(s_{t+1} )-Q(s_{t+1},a_{t+1})\)</span>
 where <span class="math notranslate nohighlight">\(a_{t+1}\)</span> is chosen by running the next states through the online network and choosing the action that
 has the highest predicted <span class="math notranslate nohighlight">\(Q\)</span> value. Finally, the targets will be defined as -
-<span class="math notranslate nohighlight">\(y_t=y_t^{DDQN}-\alpha \cdot min(V(s_t )-Q(s_t,a_t ),V(s_{t+1} )-Q(s_{t+1},a_{t+1} ))\)</span></li>
-<li>Train the online network using the current states as inputs, and with the aforementioned targets.</li>
-<li>Once in every few thousand steps, copy the weights from the online network to the target network.</li>
+<span class="math notranslate nohighlight">\(y_t=y_t^{DDQN}-\alpha \cdot min(V(s_t )-Q(s_t,a_t ),V(s_{t+1} )-Q(s_{t+1},a_{t+1} ))\)</span></p></li>
+<li><p>Train the online network using the current states as inputs, and with the aforementioned targets.</p></li>
+<li><p>Once in every few thousand steps, copy the weights from the online network to the target network.</p></li>
 </ol>
 <dl class="class">
 <dt id="rl_coach.agents.pal_agent.PALAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.pal_agent.</code><code class="descname">PALAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/pal_agent.html#PALAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.pal_agent.PALAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pal_alpha</strong> – (float)
-A factor that weights the amount by which the advantage learning update will be taken into account.</li>
-<li><strong>persistent_advantage_learning</strong> – (bool)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pal_alpha</strong> – (float)
+A factor that weights the amount by which the advantage learning update will be taken into account.</p></li>
+<li><p><strong>persistent_advantage_learning</strong> – (bool)
 If set to True, the persistent mode of advantage learning will be used, which encourages the agent to take
-the same actions one after the other instead of changing actions.</li>
-<li><strong>monte_carlo_mixing_rate</strong> – (float)
+the same actions one after the other instead of changing actions.</p></li>
+<li><p><strong>monte_carlo_mixing_rate</strong> – (float)
 The amount of monte carlo values to mix into the targets of the network. The monte carlo values are just the
 total discounted returns, and they can help reduce the time it takes for the network to update to the newly
-seen values, since it is not based on bootstrapping the current network values.</li>
+seen values, since it is not based on bootstrapping the current network values.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -285,7 +284,7 @@ seen values, since it is not based on bootstrapping the current network values.<
         <a href="../policy_optimization/pg.html" class="btn btn-neutral float-right" title="Policy Gradient" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="nec.html" class="btn btn-neutral" title="Neural Episodic Control" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="nec.html" class="btn btn-neutral float-left" title="Neural Episodic Control" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -294,7 +293,7 @@ seen values, since it is not based on bootstrapping the current network values.<
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -311,27 +310,16 @@ seen values, since it is not based on bootstrapping the current network values.<
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

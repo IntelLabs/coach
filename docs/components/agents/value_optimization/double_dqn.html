@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Double DQN &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Double DQN &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Direct Future Prediction" href="../other/dfp.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -227,17 +230,17 @@
 <div class="section" id="training-the-network">
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>Sample a batch of transitions from the replay buffer.</li>
-<li>Using the next states from the sampled batch, run the online network in order to find the <span class="math notranslate nohighlight">\(Q\)</span> maximizing
+<li><p>Sample a batch of transitions from the replay buffer.</p></li>
+<li><p>Using the next states from the sampled batch, run the online network in order to find the <span class="math notranslate nohighlight">\(Q\)</span> maximizing
 action <span class="math notranslate nohighlight">\(argmax_a Q(s_{t+1},a)\)</span>. For these actions, use the corresponding next states and run the target
-network to calculate <span class="math notranslate nohighlight">\(Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span>.</li>
-<li>In order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss),
+network to calculate <span class="math notranslate nohighlight">\(Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span>.</p></li>
+<li><p>In order to zero out the updates for the actions that were not played (resulting from zeroing the MSE loss),
 use the current states from the sampled batch, and run the online network to get the current Q values predictions.
-Set those values as the targets for the actions that were not actually played.</li>
-<li>For each action that was played, use the following equation for calculating the targets of the network:
-<span class="math notranslate nohighlight">\(y_t=r(s_t,a_t )+\gamma \cdot Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span></li>
-<li>Finally, train the online network using the current states as inputs, and with the aforementioned targets.</li>
-<li>Once in every few thousand steps, copy the weights from the online network to the target network.</li>
+Set those values as the targets for the actions that were not actually played.</p></li>
+<li><p>For each action that was played, use the following equation for calculating the targets of the network:
+<span class="math notranslate nohighlight">\(y_t=r(s_t,a_t )+\gamma \cdot Q(s_{t+1},argmax_a Q(s_{t+1},a))\)</span></p></li>
+<li><p>Finally, train the online network using the current states as inputs, and with the aforementioned targets.</p></li>
+<li><p>Once in every few thousand steps, copy the weights from the online network to the target network.</p></li>
 </ol>
 </div>
 </div>
@@ -254,7 +257,7 @@ Set those values as the targets for the actions that were not actually played.</
         <a href="dqn.html" class="btn btn-neutral float-right" title="Deep Q Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../other/dfp.html" class="btn btn-neutral" title="Direct Future Prediction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../other/dfp.html" class="btn btn-neutral float-left" title="Direct Future Prediction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -263,7 +266,7 @@ Set those values as the targets for the actions that were not actually played.</
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -280,27 +283,16 @@ Set those values as the targets for the actions that were not actually played.</
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

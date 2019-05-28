@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Direct Future Prediction &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Direct Future Prediction &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Soft Actor-Critic" href="../policy_optimization/sac.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -228,13 +231,13 @@
 <div class="section" id="choosing-an-action">
 <h3>Choosing an action<a class="headerlink" href="#choosing-an-action" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li>The current states (observations and measurements) and the corresponding goal vector are passed as an input to the network.
+<li><p>The current states (observations and measurements) and the corresponding goal vector are passed as an input to the network.
 The output of the network is the predicted future measurements for time-steps <span class="math notranslate nohighlight">\(t+1,t+2,t+4,t+8,t+16\)</span> and
-<span class="math notranslate nohighlight">\(t+32\)</span> for each possible action.</li>
-<li>For each action, the measurements of each predicted time-step are multiplied by the goal vector,
-and the result is a single vector of future values for each action.</li>
-<li>Then, a weighted sum of the future values of each action is calculated, and the result is a single value for each action.</li>
-<li>The action values are passed to the exploration policy to decide on the action to use.</li>
+<span class="math notranslate nohighlight">\(t+32\)</span> for each possible action.</p></li>
+<li><p>For each action, the measurements of each predicted time-step are multiplied by the goal vector,
+and the result is a single vector of future values for each action.</p></li>
+<li><p>Then, a weighted sum of the future values of each action is calculated, and the result is a single value for each action.</p></li>
+<li><p>The action values are passed to the exploration policy to decide on the action to use.</p></li>
 </ol>
 </div>
 <div class="section" id="training-the-network">
@@ -247,39 +250,35 @@ For the actions that were not taken, the targets are the current values.</p>
 <dl class="class">
 <dt id="rl_coach.agents.dfp_agent.DFPAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.dfp_agent.</code><code class="descname">DFPAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/dfp_agent.html#DFPAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.dfp_agent.DFPAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_predicted_steps_ahead</strong> – (int)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_predicted_steps_ahead</strong> – (int)
 Number of future steps to predict measurements for. The future steps won’t be sequential, but rather jump
 in multiples of 2. For example, if num_predicted_steps_ahead = 3, then the steps will be: t+1, t+2, t+4.
-The predicted steps will be [t + 2**i for i in range(num_predicted_steps_ahead)]</li>
-<li><strong>goal_vector</strong> – (List[float])
+The predicted steps will be [t + 2**i for i in range(num_predicted_steps_ahead)]</p></li>
+<li><p><strong>goal_vector</strong> – (List[float])
 The goal vector will weight each of the measurements to form an optimization goal. The vector should have
 the same length as the number of measurements, and it will be vector multiplied by the measurements.
 Positive values correspond to trying to maximize the particular measurement, and negative values
-correspond to trying to minimize the particular measurement.</li>
-<li><strong>future_measurements_weights</strong> – (List[float])
+correspond to trying to minimize the particular measurement.</p></li>
+<li><p><strong>future_measurements_weights</strong> – (List[float])
 The future_measurements_weights weight the contribution of each of the predicted timesteps to the optimization
 goal. For example, if there are 6 steps predicted ahead, and a future_measurements_weights vector with 3 values,
 then only the 3 last timesteps will be taken into account, according to the weights in the
-future_measurements_weights vector.</li>
-<li><strong>use_accumulated_reward_as_measurement</strong> – (bool)
+future_measurements_weights vector.</p></li>
+<li><p><strong>use_accumulated_reward_as_measurement</strong> – (bool)
 If set to True, the accumulated reward from the beginning of the episode will be added as a measurement to
 the measurements vector in the state. This van be useful in environments where the given measurements don’t
-include enough information for the particular goal the agent should achieve.</li>
-<li><strong>handling_targets_after_episode_end</strong> – (HandlingTargetsAfterEpisodeEnd)
-Dictates how to handle measurements that are outside the episode length.</li>
-<li><strong>scale_measurements_targets</strong> – (Dict[str, float])
+include enough information for the particular goal the agent should achieve.</p></li>
+<li><p><strong>handling_targets_after_episode_end</strong> – (HandlingTargetsAfterEpisodeEnd)
+Dictates how to handle measurements that are outside the episode length.</p></li>
+<li><p><strong>scale_measurements_targets</strong> – (Dict[str, float])
 Allows rescaling the values of each of the measurements available. This van be useful when the measurements
-have a different scale and you want to normalize them to the same scale.</li>
+have a different scale and you want to normalize them to the same scale.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -297,7 +296,7 @@ have a different scale and you want to normalize them to the same scale.</li>
         <a href="../value_optimization/double_dqn.html" class="btn btn-neutral float-right" title="Double DQN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../policy_optimization/sac.html" class="btn btn-neutral" title="Soft Actor-Critic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../policy_optimization/sac.html" class="btn btn-neutral float-left" title="Soft Actor-Critic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -306,7 +305,7 @@ have a different scale and you want to normalize them to the same scale.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -323,27 +322,16 @@ have a different scale and you want to normalize them to the same scale.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Agents &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Agents &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Adding a New Environment" href="../../contributing/add_env.html" />
     <link href="../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -241,59 +244,50 @@ A detailed description of those algorithms can be found by navigating to each of
 <dl class="class">
 <dt id="rl_coach.base_parameters.AgentParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">AgentParameters</code><span class="sig-paren">(</span><em>algorithm: rl_coach.base_parameters.AlgorithmParameters, exploration: ExplorationParameters, memory: MemoryParameters, networks: Dict[str, rl_coach.base_parameters.NetworkParameters], visualization: rl_coach.base_parameters.VisualizationParameters = &lt;rl_coach.base_parameters.VisualizationParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/base_parameters.html#AgentParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.AgentParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>algorithm</strong> – A class inheriting AlgorithmParameters.
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algorithm</strong> – A class inheriting AlgorithmParameters.
 The parameters used for the specific algorithm used by the agent.
-These parameters can be later referenced in the agent implementation through self.ap.algorithm.</li>
-<li><strong>exploration</strong> – Either a class inheriting ExplorationParameters or a dictionary mapping between action
+These parameters can be later referenced in the agent implementation through self.ap.algorithm.</p></li>
+<li><p><strong>exploration</strong> – Either a class inheriting ExplorationParameters or a dictionary mapping between action
 space types and their corresponding ExplorationParameters. If a dictionary was used,
 when the agent will be instantiated, the correct exploration policy parameters will be used
 according to the real type of the environment action space.
-These parameters will be used to instantiate the exporation policy.</li>
-<li><strong>memory</strong> – A class inheriting MemoryParameters. It defines all the parameters used by the memory module.</li>
-<li><strong>networks</strong> – A dictionary mapping between network names and their corresponding network parmeters, defined
+These parameters will be used to instantiate the exporation policy.</p></li>
+<li><p><strong>memory</strong> – A class inheriting MemoryParameters. It defines all the parameters used by the memory module.</p></li>
+<li><p><strong>networks</strong> – A dictionary mapping between network names and their corresponding network parmeters, defined
 as a class inheriting NetworkParameters. Each element will be used in order to instantiate
 a NetworkWrapper class, and all the network wrappers will be stored in the agent under
 self.network_wrappers. self.network_wrappers is a dict mapping between the network name that
-was given in the networks dict, and the instantiated network wrapper.</li>
-<li><strong>visualization</strong> – A class inheriting VisualizationParameters and defining various parameters that can be
-used for visualization purposes, such as printing to the screen, rendering, and saving videos.</li>
+was given in the networks dict, and the instantiated network wrapper.</p></li>
+<li><p><strong>visualization</strong> – A class inheriting VisualizationParameters and defining various parameters that can be
+used for visualization purposes, such as printing to the screen, rendering, and saving videos.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
 <dt id="rl_coach.agents.agent.Agent">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.agent.</code><code class="descname">Agent</code><span class="sig-paren">(</span><em>agent_parameters: rl_coach.base_parameters.AgentParameters</em>, <em>parent: Union[LevelManager</em>, <em>CompositeAgent] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>agent_parameters</strong> – A AgentParameters class instance with all the agent parameters</td>
-</tr>
-</tbody>
-</table>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>agent_parameters</strong> – A AgentParameters class instance with all the agent parameters</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.act">
 <code class="descname">act</code><span class="sig-paren">(</span><em>action: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray</em>, <em>List] = None</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.act" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given the agents current knowledge, decide on the next action to apply to the environment</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – An action to take, overriding whatever the current policy is</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An ActionInfo object, which contains the action and any additional info from the action decision process</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action</strong> – An action to take, overriding whatever the current policy is</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An ActionInfo object, which contains the action and any additional info from the action decision process</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -302,21 +296,17 @@ used for visualization purposes, such as printing to the screen, rendering, and 
 <dd><p>This function is a wrapper to allow having the same calls for shared or unshared memories.
 It should be used instead of calling the memory directly in order to allow different algorithms to work
 both with a shared and a local memory.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>func</strong> – the name of the memory function to call</li>
-<li><strong>args</strong> – the arguments to supply to the function</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – the name of the memory function to call</p></li>
+<li><p><strong>args</strong> – the arguments to supply to the function</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the return value of the function</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the return value of the function</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -324,16 +314,14 @@ both with a shared and a local memory.</p>
 <code class="descname">choose_action</code><span class="sig-paren">(</span><em>curr_state</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.choose_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.choose_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>choose an action to act with in the current episode being played. Different behavior might be exhibited when
 training or testing.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>curr_state</strong> – the current state to act upon.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">chosen action, some action value describing the action (q-value, probability, etc)</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>curr_state</strong> – the current state to act upon.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>chosen action, some action value describing the action (q-value, probability, etc)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -351,14 +339,11 @@ training or testing.</p>
 <dd><p>Create all the networks of the agent.
 The network creation will be done after setting the environment parameters for the agent, since they are needed
 for creating the network.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list containing all the networks</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list containing all the networks</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -367,37 +352,31 @@ for creating the network.</p>
 <dd><p>Get a prediction from the agent with regard to the requested prediction_type.
 If the agent cannot predict this type of prediction_type, or if there is more than possible way to do so,
 raise a ValueException.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>states</strong> – The states to get a prediction for</li>
-<li><strong>prediction_type</strong> – The type of prediction to get for the states. For example, the state-value prediction.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>states</strong> – The states to get a prediction for</p></li>
+<li><p><strong>prediction_type</strong> – The type of prediction to get for the states. For example, the state-value prediction.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the predicted values</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the predicted values</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.get_state_embedding">
 <code class="descname">get_state_embedding</code><span class="sig-paren">(</span><em>state: dict</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.get_state_embedding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.get_state_embedding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a state, get the corresponding state embedding  from the main network</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> – a state dict</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a numpy embedding vector</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – a state dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a numpy embedding vector</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -406,14 +385,11 @@ raise a ValueException.</p>
 <dd><p>Make any changes needed when each episode is ended.
 This includes incrementing counters, updating full episode dependent values, updating logs, etc.
 This function is called right after each episode is ended.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -421,44 +397,36 @@ This function is called right after each episode is ended.</p>
 <code class="descname">init_environment_dependent_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.init_environment_dependent_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.init_environment_dependent_modules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize any modules that depend on knowing information about the environment such as the action space or
 the observation space</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.learn_from_batch">
 <code class="descname">learn_from_batch</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span> &#x2192; Tuple[float, List, List]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.learn_from_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.learn_from_batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a batch of transitions, calculates their target values and updates the network.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – A list of transitions</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The total loss of the training, the loss per head and the unclipped gradients</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch</strong> – A list of transitions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The total loss of the training, the loss per head and the unclipped gradients</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.log_to_screen">
 <code class="descname">log_to_screen</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.log_to_screen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.log_to_screen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write an episode summary line to the terminal</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -467,59 +435,48 @@ the observation space</p>
 <dd><p>Given a response from the environment, distill the observation from it and store it for later use.
 The response should be a dictionary containing the performed action, the new observation and measurements,
 the reward, a game over flag and any additional information necessary.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>env_response</strong> – result of call from environment.step(action)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a boolean value which determines if the agent has decided to terminate the episode after seeing the
-given observation</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>env_response</strong> – result of call from environment.step(action)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a boolean value which determines if the agent has decided to terminate the episode after seeing the
+given observation</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rl_coach.agents.agent.Agent.parent">
 <code class="descname">parent</code><a class="headerlink" href="#rl_coach.agents.agent.Agent.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the parent class of the agent</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the current phase</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the current phase</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="rl_coach.agents.agent.Agent.phase">
 <code class="descname">phase</code><a class="headerlink" href="#rl_coach.agents.agent.Agent.phase" title="Permalink to this definition">¶</a></dt>
 <dd><p>The current running phase of the agent</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">RunPhase</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>RunPhase</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.post_training_commands">
 <code class="descname">post_training_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.post_training_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.post_training_commands" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function which allows adding any functionality that is required to run right after the training phase ends.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -527,45 +484,37 @@ given observation</td>
 <code class="descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em>states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.array]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.prepare_batch_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
 observations together, measurements together, etc.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>states</strong> – A list of environment states, where each one is a dict mapping from an observation name to its
-corresponding observation</li>
-<li><strong>network_name</strong> – The agent network name to prepare the batch for. this is needed in order to extract only
-the observation relevant for the network from the states.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>states</strong> – A list of environment states, where each one is a dict mapping from an observation name to its
+corresponding observation</p></li>
+<li><p><strong>network_name</strong> – The agent network name to prepare the batch for. this is needed in order to extract only
+the observation relevant for the network from the states.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary containing a list of values from all the given states for each of the observations</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing a list of values from all the given states for each of the observations</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.register_signal">
 <code class="descname">register_signal</code><span class="sig-paren">(</span><em>signal_name: str</em>, <em>dump_one_value_per_episode: bool = True</em>, <em>dump_one_value_per_step: bool = False</em><span class="sig-paren">)</span> &#x2192; rl_coach.utils.Signal<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.register_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.register_signal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a signal such that its statistics will be dumped and be viewable through dashboard</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>signal_name</strong> – the name of the signal as it will appear in dashboard</li>
-<li><strong>dump_one_value_per_episode</strong> – should the signal value be written for each episode?</li>
-<li><strong>dump_one_value_per_step</strong> – should the signal value be written for each step?</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>signal_name</strong> – the name of the signal as it will appear in dashboard</p></li>
+<li><p><strong>dump_one_value_per_episode</strong> – should the signal value be written for each episode?</p></li>
+<li><p><strong>dump_one_value_per_step</strong> – should the signal value be written for each step?</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the created signal</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the created signal</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -574,46 +523,39 @@ the observation relevant for the network from the states.</li>
 <dd><p>Perform accumulators initialization when entering an evaluation phase, and signal dumping when exiting an
 evaluation phase. Entering or exiting the evaluation phase is determined according to the new phase given
 by val, and by the current phase set in self.phase.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> – The new phase to change to</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>val</strong> – The new phase to change to</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.reset_internal_state">
 <code class="descname">reset_internal_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.reset_internal_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.reset_internal_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset all the episodic parameters. This function is called right before each episode starts.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.restore_checkpoint">
 <code class="descname">restore_checkpoint</code><span class="sig-paren">(</span><em>checkpoint_dir: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.restore_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.restore_checkpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows agents to store additional information when saving checkpoints.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_dir</strong> – The checkpoint dir to restore from</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>checkpoint_dir</strong> – The checkpoint dir to restore from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -621,51 +563,42 @@ by val, and by the current phase set in self.phase.</p>
 <code class="descname">run_off_policy_evaluation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.agent.Agent.run_off_policy_evaluation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run off-policy evaluation estimators to evaluate the trained policy performance against a dataset.
 Should only be implemented for off-policy RL algorithms.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference">
 <code class="descname">run_pre_network_filter_for_inference</code><span class="sig-paren">(</span><em>state: Dict[str, numpy.ndarray], update_filter_internal_state: bool = True</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.run_pre_network_filter_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run filters which where defined for being applied right before using the state for inference.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>state</strong> – The state to run the filters on</li>
-<li><strong>update_filter_internal_state</strong> – Should update the filter’s internal state - should not update when evaluating</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> – The state to run the filters on</p></li>
+<li><p><strong>update_filter_internal_state</strong> – Should update the filter’s internal state - should not update when evaluating</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The filtered state</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The filtered state</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.save_checkpoint">
 <code class="descname">save_checkpoint</code><span class="sig-paren">(</span><em>checkpoint_prefix: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.save_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.save_checkpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows agents to store additional information when saving checkpoints.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>checkpoint_prefix</strong> – The prefix of the checkpoint file to save</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>checkpoint_prefix</strong> – The prefix of the checkpoint file to save</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -673,16 +606,14 @@ Should only be implemented for off-policy RL algorithms.</p>
 <code class="descname">set_environment_parameters</code><span class="sig-paren">(</span><em>spaces: rl_coach.spaces.SpacesDefinition</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_environment_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_environment_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the parameters that are environment dependent. As a side effect, initializes all the components that are
 dependent on those values, by calling init_environment_dependent_modules</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spaces</strong> – the environment spaces definition</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spaces</strong> – the environment spaces definition</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -692,58 +623,47 @@ dependent on those values, by calling init_environment_dependent_modules</p>
 has another master agent that is controlling it. In such cases, the master agent can define the goals for the
 slave agent, define it’s observation, possible actions, etc. The directive type is defined by the agent
 in-action-space.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – The action that should be set as the directive</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action</strong> – The action that should be set as the directive</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.set_session">
 <code class="descname">set_session</code><span class="sig-paren">(</span><em>sess</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_session" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the deep learning framework session for all the agents in the composite agent</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.setup_logger">
 <code class="descname">setup_logger</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.setup_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.setup_logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the logger for the agent</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.sync">
 <code class="descname">sync</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.sync" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sync the global network parameters to local networks</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -752,14 +672,11 @@ in-action-space.</p>
 <dd><p>Check if a training phase should be done as configured by num_consecutive_playing_steps.
 If it should, then do several training steps as configured by num_consecutive_training_steps.
 A single training iteration: Sample a batch, train on it and update target networks.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The total training loss during the training iterations.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The total training loss during the training iterations.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -768,28 +685,22 @@ A single training iteration: Sample a batch, train on it and update target netwo
 <dd><p>Updates the episodic log file with all the signal values from the most recent episode.
 Additional signals for logging can be set by the creating a new signal using self.register_signal,
 and then updating it with some internal agent values.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.update_step_in_episode_log">
 <code class="descname">update_step_in_episode_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_step_in_episode_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_step_in_episode_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the in-episode log file with all the signal values from the most recent step.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -797,16 +708,14 @@ and then updating it with some internal agent values.</p>
 <code class="descname">update_transition_before_adding_to_replay_buffer</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_transition_before_adding_to_replay_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_transition_before_adding_to_replay_buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows agents to update the transition just before adding it to the replay buffer.
 Can be useful for agents that want to tweak the reward, termination signal, etc.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>transition</strong> – the transition to update</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the updated transition</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>transition</strong> – the transition to update</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the updated transition</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -824,7 +733,7 @@ Can be useful for agents that want to tweak the reward, termination signal, etc.
         <a href="policy_optimization/ac.html" class="btn btn-neutral float-right" title="Actor-Critic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../../contributing/add_env.html" class="btn btn-neutral" title="Adding a New Environment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../../contributing/add_env.html" class="btn btn-neutral float-left" title="Adding a New Environment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -833,7 +742,7 @@ Can be useful for agents that want to tweak the reward, termination signal, etc.
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -850,27 +759,16 @@ Can be useful for agents that want to tweak the reward, termination signal, etc.
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

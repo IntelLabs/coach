@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rl_coach.environments.carla_environment &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>rl_coach.environments.carla_environment &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -31,21 +39,16 @@
     <link rel="search" title="Search" href="../../../search.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -197,7 +200,6 @@
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">environ</span>
-
 <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">screen</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.action.partial_discrete_action_space_map</span> <span class="k">import</span> <span class="n">PartialDiscreteActionSpaceMap</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rgb_to_y_filter</span> <span class="k">import</span> <span class="n">ObservationRGBToYFilter</span>
@@ -207,7 +209,8 @@
     <span class="k">if</span> <span class="s1">&#39;CARLA_ROOT&#39;</span> <span class="ow">in</span> <span class="n">environ</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CARLA_ROOT&#39;</span><span class="p">),</span> <span class="s1">&#39;PythonClient&#39;</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;CARLA_ROOT was not defined. Please set it to point to the CARLA root directory and try again.&quot;</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;CARLA_ROOT was not defined. Please set it to point to the CARLA root directory and try again.&quot;</span><span class="p">,</span> <span class="n">crash</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="kn">from</span> <span class="nn">carla.client</span> <span class="k">import</span> <span class="n">CarlaClient</span>
     <span class="kn">from</span> <span class="nn">carla.settings</span> <span class="k">import</span> <span class="n">CarlaSettings</span>
     <span class="kn">from</span> <span class="nn">carla.tcp</span> <span class="k">import</span> <span class="n">TCPConnectionError</span>
@@ -219,27 +222,27 @@
     <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
     <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CARLA&quot;</span><span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">from</span> <span class="nn">rl_coach.environments.environment</span> <span class="k">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EnvironmentParameters</span><span class="p">,</span> <span class="n">LevelSelection</span>
-<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">ImageObservationSpace</span><span class="p">,</span> <span class="n">StateSpace</span><span class="p">,</span> \
-    <span class="n">VectorObservationSpace</span>
-<span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">get_open_port</span><span class="p">,</span> <span class="n">force_list</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">rl_coach.environments.environment</span> <span class="k">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EnvironmentParameters</span><span class="p">,</span> <span class="n">LevelSelection</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">ImageObservationSpace</span><span class="p">,</span> <span class="n">StateSpace</span><span class="p">,</span> <span class="n">VectorObservationSpace</span>
+<span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">get_open_port</span><span class="p">,</span> <span class="n">force_list</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">VisualizationParameters</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.filter</span> <span class="k">import</span> <span class="n">InputFilter</span><span class="p">,</span> <span class="n">NoOutputFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_rescale_to_size_filter</span> <span class="k">import</span> <span class="n">ObservationRescaleToSizeFilter</span>
 <span class="kn">from</span> <span class="nn">rl_coach.filters.observation.observation_stacking_filter</span> <span class="k">import</span> <span class="n">ObservationStackingFilter</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
 <span class="c1"># enum of the available levels and their path</span>
 <span class="k">class</span> <span class="nc">CarlaLevel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">TOWN1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;map_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Town01&quot;</span><span class="p">,</span> <span class="s2">&quot;map_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/Game/Maps/Town01&quot;</span><span class="p">}</span>
     <span class="n">TOWN2</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;map_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Town02&quot;</span><span class="p">,</span> <span class="s2">&quot;map_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/Game/Maps/Town02&quot;</span><span class="p">}</span>
+
 
 <span class="n">key_map</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;BRAKE&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">274</span><span class="p">,),</span>  <span class="c1"># down arrow</span>
@@ -658,7 +661,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -675,27 +678,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

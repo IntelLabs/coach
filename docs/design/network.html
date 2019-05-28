@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Network Design &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Network Design &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Control Flow" href="control_flow.html" />
     <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -190,22 +193,21 @@
 The network is designed in a modular way to allow reusability in different agents.
 It is separated into three main parts:</p>
 <ul>
-<li><p class="first"><strong>Input Embedders</strong> - This is the first stage of the network, meant to convert the input into a feature vector representation.
+<li><p><strong>Input Embedders</strong> - This is the first stage of the network, meant to convert the input into a feature vector representation.
 It is possible to combine several instances of any of the supported embedders, in order to allow varied combinations of inputs.</p>
 <blockquote>
 <div><p>There are two main types of input embedders:</p>
 <ol class="arabic simple">
-<li>Image embedder - Convolutional neural network.</li>
-<li>Vector embedder - Multi-layer perceptron.</li>
+<li><p>Image embedder - Convolutional neural network.</p></li>
+<li><p>Vector embedder - Multi-layer perceptron.</p></li>
 </ol>
 </div></blockquote>
 </li>
-<li><p class="first"><strong>Middlewares</strong> - The middleware gets the output of the input embedder, and processes it into a different representation domain,
+<li><p><strong>Middlewares</strong> - The middleware gets the output of the input embedder, and processes it into a different representation domain,
 before sending it through the output head. The goal of the middleware is to enable processing the combined outputs of
 several input embedders, and pass them through some extra processing.
-This, for instance, might include an LSTM or just a plain simple FC layer.</p>
-</li>
-<li><p class="first"><strong>Output Heads</strong> - The output head is used in order to predict the values required from the network.
+This, for instance, might include an LSTM or just a plain simple FC layer.</p></li>
+<li><p><strong>Output Heads</strong> - The output head is used in order to predict the values required from the network.
 These might include action-values, state-values or a policy. As with the input embedders,
 it is possible to use several output heads in the same network. For example, the <em>Actor Critic</em> agent combines two
 heads - a policy head and a state-value head.
@@ -222,12 +224,12 @@ and are often synchronized either locally or between parallel workers. For easie
 a wrapper around these copies exposes a simplified API, which allows hiding these complexities from the agent.
 In this wrapper, 3 types of networks can be defined:</p>
 <ul class="simple">
-<li><strong>online network</strong> - A mandatory network which is the main network the agent will use</li>
-<li><strong>global network</strong> - An optional network which is shared between workers in single-node multi-process distributed learning.
-It is updated by all the workers directly, and holds the most up-to-date weights.</li>
-<li><strong>target network</strong> - An optional network which is local for each worker. It can be used in order to keep a copy of
+<li><p><strong>online network</strong> - A mandatory network which is the main network the agent will use</p></li>
+<li><p><strong>global network</strong> - An optional network which is shared between workers in single-node multi-process distributed learning.
+It is updated by all the workers directly, and holds the most up-to-date weights.</p></li>
+<li><p><strong>target network</strong> - An optional network which is local for each worker. It can be used in order to keep a copy of
 the weights stable for a long period of time. This is used in different agents, like DQN for example, in order to
-have stable targets for the online network while training it.</li>
+have stable targets for the online network while training it.</p></li>
 </ul>
 <a class="reference internal image-reference" href="../_images/distributed.png"><img alt="../_images/distributed.png" class="align-center" src="../_images/distributed.png" style="width: 600px;" /></a>
 </div>
@@ -244,7 +246,7 @@ have stable targets for the online network while training it.</li>
         <a href="horizontal_scaling.html" class="btn btn-neutral float-right" title="Distributed Coach - Horizontal Scale-Out" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="control_flow.html" class="btn btn-neutral" title="Control Flow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="control_flow.html" class="btn btn-neutral float-left" title="Control Flow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -253,7 +255,7 @@ have stable targets for the online network while training it.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -270,27 +272,16 @@ have stable targets for the online network while training it.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

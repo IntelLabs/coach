@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Deep Deterministic Policy Gradient &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Deep Deterministic Policy Gradient &mdash; Reinforcement Learning Coach 0.12.1 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="Clipped Proximal Policy Optimization" href="cppo.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -235,14 +238,14 @@ to add exploration noise to the action. When testing, use the mean vector <span 
 <h3>Training the network<a class="headerlink" href="#training-the-network" title="Permalink to this headline">¶</a></h3>
 <p>Start by sampling a batch of transitions from the experience replay.</p>
 <ul>
-<li><p class="first">To train the <strong>critic network</strong>, use the following targets:</p>
+<li><p>To train the <strong>critic network</strong>, use the following targets:</p>
 <p><span class="math notranslate nohighlight">\(y_t=r(s_t,a_t )+\gamma \cdot Q(s_{t+1},\mu(s_{t+1} ))\)</span></p>
 <p>First run the actor target network, using the next states as the inputs, and get <span class="math notranslate nohighlight">\(\mu (s_{t+1} )\)</span>.
 Next, run the critic target network using the next states and <span class="math notranslate nohighlight">\(\mu (s_{t+1} )\)</span>, and use the output to
 calculate <span class="math notranslate nohighlight">\(y_t\)</span> according to the equation above. To train the network, use the current states and actions
 as the inputs, and <span class="math notranslate nohighlight">\(y_t\)</span> as the targets.</p>
 </li>
-<li><p class="first">To train the <strong>actor network</strong>, use the following equation:</p>
+<li><p>To train the <strong>actor network</strong>, use the following equation:</p>
 <p><span class="math notranslate nohighlight">\(\nabla_{\theta^\mu } J \approx E_{s_t \tilde{} \rho^\beta } [\nabla_a Q(s,a)|_{s=s_t,a=\mu (s_t ) } \cdot \nabla_{\theta^\mu} \mu(s)|_{s=s_t} ]\)</span></p>
 <p>Use the actor’s online network to get the action mean values using the current states as the inputs.
 Then, use the critic online network in order to get the gradients of the critic output with respect to the
@@ -255,35 +258,31 @@ given <span class="math notranslate nohighlight">\(\nabla_a Q(s,a)\)</span>. Fin
 <dl class="class">
 <dt id="rl_coach.agents.ddpg_agent.DDPGAlgorithmParameters">
 <em class="property">class </em><code class="descclassname">rl_coach.agents.ddpg_agent.</code><code class="descname">DDPGAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/ddpg_agent.html#DDPGAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.ddpg_agent.DDPGAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_steps_between_copying_online_weights_to_target</strong> – (StepMethod)
-The number of steps between copying the online network weights to the target network weights.</li>
-<li><strong>rate_for_copying_weights_to_target</strong> – (float)
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_steps_between_copying_online_weights_to_target</strong> – (StepMethod)
+The number of steps between copying the online network weights to the target network weights.</p></li>
+<li><p><strong>rate_for_copying_weights_to_target</strong> – (float)
 When copying the online network weights to the target network weights, a soft update will be used, which
-weight the new online network weights by rate_for_copying_weights_to_target</li>
-<li><strong>num_consecutive_playing_steps</strong> – (StepMethod)
-The number of consecutive steps to act between every two training iterations</li>
-<li><strong>use_target_network_for_evaluation</strong> – (bool)
+weight the new online network weights by rate_for_copying_weights_to_target</p></li>
+<li><p><strong>num_consecutive_playing_steps</strong> – (StepMethod)
+The number of consecutive steps to act between every two training iterations</p></li>
+<li><p><strong>use_target_network_for_evaluation</strong> – (bool)
 If set to True, the target network will be used for predicting the actions when choosing actions to act.
-Since the target network weights change more slowly, the predicted actions will be more consistent.</li>
-<li><strong>action_penalty</strong> – (float)
+Since the target network weights change more slowly, the predicted actions will be more consistent.</p></li>
+<li><p><strong>action_penalty</strong> – (float)
 The amount by which to penalize the network on high action feature (pre-activation) values.
 This can prevent the actions features from saturating the TanH activation function, and therefore prevent the
-gradients from becoming very low.</li>
-<li><strong>clip_critic_targets</strong> – (Tuple[float, float] or None)
-The range to clip the critic target to in order to prevent overestimation of the action values.</li>
-<li><strong>use_non_zero_discount_for_terminal_states</strong> – (bool)
+gradients from becoming very low.</p></li>
+<li><p><strong>clip_critic_targets</strong> – (Tuple[float, float] or None)
+The range to clip the critic target to in order to prevent overestimation of the action values.</p></li>
+<li><p><strong>use_non_zero_discount_for_terminal_states</strong> – (bool)
 If set to True, the discount factor will be used for terminal states to bootstrap the next predicted state
-values. If set to False, the terminal states reward will be taken as the target return for the network.</li>
+values. If set to False, the terminal states reward will be taken as the target return for the network.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -301,7 +300,7 @@ values. If set to False, the terminal states reward will be taken as the target 
         <a href="sac.html" class="btn btn-neutral float-right" title="Soft Actor-Critic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="cppo.html" class="btn btn-neutral" title="Clipped Proximal Policy Optimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="cppo.html" class="btn btn-neutral float-left" title="Clipped Proximal Policy Optimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -310,7 +309,7 @@ values. If set to False, the terminal states reward will be taken as the target 
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -327,27 +326,16 @@ values. If set to False, the terminal states reward will be taken as the target 
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
