@@ -27,7 +27,7 @@ Blog posts from the Intel® AI website:
 
 * `Release 0.11.0 <https://ai.intel.com/rl-coach-data-science-at-scale/>`_
 
-* Release 0.12.1 (current release)
+* Release 0.12.0 (current release)
 
 You can find more details in the `GitHub repository <https://github.com/NervanaSystems/coach>`_.
 
