@@ -23,23 +23,22 @@ import numpy as np
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.agent import Agent
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
-from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, VHeadParameters, TD3VHeadParameters
+from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, TD3VHeadParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters, EmbedderScheme
-from rl_coach.core_types import ActionInfo, EnvironmentSteps, TrainingSteps
+from rl_coach.core_types import ActionInfo, TrainingSteps
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
-from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.spaces import BoxActionSpace, GoalsSpace
 
 
 class DDPGCriticNetworkParameters(NetworkParameters):
-    def __init__(self):
+    def __init__(self, num_q_networks):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(),
                                             'action': InputEmbedderParameters(scheme=EmbedderScheme.Shallow)}
-        self.middleware_parameters = FCMiddlewareParameters(num_towers=2)
+        self.middleware_parameters = FCMiddlewareParameters(num_towers=num_q_networks)
         self.heads_parameters = [TD3VHeadParameters()]
         self.optimizer_type = 'Adam'
         self.batch_size = 100
@@ -55,7 +54,7 @@ class DDPGActorNetworkParameters(NetworkParameters):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
-        self.heads_parameters = [DDPGActorHeadParameters()]
+        self.heads_parameters = [DDPGActorHeadParameters(batchnorm=False)]
         self.optimizer_type = 'Adam'
         self.batch_size = 100
         self.async_training = False
@@ -105,6 +104,7 @@ class DDPGAlgorithmParameters(AlgorithmParameters):
         self.num_steps_between_copying_online_weights_to_target = TrainingSteps(self.update_policy_every_x_episode_steps)
         self.policy_noise = 0.2
         self.noise_clipping = 0.5
+        self.num_q_networks = 2
 
 
 class DDPGAgentExplorationParameters(AdditiveNoiseParameters):
@@ -115,11 +115,12 @@ class DDPGAgentExplorationParameters(AdditiveNoiseParameters):
 
 class DDPGAgentParameters(AgentParameters):
     def __init__(self):
-        super().__init__(algorithm=DDPGAlgorithmParameters(),
+        ddpg_algorithm_params = DDPGAlgorithmParameters()
+        super().__init__(algorithm=ddpg_algorithm_params,
                          exploration=DDPGAgentExplorationParameters(),
                          memory=EpisodicExperienceReplayParameters(),
                          networks=OrderedDict([("actor", DDPGActorNetworkParameters()),
-                                               ("critic", DDPGCriticNetworkParameters())]))
+                                               ("critic", DDPGCriticNetworkParameters(ddpg_algorithm_params.num_q_networks))]))
 
     @property
     def path(self):

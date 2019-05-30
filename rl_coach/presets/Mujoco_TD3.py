@@ -1,4 +1,4 @@
-from rl_coach.agents.ddpg_agent import DDPGAgentParameters
+from rl_coach.agents.td3_agent import TD3AgentParameters
 from rl_coach.architectures.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters, EmbedderScheme
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
@@ -20,12 +20,14 @@ schedule_params.heatup_steps = EnvironmentSteps(10000)
 #########
 # Agent #
 #########
-agent_params = DDPGAgentParameters()
+agent_params = TD3AgentParameters()
 agent_params.network_wrappers['actor'].input_embedders_parameters['observation'].scheme = [Dense(400)]
 agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense(300)]
-agent_params.network_wrappers['critic'].input_embedders_parameters['observation'].scheme = [Dense(400)]
-agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(300)]
+
+agent_params.network_wrappers['critic'].input_embedders_parameters['observation'].scheme = EmbedderScheme.Empty
 agent_params.network_wrappers['critic'].input_embedders_parameters['action'].scheme = EmbedderScheme.Empty
+agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(400), Dense(300)]
+
 
 ###############
 # Environment #

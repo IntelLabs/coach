@@ -43,7 +43,8 @@ class FCMiddleware(Middleware):
 
             for idx, layer_params in enumerate(self.layers_params):
                 layers.extend(force_list(
-                    layer_params(layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx + tower_idx),
+                    layer_params(layers[-1], name='{}_{}'.format(layer_params.__class__.__name__,
+                                                                 idx + tower_idx * len(self.layers_params)),
                                  is_training=self.is_training)
                 ))
             self.output.append((layers[-1]))

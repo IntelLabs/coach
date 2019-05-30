@@ -17,7 +17,6 @@
 from typing import List
 
 import numpy as np
-import scipy.stats
 
 from rl_coach.core_types import RunPhase, ActionType
 from rl_coach.exploration_policies.exploration_policy import ContinuousActionExplorationPolicy, ExplorationParameters
@@ -50,7 +49,7 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
     be the mean of the action, and 2nd is assumed to be its standard deviation.
     """
     def __init__(self, action_space: ActionSpace, noise_schedule: Schedule,
-                 evaluation_noise_percentage: float, noise_as_percentage_from_action_space: bool):
+                 evaluation_noise_percentage: float, noise_as_percentage_from_action_space: bool = True):
         """
         :param action_space: the action space used by the environment
         :param noise_schedule: the schedule for the noise variance percentage relative to the absolute range
