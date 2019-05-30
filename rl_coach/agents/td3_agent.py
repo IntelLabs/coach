@@ -41,6 +41,8 @@ class TD3CriticNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters(num_towers=num_q_networks)
         self.heads_parameters = [TD3VHeadParameters()]
         self.optimizer_type = 'Adam'
+        self.adam_optimizer_beta2 = 0.999
+        self.optimizer_epsilon = 1e-8
         self.batch_size = 100
         self.async_training = False
         self.learning_rate = 0.001
@@ -56,6 +58,8 @@ class TD3ActorNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [DDPGActorHeadParameters(batchnorm=False)]
         self.optimizer_type = 'Adam'
+        self.adam_optimizer_beta2 = 0.999
+        self.optimizer_epsilon = 1e-8
         self.batch_size = 100
         self.async_training = False
         self.learning_rate = 0.001
