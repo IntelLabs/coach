@@ -37,8 +37,8 @@ agent_params.network_wrappers['main'].input_embedders_parameters = {
 }
 
 agent_params.exploration = AdditiveNoiseParameters()
-agent_params.exploration.noise_percentage_schedule = ConstantSchedule(0.05)
-# agent_params.exploration.noise_percentage_schedule = LinearSchedule(0.4, 0.05, 100000)
+agent_params.exploration.noise_schedule = ConstantSchedule(0.05)
+# agent_params.exploration.noise_schedule = LinearSchedule(0.4, 0.05, 100000)
 agent_params.exploration.evaluation_noise_percentage = 0.05
 
 agent_params.network_wrappers['main'].batch_size = 64

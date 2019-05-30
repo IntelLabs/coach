@@ -87,8 +87,8 @@ agent_params.memory.shared_memory = True
 agent_params.exploration = EGreedyParameters()
 agent_params.exploration.epsilon_schedule = ConstantSchedule(0.3)
 agent_params.exploration.evaluation_epsilon = 0
-# they actually take the noise_percentage_schedule to be 0.2 * max_abs_range which is 0.1 * total_range
-agent_params.exploration.continuous_exploration_policy_parameters.noise_percentage_schedule = ConstantSchedule(0.1)
+# they actually take the noise_schedule to be 0.2 * max_abs_range which is 0.1 * total_range
+agent_params.exploration.continuous_exploration_policy_parameters.noise_schedule = ConstantSchedule(0.1)
 agent_params.exploration.continuous_exploration_policy_parameters.evaluation_noise_percentage = 0
 
 agent_params.input_filter = InputFilter()

@@ -31,8 +31,9 @@ from rl_coach.spaces import ActionSpace, BoxActionSpace
 class AdditiveNoiseParameters(ExplorationParameters):
     def __init__(self):
         super().__init__()
-        self.noise_percentage_schedule = LinearSchedule(0.1, 0.1, 50000)
+        self.noise_schedule = LinearSchedule(0.1, 0.1, 50000)
         self.evaluation_noise_percentage = 0.05
+        self.noise_as_percentage_from_action_space = True
 
     @property
     def path(self):
@@ -48,17 +49,18 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
     2. Specified by the agents action. In case the agents action is a list with 2 values, the 1st one is assumed to
     be the mean of the action, and 2nd is assumed to be its standard deviation.
     """
-    def __init__(self, action_space: ActionSpace, noise_percentage_schedule: Schedule,
-                 evaluation_noise_percentage: float):
+    def __init__(self, action_space: ActionSpace, noise_schedule: Schedule,
+                 evaluation_noise_percentage: float, noise_as_percentage_from_action_space: bool):
         """
         :param action_space: the action space used by the environment
-        :param noise_percentage_schedule: the schedule for the noise variance percentage relative to the absolute range
+        :param noise_schedule: the schedule for the noise variance percentage relative to the absolute range
                                           of the action space
         :param evaluation_noise_percentage: the noise variance percentage that will be used during evaluation phases
         """
         super().__init__(action_space)
-        self.noise_percentage_schedule = noise_percentage_schedule
+        self.noise_schedule = noise_schedule
         self.evaluation_noise_percentage = evaluation_noise_percentage
+        self.noise_as_percentage_from_action_space = noise_as_percentage_from_action_space
 
         if not isinstance(action_space, BoxActionSpace):
             raise ValueError("Additive noise exploration works only for continuous controls."
@@ -75,12 +77,15 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
 
         # set the current noise percentage
         if self.phase == RunPhase.TEST:
-            current_noise_precentage = self.evaluation_noise_percentage
+            current_noise = self.evaluation_noise_percentage
         else:
-            current_noise_precentage = self.noise_percentage_schedule.current_value
+            current_noise = self.noise_schedule.current_value
 
         # scale the noise to the action space range
-        action_values_std = current_noise_precentage * (self.action_space.high - self.action_space.low)
+        if self.noise_as_percentage_from_action_space:
+            action_values_std = current_noise * (self.action_space.high - self.action_space.low)
+        else:
+            action_values_std = current_noise
 
         # extract the mean values
         if isinstance(action_values, list):
@@ -92,15 +97,19 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
 
         # step the noise schedule
         if self.phase is not RunPhase.TEST:
-            self.noise_percentage_schedule.step()
+            self.noise_schedule.step()
             # the second element of the list is assumed to be the standard deviation
             if isinstance(action_values, list) and len(action_values) > 1:
                 action_values_std = action_values[1].squeeze()
 
         # add noise to the action means
-        action = np.random.normal(action_values_mean, action_values_std)
+        if self.phase is not RunPhase.TEST:
+            action = np.random.normal(action_values_mean, action_values_std)
+        else:
+            # action = np.expand_dims(action_values_mean, 0)  # TODO fixme, just a w/a for the AdditiveNoise returning shape () when in TEST
+            action = action_values_mean
 
         return action
 
     def get_control_param(self):
-        return np.ones(self.action_space.shape)*self.noise_percentage_schedule.current_value
+        return np.ones(self.action_space.shape)*self.noise_schedule.current_value

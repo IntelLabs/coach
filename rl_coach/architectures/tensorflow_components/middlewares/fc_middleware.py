@@ -28,23 +28,25 @@ class FCMiddleware(Middleware):
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout_rate: float = 0.0,
-                 name="middleware_fc_embedder", dense_layer=Dense, is_training=False):
+                 name="middleware_fc_embedder", dense_layer=Dense, is_training=False, num_towers=1):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
                          dropout_rate=dropout_rate, scheme=scheme, name=name, dense_layer=dense_layer,
                          is_training=is_training)
         self.return_type = Middleware_FC_Embedding
-        self.layers = []
+        self.num_towers = num_towers
 
     def _build_module(self):
-        self.layers.append(self.input)
+        self.output = []
 
-        for idx, layer_params in enumerate(self.layers_params):
-            self.layers.extend(force_list(
-                layer_params(self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
-                             is_training=self.is_training)
-            ))
+        for tower_idx in range(self.num_towers):
+            layers = [self.input]
 
-        self.output = self.layers[-1]
+            for idx, layer_params in enumerate(self.layers_params):
+                layers.extend(force_list(
+                    layer_params(layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx + tower_idx),
+                                 is_training=self.is_training)
+                ))
+            self.output.append((layers[-1]))
 
     @property
     def schemes(self):
