@@ -732,29 +732,22 @@ workflows:
       - build_doom_env
       - build_mujoco_env
       - build_base
-      #  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
-      #- build_starcraft_env
       - unit_tests:
-          - requires:
-              - build_base
+          requires:
+            - build_base
       - integration_tests:
-          - requires:
-              - build_base
+          requires:
+            - build_base
       - functional_tests:
-          - requires:
-              - build_base
+          requires:
+            - build_base
       - functional_test_doom:
-            requires:
-              - build_doom_env
+          requires:
+            - build_doom_env
       - functional_test_mujoco:
-            requires:
-              - build_mujoco_env
-              - functional_test_doom
-      #  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
-      #- functional_test_starcraft:
-      #      requires:
-      #        - build_starcraft_env
-      #        - functional_test_mujoco
+          requires:
+            - build_mujoco_env
+            - functional_test_doom
       - golden_test_gym:
           requires:
             - build_gym_env
@@ -766,23 +759,3 @@ workflows:
           requires:
             - build_mujoco_env
             - golden_test_doom
-      #  Starcraft is running too long for evaluation on nightly runs. Consider running in weekly test.
-      #- golden_test_starcraft:
-      #    requires:
-      #      - build_starcraft_env
-      #      - golden_test_mujoco
-      # - trace_test_gym:
-      #    requires:
-      #      - build_gym_env
-      # - trace_test_doom:
-      #    requires:
-      #      - build_doom_env
-      #      - trace_test_gym
-      # - trace_test_mujoco:
-      #    requires:
-      #      - build_mujoco_env
-      #      - trace_test_doom
-      # - trace_test_starcraft:
-      #    requires:
-      #      - build_mujoco_env
-      #      - trace_test_mujoco
