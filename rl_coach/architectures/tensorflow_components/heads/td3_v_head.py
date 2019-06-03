@@ -49,18 +49,20 @@ class TD3VHead(Head):
                 q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1)))
 
             self.output.append(q_outputs[i])
-            self.loss.append(tf.losses.mean_squared_error(labels=self.target, predictions=q_outputs[i]))
+            self.loss.append(tf.reduce_mean((self.target-q_outputs[i])**2))
+            # self.loss.append(tf.losses.mean_squared_error(labels=self.target, predictions=q_outputs[i]))
 
         self.output.append(tf.reduce_min(q_outputs, axis=0))
-        self.loss = tf.reduce_sum(self.loss, axis=0)
+        self.loss = self.loss[0] + self.loss[1]
+        # self.loss = tf.reduce_sum(self.loss, axis=0)
         tf.losses.add_loss(self.loss)
 
     def __str__(self):
         result = [
-            "Q1 Action-Value Stream"
-            "\tDense (num outputs = 1)"
-            "Q2 Action-Value Stream"
-            "\tDense (num outputs = 1)"
+            "Q1 Action-Value Stream",
+            "\tDense (num outputs = 1)",
+            "Q2 Action-Value Stream",
+            "\tDense (num outputs = 1)",
             "Min (Q1, Q2)"
         ]
         return '\n'.join(result)

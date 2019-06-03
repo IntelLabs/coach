@@ -75,3 +75,5 @@ class FCMiddleware(Middleware):
                 ]
         }
 
+    def __str__(self):
+        pass # TODO fixme need to fill this in as with the new towers

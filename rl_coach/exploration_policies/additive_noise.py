@@ -103,12 +103,11 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
 
         # add noise to the action means
         if self.phase is not RunPhase.TEST:
-            action = np.random.normal(action_values_mean, action_values_std)
+            action = np.random.normal(action_values_mean, action_values_std, size=action_values_mean.shape)
         else:
-            # action = np.expand_dims(action_values_mean, 0)  # TODO fixme, just a w/a for the AdditiveNoise returning shape () when in TEST, and in InvertedPendulum
             action = action_values_mean
 
-        return action
+        return np.atleast_1d(action)
 
     def get_control_param(self):
         return np.ones(self.action_space.shape)*self.noise_schedule.current_value

@@ -109,6 +109,7 @@ class TD3AlgorithmParameters(AlgorithmParameters):
         self.policy_noise = 0.2
         self.noise_clipping = 0.5
         self.num_q_networks = 2
+        self.use_non_zero_discount_for_terminal_states = True # currently only for half-cheetah TODO fixme - should be done by getting input from the env
 
 
 class TD3AgentExplorationParameters(AdditiveNoiseParameters):
