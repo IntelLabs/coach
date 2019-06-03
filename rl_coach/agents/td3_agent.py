@@ -189,9 +189,9 @@ class TD3Agent(ActorCriticAgent):
         total_loss, losses, unclipped_grads = result[:3]
 
         if self.training_iteration % self.ap.algorithm.update_policy_every_x_episode_steps == 0:
-            # get the gradients of output #0 (=Q1 network) w.r.t the action
+            # get the gradients of output #3 (=mean of Q1 network) w.r.t the action
             action_gradients = critic.online_network.predict(critic_inputs,
-                                                             outputs=critic.online_network.gradients_wrt_inputs[0]['action'])
+                                                             outputs=critic.online_network.gradients_wrt_inputs[3]['action'])
 
             # apply the gradients from the critic to the actor
             initial_feed_dict = {actor.online_network.gradients_weights_ph[0]: -action_gradients}

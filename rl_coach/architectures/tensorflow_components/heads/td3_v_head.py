@@ -53,6 +53,7 @@ class TD3VHead(Head):
             # self.loss.append(tf.losses.mean_squared_error(labels=self.target, predictions=q_outputs[i]))
 
         self.output.append(tf.reduce_min(q_outputs, axis=0))
+        self.output.append(tf.reduce_mean(self.output[0]))
         self.loss = self.loss[0] + self.loss[1]
         # self.loss = tf.reduce_sum(self.loss, axis=0)
         tf.losses.add_loss(self.loss)

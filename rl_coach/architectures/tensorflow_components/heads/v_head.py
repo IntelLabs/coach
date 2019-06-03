@@ -38,14 +38,16 @@ class VHead(Head):
             self.loss_type = tf.losses.mean_squared_error
 
         self.initializer = initializer
+        self.output = []
 
     def _build_module(self, input_layer):
         # Standard V Network
         if self.initializer == 'normalized_columns':
-            self.output = self.dense_layer(1)(input_layer, name='output',
-                                              kernel_initializer=normalized_columns_initializer(1.0))
+            self.output.append(self.dense_layer(1)(input_layer, name='output',
+                                              kernel_initializer=normalized_columns_initializer(1.0)))
         elif self.initializer == 'xavier' or self.initializer is None:
-            self.output = self.dense_layer(1)(input_layer, name='output')
+            self.output.append(self.dense_layer(1)(input_layer, name='output'))
+        self.output.append(tf.reduce_mean(self.output[0]))
 
     def __str__(self):
         result = [
