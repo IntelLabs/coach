@@ -391,6 +391,10 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
 
         csv.columns = [column.replace(" ", "_") for column in csv.columns]
         results = csv.query("In_Heatup == 1")
+        total_values = len(results.Total_steps.values)
+        assert len(results.Total_steps.values) > 0, \
+            Def.Consts.ASSERT_MSG("no data in csv", str(total_values))
+
         last_val_in_heatup = results.Total_steps.values[-1]
         assert int(last_val_in_heatup) >= Def.Consts.num_hs, \
             Def.Consts.ASSERT_MSG.format("bigger than " +
