@@ -618,10 +618,6 @@ workflows:
           type: approval
           requires:
             - build_base
-# Keep this for debugging functional_tests for nightly jobs
-#      - functional_tests:
-#          requires:
-#            - e2e_approval
       - build_gym_env:
           requires:
             - e2e_approval
@@ -640,9 +636,6 @@ workflows:
       - golden_test_mujoco:
           requires:
             - build_mujoco_env
-#      - golden_test_starcraft:
-#          requires:
-#            - build_starcraft_env
       - update_gym_approval:
           type: approval
           requires:
@@ -673,9 +666,6 @@ workflows:
       - trace_test_mujoco:
           requires:
             - build_mujoco_env
-#      - trace_test_starcraft:
-#          requires:
-#            - starcraft_approval
       - container_deploy:
           requires:
             - unit_tests
