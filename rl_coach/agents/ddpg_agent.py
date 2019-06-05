@@ -34,9 +34,9 @@ from rl_coach.spaces import BoxActionSpace, GoalsSpace
 
 
 class DDPGCriticNetworkParameters(NetworkParameters):
-    def __init__(self):
+    def __init__(self, use_batchnorm=False):
         super().__init__()
-        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=True),
+        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=use_batchnorm),
                                             'action': InputEmbedderParameters(scheme=EmbedderScheme.Shallow)}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [DDPGVHeadParameters()]
@@ -55,11 +55,11 @@ class DDPGCriticNetworkParameters(NetworkParameters):
 
 
 class DDPGActorNetworkParameters(NetworkParameters):
-    def __init__(self):
+    def __init__(self, use_batchnorm=False):
         super().__init__()
-        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=True)}
-        self.middleware_parameters = FCMiddlewareParameters(batchnorm=True)
-        self.heads_parameters = [DDPGActorHeadParameters()]
+        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=use_batchnorm)}
+        self.middleware_parameters = FCMiddlewareParameters(batchnorm=use_batchnorm)
+        self.heads_parameters = [DDPGActorHeadParameters(batchnorm=use_batchnorm)]
         self.optimizer_type = 'Adam'
         self.adam_optimizer_beta2 = 0.999
         self.optimizer_epsilon = 1e-8
@@ -113,12 +113,12 @@ class DDPGAlgorithmParameters(AlgorithmParameters):
 
 
 class DDPGAgentParameters(AgentParameters):
-    def __init__(self):
+    def __init__(self, use_batchnorm=False):
         super().__init__(algorithm=DDPGAlgorithmParameters(),
                          exploration=OUProcessParameters(),
                          memory=EpisodicExperienceReplayParameters(),
-                         networks=OrderedDict([("actor", DDPGActorNetworkParameters()),
-                                               ("critic", DDPGCriticNetworkParameters())]))
+                         networks=OrderedDict([("actor", DDPGActorNetworkParameters(use_batchnorm=use_batchnorm)),
+                                               ("critic", DDPGCriticNetworkParameters(use_batchnorm=use_batchnorm))]))
 
     @property
     def path(self):
@@ -184,10 +184,10 @@ class DDPGAgent(ActorCriticAgent):
                                                  initial_feed_dict=initial_feed_dict)
 
         if actor.has_global:
-            actor.apply_gradients_to_global_network(gradients)
+            actor.apply_gradients_to_global_network(gradients, additional_inputs=copy.copy(batch.states(critic_keys)))
             actor.update_online_network()
         else:
-            actor.apply_gradients_to_online_network(gradients)
+            actor.apply_gradients_to_online_network(gradients, additional_inputs=copy.copy(batch.states(critic_keys)))
 
         return total_loss, losses, unclipped_grads
 
