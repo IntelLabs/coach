@@ -178,10 +178,6 @@ class TD3Agent(ActorCriticAgent):
 
         self.TD_targets_signal.add_sample(TD_targets)
 
-        # get the gradients of the critic output with respect to the action
-        critic_inputs = copy.copy(batch.states(critic_keys))
-        critic_inputs['action'] = actions_mean
-
         # train the critic
         critic_inputs = copy.copy(batch.states(critic_keys))
         critic_inputs['action'] = batch.actions(len(batch.actions().shape) == 1)
@@ -190,6 +186,8 @@ class TD3Agent(ActorCriticAgent):
 
         if self.training_iteration % self.ap.algorithm.update_policy_every_x_episode_steps == 0:
             # get the gradients of output #3 (=mean of Q1 network) w.r.t the action
+            critic_inputs = copy.copy(batch.states(critic_keys))
+            critic_inputs['action'] = actions_mean
             action_gradients = critic.online_network.predict(critic_inputs,
                                                              outputs=critic.online_network.gradients_wrt_inputs[3]['action'])
 
