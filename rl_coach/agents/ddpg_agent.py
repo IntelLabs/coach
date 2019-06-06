@@ -23,7 +23,7 @@ import numpy as np
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.agent import Agent
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
-from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, VHeadParameters
+from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, DDPGVHeadParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters, EmbedderScheme
@@ -39,8 +39,10 @@ class DDPGCriticNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=True),
                                             'action': InputEmbedderParameters(scheme=EmbedderScheme.Shallow)}
         self.middleware_parameters = FCMiddlewareParameters()
-        self.heads_parameters = [VHeadParameters()]
+        self.heads_parameters = [DDPGVHeadParameters()]
         self.optimizer_type = 'Adam'
+        self.adam_optimizer_beta2 = 0.999
+        self.optimizer_epsilon = 1e-8
         self.batch_size = 64
         self.async_training = False
         self.learning_rate = 0.001
@@ -59,6 +61,8 @@ class DDPGActorNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters(batchnorm=True)
         self.heads_parameters = [DDPGActorHeadParameters()]
         self.optimizer_type = 'Adam'
+        self.adam_optimizer_beta2 = 0.999
+        self.optimizer_epsilon = 1e-8
         self.batch_size = 64
         self.adam_optimizer_beta2 = 0.999
         self.optimizer_epsilon = 1e-8
