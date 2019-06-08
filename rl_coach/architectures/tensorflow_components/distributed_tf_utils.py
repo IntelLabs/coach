@@ -14,9 +14,14 @@
 # limitations under the License.
 #
 
+
+import time
 from typing import Tuple
 
 import tensorflow as tf
+
+from rl_coach import initTensors
+from rl_coach.logger import screen
 
 
 def create_cluster_spec(parameters_server: str, workers: str) -> tf.train.ClusterSpec:
@@ -36,7 +41,7 @@ def create_cluster_spec(parameters_server: str, workers: str) -> tf.train.Cluste
     return cluster_spec
 
 
-def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, config: tf.ConfigProto=None) -> None:
+def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, config: tf.ConfigProto = None) -> None:
     """
     Create and start a parameter server
     :param cluster_spec: the ClusterSpec object representing the cluster
@@ -51,7 +56,7 @@ def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, confi
 
 
 def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_index: int,
-                                    use_cpu: bool=True, config: tf.ConfigProto=None) -> Tuple[str, tf.device]:
+                                    use_cpu: bool = True, config: tf.ConfigProto = None) -> Tuple[str, tf.device]:
     """
     Creates a worker server and a device setter used to assign the workers operations to
     :param cluster_spec: a ClusterSpec object representing the cluster
@@ -75,7 +80,8 @@ def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_ind
 
 
 def create_monitored_session(target: tf.train.Server, task_index: int,
-                             checkpoint_dir: str, checkpoint_save_secs: int, config: tf.ConfigProto=None) -> tf.Session:
+                             checkpoint_dir: str, checkpoint_save_secs: int,
+                             config: tf.ConfigProto = None) -> tf.Session:
     """
     Create a monitored session for the worker
     :param target: the target string for the tf.Session
@@ -99,5 +105,14 @@ def create_monitored_session(target: tf.train.Server, task_index: int,
         log_step_count_steps=0  # disable logging of steps to avoid TF warning during inference
     )
 
-    return sess
+    if is_chief:
+        # chief process init the global tensor
+        for tensor in initTensors.tensor_list:
+            sess.run(tensor)
+    else:
+        # sleep wait chief process finish global init
+        time.sleep(10)
 
+    screen.log_title('worker %d ok' % task_index)
+
+    return sess

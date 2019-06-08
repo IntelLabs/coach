@@ -184,6 +184,11 @@ class TensorFlowArchitecture(Architecture):
         self.release_decrement = self.release_counter.assign_add(-1, use_locking=True)
         self.release_init = self.release_counter.assign(0)
 
+        # put to global variable, init them immediately after chief session was created
+        from rl_coach import initTensors
+        initTensors.tensor_list.append(self.lock_init)
+        initTensors.tensor_list.append(self.release_init)
+
     def _create_gradient_ops(self):
         """
         Create all the tensorflow operations for calculating gradients, processing the gradients and applying them
