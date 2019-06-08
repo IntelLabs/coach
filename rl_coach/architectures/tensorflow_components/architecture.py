@@ -441,7 +441,7 @@ class TensorFlowArchitecture(Architecture):
         else:
             num_workers_to_wait_for = self.ap.task_parameters.num_tasks
 
-        # lock
+        # will make dead lock if counter !=0 after restore from checkpoint
         if hasattr(self, '{}_counter'.format(lock)):
             self.sess.run(getattr(self, lock))
             while self.sess.run(getattr(self, '{}_counter'.format(lock))) % num_workers_to_wait_for != 0:
