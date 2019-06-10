@@ -29,9 +29,10 @@ class TruncatedNormalParameters(ExplorationParameters):
     def __init__(self):
         super().__init__()
         self.noise_schedule = LinearSchedule(0.1, 0.1, 50000)
-        self.evaluation_noise_percentage = 0.05
+        self.evaluation_noise = 0.05
         self.clip_low = 0
         self.clip_high = 1
+        self.noise_as_percentage_from_action_space = True
 
     @property
     def path(self):
@@ -50,16 +51,19 @@ class TruncatedNormal(ContinuousActionExplorationPolicy):
     is within the bounds.
     """
     def __init__(self, action_space: ActionSpace, noise_schedule: Schedule,
-                 evaluation_noise_percentage: float, clip_low: float, clip_high: float):
+                 evaluation_noise: float, clip_low: float, clip_high: float,
+                 noise_as_percentage_from_action_space: bool = True):
         """
         :param action_space: the action space used by the environment
-        :param noise_schedule: the schedule for the noise variance percentage relative to the absolute range
-                                          of the action space
-        :param evaluation_noise_percentage: the noise variance percentage that will be used during evaluation phases
+        :param noise_schedule: the schedule for the noise variance
+        :param evaluation_noise: the noise variance that will be used during evaluation phases
+        :param noise_as_percentage_from_action_space: whether to consider the noise as a percentage of the action space
+                                                        or absolute value
         """
         super().__init__(action_space)
         self.noise_schedule = noise_schedule
-        self.evaluation_noise_percentage = evaluation_noise_percentage
+        self.evaluation_noise = evaluation_noise
+        self.noise_as_percentage_from_action_space = noise_as_percentage_from_action_space
         self.clip_low = clip_low
         self.clip_high = clip_high
 
@@ -71,17 +75,21 @@ class TruncatedNormal(ContinuousActionExplorationPolicy):
                 or not np.all(-np.inf < action_space.low) or not np.all(action_space.low < np.inf):
             raise ValueError("Additive noise exploration requires bounded actions")
 
-        # TODO: allow working with unbounded actions by defining the noise in terms of range and not percentage
-
     def get_action(self, action_values: List[ActionType]) -> ActionType:
-        # set the current noise percentage
+        # set the current noise
         if self.phase == RunPhase.TEST:
-            current_noise_precentage = self.evaluation_noise_percentage
+            current_noise = self.evaluation_noise
         else:
-            current_noise_precentage = self.noise_schedule.current_value
+            current_noise = self.noise_schedule.current_value
 
         # scale the noise to the action space range
-        action_values_std = current_noise_precentage * (self.action_space.high - self.action_space.low)
+        if self.noise_as_percentage_from_action_space:
+            action_values_std = current_noise * (self.action_space.high - self.action_space.low)
+        else:
+            action_values_std = current_noise
+
+        # scale the noise to the action space range
+        action_values_std = current_noise * (self.action_space.high - self.action_space.low)
 
         # extract the mean values
         if isinstance(action_values, list):

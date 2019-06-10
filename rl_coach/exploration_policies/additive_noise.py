@@ -31,7 +31,7 @@ class AdditiveNoiseParameters(ExplorationParameters):
     def __init__(self):
         super().__init__()
         self.noise_schedule = LinearSchedule(0.1, 0.1, 50000)
-        self.evaluation_noise_percentage = 0.05
+        self.evaluation_noise = 0.05
         self.noise_as_percentage_from_action_space = True
 
     @property
@@ -49,16 +49,15 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
     be the mean of the action, and 2nd is assumed to be its standard deviation.
     """
     def __init__(self, action_space: ActionSpace, noise_schedule: Schedule,
-                 evaluation_noise_percentage: float, noise_as_percentage_from_action_space: bool = True):
+                 evaluation_noise: float, noise_as_percentage_from_action_space: bool = True):
         """
         :param action_space: the action space used by the environment
-        :param noise_schedule: the schedule for the noise variance percentage relative to the absolute range
-                                          of the action space
-        :param evaluation_noise_percentage: the noise variance percentage that will be used during evaluation phases
+        :param noise_schedule: the schedule for the noise
+        :param evaluation_noise: the noise variance that will be used during evaluation phases
         """
         super().__init__(action_space)
         self.noise_schedule = noise_schedule
-        self.evaluation_noise_percentage = evaluation_noise_percentage
+        self.evaluation_noise = evaluation_noise
         self.noise_as_percentage_from_action_space = noise_as_percentage_from_action_space
 
         if not isinstance(action_space, BoxActionSpace):
@@ -69,14 +68,12 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
                 or not np.all(-np.inf < action_space.low) or not np.all(action_space.low < np.inf):
             raise ValueError("Additive noise exploration requires bounded actions")
 
-        # TODO: allow working with unbounded actions by defining the noise in terms of range and not percentage
-
     def get_action(self, action_values: List[ActionType]) -> ActionType:
         # TODO-potential-bug consider separating internally defined stdev and externally defined stdev into 2 policies
 
-        # set the current noise percentage
+        # set the current noise
         if self.phase == RunPhase.TEST:
-            current_noise = self.evaluation_noise_percentage
+            current_noise = self.evaluation_noise
         else:
             current_noise = self.noise_schedule.current_value
 

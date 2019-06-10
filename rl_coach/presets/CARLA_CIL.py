@@ -124,7 +124,7 @@ agent_params.input_filter.add_observation_filter(
 # no exploration is used
 agent_params.exploration = AdditiveNoiseParameters()
 agent_params.exploration.noise_schedule = ConstantSchedule(0)
-agent_params.exploration.evaluation_noise_percentage = 0
+agent_params.exploration.evaluation_noise = 0
 
 # no playing during the training phase
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)
