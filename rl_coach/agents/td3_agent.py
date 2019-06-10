@@ -27,7 +27,7 @@ from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, TD3V
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters, EmbedderScheme
-from rl_coach.core_types import ActionInfo, TrainingSteps
+from rl_coach.core_types import ActionInfo, TrainingSteps, Transition
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.spaces import BoxActionSpace, GoalsSpace
@@ -109,7 +109,7 @@ class TD3AlgorithmParameters(AlgorithmParameters):
         self.policy_noise = 0.2
         self.noise_clipping = 0.5
         self.num_q_networks = 2
-        self.use_non_zero_discount_for_terminal_states = True # currently only for half-cheetah TODO fixme - should be done by getting input from the env
+        self.use_non_zero_discount_for_terminal_states = False
 
 
 class TD3AgentExplorationParameters(AdditiveNoiseParameters):
@@ -238,3 +238,17 @@ class TD3Agent(ActorCriticAgent):
                                  action_value=q_value)
 
         return action_info
+
+    def update_transition_before_adding_to_replay_buffer(self, transition: Transition) -> Transition:
+        """
+        Allows agents to update the transition just before adding it to the replay buffer.
+        Can be useful for agents that want to tweak the reward, termination signal, etc.
+
+        :param transition: the transition to update
+        :return: the updated transition
+        """
+        transition.game_over = False if self.current_episode_steps_counter ==\
+                                        self.parent_level_manager.environment.env._max_episode_steps\
+            else transition.game_over
+
+        return transition
