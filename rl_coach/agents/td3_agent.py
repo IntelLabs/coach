@@ -38,7 +38,7 @@ class TD3CriticNetworkParameters(NetworkParameters):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters(),
                                             'action': InputEmbedderParameters(scheme=EmbedderScheme.Shallow)}
-        self.middleware_parameters = FCMiddlewareParameters(num_towers=num_q_networks)
+        self.middleware_parameters = FCMiddlewareParameters(num_streams=num_q_networks)
         self.heads_parameters = [TD3VHeadParameters()]
         self.optimizer_type = 'Adam'
         self.adam_optimizer_beta2 = 0.999

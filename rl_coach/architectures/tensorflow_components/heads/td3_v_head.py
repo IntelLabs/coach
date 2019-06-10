@@ -41,7 +41,7 @@ class TD3VHead(Head):
         q_outputs = []
         self.target = tf.placeholder(tf.float32, shape=(None, 1), name="q_networks_min_placeholder")
 
-        for i in range(2):
+        for i in range(input_layer.shape[0]):
             if self.initializer == 'normalized_columns':
                 q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1),
                                                      kernel_initializer=normalized_columns_initializer(1.0)))
@@ -50,12 +50,10 @@ class TD3VHead(Head):
 
             self.output.append(q_outputs[i])
             self.loss.append(tf.reduce_mean((self.target-q_outputs[i])**2))
-            # self.loss.append(tf.losses.mean_squared_error(labels=self.target, predictions=q_outputs[i]))
 
         self.output.append(tf.reduce_min(q_outputs, axis=0))
         self.output.append(tf.reduce_mean(self.output[0]))
         self.loss = self.loss[0] + self.loss[1]
-        # self.loss = tf.reduce_sum(self.loss, axis=0)
         tf.losses.add_loss(self.loss)
 
     def __str__(self):

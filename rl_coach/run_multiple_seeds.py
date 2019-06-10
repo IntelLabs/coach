@@ -58,7 +58,7 @@ if __name__ == "__main__":
                              "the preset name",
                         action='store_true')
     parser.add_argument('-ssd', '--seed_as_sub_dir',
-                        help="(flag) Store each level in it's own sub directory where the root directory name matches "
+                        help="(flag) Store each seed in it's own sub directory where the root directory name matches "
                              "the preset name",
                         action='store_true')
     parser.add_argument('-ew', '--evaluation_worker',

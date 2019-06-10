@@ -14,10 +14,8 @@ from rl_coach.graph_managers.graph_manager import ScheduleParameters
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = EnvironmentSteps(1000000)
 schedule_params.steps_between_evaluation_periods = EnvironmentSteps(5000)
-# schedule_params.steps_between_evaluation_periods = EnvironmentSteps(1000)
 schedule_params.evaluation_steps = EnvironmentEpisodes(10)
 schedule_params.heatup_steps = EnvironmentSteps(10000)
-# schedule_params.heatup_steps = EnvironmentSteps(100)
 
 #########
 # Agent #
