@@ -100,7 +100,7 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
 
         # add noise to the action means
         if self.phase is not RunPhase.TEST:
-            action = np.random.normal(action_values_mean, action_values_std, size=action_values_mean.shape)
+            action = np.random.normal(action_values_mean, action_values_std)
         else:
             action = action_values_mean
 
