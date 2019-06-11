@@ -139,7 +139,7 @@ def ClassToDict(x):
 
 
 def cmd_line_run(result, run_cmd, id=-1):
-    p = Popen(run_cmd, shell=True, executable="/bin/bash")
+    p = Popen(run_cmd, shell=True, executable="bash")
     while result[0] is None or result[0] == [None]:
         if id in killed_processes:
             p.kill()
