@@ -66,8 +66,8 @@ def open_dashboard(experiment_path):
     dashboard_path = 'python {}/dashboard.py'.format(get_base_dir())
     cmd = "{} --experiment_dir {}".format(dashboard_path, experiment_path)
     screen.log_title("Opening dashboard - experiment path: {}".format(experiment_path))
-    # subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, executable="/bin/bash")
-    subprocess.Popen(cmd, shell=True, executable="/bin/bash")
+    # subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, executable="bash")
+    subprocess.Popen(cmd, shell=True, executable="bash")
 
 
 def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'):
