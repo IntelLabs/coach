@@ -226,12 +226,6 @@ def squeeze_list(var):
         return var
 
 
-def squeeze_tensor(tensor):
-    if tensor.shape[0] == 1:
-        return tensor[0]
-    else:
-        return tensor
-
 def get_open_port():
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

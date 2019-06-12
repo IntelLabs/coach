@@ -20,8 +20,8 @@ from tensorflow.python.ops.losses.losses_impl import Reduction
 from rl_coach.architectures.tensorflow_components.layers import Dense, convert_layer_class
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import force_list, squeeze_tensor
-
+from rl_coach.utils import force_list
+from rl_coach.architectures.tensorflow_components.utils import squeeze_tensor
 
 # Used to initialize weights for policy and value output layers
 def normalized_columns_initializer(std=1.0):

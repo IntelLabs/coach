@@ -54,6 +54,8 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
         :param action_space: the action space used by the environment
         :param noise_schedule: the schedule for the noise
         :param evaluation_noise: the noise variance that will be used during evaluation phases
+        :param noise_as_percentage_from_action_space: a bool deciding whether the noise is absolute or as a percentage
+                                                      from the action space
         """
         super().__init__(action_space)
         self.noise_schedule = noise_schedule

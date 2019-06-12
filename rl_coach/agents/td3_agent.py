@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ from collections import OrderedDict
 
 import numpy as np
 
-from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.agent import Agent
+from rl_coach.agents.ddpg_agent import DDPGAgent
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, TD3VHeadParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
@@ -109,7 +109,6 @@ class TD3AlgorithmParameters(AlgorithmParameters):
         self.policy_noise = 0.2
         self.noise_clipping = 0.5
         self.num_q_networks = 2
-        self.use_non_zero_discount_for_terminal_states = False
 
 
 class TD3AgentExplorationParameters(AdditiveNoiseParameters):
@@ -134,7 +133,7 @@ class TD3AgentParameters(AgentParameters):
 
 
 # Twin Delayed DDPG - https://arxiv.org/pdf/1802.09477.pdf
-class TD3Agent(ActorCriticAgent):
+class TD3Agent(DDPGAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
 
@@ -208,36 +207,6 @@ class TD3Agent(ActorCriticAgent):
     def train(self):
         self.ap.algorithm.num_consecutive_training_steps = self.current_episode_steps_counter
         return Agent.train(self)
-
-    def choose_action(self, curr_state):
-        if not (isinstance(self.spaces.action, BoxActionSpace) or isinstance(self.spaces.action, GoalsSpace)):
-            raise ValueError("TD3 works only for continuous control problems")
-        # convert to batch so we can run it through the network
-        tf_input_state = self.prepare_batch_for_inference(curr_state, 'actor')
-        if self.ap.algorithm.use_target_network_for_evaluation:
-            actor_network = self.networks['actor'].target_network
-        else:
-            actor_network = self.networks['actor'].online_network
-
-        action_values = actor_network.predict(tf_input_state).squeeze()
-
-        action = self.exploration_policy.get_action(action_values)
-
-        self.action_signal.add_sample(action)
-
-        # get q value
-        tf_input_state = self.prepare_batch_for_inference(curr_state, 'critic')
-        action_batch = np.expand_dims(action, 0)
-        if type(action) != np.ndarray:
-            action_batch = np.array([[action]])
-        tf_input_state['action'] = action_batch
-        q_value = self.networks['critic'].online_network.predict(tf_input_state)[0]
-        self.q_values.add_sample(q_value)
-
-        action_info = ActionInfo(action=action,
-                                 action_value=q_value)
-
-        return action_info
 
     def update_transition_before_adding_to_replay_buffer(self, transition: Transition) -> Transition:
         """

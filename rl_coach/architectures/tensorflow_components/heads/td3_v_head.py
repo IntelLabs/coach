@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ class TD3VHead(Head):
         q_outputs = []
         self.target = tf.placeholder(tf.float32, shape=(None, 1), name="q_networks_min_placeholder")
 
-        for i in range(input_layer.shape[0]):
+        for i in range(input_layer.shape[0]): # assuming that the actual size is 2, as there are two critic networks
             if self.initializer == 'normalized_columns':
                 q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1),
                                                      kernel_initializer=normalized_columns_initializer(1.0)))
@@ -53,7 +53,7 @@ class TD3VHead(Head):
 
         self.output.append(tf.reduce_min(q_outputs, axis=0))
         self.output.append(tf.reduce_mean(self.output[0]))
-        self.loss = self.loss[0] + self.loss[1]
+        self.loss = sum(self.loss)
         tf.losses.add_loss(self.loss)
 
     def __str__(self):
