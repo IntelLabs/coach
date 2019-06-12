@@ -39,9 +39,9 @@ env_params = GymVectorEnvironment(level=SingleLevelSelection(mujoco_v2))
 ########
 preset_validation_params = PresetValidationParameters()
 preset_validation_params.test = True
-preset_validation_params.min_reward_threshold = 400
-preset_validation_params.max_episodes_to_achieve_reward = 1000
-preset_validation_params.reward_test_level = 'inverted_pendulum'
+preset_validation_params.min_reward_threshold = 500
+preset_validation_params.max_episodes_to_achieve_reward = 1100
+preset_validation_params.reward_test_level = 'hopper'
 preset_validation_params.trace_test_levels = ['inverted_pendulum', 'hopper']
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
