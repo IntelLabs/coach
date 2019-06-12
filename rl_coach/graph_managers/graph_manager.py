@@ -123,6 +123,10 @@ class GraphManager(object):
         self.time_metric = TimeTypes.EpisodeNumber
 
     def create_graph(self, task_parameters: TaskParameters=TaskParameters()):
+        # check if create graph has been already called
+        if self.graph_creation_time is not None:
+            return self
+
         self.graph_creation_time = time.time()
         self.task_parameters = task_parameters
 

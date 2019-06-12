@@ -382,12 +382,12 @@ def summarize_experiment():
         screen.log_title("Results moved to: {}".format(new_path))
 
 
-def get_experiment_name(initial_experiment_name=''):
+def get_experiment_name(initial_experiment_name=None):
     global experiment_name
 
     match = None
     while match is None:
-        if initial_experiment_name == '':
+        if initial_experiment_name is None:
             msg_if_timeout = "Timeout waiting for experiement name."
             experiment_name = screen.ask_input_with_timeout("Please enter an experiment name: ", 60, msg_if_timeout)
         else:

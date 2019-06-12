@@ -35,6 +35,7 @@ class BasicRLGraphManager(GraphManager):
                  preset_validation_params: PresetValidationParameters = PresetValidationParameters(),
                  name='simple_rl_graph'):
         super().__init__(name, schedule_params, vis_params)
+
         self.agent_params = agent_params
         self.env_params = env_params
         self.preset_validation_params = preset_validation_params
@@ -71,3 +72,10 @@ class BasicRLGraphManager(GraphManager):
         level_manager = LevelManager(agents=agent, environment=env, name="main_level")
 
         return [level_manager], [env]
+
+    def log_signal(self, signal_name, value):
+        self.level_managers[0].agents['agent'].agent_logger.create_signal_value(signal_name, value)
+
+    def get_agent(self):
+        return self.level_managers[0].agents['agent']
+
