@@ -221,7 +221,7 @@
 <h3>ObservationClippingFilter<a class="headerlink" href="#observationclippingfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationClippingFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationClippingFilter</code><span class="sig-paren">(</span><em>clipping_low: float = -inf</em>, <em>clipping_high: float = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_clipping_filter.html#ObservationClippingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationClippingFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationClippingFilter</code><span class="sig-paren">(</span><em class="sig-param">clipping_low: float = -inf</em>, <em class="sig-param">clipping_high: float = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_clipping_filter.html#ObservationClippingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationClippingFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clips the observation values to a given range of values.
 For example, if the observation consists of measurements in an arbitrary range,
 and we want to control the minimum and maximum values of these observations,
@@ -241,7 +241,7 @@ we can define a range and clip the values of the measurements.</p>
 <h3>ObservationCropFilter<a class="headerlink" href="#observationcropfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationCropFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationCropFilter</code><span class="sig-paren">(</span><em>crop_low: numpy.ndarray = None</em>, <em>crop_high: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_crop_filter.html#ObservationCropFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationCropFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationCropFilter</code><span class="sig-paren">(</span><em class="sig-param">crop_low: numpy.ndarray = None</em>, <em class="sig-param">crop_high: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_crop_filter.html#ObservationCropFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationCropFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Crops the size of the observation to a given crop window. For example, in Atari, the
 observations are images with a shape of 210x160. Usually, we will want to crop the size of the observation to a
 square of 160x160 before rescaling them.</p>
@@ -262,7 +262,7 @@ corresponding dimension. a negative value of -1 will be mapped to the max size</
 <h3>ObservationMoveAxisFilter<a class="headerlink" href="#observationmoveaxisfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationMoveAxisFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationMoveAxisFilter</code><span class="sig-paren">(</span><em>axis_origin: int = None</em>, <em>axis_target: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_move_axis_filter.html#ObservationMoveAxisFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationMoveAxisFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationMoveAxisFilter</code><span class="sig-paren">(</span><em class="sig-param">axis_origin: int = None</em>, <em class="sig-param">axis_target: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_move_axis_filter.html#ObservationMoveAxisFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationMoveAxisFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorders the axes of the observation. This can be useful when the observation is an
 image, and we want to move the channel axis to be the last axis instead of the first axis.</p>
 <dl class="field-list simple">
@@ -280,7 +280,7 @@ image, and we want to move the channel axis to be the last axis instead of the f
 <h3>ObservationNormalizationFilter<a class="headerlink" href="#observationnormalizationfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationNormalizationFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationNormalizationFilter</code><span class="sig-paren">(</span><em>clip_min: float = -5.0</em>, <em>clip_max: float = 5.0</em>, <em>name='observation_stats'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_normalization_filter.html#ObservationNormalizationFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationNormalizationFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationNormalizationFilter</code><span class="sig-paren">(</span><em class="sig-param">clip_min: float = -5.0</em>, <em class="sig-param">clip_max: float = 5.0</em>, <em class="sig-param">name='observation_stats'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_normalization_filter.html#ObservationNormalizationFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationNormalizationFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes the observation values with a running mean and standard deviation of
 all the observations seen so far. The normalization is performed element-wise. Additionally, when working with
 multiple workers, the statistics used for the normalization operation are accumulated over all the workers.</p>
@@ -299,7 +299,7 @@ multiple workers, the statistics used for the normalization operation are accumu
 <h3>ObservationReductionBySubPartsNameFilter<a class="headerlink" href="#observationreductionbysubpartsnamefilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationReductionBySubPartsNameFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationReductionBySubPartsNameFilter</code><span class="sig-paren">(</span><em>part_names: List[str], reduction_method: rl_coach.filters.observation.observation_reduction_by_sub_parts_name_filter.ObservationReductionBySubPartsNameFilter.ReductionMethod</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_reduction_by_sub_parts_name_filter.html#ObservationReductionBySubPartsNameFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationReductionBySubPartsNameFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationReductionBySubPartsNameFilter</code><span class="sig-paren">(</span><em class="sig-param">part_names: List[str], reduction_method: rl_coach.filters.observation.observation_reduction_by_sub_parts_name_filter.ObservationReductionBySubPartsNameFilter.ReductionMethod</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_reduction_by_sub_parts_name_filter.html#ObservationReductionBySubPartsNameFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationReductionBySubPartsNameFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows keeping only parts of the observation, by specifying their
 name. This is useful when the environment has a measurements vector as observation which includes several different
 measurements, but you want the agent to only see some of the measurements and not all.
@@ -321,7 +321,7 @@ This will currently work only for VectorObservationSpace observations</p>
 <h3>ObservationRescaleSizeByFactorFilter<a class="headerlink" href="#observationrescalesizebyfactorfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleSizeByFactorFilter</code><span class="sig-paren">(</span><em>rescale_factor: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_size_by_factor_filter.html#ObservationRescaleSizeByFactorFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationRescaleSizeByFactorFilter</code><span class="sig-paren">(</span><em class="sig-param">rescale_factor: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_size_by_factor_filter.html#ObservationRescaleSizeByFactorFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleSizeByFactorFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rescales an image observation by some factor. For example, the image size
 can be reduced by a factor of 2.</p>
 <dl class="field-list simple">
@@ -336,7 +336,7 @@ can be reduced by a factor of 2.</p>
 <h3>ObservationRescaleToSizeFilter<a class="headerlink" href="#observationrescaletosizefilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationRescaleToSizeFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRescaleToSizeFilter</code><span class="sig-paren">(</span><em>output_observation_space: rl_coach.spaces.PlanarMapsObservationSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_to_size_filter.html#ObservationRescaleToSizeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleToSizeFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationRescaleToSizeFilter</code><span class="sig-paren">(</span><em class="sig-param">output_observation_space: rl_coach.spaces.PlanarMapsObservationSpace</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rescale_to_size_filter.html#ObservationRescaleToSizeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRescaleToSizeFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rescales an image observation to a given size. The target size does not
 necessarily keep the aspect ratio of the original observation.
 Warning: this requires the input observation to be of type uint8 due to scipy requirements!</p>
@@ -352,7 +352,7 @@ Warning: this requires the input observation to be of type uint8 due to scipy re
 <h3>ObservationRGBToYFilter<a class="headerlink" href="#observationrgbtoyfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationRGBToYFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationRGBToYFilter</code><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rgb_to_y_filter.html#ObservationRGBToYFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRGBToYFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationRGBToYFilter</code><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_rgb_to_y_filter.html#ObservationRGBToYFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationRGBToYFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a color image observation specified using the RGB encoding into a grayscale
 image observation, by keeping only the luminance (Y) channel of the YUV encoding. This can be useful if the colors
 in the original image are not relevant for solving the task at hand.
@@ -364,7 +364,7 @@ The channels axis is assumed to be the last axis</p>
 <h3>ObservationSqueezeFilter<a class="headerlink" href="#observationsqueezefilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationSqueezeFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationSqueezeFilter</code><span class="sig-paren">(</span><em>axis: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_squeeze_filter.html#ObservationSqueezeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationSqueezeFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationSqueezeFilter</code><span class="sig-paren">(</span><em class="sig-param">axis: int = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_squeeze_filter.html#ObservationSqueezeFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationSqueezeFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes redundant axes from the observation, which are axes with a dimension of 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -378,7 +378,7 @@ The channels axis is assumed to be the last axis</p>
 <h3>ObservationStackingFilter<a class="headerlink" href="#observationstackingfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationStackingFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationStackingFilter</code><span class="sig-paren">(</span><em>stack_size: int</em>, <em>stacking_axis: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_stacking_filter.html#ObservationStackingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationStackingFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationStackingFilter</code><span class="sig-paren">(</span><em class="sig-param">stack_size: int</em>, <em class="sig-param">stacking_axis: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_stacking_filter.html#ObservationStackingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationStackingFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stacks several observations on top of each other. For image observation this will
 create a 3D blob. The stacking is done in a lazy manner in order to reduce memory consumption. To achieve this,
 a LazyStack object is used in order to wrap the observations in the stack. For this reason, the
@@ -403,7 +403,7 @@ and increase the memory footprint.</p>
 <h3>ObservationToUInt8Filter<a class="headerlink" href="#observationtouint8filter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.observation.ObservationToUInt8Filter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.observation.</code><code class="descname">ObservationToUInt8Filter</code><span class="sig-paren">(</span><em>input_low: float</em>, <em>input_high: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_to_uint8_filter.html#ObservationToUInt8Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationToUInt8Filter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.observation.</code><code class="sig-name descname">ObservationToUInt8Filter</code><span class="sig-paren">(</span><em class="sig-param">input_low: float</em>, <em class="sig-param">input_high: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/observation/observation_to_uint8_filter.html#ObservationToUInt8Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.observation.ObservationToUInt8Filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a floating point observation into an unsigned int 8 bit observation. This is
 mostly useful for reducing memory consumption and is usually used for image observations. The filter will first
 spread the observation values over the range 0-255 and then discretize them into integer values.</p>
@@ -425,7 +425,7 @@ spread the observation values over the range 0-255 and then discretize them into
 <h3>RewardClippingFilter<a class="headerlink" href="#rewardclippingfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.reward.RewardClippingFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardClippingFilter</code><span class="sig-paren">(</span><em>clipping_low: float = -inf</em>, <em>clipping_high: float = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_clipping_filter.html#RewardClippingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardClippingFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.reward.</code><code class="sig-name descname">RewardClippingFilter</code><span class="sig-paren">(</span><em class="sig-param">clipping_low: float = -inf</em>, <em class="sig-param">clipping_high: float = inf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_clipping_filter.html#RewardClippingFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardClippingFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clips the reward values into a given range. For example, in DQN, the Atari rewards are
 clipped into the range -1 and 1 in order to control the scale of the returns.</p>
 <dl class="field-list simple">
@@ -443,7 +443,7 @@ clipped into the range -1 and 1 in order to control the scale of the returns.</p
 <h3>RewardNormalizationFilter<a class="headerlink" href="#rewardnormalizationfilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.reward.RewardNormalizationFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardNormalizationFilter</code><span class="sig-paren">(</span><em>clip_min: float = -5.0</em>, <em>clip_max: float = 5.0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_normalization_filter.html#RewardNormalizationFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardNormalizationFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.reward.</code><code class="sig-name descname">RewardNormalizationFilter</code><span class="sig-paren">(</span><em class="sig-param">clip_min: float = -5.0</em>, <em class="sig-param">clip_max: float = 5.0</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_normalization_filter.html#RewardNormalizationFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardNormalizationFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes the reward values with a running mean and standard deviation of
 all the rewards seen so far. When working with multiple workers, the statistics used for the normalization operation
 are accumulated over all the workers.</p>
@@ -462,7 +462,7 @@ are accumulated over all the workers.</p>
 <h3>RewardRescaleFilter<a class="headerlink" href="#rewardrescalefilter" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="rl_coach.filters.reward.RewardRescaleFilter">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.reward.</code><code class="descname">RewardRescaleFilter</code><span class="sig-paren">(</span><em>rescale_factor: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_rescale_filter.html#RewardRescaleFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardRescaleFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.reward.</code><code class="sig-name descname">RewardRescaleFilter</code><span class="sig-paren">(</span><em class="sig-param">rescale_factor: float</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/reward/reward_rescale_filter.html#RewardRescaleFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.reward.RewardRescaleFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rescales the reward by a given factor. Rescaling the rewards of the environment has been
 observed to have a large effect (negative or positive) on the behavior of the learning process.</p>
 <dl class="field-list simple">

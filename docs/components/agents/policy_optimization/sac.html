@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Direct Future Prediction" href="../other/dfp.html" />
-    <link rel="prev" title="Deep Deterministic Policy Gradient" href="ddpg.html" />
+    <link rel="prev" title="Twin Delayed Deep Deterministic Policy Gradient" href="td3.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -117,6 +117,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Soft Actor-Critic</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#network-structure">Network Structure</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#algorithm-description">Algorithm Description</a><ul>
@@ -258,7 +259,7 @@ from the current policy.</p>
 <p>After every training step, do a soft update of the V target network’s weights from the online networks.</p>
 <dl class="class">
 <dt id="rl_coach.agents.soft_actor_critic_agent.SoftActorCriticAlgorithmParameters">
-<em class="property">class </em><code class="descclassname">rl_coach.agents.soft_actor_critic_agent.</code><code class="descname">SoftActorCriticAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/soft_actor_critic_agent.html#SoftActorCriticAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.soft_actor_critic_agent.SoftActorCriticAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.agents.soft_actor_critic_agent.</code><code class="sig-name descname">SoftActorCriticAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/soft_actor_critic_agent.html#SoftActorCriticAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.soft_actor_critic_agent.SoftActorCriticAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -290,7 +291,7 @@ and not sampled from the policy distribution.</p></li>
         <a href="../other/dfp.html" class="btn btn-neutral float-right" title="Direct Future Prediction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="ddpg.html" class="btn btn-neutral float-left" title="Deep Deterministic Policy Gradient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="td3.html" class="btn btn-neutral float-left" title="Twin Delayed Deep Deterministic Policy Gradient" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

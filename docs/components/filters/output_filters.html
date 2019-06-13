@@ -200,7 +200,7 @@
 <h2>Action Filters<a class="headerlink" href="#action-filters" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.filters.action.AttentionDiscretization">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.action.</code><code class="descname">AttentionDiscretization</code><span class="sig-paren">(</span><em>num_bins_per_dimension: Union[int, List[int]], force_int_bins=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/attention_discretization.html#AttentionDiscretization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.AttentionDiscretization" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.action.</code><code class="sig-name descname">AttentionDiscretization</code><span class="sig-paren">(</span><em class="sig-param">num_bins_per_dimension: Union[int, List[int]], force_int_bins=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/attention_discretization.html#AttentionDiscretization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.AttentionDiscretization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Discretizes an <strong>AttentionActionSpace</strong>. The attention action space defines the actions
 as choosing sub-boxes in a given box. For example, consider an image of size 100x100, where the action is choosing
 a crop window of size 20x20 to attend to in the image. AttentionDiscretization allows discretizing the possible crop
@@ -219,7 +219,7 @@ windows to choose into a finite number of options, and map a discrete action spa
 <img alt="../../_images/attention_discretization.png" class="align-center" src="../../_images/attention_discretization.png" />
 <dl class="class">
 <dt id="rl_coach.filters.action.BoxDiscretization">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.action.</code><code class="descname">BoxDiscretization</code><span class="sig-paren">(</span><em>num_bins_per_dimension: Union[int, List[int]], force_int_bins=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/box_discretization.html#BoxDiscretization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.BoxDiscretization" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.action.</code><code class="sig-name descname">BoxDiscretization</code><span class="sig-paren">(</span><em class="sig-param">num_bins_per_dimension: Union[int, List[int]], force_int_bins=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/box_discretization.html#BoxDiscretization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.BoxDiscretization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Discretizes a continuous action space into a discrete action space, allowing the usage of
 agents such as DQN for continuous environments such as MuJoCo. Given the number of bins to discretize into, the
 original continuous action space is uniformly separated into the given number of bins, each mapped to a discrete
@@ -242,7 +242,7 @@ instead of 0, 2.5, 5, 7.5, 10.</p></li>
 <img alt="../../_images/box_discretization.png" class="align-center" src="../../_images/box_discretization.png" />
 <dl class="class">
 <dt id="rl_coach.filters.action.BoxMasking">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.action.</code><code class="descname">BoxMasking</code><span class="sig-paren">(</span><em>masked_target_space_low: Union[None, int, float, numpy.ndarray], masked_target_space_high: Union[None, int, float, numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/box_masking.html#BoxMasking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.BoxMasking" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.action.</code><code class="sig-name descname">BoxMasking</code><span class="sig-paren">(</span><em class="sig-param">masked_target_space_low: Union[None, int, float, numpy.ndarray], masked_target_space_high: Union[None, int, float, numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/box_masking.html#BoxMasking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.BoxMasking" title="Permalink to this definition">¶</a></dt>
 <dd><p>Masks part of the action space to enforce the agent to work in a defined space. For example,
 if the original action space is between -1 and 1, then this filter can be used in order to constrain the agent actions
 to the range 0 and 1 instead. This essentially masks the range -1 and 0 from the agent.
@@ -260,7 +260,7 @@ The resulting action space will be shifted and will always start from 0 and have
 <img alt="../../_images/box_masking.png" class="align-center" src="../../_images/box_masking.png" />
 <dl class="class">
 <dt id="rl_coach.filters.action.PartialDiscreteActionSpaceMap">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.action.</code><code class="descname">PartialDiscreteActionSpaceMap</code><span class="sig-paren">(</span><em>target_actions: List[Union[int</em>, <em>float</em>, <em>numpy.ndarray</em>, <em>List]] = None</em>, <em>descriptions: List[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/partial_discrete_action_space_map.html#PartialDiscreteActionSpaceMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.PartialDiscreteActionSpaceMap" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.action.</code><code class="sig-name descname">PartialDiscreteActionSpaceMap</code><span class="sig-paren">(</span><em class="sig-param">target_actions: List[Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">numpy.ndarray</em>, <em class="sig-param">List]] = None</em>, <em class="sig-param">descriptions: List[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/partial_discrete_action_space_map.html#PartialDiscreteActionSpaceMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.PartialDiscreteActionSpaceMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Partial map of two countable action spaces. For example, consider an environment
 with a MultiSelect action space (select multiple actions at the same time, such as jump and go right), with 8 actual
 MultiSelect actions. If we want the agent to be able to select only 5 of those actions by their index (0-4), we can
@@ -279,7 +279,7 @@ use regular discrete actions, and mask 3 of the actions from the agent.</p>
 <img alt="../../_images/partial_discrete_action_space_map.png" class="align-center" src="../../_images/partial_discrete_action_space_map.png" />
 <dl class="class">
 <dt id="rl_coach.filters.action.FullDiscreteActionSpaceMap">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.action.</code><code class="descname">FullDiscreteActionSpaceMap</code><a class="reference internal" href="../../_modules/rl_coach/filters/action/full_discrete_action_space_map.html#FullDiscreteActionSpaceMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.FullDiscreteActionSpaceMap" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.action.</code><code class="sig-name descname">FullDiscreteActionSpaceMap</code><a class="reference internal" href="../../_modules/rl_coach/filters/action/full_discrete_action_space_map.html#FullDiscreteActionSpaceMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.FullDiscreteActionSpaceMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Full map of two countable action spaces. This works in a similar way to the
 PartialDiscreteActionSpaceMap, but maps the entire source action space into the entire target action space, without
 masking any actions.
@@ -290,7 +290,7 @@ multiselect actions.</p>
 <img alt="../../_images/full_discrete_action_space_map.png" class="align-center" src="../../_images/full_discrete_action_space_map.png" />
 <dl class="class">
 <dt id="rl_coach.filters.action.LinearBoxToBoxMap">
-<em class="property">class </em><code class="descclassname">rl_coach.filters.action.</code><code class="descname">LinearBoxToBoxMap</code><span class="sig-paren">(</span><em>input_space_low: Union[None, int, float, numpy.ndarray], input_space_high: Union[None, int, float, numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/linear_box_to_box_map.html#LinearBoxToBoxMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.LinearBoxToBoxMap" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.filters.action.</code><code class="sig-name descname">LinearBoxToBoxMap</code><span class="sig-paren">(</span><em class="sig-param">input_space_low: Union[None, int, float, numpy.ndarray], input_space_high: Union[None, int, float, numpy.ndarray]</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/filters/action/linear_box_to_box_map.html#LinearBoxToBoxMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.filters.action.LinearBoxToBoxMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>A linear mapping of two box action spaces. For example, if the action space of the
 environment consists of continuous actions between 0 and 1, and we want the agent to choose actions between -1 and 1,
 the LinearBoxToBoxMap can be used to map the range -1 and 1 to the range 0 and 1 in a linear way. This means that the
