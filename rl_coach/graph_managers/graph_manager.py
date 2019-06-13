@@ -23,12 +23,10 @@ from typing import List, Tuple
 import contextlib
 
 from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, Frameworks, \
-    VisualizationParameters, \
-    Parameters, PresetValidationParameters, RunType
+    VisualizationParameters, Parameters, PresetValidationParameters, RunType
 from rl_coach.checkpoint import CheckpointStateUpdater, get_checkpoint_state, SingleCheckpoint, CheckpointState
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
-    EnvironmentSteps, \
-    StepMethod, Transition
+    EnvironmentSteps, StepMethod, Transition
 from rl_coach.environments.environment import Environment
 from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen, Logger

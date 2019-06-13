@@ -18,7 +18,6 @@ sys.path.append('.')
 
 import copy
 from configparser import ConfigParser, Error
-from rl_coach.core_types import EnvironmentSteps
 import os
 from rl_coach import logger
 import traceback
@@ -30,6 +29,8 @@ import sys
 import json
 from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskParameters, DistributedTaskParameters, \
     RunType, DistributedCoachSynchronizationType
+from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
+    EnvironmentSteps, StepMethod, Transition
 from multiprocessing import Process
 from multiprocessing.managers import BaseManager
 import subprocess
@@ -530,7 +531,8 @@ class CoachLauncher(object):
                                  " the selected preset (or on top of the command-line assembled one). "
                                  "Whenever a parameter value is a string, it should be inputted as '\\\"string\\\"'. "
                                  "For ex.: "
-                                 "\"visualization.render=False; num_training_iterations=500; optimizer='rmsprop'\"",
+                                 "\"visualization_parameters.render=False; heatup_steps=EnvironmentSteps(1000);"
+                                 "improve_steps=TrainingSteps(100000); optimizer='rmsprop'\"",
                             default=None,
                             type=str)
         parser.add_argument('--print_networks_summary',
