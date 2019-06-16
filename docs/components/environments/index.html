@@ -195,7 +195,7 @@
 <h1>Environments<a class="headerlink" href="#environments" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="rl_coach.environments.environment.Environment">
-<em class="property">class </em><code class="descclassname">rl_coach.environments.environment.</code><code class="descname">Environment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.environments.environment.</code><code class="sig-name descname">Environment</code><span class="sig-paren">(</span><em class="sig-param">level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -210,9 +210,9 @@ additional arguments which will be ignored by this class, but might be used by o
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.environments.environment.Environment.action_space">
-<code class="descname">action_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.action_space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">action_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.action_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the action space of the environment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -223,7 +223,7 @@ additional arguments which will be ignored by this class, but might be used by o
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.close">
-<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.close" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clean up steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -234,7 +234,7 @@ additional arguments which will be ignored by this class, but might be used by o
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_action_from_user">
-<code class="descname">get_action_from_user</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_action_from_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_action_from_user" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_action_from_user</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_action_from_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_action_from_user" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get an action from the user keyboard</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -245,7 +245,7 @@ additional arguments which will be ignored by this class, but might be used by o
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_available_keys">
-<code class="descname">get_available_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Tuple[str, Union[int, float, numpy.ndarray, List]]]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_available_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_available_keys" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_available_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Tuple[str, Union[int, float, numpy.ndarray, List]]]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_available_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_available_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of tuples mapping between action names and the keyboard key that triggers them</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -256,7 +256,7 @@ additional arguments which will be ignored by this class, but might be used by o
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_goal">
-<code class="descname">get_goal</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[None, numpy.ndarray]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_goal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_goal</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[None, numpy.ndarray]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_goal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the current goal that the agents needs to achieve in the environment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -267,7 +267,7 @@ additional arguments which will be ignored by this class, but might be used by o
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_random_action">
-<code class="descname">get_random_action</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_random_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_random_action" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_random_action</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Union[int, float, numpy.ndarray, List]<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_random_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_random_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an action picked uniformly from the available actions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -278,7 +278,7 @@ additional arguments which will be ignored by this class, but might be used by o
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.get_rendered_image">
-<code class="descname">get_rendered_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_rendered_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_rendered_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_rendered_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.get_rendered_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.get_rendered_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a numpy array containing the image that will be rendered to the screen.
 This can be different from the observation. For example, mujoco’s observation is a measurements vector.</p>
 <dl class="field-list simple">
@@ -288,9 +288,9 @@ This can be different from the observation. For example, mujoco’s observation 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.environments.environment.Environment.goal_space">
-<code class="descname">goal_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.goal_space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">goal_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.goal_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the state space of the environment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -301,7 +301,7 @@ This can be different from the observation. For example, mujoco’s observation 
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.handle_episode_ended">
-<code class="descname">handle_episode_ended</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.handle_episode_ended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.handle_episode_ended" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">handle_episode_ended</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.handle_episode_ended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.handle_episode_ended" title="Permalink to this definition">¶</a></dt>
 <dd><p>End an episode</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -310,9 +310,9 @@ This can be different from the observation. For example, mujoco’s observation 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.environments.environment.Environment.last_env_response">
-<code class="descname">last_env_response</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.last_env_response" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">last_env_response</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.last_env_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the last environment response</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -321,16 +321,16 @@ This can be different from the observation. For example, mujoco’s observation 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.environments.environment.Environment.phase">
-<code class="descname">phase</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.phase" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">phase</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.phase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the phase of the environment
 :return: the current phase</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.render">
-<code class="descname">render</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.render" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the environment function for rendering to the screen</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -341,7 +341,7 @@ This can be different from the observation. For example, mujoco’s observation 
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.reset_internal_state">
-<code class="descname">reset_internal_state</code><span class="sig-paren">(</span><em>force_environment_reset=False</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.EnvResponse<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.reset_internal_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.reset_internal_state" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_internal_state</code><span class="sig-paren">(</span><em class="sig-param">force_environment_reset=False</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.EnvResponse<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.reset_internal_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.reset_internal_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset the environment and all the variable of the wrapper</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -355,7 +355,7 @@ This can be different from the observation. For example, mujoco’s observation 
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.set_goal">
-<code class="descname">set_goal</code><span class="sig-paren">(</span><em>goal: Union[None, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.set_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.set_goal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_goal</code><span class="sig-paren">(</span><em class="sig-param">goal: Union[None, numpy.ndarray]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.set_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.set_goal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the current goal that the agent needs to achieve in the environment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -367,9 +367,9 @@ This can be different from the observation. For example, mujoco’s observation 
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.environments.environment.Environment.state_space">
-<code class="descname">state_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.state_space" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">state_space</code><a class="headerlink" href="#rl_coach.environments.environment.Environment.state_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the state space of the environment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -380,7 +380,7 @@ This can be different from the observation. For example, mujoco’s observation 
 
 <dl class="method">
 <dt id="rl_coach.environments.environment.Environment.step">
-<code class="descname">step</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.EnvResponse<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.step" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param">action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.EnvResponse<a class="reference internal" href="../../_modules/rl_coach/environments/environment.html#Environment.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.environment.Environment.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a single step in the environment using the given action</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -400,7 +400,7 @@ This can be different from the observation. For example, mujoco’s observation 
 <p>Website: <a class="reference external" href="https://github.com/deepmind/dm_control">DeepMind Control Suite</a></p>
 <dl class="class">
 <dt id="rl_coach.environments.control_suite_environment.ControlSuiteEnvironment">
-<em class="property">class </em><code class="descclassname">rl_coach.environments.control_suite_environment.</code><code class="descname">ControlSuiteEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection</em>, <em>frame_skip: int</em>, <em>visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em>target_success_rate: float = 1.0</em>, <em>seed: Union[None</em>, <em>int] = None</em>, <em>human_control: bool = False</em>, <em>observation_type: rl_coach.environments.control_suite_environment.ObservationType = &lt;ObservationType.Measurements: 1&gt;</em>, <em>custom_reward_threshold: Union[int</em>, <em>float] = None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/control_suite_environment.html#ControlSuiteEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.control_suite_environment.ControlSuiteEnvironment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.environments.control_suite_environment.</code><code class="sig-name descname">ControlSuiteEnvironment</code><span class="sig-paren">(</span><em class="sig-param">level: rl_coach.environments.environment.LevelSelection</em>, <em class="sig-param">frame_skip: int</em>, <em class="sig-param">visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em class="sig-param">target_success_rate: float = 1.0</em>, <em class="sig-param">seed: Union[None</em>, <em class="sig-param">int] = None</em>, <em class="sig-param">human_control: bool = False</em>, <em class="sig-param">observation_type: rl_coach.environments.control_suite_environment.ObservationType = &lt;ObservationType.Measurements: 1&gt;</em>, <em class="sig-param">custom_reward_threshold: Union[int</em>, <em class="sig-param">float] = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/control_suite_environment.html#ControlSuiteEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.control_suite_environment.ControlSuiteEnvironment" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -438,7 +438,7 @@ Allows defining a custom reward that will be used to decide when the agent succe
 <p>Website: <a class="reference external" href="https://github.com/deepmind/pysc2">Blizzard Starcraft II</a></p>
 <dl class="class">
 <dt id="rl_coach.environments.starcraft2_environment.StarCraft2Environment">
-<em class="property">class </em><code class="descclassname">rl_coach.environments.starcraft2_environment.</code><code class="descname">StarCraft2Environment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection</em>, <em>frame_skip: int</em>, <em>visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em>target_success_rate: float = 1.0</em>, <em>seed: Union[None</em>, <em>int] = None</em>, <em>human_control: bool = False</em>, <em>custom_reward_threshold: Union[int</em>, <em>float] = None</em>, <em>screen_size: int = 84</em>, <em>minimap_size: int = 64</em>, <em>feature_minimap_maps_to_use: List = range(0</em>, <em>7)</em>, <em>feature_screen_maps_to_use: List = range(0</em>, <em>17)</em>, <em>observation_type: rl_coach.environments.starcraft2_environment.StarcraftObservationType = &lt;StarcraftObservationType.Features: 0&gt;</em>, <em>disable_fog: bool = False</em>, <em>auto_select_all_army: bool = True</em>, <em>use_full_action_space: bool = False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/starcraft2_environment.html#StarCraft2Environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.starcraft2_environment.StarCraft2Environment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.environments.starcraft2_environment.</code><code class="sig-name descname">StarCraft2Environment</code><span class="sig-paren">(</span><em class="sig-param">level: rl_coach.environments.environment.LevelSelection</em>, <em class="sig-param">frame_skip: int</em>, <em class="sig-param">visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em class="sig-param">target_success_rate: float = 1.0</em>, <em class="sig-param">seed: Union[None</em>, <em class="sig-param">int] = None</em>, <em class="sig-param">human_control: bool = False</em>, <em class="sig-param">custom_reward_threshold: Union[int</em>, <em class="sig-param">float] = None</em>, <em class="sig-param">screen_size: int = 84</em>, <em class="sig-param">minimap_size: int = 64</em>, <em class="sig-param">feature_minimap_maps_to_use: List = range(0</em>, <em class="sig-param">7)</em>, <em class="sig-param">feature_screen_maps_to_use: List = range(0</em>, <em class="sig-param">17)</em>, <em class="sig-param">observation_type: rl_coach.environments.starcraft2_environment.StarcraftObservationType = &lt;StarcraftObservationType.Features: 0&gt;</em>, <em class="sig-param">disable_fog: bool = False</em>, <em class="sig-param">auto_select_all_army: bool = True</em>, <em class="sig-param">use_full_action_space: bool = False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/starcraft2_environment.html#StarCraft2Environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.starcraft2_environment.StarCraft2Environment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -448,7 +448,7 @@ Allows defining a custom reward that will be used to decide when the agent succe
 <p>Website: <a class="reference external" href="http://vizdoom.cs.put.edu.pl/">ViZDoom</a></p>
 <dl class="class">
 <dt id="rl_coach.environments.doom_environment.DoomEnvironment">
-<em class="property">class </em><code class="descclassname">rl_coach.environments.doom_environment.</code><code class="descname">DoomEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, cameras: List[rl_coach.environments.doom_environment.DoomEnvironment.CameraTypes], target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/doom_environment.html#DoomEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.doom_environment.DoomEnvironment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.environments.doom_environment.</code><code class="sig-name descname">DoomEnvironment</code><span class="sig-paren">(</span><em class="sig-param">level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, cameras: List[rl_coach.environments.doom_environment.DoomEnvironment.CameraTypes], target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/doom_environment.html#DoomEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.doom_environment.DoomEnvironment" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -491,7 +491,7 @@ Stop experiment if given target success rate was achieved.</p>
 <p>Website: <a class="reference external" href="https://github.com/carla-simulator/carla">CARLA</a></p>
 <dl class="class">
 <dt id="rl_coach.environments.carla_environment.CarlaEnvironment">
-<em class="property">class </em><code class="descclassname">rl_coach.environments.carla_environment.</code><code class="descname">CarlaEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, server_height: int, server_width: int, camera_height: int, camera_width: int, verbose: bool, experiment_suite: carla.driving_benchmark.experiment_suites.experiment_suite.ExperimentSuite, config: str, episode_max_time: int, allow_braking: bool, quality: rl_coach.environments.carla_environment.CarlaEnvironmentParameters.Quality, cameras: List[rl_coach.environments.carla_environment.CameraTypes], weather_id: List[int], experiment_path: str, separate_actions_for_throttle_and_brake: bool, num_speedup_steps: int, max_speed: float, target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/carla_environment.html#CarlaEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.carla_environment.CarlaEnvironment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.environments.carla_environment.</code><code class="sig-name descname">CarlaEnvironment</code><span class="sig-paren">(</span><em class="sig-param">level: rl_coach.environments.environment.LevelSelection, seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float], visualization_parameters: rl_coach.base_parameters.VisualizationParameters, server_height: int, server_width: int, camera_height: int, camera_width: int, verbose: bool, experiment_suite: carla.driving_benchmark.experiment_suites.experiment_suite.ExperimentSuite, config: str, episode_max_time: int, allow_braking: bool, quality: rl_coach.environments.carla_environment.CarlaEnvironmentParameters.Quality, cameras: List[rl_coach.environments.carla_environment.CameraTypes], weather_id: List[int], experiment_path: str, separate_actions_for_throttle_and_brake: bool, num_speedup_steps: int, max_speed: float, target_success_rate: float = 1.0, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/carla_environment.html#CarlaEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.carla_environment.CarlaEnvironment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -511,7 +511,7 @@ includes a set of robotics environments.</p></li>
 </ul>
 <dl class="class">
 <dt id="rl_coach.environments.gym_environment.GymEnvironment">
-<em class="property">class </em><code class="descclassname">rl_coach.environments.gym_environment.</code><code class="descname">GymEnvironment</code><span class="sig-paren">(</span><em>level: rl_coach.environments.environment.LevelSelection</em>, <em>frame_skip: int</em>, <em>visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em>target_success_rate: float = 1.0</em>, <em>additional_simulator_parameters: Dict[str</em>, <em>Any] = {}</em>, <em>seed: Union[None</em>, <em>int] = None</em>, <em>human_control: bool = False</em>, <em>custom_reward_threshold: Union[int</em>, <em>float] = None</em>, <em>random_initialization_steps: int = 1</em>, <em>max_over_num_frames: int = 1</em>, <em>observation_space_type: rl_coach.environments.gym_environment.ObservationSpaceType = None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/gym_environment.html#GymEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.gym_environment.GymEnvironment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.environments.gym_environment.</code><code class="sig-name descname">GymEnvironment</code><span class="sig-paren">(</span><em class="sig-param">level: rl_coach.environments.environment.LevelSelection</em>, <em class="sig-param">frame_skip: int</em>, <em class="sig-param">visualization_parameters: rl_coach.base_parameters.VisualizationParameters</em>, <em class="sig-param">target_success_rate: float = 1.0</em>, <em class="sig-param">additional_simulator_parameters: Dict[str</em>, <em class="sig-param">Any] = {}</em>, <em class="sig-param">seed: Union[None</em>, <em class="sig-param">int] = None</em>, <em class="sig-param">human_control: bool = False</em>, <em class="sig-param">custom_reward_threshold: Union[int</em>, <em class="sig-param">float] = None</em>, <em class="sig-param">random_initialization_steps: int = 1</em>, <em class="sig-param">max_over_num_frames: int = 1</em>, <em class="sig-param">observation_space_type: rl_coach.environments.gym_environment.ObservationSpaceType = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/environments/gym_environment.html#GymEnvironment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.environments.gym_environment.GymEnvironment" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

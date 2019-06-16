@@ -202,7 +202,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">ActionType</span>
-<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">ExplorationPolicy</span><span class="p">,</span> <span class="n">ExplorationParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">ExplorationParameters</span><span class="p">,</span> <span class="n">ExplorationPolicy</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ActionSpace</span><span class="p">,</span> <span class="n">DiscreteActionSpace</span><span class="p">,</span> <span class="n">BoxActionSpace</span>
 
 
@@ -224,9 +224,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ActionType</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">]):</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span> <span class="o">==</span> <span class="n">DiscreteActionSpace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
+            <span class="n">one_hot_action_probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">actions</span><span class="p">))</span>
+            <span class="n">one_hot_action_probabilities</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">action</span><span class="p">,</span> <span class="n">one_hot_action_probabilities</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span> <span class="o">==</span> <span class="n">BoxActionSpace</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">action_values</span>
 

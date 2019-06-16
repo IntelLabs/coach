@@ -197,7 +197,7 @@
 <h2>ActionInfo<a class="headerlink" href="#actioninfo" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.core_types.ActionInfo">
-<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">ActionInfo</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List], all_action_probabilities: float = 0, action_value: float = 0.0, state_value: float = 0.0, max_action_value: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#ActionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.ActionInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.core_types.</code><code class="sig-name descname">ActionInfo</code><span class="sig-paren">(</span><em class="sig-param">action: Union[int, float, numpy.ndarray, List], all_action_probabilities: float = 0, action_value: float = 0.0, state_value: float = 0.0, max_action_value: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#ActionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.ActionInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Action info is a class that holds an action and various additional information details about it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -219,7 +219,7 @@ action with the maximum value</p></li>
 <h2>Batch<a class="headerlink" href="#batch" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.core_types.Batch">
-<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">Batch</code><span class="sig-paren">(</span><em>transitions: List[rl_coach.core_types.Transition]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.core_types.</code><code class="sig-name descname">Batch</code><span class="sig-paren">(</span><em class="sig-param">transitions: List[rl_coach.core_types.Transition]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper around a list of transitions that helps extracting batches of parameters from it.
 For example, one can extract a list of states corresponding to the list of transitions.
 The class uses lazy evaluation in order to return each of the available parameters.</p>
@@ -230,7 +230,7 @@ The class uses lazy evaluation in order to return each of the available paramete
 </dl>
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.actions">
-<code class="descname">actions</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.actions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">actions</code><span class="sig-paren">(</span><em class="sig-param">expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.actions" title="Permalink to this definition">¶</a></dt>
 <dd><p>if the actions were not converted to a batch before, extract them to a batch and then return the batch</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -244,7 +244,7 @@ The class uses lazy evaluation in order to return each of the available paramete
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.game_overs">
-<code class="descname">game_overs</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.game_overs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.game_overs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">game_overs</code><span class="sig-paren">(</span><em class="sig-param">expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.game_overs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.game_overs" title="Permalink to this definition">¶</a></dt>
 <dd><p>if the game_overs were not converted to a batch before, extract them to a batch and then return the batch</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -258,7 +258,7 @@ The class uses lazy evaluation in order to return each of the available paramete
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.goals">
-<code class="descname">goals</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.goals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.goals" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">goals</code><span class="sig-paren">(</span><em class="sig-param">expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.goals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.goals" title="Permalink to this definition">¶</a></dt>
 <dd><p>if the goals were not converted to a batch before, extract them to a batch and then return the batch
 if the goal was not filled, this will raise an exception</p>
 <dl class="field-list simple">
@@ -273,7 +273,7 @@ if the goal was not filled, this will raise an exception</p>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.info">
-<code class="descname">info</code><span class="sig-paren">(</span><em>key</em>, <em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">info</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.info" title="Permalink to this definition">¶</a></dt>
 <dd><p>if the given info dictionary key was not converted to a batch before, extract it to a batch and then return the
 batch. if the key is not part of the keys in the info dictionary, this will raise an exception</p>
 <dl class="field-list simple">
@@ -288,7 +288,7 @@ batch. if the key is not part of the keys in the info dictionary, this will rais
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.info_as_list">
-<code class="descname">info_as_list</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.info_as_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.info_as_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">info_as_list</code><span class="sig-paren">(</span><em class="sig-param">key</em><span class="sig-paren">)</span> &#x2192; list<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.info_as_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.info_as_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>get the info and store it internally as a list, if wasn’t stored before. return it as a list
 :param expand_dims: add an extra dimension to the info batch
 :return: a list containing all the info values of the batch corresponding to the given key</p>
@@ -296,7 +296,7 @@ batch. if the key is not part of the keys in the info dictionary, this will rais
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.n_step_discounted_rewards">
-<code class="descname">n_step_discounted_rewards</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.n_step_discounted_rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.n_step_discounted_rewards" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">n_step_discounted_rewards</code><span class="sig-paren">(</span><em class="sig-param">expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.n_step_discounted_rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.n_step_discounted_rewards" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>if the n_step_discounted_rewards were not converted to a batch before, extract them to a batch and then return</dt><dd><p>the batch</p>
 </dd>
@@ -308,7 +308,7 @@ batch. if the key is not part of the keys in the info dictionary, this will rais
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.next_states">
-<code class="descname">next_states</code><span class="sig-paren">(</span><em>fetches: List[str], expand_dims=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.next_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.next_states" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">next_states</code><span class="sig-paren">(</span><em class="sig-param">fetches: List[str], expand_dims=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.next_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.next_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>follow the keys in fetches to extract the corresponding items from the next states in the batch
 if these keys were not already extracted before. return only the values corresponding to those keys</p>
 <dl class="field-list simple">
@@ -326,7 +326,7 @@ if these keys were not already extracted before. return only the values correspo
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.rewards">
-<code class="descname">rewards</code><span class="sig-paren">(</span><em>expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.rewards" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rewards</code><span class="sig-paren">(</span><em class="sig-param">expand_dims=False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.rewards" title="Permalink to this definition">¶</a></dt>
 <dd><p>if the rewards were not converted to a batch before, extract them to a batch and then return the batch</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -340,7 +340,7 @@ if these keys were not already extracted before. return only the values correspo
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.shuffle">
-<code class="descname">shuffle</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.shuffle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.shuffle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shuffle all the transitions in the batch</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -349,9 +349,9 @@ if these keys were not already extracted before. return only the values correspo
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.core_types.Batch.size">
-<code class="descname">size</code><a class="headerlink" href="#rl_coach.core_types.Batch.size" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">size</code><a class="headerlink" href="#rl_coach.core_types.Batch.size" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>the size of the batch</p>
@@ -361,7 +361,7 @@ if these keys were not already extracted before. return only the values correspo
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.slice">
-<code class="descname">slice</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.slice" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">slice</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">end</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.slice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keep a slice from the batch and discard the rest of the batch</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -378,7 +378,7 @@ if these keys were not already extracted before. return only the values correspo
 
 <dl class="method">
 <dt id="rl_coach.core_types.Batch.states">
-<code class="descname">states</code><span class="sig-paren">(</span><em>fetches: List[str], expand_dims=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.states" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">states</code><span class="sig-paren">(</span><em class="sig-param">fetches: List[str], expand_dims=False</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Batch.states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Batch.states" title="Permalink to this definition">¶</a></dt>
 <dd><p>follow the keys in fetches to extract the corresponding items from the states in the batch
 if these keys were not already extracted before. return only the values corresponding to those keys</p>
 <dl class="field-list simple">
@@ -401,7 +401,7 @@ if these keys were not already extracted before. return only the values correspo
 <h2>EnvResponse<a class="headerlink" href="#envresponse" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.core_types.EnvResponse">
-<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">EnvResponse</code><span class="sig-paren">(</span><em>next_state: Dict[str, numpy.ndarray], reward: Union[int, float, numpy.ndarray], game_over: bool, info: Dict = None, goal: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#EnvResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.EnvResponse" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.core_types.</code><code class="sig-name descname">EnvResponse</code><span class="sig-paren">(</span><em class="sig-param">next_state: Dict[str, numpy.ndarray], reward: Union[int, float, numpy.ndarray], game_over: bool, info: Dict = None, goal: numpy.ndarray = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#EnvResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.EnvResponse" title="Permalink to this definition">¶</a></dt>
 <dd><p>An env response is a collection containing the information returning from the environment after a single action
 has been performed on it.</p>
 <dl class="field-list simple">
@@ -424,7 +424,7 @@ the execution of the action.</p></li>
 <h2>Episode<a class="headerlink" href="#episode" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.core_types.Episode">
-<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">Episode</code><span class="sig-paren">(</span><em>discount: float = 0.99</em>, <em>bootstrap_total_return_from_old_policy: bool = False</em>, <em>n_step: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.core_types.</code><code class="sig-name descname">Episode</code><span class="sig-paren">(</span><em class="sig-param">discount: float = 0.99</em>, <em class="sig-param">bootstrap_total_return_from_old_policy: bool = False</em>, <em class="sig-param">n_step: int = -1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode" title="Permalink to this definition">¶</a></dt>
 <dd><p>An Episode represents a set of sequential transitions, that end with a terminal state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -438,7 +438,7 @@ memory</p></li>
 </dl>
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.get_first_transition">
-<code class="descname">get_first_transition</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_first_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_first_transition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_first_transition</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_first_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_first_transition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the first transition in the episode, or None if there are no transitions available</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -449,7 +449,7 @@ memory</p></li>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.get_last_transition">
-<code class="descname">get_last_transition</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_last_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_last_transition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_last_transition</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_last_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_last_transition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the last transition in the episode, or None if there are no transition available</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -460,7 +460,7 @@ memory</p></li>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.get_transition">
-<code class="descname">get_transition</code><span class="sig-paren">(</span><em>transition_idx: int</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_transition" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_transition</code><span class="sig-paren">(</span><em class="sig-param">transition_idx: int</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_transition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a specific transition by its index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -474,7 +474,7 @@ memory</p></li>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.get_transitions_attribute">
-<code class="descname">get_transitions_attribute</code><span class="sig-paren">(</span><em>attribute_name: str</em><span class="sig-paren">)</span> &#x2192; List[Any]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_transitions_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_transitions_attribute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_transitions_attribute</code><span class="sig-paren">(</span><em class="sig-param">attribute_name: str</em><span class="sig-paren">)</span> &#x2192; List[Any]<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.get_transitions_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.get_transitions_attribute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the values for some transition attribute from all the transitions in the episode.
 For example, this allows getting the rewards for all the transitions as a list by calling
 get_transitions_attribute(‘reward’)</p>
@@ -490,7 +490,7 @@ get_transitions_attribute(‘reward’)</p>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.insert">
-<code class="descname">insert</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.insert" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">insert</code><span class="sig-paren">(</span><em class="sig-param">transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.insert" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert a new transition to the episode. If the game_over flag in the transition is set to True,
 the episode will be marked as complete.</p>
 <dl class="field-list simple">
@@ -505,7 +505,7 @@ the episode will be marked as complete.</p>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.is_empty">
-<code class="descname">is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.is_empty" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.is_empty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the episode is empty</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -516,7 +516,7 @@ the episode will be marked as complete.</p>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.length">
-<code class="descname">length</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">length</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the length of the episode, which is the number of transitions it holds.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -527,7 +527,7 @@ the episode will be marked as complete.</p>
 
 <dl class="method">
 <dt id="rl_coach.core_types.Episode.update_discounted_rewards">
-<code class="descname">update_discounted_rewards</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.update_discounted_rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.update_discounted_rewards" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_discounted_rewards</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Episode.update_discounted_rewards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Episode.update_discounted_rewards" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the discounted returns for all the transitions in the episode.
 The returns will be calculated according to the rewards of each transition, together with the number of steps
 to bootstrap from and the discount factor, as defined by n_step and discount respectively when initializing
@@ -546,7 +546,7 @@ the episode.</p>
 <h2>Transition<a class="headerlink" href="#transition" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rl_coach.core_types.Transition">
-<em class="property">class </em><code class="descclassname">rl_coach.core_types.</code><code class="descname">Transition</code><span class="sig-paren">(</span><em>state: Dict[str</em>, <em>numpy.ndarray] = None</em>, <em>action: Union[int</em>, <em>float</em>, <em>numpy.ndarray</em>, <em>List] = None</em>, <em>reward: Union[int</em>, <em>float</em>, <em>numpy.ndarray] = None</em>, <em>next_state: Dict[str</em>, <em>numpy.ndarray] = None</em>, <em>game_over: bool = None</em>, <em>info: Dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Transition" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.core_types.</code><code class="sig-name descname">Transition</code><span class="sig-paren">(</span><em class="sig-param">state: Dict[str</em>, <em class="sig-param">numpy.ndarray] = None</em>, <em class="sig-param">action: Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">numpy.ndarray</em>, <em class="sig-param">List] = None</em>, <em class="sig-param">reward: Union[int</em>, <em class="sig-param">float</em>, <em class="sig-param">numpy.ndarray] = None</em>, <em class="sig-param">next_state: Dict[str</em>, <em class="sig-param">numpy.ndarray] = None</em>, <em class="sig-param">game_over: bool = None</em>, <em class="sig-param">info: Dict = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rl_coach/core_types.html#Transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.core_types.Transition" title="Permalink to this definition">¶</a></dt>
 <dd><p>A transition is a tuple containing the information of a single step of interaction
 between the agent and the environment. The most basic version should contain the following values:
 (current state, action, reward, next state, game over)
