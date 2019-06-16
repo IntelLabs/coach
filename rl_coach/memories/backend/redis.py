@@ -78,11 +78,18 @@ class RedisPubSubBackend(MemoryBackend):
         """
         if 'namespace' not in self.params.orchestrator_params:
             self.params.orchestrator_params['namespace'] = "default"
-        from kubernetes import client
+        from kubernetes import client, config
 
         container = client.V1Container(
             name=self.redis_server_name,
             image='redis:4-alpine',
+            resources=client.V1ResourceRequirements(
+                limits={
+                    "cpu": "8",
+                    "memory": "4Gi"
+                    # "nvidia.com/gpu": "0",
+                }
+            ),
         )
         template = client.V1PodTemplateSpec(
             metadata=client.V1ObjectMeta(labels={'app': self.redis_server_name}),
@@ -105,8 +112,10 @@ class RedisPubSubBackend(MemoryBackend):
             spec=deployment_spec
         )
 
+        config.load_kube_config()
         api_client = client.AppsV1Api()
         try:
+            print(self.params.orchestrator_params)
             api_client.create_namespaced_deployment(self.params.orchestrator_params['namespace'], deployment)
         except client.rest.ApiException as e:
             print("Got exception: %s\n while creating redis-server", e)

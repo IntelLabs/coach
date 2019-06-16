@@ -16,16 +16,17 @@
 
 
 import uuid
-
-from rl_coach.data_stores.data_store import DataStore, DataStoreParameters
+from rl_coach.data_stores.data_store import DataStoreParameters
+from rl_coach.data_stores.checkpoint_data_store import CheckpointDataStore
 
 
 class NFSDataStoreParameters(DataStoreParameters):
-    def __init__(self, ds_params, deployed=False, server=None, path=None):
+    def __init__(self, ds_params, deployed=False, server=None, path=None, checkpoint_dir: str = ""):
         super().__init__(ds_params.store_type, ds_params.orchestrator_type, ds_params.orchestrator_params)
         self.namespace = "default"
         if "namespace" in ds_params.orchestrator_params:
             self.namespace = ds_params.orchestrator_params["namespace"]
+        self.checkpoint_dir = checkpoint_dir
         self.name = None
         self.pvc_name = None
         self.pv_name = None
@@ -38,7 +39,7 @@ class NFSDataStoreParameters(DataStoreParameters):
             self.path = path
 
 
-class NFSDataStore(DataStore):
+class NFSDataStore(CheckpointDataStore):
     """
     An implementation of data store which uses NFS for storing policy checkpoints when using Coach in distributed mode.
     The policy checkpoints are written by the trainer and read by the rollout worker.
