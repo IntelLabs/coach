@@ -41,10 +41,11 @@ class FCMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu',
                  scheme: Union[List, MiddlewareScheme] = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout_rate: float = 0.0,
-                 name="middleware_fc_embedder", dense_layer=None, is_training=False):
+                 name="middleware_fc_embedder", dense_layer=None, is_training=False, num_streams=1):
         super().__init__(parameterized_class_name="FCMiddleware", activation_function=activation_function,
                          scheme=scheme, batchnorm=batchnorm, dropout_rate=dropout_rate, name=name, dense_layer=dense_layer,
                          is_training=is_training)
+        self.num_streams = num_streams
 
 
 class LSTMMiddlewareParameters(MiddlewareParameters):

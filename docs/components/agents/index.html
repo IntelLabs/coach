@@ -117,6 +117,7 @@
 <li class="toctree-l2"><a class="reference internal" href="imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy_optimization/td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="value_optimization/double_dqn.html">Double DQN</a></li>
@@ -225,6 +226,7 @@ A detailed description of those algorithms can be found by navigating to each of
 <li class="toctree-l1"><a class="reference internal" href="imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policy_optimization/td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="value_optimization/double_dqn.html">Double DQN</a></li>
@@ -243,7 +245,7 @@ A detailed description of those algorithms can be found by navigating to each of
 </div>
 <dl class="class">
 <dt id="rl_coach.base_parameters.AgentParameters">
-<em class="property">class </em><code class="descclassname">rl_coach.base_parameters.</code><code class="descname">AgentParameters</code><span class="sig-paren">(</span><em>algorithm: rl_coach.base_parameters.AlgorithmParameters, exploration: ExplorationParameters, memory: MemoryParameters, networks: Dict[str, rl_coach.base_parameters.NetworkParameters], visualization: rl_coach.base_parameters.VisualizationParameters = &lt;rl_coach.base_parameters.VisualizationParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/base_parameters.html#AgentParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.AgentParameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.base_parameters.</code><code class="sig-name descname">AgentParameters</code><span class="sig-paren">(</span><em class="sig-param">algorithm: rl_coach.base_parameters.AlgorithmParameters, exploration: ExplorationParameters, memory: MemoryParameters, networks: Dict[str, rl_coach.base_parameters.NetworkParameters], visualization: rl_coach.base_parameters.VisualizationParameters = &lt;rl_coach.base_parameters.VisualizationParameters object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/base_parameters.html#AgentParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.base_parameters.AgentParameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -270,7 +272,7 @@ used for visualization purposes, such as printing to the screen, rendering, and 
 
 <dl class="class">
 <dt id="rl_coach.agents.agent.Agent">
-<em class="property">class </em><code class="descclassname">rl_coach.agents.agent.</code><code class="descname">Agent</code><span class="sig-paren">(</span><em>agent_parameters: rl_coach.base_parameters.AgentParameters</em>, <em>parent: Union[LevelManager</em>, <em>CompositeAgent] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.agents.agent.</code><code class="sig-name descname">Agent</code><span class="sig-paren">(</span><em class="sig-param">agent_parameters: rl_coach.base_parameters.AgentParameters</em>, <em class="sig-param">parent: Union[LevelManager</em>, <em class="sig-param">CompositeAgent] = None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>agent_parameters</strong> – A AgentParameters class instance with all the agent parameters</p>
@@ -278,7 +280,7 @@ used for visualization purposes, such as printing to the screen, rendering, and 
 </dl>
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.act">
-<code class="descname">act</code><span class="sig-paren">(</span><em>action: Union[None</em>, <em>int</em>, <em>float</em>, <em>numpy.ndarray</em>, <em>List] = None</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.act" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">act</code><span class="sig-paren">(</span><em class="sig-param">action: Union[None</em>, <em class="sig-param">int</em>, <em class="sig-param">float</em>, <em class="sig-param">numpy.ndarray</em>, <em class="sig-param">List] = None</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.ActionInfo<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.act"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.act" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given the agents current knowledge, decide on the next action to apply to the environment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -292,7 +294,7 @@ used for visualization purposes, such as printing to the screen, rendering, and 
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.call_memory">
-<code class="descname">call_memory</code><span class="sig-paren">(</span><em>func</em>, <em>args=()</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.call_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.call_memory" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">call_memory</code><span class="sig-paren">(</span><em class="sig-param">func</em>, <em class="sig-param">args=()</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.call_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.call_memory" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function is a wrapper to allow having the same calls for shared or unshared memories.
 It should be used instead of calling the memory directly in order to allow different algorithms to work
 both with a shared and a local memory.</p>
@@ -311,7 +313,7 @@ both with a shared and a local memory.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.choose_action">
-<code class="descname">choose_action</code><span class="sig-paren">(</span><em>curr_state</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.choose_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.choose_action" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">choose_action</code><span class="sig-paren">(</span><em class="sig-param">curr_state</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.choose_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.choose_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>choose an action to act with in the current episode being played. Different behavior might be exhibited when
 training or testing.</p>
 <dl class="field-list simple">
@@ -326,7 +328,7 @@ training or testing.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.collect_savers">
-<code class="descname">collect_savers</code><span class="sig-paren">(</span><em>parent_path_suffix: str</em><span class="sig-paren">)</span> &#x2192; rl_coach.saver.SaverCollection<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.collect_savers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.collect_savers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">collect_savers</code><span class="sig-paren">(</span><em class="sig-param">parent_path_suffix: str</em><span class="sig-paren">)</span> &#x2192; rl_coach.saver.SaverCollection<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.collect_savers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.collect_savers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collect all of agent’s network savers
 :param parent_path_suffix: path suffix of the parent of the agent
 (could be name of level manager or composite agent)
@@ -335,7 +337,7 @@ training or testing.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.create_networks">
-<code class="descname">create_networks</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, rl_coach.architectures.network_wrapper.NetworkWrapper]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.create_networks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.create_networks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_networks</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, rl_coach.architectures.network_wrapper.NetworkWrapper]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.create_networks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.create_networks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create all the networks of the agent.
 The network creation will be done after setting the environment parameters for the agent, since they are needed
 for creating the network.</p>
@@ -347,8 +349,15 @@ for creating the network.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="rl_coach.agents.agent.Agent.freeze_memory">
+<code class="sig-name descname">freeze_memory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.freeze_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.freeze_memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shuffle episodes in the memory and freeze it to make sure that no extra data is being pushed anymore.
+:return: None</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="rl_coach.agents.agent.Agent.get_predictions">
-<code class="descname">get_predictions</code><span class="sig-paren">(</span><em>states: List[Dict[str, numpy.ndarray]], prediction_type: rl_coach.core_types.PredictionType</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.get_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.get_predictions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_predictions</code><span class="sig-paren">(</span><em class="sig-param">states: List[Dict[str, numpy.ndarray]], prediction_type: rl_coach.core_types.PredictionType</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.get_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.get_predictions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a prediction from the agent with regard to the requested prediction_type.
 If the agent cannot predict this type of prediction_type, or if there is more than possible way to do so,
 raise a ValueException.</p>
@@ -367,7 +376,7 @@ raise a ValueException.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.get_state_embedding">
-<code class="descname">get_state_embedding</code><span class="sig-paren">(</span><em>state: dict</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.get_state_embedding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.get_state_embedding" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_state_embedding</code><span class="sig-paren">(</span><em class="sig-param">state: dict</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.get_state_embedding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.get_state_embedding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a state, get the corresponding state embedding  from the main network</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -381,7 +390,7 @@ raise a ValueException.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.handle_episode_ended">
-<code class="descname">handle_episode_ended</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.handle_episode_ended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.handle_episode_ended" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">handle_episode_ended</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.handle_episode_ended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.handle_episode_ended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make any changes needed when each episode is ended.
 This includes incrementing counters, updating full episode dependent values, updating logs, etc.
 This function is called right after each episode is ended.</p>
@@ -394,7 +403,7 @@ This function is called right after each episode is ended.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.init_environment_dependent_modules">
-<code class="descname">init_environment_dependent_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.init_environment_dependent_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.init_environment_dependent_modules" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">init_environment_dependent_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.init_environment_dependent_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.init_environment_dependent_modules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize any modules that depend on knowing information about the environment such as the action space or
 the observation space</p>
 <dl class="field-list simple">
@@ -405,8 +414,19 @@ the observation space</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="rl_coach.agents.agent.Agent.initialize_session_dependent_components">
+<code class="sig-name descname">initialize_session_dependent_components</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.initialize_session_dependent_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.initialize_session_dependent_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize components which require a session as part of their initialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="rl_coach.agents.agent.Agent.learn_from_batch">
-<code class="descname">learn_from_batch</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span> &#x2192; Tuple[float, List, List]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.learn_from_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.learn_from_batch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">learn_from_batch</code><span class="sig-paren">(</span><em class="sig-param">batch</em><span class="sig-paren">)</span> &#x2192; Tuple[float, List, List]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.learn_from_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.learn_from_batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a batch of transitions, calculates their target values and updates the network.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -419,8 +439,19 @@ the observation space</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="rl_coach.agents.agent.Agent.load_memory_from_file">
+<code class="sig-name descname">load_memory_from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.load_memory_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.load_memory_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load memory transitions from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="rl_coach.agents.agent.Agent.log_to_screen">
-<code class="descname">log_to_screen</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.log_to_screen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.log_to_screen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">log_to_screen</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.log_to_screen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.log_to_screen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write an episode summary line to the terminal</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -431,7 +462,7 @@ the observation space</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.observe">
-<code class="descname">observe</code><span class="sig-paren">(</span><em>env_response: rl_coach.core_types.EnvResponse</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.observe" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param">env_response: rl_coach.core_types.EnvResponse</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.observe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a response from the environment, distill the observation from it and store it for later use.
 The response should be a dictionary containing the performed action, the new observation and measurements,
 the reward, a game over flag and any additional information necessary.</p>
@@ -446,9 +477,9 @@ given observation</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.agents.agent.Agent.parent">
-<code class="descname">parent</code><a class="headerlink" href="#rl_coach.agents.agent.Agent.parent" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">parent</code><a class="headerlink" href="#rl_coach.agents.agent.Agent.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the parent class of the agent</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -457,9 +488,9 @@ given observation</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="rl_coach.agents.agent.Agent.phase">
-<code class="descname">phase</code><a class="headerlink" href="#rl_coach.agents.agent.Agent.phase" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">phase</code><a class="headerlink" href="#rl_coach.agents.agent.Agent.phase" title="Permalink to this definition">¶</a></dt>
 <dd><p>The current running phase of the agent</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -470,7 +501,7 @@ given observation</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.post_training_commands">
-<code class="descname">post_training_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.post_training_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.post_training_commands" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">post_training_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.post_training_commands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.post_training_commands" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function which allows adding any functionality that is required to run right after the training phase ends.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -481,7 +512,7 @@ given observation</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.prepare_batch_for_inference">
-<code class="descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em>states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.array]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.prepare_batch_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em class="sig-param">states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.core.multiarray.array]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.prepare_batch_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
 observations together, measurements together, etc.</p>
 <dl class="field-list simple">
@@ -501,7 +532,7 @@ the observation relevant for the network from the states.</p></li>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.register_signal">
-<code class="descname">register_signal</code><span class="sig-paren">(</span><em>signal_name: str</em>, <em>dump_one_value_per_episode: bool = True</em>, <em>dump_one_value_per_step: bool = False</em><span class="sig-paren">)</span> &#x2192; rl_coach.utils.Signal<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.register_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.register_signal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register_signal</code><span class="sig-paren">(</span><em class="sig-param">signal_name: str</em>, <em class="sig-param">dump_one_value_per_episode: bool = True</em>, <em class="sig-param">dump_one_value_per_step: bool = False</em><span class="sig-paren">)</span> &#x2192; rl_coach.utils.Signal<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.register_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.register_signal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a signal such that its statistics will be dumped and be viewable through dashboard</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -519,7 +550,7 @@ the observation relevant for the network from the states.</p></li>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.reset_evaluation_state">
-<code class="descname">reset_evaluation_state</code><span class="sig-paren">(</span><em>val: rl_coach.core_types.RunPhase</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.reset_evaluation_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.reset_evaluation_state" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_evaluation_state</code><span class="sig-paren">(</span><em class="sig-param">val: rl_coach.core_types.RunPhase</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.reset_evaluation_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.reset_evaluation_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform accumulators initialization when entering an evaluation phase, and signal dumping when exiting an
 evaluation phase. Entering or exiting the evaluation phase is determined according to the new phase given
 by val, and by the current phase set in self.phase.</p>
@@ -535,7 +566,7 @@ by val, and by the current phase set in self.phase.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.reset_internal_state">
-<code class="descname">reset_internal_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.reset_internal_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.reset_internal_state" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_internal_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.reset_internal_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.reset_internal_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset all the episodic parameters. This function is called right before each episode starts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -546,7 +577,7 @@ by val, and by the current phase set in self.phase.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.restore_checkpoint">
-<code class="descname">restore_checkpoint</code><span class="sig-paren">(</span><em>checkpoint_dir: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.restore_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.restore_checkpoint" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restore_checkpoint</code><span class="sig-paren">(</span><em class="sig-param">checkpoint_dir: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.restore_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.restore_checkpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows agents to store additional information when saving checkpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -560,7 +591,7 @@ by val, and by the current phase set in self.phase.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.run_off_policy_evaluation">
-<code class="descname">run_off_policy_evaluation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.agent.Agent.run_off_policy_evaluation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_off_policy_evaluation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#rl_coach.agents.agent.Agent.run_off_policy_evaluation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run off-policy evaluation estimators to evaluate the trained policy performance against a dataset.
 Should only be implemented for off-policy RL algorithms.</p>
 <dl class="field-list simple">
@@ -572,7 +603,7 @@ Should only be implemented for off-policy RL algorithms.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference">
-<code class="descname">run_pre_network_filter_for_inference</code><span class="sig-paren">(</span><em>state: Dict[str, numpy.ndarray], update_filter_internal_state: bool = True</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.run_pre_network_filter_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_pre_network_filter_for_inference</code><span class="sig-paren">(</span><em class="sig-param">state: Dict[str, numpy.ndarray], update_filter_internal_state: bool = True</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.ndarray]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.run_pre_network_filter_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.run_pre_network_filter_for_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run filters which where defined for being applied right before using the state for inference.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -589,7 +620,7 @@ Should only be implemented for off-policy RL algorithms.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.save_checkpoint">
-<code class="descname">save_checkpoint</code><span class="sig-paren">(</span><em>checkpoint_prefix: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.save_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.save_checkpoint" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save_checkpoint</code><span class="sig-paren">(</span><em class="sig-param">checkpoint_prefix: str</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.save_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.save_checkpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows agents to store additional information when saving checkpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -603,7 +634,7 @@ Should only be implemented for off-policy RL algorithms.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.set_environment_parameters">
-<code class="descname">set_environment_parameters</code><span class="sig-paren">(</span><em>spaces: rl_coach.spaces.SpacesDefinition</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_environment_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_environment_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_environment_parameters</code><span class="sig-paren">(</span><em class="sig-param">spaces: rl_coach.spaces.SpacesDefinition</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_environment_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_environment_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the parameters that are environment dependent. As a side effect, initializes all the components that are
 dependent on those values, by calling init_environment_dependent_modules</p>
 <dl class="field-list simple">
@@ -618,7 +649,7 @@ dependent on those values, by calling init_environment_dependent_modules</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.set_incoming_directive">
-<code class="descname">set_incoming_directive</code><span class="sig-paren">(</span><em>action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_incoming_directive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_incoming_directive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_incoming_directive</code><span class="sig-paren">(</span><em class="sig-param">action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_incoming_directive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_incoming_directive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows setting a directive for the agent to follow. This is useful in hierarchy structures, where the agent
 has another master agent that is controlling it. In such cases, the master agent can define the goals for the
 slave agent, define it’s observation, possible actions, etc. The directive type is defined by the agent
@@ -635,7 +666,7 @@ in-action-space.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.set_session">
-<code class="descname">set_session</code><span class="sig-paren">(</span><em>sess</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_session" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_session</code><span class="sig-paren">(</span><em class="sig-param">sess</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_session" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the deep learning framework session for all the agents in the composite agent</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -646,7 +677,7 @@ in-action-space.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.setup_logger">
-<code class="descname">setup_logger</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.setup_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.setup_logger" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_logger</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.setup_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.setup_logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the logger for the agent</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -657,7 +688,7 @@ in-action-space.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.sync">
-<code class="descname">sync</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.sync" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sync</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.sync"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.sync" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sync the global network parameters to local networks</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -668,7 +699,7 @@ in-action-space.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.train">
-<code class="descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.train" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if a training phase should be done as configured by num_consecutive_playing_steps.
 If it should, then do several training steps as configured by num_consecutive_training_steps.
 A single training iteration: Sample a batch, train on it and update target networks.</p>
@@ -681,7 +712,7 @@ A single training iteration: Sample a batch, train on it and update target netwo
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.update_log">
-<code class="descname">update_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_log" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the episodic log file with all the signal values from the most recent episode.
 Additional signals for logging can be set by the creating a new signal using self.register_signal,
 and then updating it with some internal agent values.</p>
@@ -694,7 +725,7 @@ and then updating it with some internal agent values.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.update_step_in_episode_log">
-<code class="descname">update_step_in_episode_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_step_in_episode_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_step_in_episode_log" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_step_in_episode_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_step_in_episode_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_step_in_episode_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the in-episode log file with all the signal values from the most recent step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -705,7 +736,7 @@ and then updating it with some internal agent values.</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.update_transition_before_adding_to_replay_buffer">
-<code class="descname">update_transition_before_adding_to_replay_buffer</code><span class="sig-paren">(</span><em>transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_transition_before_adding_to_replay_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_transition_before_adding_to_replay_buffer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_transition_before_adding_to_replay_buffer</code><span class="sig-paren">(</span><em class="sig-param">transition: rl_coach.core_types.Transition</em><span class="sig-paren">)</span> &#x2192; rl_coach.core_types.Transition<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.update_transition_before_adding_to_replay_buffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.update_transition_before_adding_to_replay_buffer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows agents to update the transition just before adding it to the replay buffer.
 Can be useful for agents that want to tweak the reward, termination signal, etc.</p>
 <dl class="field-list simple">

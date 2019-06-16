@@ -21,6 +21,7 @@ A detailed description of those algorithms can be found by navigating to each of
    imitation/cil
    policy_optimization/cppo
    policy_optimization/ddpg
+   policy_optimization/td3
    policy_optimization/sac
    other/dfp
    value_optimization/double_dqn

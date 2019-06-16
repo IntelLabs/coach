@@ -203,7 +203,6 @@ class TensorFlowArchitecture(Architecture):
             self._create_gradient_accumulators()
 
         # gradients of the outputs w.r.t. the inputs
-        # at the moment, this is only used by ddpg
         self.gradients_wrt_inputs = [{name: tf.gradients(output, input_ph) for name, input_ph in
                                       self.inputs.items()} for output in self.outputs]
         self.gradients_weights_ph = [tf.placeholder('float32', self.outputs[i].shape, 'output_gradient_weights')
