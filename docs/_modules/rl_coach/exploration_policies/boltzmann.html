@@ -202,7 +202,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RunPhase</span><span class="p">,</span> <span class="n">ActionType</span>
-<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">ExplorationPolicy</span><span class="p">,</span> <span class="n">ExplorationParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">DiscreteActionExplorationPolicy</span><span class="p">,</span> <span class="n">ExplorationParameters</span>
 <span class="kn">from</span> <span class="nn">rl_coach.schedules</span> <span class="k">import</span> <span class="n">Schedule</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ActionSpace</span>
 
@@ -217,8 +217,7 @@
         <span class="k">return</span> <span class="s1">&#39;rl_coach.exploration_policies.boltzmann:Boltzmann&#39;</span>
 
 
-
-<div class="viewcode-block" id="Boltzmann"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.boltzmann.Boltzmann">[docs]</a><span class="k">class</span> <span class="nc">Boltzmann</span><span class="p">(</span><span class="n">ExplorationPolicy</span><span class="p">):</span>
+<div class="viewcode-block" id="Boltzmann"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.boltzmann.Boltzmann">[docs]</a><span class="k">class</span> <span class="nc">Boltzmann</span><span class="p">(</span><span class="n">DiscreteActionExplorationPolicy</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The Boltzmann exploration policy is intended for discrete action spaces. It assumes that each of the possible</span>
 <span class="sd">    actions has some value assigned to it (such as the Q value), and uses a softmax function to convert these values</span>
@@ -233,7 +232,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temperature_schedule</span> <span class="o">=</span> <span class="n">temperature_schedule</span>
 
-    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ActionType</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">ActionType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">temperature_schedule</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
         <span class="c1"># softmax calculation</span>
@@ -242,7 +241,8 @@
         <span class="c1"># make sure probs sum to 1</span>
         <span class="n">probabilities</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">probabilities</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="c1"># choose actions according to the probabilities</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">)</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">action</span><span class="p">,</span> <span class="n">probabilities</span>
 
     <span class="k">def</span> <span class="nf">get_control_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature_schedule</span><span class="o">.</span><span class="n">current_value</span></div>

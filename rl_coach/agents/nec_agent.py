@@ -194,7 +194,7 @@ class NECAgent(ValueOptimizationAgent):
         )
         if self.phase != RunPhase.TEST:
             # store the state embedding for inserting it to the DND later
-            self.current_episode_state_embeddings.append(embedding.squeeze())
+            self.current_episode_state_embeddings.append(embedding[0].squeeze())
         actions_q_values = actions_q_values[0][0]
         return actions_q_values
 
