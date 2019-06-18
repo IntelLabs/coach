@@ -20,7 +20,7 @@ import numpy as np
 from scipy.stats import truncnorm
 
 from rl_coach.core_types import RunPhase, ActionType
-from rl_coach.exploration_policies.exploration_policy import ExplorationPolicy, ExplorationParameters
+from rl_coach.exploration_policies.exploration_policy import ExplorationParameters, ContinuousActionExplorationPolicy
 from rl_coach.schedules import Schedule, LinearSchedule
 from rl_coach.spaces import ActionSpace, BoxActionSpace
 
@@ -28,17 +28,18 @@ from rl_coach.spaces import ActionSpace, BoxActionSpace
 class TruncatedNormalParameters(ExplorationParameters):
     def __init__(self):
         super().__init__()
-        self.noise_percentage_schedule = LinearSchedule(0.1, 0.1, 50000)
-        self.evaluation_noise_percentage = 0.05
+        self.noise_schedule = LinearSchedule(0.1, 0.1, 50000)
+        self.evaluation_noise = 0.05
         self.clip_low = 0
         self.clip_high = 1
+        self.noise_as_percentage_from_action_space = True
 
     @property
     def path(self):
         return 'rl_coach.exploration_policies.truncated_normal:TruncatedNormal'
 
 
-class TruncatedNormal(ExplorationPolicy):
+class TruncatedNormal(ContinuousActionExplorationPolicy):
     """
     The TruncatedNormal exploration policy is intended for continuous action spaces. It samples the action from a
     normal distribution, where the mean action is given by the agent, and the standard deviation can be given in t
@@ -49,17 +50,20 @@ class TruncatedNormal(ExplorationPolicy):
     When the sampled action is outside of the action bounds given by the user, it is sampled again and again, until it
     is within the bounds.
     """
-    def __init__(self, action_space: ActionSpace, noise_percentage_schedule: Schedule,
-                 evaluation_noise_percentage: float, clip_low: float, clip_high: float):
+    def __init__(self, action_space: ActionSpace, noise_schedule: Schedule,
+                 evaluation_noise: float, clip_low: float, clip_high: float,
+                 noise_as_percentage_from_action_space: bool = True):
         """
         :param action_space: the action space used by the environment
-        :param noise_percentage_schedule: the schedule for the noise variance percentage relative to the absolute range
-                                          of the action space
-        :param evaluation_noise_percentage: the noise variance percentage that will be used during evaluation phases
+        :param noise_schedule: the schedule for the noise variance
+        :param evaluation_noise: the noise variance that will be used during evaluation phases
+        :param noise_as_percentage_from_action_space: whether to consider the noise as a percentage of the action space
+                                                        or absolute value
         """
         super().__init__(action_space)
-        self.noise_percentage_schedule = noise_percentage_schedule
-        self.evaluation_noise_percentage = evaluation_noise_percentage
+        self.noise_schedule = noise_schedule
+        self.evaluation_noise = evaluation_noise
+        self.noise_as_percentage_from_action_space = noise_as_percentage_from_action_space
         self.clip_low = clip_low
         self.clip_high = clip_high
 
@@ -71,17 +75,21 @@ class TruncatedNormal(ExplorationPolicy):
                 or not np.all(-np.inf < action_space.low) or not np.all(action_space.low < np.inf):
             raise ValueError("Additive noise exploration requires bounded actions")
 
-        # TODO: allow working with unbounded actions by defining the noise in terms of range and not percentage
-
     def get_action(self, action_values: List[ActionType]) -> ActionType:
-        # set the current noise percentage
+        # set the current noise
         if self.phase == RunPhase.TEST:
-            current_noise_precentage = self.evaluation_noise_percentage
+            current_noise = self.evaluation_noise
         else:
-            current_noise_precentage = self.noise_percentage_schedule.current_value
+            current_noise = self.noise_schedule.current_value
 
         # scale the noise to the action space range
-        action_values_std = current_noise_precentage * (self.action_space.high - self.action_space.low)
+        if self.noise_as_percentage_from_action_space:
+            action_values_std = current_noise * (self.action_space.high - self.action_space.low)
+        else:
+            action_values_std = current_noise
+
+        # scale the noise to the action space range
+        action_values_std = current_noise * (self.action_space.high - self.action_space.low)
 
         # extract the mean values
         if isinstance(action_values, list):
@@ -93,7 +101,7 @@ class TruncatedNormal(ExplorationPolicy):
 
         # step the noise schedule
         if self.phase is not RunPhase.TEST:
-            self.noise_percentage_schedule.step()
+            self.noise_schedule.step()
             # the second element of the list is assumed to be the standard deviation
             if isinstance(action_values, list) and len(action_values) > 1:
                 action_values_std = action_values[1].squeeze()
@@ -107,4 +115,4 @@ class TruncatedNormal(ExplorationPolicy):
         return action
 
     def get_control_param(self):
-        return np.ones(self.action_space.shape)*self.noise_percentage_schedule.current_value
+        return np.ones(self.action_space.shape)*self.noise_schedule.current_value

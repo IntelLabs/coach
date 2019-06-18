@@ -53,8 +53,12 @@ if __name__ == "__main__":
                              "the preset name, followed by the environment level",
                         default='',
                         type=str)
-    parser.add_argument('-sd', '--level_as_sub_dir',
+    parser.add_argument('-lsd', '--level_as_sub_dir',
                         help="(flag) Store each level in it's own sub directory where the root directory name matches "
+                             "the preset name",
+                        action='store_true')
+    parser.add_argument('-ssd', '--seed_as_sub_dir',
+                        help="(flag) Store each seed in it's own sub directory where the root directory name matches "
                              "the preset name",
                         action='store_true')
     parser.add_argument('-ew', '--evaluation_worker',
@@ -108,6 +112,8 @@ if __name__ == "__main__":
                 command.append("-c")
             if args.evaluation_worker:
                 command.append("-ew")
+            if args.seed_as_sub_dir:
+                seed = ''
             if level is not None:
                 command.extend(['-lvl', '{}'.format(level)])
                 if level_as_sub_dir:

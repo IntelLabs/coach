@@ -95,10 +95,7 @@ class GraphManager(object):
         self.level_managers = []  # type: List[LevelManager]
         self.top_level_manager = None
         self.environments = []
-        self.heatup_steps = schedule_params.heatup_steps
-        self.evaluation_steps = schedule_params.evaluation_steps
-        self.steps_between_evaluation_periods = schedule_params.steps_between_evaluation_periods
-        self.improve_steps = schedule_params.improve_steps
+        self.set_schedule_params(schedule_params)
         self.visualization_parameters = vis_params
         self.name = name
         self.task_parameters = None
@@ -759,3 +756,14 @@ class GraphManager(object):
         if hasattr(self, 'data_store_params'):
             data_store = self.get_data_store(self.data_store_params)
             data_store.save_to_store()
+
+    def set_schedule_params(self, schedule_params: ScheduleParameters):
+        """
+        Set schedule parameters for the graph.
+
+        :param schedule_params: the schedule params to set.
+        """
+        self.heatup_steps = schedule_params.heatup_steps
+        self.evaluation_steps = schedule_params.evaluation_steps
+        self.steps_between_evaluation_periods = schedule_params.steps_between_evaluation_periods
+        self.improve_steps = schedule_params.improve_steps

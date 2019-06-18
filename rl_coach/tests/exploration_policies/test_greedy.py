@@ -15,7 +15,7 @@ def test_get_action():
     action_space = DiscreteActionSpace(3)
     policy = Greedy(action_space)
 
-    best_action = policy.get_action(np.array([10, 20, 30]))
+    best_action, _ = policy.get_action(np.array([10, 20, 30]))
     assert best_action == 2
 
     # continuous control

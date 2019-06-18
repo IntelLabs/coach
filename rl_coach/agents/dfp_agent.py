@@ -182,7 +182,7 @@ class DFPAgent(Agent):
             action_values = None
 
         # choose action according to the exploration policy and the current phase (evaluating or training the agent)
-        action = self.exploration_policy.get_action(action_values)
+        action, _ = self.exploration_policy.get_action(action_values)
 
         if action_values is not None:
             action_values = action_values.squeeze()

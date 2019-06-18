@@ -56,6 +56,8 @@ One of the main challenges when building a research project, or a solution based
 
 Framework documentation, algorithm description and instructions on how to contribute a new agent/environment can be found [here](https://nervanasystems.github.io/coach/).
 
+Jupyter notebooks demonstrating how to run Coach from command line or as a library, implement an algorithm, or integrate an environment can be found [here](https://github.com/NervanaSystems/coach/tree/master/tutorials).
+
 
 ## Installation
 
@@ -163,7 +165,7 @@ For example:
 
 It is easy to create new presets for different levels or environments by following the same pattern as in presets.py
 
-More usage examples can be found [here](https://nervanasystems.github.io/coach/usage/index.html).
+More usage examples can be found [here](https://github.com/NervanaSystems/coach/blob/master/tutorials/0.%20Quick%20Start%20Guide.ipynb).
 
 ### Distributed Multi-Node Coach
 
@@ -251,7 +253,7 @@ dashboard
 
 ## Supported Algorithms
 
-<img src="img/algorithms.png" alt="Coach Design" style="width: 800px;"/>
+<img src="docs_raw/source/_static/img/algorithms.png" alt="Coach Design" style="width: 800px;"/>
 
 
 
