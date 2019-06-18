@@ -41,8 +41,6 @@ class DDPGCriticNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [DDPGVHeadParameters()]
         self.optimizer_type = 'Adam'
-        self.adam_optimizer_beta2 = 0.999
-        self.optimizer_epsilon = 1e-8
         self.batch_size = 64
         self.async_training = False
         self.learning_rate = 0.001
@@ -61,8 +59,6 @@ class DDPGActorNetworkParameters(NetworkParameters):
         self.middleware_parameters = FCMiddlewareParameters(batchnorm=use_batchnorm)
         self.heads_parameters = [DDPGActorHeadParameters(batchnorm=use_batchnorm)]
         self.optimizer_type = 'Adam'
-        self.adam_optimizer_beta2 = 0.999
-        self.optimizer_epsilon = 1e-8
         self.batch_size = 64
         self.adam_optimizer_beta2 = 0.999
         self.optimizer_epsilon = 1e-8
