@@ -170,7 +170,9 @@ class DDPGAgent(ActorCriticAgent):
         # train the critic
         critic_inputs = copy.copy(batch.states(critic_keys))
         critic_inputs['action'] = batch.actions(len(batch.actions().shape) == 1)
-        result = critic.train_and_sync_networks(critic_inputs, TD_targets)
+
+        # also need the inputs for when applying gradients so batchnorm's update of running mean and stddev will work
+        result = critic.train_and_sync_networks(critic_inputs, TD_targets, use_inputs_for_apply_gradients=True)
         total_loss, losses, unclipped_grads = result[:3]
 
         # apply the gradients from the critic to the actor
@@ -179,6 +181,7 @@ class DDPGAgent(ActorCriticAgent):
                                                  outputs=actor.online_network.weighted_gradients[0],
                                                  initial_feed_dict=initial_feed_dict)
 
+        # also need the inputs for when applying gradients so batchnorm's update of running mean and stddev will work
         if actor.has_global:
             actor.apply_gradients_to_global_network(gradients, additional_inputs=copy.copy(batch.states(critic_keys)))
             actor.update_online_network()

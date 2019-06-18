@@ -129,6 +129,8 @@ class NetworkWrapper(object):
         Apply gradients from the online network on the global network
 
         :param gradients: optional gradients that will be used instead of teh accumulated gradients
+        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
+                                  update ops also requires the inputs)
         :return:
         """
         if gradients is None:
@@ -141,6 +143,9 @@ class NetworkWrapper(object):
     def apply_gradients_to_online_network(self, gradients=None, additional_inputs=None):
         """
         Apply gradients from the online network on itself
+        :param gradients: optional gradients that will be used instead of teh accumulated gradients
+        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
+                                  update ops also requires the inputs)
 
         :return:
         """
@@ -180,6 +185,9 @@ class NetworkWrapper(object):
                                 the network. this is useful when the accumulated gradients are overwritten instead
                                 if accumulated by the accumulate_gradients function. this allows reducing time
                                 complexity for this function by around 10%
+        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
+                                  update ops also requires the inputs)
+
         """
         if self.global_network:
             self.apply_gradients_to_global_network(additional_inputs=additional_inputs)

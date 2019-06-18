@@ -422,6 +422,9 @@ class TensorFlowArchitecture(Architecture):
         Applies the given gradients to the network weights and resets the accumulation placeholder
         :param gradients: The gradients to use for the update
         :param scaler: A scaling factor that allows rescaling the gradients before applying them
+        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
+                                  update ops also requires the inputs)
+
         """
         self.apply_gradients(gradients, scaler, additional_inputs=additional_inputs)
         self.reset_accumulated_gradients()
@@ -469,6 +472,8 @@ class TensorFlowArchitecture(Architecture):
         :param gradients: The gradients to use for the update
         :param scaler: A scaling factor that allows rescaling the gradients before applying them.
                        The gradients will be MULTIPLIED by this factor
+        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
+                                  update ops also requires the inputs)
         """
 
         if self.network_parameters.async_training or not isinstance(self.ap.task_parameters, DistributedTaskParameters):
