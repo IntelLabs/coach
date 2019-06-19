@@ -342,8 +342,11 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                         head_count += 1
 
         # model weights
-        self.weights = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.full_name) if
-                        'global_step' not in var.name]
+        if not self.distributed_training or self.network_is_global:
+            self.weights = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.full_name) if
+                            'global_step' not in var.name]
+        else:
+            self.weights = [var for var in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.full_name)]
 
         # Losses
         self.losses = tf.losses.get_losses(self.full_name)
