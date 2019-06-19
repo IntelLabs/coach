@@ -30,7 +30,7 @@ except ImportError:
     failed_imports.append("RoboSchool")
 
 try:
-    from rl_coach.gym_extensions.continuous import mujoco
+    from gym_extensions.continuous import mujoco
 except:
     from rl_coach.logger import failed_imports
     failed_imports.append("GymExtensions")
