@@ -76,6 +76,9 @@ class BasicRLGraphManager(GraphManager):
     def log_signal(self, signal_name, value):
         self.level_managers[0].agents['agent'].agent_logger.create_signal_value(signal_name, value)
 
+    def get_signal_value(self, signal_name):
+        return self.level_managers[0].agents['agent'].agent_logger.get_signal_value(signal_name)
+
     def get_agent(self):
         return self.level_managers[0].agents['agent']
 

@@ -422,7 +422,7 @@ class CoachLauncher(object):
 
         # get experiment name and path
         args.experiment_name = logger.get_experiment_name(args.experiment_name)
-        args.experiment_path = logger.get_experiment_path(args.experiment_name)
+        args.experiment_path = logger.get_experiment_path(args.experiment_name, args.experiment_path)
 
         if args.play and args.num_workers > 1:
             screen.warning("Playing the game as a human is only available with a single worker. "
@@ -455,6 +455,10 @@ class CoachLauncher(object):
                             action='store_true')
         parser.add_argument('-e', '--experiment_name',
                             help="(string) Experiment name to be used to store the results.",
+                            default=None,
+                            type=str)
+        parser.add_argument('-ep', '--experiment_path',
+                            help="(string) Path to experiments folder.",
                             default=None,
                             type=str)
         parser.add_argument('-r', '--render',

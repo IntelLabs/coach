@@ -206,7 +206,7 @@ class BaseLogger(object):
             return True
         return False
 
-    def signal_value_exists(self, time, signal_name):
+    def signal_value_exists(self, signal_name, time):
         try:
             value = self.get_signal_value(time, signal_name)
             if value != value:  # value is nan
@@ -215,7 +215,9 @@ class BaseLogger(object):
             return False
         return True
 
-    def get_signal_value(self, time, signal_name):
+    def get_signal_value(self, signal_name, time=None):
+        if not time:
+            time = self.time
         return self.data.loc[time, signal_name]
 
     def dump_output_csv(self, append=True):
@@ -407,10 +409,12 @@ def get_experiment_name(initial_experiment_name=None):
     return experiment_name
 
 
-def get_experiment_path(experiment_name, create_path=True):
+def get_experiment_path(experiment_name, initial_experiment_path=None, create_path=True):
     global experiment_path
 
-    general_experiments_path = os.path.join('./experiments/', experiment_name)
+    if not initial_experiment_path:
+        initial_experiment_path = './experiments/'
+    general_experiments_path = os.path.join(initial_experiment_path, experiment_name)
 
     cur_date = time_started.date()
     cur_time = time_started.time()
