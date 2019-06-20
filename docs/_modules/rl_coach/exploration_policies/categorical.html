@@ -202,7 +202,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RunPhase</span><span class="p">,</span> <span class="n">ActionType</span>
-<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">ExplorationPolicy</span><span class="p">,</span> <span class="n">ExplorationParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">DiscreteActionExplorationPolicy</span><span class="p">,</span> <span class="n">ExplorationParameters</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ActionSpace</span>
 
 
@@ -212,7 +212,7 @@
         <span class="k">return</span> <span class="s1">&#39;rl_coach.exploration_policies.categorical:Categorical&#39;</span>
 
 
-<div class="viewcode-block" id="Categorical"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.categorical.Categorical">[docs]</a><span class="k">class</span> <span class="nc">Categorical</span><span class="p">(</span><span class="n">ExplorationPolicy</span><span class="p">):</span>
+<div class="viewcode-block" id="Categorical"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.categorical.Categorical">[docs]</a><span class="k">class</span> <span class="nc">Categorical</span><span class="p">(</span><span class="n">DiscreteActionExplorationPolicy</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Categorical exploration policy is intended for discrete action spaces. It expects the action values to</span>
 <span class="sd">    represent a probability distribution over the action, from which a single action will be sampled.</span>
@@ -225,13 +225,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ActionType</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">ActionType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
             <span class="c1"># choose actions according to the probabilities</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">actions</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">action_values</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">actions</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">action_values</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">action</span><span class="p">,</span> <span class="n">action_values</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># take the action with the highest probability</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
+            <span class="n">one_hot_action_probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">actions</span><span class="p">))</span>
+            <span class="n">one_hot_action_probabilities</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">return</span> <span class="n">action</span><span class="p">,</span> <span class="n">one_hot_action_probabilities</span>
 
     <span class="k">def</span> <span class="nf">get_control_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">0</span></div>

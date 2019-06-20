@@ -32,7 +32,7 @@ class EGreedyParameters(ExplorationParameters):
         self.epsilon_schedule = LinearSchedule(0.5, 0.01, 50000)
         self.evaluation_epsilon = 0.05
         self.continuous_exploration_policy_parameters = AdditiveNoiseParameters()
-        self.continuous_exploration_policy_parameters.noise_percentage_schedule = LinearSchedule(0.1, 0.1, 50000)
+        self.continuous_exploration_policy_parameters.noise_schedule = LinearSchedule(0.1, 0.1, 50000)
         # for continuous control -
         # (see http://www.cs.ubc.ca/~van/papers/2017-TOG-deepLoco/2017-TOG-deepLoco.pdf)
 

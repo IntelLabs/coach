@@ -206,7 +206,7 @@
 <span class="kn">from</span> <span class="nn">rl_coach.agents.actor_critic_agent</span> <span class="k">import</span> <span class="n">ActorCriticAgent</span>
 <span class="kn">from</span> <span class="nn">rl_coach.agents.agent</span> <span class="k">import</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">rl_coach.architectures.embedder_parameters</span> <span class="k">import</span> <span class="n">InputEmbedderParameters</span>
-<span class="kn">from</span> <span class="nn">rl_coach.architectures.head_parameters</span> <span class="k">import</span> <span class="n">DDPGActorHeadParameters</span><span class="p">,</span> <span class="n">VHeadParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.architectures.head_parameters</span> <span class="k">import</span> <span class="n">DDPGActorHeadParameters</span><span class="p">,</span> <span class="n">DDPGVHeadParameters</span>
 <span class="kn">from</span> <span class="nn">rl_coach.architectures.middleware_parameters</span> <span class="k">import</span> <span class="n">FCMiddlewareParameters</span>
 <span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">NetworkParameters</span><span class="p">,</span> <span class="n">AlgorithmParameters</span><span class="p">,</span> \
     <span class="n">AgentParameters</span><span class="p">,</span> <span class="n">EmbedderScheme</span>
@@ -222,14 +222,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
                                             <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">scheme</span><span class="o">=</span><span class="n">EmbedderScheme</span><span class="o">.</span><span class="n">Shallow</span><span class="p">)}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">middleware_parameters</span> <span class="o">=</span> <span class="n">FCMiddlewareParameters</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">VHeadParameters</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">DDPGVHeadParameters</span><span class="p">()]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_type</span> <span class="o">=</span> <span class="s1">&#39;Adam&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">async_training</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.001</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adam_optimizer_beta2</span> <span class="o">=</span> <span class="mf">0.999</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_epsilon</span> <span class="o">=</span> <span class="mf">1e-8</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_target_network</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shared_optimizer</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scale_down_gradients_by_number_of_workers_for_sync_training</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># self.l2_regularization = 1e-2</span>
 
 
 <span class="k">class</span> <span class="nc">DDPGActorNetworkParameters</span><span class="p">(</span><span class="n">NetworkParameters</span><span class="p">):</span>
@@ -240,6 +243,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">DDPGActorHeadParameters</span><span class="p">()]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_type</span> <span class="o">=</span> <span class="s1">&#39;Adam&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adam_optimizer_beta2</span> <span class="o">=</span> <span class="mf">0.999</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_epsilon</span> <span class="o">=</span> <span class="mf">1e-8</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">async_training</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.0001</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_target_network</span> <span class="o">=</span> <span class="kc">True</span>
@@ -323,7 +328,7 @@
 
         <span class="n">critic_inputs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">next_states</span><span class="p">(</span><span class="n">critic_keys</span><span class="p">))</span>
         <span class="n">critic_inputs</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_actions</span>
-        <span class="n">q_st_plus_1</span> <span class="o">=</span> <span class="n">critic</span><span class="o">.</span><span class="n">target_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">critic_inputs</span><span class="p">)</span>
+        <span class="n">q_st_plus_1</span> <span class="o">=</span> <span class="n">critic</span><span class="o">.</span><span class="n">target_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">critic_inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># calculate the bootstrapped TD targets while discounting terminal states according to</span>
         <span class="c1"># use_non_zero_discount_for_terminal_states</span>
@@ -343,7 +348,7 @@
         <span class="n">critic_inputs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">critic_keys</span><span class="p">))</span>
         <span class="n">critic_inputs</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actions_mean</span>
         <span class="n">action_gradients</span> <span class="o">=</span> <span class="n">critic</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">critic_inputs</span><span class="p">,</span>
-                                                         <span class="n">outputs</span><span class="o">=</span><span class="n">critic</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">gradients_wrt_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">])</span>
+                                                         <span class="n">outputs</span><span class="o">=</span><span class="n">critic</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">gradients_wrt_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;action&#39;</span><span class="p">])</span>
 
         <span class="c1"># train the critic</span>
         <span class="n">critic_inputs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">critic_keys</span><span class="p">))</span>

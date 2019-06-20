@@ -253,7 +253,7 @@ dashboard
 
 ## Supported Algorithms
 
-<img src="img/algorithms.png" alt="Coach Design" style="width: 800px;"/>
+<img src="docs_raw/source/_static/img/algorithms.png" alt="Coach Design" style="width: 800px;"/>
 
 
 
