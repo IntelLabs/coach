@@ -125,11 +125,6 @@ def test_restore_checkpoint(preset_args, clres, framework,
     # send CTRL+C to close experiment
     create_cp_proc.send_signal(signal.SIGINT)
 
-    csv = pd.read_csv(csv_list[0])
-    rewards = csv['Evaluation Reward'].values
-    rewards = rewards[~np.isnan(rewards)]
-    max_reward = np.amax(rewards)
-
     if os.path.isdir(checkpoint_dir):
         shutil.copytree(exp_dir, checkpoint_test_dir)
         shutil.rmtree(exp_dir)
@@ -146,8 +141,9 @@ def test_restore_checkpoint(preset_args, clres, framework,
 
     csv = pd.read_csv(new_csv_list[0])
     res = csv['Episode Length'].values[-1]
-    assert res == max_reward, Def.Consts.ASSERT_MSG.format(str(max_reward),
-                                                           str(res))
+    expected_reward = 100
+    assert res >= expected_reward, Def.Consts.ASSERT_MSG.format(
+        str(expected_reward), str(res))
     restore_cp_proc.kill()
 
     test_folder = os.path.join(Def.Path.experiments, Def.Path.test_dir)
