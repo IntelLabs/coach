@@ -68,7 +68,6 @@ jobs:
     steps:
       - checkout
       - *remote_docker
-      - *restore_cache
       - *aws_prep
       - run:
           name: Build and push gym environment container
