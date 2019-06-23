@@ -15,12 +15,16 @@
 #
 
 import copy
+import multiprocessing
+import sys
+import time
 from collections import OrderedDict
 from random import shuffle
 from typing import Union
 
 import numpy as np
 
+from rl_coach import sync_var
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.policy_optimization_agent import PolicyGradientRescaler
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
@@ -192,6 +196,26 @@ class ClippedPPOAgent(ActorCriticAgent):
 
     def train_network(self, batch, epochs):
         batch_results = []
+
+        min_batch_size = batch.size
+        # distributed and sync training
+        # unification the min_bach_size between processes
+        if hasattr(self.ap.task_parameters, 'num_training_tasks') \
+                and self.ap.task_parameters.num_training_tasks > 1 \
+                and not self.networks['main'].network_parameters.async_training:
+            num_workers_to_wait_for = self.ap.task_parameters.num_training_tasks
+            with sync_var.global_sync_obj.agent_lock_counter.get_lock():
+                sync_var.global_sync_obj.agent_lock_counter.value += 1
+                print('A PID:%s, agent count %s, workers %s' % (
+                    multiprocessing.current_process().pid, sync_var.global_sync_obj.agent_lock_counter.value,
+                    num_workers_to_wait_for))
+                if sync_var.global_sync_obj.min_batch_size.value > batch.size:
+                    sync_var.global_sync_obj.min_batch_size.value = batch.size
+            while sync_var.global_sync_obj.agent_lock_counter.value % num_workers_to_wait_for != 0:
+                time.sleep(0.00001)
+            sync_var.global_sync_obj.agent_lock_counter.value = 0
+            min_batch_size = sync_var.global_sync_obj.min_batch_size.value
+
         for j in range(epochs):
             batch.shuffle()
             batch_results = {
@@ -209,7 +233,11 @@ class ClippedPPOAgent(ActorCriticAgent):
 
             # TODO-fixme if batch.size / self.ap.network_wrappers['main'].batch_size is not an integer, we do not train on
             #  some of the data
-            for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
+
+            # here is bug, if int(batch.size / self.ap.network_wrappers['main'].batch_size) is different between each workers,
+            # some worker will be in acting phase and other workers will be block in wait_for_all_workers_barrier
+
+            for i in range(int(min_batch_size / self.ap.network_wrappers['main'].batch_size)):
                 start = i * self.ap.network_wrappers['main'].batch_size
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size
 
@@ -291,6 +319,23 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.total_kl_divergence_during_training_process = batch_results['kl_divergence']
         self.entropy.add_sample(batch_results['entropy'])
         self.kl_divergence.add_sample(batch_results['kl_divergence'])
+
+        # process finish training loop, reset global_sync_obj.min_batch_size
+        # join all the worker
+        if hasattr(self.ap.task_parameters, 'num_training_tasks') \
+                and self.ap.task_parameters.num_training_tasks > 1 \
+                and not self.networks['main'].network_parameters.async_training:
+            num_workers_to_wait_for = self.ap.task_parameters.num_training_tasks
+            with sync_var.global_sync_obj.agent_release_counter.get_lock():
+                sync_var.global_sync_obj.agent_release_counter.value += 1
+                sync_var.global_sync_obj.min_batch_size.value = sys.maxsize
+                print('B PID:%s, agent count %s, workers %s' % (
+                    multiprocessing.current_process().pid, sync_var.global_sync_obj.agent_release_counter.value,
+                    num_workers_to_wait_for))
+            while sync_var.global_sync_obj.agent_release_counter.value % num_workers_to_wait_for != 0:
+                time.sleep(0.00001)
+            sync_var.global_sync_obj.agent_release_counter.value = 0
+
         return batch_results['losses']
 
     def post_training_commands(self):

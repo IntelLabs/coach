@@ -20,6 +20,7 @@ from typing import Any, List, Tuple, Dict
 import numpy as np
 import tensorflow as tf
 
+from rl_coach import sync_var
 from rl_coach.architectures.architecture import Architecture
 from rl_coach.architectures.tensorflow_components.savers import GlobalVariableSaver
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
@@ -450,15 +451,32 @@ class TensorFlowArchitecture(Architecture):
         :param include_only_training_workers: wait only for training workers or for all the workers?
         :return: None
         """
-        self.wait_for_all_workers_to_lock('lock', include_only_training_workers=include_only_training_workers)
-        self.sess.run(self.lock_init)
+        # self.wait_for_all_workers_to_lock('lock', include_only_training_workers=include_only_training_workers)
+        # self.sess.run(self.lock_init)
 
         # we need to lock again (on a different lock) in order to prevent a situation where one of the workers continue
         # and then was able to first increase the lock again by one, only to have a late worker to reset it again.
         # so we want to make sure that all workers are done resetting the lock before continuting to reuse that lock.
 
-        self.wait_for_all_workers_to_lock('release', include_only_training_workers=include_only_training_workers)
-        self.sess.run(self.release_init)
+        # self.wait_for_all_workers_to_lock('release', include_only_training_workers=include_only_training_workers)
+        # self.sess.run(self.release_init)
+
+        if include_only_training_workers:
+            num_workers_to_wait_for = self.ap.task_parameters.num_training_tasks
+        else:
+            num_workers_to_wait_for = self.ap.task_parameters.num_tasks
+
+        with sync_var.global_sync_obj.lock_counter.get_lock():
+            sync_var.global_sync_obj.lock_counter.value += 1
+        while sync_var.global_sync_obj.lock_counter.value % num_workers_to_wait_for != 0:
+            time.sleep(0.00001)
+        sync_var.global_sync_obj.lock_counter.value = 0
+
+        with sync_var.global_sync_obj.release_counter.get_lock():
+            sync_var.global_sync_obj.release_counter.value += 1
+        while sync_var.global_sync_obj.release_counter.value % num_workers_to_wait_for != 0:
+            time.sleep(0.00001)
+        sync_var.global_sync_obj.release_counter.value = 0
 
     def apply_gradients(self, gradients, scaler=1.):
         """
