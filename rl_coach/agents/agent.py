@@ -573,6 +573,9 @@ class Agent(AgentInterface):
 
         if self.phase != RunPhase.TEST:
             if isinstance(self.memory, EpisodicExperienceReplay):
+                if self.ap.algorithm.override_episode_rewards_with_the_last_transition_reward:
+                    for t in self.current_episode_buffer.transitions:
+                        t.reward = self.current_episode_buffer.transitions[-1].reward
                 self.call_memory('store_episode', self.current_episode_buffer)
             elif self.ap.algorithm.store_transitions_only_when_episodes_are_terminated:
                 for transition in self.current_episode_buffer.transitions:
