@@ -7,7 +7,7 @@ pygame>=1.9.3
 PyOpenGL>=3.1.0
 scipy>=0.19.0
 scikit-image>=0.13.0
-gym>=0.10.5
+gym==0.12.5
 bokeh>=0.13.0
 kubernetes>=8.0.0b1,<=8.0.1
 redis>=2.10.6
