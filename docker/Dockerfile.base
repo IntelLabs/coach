@@ -1,12 +1,5 @@
 FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
 
-##################################
-# Clean pip3 Before Installation #
-##################################
-
-# clean Gym - this should be removed once upgrading ubuntu/ python
-RUN pip3 uninstall gym
-
 ################################
 # Install apt-get Requirements #
 ################################
