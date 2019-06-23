@@ -40,7 +40,7 @@ class Head(object):
     """
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int=0, loss_weight: float=1., is_local: bool=True, activation_function: str='relu',
-                 dense_layer=Dense):
+                 dense_layer=Dense, is_training=False):
         self.head_idx = head_idx
         self.network_name = network_name
         self.network_parameters = agent_parameters.network_wrappers[self.network_name]
@@ -64,6 +64,7 @@ class Head(object):
             self.dense_layer = Dense
         else:
             self.dense_layer = convert_layer_class(self.dense_layer)
+        self.is_training = is_training
 
     def __call__(self, input_layer):
         """
