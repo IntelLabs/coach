@@ -22,7 +22,7 @@ from rl_coach.base_parameters import NetworkComponentParameters
 class HeadParameters(NetworkComponentParameters):
     def __init__(self, parameterized_class_name: str, activation_function: str = 'relu', name: str= 'head',
                  num_output_head_copies: int=1, rescale_gradient_from_head_by_factor: float=1.0,
-                 loss_weight: float=1.0, dense_layer=None):
+                 loss_weight: float=1.0, dense_layer=None, is_training=False):
         super().__init__(dense_layer=dense_layer)
         self.activation_function = activation_function
         self.name = name
@@ -30,6 +30,7 @@ class HeadParameters(NetworkComponentParameters):
         self.rescale_gradient_from_head_by_factor = rescale_gradient_from_head_by_factor
         self.loss_weight = loss_weight
         self.parameterized_class_name = parameterized_class_name
+        self.is_training = is_training
 
     @property
     def path(self):
