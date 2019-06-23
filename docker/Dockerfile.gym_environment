@@ -1,7 +1,7 @@
 FROM coach-base:master as builder
 
 # prep gym and any of its related requirements.
-RUN pip3 install gym[atari,box2d,classic_control]
+RUN pip3 install gym[atari,box2d,classic_control]==0.12.5
 
 # add coach source starting with files that could trigger
 # re-build if dependencies change.
