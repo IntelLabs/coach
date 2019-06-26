@@ -185,6 +185,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         embedder_path = embedder_params.path(emb_type)
         embedder_params_copy = copy.copy(embedder_params)
+        embedder_params_copy.is_training = self.is_training
         embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
         embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
         embedder_params_copy.input_offset = embedder_params_copy.input_offset[emb_type]
@@ -204,6 +205,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         middleware_path = middleware_params.path
         middleware_params_copy = copy.copy(middleware_params)
         middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
+        middleware_params_copy.is_training = self.is_training
         module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
         return module
 
@@ -218,6 +220,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         head_path = head_params.path
         head_params_copy = copy.copy(head_params)
         head_params_copy.activation_function = utils.get_activation_function(head_params_copy.activation_function)
+        head_params_copy.is_training = self.is_training
         return dynamic_import_and_instantiate_module_from_params(head_params_copy, path=head_path, extra_kwargs={
             'agent_parameters': self.ap, 'spaces': self.spaces, 'network_name': self.network_wrapper_name,
             'head_idx': head_idx, 'is_local': self.network_is_local})
@@ -339,7 +342,11 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                         head_count += 1
 
         # model weights
-        self.weights = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.full_name)
+        if not self.distributed_training or self.network_is_global:
+            self.weights = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.full_name) if
+                            'global_step' not in var.name]
+        else:
+            self.weights = [var for var in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.full_name)]
 
         # Losses
         self.losses = tf.losses.get_losses(self.full_name)
