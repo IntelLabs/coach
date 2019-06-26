@@ -79,7 +79,7 @@ def test_restore_checkpoint(preset_args, clres, framework,
             'python3', 'rl_coach/coach.py',
             '-p', '{}'.format(preset_args),
             '-e', '{}'.format("ExpName_" + preset_args),
-            '--seed', '{}'.format(42),
+            '--seed', '{}'.format(4),
             '-f', '{}'.format(framework),
         ]
 

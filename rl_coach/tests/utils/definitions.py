@@ -139,7 +139,7 @@ class Definitions:
         N_csv_lines = 100  # number of lines to validate on csv file
 
     class TimeOuts:
-        test_time_limit = 60 * 60
+        test_time_limit = 30 * 60
         wait_for_files = 20
         wait_for_csv = 240
         test_run = 60
