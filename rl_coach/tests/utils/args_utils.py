@@ -409,6 +409,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         csv_path = get_csv_path(clres=clres)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
+        time.sleep(5)
 
         get_reward = is_reward_reached(csv_path=csv_path[0],
                                        p_valid_params=p_valid_params,

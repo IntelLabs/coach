@@ -55,7 +55,7 @@ def test_get_checkpoint_state():
 
 
 @pytest.mark.functional_test
-@pytest.mark.parametrize("framework", ["mxnet", "tensorflow"])
+@pytest.mark.parametrize("framework", ["tensorflow"])
 def test_restore_checkpoint(preset_args, clres, framework,
                             timeout=Def.TimeOuts.test_time_limit):
     """
