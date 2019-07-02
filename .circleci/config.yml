@@ -731,7 +731,6 @@ workflows:
       - functional_tests:
           requires:
             - build_base
-            - integration_tests
       - functional_test_doom:
           requires:
             - build_doom_env
