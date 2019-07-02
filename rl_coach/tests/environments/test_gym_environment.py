@@ -16,6 +16,7 @@ def atari_env():
                          seed=1,
                          frame_skip=4,
                          visualization_parameters=VisualizationParameters())
+    env.reset_internal_state(True)
     return env
 
 
@@ -26,6 +27,7 @@ def continuous_env():
                          seed=1,
                          frame_skip=1,
                          visualization_parameters=VisualizationParameters())
+    env.reset_internal_state(True)
     return env
 
 
@@ -56,7 +58,7 @@ def test_gym_continuous_environment(continuous_env):
     assert np.all(continuous_env.action_space.shape == np.array([1]))
 
     # make sure that the seed is working properly
-    assert np.sum(continuous_env.last_env_response.next_state['observation']) == 1.2661630859028832
+    assert np.sum(continuous_env.last_env_response.next_state['observation']) == 0.6118565010687202
 
 
 @pytest.mark.unit_test
