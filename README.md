@@ -1,4 +1,5 @@
-# Coach
+# Warrning:
+## This branch of Coach is on WIP for migration to tf2  and should not be checked out
 
 [![CI](https://img.shields.io/circleci/project/github/NervanaSystems/coach/master.svg)](https://circleci.com/gh/NervanaSystems/workflows/coach/tree/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/NervanaSystems/coach/blob/master/LICENSE)
