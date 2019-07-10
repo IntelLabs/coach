@@ -1,14 +1,12 @@
 from copy import deepcopy
-import numpy as np
 import tensorflow as tf
+from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 
 from rl_coach.agents.dqn_agent import DQNAgentParameters
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, CsvDataset, PickledReplayBuffer
 from rl_coach.environments.gym_environment import GymVectorEnvironment
-from rl_coach.filters.filter import InputFilter
-from rl_coach.filters.reward import RewardRescaleFilter, RewardNormalizationFilter
 from rl_coach.graph_managers.batch_rl_graph_manager import BatchRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
@@ -20,7 +18,7 @@ from rl_coach.agents.ddqn_bcq_agent import DDQNBCQAgentParameters
 from rl_coach.agents.ddqn_bcq_agent import KNNParameters
 from rl_coach.agents.ddqn_bcq_agent import NNImitationModelParameters
 
-DATASET_SIZE = 30000
+DATASET_SIZE = 50000
 
 
 ####################
@@ -37,68 +35,34 @@ schedule_params.heatup_steps = EnvironmentSteps(DATASET_SIZE)
 # Agent #
 #########
 
-# using a set of 'unstable' hyper-params to showcase the value of BCQ. Using the same hyper-params with standard DDQN
-# will cause Q values to unboundedly increase, and the policy convergence to be unstable.
 agent_params = DDQNBCQAgentParameters()
 agent_params.network_wrappers['main'].batch_size = 128
 # TODO cross-DL framework abstraction for a constant initializer?
-agent_params.network_wrappers['main'].heads_parameters = [QHeadParameters(output_bias_initializer=tf.constant_initializer(-500))]
-# agent_params.network_wrappers['main'].batch_size = 1024
+agent_params.network_wrappers['main'].heads_parameters = [QHeadParameters(output_bias_initializer=tf.constant_initializer(-100))]
 
-# DQN params
-
-# For making this become Fitted Q-Iteration we can keep the targets constant for the entire dataset size -
-agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
-    DATASET_SIZE / agent_params.network_wrappers['main'].batch_size)
-#
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(
     100)
-# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(100)
-
 agent_params.algorithm.discount = 0.99
 
-# can use either a kNN or a NN based model for predicting which actions not to max over in the bellman equation
 agent_params.algorithm.action_drop_method_parameters = KNNParameters()
-# agent_params.algorithm.action_drop_method_parameters = NNImitationModelParameters()
-# agent_params.algorithm.action_drop_method_parameters.imitation_model_num_epochs = 500
 
 # NN configuration
 agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
-# agent_params.network_wrappers['main'].l2_regularization = 0.0001
 agent_params.network_wrappers['main'].softmax_temperature = 0.2
 
-# reward model params
-agent_params.network_wrappers['reward_model'] = deepcopy(agent_params.network_wrappers['main'])
-agent_params.network_wrappers['reward_model'].learning_rate = 0.0001
-agent_params.network_wrappers['reward_model'].l2_regularization = 0
-
-agent_params.network_wrappers['imitation_model'] = deepcopy(agent_params.network_wrappers['main'])
-agent_params.network_wrappers['imitation_model'].learning_rate = 0.0001
-agent_params.network_wrappers['imitation_model'].l2_regularization = 0
-
-agent_params.network_wrappers['imitation_model'].heads_parameters = [ClassificationHeadParameters()]
-agent_params.network_wrappers['imitation_model'].input_embedders_parameters['observation'].scheme = \
-    [Dense(1024), Dense(1024), Dense(512), Dense(512), Dense(256)]
-agent_params.network_wrappers['imitation_model'].middleware_parameters.scheme = [Dense(128), Dense(64)]
-
-
 # ER size
+DATATSET_PATH = 'acrobot.csv'
 agent_params.memory = EpisodicExperienceReplayParameters()
+# agent_params.memory.load_memory_from_file_path = CsvDataset(DATATSET_PATH, True)
+# agent_params.memory.load_memory_from_file_path = PickledReplayBuffer('replay_buffer.pkl')
 
 # E-Greedy schedule
 agent_params.exploration.epsilon_schedule = LinearSchedule(0, 0, 10000)
 agent_params.exploration.evaluation_epsilon = 0
 
-# Input filtering
-# agent_params.input_filter = InputFilter()
-# agent_params.input_filter.add_reward_filter('norm', RewardNormalizationFilter(clip_max=np.inf, clip_min=-np.inf))
-
-
-
-
 # Experience Generating Agent parameters
-experience_generating_agent_params = DQNAgentParameters()
+experience_generating_agent_params = DDQNAgentParameters()
 
 # schedule parameters
 experience_generating_schedule_params = ScheduleParameters()
@@ -114,18 +78,22 @@ experience_generating_agent_params.algorithm.discount = 0.99
 experience_generating_agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1)
 
 # NN configuration
-experience_generating_agent_params.network_wrappers['main'].learning_rate = 0.0025
+experience_generating_agent_params.network_wrappers['main'].learning_rate = 0.0001
+experience_generating_agent_params.network_wrappers['main'].batch_size = 128
 experience_generating_agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
+experience_generating_agent_params.network_wrappers['main'].heads_parameters = \
+[QHeadParameters(output_bias_initializer=tf.constant_initializer(-100))]
 
 # ER size
 experience_generating_agent_params.memory = EpisodicExperienceReplayParameters()
 experience_generating_agent_params.memory.max_size = \
     (MemoryGranularity.Transitions,
      experience_generating_schedule_params.heatup_steps.num_steps +
-     experience_generating_schedule_params.improve_steps.num_steps)
+     experience_generating_schedule_params.improve_steps.num_steps + 1)
 
 # E-Greedy schedule
-experience_generating_agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, 20000)
+experience_generating_agent_params.exploration.epsilon_schedule = LinearSchedule(1.0, 0.01, DATASET_SIZE)
+experience_generating_agent_params.exploration.evaluation_epsilon = 0
 
 
 ################

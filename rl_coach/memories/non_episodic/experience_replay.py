@@ -198,15 +198,6 @@ class ExperienceReplay(Memory):
         """
         return self.get_transition(transition_index, lock)
 
-    # for API compatibility
-    def remove(self, transition_index: int, lock: bool=True):
-        """
-        Remove the transition in the given index
-        :param transition_index: the index of the transition to remove
-        :return: None
-        """
-        self.remove_transition(transition_index, lock)
-
     def clean(self, lock: bool=True) -> None:
         """
         Clean the memory by removing all the episodes
