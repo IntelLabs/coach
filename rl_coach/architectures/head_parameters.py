@@ -81,7 +81,8 @@ class CategoricalQHeadParameters(HeadParameters):
         super().__init__(parameterized_class_name="CategoricalQHead", activation_function=activation_function, name=name,
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight, output_bias_initializer=output_bias_initializer)
+                         loss_weight=loss_weight)
+        self.output_bias_initializer = output_bias_initializer
 
 
 class RegressionHeadParameters(HeadParameters):
@@ -92,7 +93,8 @@ class RegressionHeadParameters(HeadParameters):
         super().__init__(parameterized_class_name="RegressionHead", activation_function=activation_function, name=name,
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight, output_bias_initializer=output_bias_initializer)
+                         loss_weight=loss_weight)
+        self.output_bias_initializer = output_bias_initializer
 
 
 class DDPGActorHeadParameters(HeadParameters):
@@ -163,7 +165,8 @@ class PPOVHeadParameters(HeadParameters):
         super().__init__(parameterized_class_name="PPOVHead", activation_function=activation_function, name=name,
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight, output_bias_initializer=output_bias_initializer)
+                         loss_weight=loss_weight)
+        self.output_bias_initializer = output_bias_initializer
 
 
 class QHeadParameters(HeadParameters):
@@ -194,7 +197,8 @@ class QuantileRegressionQHeadParameters(HeadParameters):
         super().__init__(parameterized_class_name="QuantileRegressionQHead", activation_function=activation_function, name=name,
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight, output_bias_initializer=output_bias_initializer)
+                         loss_weight=loss_weight)
+        self.output_bias_initializer = output_bias_initializer
 
 
 class RainbowQHeadParameters(HeadParameters):
@@ -227,8 +231,9 @@ class SACQHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='relu', name: str='sac_q_head_params', dense_layer=None,
                  layers_sizes: tuple = (256, 256), output_bias_initializer=None):
         super().__init__(parameterized_class_name='SACQHead', activation_function=activation_function, name=name,
-                         dense_layer=dense_layer, output_bias_initializer=output_bias_initializer)
+                         dense_layer=dense_layer)
         self.network_layers_sizes = layers_sizes
+        self.output_bias_initializer = output_bias_initializer
 
 
 class TD3VHeadParameters(HeadParameters):
@@ -239,5 +244,6 @@ class TD3VHeadParameters(HeadParameters):
         super().__init__(parameterized_class_name="TD3VHead", activation_function=activation_function, name=name,
                          dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
                          rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight, output_bias_initializer=output_bias_initializer)
+                         loss_weight=loss_weight)
         self.initializer = initializer
+        self.output_bias_initializer = output_bias_initializer
