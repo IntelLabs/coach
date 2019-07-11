@@ -44,7 +44,7 @@ class QuantileRegressionQHead(QHead):
 
         # the output of the head is the N unordered quantile locations {theta_1, ..., theta_N}
         quantiles_locations = self.dense_layer(self.num_actions * self.num_atoms)\
-            (input_layer, name='output', output_bias_initializer=self.output_bias_initializer)
+            (input_layer, name='output', bias_initializer=self.output_bias_initializer)
         quantiles_locations = tf.reshape(quantiles_locations, (tf.shape(quantiles_locations)[0], self.num_actions, self.num_atoms))
         self.output = quantiles_locations
 

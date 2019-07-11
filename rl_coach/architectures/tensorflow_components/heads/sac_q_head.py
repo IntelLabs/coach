@@ -65,7 +65,7 @@ class SACQHead(Head):
                 qi_output = self.dense_layer(layer_size)(qi_output, activation=self.activation_function)
             # the output layer
             self.q1_output = self.dense_layer(1)(qi_output, name='q1_output',
-                                                 output_bias_initializer=self.output_bias_initializer)
+                                                 bias_initializer=self.output_bias_initializer)
 
         # build q2 network head
         with tf.variable_scope("q2_head"):
@@ -77,7 +77,7 @@ class SACQHead(Head):
                 qi_output = self.dense_layer(layer_size)(qi_output, activation=self.activation_function)
             # the output layer
             self.q2_output = self.dense_layer(1)(qi_output, name='q2_output',
-                                                 output_bias_initializer=self.output_bias_initializer)
+                                                 bias_initializer=self.output_bias_initializer)
 
         # take the minimum as the network's output. this is the log_target (in the original implementation)
         self.q_output = tf.minimum(self.q1_output, self.q2_output, name='q_output')
