@@ -38,7 +38,7 @@ class CategoricalQHead(QHead):
 
     def _build_module(self, input_layer):
         values_distribution = self.dense_layer(self.num_actions * self.num_atoms)\
-            (input_layer, name='output', output_bias_initializer=self.output_bias_initializer)
+            (input_layer, name='output', bias_initializer=self.output_bias_initializer)
         values_distribution = tf.reshape(values_distribution, (tf.shape(values_distribution)[0], self.num_actions,
                                                                self.num_atoms))
         # softmax on atoms dimension
