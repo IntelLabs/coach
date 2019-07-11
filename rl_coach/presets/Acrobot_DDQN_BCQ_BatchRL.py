@@ -1,22 +1,18 @@
-from copy import deepcopy
 import tensorflow as tf
-from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 
-from rl_coach.agents.dqn_agent import DQNAgentParameters
-from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.agents.ddqn_agent import DDQNAgentParameters
 from rl_coach.base_parameters import VisualizationParameters, PresetValidationParameters
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, CsvDataset, PickledReplayBuffer
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, CsvDataset
 from rl_coach.environments.gym_environment import GymVectorEnvironment
 from rl_coach.graph_managers.batch_rl_graph_manager import BatchRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import LinearSchedule
 from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
-from rl_coach.architectures.head_parameters import ClassificationHeadParameters, QHeadParameters
+from rl_coach.architectures.head_parameters import QHeadParameters
 from rl_coach.agents.ddqn_bcq_agent import DDQNBCQAgentParameters
 
 from rl_coach.agents.ddqn_bcq_agent import KNNParameters
-from rl_coach.agents.ddqn_bcq_agent import NNImitationModelParameters
 
 DATASET_SIZE = 50000
 
@@ -52,10 +48,9 @@ agent_params.network_wrappers['main'].replace_mse_with_huber_loss = False
 agent_params.network_wrappers['main'].softmax_temperature = 0.2
 
 # ER size
-DATATSET_PATH = 'acrobot.csv'
 agent_params.memory = EpisodicExperienceReplayParameters()
+# DATATSET_PATH = 'acrobot.csv'
 # agent_params.memory.load_memory_from_file_path = CsvDataset(DATATSET_PATH, True)
-# agent_params.memory.load_memory_from_file_path = PickledReplayBuffer('replay_buffer.pkl')
 
 # E-Greedy schedule
 agent_params.exploration.epsilon_schedule = LinearSchedule(0, 0, 10000)
