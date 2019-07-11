@@ -217,9 +217,9 @@
 
 
 <span class="k">class</span> <span class="nc">DDPGCriticNetworkParameters</span><span class="p">(</span><span class="n">NetworkParameters</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_batchnorm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">),</span>
                                             <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">scheme</span><span class="o">=</span><span class="n">EmbedderScheme</span><span class="o">.</span><span class="n">Shallow</span><span class="p">)}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">middleware_parameters</span> <span class="o">=</span> <span class="n">FCMiddlewareParameters</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">DDPGVHeadParameters</span><span class="p">()]</span>
@@ -236,11 +236,11 @@
 
 
 <span class="k">class</span> <span class="nc">DDPGActorNetworkParameters</span><span class="p">(</span><span class="n">NetworkParameters</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_batchnorm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">middleware_parameters</span> <span class="o">=</span> <span class="n">FCMiddlewareParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">DDPGActorHeadParameters</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_embedders_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;observation&#39;</span><span class="p">:</span> <span class="n">InputEmbedderParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">middleware_parameters</span> <span class="o">=</span> <span class="n">FCMiddlewareParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heads_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">DDPGActorHeadParameters</span><span class="p">(</span><span class="n">batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_type</span> <span class="o">=</span> <span class="s1">&#39;Adam&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adam_optimizer_beta2</span> <span class="o">=</span> <span class="mf">0.999</span>
@@ -292,12 +292,12 @@
 
 
 <span class="k">class</span> <span class="nc">DDPGAgentParameters</span><span class="p">(</span><span class="n">AgentParameters</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_batchnorm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="n">DDPGAlgorithmParameters</span><span class="p">(),</span>
                          <span class="n">exploration</span><span class="o">=</span><span class="n">OUProcessParameters</span><span class="p">(),</span>
                          <span class="n">memory</span><span class="o">=</span><span class="n">EpisodicExperienceReplayParameters</span><span class="p">(),</span>
-                         <span class="n">networks</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">([(</span><span class="s2">&quot;actor&quot;</span><span class="p">,</span> <span class="n">DDPGActorNetworkParameters</span><span class="p">()),</span>
-                                               <span class="p">(</span><span class="s2">&quot;critic&quot;</span><span class="p">,</span> <span class="n">DDPGCriticNetworkParameters</span><span class="p">())]))</span>
+                         <span class="n">networks</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">([(</span><span class="s2">&quot;actor&quot;</span><span class="p">,</span> <span class="n">DDPGActorNetworkParameters</span><span class="p">(</span><span class="n">use_batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">)),</span>
+                                               <span class="p">(</span><span class="s2">&quot;critic&quot;</span><span class="p">,</span> <span class="n">DDPGCriticNetworkParameters</span><span class="p">(</span><span class="n">use_batchnorm</span><span class="o">=</span><span class="n">use_batchnorm</span><span class="p">))]))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -353,7 +353,9 @@
         <span class="c1"># train the critic</span>
         <span class="n">critic_inputs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">critic_keys</span><span class="p">))</span>
         <span class="n">critic_inputs</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">actions</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">actions</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">critic</span><span class="o">.</span><span class="n">train_and_sync_networks</span><span class="p">(</span><span class="n">critic_inputs</span><span class="p">,</span> <span class="n">TD_targets</span><span class="p">)</span>
+
+        <span class="c1"># also need the inputs for when applying gradients so batchnorm&#39;s update of running mean and stddev will work</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">critic</span><span class="o">.</span><span class="n">train_and_sync_networks</span><span class="p">(</span><span class="n">critic_inputs</span><span class="p">,</span> <span class="n">TD_targets</span><span class="p">,</span> <span class="n">use_inputs_for_apply_gradients</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">total_loss</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">unclipped_grads</span> <span class="o">=</span> <span class="n">result</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
 
         <span class="c1"># apply the gradients from the critic to the actor</span>
@@ -362,11 +364,12 @@
                                                  <span class="n">outputs</span><span class="o">=</span><span class="n">actor</span><span class="o">.</span><span class="n">online_network</span><span class="o">.</span><span class="n">weighted_gradients</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                                                  <span class="n">initial_feed_dict</span><span class="o">=</span><span class="n">initial_feed_dict</span><span class="p">)</span>
 
+        <span class="c1"># also need the inputs for when applying gradients so batchnorm&#39;s update of running mean and stddev will work</span>
         <span class="k">if</span> <span class="n">actor</span><span class="o">.</span><span class="n">has_global</span><span class="p">:</span>
-            <span class="n">actor</span><span class="o">.</span><span class="n">apply_gradients_to_global_network</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
+            <span class="n">actor</span><span class="o">.</span><span class="n">apply_gradients_to_global_network</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">additional_inputs</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">critic_keys</span><span class="p">)))</span>
             <span class="n">actor</span><span class="o">.</span><span class="n">update_online_network</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">actor</span><span class="o">.</span><span class="n">apply_gradients_to_online_network</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
+            <span class="n">actor</span><span class="o">.</span><span class="n">apply_gradients_to_online_network</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">additional_inputs</span><span class="o">=</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">critic_keys</span><span class="p">)))</span>
 
         <span class="k">return</span> <span class="n">total_loss</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">unclipped_grads</span>
 
