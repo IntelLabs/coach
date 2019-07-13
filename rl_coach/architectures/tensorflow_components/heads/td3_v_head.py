@@ -46,9 +46,10 @@ class TD3VHead(Head):
             if self.initializer == 'normalized_columns':
                 q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1),
                                                      kernel_initializer=normalized_columns_initializer(1.0),
-                                                     output_bias_initializer=self.output_bias_initializer),)
+                                                     bias_initializer=self.output_bias_initializer),)
             elif self.initializer == 'xavier' or self.initializer is None:
-                q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1)))
+                q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1),
+                                                     bias_initializer=self.output_bias_initializer))
 
             self.output.append(q_outputs[i])
             self.loss.append(tf.reduce_mean((self.target-q_outputs[i])**2))

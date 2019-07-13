@@ -39,7 +39,7 @@ class PPOVHead(Head):
         self.input = [self.old_policy_value]
         self.output = self.dense_layer(1)(input_layer, name='output',
                                           kernel_initializer=normalized_columns_initializer(1.0),
-                                          output_bias_initializer=self.output_bias_initializer)
+                                          bias_initializer=self.output_bias_initializer)
         self.target = self.total_return = tf.placeholder(tf.float32, [None], name="total_return")
 
         value_loss_1 = tf.square(self.output - self.target)

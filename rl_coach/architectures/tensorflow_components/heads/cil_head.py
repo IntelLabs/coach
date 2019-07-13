@@ -52,7 +52,7 @@ class RegressionHead(Head):
             ))
 
         self.layers.append(self.dense_layer(self.num_actions)(self.layers[-1], name='output',
-                                                              output_bias_initializer=self.output_bias_initializer))
+                                                              bias_initializer=self.output_bias_initializer))
         self.output = self.layers[-1]
 
     def __str__(self):
