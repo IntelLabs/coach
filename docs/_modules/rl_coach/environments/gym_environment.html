@@ -213,7 +213,7 @@
     <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;RoboSchool&quot;</span><span class="p">)</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">rl_coach.gym_extensions.continuous</span> <span class="k">import</span> <span class="n">mujoco</span>
+    <span class="kn">from</span> <span class="nn">gym_extensions.continuous</span> <span class="k">import</span> <span class="n">mujoco</span>
 <span class="k">except</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">rl_coach.logger</span> <span class="k">import</span> <span class="n">failed_imports</span>
     <span class="n">failed_imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;GymExtensions&quot;</span><span class="p">)</span>
@@ -575,9 +575,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">screen</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error: Environment </span><span class="si">{}</span><span class="s2"> does not support human control.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">),</span> <span class="n">crash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># initialize the state by getting a new state from the environment</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_internal_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-
         <span class="c1"># render</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_rendered</span><span class="p">:</span>
             <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rendered_image</span><span class="p">()</span>
@@ -588,7 +585,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">create_screen</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">scale</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">scale</span><span class="p">)</span>
 
         <span class="c1"># the info is only updated after the first step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">default_action</span><span class="p">)</span><span class="o">.</span><span class="n">next_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state_space</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">VectorObservationSpace</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">spec</span> <span class="ow">and</span> <span class="n">custom_reward_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

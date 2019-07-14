@@ -381,15 +381,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_transition</span><span class="p">(</span><span class="n">transition_index</span><span class="p">,</span> <span class="n">lock</span><span class="p">)</span>
 
-    <span class="c1"># for API compatibility</span>
-    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lock</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove the transition in the given index</span>
-<span class="sd">        :param transition_index: the index of the transition to remove</span>
-<span class="sd">        :return: None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">remove_transition</span><span class="p">(</span><span class="n">transition_index</span><span class="p">,</span> <span class="n">lock</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lock</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clean the memory by removing all the episodes</span>

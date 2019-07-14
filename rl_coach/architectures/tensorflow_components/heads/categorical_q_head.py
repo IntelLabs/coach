@@ -26,9 +26,9 @@ from rl_coach.spaces import SpacesDefinition
 class CategoricalQHead(QHead):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str ='relu',
-                 dense_layer=Dense):
+                 dense_layer=Dense, output_bias_initializer=None):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
-                         dense_layer=dense_layer)
+                         dense_layer=dense_layer, output_bias_initializer=output_bias_initializer)
         self.name = 'categorical_dqn_head'
         self.num_actions = len(self.spaces.action.actions)
         self.num_atoms = agent_parameters.algorithm.atoms
@@ -37,7 +37,8 @@ class CategoricalQHead(QHead):
         self.loss_type = []
 
     def _build_module(self, input_layer):
-        values_distribution = self.dense_layer(self.num_actions * self.num_atoms)(input_layer, name='output')
+        values_distribution = self.dense_layer(self.num_actions * self.num_atoms)\
+            (input_layer, name='output', bias_initializer=self.output_bias_initializer)
         values_distribution = tf.reshape(values_distribution, (tf.shape(values_distribution)[0], self.num_actions,
                                                                self.num_atoms))
         # softmax on atoms dimension

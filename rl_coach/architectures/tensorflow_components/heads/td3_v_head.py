@@ -26,7 +26,7 @@ from rl_coach.spaces import SpacesDefinition
 class TD3VHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
-                 dense_layer=Dense, initializer='xavier'):
+                 dense_layer=Dense, initializer='xavier', output_bias_initializer=None):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
                          dense_layer=dense_layer)
         self.name = 'td3_v_values_head'
@@ -35,6 +35,7 @@ class TD3VHead(Head):
         self.initializer = initializer
         self.loss = []
         self.output = []
+        self.output_bias_initializer = output_bias_initializer
 
     def _build_module(self, input_layer):
         # Standard V Network
@@ -44,9 +45,11 @@ class TD3VHead(Head):
         for i in range(input_layer.shape[0]): # assuming that the actual size is 2, as there are two critic networks
             if self.initializer == 'normalized_columns':
                 q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1),
-                                                     kernel_initializer=normalized_columns_initializer(1.0)))
+                                                     kernel_initializer=normalized_columns_initializer(1.0),
+                                                     bias_initializer=self.output_bias_initializer),)
             elif self.initializer == 'xavier' or self.initializer is None:
-                q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1)))
+                q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1),
+                                                     bias_initializer=self.output_bias_initializer))
 
             self.output.append(q_outputs[i])
             self.loss.append(tf.reduce_mean((self.target-q_outputs[i])**2))
