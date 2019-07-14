@@ -176,6 +176,8 @@ class Dense(layers.Dense):
         :param name: layer name
         :return: dense layer
         """
+        if bias_initializer is None:
+            bias_initializer = tf.zeros_initializer()
         return tf.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
                                activation=activation, bias_initializer=bias_initializer)
 
