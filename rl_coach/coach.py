@@ -776,4 +776,8 @@ def main():
 
 
 if __name__ == "__main__":
+    print('Testing')
+    sys.argv.append('-p')
+    sys.argv.append('CartPole_DQN')
+    print(sys.argv)
     main()
