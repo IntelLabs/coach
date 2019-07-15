@@ -27,7 +27,7 @@ from rl_coach.utils import force_list
 class RegressionHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
-                 dense_layer=Dense, scheme=[Dense(256), Dense(256)]):
+                 dense_layer=Dense, scheme=[Dense(256), Dense(256)], output_bias_initializer=None):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
                          dense_layer=dense_layer)
         self.name = 'regression_head'
@@ -42,6 +42,7 @@ class RegressionHead(Head):
             self.loss_type = tf.losses.huber_loss
         else:
             self.loss_type = tf.losses.mean_squared_error
+        self.output_bias_initializer = output_bias_initializer
 
     def _build_module(self, input_layer):
         self.layers.append(input_layer)
@@ -50,7 +51,8 @@ class RegressionHead(Head):
                 layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx))
             ))
 
-        self.layers.append(self.dense_layer(self.num_actions)(self.layers[-1], name='output'))
+        self.layers.append(self.dense_layer(self.num_actions)(self.layers[-1], name='output',
+                                                              bias_initializer=self.output_bias_initializer))
         self.output = self.layers[-1]
 
     def __str__(self):

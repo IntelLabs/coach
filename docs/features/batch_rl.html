@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Features &mdash; Reinforcement Learning Coach 0.12.0 documentation</title>
+  <title>Batch Reinforcement Learning &mdash; Reinforcement Learning Coach 0.12.0 documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Algorithms" href="algorithms.html" />
-    <link rel="prev" title="Usage - Distributed Coach" href="../dist_usage.html" />
+    <link rel="next" title="Selecting an Algorithm" href="../selecting_an_algorithm.html" />
+    <link rel="prev" title="Benchmarks" href="benchmarks.html" />
     <link href="../_static/css/custom.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -91,11 +91,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dist_usage.html">Usage - Distributed Coach</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Features</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Features</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="algorithms.html">Algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="environments.html">Environments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="batch_rl.html">Batch Reinforcement Learning</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Batch Reinforcement Learning</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../selecting_an_algorithm.html">Selecting an Algorithm</a></li>
@@ -171,13 +171,15 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Features</li>
+          <li><a href="index.html">Features</a> &raquo;</li>
+        
+      <li>Batch Reinforcement Learning</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/features/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/features/batch_rl.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -190,17 +192,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="features">
-<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Features</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_rl.html">Batch Reinforcement Learning</a></li>
-</ul>
-</div>
+  <div class="section" id="batch-reinforcement-learning">
+<h1>Batch Reinforcement Learning<a class="headerlink" href="#batch-reinforcement-learning" title="Permalink to this headline">¶</a></h1>
+<p>Coach supports Batch Reinforcement Learning, where learning is based solely on a (fixed) batch of data.
+In Batch RL, we are given a dataset of experience, which was collected using some (one or more) deployed policies, and we would
+like to use it to learn a better policy than what was used to collect the dataset.
+There is no simulator to interact with, and so we cannot collect any new data, meaning we often cannot explore the MDP any further.
+To make things even harder, we would also like to use the dataset in order to evaluate the newly learned policy
+(using off-policy evaluation), since we do not have a simulator which we can use to evaluate the policy on.
+Batch RL is also often beneficial in cases where we just want to separate the inference (data collection) from the
+training process of a new policy. This is often the case where we have a system on which we could quite easily deploy a policy
+and collect experience data, but cannot easily use that system’s setup to online train a new policy (as is often the
+case with more standard RL algorithms).</p>
+<p>Coach supports (almost) all of the integrated off-policy algorithms with Batch RL.</p>
+<p>A lot more details and example usage can be found in the
+<a class="reference external" href="https://github.com/NervanaSystems/coach/blob/master/tutorials/4.%20Batch%20Reinforcement%20Learning.ipynb">tutorial</a>.</p>
 </div>
 
 
@@ -211,10 +217,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="algorithms.html" class="btn btn-neutral float-right" title="Algorithms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../selecting_an_algorithm.html" class="btn btn-neutral float-right" title="Selecting an Algorithm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../dist_usage.html" class="btn btn-neutral float-left" title="Usage - Distributed Coach" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="benchmarks.html" class="btn btn-neutral float-left" title="Benchmarks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -169,8 +169,13 @@ More usage examples can be found [here](https://github.com/NervanaSystems/coach/
 
 ### Distributed Multi-Node Coach
 
-As of release 0.11 Coach supports horizontal scaling for training RL agents on multiple nodes. In release 0.11 this was tested on the ClippedPPO and DQN agents.
-For usage instructions please refer to the documentation [here](https://nervanasystems.github.io/coach/dist_usage.html)
+As of release 0.11.0, Coach supports horizontal scaling for training RL agents on multiple nodes. In release 0.11.0 this was tested on the ClippedPPO and DQN agents.
+For usage instructions please refer to the documentation [here](https://nervanasystems.github.io/coach/dist_usage.html).
+
+### Batch Reinforcement Learning
+
+Training and evaluating an agent from a dataset of experience, where no simulator is available, is supported in Coach. 
+There are [example](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/CartPole_DDQN_BatchRL.py) [presets](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/Acrobot_DDQN_BCQ_BatchRL.py) and a [tutorial](https://github.com/NervanaSystems/coach/blob/master/tutorials/4.%20Batch%20Reinforcement%20Learning.ipynb). 
 
 ### Running Coach Dashboard (Visualization)
 Training an agent to solve an environment can be tricky, at times. 

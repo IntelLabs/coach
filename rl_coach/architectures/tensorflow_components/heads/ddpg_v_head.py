@@ -24,9 +24,10 @@ from rl_coach.spaces import SpacesDefinition
 class DDPGVHead(VHead):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
-                 dense_layer=Dense, initializer='normalized_columns'):
+                 dense_layer=Dense, initializer='normalized_columns', output_bias_initializer=None):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
-                         dense_layer=dense_layer, initializer=initializer)
+                         dense_layer=dense_layer, initializer=initializer,
+                         output_bias_initializer=output_bias_initializer)
 
     def _build_module(self, input_layer):
         super()._build_module(input_layer)

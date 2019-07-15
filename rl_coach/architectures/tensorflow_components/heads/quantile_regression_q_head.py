@@ -25,9 +25,9 @@ from rl_coach.spaces import SpacesDefinition
 class QuantileRegressionQHead(QHead):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
-                 dense_layer=Dense):
+                 dense_layer=Dense, output_bias_initializer=None):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
-                         dense_layer=dense_layer)
+                         dense_layer=dense_layer, output_bias_initializer=output_bias_initializer)
         self.name = 'quantile_regression_dqn_head'
         self.num_actions = len(self.spaces.action.actions)
         self.num_atoms = agent_parameters.algorithm.atoms  # we use atom / quantile interchangeably
@@ -43,7 +43,8 @@ class QuantileRegressionQHead(QHead):
         self.input = [self.actions, self.quantile_midpoints]
 
         # the output of the head is the N unordered quantile locations {theta_1, ..., theta_N}
-        quantiles_locations = self.dense_layer(self.num_actions * self.num_atoms)(input_layer, name='output')
+        quantiles_locations = self.dense_layer(self.num_actions * self.num_atoms)\
+            (input_layer, name='output', bias_initializer=self.output_bias_initializer)
         quantiles_locations = tf.reshape(quantiles_locations, (tf.shape(quantiles_locations)[0], self.num_actions, self.num_atoms))
         self.output = quantiles_locations
 
