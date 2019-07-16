@@ -34,6 +34,7 @@ import subprocess
 # 3. Run `coach -p CartPole_DQN` and make sure it works
 # 4. Run `dashboard` and make sure it works
 
+
 # - If everything works fine, build and upload the package to PyPi:
 # 1. Update the version of Coach in the call to setup()
 # 2. Remove the directories build, dist and rl_coach.egg-info if they exist

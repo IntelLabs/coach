@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.losses.losses_impl import Reduction

@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 import math
 from types import FunctionType
 import tensorflow as tf

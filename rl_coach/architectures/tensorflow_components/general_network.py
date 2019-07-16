@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+
 import copy
 from types import MethodType
 from typing import Dict, List, Union
@@ -57,6 +58,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         def construct_on_device():
             with tf.device(GeneralTensorFlowNetwork._tf_device(devices[0])):
+                dan_delete = tf.compat.v1.Variable(False, trainable=False,
+                                                         collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
                 return GeneralTensorFlowNetwork(*args, **kwargs)
 
         # If variable_scope is in our dictionary, then this is not the first time that this variable_scope
@@ -238,7 +241,13 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             raise ValueError("Exactly one middleware type should be defined")
 
         # ops for defining the training / testing phase
-        self.is_training = tf.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+        # Dan manual fix
+
+        # print(tf.executing_eagerly())
+
+        self.is_training = tf.compat.v1.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+        #self.is_training = tf.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+
         self.is_training_placeholder = tf.compat.v1.placeholder("bool")
         self.assign_is_training = tf.compat.v1.assign(self.is_training, self.is_training_placeholder)
 

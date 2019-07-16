@@ -777,6 +777,10 @@ def main():
 
 if __name__ == "__main__":
     print('Testing')
+    import tensorflow as tf
+    print("GPU Available: ", tf.test.is_gpu_available())
+    a = tf.Variable(False, name="is_traininga")
+    s_training = tf.compat.v1.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
     sys.argv.append('-p')
     sys.argv.append('CartPole_DQN')
     print(sys.argv)

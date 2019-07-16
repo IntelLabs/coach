@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+
 import tensorflow as tf
 import numpy as np
 from rl_coach.architectures.tensorflow_components.heads import QHead

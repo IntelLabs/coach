@@ -21,8 +21,6 @@ import tensorflow as tf
 
 from rl_coach.utilities.shared_running_stats import SharedRunningStats
 
-# Dan manual fix
-
 
 tf.compat.v1.disable_resource_variables()
 

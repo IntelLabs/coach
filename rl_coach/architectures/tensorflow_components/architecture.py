@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-# Upgraded
+
 import os
 import time
 from typing import Any, List, Tuple, Dict

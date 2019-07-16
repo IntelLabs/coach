@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-# Upgraded
 
 from typing import Tuple
 
