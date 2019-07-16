@@ -47,9 +47,9 @@ class ClassificationHead(Head):
         self.output = tf.nn.softmax(self.class_values)
 
         # calculate cross entropy loss
-        self.target = tf.placeholder(tf.float32, shape=(None, self.num_actions), name="target")
-        self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.target, logits=self.class_values)
-        tf.losses.add_loss(self.loss)
+        self.target = tf.compat.v1.placeholder(tf.float32, shape=(None, self.num_actions), name="target")
+        self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=tf.stop_gradient(self.target), logits=self.class_values)
+        tf.compat.v1.losses.add_loss(self.loss)
 
     def __str__(self):
         result = [

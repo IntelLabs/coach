@@ -16,6 +16,7 @@
 
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer
@@ -44,9 +45,9 @@ class PolicyHead(Head):
         if hasattr(agent_parameters.algorithm, 'beta_entropy'):
             # we set the beta value as a tf variable so it can be updated later if needed
             self.beta = tf.Variable(float(agent_parameters.algorithm.beta_entropy),
-                                    trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
-            self.beta_placeholder = tf.placeholder('float')
-            self.set_beta = tf.assign(self.beta, self.beta_placeholder)
+                                    trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+            self.beta_placeholder = tf.compat.v1.placeholder('float')
+            self.set_beta = tf.compat.v1.assign(self.beta, self.beta_placeholder)
 
         # a scalar weight that penalizes high activation values (before the activation function) for the final layer
         if hasattr(agent_parameters.algorithm, 'action_penalty'):
@@ -64,7 +65,7 @@ class PolicyHead(Head):
 
         # create a compound action network
         for action_space_idx, action_space in enumerate(action_spaces):
-            with tf.variable_scope("sub_action_{}".format(action_space_idx)):
+            with tf.compat.v1.variable_scope("sub_action_{}".format(action_space_idx)):
                 if isinstance(action_space, DiscreteActionSpace):
                     # create a discrete action network (softmax probabilities output)
                     self._build_discrete_net(input_layer, action_space)
@@ -75,33 +76,37 @@ class PolicyHead(Head):
         if self.is_local:
             # add entropy regularization
             if self.beta:
-                self.entropy = tf.add_n([tf.reduce_mean(dist.entropy()) for dist in self.policy_distributions])
+                self.entropy = tf.add_n([tf.reduce_mean(input_tensor=dist.entropy()) for dist in self.policy_distributions])
                 self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
 
             # calculate loss
             self.action_log_probs_wrt_policy = \
                 tf.add_n([dist.log_prob(action) for dist, action in zip(self.policy_distributions, self.actions)])
-            self.advantages = tf.placeholder(tf.float32, [None], name="advantages")
+            self.advantages = tf.compat.v1.placeholder(tf.float32, [None], name="advantages")
             self.target = self.advantages
-            self.loss = -tf.reduce_mean(self.action_log_probs_wrt_policy * self.advantages)
-            tf.losses.add_loss(self.loss_weight[0] * self.loss)
+            self.loss = -tf.reduce_mean(input_tensor=self.action_log_probs_wrt_policy * self.advantages)
+            tf.compat.v1.losses.add_loss(self.loss_weight[0] * self.loss)
 
     def _build_discrete_net(self, input_layer, action_space):
         num_actions = len(action_space.actions)
-        self.actions.append(tf.placeholder(tf.int32, [None], name="actions"))
+        self.actions.append(tf.compat.v1.placeholder(tf.int32, [None], name="actions"))
 
         policy_values = self.dense_layer(num_actions)(input_layer, name='fc')
         self.policy_probs = tf.nn.softmax(policy_values, name="policy")
 
         # define the distributions for the policy and the old policy
         # (the + eps is to prevent probability 0 which will cause the log later on to be -inf)
-        policy_distribution = tf.contrib.distributions.Categorical(probs=(self.policy_probs + eps))
+
+        policy_distribution = tf.compat.v1.random.categorical(probs=(self.policy_probs + eps))
+        # Dan manual fix
+        #policy_distribution = tf.contrib.distributions.Categorical(probs=(self.policy_probs + eps))
+
         self.policy_distributions.append(policy_distribution)
         self.output.append(self.policy_probs)
 
     def _build_continuous_net(self, input_layer, action_space):
         num_actions = action_space.shape
-        self.actions.append(tf.placeholder(tf.float32, [None, num_actions], name="actions"))
+        self.actions.append(tf.compat.v1.placeholder(tf.float32, [None, num_actions], name="actions"))
 
         # output activation function
         if np.all(action_space.max_abs_range < np.inf):
@@ -135,21 +140,25 @@ class PolicyHead(Head):
             # it as not trainable puts it for some reason in the global variables collections. If this is not done,
             # the variable won't be initialized and when working with multiple workers they will get stuck.
             self.policy_std = tf.Variable(np.ones(num_actions), dtype='float32', trainable=False,
-                                          name='policy_stdev', collections=[tf.GraphKeys.LOCAL_VARIABLES])
+                                          name='policy_stdev', collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
 
             # assign op for the policy std
-            self.policy_std_placeholder = tf.placeholder('float32', (num_actions,))
-            self.assign_policy_std = tf.assign(self.policy_std, self.policy_std_placeholder)
+            self.policy_std_placeholder = tf.compat.v1.placeholder('float32', (num_actions,))
+            self.assign_policy_std = tf.compat.v1.assign(self.policy_std, self.policy_std_placeholder)
 
         # define the distributions for the policy and the old policy
-        policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std)
+        policy_distribution = tfp.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std)
+
+        # Dan manual fix
+        #policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std)
+
         self.policy_distributions.append(policy_distribution)
 
         if self.is_local:
             # add a squared penalty on the squared pre-activation features of the action
             if self.action_penalty and self.action_penalty != 0:
                 self.regularizations += [
-                    self.action_penalty * tf.reduce_mean(tf.square(pre_activation_policy_values_mean))]
+                    self.action_penalty * tf.reduce_mean(input_tensor=tf.square(pre_activation_policy_values_mean))]
 
     def __str__(self):
         action_spaces = [self.spaces.action]

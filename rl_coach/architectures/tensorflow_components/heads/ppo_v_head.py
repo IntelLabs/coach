@@ -34,20 +34,20 @@ class PPOVHead(Head):
         self.return_type = ActionProbabilities
 
     def _build_module(self, input_layer):
-        self.old_policy_value = tf.placeholder(tf.float32, [None], "old_policy_values")
+        self.old_policy_value = tf.compat.v1.placeholder(tf.float32, [None], "old_policy_values")
         self.input = [self.old_policy_value]
         self.output = self.dense_layer(1)(input_layer, name='output',
                                             kernel_initializer=normalized_columns_initializer(1.0))
-        self.target = self.total_return = tf.placeholder(tf.float32, [None], name="total_return")
+        self.target = self.total_return = tf.compat.v1.placeholder(tf.float32, [None], name="total_return")
 
         value_loss_1 = tf.square(self.output - self.target)
         value_loss_2 = tf.square(self.old_policy_value +
                                  tf.clip_by_value(self.output - self.old_policy_value,
                                                   -self.clip_likelihood_ratio_using_epsilon,
                                                   self.clip_likelihood_ratio_using_epsilon) - self.target)
-        self.vf_loss = tf.reduce_mean(tf.maximum(value_loss_1, value_loss_2))
+        self.vf_loss = tf.reduce_mean(input_tensor=tf.maximum(value_loss_1, value_loss_2))
         self.loss = self.vf_loss
-        tf.losses.add_loss(self.loss)
+        tf.compat.v1.losses.add_loss(self.loss)
 
     def __str__(self):
         result = [

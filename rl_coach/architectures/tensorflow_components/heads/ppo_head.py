@@ -16,6 +16,7 @@
 
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer
@@ -41,8 +42,8 @@ class PPOHead(Head):
             # kl coefficient and its corresponding assignment operation and placeholder
             self.kl_coefficient = tf.Variable(agent_parameters.algorithm.initial_kl_coefficient,
                                               trainable=False, name='kl_coefficient')
-            self.kl_coefficient_ph = tf.placeholder('float', name='kl_coefficient_ph')
-            self.assign_kl_coefficient = tf.assign(self.kl_coefficient, self.kl_coefficient_ph)
+            self.kl_coefficient_ph = tf.compat.v1.placeholder('float', name='kl_coefficient_ph')
+            self.assign_kl_coefficient = tf.compat.v1.assign(self.kl_coefficient, self.kl_coefficient_ph)
             self.kl_cutoff = 2 * agent_parameters.algorithm.target_kl_divergence
             self.high_kl_penalty_coefficient = agent_parameters.algorithm.high_kl_penalty_coefficient
 
@@ -59,11 +60,11 @@ class PPOHead(Head):
 
         self.action_probs_wrt_policy = self.policy_distribution.log_prob(self.actions)
         self.action_probs_wrt_old_policy = self.old_policy_distribution.log_prob(self.actions)
-        self.entropy = tf.reduce_mean(self.policy_distribution.entropy())
+        self.entropy = tf.reduce_mean(input_tensor=self.policy_distribution.entropy())
 
         # Used by regular PPO only
         # add kl divergence regularization
-        self.kl_divergence = tf.reduce_mean(tf.distributions.kl_divergence(self.old_policy_distribution, self.policy_distribution))
+        self.kl_divergence = tf.reduce_mean(input_tensor=tf.compat.v1.distributions.kl_divergence(self.old_policy_distribution, self.policy_distribution))
 
         if self.use_kl_regularization:
             # no clipping => use kl regularization
@@ -72,12 +73,12 @@ class PPOHead(Head):
                                                 tf.square(tf.maximum(0.0, self.kl_divergence - self.kl_cutoff))]
 
         # calculate surrogate loss
-        self.advantages = tf.placeholder(tf.float32, [None], name="advantages")
+        self.advantages = tf.compat.v1.placeholder(tf.float32, [None], name="advantages")
         self.target = self.advantages
         # action_probs_wrt_old_policy != 0 because it is e^...
         self.likelihood_ratio = tf.exp(self.action_probs_wrt_policy - self.action_probs_wrt_old_policy)
         if self.clip_likelihood_ratio_using_epsilon is not None:
-            self.clip_param_rescaler = tf.placeholder(tf.float32, ())
+            self.clip_param_rescaler = tf.compat.v1.placeholder(tf.float32, ())
             self.input.append(self.clip_param_rescaler)
             max_value = 1 + self.clip_likelihood_ratio_using_epsilon * self.clip_param_rescaler
             min_value = 1 - self.clip_likelihood_ratio_using_epsilon * self.clip_param_rescaler
@@ -87,22 +88,22 @@ class PPOHead(Head):
         else:
             self.scaled_advantages = self.likelihood_ratio * self.advantages
         # minus sign is in order to set an objective to minimize (we actually strive for maximizing the surrogate loss)
-        self.surrogate_loss = -tf.reduce_mean(self.scaled_advantages)
+        self.surrogate_loss = -tf.reduce_mean(input_tensor=self.scaled_advantages)
         if self.is_local:
             # add entropy regularization
             if self.beta:
-                self.entropy = tf.reduce_mean(self.policy_distribution.entropy())
+                self.entropy = tf.reduce_mean(input_tensor=self.policy_distribution.entropy())
                 self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
 
         self.loss = self.surrogate_loss
-        tf.losses.add_loss(self.loss)
+        tf.compat.v1.losses.add_loss(self.loss)
 
     def _build_discrete_net(self, input_layer, action_space):
         num_actions = len(action_space.actions)
-        self.actions = tf.placeholder(tf.int32, [None], name="actions")
+        self.actions = tf.compat.v1.placeholder(tf.int32, [None], name="actions")
 
-        self.old_policy_mean = tf.placeholder(tf.float32, [None, num_actions], "old_policy_mean")
-        self.old_policy_std = tf.placeholder(tf.float32, [None, num_actions], "old_policy_std")
+        self.old_policy_mean = tf.compat.v1.placeholder(tf.float32, [None, num_actions], "old_policy_mean")
+        self.old_policy_std = tf.compat.v1.placeholder(tf.float32, [None, num_actions], "old_policy_std")
 
         # Policy Head
         self.input = [self.actions, self.old_policy_mean]
@@ -110,17 +111,21 @@ class PPOHead(Head):
         self.policy_mean = tf.nn.softmax(policy_values, name="policy")
 
         # define the distributions for the policy and the old policy
-        self.policy_distribution = tf.contrib.distributions.Categorical(probs=self.policy_mean)
-        self.old_policy_distribution = tf.contrib.distributions.Categorical(probs=self.old_policy_mean)
+        self.policy_distribution = tf.compat.v1.random.categorical(probs=self.policy_mean)
+        # Dan manual fix
+        #self.policy_distribution = tf.contrib.distributions.Categorical(probs=self.policy_mean)
+        self.old_policy_distribution = tf.compat.v1.random.categorical(probs=self.old_policy_mean)
+        # Dan manual fix
+        #self.old_policy_distribution = tf.contrib.distributions.Categorical(probs=self.old_policy_mean)
 
         self.output = self.policy_mean
 
     def _build_continuous_net(self, input_layer, action_space):
         num_actions = action_space.shape[0]
-        self.actions = tf.placeholder(tf.float32, [None, num_actions], name="actions")
+        self.actions = tf.compat.v1.placeholder(tf.float32, [None, num_actions], name="actions")
 
-        self.old_policy_mean = tf.placeholder(tf.float32, [None, num_actions], "old_policy_mean")
-        self.old_policy_std = tf.placeholder(tf.float32, [None, num_actions], "old_policy_std")
+        self.old_policy_mean = tf.compat.v1.placeholder(tf.float32, [None, num_actions], "old_policy_mean")
+        self.old_policy_std = tf.compat.v1.placeholder(tf.float32, [None, num_actions], "old_policy_std")
 
         self.input = [self.actions, self.old_policy_mean, self.old_policy_std]
         self.policy_mean = self.dense_layer(num_actions)(input_layer, name='policy_mean',
@@ -131,15 +136,21 @@ class PPOHead(Head):
         # Architecture does not apply to them
         if self.is_local and isinstance(self.ap.task_parameters, DistributedTaskParameters):
             self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32',
-                                             collections=[tf.GraphKeys.LOCAL_VARIABLES], name="policy_log_std")
+                                             collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES], name="policy_log_std")
         else:
             self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32', name="policy_log_std")
 
-        self.policy_std = tf.tile(tf.exp(self.policy_logstd), [tf.shape(input_layer)[0], 1], name='policy_std')
+        self.policy_std = tf.tile(tf.exp(self.policy_logstd), [tf.shape(input=input_layer)[0], 1], name='policy_std')
 
         # define the distributions for the policy and the old policy
-        self.policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std + eps)
-        self.old_policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.old_policy_mean, self.old_policy_std + eps)
+        self.policy_distribution = tfp.distributions.MultivariateNormalDiag(self.policy_mean,
+                                                                                   self.policy_std + eps)
+        self.old_policy_distribution = tfp.distributions.MultivariateNormalDiag(self.old_policy_mean,
+                                                                                       self.old_policy_std + eps)
+
+        # Dan manual fix
+        # self.policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std + eps)
+        # self.old_policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.old_policy_mean, self.old_policy_std + eps)
 
         self.output = [self.policy_mean, self.policy_std]
 

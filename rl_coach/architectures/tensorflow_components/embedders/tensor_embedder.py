@@ -24,6 +24,8 @@ from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputTensorEmbedding
 
 
+
+
 class TensorEmbedder(InputEmbedder):
     """
     A tensor embedder is an input embedder that takes a tensor with arbitrary dimension and produces a vector

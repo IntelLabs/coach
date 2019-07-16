@@ -50,7 +50,7 @@ class Head(object):
         self.loss_type = []
         self.regularizations = []
         self.loss_weight = tf.Variable([float(w) for w in force_list(loss_weight)],
-                                       trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
+                                       trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
         self.target = []
         self.importance_weight = []
         self.input = []
@@ -73,7 +73,7 @@ class Head(object):
         :return: the output of the last layer and the target placeholder
         """
 
-        with tf.variable_scope(self.get_name(), initializer=tf.contrib.layers.xavier_initializer()):
+        with tf.compat.v1.variable_scope(self.get_name(), initializer=tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform")):
             self._build_module(squeeze_tensor(input_layer))
 
             self.output = force_list(self.output)
@@ -126,7 +126,7 @@ class Head(object):
 
         # there are heads that define the loss internally, but we need to create additional placeholders for them
         for idx in range(len(self.loss)):
-            importance_weight = tf.placeholder('float',
+            importance_weight = tf.compat.v1.placeholder('float',
                                                [None] + [1] * (len(self.target[idx].shape) - 1),
                                                '{}_importance_weight'.format(self.get_name()))
             self.importance_weight.append(importance_weight)
@@ -134,12 +134,12 @@ class Head(object):
         # add losses and target placeholder
         for idx in range(len(self.loss_type)):
             # create target placeholder
-            target = tf.placeholder('float', self.output[idx].shape, '{}_target'.format(self.get_name()))
+            target = tf.compat.v1.placeholder('float', self.output[idx].shape, '{}_target'.format(self.get_name()))
             self.target.append(target)
 
             # create importance sampling weights placeholder
             num_target_dims = len(self.target[idx].shape)
-            importance_weight = tf.placeholder('float', [None] + [1] * (num_target_dims - 1),
+            importance_weight = tf.compat.v1.placeholder('float', [None] + [1] * (num_target_dims - 1),
                                                '{}_importance_weight'.format(self.get_name()))
             self.importance_weight.append(importance_weight)
 
@@ -150,16 +150,16 @@ class Head(object):
                                        scope=self.get_name(), reduction=Reduction.NONE, loss_collection=None)
 
             # the loss is first summed over each sample in the batch and then the mean over the batch is taken
-            loss = tf.reduce_mean(loss_weight*tf.reduce_sum(loss, axis=list(range(1, num_target_dims))))
+            loss = tf.reduce_mean(input_tensor=loss_weight*tf.reduce_sum(input_tensor=loss, axis=list(range(1, num_target_dims))))
 
             # we add the loss to the losses collection and later we will extract it in general_network
-            tf.losses.add_loss(loss)
+            tf.compat.v1.losses.add_loss(loss)
             self.loss.append(loss)
 
         # add regularizations
         for regularization in self.regularizations:
             self.loss.append(regularization)
-            tf.losses.add_loss(regularization)
+            tf.compat.v1.losses.add_loss(regularization)
 
     @classmethod
     def path(cls):

@@ -30,7 +30,7 @@ class DDPGVHead(VHead):
 
     def _build_module(self, input_layer):
         super()._build_module(input_layer)
-        self.output = [self.output, tf.reduce_mean(self.output)]
+        self.output = [self.output, tf.reduce_mean(input_tensor=self.output)]
 
     def __str__(self):
         result = [

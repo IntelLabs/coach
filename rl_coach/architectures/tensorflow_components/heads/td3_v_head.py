@@ -39,7 +39,7 @@ class TD3VHead(Head):
     def _build_module(self, input_layer):
         # Standard V Network
         q_outputs = []
-        self.target = tf.placeholder(tf.float32, shape=(None, 1), name="q_networks_min_placeholder")
+        self.target = tf.compat.v1.placeholder(tf.float32, shape=(None, 1), name="q_networks_min_placeholder")
 
         for i in range(input_layer.shape[0]): # assuming that the actual size is 2, as there are two critic networks
             if self.initializer == 'normalized_columns':
@@ -49,12 +49,12 @@ class TD3VHead(Head):
                 q_outputs.append(self.dense_layer(1)(input_layer[i], name='q_output_{}'.format(i + 1)))
 
             self.output.append(q_outputs[i])
-            self.loss.append(tf.reduce_mean((self.target-q_outputs[i])**2))
+            self.loss.append(tf.reduce_mean(input_tensor=(self.target-q_outputs[i])**2))
 
-        self.output.append(tf.reduce_min(q_outputs, axis=0))
-        self.output.append(tf.reduce_mean(self.output[0]))
+        self.output.append(tf.reduce_min(input_tensor=q_outputs, axis=0))
+        self.output.append(tf.reduce_mean(input_tensor=self.output[0]))
         self.loss = sum(self.loss)
-        tf.losses.add_loss(self.loss)
+        tf.compat.v1.losses.add_loss(self.loss)
 
     def __str__(self):
         result = [

@@ -16,6 +16,8 @@
 """
 Module containing utility functions
 """
+
+
 import tensorflow as tf
 
 

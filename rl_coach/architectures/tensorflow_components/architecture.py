@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+# Upgraded
 import os
 import time
 from typing import Any, List, Tuple, Dict
@@ -28,21 +30,20 @@ from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list, squeeze_list, start_shell_command_and_wait
 
-
 def variable_summaries(var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
-    with tf.name_scope('summaries'):
+    with tf.compat.v1.name_scope('summaries'):
         layer_weight_name = '_'.join(var.name.split('/')[-3:])[:-2]
 
-        with tf.name_scope(layer_weight_name):
-            mean = tf.reduce_mean(var)
-            tf.summary.scalar('mean', mean)
-            with tf.name_scope('stddev'):
-                stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-            tf.summary.scalar('stddev', stddev)
-            tf.summary.scalar('max', tf.reduce_max(var))
-            tf.summary.scalar('min', tf.reduce_min(var))
-            tf.summary.histogram('histogram', var)
+        with tf.compat.v1.name_scope(layer_weight_name):
+            mean = tf.reduce_mean(input_tensor=var)
+            tf.compat.v1.summary.scalar('mean', mean)
+            with tf.compat.v1.name_scope('stddev'):
+                stddev = tf.sqrt(tf.reduce_mean(input_tensor=tf.square(var - mean)))
+            tf.compat.v1.summary.scalar('stddev', stddev)
+            tf.compat.v1.summary.scalar('max', tf.reduce_max(input_tensor=var))
+            tf.compat.v1.summary.scalar('min', tf.reduce_min(input_tensor=var))
+            tf.compat.v1.summary.histogram('histogram', var)
 
 
 def local_getter(getter, name, *args, **kwargs):
@@ -52,7 +53,7 @@ def local_getter(getter, name, *args, **kwargs):
     between workers. these variables are also assumed to be non-trainable (the optimizer does not apply gradients to
     these variables), but we can calculate the gradients wrt these variables, and we can update their content.
     """
-    kwargs['collections'] = [tf.GraphKeys.LOCAL_VARIABLES]
+    kwargs['collections'] = [tf.compat.v1.GraphKeys.LOCAL_VARIABLES]
     return getter(name, *args, **kwargs)
 
 
@@ -96,17 +97,17 @@ class TensorFlowArchitecture(Architecture):
 
         self.optimizer_type = self.network_parameters.optimizer_type
         if self.ap.task_parameters.seed is not None:
-            tf.set_random_seed(self.ap.task_parameters.seed)
-        with tf.variable_scope("/".join(self.name.split("/")[1:]), initializer=tf.contrib.layers.xavier_initializer(),
+            tf.compat.v1.set_random_seed(self.ap.task_parameters.seed)
+        with tf.compat.v1.variable_scope("/".join(self.name.split("/")[1:]), initializer=tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform"),
                                custom_getter=local_getter if network_is_local and global_network else None):
-            self.global_step = tf.train.get_or_create_global_step()
+            self.global_step = tf.compat.v1.train.get_or_create_global_step()
 
             # build the network
             self.weights = self.get_model()
 
             # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
             for idx, var in enumerate(self.weights):
-                placeholder = tf.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
+                placeholder = tf.compat.v1.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
                 self.weights_placeholders.append(placeholder)
                 if self.ap.visualization.tensorboard:
                     variable_summaries(var)
@@ -128,14 +129,15 @@ class TensorFlowArchitecture(Architecture):
             self.reset_internal_memory()
 
             if self.ap.visualization.tensorboard:
-                current_scope_summaries = tf.get_collection(tf.GraphKeys.SUMMARIES,
-                                                            scope=tf.contrib.framework.get_name_scope())
-                self.merged = tf.summary.merge(current_scope_summaries)
+                current_scope_summaries = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.SUMMARIES,
+                                                            scope=tf.compat.v1.name_scope())
+                                         #  Dan manual fix: scope = tf.contrib.framework.get_name_scope())
+                self.merged = tf.compat.v1.summary.merge(current_scope_summaries)
 
             # initialize or restore model
             self.init_op = tf.group(
-                tf.global_variables_initializer(),
-                tf.local_variables_initializer()
+                tf.compat.v1.global_variables_initializer(),
+                tf.compat.v1.local_variables_initializer()
             )
 
             # set the fetches for training
@@ -171,15 +173,17 @@ class TensorFlowArchitecture(Architecture):
         Create locks for synchronizing the different workers during training
         :return: None
         """
-        self.lock_counter = tf.get_variable("lock_counter", [], tf.int32,
-                                            initializer=tf.constant_initializer(0, dtype=tf.int32),
-                                            trainable=False)
+        self.lock_counter = tf.compat.v1.get_variable("lock_counter", [], tf.int32,
+                                            initializer=tf.compat.v1.constant_initializer(0, dtype=tf.int32),
+                                            trainable=False, use_resource=False)
+                                            #  Dan manual fix: use_resource=False
         self.lock = self.lock_counter.assign_add(1, use_locking=True)
         self.lock_init = self.lock_counter.assign(0)
 
-        self.release_counter = tf.get_variable("release_counter", [], tf.int32,
-                                               initializer=tf.constant_initializer(0, dtype=tf.int32),
-                                               trainable=False)
+        self.release_counter = tf.compat.v1.get_variable("release_counter", [], tf.int32,
+                                               initializer=tf.compat.v1.constant_initializer(0, dtype=tf.int32),
+                                               trainable=False, use_resource=False)
+                                               #  Dan manual fix: use_resource=False
         self.release = self.release_counter.assign_add(1, use_locking=True)
         self.release_decrement = self.release_counter.assign_add(-1, use_locking=True)
         self.release_init = self.release_counter.assign(0)
@@ -190,8 +194,8 @@ class TensorFlowArchitecture(Architecture):
         :return: None
         """
 
-        self.tensor_gradients = tf.gradients(self.total_loss, self.weights)
-        self.gradients_norm = tf.global_norm(self.tensor_gradients)
+        self.tensor_gradients = tf.gradients(ys=self.total_loss, xs=self.weights)
+        self.gradients_norm = tf.linalg.global_norm(self.tensor_gradients)
 
         # gradient clipping
         if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
@@ -203,13 +207,13 @@ class TensorFlowArchitecture(Architecture):
             self._create_gradient_accumulators()
 
         # gradients of the outputs w.r.t. the inputs
-        self.gradients_wrt_inputs = [{name: tf.gradients(output, input_ph) for name, input_ph in
+        self.gradients_wrt_inputs = [{name: tf.gradients(ys=output, xs=input_ph) for name, input_ph in
                                       self.inputs.items()} for output in self.outputs]
-        self.gradients_weights_ph = [tf.placeholder('float32', self.outputs[i].shape, 'output_gradient_weights')
+        self.gradients_weights_ph = [tf.compat.v1.placeholder('float32', self.outputs[i].shape, 'output_gradient_weights')
                                      for i in range(len(self.outputs))]
         self.weighted_gradients = []
         for i in range(len(self.outputs)):
-            unnormalized_gradients = tf.gradients(self.outputs[i], self.weights, self.gradients_weights_ph[i])
+            unnormalized_gradients = tf.gradients(ys=self.outputs[i], xs=self.weights, grad_ys=self.gradients_weights_ph[i])
             # unnormalized gradients seems to be better at the time. TODO: validate this accross more environments
             # self.weighted_gradients.append(list(map(lambda x: tf.div(x, self.network_parameters.batch_size),
             #                                         unnormalized_gradients)))
@@ -270,7 +274,7 @@ class TensorFlowArchitecture(Architecture):
         elif self.network_is_trainable:
             # not any of the above but is trainable? -> create an operation for applying the gradients to
             # this network weights
-            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, scope=self.full_name)
+            update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS, scope=self.full_name)
 
             with tf.control_dependencies(update_ops):
                 self.update_weights_from_batch_gradients = self.optimizer.apply_gradients(
@@ -288,10 +292,10 @@ class TensorFlowArchitecture(Architecture):
         if self.ap.visualization.tensorboard:
             # Write the merged summaries to the current experiment directory
             if not task_is_distributed:
-                self.train_writer = tf.summary.FileWriter(self.ap.task_parameters.experiment_path + '/tensorboard')
+                self.train_writer = tf.compat.v1.summary.FileWriter(self.ap.task_parameters.experiment_path + '/tensorboard')
                 self.train_writer.add_graph(self.sess.graph)
             elif self.network_is_local:
-                self.train_writer = tf.summary.FileWriter(self.ap.task_parameters.experiment_path +
+                self.train_writer = tf.compat.v1.summary.FileWriter(self.ap.task_parameters.experiment_path +
                                                           '/tensorboard/worker{}'.format(self.ap.task_parameters.task_index))
                 self.train_writer.add_graph(self.sess.graph)
 

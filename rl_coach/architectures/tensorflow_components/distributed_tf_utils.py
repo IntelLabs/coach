@@ -14,9 +14,12 @@
 # limitations under the License.
 #
 
+# Upgraded
+
 from typing import Tuple
 
 import tensorflow as tf
+
 
 
 def create_cluster_spec(parameters_server: str, workers: str) -> tf.train.ClusterSpec:
@@ -36,7 +39,7 @@ def create_cluster_spec(parameters_server: str, workers: str) -> tf.train.Cluste
     return cluster_spec
 
 
-def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, config: tf.ConfigProto=None) -> None:
+def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, config: tf.compat.v1.ConfigProto=None) -> None:
     """
     Create and start a parameter server
     :param cluster_spec: the ClusterSpec object representing the cluster
@@ -44,14 +47,14 @@ def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, confi
     :return: None
     """
     # create a server object for the parameter server
-    server = tf.train.Server(cluster_spec, job_name="ps", task_index=0, config=config)
+    server = tf.distribute.Server(cluster_spec, job_name="ps", task_index=0, config=config)
 
     # wait for the server to finish
     server.join()
 
 
 def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_index: int,
-                                    use_cpu: bool=True, config: tf.ConfigProto=None) -> Tuple[str, tf.device]:
+                                    use_cpu: bool=True, config: tf.compat.v1.ConfigProto=None) -> Tuple[str, tf.device]:
     """
     Creates a worker server and a device setter used to assign the workers operations to
     :param cluster_spec: a ClusterSpec object representing the cluster
@@ -61,7 +64,7 @@ def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_ind
     :return: the target string for the tf.Session and the worker device setter object
     """
     # Create and start a worker
-    server = tf.train.Server(cluster_spec, job_name="worker", task_index=task_index, config=config)
+    server = tf.distribute.Server(cluster_spec, job_name="worker", task_index=task_index, config=config)
 
     # Assign ops to the local worker
     worker_device = "/job:worker/task:{}".format(task_index)
@@ -69,13 +72,13 @@ def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_ind
         worker_device += "/cpu:0"
     else:
         worker_device += "/device:GPU:0"
-    device = tf.train.replica_device_setter(worker_device=worker_device, cluster=cluster_spec)
+    device = tf.compat.v1.train.replica_device_setter(worker_device=worker_device, cluster=cluster_spec)
 
     return server.target, device
 
 
-def create_monitored_session(target: tf.train.Server, task_index: int,
-                             checkpoint_dir: str, checkpoint_save_secs: int, config: tf.ConfigProto=None) -> tf.Session:
+def create_monitored_session(target: tf.distribute.Server, task_index: int,
+                             checkpoint_dir: str, checkpoint_save_secs: int, config: tf.compat.v1.ConfigProto=None) -> tf.compat.v1.Session:
     """
     Create a monitored session for the worker
     :param target: the target string for the tf.Session
@@ -89,7 +92,7 @@ def create_monitored_session(target: tf.train.Server, task_index: int,
     is_chief = task_index == 0
 
     # Create the monitored session
-    sess = tf.train.MonitoredTrainingSession(
+    sess = tf.compat.v1.train.MonitoredTrainingSession(
         master=target,
         is_chief=is_chief,
         hooks=[],

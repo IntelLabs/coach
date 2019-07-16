@@ -57,17 +57,17 @@ class LSTMMiddleware(Middleware):
             ))
 
         # add the LSTM layer
-        lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.number_of_lstm_cells, state_is_tuple=True)
+        lstm_cell = tf.compat.v1.nn.rnn_cell.BasicLSTMCell(self.number_of_lstm_cells, state_is_tuple=True)
         self.c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
         self.h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
         self.state_init = [self.c_init, self.h_init]
-        self.c_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.c])
-        self.h_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.h])
+        self.c_in = tf.compat.v1.placeholder(tf.float32, [1, lstm_cell.state_size.c])
+        self.h_in = tf.compat.v1.placeholder(tf.float32, [1, lstm_cell.state_size.h])
         self.state_in = (self.c_in, self.h_in)
         rnn_in = tf.expand_dims(self.layers[-1], [0])
-        step_size = tf.shape(self.layers[-1])[:1]
-        state_in = tf.nn.rnn_cell.LSTMStateTuple(self.c_in, self.h_in)
-        lstm_outputs, lstm_state = tf.nn.dynamic_rnn(
+        step_size = tf.shape(input=self.layers[-1])[:1]
+        state_in = tf.compat.v1.nn.rnn_cell.LSTMStateTuple(self.c_in, self.h_in)
+        lstm_outputs, lstm_state = tf.compat.v1.nn.dynamic_rnn(
             lstm_cell, rnn_in, initial_state=state_in, sequence_length=step_size, time_major=False)
         lstm_c, lstm_h = lstm_state
         self.state_out = (lstm_c[:1, :], lstm_h[:1, :])

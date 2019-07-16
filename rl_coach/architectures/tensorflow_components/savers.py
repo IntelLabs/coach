@@ -23,12 +23,13 @@ import numpy as np
 from rl_coach.saver import Saver
 
 
+
 class GlobalVariableSaver(Saver):
     def __init__(self, name):
         self._names = [name]
         # if graph is finalized, savers must have already already been added. This happens
         # in the case of a MonitoredSession
-        self._variables = tf.global_variables()
+        self._variables = tf.compat.v1.global_variables()
 
         # target network is never saved or restored directly from checkpoint, so we are removing all its variables from the list
         # the target network would be synched back from the online network in graph_manager.improve(...), at the beginning of the run flow.
@@ -39,11 +40,11 @@ class GlobalVariableSaver(Saver):
         self._variable_placeholders = []
         self._variable_update_ops = []
         for v in self._variables:
-            variable_placeholder = tf.placeholder(v.dtype, shape=v.get_shape())
+            variable_placeholder = tf.compat.v1.placeholder(v.dtype, shape=v.get_shape())
             self._variable_placeholders.append(variable_placeholder)
             self._variable_update_ops.append(v.assign(variable_placeholder))
 
-        self._saver = tf.train.Saver(self._variables, max_to_keep=None)
+        self._saver = tf.compat.v1.train.Saver(self._variables, max_to_keep=None)
 
     @property
     def path(self):
@@ -118,7 +119,9 @@ class GlobalVariableSaver(Saver):
         # We don't use saver.restore() because checkpoint is loaded to online
         # network, but if the checkpoint is from the global network, a namespace
         # mismatch exists and variable name must be modified before loading.
-        reader = tf.contrib.framework.load_checkpoint(restore_path)
+        reader = tf.train.Checkpoint.restore(tf.train.latest_checkpoint(restore_path))
+        # reader =  tf.contrib.framework.load_checkpoint(restore_path)
+        # Dan manual fix
         for var_name, _ in reader.get_variable_to_shape_map().items():
             yield var_name, reader.get_tensor(var_name)
 

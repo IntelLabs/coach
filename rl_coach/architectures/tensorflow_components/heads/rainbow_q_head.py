@@ -37,18 +37,18 @@ class RainbowQHead(QHead):
 
     def _build_module(self, input_layer):
         # state value tower - V
-        with tf.variable_scope("state_value"):
+        with tf.compat.v1.variable_scope("state_value"):
             state_value = self.dense_layer(512)(input_layer, activation=self.activation_function, name='fc1')
             state_value = self.dense_layer(self.num_atoms)(state_value, name='fc2')
             state_value = tf.expand_dims(state_value, axis=1)
 
         # action advantage tower - A
-        with tf.variable_scope("action_advantage"):
+        with tf.compat.v1.variable_scope("action_advantage"):
             action_advantage = self.dense_layer(512)(input_layer, activation=self.activation_function, name='fc1')
             action_advantage = self.dense_layer(self.num_actions * self.num_atoms)(action_advantage, name='fc2')
-            action_advantage = tf.reshape(action_advantage, (tf.shape(input_layer)[0], self.num_actions,
+            action_advantage = tf.reshape(action_advantage, (tf.shape(input=input_layer)[0], self.num_actions,
                                                              self.num_atoms))
-            action_mean = tf.reduce_mean(action_advantage, axis=1, keepdims=True)
+            action_mean = tf.reduce_mean(input_tensor=action_advantage, axis=1, keepdims=True)
             action_advantage = action_advantage - action_mean
 
         # merge to state-action value function Q
@@ -58,11 +58,11 @@ class RainbowQHead(QHead):
         self.output = tf.nn.softmax(values_distribution)
 
         # calculate cross entropy loss
-        self.distributions = tf.placeholder(tf.float32, shape=(None, self.num_actions, self.num_atoms),
+        self.distributions = tf.compat.v1.placeholder(tf.float32, shape=(None, self.num_actions, self.num_atoms),
                                             name="distributions")
         self.target = self.distributions
-        self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.target, logits=values_distribution)
-        tf.losses.add_loss(self.loss)
+        self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=tf.stop_gradient(self.target), logits=values_distribution)
+        tf.compat.v1.losses.add_loss(self.loss)
 
         self.q_values = tf.tensordot(tf.cast(self.output, tf.float64), self.z_values, 1)
 

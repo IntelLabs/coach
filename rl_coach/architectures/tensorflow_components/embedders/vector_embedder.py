@@ -24,6 +24,7 @@ from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputVectorEmbedding
 
 
+
 class VectorEmbedder(InputEmbedder):
     """
     An input embedder that is intended for inputs that can be represented as vectors.

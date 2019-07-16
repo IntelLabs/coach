@@ -23,6 +23,7 @@ from rl_coach.architectures import layers
 from rl_coach.architectures.tensorflow_components import utils
 
 
+
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout_rate, is_training, name):
     layers = [input_layer]
 
@@ -32,7 +33,7 @@ def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dr
     # batchnorm
     if batchnorm:
         layers.append(
-            tf.layers.batch_normalization(layers[-1], name="{}_batchnorm".format(name), training=is_training)
+            tf.compat.v1.layers.batch_normalization(layers[-1], name="{}_batchnorm".format(name), training=is_training)
         )
 
     # activation
@@ -46,7 +47,7 @@ def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dr
     # dropout
     if dropout_rate > 0:
         layers.append(
-            tf.layers.dropout(layers[-1], dropout_rate, name="{}_dropout".format(name), training=is_training)
+            tf.compat.v1.layers.dropout(layers[-1], dropout_rate, name="{}_dropout".format(name), training=is_training)
         )
 
     # remove the input layer from the layers list
@@ -116,7 +117,7 @@ class Conv2d(layers.Conv2d):
         :param name: layer name
         :return: conv2d layer
         """
-        return tf.layers.conv2d(input_layer, filters=self.num_filters, kernel_size=self.kernel_size,
+        return tf.compat.v1.layers.conv2d(input_layer, filters=self.num_filters, kernel_size=self.kernel_size,
                                 strides=self.strides, data_format='channels_last', name=name)
 
     @staticmethod
@@ -175,7 +176,7 @@ class Dense(layers.Dense):
         :param name: layer name
         :return: dense layer
         """
-        return tf.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
+        return tf.compat.v1.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
                                activation=activation)
 
     @staticmethod
@@ -218,8 +219,8 @@ class NoisyNetDense(layers.NoisyNetDense):
         def _factorized_noise(inputs, outputs):
             # TODO: use factorized noise only for compute intensive algos (e.g. DQN).
             #      lighter algos (e.g. DQN) should not use it
-            noise1 = _f(tf.random_normal((inputs, 1)))
-            noise2 = _f(tf.random_normal((1, outputs)))
+            noise1 = _f(tf.random.normal((inputs, 1)))
+            noise2 = _f(tf.random.normal((1, outputs)))
             return tf.matmul(noise1, noise2)
 
         num_inputs = input_layer.get_shape()[-1].value
@@ -229,20 +230,25 @@ class NoisyNetDense(layers.NoisyNetDense):
         activation = activation if activation is not None else (lambda x: x)
 
         if kernel_initializer is None:
-            kernel_mean_initializer = tf.random_uniform_initializer(-stddev, stddev)
-            kernel_stddev_initializer = tf.random_uniform_initializer(-stddev * self.sigma0, stddev * self.sigma0)
+            kernel_mean_initializer = tf.compat.v1.random_uniform_initializer(-stddev, stddev)
+            kernel_stddev_initializer = tf.compat.v1.random_uniform_initializer(-stddev * self.sigma0, stddev * self.sigma0)
         else:
             kernel_mean_initializer = kernel_stddev_initializer = kernel_initializer
-        with tf.variable_scope(None, default_name=name):
-            weight_mean = tf.get_variable('weight_mean', shape=(num_inputs, num_outputs),
-                                          initializer=kernel_mean_initializer)
-            bias_mean = tf.get_variable('bias_mean', shape=(num_outputs,), initializer=tf.zeros_initializer())
+        with tf.compat.v1.variable_scope(None, default_name=name):
+            weight_mean = tf.compat.v1.get_variable('weight_mean', shape=(num_inputs, num_outputs),
+                                                    initializer=kernel_mean_initializer, use_resource=False)
+                                                    #  Dan manual fix: use_resource=False
+            bias_mean = tf.compat.v1.get_variable('bias_mean', shape=(num_outputs,),
+                                                  initializer=tf.compat.v1.zeros_initializer(), use_resource=False)
+                                                    #  Dan manual fix: use_resource=False
 
-            weight_stddev = tf.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
-                                            initializer=kernel_stddev_initializer)
-            bias_stddev = tf.get_variable('bias_stddev', shape=(num_outputs,),
-                                          initializer=kernel_stddev_initializer)
-            bias_noise = _f(tf.random_normal((num_outputs,)))
+            weight_stddev = tf.compat.v1.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
+                                            initializer=kernel_stddev_initializer, use_resource=False)
+                                                    #  Dan manual fix: use_resource=False
+            bias_stddev = tf.compat.v1.get_variable('bias_stddev', shape=(num_outputs,),
+                                          initializer=kernel_stddev_initializer, use_resource=False)
+                                                    #  Dan manual fix: use_resource=False
+            bias_noise = _f(tf.random.normal((num_outputs,)))
             weight_noise = _factorized_noise(num_inputs, num_outputs)
 
         bias = bias_mean + bias_stddev * bias_noise

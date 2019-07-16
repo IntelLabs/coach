@@ -71,7 +71,7 @@ class Middleware(object):
         :param input_layer: the input to the graph
         :return: the input placeholder and the output of the last layer
         """
-        with tf.variable_scope(self.get_name()):
+        with tf.compat.v1.variable_scope(self.get_name()):
             self.input = input_layer
             self._build_module()
 

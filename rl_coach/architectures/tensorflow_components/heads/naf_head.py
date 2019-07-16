@@ -38,13 +38,13 @@ class NAFHead(Head):
         self.output_scale = self.spaces.action.max_abs_range
         self.return_type = QActionStateValue
         if agent_parameters.network_wrappers[self.network_name].replace_mse_with_huber_loss:
-            self.loss_type = tf.losses.huber_loss
+            self.loss_type = tf.compat.v1.losses.huber_loss
         else:
-            self.loss_type = tf.losses.mean_squared_error
+            self.loss_type = tf.compat.v1.losses.mean_squared_error
 
     def _build_module(self, input_layer):
         # NAF
-        self.action = tf.placeholder(tf.float32, [None, self.num_actions], name="action")
+        self.action = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions], name="action")
         self.input = self.action
 
         # V Head
@@ -70,14 +70,14 @@ class NAFHead(Head):
             non_zeros_non_diag_column_part = self.l_vector[:, (i + 1):(i + num_non_zero_elements)]
             columns.append(tf.concat([zeros_column_part, diag_element, non_zeros_non_diag_column_part], axis=1))
             i += num_non_zero_elements
-        self.L = tf.transpose(tf.stack(columns, axis=1), (0, 2, 1))
+        self.L = tf.transpose(a=tf.stack(columns, axis=1), perm=(0, 2, 1))
 
         # P = L*L^T
-        self.P = tf.matmul(self.L, tf.transpose(self.L, (0, 2, 1)))
+        self.P = tf.matmul(self.L, tf.transpose(a=self.L, perm=(0, 2, 1)))
 
         # A = -1/2 * (u - mu)^T * P * (u - mu)
         action_diff = tf.expand_dims(self.action - self.mu, -1)
-        a_matrix_form = -0.5 * tf.matmul(tf.transpose(action_diff, (0, 2, 1)), tf.matmul(self.P, action_diff))
+        a_matrix_form = -0.5 * tf.matmul(tf.transpose(a=action_diff, perm=(0, 2, 1)), tf.matmul(self.P, action_diff))
         self.A = tf.reshape(a_matrix_form, [-1, 1])
 
         # Q Head

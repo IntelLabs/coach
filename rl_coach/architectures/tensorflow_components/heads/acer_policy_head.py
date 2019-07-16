@@ -40,9 +40,9 @@ class ACERPolicyHead(Head):
         if hasattr(agent_parameters.algorithm, 'beta_entropy'):
             # we set the beta value as a tf variable so it can be updated later if needed
             self.beta = tf.Variable(float(agent_parameters.algorithm.beta_entropy),
-                                    trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
-            self.beta_placeholder = tf.placeholder('float')
-            self.set_beta = tf.assign(self.beta, self.beta_placeholder)
+                                    trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+            self.beta_placeholder = tf.compat.v1.placeholder('float')
+            self.set_beta = tf.compat.v1.assign(self.beta, self.beta_placeholder)
 
     def _build_module(self, input_layer):
         if isinstance(self.spaces.action, DiscreteActionSpace):
@@ -54,49 +54,52 @@ class ACERPolicyHead(Head):
         if self.is_local:
             # add entropy regularization
             if self.beta:
-                self.entropy = tf.reduce_mean(self.policy_distribution.entropy())
+                self.entropy = tf.reduce_mean(input_tensor=self.policy_distribution.entropy())
                 self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
 
             # Truncated importance sampling with bias corrections
-            importance_sampling_weight = tf.placeholder(tf.float32, [None, self.num_actions],
+            importance_sampling_weight = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions],
                                                         name='{}_importance_sampling_weight'.format(self.get_name()))
             self.input.append(importance_sampling_weight)
-            importance_sampling_weight_i = tf.placeholder(tf.float32, [None],
+            importance_sampling_weight_i = tf.compat.v1.placeholder(tf.float32, [None],
                                                           name='{}_importance_sampling_weight_i'.format(self.get_name()))
             self.input.append(importance_sampling_weight_i)
 
-            V_values = tf.placeholder(tf.float32, [None], name='{}_V_values'.format(self.get_name()))
+            V_values = tf.compat.v1.placeholder(tf.float32, [None], name='{}_V_values'.format(self.get_name()))
             self.target.append(V_values)
-            Q_values = tf.placeholder(tf.float32, [None, self.num_actions], name='{}_Q_values'.format(self.get_name()))
+            Q_values = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions], name='{}_Q_values'.format(self.get_name()))
             self.input.append(Q_values)
-            Q_retrace = tf.placeholder(tf.float32, [None], name='{}_Q_retrace'.format(self.get_name()))
+            Q_retrace = tf.compat.v1.placeholder(tf.float32, [None], name='{}_Q_retrace'.format(self.get_name()))
             self.input.append(Q_retrace)
 
             action_log_probs_wrt_policy = self.policy_distribution.log_prob(self.actions)
-            self.probability_loss = -tf.reduce_mean(action_log_probs_wrt_policy
+            self.probability_loss = -tf.reduce_mean(input_tensor=action_log_probs_wrt_policy
                                                     * (Q_retrace - V_values)
                                                     * tf.minimum(self.ap.algorithm.importance_weight_truncation,
                                                                  importance_sampling_weight_i))
 
-            log_probs_wrt_policy = tf.log(self.policy_probs + eps)
-            bias_correction_gain = tf.reduce_sum(log_probs_wrt_policy
+            log_probs_wrt_policy = tf.math.log(self.policy_probs + eps)
+            bias_correction_gain = tf.reduce_sum(input_tensor=log_probs_wrt_policy
                                                  * (Q_values - tf.expand_dims(V_values, 1))
                                                  * tf.nn.relu(1.0 - (self.ap.algorithm.importance_weight_truncation
                                                                      / (importance_sampling_weight + eps)))
                                                  * tf.stop_gradient(self.policy_probs),
                                                  axis=1)
-            self.bias_correction_loss = -tf.reduce_mean(bias_correction_gain)
+            self.bias_correction_loss = -tf.reduce_mean(input_tensor=bias_correction_gain)
 
             self.loss = self.probability_loss + self.bias_correction_loss
-            tf.losses.add_loss(self.loss)
+            tf.compat.v1.losses.add_loss(self.loss)
 
             # Trust region
-            batch_size = tf.to_float(tf.shape(input_layer)[0])
-            average_policy = tf.placeholder(tf.float32, [None, self.num_actions],
+            batch_size = tf.cast(tf.shape(input=input_layer)[0], dtype=tf.float32)
+            average_policy = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions],
                                             name='{}_average_policy'.format(self.get_name()))
             self.input.append(average_policy)
-            average_policy_distribution = tf.contrib.distributions.Categorical(probs=(average_policy + eps))
-            self.kl_divergence = tf.reduce_mean(tf.distributions.kl_divergence(average_policy_distribution,
+            average_policy_distribution = tf.compat.v1.random.categorical(probs=(average_policy + eps))
+            # Dan manual fix
+            #average_policy_distribution = tf.contrib.distributions.Categorical(probs=(average_policy + eps))
+
+            self.kl_divergence = tf.reduce_mean(input_tensor=tf.compat.v1.distributions.kl_divergence(average_policy_distribution,
                                                                                self.policy_distribution))
             if self.ap.algorithm.use_trust_region_optimization:
                 @tf.custom_gradient
@@ -105,8 +108,8 @@ class ACERPolicyHead(Head):
                         g = - g * batch_size
                         k = - average_policy / (self.policy_probs + eps)
                         adj = tf.nn.relu(
-                            (tf.reduce_sum(k * g, axis=1) - self.ap.algorithm.max_KL_divergence)
-                            / (tf.reduce_sum(tf.square(k), axis=1) + eps))
+                            (tf.reduce_sum(input_tensor=k * g, axis=1) - self.ap.algorithm.max_KL_divergence)
+                            / (tf.reduce_sum(input_tensor=tf.square(k), axis=1) + eps))
                         g = g - tf.expand_dims(adj, 1) * k
                         return - g / batch_size
                     return tf.identity(x), grad
@@ -114,12 +117,14 @@ class ACERPolicyHead(Head):
 
     def _build_discrete_net(self, input_layer, action_space):
         self.num_actions = len(action_space.actions)
-        self.actions = tf.placeholder(tf.int32, [None], name='{}_actions'.format(self.get_name()))
+        self.actions = tf.compat.v1.placeholder(tf.int32, [None], name='{}_actions'.format(self.get_name()))
         self.input.append(self.actions)
 
         policy_values = self.dense_layer(self.num_actions)(input_layer, name='fc')
         self.policy_probs = tf.nn.softmax(policy_values, name='{}_policy'.format(self.get_name()))
 
         # (the + eps is to prevent probability 0 which will cause the log later on to be -inf)
-        self.policy_distribution = tf.contrib.distributions.Categorical(probs=(self.policy_probs + eps))
+        self.policy_distribution = tf.compat.v1.random.categorical(probs=(self.policy_probs + eps))
+        # Dan maual fix
+        #self.policy_distribution = tf.contrib.distributions.Categorical(probs=(self.policy_probs + eps))
         self.output = self.policy_probs

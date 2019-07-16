@@ -38,17 +38,17 @@ class CategoricalQHead(QHead):
 
     def _build_module(self, input_layer):
         values_distribution = self.dense_layer(self.num_actions * self.num_atoms)(input_layer, name='output')
-        values_distribution = tf.reshape(values_distribution, (tf.shape(values_distribution)[0], self.num_actions,
+        values_distribution = tf.reshape(values_distribution, (tf.shape(input=values_distribution)[0], self.num_actions,
                                                                self.num_atoms))
         # softmax on atoms dimension
         self.output = tf.nn.softmax(values_distribution)
 
         # calculate cross entropy loss
-        self.distributions = tf.placeholder(tf.float32, shape=(None, self.num_actions, self.num_atoms),
+        self.distributions = tf.compat.v1.placeholder(tf.float32, shape=(None, self.num_actions, self.num_atoms),
                                             name="distributions")
         self.target = self.distributions
-        self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=self.target, logits=values_distribution)
-        tf.losses.add_loss(self.loss)
+        self.loss = tf.nn.softmax_cross_entropy_with_logits(labels=tf.stop_gradient(self.target), logits=values_distribution)
+        tf.compat.v1.losses.add_loss(self.loss)
 
         self.q_values = tf.tensordot(tf.cast(self.output, tf.float64), self.z_values, 1)
 

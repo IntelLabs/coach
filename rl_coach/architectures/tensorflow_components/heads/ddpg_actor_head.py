@@ -58,7 +58,7 @@ class DDPGActor(Head):
             # add a squared penalty on the squared pre-activation features of the action
             if self.action_penalty and self.action_penalty != 0:
                 self.regularizations += \
-                    [self.action_penalty * tf.reduce_mean(tf.square(pre_activation_policy_values_mean))]
+                    [self.action_penalty * tf.reduce_mean(input_tensor=tf.square(pre_activation_policy_values_mean))]
 
         self.output = [self.policy_mean]
 

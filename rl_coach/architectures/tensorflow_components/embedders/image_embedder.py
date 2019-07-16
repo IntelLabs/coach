@@ -24,6 +24,8 @@ from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputImageEmbedding
 
 
+
+
 class ImageEmbedder(InputEmbedder):
     """
     An input embedder that performs convolutions on the input and then flattens the result.
