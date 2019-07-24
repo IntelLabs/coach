@@ -54,7 +54,7 @@ Coach is released as two pypi packages:
 
 Each pypi package release has a GitHub release and tag with the same version number. The numbers are of the X.Y.Z format, where
 
-X - zero in the near future, may change when Coach is feature complete 
+X - currently one, will be incremented on major API changes 
 
 Y - major releases with new features
 

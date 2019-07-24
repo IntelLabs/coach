@@ -29,20 +29,23 @@ coach -p CartPole_DQN -r
 * [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/)
 * [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/)
 * [Release 0.11.0](https://ai.intel.com/rl-coach-data-science-at-scale)
-* Release 0.12.0 (current release)
+* [Release 0.12.0](https://github.com/NervanaSystems/coach/releases/tag/v0.12.0) 
+* Release 1.0.0 (current release)
 
-Contacting the Coach development team is also possible through the email [coach@intel.com](coach@intel.com)
+Contacting the Coach development team is also possible over [email](mailto:coach@intel.com)
 
 ## Table of Contents
 
 - [Coach](#coach)
-  * [Overview](#overview)
   * [Benchmarks](#benchmarks)
-  * [Documentation](#documentation)
   * [Installation](#installation)
-  * [Usage](#usage)
-    + [Running Coach](#running-coach)
-    + [Running Coach Dashboard (Visualization)](#running-coach-dashboard-visualization)
+  * [Getting Started](#getting-started)
+    * [Tutorials and Documentation](#tutorials-and-documentation)
+    * [Basic Usage](#basic-usage)
+      * [Running Coach](#running-coach)
+      * [Running Coach Dashboard (Visualization)](#running-coach-dashboard-visualization)
+    * [Distributed Multi-Node Coach](#distributed-multi-node-coach)
+    * [Batch Reinforcement Learning](#batch-reinforcement-learning)
   * [Supported Environments](#supported-environments)
   * [Supported Algorithms](#supported-algorithms)
   * [Citation](#citation)
@@ -51,13 +54,6 @@ Contacting the Coach development team is also possible through the email [coach@
 ## Benchmarks
 
 One of the main challenges when building a research project, or a solution based on a published algorithm, is getting a concrete and reliable baseline that reproduces the algorithm's results, as reported by its authors. To address this problem, we are releasing a set of [benchmarks](benchmarks) that shows Coach reliably reproduces many state of the art algorithm results.
-
-## Documentation
-
-Framework documentation, algorithm description and instructions on how to contribute a new agent/environment can be found [here](https://nervanasystems.github.io/coach/).
-
-Jupyter notebooks demonstrating how to run Coach from command line or as a library, implement an algorithm, or integrate an environment can be found [here](https://github.com/NervanaSystems/coach/tree/master/tutorials).
-
 
 ## Installation
 
@@ -113,9 +109,16 @@ If a GPU is present, Coach's pip package will install tensorflow-gpu, by default
 
 In addition to OpenAI Gym, several other environments were tested and are supported. Please follow the instructions in the Supported Environments section below in order to install more environments.
 
-## Usage
+## Getting Started
 
-### Running Coach
+### Tutorials and Documentation
+[Jupyter notebooks demonstrating how to run Coach from command line or as a library, implement an algorithm, or integrate an environment](https://github.com/NervanaSystems/coach/tree/master/tutorials).
+
+[Framework documentation, algorithm description and instructions on how to contribute a new agent/environment](https://nervanasystems.github.io/coach/).
+
+### Basic Usage
+
+#### Running Coach
 
 To allow reproducing results in Coach, we defined a mechanism called _preset_. 
 There are several available presets under the `presets` directory.
@@ -167,17 +170,7 @@ It is easy to create new presets for different levels or environments by followi
 
 More usage examples can be found [here](https://github.com/NervanaSystems/coach/blob/master/tutorials/0.%20Quick%20Start%20Guide.ipynb).
 
-### Distributed Multi-Node Coach
-
-As of release 0.11.0, Coach supports horizontal scaling for training RL agents on multiple nodes. In release 0.11.0 this was tested on the ClippedPPO and DQN agents.
-For usage instructions please refer to the documentation [here](https://nervanasystems.github.io/coach/dist_usage.html).
-
-### Batch Reinforcement Learning
-
-Training and evaluating an agent from a dataset of experience, where no simulator is available, is supported in Coach. 
-There are [example](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/CartPole_DDQN_BatchRL.py) [presets](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/Acrobot_DDQN_BCQ_BatchRL.py) and a [tutorial](https://github.com/NervanaSystems/coach/blob/master/tutorials/4.%20Batch%20Reinforcement%20Learning.ipynb). 
-
-### Running Coach Dashboard (Visualization)
+#### Running Coach Dashboard (Visualization)
 Training an agent to solve an environment can be tricky, at times. 
 
 In order to debug the training process, Coach outputs several signals, per trained algorithm, in order to track algorithmic performance. 
@@ -193,6 +186,17 @@ dashboard
 
 
 <img src="img/dashboard.gif" alt="Coach Design" style="width: 800px;"/>
+
+
+### Distributed Multi-Node Coach
+
+As of release 0.11.0, Coach supports horizontal scaling for training RL agents on multiple nodes. In release 0.11.0 this was tested on the ClippedPPO and DQN agents.
+For usage instructions please refer to the documentation [here](https://nervanasystems.github.io/coach/dist_usage.html).
+
+### Batch Reinforcement Learning
+
+Training and evaluating an agent from a dataset of experience, where no simulator is available, is supported in Coach. 
+There are [example](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/CartPole_DDQN_BatchRL.py) [presets](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/Acrobot_DDQN_BCQ_BatchRL.py) and a [tutorial](https://github.com/NervanaSystems/coach/blob/master/tutorials/4.%20Batch%20Reinforcement%20Learning.ipynb). 
 
 
 ## Supported Environments
@@ -285,6 +289,7 @@ dashboard
 * [Generalized Advantage Estimation (GAE)](https://arxiv.org/abs/1506.02438) ([code](rl_coach/agents/actor_critic_agent.py#L86))
 * [Sample Efficient Actor-Critic with Experience Replay (ACER)](https://arxiv.org/abs/1611.01224) | **Multi Worker Single Node**  ([code](rl_coach/agents/acer_agent.py))
 * [Soft Actor-Critic (SAC)](https://arxiv.org/abs/1801.01290) ([code](rl_coach/agents/soft_actor_critic_agent.py))
+* [Twin Delayed Deep Deterministic Policy Gradient](https://arxiv.org/pdf/1802.09477.pdf) ([code](rl_coach/agents/td3_agent.py))
 
 ### General Agents
 * [Direct Future Prediction (DFP)](https://arxiv.org/abs/1611.01779) | **Multi Worker Single Node**  ([code](rl_coach/agents/dfp_agent.py))
