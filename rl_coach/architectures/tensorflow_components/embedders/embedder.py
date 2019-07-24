@@ -21,6 +21,7 @@ import copy
 
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
 
 from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
 from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
@@ -30,7 +31,7 @@ from rl_coach.utils import force_list
 
 
 
-class InputEmbedder(object):
+class InputEmbedder(keras.layers.Layer):
     """
     An input embedder is the first part of the network, which takes the input from the state and produces a vector
     embedding by passing it through a neural network. The embedder will mostly be input type dependent, and there
@@ -39,14 +40,15 @@ class InputEmbedder(object):
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
                  scheme: EmbedderScheme=None, batchnorm: bool=False, dropout_rate: float=0.0,
                  name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense,
-                 is_training=False):
-        self.name = name
+                 is_training=False, **kwargs):
+        super().__init__(**kwargs)
+        # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
         self.activation_function = activation_function
         self.batchnorm = batchnorm
         self.dropout_rate = dropout_rate
-        self.input = None
-        self.output = None
+        # self.input = None
+        # self.output = None
         self.scheme = scheme
         self.return_type = InputEmbedding
         self.layers_params = []
@@ -78,20 +80,23 @@ class InputEmbedder(object):
                                                                      activation_function=self.activation_function,
                                                                      dropout_rate=self.dropout_rate))
 
-    def __call__(self, prev_input_placeholder: tf.compat.v1.placeholder=None) -> Tuple[tf.Tensor, tf.Tensor]:
+    # def call(self, inputs):
+    #     Z = self.hidden1(inputs)
+    #     for _ in range(1 + 3):
+    #         Z = self.block1(Z)
+    #     Z = self.block2(Z)
+    #     return self.out(Z)
+
+    def call(self, inputs) -> tf.Tensor:
         """
         Wrapper for building the module graph including scoping and loss creation
-        :param prev_input_placeholder: the input to the graph
-        :return: the input placeholder and the output of the last layer
+        :param inputs: the input to the graph
+        :return: the input and the output of the last layer
         """
-        with tf.compat.v1.variable_scope(self.get_name()):
-            if prev_input_placeholder is None:
-                self.input = tf.compat.v1.placeholder("float", shape=[None] + self.input_size, name=self.get_name())
-            else:
-                self.input = prev_input_placeholder
-            self._build_module()
-
-        return self.input, self.output
+        #self.input = inputs
+        self._build_module()
+        return self.output
+        #Dan removed self.input from the return values inorder to atch call signiture return self.input, self.output
 
     def _build_module(self) -> None:
         """

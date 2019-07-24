@@ -50,7 +50,8 @@ class Head(object):
         self.loss = []
         self.loss_type = []
         self.regularizations = []
-        self.loss_weight = tf.Variable([float(w) for w in force_list(loss_weight)],
+        # Dan manual fix (added compat.v1)
+        self.loss_weight = tf.compat.v1.Variable([float(w) for w in force_list(loss_weight)],
                                        trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
         self.target = []
         self.importance_weight = []

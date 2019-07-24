@@ -21,7 +21,7 @@ import tensorflow_probability as tfp
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer
-from rl_coach.base_parameterlss import AgentParameters
+from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.exploration_policies.continuous_entropy import ContinuousEntropyParameters
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace, CompoundActionSpace

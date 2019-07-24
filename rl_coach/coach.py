@@ -776,11 +776,15 @@ def main():
 
 
 if __name__ == "__main__":
-    print('Testing')
-    import tensorflow as tf
-    print("GPU Available: ", tf.test.is_gpu_available())
-    a = tf.Variable(False, name="is_traininga")
-    s_training = tf.compat.v1.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+    # print('Testing')
+    # import tensorflow as tf
+    # print("GPU Available: ", tf.test.is_gpu_available())
+    # print('Device name is: ', tf.test.gpu_device_name())
+    #
+    # # with tf.device('/CPU:0'):
+    # with tf.device("/device:GPU:0"):
+    #     dan_delete = tf.compat.v1.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+
     sys.argv.append('-p')
     sys.argv.append('CartPole_DQN')
     print(sys.argv)

@@ -48,7 +48,7 @@ class FCMiddleware(Middleware):
                 layers.extend(force_list(
                     layer_params(layers[-1], name='{}_{}'.format(layer_params.__class__.__name__,
                                                                  idx + stream_idx * len(self.layers_params)),
-                                 is_training=self.is_training)
+                                      is_training=self.is_training)
                 ))
             self.output.append((layers[-1]))
 

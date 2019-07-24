@@ -18,13 +18,14 @@ import copy
 from typing import Union, Tuple
 
 import tensorflow as tf
+from tensorflow import keras
 
 from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
 from rl_coach.base_parameters import MiddlewareScheme, NetworkComponentParameters
 from rl_coach.core_types import MiddlewareEmbedding
 
 
-class Middleware(object):
+class Middleware(keras.layers.Layer):
     """
     A middleware embedder is the middle part of the network. It takes the embeddings from the input embedders,
     after they were aggregated in some method (for example, concatenation) and passes it through a neural network
@@ -33,10 +34,12 @@ class Middleware(object):
     def __init__(self, activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout_rate: float = 0.0, name="middleware_embedder", dense_layer=Dense,
-                 is_training=False):
-        self.name = name
-        self.input = None
-        self.output = None
+                 is_training=False, **kwargs):
+        super().__init__(**kwargs)
+        # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
+
+        # self.input = None
+        # self.output = None
         self.activation_function = activation_function
         self.batchnorm = batchnorm
         self.dropout_rate = dropout_rate
@@ -72,9 +75,9 @@ class Middleware(object):
         :param input_layer: the input to the graph
         :return: the input placeholder and the output of the last layer
         """
-        with tf.compat.v1.variable_scope(self.get_name()):
-            self.input = input_layer
-            self._build_module()
+        # with tf.compat.v1.variable_scope(self.get_name()):
+        self.input = input_layer
+        self._build_module()
 
         return self.input, self.output
 

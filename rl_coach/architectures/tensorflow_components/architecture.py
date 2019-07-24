@@ -21,6 +21,7 @@ from typing import Any, List, Tuple, Dict
 
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
 
 from rl_coach.architectures.architecture import Architecture
 from rl_coach.architectures.tensorflow_components.savers import GlobalVariableSaver
@@ -74,7 +75,7 @@ class TensorFlowArchitecture(Architecture):
         self.global_network = global_network
         if not self.network_parameters.tensorflow_support:
             raise ValueError('TensorFlow is not supported for this agent')
-        self.sess = None
+        #self.sess = None Dan manual fix- no sessions in tf2
         self.inputs = {}
         self.outputs = []
         self.targets = []

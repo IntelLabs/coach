@@ -170,13 +170,15 @@ class Dense(layers.Dense):
 
     def __call__(self, input_layer, name: str=None, kernel_initializer=None, activation=None, is_training=None):
         """
-        returns a tensorflow dense layer
+        returns a keras dense layer
         :param input_layer: previous layer
         :param name: layer name
         :return: dense layer
         """
-        return tf.compat.v1.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
-                               activation=activation)
+        return tf.keras.layers.Dense(input_layer.shape[0], name=name, kernel_initializer=kernel_initializer, activation=activation)
+        # Dan manual fix
+        # return tf.compat.v1.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
+        #                        activation=activation)
 
     @staticmethod
     @reg_to_tf_instance(layers.Dense)
