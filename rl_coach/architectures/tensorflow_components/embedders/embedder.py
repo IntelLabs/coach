@@ -32,6 +32,7 @@ from rl_coach.utils import force_list
 
 
 class InputEmbedder(keras.layers.Layer):
+#class InputEmbedder(keras.Model):
     """
     An input embedder is the first part of the network, which takes the input from the state and produces a vector
     embedding by passing it through a neural network. The embedder will mostly be input type dependent, and there
@@ -41,6 +42,7 @@ class InputEmbedder(keras.layers.Layer):
                  scheme: EmbedderScheme=None, batchnorm: bool=False, dropout_rate: float=0.0,
                  name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense,
                  is_training=False, **kwargs):
+
         super().__init__(**kwargs)
         # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
@@ -52,81 +54,97 @@ class InputEmbedder(keras.layers.Layer):
         self.scheme = scheme
         self.return_type = InputEmbedding
         self.layers_params = []
-        self.layers = []
+        self.embbeder_layers = []
         self.input_rescaling = input_rescaling
         self.input_offset = input_offset
         self.input_clipping = input_clipping
-        self.dense_layer = dense_layer
-        if self.dense_layer is None:
-            self.dense_layer = Dense
-        self.is_training = is_training
 
-        # layers order is conv -> batchnorm -> activation -> dropout
-        if isinstance(self.scheme, EmbedderScheme):
-            self.layers_params = copy.copy(self.schemes[self.scheme])
-            self.layers_params = [convert_layer(l) for l in self.layers_params]
-        else:
-            # if scheme is specified directly, convert to TF layer if it's not a callable object
-            # NOTE: if layer object is callable, it must return a TF tensor when invoked
-            self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
+        self.input_layer = keras.layers.InputLayer(input_shape=input_size)
 
-        # we allow adding batchnorm, dropout or activation functions after each layer.
-        # The motivation is to simplify the transition between a network with batchnorm and a network without
-        # batchnorm to a single flag (the same applies to activation function and dropout)
-        if self.batchnorm or self.activation_function or self.dropout_rate > 0:
-            for layer_idx in reversed(range(len(self.layers_params))):
-                self.layers_params.insert(layer_idx+1,
-                                          BatchnormActivationDropout(batchnorm=self.batchnorm,
-                                                                     activation_function=self.activation_function,
-                                                                     dropout_rate=self.dropout_rate))
+        # self.hidden = [keras.layers.Dense(n_neurons, activation="elu",
+        #                                   kernel_initializer="he_normal")
+        #                for _ in range(n_layers)]
+        #
+        #
 
-    # def call(self, inputs):
-    #     Z = self.hidden1(inputs)
-    #     for _ in range(1 + 3):
-    #         Z = self.block1(Z)
-    #     Z = self.block2(Z)
-    #     return self.out(Z)
+        # self.layers.extend(copy.copy(self.schemes[self.scheme]))
+        self.embbeder_layers = copy.copy(self.schemes[self.scheme])
 
-    def call(self, inputs) -> tf.Tensor:
-        """
-        Wrapper for building the module graph including scoping and loss creation
-        :param inputs: the input to the graph
-        :return: the input and the output of the last layer
-        """
-        #self.input = inputs
-        self._build_module()
-        return self.output
-        #Dan removed self.input from the return values inorder to atch call signiture return self.input, self.output
+        # Dan comment out for now. Activation moved to dense layer. Should add support for batch norm and dropout.
+        # if self.batchnorm or self.activation_function or self.dropout_rate > 0:
+        #     for layer_idx in reversed(range(len(self.embbeder_layers))):
+        #         self.embbeder_layers.insert(layer_idx+1,
+        #                                     BatchnormActivationDropout(batchnorm=self.batchnorm,
+        #                                                              activation_function=self.activation_function,
+        #                                                              dropout_rate=self.dropout_rate))
 
-    def _build_module(self) -> None:
-        """
-        Builds the graph of the module
-        This method is called early on from __call__. It is expected to store the graph
-        in self.output.
-        :return: None
-        """
-        # NOTE: for image inputs, we expect the data format to be of type uint8, so to be memory efficient. we chose not
-        #  to implement the rescaling as an input filters.observation.observation_filter, as this would have caused the
-        #  input to the network to be float, which is 4x more expensive in memory.
-        #  thus causing each saved transition in the memory to also be 4x more pricier.
+        self.embbeder_layers.insert(0, self.input_layer)
+        # keras.activations.get('relu')
 
-        input_layer = self.input / self.input_rescaling
-        input_layer -= self.input_offset
-        # clip input using te given range
-        if self.input_clipping is not None:
-            input_layer = tf.clip_by_value(input_layer, self.input_clipping[0], self.input_clipping[1])
+    def call(self, inputs):
+        print(inputs)
+        print('starting')
+        Z = inputs
+        for layer in self.embbeder_layers:
+            print('In loop')
+            print(layer)
+            print(Z)
+            Z = layer(Z)
 
-        self.layers.append(input_layer)
+        print(Z)
+        print('before')
+        Z = keras.layers.Flatten()(Z)
+        print('after')
 
-        for idx, layer_params in enumerate(self.layers_params):
-            self.layers.extend(force_list(
-                layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
-                             is_training=self.is_training)
-            ))
+        return Z
 
-        self.output = tf.reshape(self.layers[-1], [-1])
-        # Dan manual fix
-        #self.output = tf.contrib.layers.flatten(self.layers[-1])
+
+
+
+    # def call(self, inputs) -> tf.Tensor:
+    #     """
+    #     Wrapper for building the module graph including scoping and loss creation
+    #     :param inputs: the input to the graph
+    #     :return: the input and the output of the last layer
+    #     """
+    #     #self.input = inputs
+    #     self._build_module()
+    #     return self.output
+    #     #Dan removed self.input from the return values inorder to atch call signiture return self.input, self.output
+
+    # def _build_module(self) -> None:
+    #     """
+    #     Builds the graph of the module
+    #     This method is called early on from __call__. It is expected to store the graph
+    #     in self.output.
+    #     :return: None
+    #     """
+    #     # NOTE: for image inputs, we expect the data format to be of type uint8, so to be memory efficient. we chose not
+    #     #  to implement the rescaling as an input filters.observation.observation_filter, as this would have caused the
+    #     #  input to the network to be float, which is 4x more expensive in memory.
+    #     #  thus causing each saved transition in the memory to also be 4x more pricier.
+    #
+    #     input_layer = self.input / self.input_rescaling
+    #     input_layer -= self.input_offset
+    #     # clip input using te given range
+    #     if self.input_clipping is not None:
+    #         input_layer = tf.clip_by_value(input_layer, self.input_clipping[0], self.input_clipping[1])
+    #
+    #     self.layers.append(input_layer)
+    #
+    #     for idx, layer_params in enumerate(self.layers_params):
+    #
+    #
+    #
+    #
+    #         self.layers.extend(force_list(
+    #             layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
+    #                          is_training=self.is_training)
+    #         ))
+    #
+    #     self.output = tf.reshape(self.layers[-1], [-1])
+    #     # Dan manual fix
+    #     #self.output = tf.contrib.layers.flatten(self.layers[-1])
 
 
     @property

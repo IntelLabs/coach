@@ -257,10 +257,19 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
                 state_embedding = []
                 for input_name in sorted(self.network_parameters.input_embedders_parameters):
-                    input_type = self.network_parameters.input_embedders_parameters[input_name]
+                    #input_type = self.network_parameters.input_embedders_parameters[input_name]
+                    # Dan- changed input_type to more informative name
+                    embbeder_parameters = self.network_parameters.input_embedders_parameters[input_name]
                     # Creates input embedder object (calls init)
-                    input_embedder = self.get_input_embedder(input_name, input_type)
+                    input_embedder = self.get_input_embedder(input_name, embbeder_parameters)
+
+                    ## DEBUG
+                    obs = np.array([1., 3., -44., 4.])
+                    obs_batch = tf.expand_dims(obs, 0)
+                    input_embedder(obs_batch)
                     self.input_embedders.append(input_embedder)
+
+
 
                     # Dan manual fix no need for placehoders in tf 2
                     # # input placeholders are reused between networks. on the first network, store the placeholders

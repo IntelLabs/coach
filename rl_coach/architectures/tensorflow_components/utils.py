@@ -20,6 +20,9 @@ Module containing utility functions
 
 
 import tensorflow as tf
+from tensorflow import keras
+#from tensorflow.keras.layers import Activation
+
 
 
 def get_activation_function(activation_function_string: str):
@@ -28,6 +31,7 @@ def get_activation_function(activation_function_string: str):
     :param activation_function_string: the type of the activation function
     :return: the tensorflow activation function
     """
+
     activation_functions = {
         'relu': tf.nn.relu,
         'tanh': tf.nn.tanh,
@@ -37,10 +41,22 @@ def get_activation_function(activation_function_string: str):
         'leaky_relu': tf.nn.leaky_relu,
         'none': None
     }
+
+    # Dan change to keras or tf 2 (no need for this)
+    # activation_functions = {
+    #     'relu': Activation('relu'),
+    #     'tanh': Activation('tanh'),
+    #     'sigmoid': Activation('sigmoid'),
+    #     'elu': Activation('elu'),
+    #     'selu': Activation('selu'),
+    #     'leaky_relu': Activation('leaky_relu'),
+    #     'none': None
+    # }
     assert activation_function_string in activation_functions.keys(), \
         "Activation function must be one of the following {}. instead it was: {}" \
             .format(activation_functions.keys(), activation_function_string)
-    return activation_functions[activation_function_string]
+    #return activation_functions[activation_function_string]
+    return keras.activations.get(activation_function_string)
 
 
 def squeeze_tensor(tensor):

@@ -18,6 +18,7 @@
 from typing import List
 
 import tensorflow as tf
+from tensorflow import keras
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
@@ -46,26 +47,32 @@ class VectorEmbedder(InputEmbedder):
 
     @property
     def schemes(self):
+        # Dan change dictionary values to be
         return {
             EmbedderScheme.Empty:
                 [],
 
             EmbedderScheme.Shallow:
                 [
-                    self.dense_layer(128)
+                    #self.dense_layer(128)
+                    keras.layers.Dense(128, activation=tf.nn.relu)
                 ],
 
             # dqn
             EmbedderScheme.Medium:
                 [
-                    self.dense_layer(256)
+                    #self.dense_layer(256)
+                    keras.layers.Dense(128, activation=tf.nn.relu)
                 ],
 
             # carla
             EmbedderScheme.Deep: \
                 [
-                    self.dense_layer(128),
-                    self.dense_layer(128),
-                    self.dense_layer(128)
+                    # self.dense_layer(128),
+                    # self.dense_layer(128),
+                    # self.dense_layer(128)
+                    keras.layers.Dense(128, activation=tf.nn.relu),
+                    keras.layers.Dense(128, activation=tf.nn.relu),
+                    keras.layers.Dense(128, activation=tf.nn.relu)
                 ]
         }

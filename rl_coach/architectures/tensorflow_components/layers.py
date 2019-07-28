@@ -31,6 +31,7 @@ def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dr
 
     # batchnorm
     if batchnorm:
+
         layers.append(
             tf.compat.v1.layers.batch_normalization(layers[-1], name="{}_batchnorm".format(name), training=is_training)
         )
