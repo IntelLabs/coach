@@ -50,36 +50,44 @@ class Middleware(keras.layers.Layer):
             self.dense_layer = Dense
         self.is_training = is_training
 
+        self.middleware_layers = copy.copy(self.schemes[self.scheme])
         # layers order is conv -> batchnorm -> activation -> dropout
-        if isinstance(self.scheme, MiddlewareScheme):
-            self.layers_params = copy.copy(self.schemes[self.scheme])
-            self.layers_params = [convert_layer(l) for l in self.layers_params]
-        else:
-            # if scheme is specified directly, convert to TF layer if it's not a callable object
-            # NOTE: if layer object is callable, it must return a TF tensor when invoked
-            self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
+        # if isinstance(self.scheme, MiddlewareScheme):
+        #     self.layers_params = copy.copy(self.schemes[self.scheme])
+        #     self.layers_params = [convert_layer(l) for l in self.layers_params]
+        # else:
+        #     # if scheme is specified directly, convert to TF layer if it's not a callable object
+        #     # NOTE: if layer object is callable, it must return a TF tensor when invoked
+        #     self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
 
         # we allow adding batchnorm, dropout or activation functions after each layer.
         # The motivation is to simplify the transition between a network with batchnorm and a network without
         # batchnorm to a single flag (the same applies to activation function and dropout)
-        if self.batchnorm or self.activation_function or self.dropout_rate > 0:
-            for layer_idx in reversed(range(len(self.layers_params))):
-                self.layers_params.insert(layer_idx+1,
-                                          BatchnormActivationDropout(batchnorm=self.batchnorm,
-                                                                     activation_function=self.activation_function,
-                                                                     dropout_rate=self.dropout_rate))
+        # if self.batchnorm or self.activation_function or self.dropout_rate > 0:
+        #     for layer_idx in reversed(range(len(self.layers_params))):
+        #         self.layers_params.insert(layer_idx+1,
+        #                                   BatchnormActivationDropout(batchnorm=self.batchnorm,
+        #                                                              activation_function=self.activation_function,
+        #                                                              dropout_rate=self.dropout_rate))
 
-    def __call__(self, input_layer: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+    #def __call__(self, input_layer: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+    def call(self, inputs, **kwargs):
         """
         Wrapper for building the module graph including scoping and loss creation
         :param input_layer: the input to the graph
         :return: the input placeholder and the output of the last layer
         """
-        # with tf.compat.v1.variable_scope(self.get_name()):
-        self.input = input_layer
-        self._build_module()
+        # # with tf.compat.v1.variable_scope(self.get_name()):
+        # self.input = input_layer
+        # self._build_module()
+        #
+        # return self.input, self.output
+        Z = inputs
+        for layer in self.middleware_layers:
 
-        return self.input, self.output
+            Z = layer(Z)
+
+        return Z
 
     def _build_module(self) -> None:
         """

@@ -17,6 +17,7 @@
 from typing import Union, List
 
 import tensorflow as tf
+from tensorflow import keras
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware
@@ -38,19 +39,19 @@ class FCMiddleware(Middleware):
         assert(isinstance(num_streams, int) and num_streams >= 1)
         self.num_streams = num_streams
 
-    def _build_module(self):
-        self.output = []
-
-        for stream_idx in range(self.num_streams):
-            layers = [self.input]
-
-            for idx, layer_params in enumerate(self.layers_params):
-                layers.extend(force_list(
-                    layer_params(layers[-1], name='{}_{}'.format(layer_params.__class__.__name__,
-                                                                 idx + stream_idx * len(self.layers_params)),
-                                      is_training=self.is_training)
-                ))
-            self.output.append((layers[-1]))
+    # def _build_module(self):
+    #     self.output = []
+    #
+    #     for stream_idx in range(self.num_streams):
+    #         layers = [self.input]
+    #
+    #         for idx, layer_params in enumerate(self.layers_params):
+    #             layers.extend(force_list(
+    #                 layer_params(layers[-1], name='{}_{}'.format(layer_params.__class__.__name__,
+    #                                                              idx + stream_idx * len(self.layers_params)),
+    #                                   is_training=self.is_training)
+    #             ))
+    #         self.output.append((layers[-1]))
 
     @property
     def schemes(self):
@@ -61,20 +62,25 @@ class FCMiddleware(Middleware):
             # ppo
             MiddlewareScheme.Shallow:
                 [
-                    self.dense_layer(64)
+                    #self.dense_layer(64)
+                    keras.layers.Dense(64, activation=tf.nn.relu)
                 ],
 
             # dqn
             MiddlewareScheme.Medium:
                 [
-                    self.dense_layer(512)
+                    #self.dense_layer(512)
+                    keras.layers.Dense(512, activation=tf.nn.relu)
                 ],
 
             MiddlewareScheme.Deep: \
                 [
-                    self.dense_layer(128),
-                    self.dense_layer(128),
-                    self.dense_layer(128)
+                    # self.dense_layer(128),
+                    # self.dense_layer(128),
+                    # self.dense_layer(128)
+                    keras.layers.Dense(128, activation=tf.nn.relu),
+                    keras.layers.Dense(128, activation=tf.nn.relu),
+                    keras.layers.Dense(128, activation=tf.nn.relu)
                 ]
         }
 

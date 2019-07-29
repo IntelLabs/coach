@@ -82,19 +82,13 @@ class InputEmbedder(keras.layers.Layer):
         # keras.activations.get('relu')
 
     def call(self, inputs):
-        print(inputs)
-        print('starting')
+    #def call(self, inputs, **kwargs):
+
         Z = inputs
         for layer in self.embbeder_layers:
-            print('In loop')
-            print(layer)
-            print(Z)
             Z = layer(Z)
 
-        print(Z)
-        print('before')
         Z = keras.layers.Flatten()(Z)
-        print('after')
 
         return Z
 

@@ -104,6 +104,8 @@ class TensorFlowArchitecture(Architecture):
             self.global_step = tf.compat.v1.train.get_or_create_global_step()
 
             # build the network
+            # Dan
+            self.model = self.get_model()
             self.weights = self.get_model()
 
             # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
