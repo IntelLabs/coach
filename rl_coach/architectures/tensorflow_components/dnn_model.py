@@ -52,6 +52,9 @@ class DnnModel(keras.Model):
         :param network_is_trainable: is the network trainable (we can apply gradients on it)
         """
 
+        ##Dan
+        self.ap = AgentParameters
+        # Dan
         self.spaces = spaces
         self.global_network = global_network
         self.network_is_local = network_is_local
@@ -92,8 +95,34 @@ class DnnModel(keras.Model):
 
 
 
+        #########
+        head_count = 0
+
+        for head_idx in range(self.num_heads_per_network):
+            #if self.network_parameters.use_separate_networks_per_head:
+            #     # if we use separate networks per head, then the head type corresponds to the network idx
+            #     head_type_idx = 0#network_idx
+            #     head_count = 0#network_idx
+            # else:
+            #     # if we use a single network with multiple embedders, then the head type is the current head idx
+            #     head_type_idx = head_idx
+            head_type_idx = head_idx
+            head_params = self.network_parameters.heads_parameters[head_type_idx]
+
+            for head_copy_idx in range(head_params.num_output_head_copies):
+                # create output head and add it to the output heads list
+                self.output_heads.append(
+                    self.get_output_head(head_params,
+                                         head_idx * head_params.num_output_head_copies + head_copy_idx)
+                )
+
+
+
+
+
     def call(self, inputs):
         embedded_inputs = []
+        outputs = []
         for embedder in self.input_embedders:
             embedded_inputs.append(embedder(inputs))
 
@@ -109,7 +138,9 @@ class DnnModel(keras.Model):
                 state_embedding = tf.keras.layers.Add()(embedded_inputs)
 
         middleware_out = self.middleware(state_embedding)
-        return middleware_out
+        for head in self.output_heads:
+            outputs.extend(head(middleware_out))
+        return outputs
 
 
 
@@ -193,6 +224,7 @@ class DnnModel(keras.Model):
         head_params_copy.is_training = self.is_training
         return dynamic_import_and_instantiate_module_from_params(head_params_copy, path=head_path, extra_kwargs={
             'agent_parameters': self.ap, 'spaces': self.spaces, 'network_name': self.network_wrapper_name,
+            #'agent_parameters': 0, 'spaces': self.spaces, 'network_name': self.network_wrapper_name,
             'head_idx': head_idx, 'is_local': self.network_is_local})
 
     def get_model(self) -> List:

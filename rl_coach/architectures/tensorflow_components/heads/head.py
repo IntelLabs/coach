@@ -17,6 +17,8 @@
 
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
+
 from tensorflow.python.ops.losses.losses_impl import Reduction
 from rl_coach.architectures.tensorflow_components.layers import Dense, convert_layer_class
 from rl_coach.base_parameters import AgentParameters
@@ -33,7 +35,8 @@ def normalized_columns_initializer(std=1.0):
     return _initializer
 
 
-class Head(object):
+#class Head(object):
+class Head(keras.layers.Layer):
     """
     A head is the final part of the network. It takes the embedding from the middleware embedder and passes it through
     a neural network to produce the output of the network. There can be multiple heads in a network, and each one has
