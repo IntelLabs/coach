@@ -336,7 +336,7 @@ If you used Coach for your work, please use the following citation:
 
 We'd be happy to get any questions or contributions through GitHub issues and PRs.
 Please make sure to take a look [here](CONTRIBUTING.md) before filing an issue or proposing a PR.
-The Coach development team can also be contacted at [email](mailto:coach@intel.com)
+The Coach development team can also be contacted over [email](mailto:coach@intel.com)
 
 
 ## Disclaimer
