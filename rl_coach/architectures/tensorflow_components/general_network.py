@@ -142,9 +142,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
 
     def _available_return_types(self):
+
         ret_dict = {cls: [] for cls in get_all_subclasses(PredictionType)}
 
-        components = self.input_embedders + [self.middleware] + self.output_heads
+        #components = self.input_embedders + [self.middleware] + self.output_heads
+        components = self.model.input_embedders + [self.model.middleware] + self.model.output_heads
+
         for component in components:
             if not hasattr(component, 'return_type'):
                 raise ValueError((
@@ -178,14 +181,14 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
 
     def get_model(self) -> List:
-        dnn_model = self.dnn_model
+        #dnn_model = self.dnn_model
 
         # DEBUG
         obs = np.array([1., 3., -44., 4.])
         obs_batch = tf.expand_dims(obs, 0)
-        dnn_model(obs_batch)
-        a = 1
-        return dnn_model
+        self.dnn_model(obs_batch)
+        #a = 1
+        return self.dnn_model
 
 
     def __str__(self):

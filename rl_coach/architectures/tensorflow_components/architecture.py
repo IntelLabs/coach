@@ -108,23 +108,29 @@ class TensorFlowArchitecture(Architecture):
             self.model = self.get_model()
             self.weights = self.get_model()
 
-            # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
-            for idx, var in enumerate(self.weights):
-                placeholder = tf.compat.v1.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
-                self.weights_placeholders.append(placeholder)
+            # # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
+            # for idx, var in enumerate(self.weights):
+            #     placeholder = tf.compat.v1.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
+            #     self.weights_placeholders.append(placeholder)
+            #     if self.ap.visualization.tensorboard:
+            #         variable_summaries(var)
+
+            # Dan
+            for idx, var in enumerate(self.model.variables):
                 if self.ap.visualization.tensorboard:
                     variable_summaries(var)
 
+
             # create op for assigning a list of weights to the network weights
-            self.update_weights_from_list = [weights.assign(holder) for holder, weights in
-                                             zip(self.weights_placeholders, self.weights)]
+            # self.update_weights_from_list = [weights.assign(holder) for holder, weights in
+            #                                  zip(self.weights_placeholders, self.weights)]
 
             # locks for synchronous training
             if self.network_is_global:
                 self._create_locks_for_synchronous_training()
 
             # gradients ops
-            self._create_gradient_ops()
+            #self._create_gradient_ops()
 
             self.inc_step = self.global_step.assign_add(1)
 
@@ -144,7 +150,7 @@ class TensorFlowArchitecture(Architecture):
             )
 
             # set the fetches for training
-            self._set_initial_fetch_list()
+            #self._set_initial_fetch_list()
 
     def get_model(self) -> List:
         """
@@ -290,7 +296,8 @@ class TensorFlowArchitecture(Architecture):
         # initialize the session parameters in single threaded runs. Otherwise, this is done through the
         # MonitoredSession object in the graph manager
         if not task_is_distributed:
-            self.sess.run(self.init_op)
+            a = 1
+            #self.sess.run(self.init_op)
 
         if self.ap.visualization.tensorboard:
             # Write the merged summaries to the current experiment directory
@@ -602,16 +609,32 @@ class TensorFlowArchitecture(Architecture):
         """
         return self.weights
 
-    def set_weights(self, weights, new_rate=1.0):
+    # def set_weights(self, weights, new_rate=1.0):
+    #     """
+    #     Sets the network weights from the given list of weights tensors
+    #     """
+    #     feed_dict = {}
+    #     old_weights, new_weights = self.sess.run([self.get_weights(), weights])
+    #     for placeholder_idx, new_weight in enumerate(new_weights):
+    #         feed_dict[self.weights_placeholders[placeholder_idx]]\
+    #             = new_rate * new_weight + (1 - new_rate) * old_weights[placeholder_idx]
+    #     self.sess.run(self.update_weights_from_list, feed_dict)
+
+
+    def set_weights(self, source_model, new_rate=1.0):
         """
-        Sets the network weights from the given list of weights tensors
+        Updates the target network weights from the given source model weights tensors
         """
-        feed_dict = {}
-        old_weights, new_weights = self.sess.run([self.get_weights(), weights])
-        for placeholder_idx, new_weight in enumerate(new_weights):
-            feed_dict[self.weights_placeholders[placeholder_idx]]\
-                = new_rate * new_weight + (1 - new_rate) * old_weights[placeholder_idx]
-        self.sess.run(self.update_weights_from_list, feed_dict)
+        updated_target = []
+        if new_rate < 0 or new_rate > 1:
+            raise ValueError('new_rate parameter values should be between 0 to 1.')
+        target_weights = self.dnn_model.get_weights()
+        source_weights = source_model.get_weights()
+        for (source_layer, target_layer) in zip(source_weights, target_weights):
+            updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
+        self.dnn_model.set_weights(updated_target)
+
+
 
     def get_variable_value(self, variable):
         """

@@ -212,7 +212,9 @@ class GraphManager(object):
 
     def _create_session_tf(self, task_parameters: TaskParameters):
         import tensorflow as tf
-        config = tf.ConfigProto()
+        # Dan manual fix
+        #config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.allow_soft_placement = True  # allow placing ops on cpu if they are not fit for gpu
         config.gpu_options.allow_growth = True  # allow the gpu memory allocated for the worker to grow if needed
         # config.gpu_options.per_process_gpu_memory_fraction = 0.2
@@ -257,7 +259,9 @@ class GraphManager(object):
 
     def create_session(self, task_parameters: TaskParameters):
         if task_parameters.framework_type == Frameworks.tensorflow:
-            self._create_session_tf(task_parameters)
+            # Dan
+            # self._create_session_tf(task_parameters)
+            self.set_session(sess=None)
         elif task_parameters.framework_type == Frameworks.mxnet:
             self._create_session_mx()
         else:
