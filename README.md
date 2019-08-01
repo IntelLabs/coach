@@ -30,26 +30,25 @@ coach -p CartPole_DQN -r
 * [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/)
 * [Release 0.11.0](https://ai.intel.com/rl-coach-data-science-at-scale)
 * [Release 0.12.0](https://github.com/NervanaSystems/coach/releases/tag/v0.12.0) 
-* Release 1.0.0 (current release)
+* [Release 1.0.0](https://www.intel.ai/rl-coach-new-release) (current release)
 
-Contacting the Coach development team is also possible over [email](mailto:coach@intel.com)
 
 ## Table of Contents
 
-- [Coach](#coach)
-  * [Benchmarks](#benchmarks)
-  * [Installation](#installation)
-  * [Getting Started](#getting-started)
-    * [Tutorials and Documentation](#tutorials-and-documentation)
-    * [Basic Usage](#basic-usage)
-      * [Running Coach](#running-coach)
-      * [Running Coach Dashboard (Visualization)](#running-coach-dashboard-visualization)
-    * [Distributed Multi-Node Coach](#distributed-multi-node-coach)
-    * [Batch Reinforcement Learning](#batch-reinforcement-learning)
-  * [Supported Environments](#supported-environments)
-  * [Supported Algorithms](#supported-algorithms)
-  * [Citation](#citation)
-  * [Disclaimer](#disclaimer)
+- [Benchmarks](#benchmarks)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+  * [Tutorials and Documentation](#tutorials-and-documentation)
+  * [Basic Usage](#basic-usage)
+    * [Running Coach](#running-coach)
+    * [Running Coach Dashboard (Visualization)](#running-coach-dashboard-visualization)
+  * [Distributed Multi-Node Coach](#distributed-multi-node-coach)
+  * [Batch Reinforcement Learning](#batch-reinforcement-learning)
+- [Supported Environments](#supported-environments)
+- [Supported Algorithms](#supported-algorithms)
+- [Citation](#citation)
+- [Contact](#contact)
+- [Disclaimer](#disclaimer)
 
 ## Benchmarks
 
@@ -289,7 +288,7 @@ There are [example](https://github.com/NervanaSystems/coach/blob/master/rl_coach
 * [Generalized Advantage Estimation (GAE)](https://arxiv.org/abs/1506.02438) ([code](rl_coach/agents/actor_critic_agent.py#L86))
 * [Sample Efficient Actor-Critic with Experience Replay (ACER)](https://arxiv.org/abs/1611.01224) | **Multi Worker Single Node**  ([code](rl_coach/agents/acer_agent.py))
 * [Soft Actor-Critic (SAC)](https://arxiv.org/abs/1801.01290) ([code](rl_coach/agents/soft_actor_critic_agent.py))
-* [Twin Delayed Deep Deterministic Policy Gradient](https://arxiv.org/pdf/1802.09477.pdf) ([code](rl_coach/agents/td3_agent.py))
+* [Twin Delayed Deep Deterministic Policy Gradient (TD3)](https://arxiv.org/pdf/1802.09477.pdf) ([code](rl_coach/agents/td3_agent.py))
 
 ### General Agents
 * [Direct Future Prediction (DFP)](https://arxiv.org/abs/1611.01779) | **Multi Worker Single Node**  ([code](rl_coach/agents/dfp_agent.py))
@@ -332,6 +331,13 @@ If you used Coach for your work, please use the following citation:
   url          = {https://doi.org/10.5281/zenodo.1134899}
 }
 ```
+
+## Contact
+
+We'd be happy to get any questions or contributions through GitHub issues and PRs.
+Please make sure to take a look [here](CONTRIBUTING.md) before filing an issue or proposing a PR.
+The Coach development team can also be contacted at [email](mailto:coach@intel.com)
+
 
 ## Disclaimer
 
