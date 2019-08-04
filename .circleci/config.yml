@@ -27,7 +27,7 @@ aliases:
         $(aws ecr get-login --no-include-email --region us-west-2)
         sudo curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
         sudo chmod a+x /usr/local/bin/aws-iam-authenticator
-        aws eks update-kubeconfig --name coach-aws-cicd
+        aws eks update-kubeconfig --name coach-cicd
         sudo curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         sudo chmod a+x /usr/local/bin/kubectl
 
@@ -731,18 +731,19 @@ workflows:
       - functional_tests:
           requires:
             - build_base
-      - functional_test_doom:
-          requires:
-            - build_doom_env
-            - functional_tests
-      - functional_test_mujoco:
-          requires:
-            - build_mujoco_env
-            - functional_test_doom
+#      - functional_test_doom:
+#          requires:
+#            - build_doom_env
+#            - functional_tests
+#      - functional_test_mujoco:
+#          requires:
+#            - build_mujoco_env
+#            - functional_test_doom
       - golden_test_gym:
           requires:
             - build_gym_env
-            - functional_test_mujoco
+#            - functional_test_mujoco
+            - functional_tests
       - golden_test_doom:
           requires:
             - build_doom_env
