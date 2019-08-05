@@ -88,9 +88,6 @@ class TruncatedNormal(ContinuousActionExplorationPolicy):
         else:
             action_values_std = current_noise
 
-        # scale the noise to the action space range
-        action_values_std = current_noise * (self.action_space.high - self.action_space.low)
-
         # extract the mean values
         if isinstance(action_values, list):
             # the action values are expected to be a list with the action mean and optionally the action stdev

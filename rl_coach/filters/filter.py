@@ -338,11 +338,14 @@ class InputFilter(Filter):
                             state_object[observation_name] = filtered_observations[i]
 
         # filter reward
-        for f in filtered_data:
-            filtered_reward = f.reward
-            for filter in self._reward_filters.values():
-                filtered_reward = filter.filter(filtered_reward, update_internal_state)
-            f.reward = filtered_reward
+        for filter in self._reward_filters.values():
+            if filter.supports_batching:
+                filtered_rewards = filter.filter([f.reward for f in filtered_data], update_internal_state)
+                for d, filtered_reward in zip(filtered_data, filtered_rewards):
+                    d.reward = filtered_reward
+            else:
+                for d in filtered_data:
+                    d.reward = filter.filter(d.reward, update_internal_state)
 
         return filtered_data
 

@@ -213,6 +213,14 @@ class AlgorithmParameters(Parameters):
         # Support for parameter noise
         self.supports_parameter_noise = False
 
+        # Override, in retrospective, all the episode rewards with the last reward in the episode
+        # (sometimes useful for sparse, end of the episode, rewards problems)
+        self.override_episode_rewards_with_the_last_transition_reward = False
+
+        # Filters - TODO consider creating a FilterParameters class and initialize the filters with it
+        self.update_pre_network_filters_state_on_train = False
+        self.update_pre_network_filters_state_on_inference = True
+        
 
 class PresetValidationParameters(Parameters):
     def __init__(self,
