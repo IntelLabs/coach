@@ -318,12 +318,15 @@ class TensorFlowArchitecture(Architecture):
         Reset the gradients accumulation placeholder
         """
         if self.accumulated_gradients is None:
+            # Dan, is this mxnet compatible?
+
             self.accumulated_gradients = self.sess.run(self.weights)
 
         for ix, grad in enumerate(self.accumulated_gradients):
             self.accumulated_gradients[ix] = grad * 0
 
-    def accumulate_gradients(self, inputs, targets, additional_fetches=None, importance_weights=None,
+    def accumulate_gradients(self,
+                             inputs, targets, additional_fetches=None, importance_weights=None,
                              no_accumulation=False):
         """
         Runs a forward pass & backward pass, clips gradients if needed and accumulates them into the accumulation
@@ -338,6 +341,15 @@ class TensorFlowArchitecture(Architecture):
                                 This can speed up the function runtime by around 10%.
         :return: A list containing the total loss and the individual network heads losses
         """
+
+        with tf.GradientTape() as tape:
+            #y_pred = self.model(inputs, training=True)
+            y_pred = self.model(inputs['observation'])
+            main_loss = tf.reduce_mean(self.loss(targets, y_pred))
+            # Dan will add model loss later for regularization
+            #loss = tf.add_n([main_loss] + model.losses)
+        gradients = tape.gradient(main_loss, self.model.trainable_variables)
+
 
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
@@ -377,6 +389,7 @@ class TensorFlowArchitecture(Architecture):
 
             # get grads
             result = self.sess.run(fetches, feed_dict=feed_dict)
+
             if hasattr(self, 'train_writer') and self.train_writer is not None:
                 self.train_writer.add_summary(result[-1], self.sess.run(self.global_step))
 
@@ -573,16 +586,25 @@ class TensorFlowArchitecture(Architecture):
         :param network_input_tuples: tuple of network and corresponding input
         :return: list of outputs from all networks
         """
-        feed_dict = {}
-        fetches = []
+        assert sess is None
+        output = list()
+        for net, inputs in network_input_tuples:
+            output += net.dnn_model(inputs['observation'])
+        return tuple(o.numpy() for o in output)
+        #return output#tuple(o.numpy() for o in output)
 
-        for network, input in network_input_tuples:
-            feed_dict.update(network.create_feed_dict(input))
-            fetches += network.outputs
+        # feed_dict = {}
+        # fetches = []
+        # for network, input in network_input_tuples:
+        #     feed_dict.update(network.create_feed_dict(input))
+        #     fetches += network.outputs
+        #
+        # outputs = sess.run(fetches, feed_dict)
+        #
+        # return outputs
 
-        outputs = sess.run(fetches, feed_dict)
 
-        return outputs
+
 
     def train_on_batch(self, inputs, targets, scaler=1., additional_fetches=None, importance_weights=None):
         """

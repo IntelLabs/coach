@@ -210,6 +210,8 @@ class NetworkWrapper(object):
                                      target_network or global_network) and the second element is the inputs
         :return: the outputs of all the networks in the same order as the inputs were given
         """
+        #return type(self.online_network).parallel_predict(self.sess, network_input_tuples)
+
         return type(self.online_network).parallel_predict(self.sess, network_input_tuples)
 
     def set_is_training(self, state: bool):
@@ -219,9 +221,11 @@ class NetworkWrapper(object):
         :param state: The current state (True = Training, False = Testing)
         :return: None
         """
-        self.online_network.set_is_training(state)
-        if self.has_target:
-            self.target_network.set_is_training(state)
+        pass
+        # Dan comment out for now, should re add for batch norm and dropout
+        #self.online_network.set_is_training(state)
+        # if self.has_target:
+        #     self.target_network.set_is_training(state)
 
     def set_session(self, sess):
         self.sess = sess

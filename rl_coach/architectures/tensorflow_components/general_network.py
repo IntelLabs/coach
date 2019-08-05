@@ -17,7 +17,7 @@
 
 import copy
 from types import MethodType
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Callable
 
 import numpy as np
 import tensorflow as tf
@@ -35,6 +35,7 @@ from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_mo
 
 
 from rl_coach.architectures.tensorflow_components.dnn_model import DnnModel
+from rl_coach.architectures.tensorflow_components.general_loss import GeneralLoss
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
@@ -128,6 +129,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.output_heads = []
 
         self.dnn_model = DnnModel(agent_parameters, spaces, name)
+        self.loss = GeneralLoss()
 
 
         super().__init__(agent_parameters, spaces, name, global_network,
@@ -178,17 +180,15 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         return ret_dict
 
 
-
-
-    def get_model(self) -> List:
-        #dnn_model = self.dnn_model
+    def get_model(self) -> Callable:
 
         # DEBUG
-        obs = np.array([1., 3., -44., 4.])
-        obs_batch = tf.expand_dims(obs, 0)
-        self.dnn_model(obs_batch)
-        #a = 1
+        # obs = np.array([1., 3., -44., 4.])
+        # obs_batch = tf.expand_dims(obs, 0)
+        # self.dnn_model(obs_batch)
+        # return DnnModel(agent_parameters, spaces, name)
         return self.dnn_model
+
 
 
     def __str__(self):
