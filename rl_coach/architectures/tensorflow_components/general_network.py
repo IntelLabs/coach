@@ -21,6 +21,7 @@ from typing import Dict, List, Union, Callable
 
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
 
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.head_parameters import HeadParameters
@@ -142,7 +143,6 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
 
 
-
     def _available_return_types(self):
 
         ret_dict = {cls: [] for cls in get_all_subclasses(PredictionType)}
@@ -205,21 +205,24 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             # -> create an optimizer
 
             if self.network_parameters.optimizer_type == 'Adam':
-                self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self.current_learning_rate,
-                                                                  beta1=self.network_parameters.adam_optimizer_beta1,
-                                                                  beta2=self.network_parameters.adam_optimizer_beta2,
-                                                                  epsilon=self.network_parameters.optimizer_epsilon)
+
+                self.optimizer = keras.optimizers.Adam(
+                    lr=self.current_learning_rate,
+                    beta_1=self.network_parameters.adam_optimizer_beta1,
+                    beta_2=self.network_parameters.adam_optimizer_beta2,
+                    epsilon=self.network_parameters.optimizer_epsilon)
+
             elif self.network_parameters.optimizer_type == 'RMSProp':
-                self.optimizer = tf.compat.v1.train.RMSPropOptimizer(self.current_learning_rate,
-                                                                     decay=self.network_parameters.rms_prop_optimizer_decay,
-                                                                     epsilon=self.network_parameters.optimizer_epsilon)
+                self.optimizer = keras.optimizers.RMSprop(
+                    lr=self.current_learning_rate,
+                    decay=self.network_parameters.rms_prop_optimizer_decay,
+                    epsilon=self.network_parameters.optimizer_epsilon)
+
             elif self.network_parameters.optimizer_type == 'LBFGS':
-                print(' Could not find updated implementation')  # TODO: Dan to update function
-                raise NotImplementedError
+                raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: Dan to update function
                 # Dan manual fix
                 # self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
-                #                 #                                                         options={'maxiter': 25})
-
+                #                                                                          options={'maxiter': 25})
             else:
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
