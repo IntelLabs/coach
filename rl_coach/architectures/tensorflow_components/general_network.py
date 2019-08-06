@@ -34,7 +34,7 @@ from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, Tensor
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
 
-from rl_coach.architectures.tensorflow_components.dnn_model import DnnModel
+from rl_coach.architectures.tensorflow_components.general_model import GeneralModel
 from rl_coach.architectures.tensorflow_components.general_loss import GeneralLoss
 
 
@@ -128,7 +128,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.input_embedders = []
         self.output_heads = []
 
-        self.dnn_model = DnnModel(agent_parameters, spaces, name)
+        #self.dnn_model = GeneralModel(agent_parameters, spaces, name)
         self.loss = GeneralLoss()
 
 
@@ -186,8 +186,42 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # obs = np.array([1., 3., -44., 4.])
         # obs_batch = tf.expand_dims(obs, 0)
         # self.dnn_model(obs_batch)
-        # return DnnModel(agent_parameters, spaces, name)
-        return self.dnn_model
+        return GeneralModel(self.ap, self.spaces, self.name)
+        #return self.dnn_model
+
+    def get_optimizer(self) -> Callable:
+
+        # Optimizer
+        if self.distributed_training and self.network_is_local and self.network_parameters.shared_optimizer:
+            # distributed training + is a local network + optimizer shared -> take the global optimizer
+            self.optimizer = self.global_network.optimizer
+        elif (self.distributed_training and self.network_is_local and not self.network_parameters.shared_optimizer) \
+                or self.network_parameters.shared_optimizer or not self.distributed_training:
+            # distributed training + is a global network + optimizer shared
+            # OR
+            # distributed training + is a local network + optimizer not shared
+            # OR
+            # non-distributed training
+            # -> create an optimizer
+
+            if self.network_parameters.optimizer_type == 'Adam':
+                self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self.current_learning_rate,
+                                                                  beta1=self.network_parameters.adam_optimizer_beta1,
+                                                                  beta2=self.network_parameters.adam_optimizer_beta2,
+                                                                  epsilon=self.network_parameters.optimizer_epsilon)
+            elif self.network_parameters.optimizer_type == 'RMSProp':
+                self.optimizer = tf.compat.v1.train.RMSPropOptimizer(self.current_learning_rate,
+                                                                     decay=self.network_parameters.rms_prop_optimizer_decay,
+                                                                     epsilon=self.network_parameters.optimizer_epsilon)
+            elif self.network_parameters.optimizer_type == 'LBFGS':
+                print(' Could not find updated implementation')  # TODO: Dan to update function
+                raise NotImplementedError
+                # Dan manual fix
+                # self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
+                #                 #                                                         options={'maxiter': 25})
+
+            else:
+                raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
 
 

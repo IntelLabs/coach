@@ -35,10 +35,7 @@ from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, Tensor
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
 
-
-class DnnModel(keras.Model):
-
-
+class GeneralModel(keras.Model):
 
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, name: str,
                  global_network=None, network_is_local: bool=True, network_is_trainable: bool=False, **kwargs):
@@ -54,8 +51,9 @@ class DnnModel(keras.Model):
 
         ##Dan
         self.ap = AgentParameters
-        # Dan
         self.spaces = spaces
+        ##
+
         self.global_network = global_network
         self.network_is_local = network_is_local
         self.network_wrapper_name = name.split('/')[0]

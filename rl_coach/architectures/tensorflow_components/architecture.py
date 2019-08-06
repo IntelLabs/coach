@@ -286,7 +286,7 @@ class TensorFlowArchitecture(Architecture):
             update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS, scope=self.full_name)
 
             with tf.control_dependencies(update_ops):
-                self.update_weights_from_batch_gradients = self.optimizer.apply_gradients(
+                self.   update_weights_from_batch_gradients = self.optimizer.apply_gradients(
                     zip(self.weights_placeholders, self.weights), global_step=self.global_step)
 
     def set_session(self, sess):
@@ -342,79 +342,101 @@ class TensorFlowArchitecture(Architecture):
         :return: A list containing the total loss and the individual network heads losses
         """
 
+        assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported for now"
+
         with tf.GradientTape() as tape:
             #y_pred = self.model(inputs, training=True)
             y_pred = self.model(inputs['observation'])
             main_loss = tf.reduce_mean(self.loss(targets, y_pred))
             # Dan will add model loss later for regularization
-            #loss = tf.add_n([main_loss] + model.losses)
+            #total_loss = tf.add_n([main_loss] + model.losses)
+            total_loss = main_loss
+
         gradients = tape.gradient(main_loss, self.model.trainable_variables)
 
+        self.accumulated_gradients = gradients
+        #
+        # if self.accumulated_gradients is None:
+        #     self.reset_accumulated_gradients()
+        #
+        # #accumulate the gradients
+        # for idx, grad in enumerate(gradients):
+        #     if no_accumulation:
+        #         self.accumulated_gradients[idx] = grad
+        #     else:
+        #         self.accumulated_gradients[idx] += grad
 
-        if self.accumulated_gradients is None:
-            self.reset_accumulated_gradients()
 
-        # feed inputs
-        if additional_fetches is None:
-            additional_fetches = []
-        feed_dict = self.create_feed_dict(inputs)
 
-        # feed targets
-        targets = force_list(targets)
-        for placeholder_idx, target in enumerate(targets):
-            feed_dict[self.targets[placeholder_idx]] = target
+        loss_list = total_loss
 
-        # feed importance weights
-        importance_weights = force_list(importance_weights)
-        for placeholder_idx, target_ph in enumerate(targets):
-            if len(importance_weights) <= placeholder_idx or importance_weights[placeholder_idx] is None:
-                importance_weight = np.ones(target_ph.shape[0])
-            else:
-                importance_weight = importance_weights[placeholder_idx]
-            importance_weight = np.reshape(importance_weight, (-1,) + (1,) * (len(target_ph.shape) - 1))
+        return total_loss, loss_list, gradients
 
-            feed_dict[self.importance_weights[placeholder_idx]] = importance_weight
-
-        if self.optimizer_type != 'LBFGS':
-
-            # feed the lstm state if necessary
-            if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-                # we can't always assume that we are starting from scratch here can we?
-                feed_dict[self.middleware.c_in] = self.middleware.c_init
-                feed_dict[self.middleware.h_in] = self.middleware.h_init
-
-            fetches = self.train_fetches + additional_fetches
-            if self.ap.visualization.tensorboard:
-                fetches += [self.merged]
-
-            # get grads
-            result = self.sess.run(fetches, feed_dict=feed_dict)
-
-            if hasattr(self, 'train_writer') and self.train_writer is not None:
-                self.train_writer.add_summary(result[-1], self.sess.run(self.global_step))
-
-            # extract the fetches
-            norm_unclipped_grads, grads, total_loss, losses = result[:4]
-            if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-                (self.curr_rnn_c_in, self.curr_rnn_h_in) = result[4]
-            fetched_tensors = []
-            if len(additional_fetches) > 0:
-                fetched_tensors = result[self.additional_fetches_start_idx:self.additional_fetches_start_idx +
-                                                                      len(additional_fetches)]
-
-            # accumulate the gradients
-            for idx, grad in enumerate(grads):
-                if no_accumulation:
-                    self.accumulated_gradients[idx] = grad
-                else:
-                    self.accumulated_gradients[idx] += grad
-
-            return total_loss, losses, norm_unclipped_grads, fetched_tensors
-
-        else:
-            self.optimizer.minimize(session=self.sess, feed_dict=feed_dict)
-
-            return [0]
+        #
+        # if self.accumulated_gradients is None:
+        #     self.reset_accumulated_gradients()
+        #
+        # # feed inputs
+        # if additional_fetches is None:
+        #     additional_fetches = []
+        # feed_dict = self.create_feed_dict(inputs)
+        #
+        # # feed targets
+        # targets = force_list(targets)
+        # for placeholder_idx, target in enumerate(targets):
+        #     feed_dict[self.targets[placeholder_idx]] = target
+        #
+        # # feed importance weights
+        # importance_weights = force_list(importance_weights)
+        # for placeholder_idx, target_ph in enumerate(targets):
+        #     if len(importance_weights) <= placeholder_idx or importance_weights[placeholder_idx] is None:
+        #         importance_weight = np.ones(target_ph.shape[0])
+        #     else:
+        #         importance_weight = importance_weights[placeholder_idx]
+        #     importance_weight = np.reshape(importance_weight, (-1,) + (1,) * (len(target_ph.shape) - 1))
+        #
+        #     feed_dict[self.importance_weights[placeholder_idx]] = importance_weight
+        #
+        # if self.optimizer_type != 'LBFGS':
+        #
+        #     # feed the lstm state if necessary
+        #     if self.middleware.__class__.__name__ == 'LSTMMiddleware':
+        #         # we can't always assume that we are starting from scratch here can we?
+        #         feed_dict[self.middleware.c_in] = self.middleware.c_init
+        #         feed_dict[self.middleware.h_in] = self.middleware.h_init
+        #
+        #     fetches = self.train_fetches + additional_fetches
+        #     if self.ap.visualization.tensorboard:
+        #         fetches += [self.merged]
+        #
+        #     # get grads
+        #     result = self.sess.run(fetches, feed_dict=feed_dict)
+        #
+        #     if hasattr(self, 'train_writer') and self.train_writer is not None:
+        #         self.train_writer.add_summary(result[-1], self.sess.run(self.global_step))
+        #
+        #     # extract the fetches
+        #     norm_unclipped_grads, grads, total_loss, losses = result[:4]
+        #     if self.middleware.__class__.__name__ == 'LSTMMiddleware':
+        #         (self.curr_rnn_c_in, self.curr_rnn_h_in) = result[4]
+        #     fetched_tensors = []
+        #     if len(additional_fetches) > 0:
+        #         fetched_tensors = result[self.additional_fetches_start_idx:self.additional_fetches_start_idx +
+        #                                                               len(additional_fetches)]
+        #
+        #     # accumulate the gradients
+        #     for idx, grad in enumerate(grads):
+        #         if no_accumulation:
+        #             self.accumulated_gradients[idx] = grad
+        #         else:
+        #             self.accumulated_gradients[idx] += grad
+        #
+        #     return total_loss, losses, norm_unclipped_grads, fetched_tensors
+        #
+        # else:
+        #     self.optimizer.minimize(session=self.sess, feed_dict=feed_dict)
+        #
+        #     return [0]
 
     def create_feed_dict(self, inputs):
         feed_dict = {}
@@ -589,7 +611,7 @@ class TensorFlowArchitecture(Architecture):
         assert sess is None
         output = list()
         for net, inputs in network_input_tuples:
-            output += net.dnn_model(inputs['observation'])
+            output += net.model(inputs['observation'])
         return tuple(o.numpy() for o in output)
         #return output#tuple(o.numpy() for o in output)
 
@@ -650,11 +672,11 @@ class TensorFlowArchitecture(Architecture):
         updated_target = []
         if new_rate < 0 or new_rate > 1:
             raise ValueError('new_rate parameter values should be between 0 to 1.')
-        target_weights = self.dnn_model.get_weights()
+        target_weights = self.model.get_weights()
         source_weights = source_model.get_weights()
         for (source_layer, target_layer) in zip(source_weights, target_weights):
             updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
-        self.dnn_model.set_weights(updated_target)
+        self.model.set_weights(updated_target)
 
 
 
