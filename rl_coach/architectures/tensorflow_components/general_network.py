@@ -184,8 +184,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
     def get_model(self) -> Callable:
 
         # DEBUG
-        # obs = np.array([1., 3., -44., 4.])
-        # obs_batch = tf.expand_dims(obs, 0)
+        obs = np.array([1., 3., -44., 4.])
+        obs_batch = tf.expand_dims(obs, 0)
         model = GeneralModel(self.ap, self.spaces, self.name)
         model.build(input_shape=(None, 4))
         # model(obs_batch)

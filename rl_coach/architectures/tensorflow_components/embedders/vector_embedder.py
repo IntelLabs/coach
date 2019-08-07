@@ -55,14 +55,14 @@ class VectorEmbedder(InputEmbedder):
             EmbedderScheme.Shallow:
                 [
                     #self.dense_layer(128)
-                    keras.layers.Dense(128, activation=tf.nn.relu)
+                    keras.layers.Dense(128)#, activation=tf.nn.relu)
                 ],
 
             # dqn
             EmbedderScheme.Medium:
                 [
                     #self.dense_layer(256)
-                    keras.layers.Dense(128, activation=tf.nn.relu)
+                    keras.layers.Dense(256)#, activation=tf.nn.relu)
                 ],
 
             # carla
@@ -71,8 +71,8 @@ class VectorEmbedder(InputEmbedder):
                     # self.dense_layer(128),
                     # self.dense_layer(128),
                     # self.dense_layer(128)
-                    keras.layers.Dense(128, activation=tf.nn.relu),
-                    keras.layers.Dense(128, activation=tf.nn.relu),
-                    keras.layers.Dense(128, activation=tf.nn.relu)
+                    keras.layers.Dense(128),#, activation=tf.nn.relu),
+                    keras.layers.Dense(128),# activation=tf.nn.relu),
+                    keras.layers.Dense(128)#, activation=tf.nn.relu)
                 ]
         }

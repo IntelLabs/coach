@@ -32,7 +32,6 @@ from rl_coach.utils import force_list
 
 
 class InputEmbedder(keras.layers.Layer):
-#class InputEmbedder(keras.Model):
     """
     An input embedder is the first part of the network, which takes the input from the state and produces a vector
     embedding by passing it through a neural network. The embedder will mostly be input type dependent, and there
@@ -46,7 +45,7 @@ class InputEmbedder(keras.layers.Layer):
         super().__init__(**kwargs)
         # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
-        self.activation_function = activation_function
+        #self.activation_function = activation_function
         self.batchnorm = batchnorm
         self.dropout_rate = dropout_rate
         # self.input = None
@@ -54,35 +53,26 @@ class InputEmbedder(keras.layers.Layer):
         self.scheme = scheme
         self.return_type = InputEmbedding
         self.layers_params = []
-        self.embbeder_layers = []
+
         self.input_rescaling = input_rescaling
         self.input_offset = input_offset
         self.input_clipping = input_clipping
 
-        self.input_layer = keras.layers.InputLayer(input_shape=input_size)
+        self.embbeder_layers = []
+        self.embbeder_layers.extend([keras.layers.InputLayer(input_shape=input_size)])
 
-        # self.hidden = [keras.layers.Dense(n_neurons, activation="elu",
-        #                                   kernel_initializer="he_normal")
-        #                for _ in range(n_layers)]
-        #
-        #
+        for layer in self.schemes[self.scheme]:
+            self.embbeder_layers.extend([layer])
+            if batchnorm:
+                self.embbeder_layers.extend([keras.layers.BatchNormalization()])
+            if activation_function:
+                self.embbeder_layers.extend([keras.activations.get(activation_function)])
+            if dropout_rate:
+                self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-        # self.layers.extend(copy.copy(self.schemes[self.scheme]))
-        self.embbeder_layers = copy.copy(self.schemes[self.scheme])
 
-        # Dan comment out for now. Activation moved to dense layer. Should add support for batch norm and dropout.
-        # if self.batchnorm or self.activation_function or self.dropout_rate > 0:
-        #     for layer_idx in reversed(range(len(self.embbeder_layers))):
-        #         self.embbeder_layers.insert(layer_idx+1,
-        #                                     BatchnormActivationDropout(batchnorm=self.batchnorm,
-        #                                                              activation_function=self.activation_function,
-        #                                                              dropout_rate=self.dropout_rate))
+    def call(self, inputs, **kwargs):
 
-        self.embbeder_layers.insert(0, self.input_layer)
-        # keras.activations.get('relu')
-
-    def call(self, inputs):
-    #def call(self, inputs, **kwargs):
 
         Z = inputs
         for layer in self.embbeder_layers:
