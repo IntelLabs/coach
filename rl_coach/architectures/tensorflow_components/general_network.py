@@ -129,7 +129,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.input_embedders = []
         self.output_heads = []
 
-        #self.dnn_model = GeneralModel(agent_parameters, spaces, name)
+
+        #self.model = GeneralModel(agent_parameters, spaces, name)
         self.loss = GeneralLoss()
 
 
@@ -148,7 +149,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         ret_dict = {cls: [] for cls in get_all_subclasses(PredictionType)}
 
         #components = self.input_embedders + [self.middleware] + self.output_heads
-        components = self.model.input_embedders + [self.model.middleware] + self.model.output_heads
+        components = self.dnn_model.input_embedders + [self.dnn_model.middleware] + self.dnn_model.output_heads
 
         for component in components:
             if not hasattr(component, 'return_type'):
@@ -185,16 +186,34 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # DEBUG
         # obs = np.array([1., 3., -44., 4.])
         # obs_batch = tf.expand_dims(obs, 0)
-        # self.dnn_model(obs_batch)
-        return GeneralModel(self.ap, self.spaces, self.name)
-        #return self.dnn_model
+        model = GeneralModel(self.ap, self.spaces, self.name)
+        model.build(input_shape=(None, 4))
+        # model(obs_batch)
+        self.optimizer = self.get_optimizer()
+        #return GeneralModel(self.ap, self.spaces, self.name)
+        return model
 
     def get_optimizer(self) -> Callable:
+
+        # Learning rate
+        if self.network_parameters.learning_rate_decay_rate != 0:
+            self.adaptive_learning_rate_scheme = \
+                tf.compat.v1.train.exponential_decay(
+                    self.network_parameters.learning_rate,
+                    self.global_step,
+                    decay_steps=self.network_parameters.learning_rate_decay_steps,
+                    decay_rate=self.network_parameters.learning_rate_decay_rate,
+                    staircase=True)
+
+            self.current_learning_rate = self.adaptive_learning_rate_scheme
+        else:
+            self.current_learning_rate = self.network_parameters.learning_rate
 
         # Optimizer
         if self.distributed_training and self.network_is_local and self.network_parameters.shared_optimizer:
             # distributed training + is a local network + optimizer shared -> take the global optimizer
-            self.optimizer = self.global_network.optimizer
+            optimizer = self.global_network.optimizer
+
         elif (self.distributed_training and self.network_is_local and not self.network_parameters.shared_optimizer) \
                 or self.network_parameters.shared_optimizer or not self.distributed_training:
             # distributed training + is a global network + optimizer shared
@@ -203,17 +222,16 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             # OR
             # non-distributed training
             # -> create an optimizer
-
             if self.network_parameters.optimizer_type == 'Adam':
 
-                self.optimizer = keras.optimizers.Adam(
+                optimizer = keras.optimizers.Adam(
                     lr=self.current_learning_rate,
                     beta_1=self.network_parameters.adam_optimizer_beta1,
                     beta_2=self.network_parameters.adam_optimizer_beta2,
                     epsilon=self.network_parameters.optimizer_epsilon)
 
             elif self.network_parameters.optimizer_type == 'RMSProp':
-                self.optimizer = keras.optimizers.RMSprop(
+                optimizer = keras.optimizers.RMSprop(
                     lr=self.current_learning_rate,
                     decay=self.network_parameters.rms_prop_optimizer_decay,
                     epsilon=self.network_parameters.optimizer_epsilon)
@@ -226,7 +244,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             else:
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
-
+        return optimizer
 
     def __str__(self):
         result = []

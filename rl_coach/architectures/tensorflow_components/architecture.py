@@ -105,7 +105,7 @@ class TensorFlowArchitecture(Architecture):
 
             # build the network
             # Dan
-            self.model = self.get_model()
+            self.dnn_model = self.get_model()
             self.weights = self.get_model()
 
             # # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
@@ -116,7 +116,7 @@ class TensorFlowArchitecture(Architecture):
             #         variable_summaries(var)
 
             # Dan
-            for idx, var in enumerate(self.model.variables):
+            for idx, var in enumerate(self.dnn_model.variables):
                 if self.ap.visualization.tensorboard:
                     variable_summaries(var)
 
@@ -346,13 +346,13 @@ class TensorFlowArchitecture(Architecture):
 
         with tf.GradientTape() as tape:
             #y_pred = self.model(inputs, training=True)
-            y_pred = self.model(inputs['observation'])
+            y_pred = self.dnn_model(inputs['observation'])
             main_loss = tf.reduce_mean(self.loss(targets, y_pred))
             # Dan will add model loss later for regularization
             #total_loss = tf.add_n([main_loss] + model.losses)
             total_loss = main_loss
 
-        gradients = tape.gradient(main_loss, self.model.trainable_variables)
+        gradients = tape.gradient(main_loss, self.dnn_model.trainable_variables)
 
         self.accumulated_gradients = gradients
         #
@@ -611,7 +611,7 @@ class TensorFlowArchitecture(Architecture):
         assert sess is None
         output = list()
         for net, inputs in network_input_tuples:
-            output += net.model(inputs['observation'])
+            output += net.dnn_model(inputs['observation'])
         return tuple(o.numpy() for o in output)
         #return output#tuple(o.numpy() for o in output)
 
@@ -672,11 +672,11 @@ class TensorFlowArchitecture(Architecture):
         updated_target = []
         if new_rate < 0 or new_rate > 1:
             raise ValueError('new_rate parameter values should be between 0 to 1.')
-        target_weights = self.model.get_weights()
+        target_weights = self.dnn_model.get_weights()
         source_weights = source_model.get_weights()
         for (source_layer, target_layer) in zip(source_weights, target_weights):
             updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
-        self.model.set_weights(updated_target)
+        self.dnn_model.set_weights(updated_target)
 
 
 

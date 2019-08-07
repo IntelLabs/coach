@@ -31,8 +31,7 @@ class QHead(keras.layers.Layer):
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
                  dense_layer=Dense,**kwargs):
         super().__init__(**kwargs)
-        # super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
-        #                  dense_layer=dense_layer)
+        #super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, **kwargs)
         #self.name = 'q_values_head'
         self.spaces = spaces
         if isinstance(self.spaces.action, BoxActionSpace):
@@ -63,7 +62,7 @@ class QHead(keras.layers.Layer):
     #     # used in batch-rl to estimate a probablity distribution over actions
     #     self.softmax = self.add_softmax_with_temperature()
 
-    def __call__(self, inputs, **kwargs):
+    def call(self, inputs, **kwargs):
         q_value = self.q_head(inputs)
         return q_value
 

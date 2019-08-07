@@ -52,7 +52,10 @@ class GeneralModel(keras.Model):
         ##Dan
         self.ap = AgentParameters
         self.spaces = spaces
+        # size of the action space for now, should be updated for actor critic
+        self.output_dim = 2
         ##
+
 
         self.global_network = global_network
         self.network_is_local = network_is_local
@@ -73,9 +76,6 @@ class GeneralModel(keras.Model):
         # init network modules containers
         self.input_embedders = []
         self.output_heads = []
-        # super().__init__(agent_parameters, spaces, name, global_network,
-        #                  network_is_local, network_is_trainable)
-
 
         self.is_training = None
 
@@ -91,34 +91,34 @@ class GeneralModel(keras.Model):
 
 
 
-
-
-        #########
+        # #########
         head_count = 0
 
-        for head_idx in range(self.num_heads_per_network):
-            #if self.network_parameters.use_separate_networks_per_head:
-            #     # if we use separate networks per head, then the head type corresponds to the network idx
-            #     head_type_idx = 0#network_idx
-            #     head_count = 0#network_idx
-            # else:
-            #     # if we use a single network with multiple embedders, then the head type is the current head idx
-            #     head_type_idx = head_idx
-            head_type_idx = head_idx
-            head_params = self.network_parameters.heads_parameters[head_type_idx]
+        # for head_idx in range(self.num_heads_per_network):
+        #     #if self.network_parameters.use_separate_networks_per_head:
+        #     #     # if we use separate networks per head, then the head type corresponds to the network idx
+        #     #     head_type_idx = 0#network_idx
+        #     #     head_count = 0#network_idx
+        #     # else:
+        #     #     # if we use a single network with multiple embedders, then the head type is the current head idx
+        #     #     head_type_idx = head_idx
+        #     head_type_idx = head_idx
+        #     head_params = self.network_parameters.heads_parameters[head_type_idx]
+        #
+        #     for head_copy_idx in range(head_params.num_output_head_copies):
+        #         # create output head and add it to the output heads list
+        #         self.output_heads.append(
+        #             self.get_output_head(head_params,
+        #                                  head_idx * head_params.num_output_head_copies + head_copy_idx)
+        #         )
 
-            for head_copy_idx in range(head_params.num_output_head_copies):
-                # create output head and add it to the output heads list
-                self.output_heads.append(
-                    self.get_output_head(head_params,
-                                         head_idx * head_params.num_output_head_copies + head_copy_idx)
-                )
-
-
-
+        # TODO: starting with q learning, will handle actor critic multiple outputs later
+        head_params = self.network_parameters.heads_parameters[0]
+        self.out_head = self.get_output_head(head_params, 0)
 
 
     def call(self, inputs):
+
         embedded_inputs = []
         outputs = []
         for embedder in self.input_embedders:
@@ -136,9 +136,23 @@ class GeneralModel(keras.Model):
                 state_embedding = tf.keras.layers.Add()(embedded_inputs)
 
         middleware_out = self.middleware(state_embedding)
-        for head in self.output_heads:
-            outputs.extend(head(middleware_out))
-        return outputs
+
+        # for head in self.output_heads:
+        #     outputs.extend(head(middleware_out))
+        # return outputs
+        output = self.out_head(middleware_out)
+        return output
+        # for head in self.output_heads:
+        #     outputs.extend(head(middleware_out))
+        # return outputs
+
+        #return middleware_out
+
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], self.output_dim)
+
+
 
 
 
@@ -222,7 +236,6 @@ class GeneralModel(keras.Model):
         head_params_copy.is_training = self.is_training
         return dynamic_import_and_instantiate_module_from_params(head_params_copy, path=head_path, extra_kwargs={
             'agent_parameters': self.ap, 'spaces': self.spaces, 'network_name': self.network_wrapper_name,
-            #'agent_parameters': 0, 'spaces': self.spaces, 'network_name': self.network_wrapper_name,
             'head_idx': head_idx, 'is_local': self.network_is_local})
 
     def get_model(self) -> List:
@@ -260,12 +273,6 @@ class GeneralModel(keras.Model):
                     # Creates input embedder object (calls init)
                     input_embedder = self.get_input_embedder(input_name, embbeder_parameters)
 
-                    ## DEBUG
-                    obs = np.array([1., 3., -44., 4.])
-                    obs_batch = tf.expand_dims(obs, 0)
-
-
-                    input_embedder(obs_batch)
                     self.input_embedders.append(input_embedder)
 
 
@@ -382,51 +389,7 @@ class GeneralModel(keras.Model):
         self.total_loss = tf.reduce_sum(input_tensor=self.losses)
         # tf.summary.scalar('total_loss', self.total_loss)
 
-        # Learning rate
-        if self.network_parameters.learning_rate_decay_rate != 0:
-            self.adaptive_learning_rate_scheme = \
-                tf.compat.v1.train.exponential_decay(
-                    self.network_parameters.learning_rate,
-                    self.global_step,
-                    decay_steps=self.network_parameters.learning_rate_decay_steps,
-                    decay_rate=self.network_parameters.learning_rate_decay_rate,
-                    staircase=True)
 
-            self.current_learning_rate = self.adaptive_learning_rate_scheme
-        else:
-            self.current_learning_rate = self.network_parameters.learning_rate
-
-        # Optimizer
-        if self.distributed_training and self.network_is_local and self.network_parameters.shared_optimizer:
-            # distributed training + is a local network + optimizer shared -> take the global optimizer
-            self.optimizer = self.global_network.optimizer
-        elif (self.distributed_training and self.network_is_local and not self.network_parameters.shared_optimizer) \
-                or self.network_parameters.shared_optimizer or not self.distributed_training:
-            # distributed training + is a global network + optimizer shared
-            # OR
-            # distributed training + is a local network + optimizer not shared
-            # OR
-            # non-distributed training
-            # -> create an optimizer
-
-            if self.network_parameters.optimizer_type == 'Adam':
-                self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self.current_learning_rate,
-                                                        beta1=self.network_parameters.adam_optimizer_beta1,
-                                                        beta2=self.network_parameters.adam_optimizer_beta2,
-                                                        epsilon=self.network_parameters.optimizer_epsilon)
-            elif self.network_parameters.optimizer_type == 'RMSProp':
-                self.optimizer = tf.compat.v1.train.RMSPropOptimizer(self.current_learning_rate,
-                                                           decay=self.network_parameters.rms_prop_optimizer_decay,
-                                                           epsilon=self.network_parameters.optimizer_epsilon)
-            elif self.network_parameters.optimizer_type == 'LBFGS':
-                print(' Could not find updated implementation') # TODO: Dan to update function
-                raise NotImplementedError
-                # Dan manual fix
-                # self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
-                #                 #                                                         options={'maxiter': 25})
-
-            else:
-                raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
         return self.weights
 

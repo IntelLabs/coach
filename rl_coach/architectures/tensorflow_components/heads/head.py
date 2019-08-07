@@ -43,58 +43,58 @@ class Head(keras.layers.Layer):
     an assigned loss function. The heads are algorithm dependent.
     """
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int=0, loss_weight: float=1., is_local: bool=True, activation_function: str='relu',
-                 dense_layer=Dense, is_training=False):
+                 head_idx: int=0, loss_weight: float=1., is_local: bool=True, **kwargs):
+        super().__init__(**kwargs)
         self.head_idx = head_idx
         self.network_name = network_name
-        self.network_parameters = agent_parameters.network_wrappers[self.network_name]
-        self.name = "head"
-        self.output = []
+        #self.network_parameters = agent_parameters.network_wrappers[self.network_name]
+        #self.name = "head"
+        #self.output = []
         self.loss = []
         self.loss_type = []
         self.regularizations = []
         # Dan manual fix (added compat.v1)
-        self.loss_weight = tf.compat.v1.Variable([float(w) for w in force_list(loss_weight)],
-                                       trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+        # self.loss_weight = tf.compat.v1.Variable([float(w) for w in force_list(loss_weight)],
+        #                                trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
         self.target = []
         self.importance_weight = []
-        self.input = []
+        #self.input = []
         self.is_local = is_local
         self.ap = agent_parameters
         self.spaces = spaces
         self.return_type = None
-        self.activation_function = activation_function
-        self.dense_layer = dense_layer
-        if self.dense_layer is None:
-            self.dense_layer = Dense
-        else:
-            self.dense_layer = convert_layer_class(self.dense_layer)
-        self.is_training = is_training
+        # self.activation_function = activation_function
+        # self.dense_layer = dense_layer
+        # if self.dense_layer is None:
+        #     self.dense_layer = Dense
+        # else:
+        #     self.dense_layer = convert_layer_class(self.dense_layer)
+        # self.is_training = is_training
 
-    def __call__(self, input_layer):
-        """
-        Wrapper for building the module graph including scoping and loss creation
-        :param input_layer: the input to the graph
-        :return: the output of the last layer and the target placeholder
-        """
-
-        with tf.compat.v1.variable_scope(self.get_name(), initializer=tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform")):
-            self._build_module(squeeze_tensor(input_layer))
-
-            self.output = force_list(self.output)
-            self.target = force_list(self.target)
-            self.input = force_list(self.input)
-            self.loss_type = force_list(self.loss_type)
-            self.loss = force_list(self.loss)
-            self.regularizations = force_list(self.regularizations)
-            if self.is_local:
-                self.set_loss()
-            self._post_build()
-
-        if self.is_local:
-            return self.output, self.target, self.input, self.importance_weight
-        else:
-            return self.output, self.input
+    # def __call__(self, input_layer):
+    #     """
+    #     Wrapper for building the module graph including scoping and loss creation
+    #     :param input_layer: the input to the graph
+    #     :return: the output of the last layer and the target placeholder
+    #     """
+    #
+    #     with tf.compat.v1.variable_scope(self.get_name(), initializer=tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform")):
+    #         self._build_module(squeeze_tensor(input_layer))
+    #
+    #         self.output = force_list(self.output)
+    #         self.target = force_list(self.target)
+    #         self.input = force_list(self.input)
+    #         self.loss_type = force_list(self.loss_type)
+    #         self.loss = force_list(self.loss)
+    #         self.regularizations = force_list(self.regularizations)
+    #         if self.is_local:
+    #             self.set_loss()
+    #         self._post_build()
+    #
+    #     if self.is_local:
+    #         return self.output, self.target, self.input, self.importance_weight
+    #     else:
+    #         return self.output, self.input
 
     def _build_module(self, input_layer):
         """
