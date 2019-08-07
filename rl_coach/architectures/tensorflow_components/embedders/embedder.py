@@ -14,21 +14,12 @@
 # limitations under the License.
 #
 
-
-
-from typing import List, Union, Tuple
-import copy
-
+from typing import List, Union
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-
-from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
-from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
-
+from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputEmbedding
-from rl_coach.utils import force_list
-
 
 
 class InputEmbedder(keras.layers.Layer):
@@ -37,22 +28,25 @@ class InputEmbedder(keras.layers.Layer):
     embedding by passing it through a neural network. The embedder will mostly be input type dependent, and there
     can be multiple embedders in a single network
     """
-    def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
-                 scheme: EmbedderScheme=None, batchnorm: bool=False, dropout_rate: float=0.0,
-                 name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense,
-                 is_training=False, **kwargs):
+    def __init__(self,
+                 input_size: List[int],
+                 activation_function=tf.nn.relu,
+                 scheme: EmbedderScheme = None,
+                 batchnorm: bool = False,
+                 dropout_rate: float = 0.0,
+                 name: str= "embedder",
+                 input_rescaling=1.0,
+                 input_offset=0.0,
+                 input_clipping=None,
+                 is_training=False,
+                 **kwargs):
 
         super().__init__(**kwargs)
         # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
-        #self.activation_function = activation_function
-        self.batchnorm = batchnorm
-        self.dropout_rate = dropout_rate
-        # self.input = None
-        # self.output = None
-        self.scheme = scheme
+
+        #self.scheme = scheme
         self.return_type = InputEmbedding
-        self.layers_params = []
 
         self.input_rescaling = input_rescaling
         self.input_offset = input_offset
@@ -61,7 +55,7 @@ class InputEmbedder(keras.layers.Layer):
         self.embbeder_layers = []
         self.embbeder_layers.extend([keras.layers.InputLayer(input_shape=input_size)])
 
-        for layer in self.schemes[self.scheme]:
+        for layer in self.schemes[scheme]:
             self.embbeder_layers.extend([layer])
             if batchnorm:
                 self.embbeder_layers.extend([keras.layers.BatchNormalization()])
@@ -70,7 +64,6 @@ class InputEmbedder(keras.layers.Layer):
             if dropout_rate:
                 self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-
     def call(self, inputs, **kwargs):
         """
         Used for forward pass through embedder network.
@@ -78,7 +71,6 @@ class InputEmbedder(keras.layers.Layer):
         :param inputs: environment state, where first dimension is batch_size, then dimensions are data type dependent.
         :return: embedding of environment state, where shape is (batch_size, channels).
         """
-
         x = inputs / self.input_rescaling
         x = x - self.input_offset
         if self.input_clipping is not None:
@@ -88,56 +80,8 @@ class InputEmbedder(keras.layers.Layer):
             x = layer(x)
 
         x = keras.layers.Flatten()(x)
-
         return x
 
-
-
-
-    # def call(self, inputs) -> tf.Tensor:
-    #     """
-    #     Wrapper for building the module graph including scoping and loss creation
-    #     :param inputs: the input to the graph
-    #     :return: the input and the output of the last layer
-    #     """
-    #     #self.input = inputs
-    #     self._build_module()
-    #     return self.output
-    #     #Dan removed self.input from the return values inorder to atch call signiture return self.input, self.output
-
-    # def _build_module(self) -> None:
-    #     """
-    #     Builds the graph of the module
-    #     This method is called early on from __call__. It is expected to store the graph
-    #     in self.output.
-    #     :return: None
-    #     """
-    #     # NOTE: for image inputs, we expect the data format to be of type uint8, so to be memory efficient. we chose not
-    #     #  to implement the rescaling as an input filters.observation.observation_filter, as this would have caused the
-    #     #  input to the network to be float, which is 4x more expensive in memory.
-    #     #  thus causing each saved transition in the memory to also be 4x more pricier.
-    #
-    #     input_layer = self.input / self.input_rescaling
-    #     input_layer -= self.input_offset
-    #     # clip input using te given range
-    #     if self.input_clipping is not None:
-    #         input_layer = tf.clip_by_value(input_layer, self.input_clipping[0], self.input_clipping[1])
-    #
-    #     self.layers.append(input_layer)
-    #
-    #     for idx, layer_params in enumerate(self.layers_params):
-    #
-    #
-    #
-    #
-    #         self.layers.extend(force_list(
-    #             layer_params(input_layer=self.layers[-1], name='{}_{}'.format(layer_params.__class__.__name__, idx),
-    #                          is_training=self.is_training)
-    #         ))
-    #
-    #     self.output = tf.reshape(self.layers[-1], [-1])
-    #     # Dan manual fix
-    #     #self.output = tf.contrib.layers.flatten(self.layers[-1])
 
 
     @property
@@ -172,8 +116,8 @@ class InputEmbedder(keras.layers.Layer):
         result = ['Input size = {}'.format(self._input_size)]
         if self.input_rescaling != 1.0 or self.input_offset != 0.0:
             result.append('Input Normalization (scale = {}, offset = {})'.format(self.input_rescaling, self.input_offset))
-        result.extend([str(l) for l in self.layers_params])
-        if not self.layers_params:
+        result.extend([str(l) for l in self.embbeder_layers])
+        if not self.embbeder_layers:
             result.append('No layers')
 
         return '\n'.join(result)

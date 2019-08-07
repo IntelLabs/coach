@@ -188,7 +188,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         obs_batch = tf.expand_dims(obs, 0)
         model = GeneralModel(self.ap, self.spaces, self.name)
         model.build(input_shape=(None, 4))
-        model(obs_batch)
+        #model(obs_batch)
         self.optimizer = self.get_optimizer()
         #return GeneralModel(self.ap, self.spaces, self.name)
         return model

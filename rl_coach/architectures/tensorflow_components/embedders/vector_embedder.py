@@ -20,7 +20,8 @@ from typing import List
 import tensorflow as tf
 from tensorflow import keras
 
-from rl_coach.architectures.tensorflow_components.layers import Dense
+
+#from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputVectorEmbedding
@@ -29,50 +30,61 @@ from rl_coach.core_types import InputVectorEmbedding
 
 class VectorEmbedder(InputEmbedder):
     """
-    An input embedder that is intended for inputs that can be represented as vectors.
-    The embedder flattens the input, applies several dense layers to it and returns the output.
+    A vector embedder is an input embedder that takes an vector input from the state and produces a vector
+    embedding by passing it through a neural network.
+
+    :param params: parameters object containing input_clipping, input_rescaling, batchnorm, activation_function
+    and dropout properties.
     """
 
-    def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
-                 scheme: EmbedderScheme=EmbedderScheme.Medium, batchnorm: bool=False, dropout_rate: float=0.0,
-                 name: str= "embedder", input_rescaling: float=1.0, input_offset: float=0.0, input_clipping=None,
-                 dense_layer=Dense, is_training=False):
+    def __init__(self, input_size: List[int],
+                 activation_function=tf.nn.relu,
+                 scheme: EmbedderScheme=EmbedderScheme.Medium,
+                 batchnorm: bool=False,
+                 dropout_rate: float=0.0,
+                 name: str= "embedder",
+                 input_rescaling: float=1.0,
+                 input_offset: float=0.0,
+                 input_clipping=None,
+                 is_training=False):
+
         super().__init__(input_size, activation_function, scheme, batchnorm, dropout_rate, name,
-                         input_rescaling, input_offset, input_clipping, dense_layer=dense_layer,
+                         input_rescaling, input_offset, input_clipping,
                          is_training=is_training)
 
         self.return_type = InputVectorEmbedding
         if len(self.input_size) != 1 and scheme != EmbedderScheme.Empty:
             raise ValueError("The input size of a vector embedder must contain only a single dimension")
 
+
     @property
     def schemes(self):
-        # Dan change dictionary values to be
+        """
+        Schemes are the pre-defined network architectures of various depths and complexities that can be used. Are used
+        to create Block when VectorEmbedder is initialised.
+
+        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of Tensorflow 2 layers.
+        """
         return {
             EmbedderScheme.Empty:
                 [],
 
             EmbedderScheme.Shallow:
                 [
-                    #self.dense_layer(128)
-                    keras.layers.Dense(128)#, activation=tf.nn.relu)
+                    keras.layers.Dense(128)
                 ],
 
-            # dqn
+            # Use for DQN
             EmbedderScheme.Medium:
                 [
-                    #self.dense_layer(256)
-                    keras.layers.Dense(256)#, activation=tf.nn.relu)
+                    keras.layers.Dense(256)
                 ],
 
-            # carla
+            # Use for Carla
             EmbedderScheme.Deep: \
                 [
-                    # self.dense_layer(128),
-                    # self.dense_layer(128),
-                    # self.dense_layer(128)
-                    keras.layers.Dense(128),#, activation=tf.nn.relu),
-                    keras.layers.Dense(128),# activation=tf.nn.relu),
-                    keras.layers.Dense(128)#, activation=tf.nn.relu)
+                    keras.layers.Dense(128),
+                    keras.layers.Dense(128),
+                    keras.layers.Dense(128)
                 ]
         }
