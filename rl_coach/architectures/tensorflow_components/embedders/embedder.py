@@ -72,15 +72,24 @@ class InputEmbedder(keras.layers.Layer):
 
 
     def call(self, inputs, **kwargs):
+        """
+        Used for forward pass through embedder network.
 
+        :param inputs: environment state, where first dimension is batch_size, then dimensions are data type dependent.
+        :return: embedding of environment state, where shape is (batch_size, channels).
+        """
 
-        Z = inputs
+        x = inputs / self.input_rescaling
+        x = x - self.input_offset
+        if self.input_clipping is not None:
+            x = tf.clip_by_value(x, self.input_clipping[0], self.input_clipping[1])
+
         for layer in self.embbeder_layers:
-            Z = layer(Z)
+            x = layer(x)
 
-        Z = keras.layers.Flatten()(Z)
+        x = keras.layers.Flatten()(x)
 
-        return Z
+        return x
 
 
 
