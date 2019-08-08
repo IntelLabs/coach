@@ -34,6 +34,53 @@ from rl_coach.logger import screen
 from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, TensorObservationSpace
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
+from types import ModuleType
+from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
+
+
+def _get_input_embedder(spaces: SpacesDefinition,
+                        input_name: str,
+                        embedder_params: InputEmbedderParameters) -> ModuleType:
+    """
+    Given an input embedder parameters class, creates the input embedder and returns it
+    :param input_name: the name of the input to the embedder (used for retrieving the shape). The input should
+                       be a value within the state or the action.
+    :param embedder_params: the parameters of the class of the embedder
+    :return: the embedder instance
+    """
+    allowed_inputs = copy.copy(spaces.state.sub_spaces)
+    allowed_inputs["action"] = copy.copy(spaces.action)
+    allowed_inputs["goal"] = copy.copy(spaces.goal)
+
+    if input_name not in allowed_inputs.keys():
+        raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
+                         .format(input_name, allowed_inputs.keys()))
+
+    type = "vector"
+    if isinstance(allowed_inputs[input_name], TensorObservationSpace):
+        type = "tensor"
+    elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
+        type = "image"
+
+    if type == 'vector':
+        module = VectorEmbedder(input_size=allowed_inputs[input_name].shape,
+                                activation_function=embedder_params.activation_function,
+                                scheme=embedder_params.scheme,
+                                batchnorm=embedder_params.batchnorm,
+                                dropout_rate=embedder_params.dropout_rate,
+                                name=embedder_params.name,
+                                input_rescaling=embedder_params.input_rescaling[type],
+                                input_offset=embedder_params.input_offset[type],
+                                input_clipping=embedder_params.input_clipping,
+                                is_training=embedder_params.is_training)
+    elif type == 'image':
+        module = ImageEmbedder(embedder_params)
+    elif type == 'tensor':
+        module = TensorEmbedder(embedder_params)
+    else:
+        raise KeyError('Unsupported embedder type: {}'.format(type))
+    return module
+
 
 class GeneralModel(keras.Model):
 
@@ -84,7 +131,8 @@ class GeneralModel(keras.Model):
             # Dan- changed input_type to more informative name
             embbeder_parameters = self.network_parameters.input_embedders_parameters[input_name]
             # Creates input embedder object (calls init)
-            input_embedder = self.get_input_embedder(input_name, embbeder_parameters)
+            input_embedder = _get_input_embedder(spaces, input_name, embbeder_parameters)
+            #input_embedder = self.get_input_embedder(input_name, embbeder_parameters)
             self.input_embedders.append(input_embedder)
 
         self.middleware = self.get_middleware(self.network_parameters.middleware_parameters)
@@ -173,40 +221,43 @@ class GeneralModel(keras.Model):
 
         return ret_dict
 
-    def get_input_embedder(self, input_name: str, embedder_params: InputEmbedderParameters):
-        """
-        Given an input embedder parameters class, creates the input embedder and returns it
-        :param input_name: the name of the input to the embedder (used for retrieving the shape). The input should
-                           be a value within the state or the action.
-        :param embedder_params: the parameters of the class of the embedder
-        :return: the embedder instance
-        """
-        # The input shape to the DNN is : self.spaces.state.sub_spaces["observation"].shape
-        allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
-        allowed_inputs["action"] = copy.copy(self.spaces.action)
-        allowed_inputs["goal"] = copy.copy(self.spaces.goal)
+    # def get_input_embedder(self, input_name: str, embedder_params: InputEmbedderParameters):
+    #     """
+    #     Given an input embedder parameters class, creates the input embedder and returns it
+    #     :param input_name: the name of the input to the embedder (used for retrieving the shape). The input should
+    #                        be a value within the state or the action.
+    #     :param embedder_params: the parameters of the class of the embedder
+    #     :return: the embedder instance
+    #     """
+    #     # The input shape to the DNN is : self.spaces.state.sub_spaces["observation"].shape
+    #     allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
+    #     allowed_inputs["action"] = copy.copy(self.spaces.action)
+    #     allowed_inputs["goal"] = copy.copy(self.spaces.goal)
+    #
+    #     if input_name not in allowed_inputs.keys():
+    #         raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
+    #                          .format(input_name, allowed_inputs.keys()))
+    #
+    #     emb_type = "vector"
+    #     if isinstance(allowed_inputs[input_name], TensorObservationSpace):
+    #         emb_type = "tensor"
+    #     elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
+    #         emb_type = "image"
+    #
+    #     embedder_path = embedder_params.path(emb_type)
+    #     embedder_params_copy = copy.copy(embedder_params)
+    #     embedder_params_copy.is_training = self.is_training
+    #     embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
+    #     embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
+    #     embedder_params_copy.input_offset = embedder_params_copy.input_offset[emb_type]
+    #     embedder_params_copy.name = input_name
+    #     module = dynamic_import_and_instantiate_module_from_params(embedder_params_copy,
+    #                                                                path=embedder_path,
+    #                                                                positional_args=[allowed_inputs[input_name].shape])
+    #     return module
 
-        if input_name not in allowed_inputs.keys():
-            raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
-                             .format(input_name, allowed_inputs.keys()))
 
-        emb_type = "vector"
-        if isinstance(allowed_inputs[input_name], TensorObservationSpace):
-            emb_type = "tensor"
-        elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
-            emb_type = "image"
 
-        embedder_path = embedder_params.path(emb_type)
-        embedder_params_copy = copy.copy(embedder_params)
-        embedder_params_copy.is_training = self.is_training
-        embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
-        embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
-        embedder_params_copy.input_offset = embedder_params_copy.input_offset[emb_type]
-        embedder_params_copy.name = input_name
-        module = dynamic_import_and_instantiate_module_from_params(embedder_params_copy,
-                                                                   path=embedder_path,
-                                                                   positional_args=[allowed_inputs[input_name].shape])
-        return module
 
     def get_middleware(self, middleware_params: MiddlewareParameters):
         """
