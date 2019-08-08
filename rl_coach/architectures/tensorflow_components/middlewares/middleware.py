@@ -31,73 +31,43 @@ class Middleware(keras.layers.Layer):
     after they were aggregated in some method (for example, concatenation) and passes it through a neural network
     which can be customizable but shared between the heads of the network
     """
-    def __init__(self, activation_function=tf.nn.relu,
+    def __init__(self,
+                 activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout_rate: float = 0.0, name="middleware_embedder", dense_layer=Dense,
-                 is_training=False, **kwargs):
+                 batchnorm: bool = False,
+                 dropout_rate: float = 0.0,
+                 name="middleware_embedder",
+                 is_training=False,
+                 **kwargs):
         super().__init__(**kwargs)
-        # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
 
-        # self.input = None
-        # self.output = None
-        self.activation_function = activation_function
-        self.batchnorm = batchnorm
-        self.dropout_rate = dropout_rate
-        self.scheme = scheme
+        self.middleware_layers = []
+        # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
+        #self.scheme = scheme
         self.return_type = MiddlewareEmbedding
-        self.dense_layer = dense_layer
-        if self.dense_layer is None:
-            self.dense_layer = Dense
         self.is_training = is_training
 
-        self.middleware_layers = copy.copy(self.schemes[self.scheme])
-        # layers order is conv -> batchnorm -> activation -> dropout
-        # if isinstance(self.scheme, MiddlewareScheme):
-        #     self.layers_params = copy.copy(self.schemes[self.scheme])
-        #     self.layers_params = [convert_layer(l) for l in self.layers_params]
-        # else:
-        #     # if scheme is specified directly, convert to TF layer if it's not a callable object
-        #     # NOTE: if layer object is callable, it must return a TF tensor when invoked
-        #     self.layers_params = [convert_layer(l) for l in copy.copy(self.scheme)]
+        for layer in self.schemes[scheme]:
+            self.middleware_layers.extend([layer])
+            if batchnorm:
+                self.middleware_layers.extend([keras.layers.BatchNormalization()])
+            if activation_function:
+                self.middleware_layers.extend([keras.activations.get(activation_function)])
+            if dropout_rate:
+                self.middleware_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-        # we allow adding batchnorm, dropout or activation functions after each layer.
-        # The motivation is to simplify the transition between a network with batchnorm and a network without
-        # batchnorm to a single flag (the same applies to activation function and dropout)
-        # if self.batchnorm or self.activation_function or self.dropout_rate > 0:
-        #     for layer_idx in reversed(range(len(self.layers_params))):
-        #         self.layers_params.insert(layer_idx+1,
-        #                                   BatchnormActivationDropout(batchnorm=self.batchnorm,
-        #                                                              activation_function=self.activation_function,
-        #                                                              dropout_rate=self.dropout_rate))
-
-    #def __call__(self, input_layer: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
     def call(self, inputs, **kwargs):
         """
-        Wrapper for building the module graph including scoping and loss creation
-        :param input_layer: the input to the graph
-        :return: the input placeholder and the output of the last layer
+        Used for forward pass through middleware network.
+
+        :param inputs: state embedding, of shape (batch_size, in_channels).
+        :return: state middleware embedding, where shape is (batch_size, channels).
         """
-        # # with tf.compat.v1.variable_scope(self.get_name()):
-        # self.input = input_layer
-        # self._build_module()
-        #
-        # return self.input, self.output
-        Z = inputs
+        x = inputs
         for layer in self.middleware_layers:
+            x = layer(x)
+        return x
 
-            Z = layer(Z)
-
-        return Z
-
-    def _build_module(self) -> None:
-        """
-        Builds the graph of the module
-        This method is called early on from __call__. It is expected to store the graph
-        in self.output.
-        :param input_layer: the input to the graph
-        :return: None
-        """
-        pass
 
     def get_name(self) -> str:
         """

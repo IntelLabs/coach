@@ -786,6 +786,7 @@ if __name__ == "__main__":
     #     dan_delete = tf.compat.v1.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
 
     sys.argv.append('-p')
-    sys.argv.append('CartPole_DQN')
+    #sys.argv.append('CartPole_DQN')
+    sys.argv.append('temp_delete_preset')
     print(sys.argv)
     main()

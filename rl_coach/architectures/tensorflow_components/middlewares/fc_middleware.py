@@ -27,31 +27,21 @@ from rl_coach.utils import force_list
 
 
 class FCMiddleware(Middleware):
-    def __init__(self, activation_function=tf.nn.relu,
+    def __init__(self,
+                 activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
-                 batchnorm: bool = False, dropout_rate: float = 0.0,
-                 name="middleware_fc_embedder", dense_layer=Dense, is_training=False, num_streams: int = 1):
+                 batchnorm: bool = False,
+                 dropout_rate: float = 0.0,
+                 name="middleware_fc_embedder",
+                 is_training=False,
+                 num_streams: int = 1):
         super().__init__(activation_function=activation_function, batchnorm=batchnorm,
-                         dropout_rate=dropout_rate, scheme=scheme, name=name, dense_layer=dense_layer,
+                         dropout_rate=dropout_rate, scheme=scheme, name=name,
                          is_training=is_training)
         self.return_type = Middleware_FC_Embedding
 
         assert(isinstance(num_streams, int) and num_streams >= 1)
         self.num_streams = num_streams
-
-    # def _build_module(self):
-    #     self.output = []
-    #
-    #     for stream_idx in range(self.num_streams):
-    #         layers = [self.input]
-    #
-    #         for idx, layer_params in enumerate(self.layers_params):
-    #             layers.extend(force_list(
-    #                 layer_params(layers[-1], name='{}_{}'.format(layer_params.__class__.__name__,
-    #                                                              idx + stream_idx * len(self.layers_params)),
-    #                                   is_training=self.is_training)
-    #             ))
-    #         self.output.append((layers[-1]))
 
     @property
     def schemes(self):
@@ -59,28 +49,23 @@ class FCMiddleware(Middleware):
             MiddlewareScheme.Empty:
                 [],
 
-            # ppo
+            # Use for PPO
             MiddlewareScheme.Shallow:
                 [
-                    #self.dense_layer(64)
-                    keras.layers.Dense(64, activation=tf.nn.relu)
+                    keras.layers.Dense(64)
                 ],
 
-            # dqn
+            # Use for DQN
             MiddlewareScheme.Medium:
                 [
-                    #self.dense_layer(512)
-                    keras.layers.Dense(512, activation=tf.nn.relu)
+                    keras.layers.Dense(512)
                 ],
 
             MiddlewareScheme.Deep: \
                 [
-                    # self.dense_layer(128),
-                    # self.dense_layer(128),
-                    # self.dense_layer(128)
-                    keras.layers.Dense(128, activation=tf.nn.relu),
-                    keras.layers.Dense(128, activation=tf.nn.relu),
-                    keras.layers.Dense(128, activation=tf.nn.relu)
+                    keras.layers.Dense(128),
+                    keras.layers.Dense(128),
+                    keras.layers.Dense(128)
                 ]
         }
 
