@@ -25,13 +25,17 @@ from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition, BoxActionSpace, DiscreteActionSpace
 
 
-#class QHead(Head):
-class QHead(keras.layers.Layer):
-    def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='relu',
-                 dense_layer=Dense,**kwargs):
+class QHead(Head):
+    def __init__(self,
+                 agent_parameters: AgentParameters,
+                 spaces: SpacesDefinition,
+                 network_name: str,
+                 head_idx: int = 0,
+                 loss_weight: float = 1.,
+                 is_local: bool = True,
+                 activation_function: str = 'relu',
+                 **kwargs):
         super().__init__(**kwargs)
-        #super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, **kwargs)
         #self.name = 'q_values_head'
         self.spaces = spaces
         if isinstance(self.spaces.action, BoxActionSpace):
@@ -41,26 +45,9 @@ class QHead(keras.layers.Layer):
         else:
             raise ValueError(
                 'QHead does not support action spaces of type: {class_name}'.format(
-                    class_name=self.spaces.action.__class__.__name__,
-                )
-            )
+                    class_name=self.spaces.action.__class__.__name__,))
         self.return_type = QActionStateValue
-        # if agent_parameters.network_wrappers[self.network_name].replace_mse_with_huber_loss:
-        #     self.loss_type = tf.compat.v1.losses.huber_loss
-        # else:
-        #     self.loss_type = tf.compat.v1.losses.mean_squared_error
-
-        self.q_head = keras.layers.Dense(self.num_actions)
-
-        #self.q_values = self.output = self.dense_layer(self.num_actions)(input_layer, name='output')
-        #self.softmax = self.add_softmax_with_temperature()
-
-    # def _build_module(self, input_layer):
-    #     # Standard Q Network
-    #     self.q_values = self.output = self.dense_layer(self.num_actions)(input_layer, name='output')
-    #
-    #     # used in batch-rl to estimate a probablity distribution over actions
-    #     self.softmax = self.add_softmax_with_temperature()
+        self.q_head = keras.layers.Dense(self.num_actions, activation=keras.activations.get(activation_function))
 
     def call(self, inputs, **kwargs):
         q_value = self.q_head(inputs)
@@ -72,8 +59,5 @@ class QHead(keras.layers.Layer):
         ]
         return '\n'.join(result)
 
-    def add_softmax_with_temperature(self):
-        temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
-        temperature_scaled_outputs = self.q_values / temperature
-        return tf.nn.softmax(temperature_scaled_outputs, name="softmax")
+
 
