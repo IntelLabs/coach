@@ -36,6 +36,8 @@ from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_mo
 
 from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
+from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
+from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
 
 
 def _get_input_embedder(spaces: SpacesDefinition,
@@ -79,6 +81,28 @@ def _get_input_embedder(spaces: SpacesDefinition,
         module = TensorEmbedder(embedder_params)
     else:
         raise KeyError('Unsupported embedder type: {}'.format(type))
+    return module
+
+
+def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
+    """
+    Given a middleware type, creates the middleware and returns it
+    :param middleware_params: the paramaeters of the middleware class
+    :return: the middleware instance
+    """
+    if isinstance(middleware_params, FCMiddlewareParameters):
+        module = FCMiddleware(activation_function=middleware_params.activation_function,
+                              scheme=middleware_params.scheme,
+                              batchnorm=middleware_params.batchnorm,
+                              dropout_rate=middleware_params.dropout_rate,
+                              name=middleware_params.name,
+                              is_training=middleware_params.is_training,
+                              num_streams=middleware_params.num_streams)
+    elif isinstance(middleware_params, LSTMMiddlewareParameters):
+        module = LSTMMiddleware(middleware_params)
+    else:
+        raise KeyError('Unsupported middleware type: {}'.format(type(middleware_params)))
+
     return module
 
 
@@ -135,7 +159,9 @@ class GeneralModel(keras.Model):
             #input_embedder = self.get_input_embedder(input_name, embbeder_parameters)
             self.input_embedders.append(input_embedder)
 
-        self.middleware = self.get_middleware(self.network_parameters.middleware_parameters)
+        #self.middleware = self.get_middleware(self.network_parameters.middleware_parameters)
+        self.middleware = _get_middleware(self.network_parameters.middleware_parameters)
+
 
 
 
