@@ -18,7 +18,6 @@
 import tensorflow as tf
 from tensorflow import keras
 
-from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
@@ -31,10 +30,19 @@ class QHead(Head):
                  spaces: SpacesDefinition,
                  network_name: str,
                  head_idx: int = 0,
-                 loss_weight: float = 1.,
                  is_local: bool = True,
                  activation_function: str = 'relu',
                  **kwargs):
+        """
+         Q-Value Head for predicting state-action Q-Values.
+
+         :param agent_parameters: containing algorithm parameters, but currently unused.
+         :param spaces: containing action spaces used for defining size of network output.
+         :param network_name: name of head network. currently unused.
+         :param head_type_idx: index of head network. currently unused.
+         :param is_local: flag to denote if network is local. currently unused.
+         :param activation_function: activation function to use between layers.
+         """
         super().__init__(**kwargs)
         #self.name = 'q_values_head'
         self.spaces = spaces

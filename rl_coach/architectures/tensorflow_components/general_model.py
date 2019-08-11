@@ -38,6 +38,8 @@ from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
+from rl_coach.architectures.tensorflow_components.heads import Head, QHead
+from rl_coach.architectures.head_parameters import QHeadParameters
 
 
 def _get_input_embedder(spaces: SpacesDefinition,
@@ -104,6 +106,45 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
         raise KeyError('Unsupported middleware type: {}'.format(type(middleware_params)))
 
     return module
+
+
+def _get_output_head(
+        head_params: HeadParameters,
+        head_idx: int,
+        head_type_index: int,
+        agent_params: AgentParameters,
+        spaces: SpacesDefinition,
+        network_name: str,
+        is_local: bool) -> Head:
+    """
+    Given a head type, creates the head and returns it
+    :param head_params: the parameters of the head to create
+    :param head_idx: the head index
+    :param head_type_index: the head type index (same index if head_param.num_output_head_copies>0)
+    :param agent_params: agent parameters
+    :param spaces: state and action space definitions
+    :param network_name: name of the network
+    :param is_local:
+    :return: head block
+    """
+
+    if isinstance(head_params, QHeadParameters):
+        module = QHead(
+            agent_parameters=agent_params,
+            spaces=spaces,
+            network_name=network_name,
+            head_type_idx=head_type_index,
+            loss_weight=head_params.loss_weight,
+            is_local=is_local,
+            activation_function=head_params.activation_function,
+            dense_layer=head_params.dense_layer)
+    else:
+        raise KeyError('Unsupported head type: {}'.format(type(head_params)))
+
+    return module
+
+
+
 
 
 class GeneralModel(keras.Model):
@@ -188,7 +229,9 @@ class GeneralModel(keras.Model):
 
         # TODO: starting with q learning, will handle actor critic multiple outputs later
         head_params = self.network_parameters.heads_parameters[0]
+
         self.out_head = self.get_output_head(head_params, 0)
+        #self.out_head = _get_output_head(head_params)
 
 
     def call(self, inputs):
@@ -285,19 +328,19 @@ class GeneralModel(keras.Model):
 
 
 
-    def get_middleware(self, middleware_params: MiddlewareParameters):
-        """
-        Given a middleware type, creates the middleware and returns it
-        :param middleware_params: the paramaeters of the middleware class
-        :return: the middleware instance
-        """
-        mod_name = middleware_params.parameterized_class_name
-        middleware_path = middleware_params.path
-        middleware_params_copy = copy.copy(middleware_params)
-        middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
-        middleware_params_copy.is_training = self.is_training
-        module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
-        return module
+    # def get_middleware(self, middleware_params: MiddlewareParameters):
+    #     """
+    #     Given a middleware type, creates the middleware and returns it
+    #     :param middleware_params: the paramaeters of the middleware class
+    #     :return: the middleware instance
+    #     """
+    #     mod_name = middleware_params.parameterized_class_name
+    #     middleware_path = middleware_params.path
+    #     middleware_params_copy = copy.copy(middleware_params)
+    #     middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
+    #     middleware_params_copy.is_training = self.is_training
+    #     module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
+    #     return module
 
     def get_output_head(self, head_params: HeadParameters, head_idx: int):
         """

@@ -1,3 +1,4 @@
+from .head import Head
 from .q_head import QHead
 from .categorical_q_head import CategoricalQHead
 from .ddpg_actor_head import DDPGActor
@@ -20,6 +21,7 @@ from .td3_v_head import TD3VHead
 from .ddpg_v_head import DDPGVHead
 
 __all__ = [
+    'Head',
     'CategoricalQHead',
     'DDPGActor',
     'DNDQHead',

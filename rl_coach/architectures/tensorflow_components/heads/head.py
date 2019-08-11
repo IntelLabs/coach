@@ -41,8 +41,7 @@ class Head(keras.layers.Layer):
 
     :param agent_parameters: containing algorithm parameters such as clip_likelihood_ratio_using_epsilon
         and beta_entropy.
-    :param spaces: containing action spaces used for defining size of network output.
-    :param network_name: name of head network. currently unused.
+    :param spaces: con e: name of head network. currently unused.
     :param head_type_idx: index of head network. currently unused.
     :param loss_weight: scalar used to adjust relative weight of loss (if using this loss with others).
     :param is_local: flag to denote if network is local. currently unused.
