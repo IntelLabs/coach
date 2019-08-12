@@ -40,6 +40,9 @@ from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters,
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
 from rl_coach.architectures.tensorflow_components.heads import Head, QHead
 from rl_coach.architectures.head_parameters import QHeadParameters
+from itertools import chain
+from rl_coach.base_parameters import NetworkParameters
+
 
 
 def _get_input_embedder(spaces: SpacesDefinition,
@@ -145,9 +148,196 @@ def _get_output_head(
 
 
 
+class SingleModel(keras.Model):
+    """
+    Block that connects a single embedder, with middleware and one to multiple heads
+    """
+    def __init__(self,
+                 network_is_local: bool,
+                 network_name: str,
+                 agent_parameters: AgentParameters,
+                 in_emb_param_dict: {str: InputEmbedderParameters},
+                 embedding_merger_type: EmbeddingMergerType,
+                 middleware_param: MiddlewareParameters,
+                 head_param_list: [HeadParameters],
+                 head_type_idx_start: int,
+                 spaces: SpacesDefinition,
+                 *args, **kwargs):
+        """
+        :param network_is_local: True if network is local
+        :param network_name: name of the network
+        :param agent_parameters: agent parameters
+        :param in_emb_param_dict: dictionary of embedder name to embedding parameters
+        :param embedding_merger_type: type of merging output of embedders: concatenate or sum
+        :param middleware_param: middleware parameters
+        :param head_param_list: list of head parameters, one per head type
+        :param head_type_idx_start: start index for head type index counting
+        :param spaces: state and action space definition
+        """
+        super(SingleModel, self).__init__(*args, **kwargs)
+
+        self._embedding_merger_type = embedding_merger_type
+        self._input_embedders = list()  # type: List[HybridBlock]
+        self._output_heads = list()  # type: List[ScaledGradHead]
+
+        for input_name in sorted(in_emb_param_dict):
+            input_type = in_emb_param_dict[input_name]
+            input_embedder = _get_input_embedder(spaces, input_name, input_type)
+            self._input_embedders.append(input_embedder)
+
+        self.middleware = _get_middleware(middleware_param)
+
+        for i, head_param in enumerate(head_param_list):
+            for head_copy_idx in range(head_param.num_output_head_copies):
+                # create output head and add it to the output heads list
+                head_idx = (head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx
+                output_head = _get_output_head(
+                    head_idx=head_idx,
+                    head_type_index=head_type_idx_start + i,
+                    network_name=network_name,
+                    spaces=spaces,
+                    is_local=network_is_local,
+                    agent_params=agent_parameters,
+                    head_params=head_param)
+
+                self._output_heads.append(output_head)
+
+    def call(self, inputs, **kwargs):
+        """ Overrides tf.keras.call
+        :param inputs: model inputs, one for each embedder
+        :return: head outputs in a tuple
+        """
+        # Input Embeddings
+        state_embedding = list()
+        for input, embedder in zip(inputs, self._input_embedders):
+            state_embedding.append(embedder(input))
+
+        # Merger
+        if len(state_embedding) == 1:
+            state_embedding = state_embedding[0]
+        else:
+            if self._embedding_merger_type == EmbeddingMergerType.Concat:
+                #state_embedding = F.concat(*state_embedding, dim=1, name='merger')
+                state_embedding = tf.keras.layers.Concatenate()(state_embedding)
+            elif self._embedding_merger_type == EmbeddingMergerType.Sum:
+                state_embedding = tf.keras.layers.Add()(state_embedding)
+                #state_embedding = F.add_n(*state_embedding, name='merger')
+
+
+        # Middleware
+        state_embedding = self.middleware(state_embedding)
+
+        # Head
+        # outputs = tuple()
+        # for head in self._output_heads:
+        #     out = head(state_embedding)
+        #     if not isinstance(out, tuple):
+        #         out = (out,)
+        #     outputs += out
+
+        # Dan for debug
+        outputs = self._output_heads[0](state_embedding)
+        return outputs
+
+    @property
+    def input_embedders(self):
+        """
+        :return: list of input embedders
+        """
+        return self._input_embedders
+
+    @property
+    def output_heads(self):
+        """
+        :return: list of output heads
+        """
+        return [h.head for h in self._output_heads]
+
+
+
 
 
 class GeneralModel(keras.Model):
+    """
+    Block that creates multiple single models
+    """
+    def __init__(self,
+                 num_networks: int,
+                 num_heads_per_network: int,
+                 network_is_local: bool,
+                 network_name: str,
+                 agent_parameters: AgentParameters,
+                 network_parameters: NetworkParameters,
+                 spaces: SpacesDefinition,
+                 *args, **kwargs):
+        """
+        :param num_networks: number of networks to create
+        :param num_heads_per_network: number of heads per network to create
+        :param network_is_local: True if network is local
+        :param network_name: name of the network
+        :param agent_parameters: agent parameters
+        :param network_parameters: network parameters
+        :param spaces: state and action space definitions
+        """
+        super(GeneralModel, self).__init__(*args, **kwargs)
+
+        self.nets = list()
+        for network_idx in range(num_networks):
+            head_type_idx_start = network_idx * num_heads_per_network
+            head_type_idx_end = head_type_idx_start + num_heads_per_network
+            net = SingleModel(
+                head_type_idx_start=head_type_idx_start,
+                network_name=network_name,
+                network_is_local=network_is_local,
+                agent_parameters=agent_parameters,
+                in_emb_param_dict=network_parameters.input_embedders_parameters,
+                embedding_merger_type=network_parameters.embedding_merger_type,
+                middleware_param=network_parameters.middleware_parameters,
+                head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
+                spaces=spaces)
+            self.nets.append(net)
+            self.single_model = self.nets[0]
+
+
+    def call(self, inputs, **kwargs):
+        """ Overrides tf.keras.call
+        :param inputs: model inputs, one for each embedder. Passed to all networks.
+        :return: head outputs in a tuple
+        """
+        outputs = self.single_model(inputs)
+        # outputs = tuple()
+        # for net in self.nets:
+        #     out = net(inputs)
+        #     outputs += out
+
+
+        return outputs
+
+    @property
+    def output_heads(self) -> List[Head]:
+        """ Return all heads in a single list
+        Note: There is a one-to-one mapping between output_heads and losses
+        :return: list of heads
+        """
+        return list(chain.from_iterable(net.output_heads for net in self.nets))
+
+    # def losses(self) -> List[HeadLoss]:
+    #     """ Construct loss blocks for network training
+    #     Note: There is a one-to-one mapping between output_heads and losses
+    #     :return: list of loss blocks
+    #     """
+    #     return [h.loss() for net in self.nets for h in net.output_heads]
+
+
+
+
+
+
+
+
+
+
+class GeneralModel2(keras.Model):
 
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, name: str,
                  global_network=None, network_is_local: bool=True, network_is_trainable: bool=False, **kwargs):
@@ -230,8 +420,16 @@ class GeneralModel(keras.Model):
         # TODO: starting with q learning, will handle actor critic multiple outputs later
         head_params = self.network_parameters.heads_parameters[0]
 
-        self.out_head = self.get_output_head(head_params, 0)
+        #self.out_head = self.get_output_head(head_params, 0)
         #self.out_head = _get_output_head(head_params)
+        self.out_head = _get_output_head(
+            head_idx=0,
+            head_type_index=0,
+            network_name=self.name,
+            spaces=spaces,
+            is_local=network_is_local,
+            agent_params=agent_parameters,
+            head_params=head_params)
 
 
     def call(self, inputs):
@@ -290,57 +488,7 @@ class GeneralModel(keras.Model):
 
         return ret_dict
 
-    # def get_input_embedder(self, input_name: str, embedder_params: InputEmbedderParameters):
-    #     """
-    #     Given an input embedder parameters class, creates the input embedder and returns it
-    #     :param input_name: the name of the input to the embedder (used for retrieving the shape). The input should
-    #                        be a value within the state or the action.
-    #     :param embedder_params: the parameters of the class of the embedder
-    #     :return: the embedder instance
-    #     """
-    #     # The input shape to the DNN is : self.spaces.state.sub_spaces["observation"].shape
-    #     allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
-    #     allowed_inputs["action"] = copy.copy(self.spaces.action)
-    #     allowed_inputs["goal"] = copy.copy(self.spaces.goal)
-    #
-    #     if input_name not in allowed_inputs.keys():
-    #         raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
-    #                          .format(input_name, allowed_inputs.keys()))
-    #
-    #     emb_type = "vector"
-    #     if isinstance(allowed_inputs[input_name], TensorObservationSpace):
-    #         emb_type = "tensor"
-    #     elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
-    #         emb_type = "image"
-    #
-    #     embedder_path = embedder_params.path(emb_type)
-    #     embedder_params_copy = copy.copy(embedder_params)
-    #     embedder_params_copy.is_training = self.is_training
-    #     embedder_params_copy.activation_function = utils.get_activation_function(embedder_params.activation_function)
-    #     embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
-    #     embedder_params_copy.input_offset = embedder_params_copy.input_offset[emb_type]
-    #     embedder_params_copy.name = input_name
-    #     module = dynamic_import_and_instantiate_module_from_params(embedder_params_copy,
-    #                                                                path=embedder_path,
-    #                                                                positional_args=[allowed_inputs[input_name].shape])
-    #     return module
 
-
-
-
-    # def get_middleware(self, middleware_params: MiddlewareParameters):
-    #     """
-    #     Given a middleware type, creates the middleware and returns it
-    #     :param middleware_params: the paramaeters of the middleware class
-    #     :return: the middleware instance
-    #     """
-    #     mod_name = middleware_params.parameterized_class_name
-    #     middleware_path = middleware_params.path
-    #     middleware_params_copy = copy.copy(middleware_params)
-    #     middleware_params_copy.activation_function = utils.get_activation_function(middleware_params.activation_function)
-    #     middleware_params_copy.is_training = self.is_training
-    #     module = dynamic_import_and_instantiate_module_from_params(middleware_params_copy, path=middleware_path)
-    #     return module
 
     def get_output_head(self, head_params: HeadParameters, head_idx: int):
         """

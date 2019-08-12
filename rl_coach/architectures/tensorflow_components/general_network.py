@@ -35,7 +35,8 @@ from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, Tensor
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
 
-from rl_coach.architectures.tensorflow_components.general_model import GeneralModel
+from rl_coach.architectures.tensorflow_components.general_model import GeneralModel, GeneralModel2
+from rl_coach.architectures.tensorflow_components.general_model import SingleModel
 from rl_coach.architectures.tensorflow_components.general_loss import GeneralLoss
 
 
@@ -186,7 +187,38 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # DEBUG
         obs = np.array([1., 3., -44., 4.])
         obs_batch = tf.expand_dims(obs, 0)
-        model = GeneralModel(self.ap, self.spaces, self.name)
+        model = GeneralModel2(self.ap, self.spaces, self.name)
+
+
+        # model = GeneralModel(num_networks=self.num_networks,
+        #                      num_heads_per_network=self.num_heads_per_network,
+        #                      network_is_local=self.network_is_local,
+        #                      network_name=self.name,
+        #                      agent_parameters=self.ap,
+        #                      network_parameters=self.network_parameters,
+        #                      spaces=self.spaces)
+
+
+
+
+
+
+
+
+
+
+
+        # model = SingleModel(network_is_local=self.network_is_local,
+        #                     network_name=self.name,
+        #                     agent_parameters=self.ap,
+        #                     in_emb_param_dict=self.network_parameters.middleware_parameters,
+        #                     embedding_merger_type=self.network_parameters.embedding_merger_type,
+        #                     middleware_param=self.network_parameters.middleware_parameters,
+        #                     head_param_list=self.network_parameters.heads_parameters,
+        #                     head_type_idx_start=0,
+        #                     spaces=self.spaces)
+
+
         model.build(input_shape=(None, 4))
         #model(obs_batch)
         self.optimizer = self.get_optimizer()
@@ -216,12 +248,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         elif (self.distributed_training and self.network_is_local and not self.network_parameters.shared_optimizer) \
                 or self.network_parameters.shared_optimizer or not self.distributed_training:
-            # distributed training + is a global network + optimizer shared
-            # OR
-            # distributed training + is a local network + optimizer not shared
-            # OR
-            # non-distributed training
-            # -> create an optimizer
+         # distributed training + is a global network + optimizer shared
+         # OR
+         # distributed training + is a local network + optimizer not shared
+         # OR
+         # non-distributed training
+         # -> create an optimizer
             if self.network_parameters.optimizer_type == 'Adam':
 
                 optimizer = keras.optimizers.Adam(
@@ -238,13 +270,16 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
             elif self.network_parameters.optimizer_type == 'LBFGS':
                 raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: Dan to update function
-                # Dan manual fix
-                # self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
-                #                                                                          options={'maxiter': 25})
+             # Dan manual fix
+             # self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
+             #                                                                          options={'maxiter': 25})
             else:
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
         return optimizer
+
+
+
 
     def __str__(self):
         result = []
@@ -259,7 +294,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
             if len(self.input_embedders) > 1:
                 network_structure.append("{} ({})".format(self.network_parameters.embedding_merger_type.name,
-                                               ", ".join(["{} embedding".format(e.name) for e in self.input_embedders])))
+                                            ", ".join(["{} embedding".format(e.name) for e in self.input_embedders])))
 
             # middleware
             network_structure.append("Middleware:")

@@ -17,22 +17,39 @@
 
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.losses import Huber
+from tensorflow.keras.losses import MeanSquaredError
+
 
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition, BoxActionSpace, DiscreteActionSpace
 
+from typing import Union
 
 class QHead(Head):
+    # def __init__(self,
+    #              agent_parameters: AgentParameters,
+    #              spaces: SpacesDefinition,
+    #              network_name: str,
+    #              head_idx: int = 0,
+    #              is_local: bool = True,
+    #              activation_function: str = 'relu',
+    #              **kwargs):
+
     def __init__(self,
                  agent_parameters: AgentParameters,
                  spaces: SpacesDefinition,
                  network_name: str,
-                 head_idx: int = 0,
+                 head_type_idx: int = 0,
+                 loss_weight: float = 1.,
                  is_local: bool = True,
                  activation_function: str = 'relu',
-                 **kwargs):
+                 dense_layer: None = None,
+                 #loss_type: Union[HuberLoss, L2Loss] = L2Loss,
+                 loss_type: Union[Huber, MeanSquaredError] = MeanSquaredError,
+                 **kwargs) -> None:
         """
          Q-Value Head for predicting state-action Q-Values.
 
@@ -59,6 +76,9 @@ class QHead(Head):
 
     def call(self, inputs, **kwargs):
         q_value = self.q_head(inputs)
+        #
+
+
         return q_value
 
     def __str__(self):
