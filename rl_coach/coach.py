@@ -787,6 +787,7 @@ if __name__ == "__main__":
 
     sys.argv.append('-p')
     sys.argv.append('CartPole_DQN')
+    sys.argv.extend(['-f', 'mxnet'])
     # sys.argv.append('-f')
     # sys.argv.append('mxnet')
     #sys.argv.append('temp_delete_preset')

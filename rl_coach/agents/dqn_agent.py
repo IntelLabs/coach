@@ -79,7 +79,7 @@ class DQNAgent(ValueOptimizationAgent):
 
         # for the action we actually took, the error is:
         # TD error = r + discount*max(q_st_plus_1) - q_st
-        # for all other actions, the error is 0
+        # # for all other actions, the error is 0
         q_st_plus_1, TD_targets = self.networks['main'].parallel_prediction([
             (self.networks['main'].target_network, batch.next_states(network_keys)),
             (self.networks['main'].online_network, batch.states(network_keys))
@@ -100,19 +100,16 @@ class DQNAgent(ValueOptimizationAgent):
         #  only update the action that we have actually done in this transition
         TD_errors = []
         for i in range(batch.size):
-            new_target = batch.rewards()[i] + \
+            # new_target = batch.rewards()[i] + \
+            #              (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * q_st_plus_1[i][selected_actions[i]]
+            # TD_errors.append(np.abs(new_target - TD_targets[i][batch.actions()[i]]))
+            # TD_targets[i][batch.actions()[i]] = new_target
+
+
+            new_target = batch.rewards()[i] +\
                          (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * q_st_plus_1[i][selected_actions[i]]
-            TD_errors.append(np.abs(new_target - TD_targets[i][batch.actions()[i]]))
-            TD_targets[i][batch.actions()[i]] = new_target
-
-
-            # new_target = batch.rewards()[i] +\
-            #              (1.0 - batch.game_overs()[i]) * self.ap.algorithm.discount * q_st_plus_1[i, selected_actions[i]]
-            # TD_errors.append(np.abs(new_target - TD_targets[i, batch.actions()[i]]))
-            # TD_targets[i, batch.actions()[i]] = new_target
-
-
-
+            TD_errors.append(np.abs(new_target - TD_targets[i, batch.actions()[i]]))
+            TD_targets[i, batch.actions()[i]] = new_target
 
         # update errors in prioritized replay buffer
         importance_weights = self.update_transition_priorities_and_get_weights(TD_errors, batch)

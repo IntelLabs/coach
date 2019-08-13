@@ -199,12 +199,14 @@ class NetworkWrapper(object):
                 self.online_network.apply_and_reset_gradients(self.online_network.accumulated_gradients,
                                                               additional_inputs=additional_inputs)
             else:
-                # Dan manual fix
-                self.online_network.optimizer.apply_gradients(zip(self.online_network.accumulated_gradients,
-                                                                  self.online_network.dnn_model.trainable_variables))
+                # # Dan manual fix
+                # self.online_network.optimizer.apply_gradients(zip(self.online_network.accumulated_gradients,
+                #                                                   self.online_network.dnn_model.trainable_variables))
 
                 # self.online_network.apply_gradients(self.online_network.accumulated_gradients,
                 #                                     additional_inputs=additional_inputs)
+
+                self.online_network.apply_gradients(self.online_network.accumulated_gradients)
 
     def parallel_prediction(self, network_input_tuples: List[Tuple]):
         """
@@ -214,8 +216,6 @@ class NetworkWrapper(object):
                                      target_network or global_network) and the second element is the inputs
         :return: the outputs of all the networks in the same order as the inputs were given
         """
-        #return type(self.online_network).parallel_predict(self.sess, network_input_tuples)
-
         return type(self.online_network).parallel_predict(self.sess, network_input_tuples)
 
     def set_is_training(self, state: bool):
@@ -225,11 +225,9 @@ class NetworkWrapper(object):
         :param state: The current state (True = Training, False = Testing)
         :return: None
         """
-        pass
-        # Dan comment out for now, should re add for batch norm and dropout
-        #self.online_network.set_is_training(state)
-        # if self.has_target:
-        #     self.target_network.set_is_training(state)
+        self.online_network.set_is_training(state)
+        if self.has_target:
+            self.target_network.set_is_training(state)
 
     def set_session(self, sess):
         self.sess = sess
