@@ -79,15 +79,15 @@ class DQNAgent(ValueOptimizationAgent):
 
         # for the action we actually took, the error is:
         # TD error = r + discount*max(q_st_plus_1) - q_st
-        # # for all other actions, the error is 0
-        # q_st_plus_1, TD_targets = self.networks['main'].parallel_prediction([
-        #     (self.networks['main'].target_network, batch.next_states(network_keys)),
-        #     (self.networks['main'].online_network, batch.states(network_keys))
-        # ])
+        # for all other actions, the error is 0
+        q_st_plus_1, TD_targets = self.networks['main'].parallel_prediction([
+            (self.networks['main'].target_network, batch.next_states(network_keys)),
+            (self.networks['main'].online_network, batch.states(network_keys))
+        ])
 
         # Dan Replace tha above line with the following two lines- check this!
-        TD_targets = self.networks['main'].parallel_prediction([(self.networks['main'].target_network, batch.next_states(network_keys))])
-        q_st_plus_1 = self.networks['main'].parallel_prediction([(self.networks['main'].online_network, batch.states(network_keys))])
+        # TD_targets = self.networks['main'].parallel_prediction([(self.networks['main'].target_network, batch.next_states(network_keys))])
+        # q_st_plus_1 = self.networks['main'].parallel_prediction([(self.networks['main'].online_network, batch.states(network_keys))])
 
 
 

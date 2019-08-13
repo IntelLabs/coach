@@ -36,7 +36,7 @@ from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_mo
 
 
 from rl_coach.architectures.tensorflow_components.general_model import GeneralModel, GeneralModel2
-from rl_coach.architectures.tensorflow_components.general_model import SingleModel
+from rl_coach.architectures.tensorflow_components.general_model import SingleWorkerModel
 from rl_coach.architectures.tensorflow_components.general_loss import GeneralLoss
 
 

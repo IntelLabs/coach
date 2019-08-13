@@ -148,7 +148,7 @@ def _get_output_head(
 
 
 
-class SingleModel(keras.Model):
+class SingleWorkerModel(keras.Model):
     """
     Block that connects a single embedder, with middleware and one to multiple heads
     """
@@ -174,11 +174,11 @@ class SingleModel(keras.Model):
         :param head_type_idx_start: start index for head type index counting
         :param spaces: state and action space definition
         """
-        super(SingleModel, self).__init__(*args, **kwargs)
+        super(SingleWorkerModel, self).__init__(*args, **kwargs)
 
         self._embedding_merger_type = embedding_merger_type
-        self._input_embedders = list()  # type: List[HybridBlock]
-        self._output_heads = list()  # type: List[ScaledGradHead]
+        self._input_embedders = []
+        self._output_heads = []
 
         for input_name in sorted(in_emb_param_dict):
             input_type = in_emb_param_dict[input_name]
@@ -200,7 +200,8 @@ class SingleModel(keras.Model):
                     agent_params=agent_parameters,
                     head_params=head_param)
 
-                self._output_heads.append(output_head)
+                #self._output_heads.append(output_head)
+                self._output_heads = output_head
 
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
@@ -208,7 +209,8 @@ class SingleModel(keras.Model):
         :return: head outputs in a tuple
         """
         # Input Embeddings
-        state_embedding = list()
+        #state_embedding = map()
+        state_embedding = [ ]
         for input, embedder in zip(inputs, self._input_embedders):
             state_embedding.append(embedder(input))
 
@@ -236,8 +238,40 @@ class SingleModel(keras.Model):
         #     outputs += out
 
         # Dan for debug
-        outputs = self._output_heads[0](state_embedding)
+        outputs = self._output_head(state_embedding)
         return outputs
+
+
+
+    def call(self, inputs):
+
+        embedded_inputs = []
+        for embedder in self.input_embedders:
+            embedded_inputs.append(embedder(inputs))
+
+
+        if len(embedded_inputs) == 1:
+            state_embedding = embedded_inputs[0]
+        else:
+            if self.network_parameters.embedding_merger_type == EmbeddingMergerType.Concat:
+                state_embedding = tf.keras.layers.Concatenate()(embedded_inputs)
+            elif self.network_parameters.embedding_merger_type == EmbeddingMergerType.Sum:
+                state_embedding = tf.keras.layers.Add()(embedded_inputs)
+
+        middleware_out = self.middleware(state_embedding)
+
+
+        output = self.out_head(middleware_out)
+        return output
+
+
+
+
+
+
+
+
+
 
     @property
     def input_embedders(self):
@@ -285,7 +319,7 @@ class GeneralModel(keras.Model):
         for network_idx in range(num_networks):
             head_type_idx_start = network_idx * num_heads_per_network
             head_type_idx_end = head_type_idx_start + num_heads_per_network
-            net = SingleModel(
+            net = SingleWorkerModel(
                 head_type_idx_start=head_type_idx_start,
                 network_name=network_name,
                 network_is_local=network_is_local,
