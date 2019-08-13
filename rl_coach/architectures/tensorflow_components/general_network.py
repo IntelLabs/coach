@@ -189,7 +189,6 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         obs_batch = tf.expand_dims(obs, 0)
         model = GeneralModel2(self.ap, self.spaces, self.name)
 
-
         # model = GeneralModel(num_networks=self.num_networks,
         #                      num_heads_per_network=self.num_heads_per_network,
         #                      network_is_local=self.network_is_local,
@@ -198,25 +197,15 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         #                      network_parameters=self.network_parameters,
         #                      spaces=self.spaces)
 
-
-
-
-
-
-
-
-
-
-
-        # model = SingleModel(network_is_local=self.network_is_local,
-        #                     network_name=self.name,
-        #                     agent_parameters=self.ap,
-        #                     in_emb_param_dict=self.network_parameters.middleware_parameters,
-        #                     embedding_merger_type=self.network_parameters.embedding_merger_type,
-        #                     middleware_param=self.network_parameters.middleware_parameters,
-        #                     head_param_list=self.network_parameters.heads_parameters,
-        #                     head_type_idx_start=0,
-        #                     spaces=self.spaces)
+        model = SingleWorkerModel(network_is_local=self.network_is_local,
+                                  network_name=self.name,
+                                  agent_parameters=self.ap,
+                                  in_emb_param_dict=self.network_parameters.input_embedders_parameters,
+                                  embedding_merger_type=self.network_parameters.embedding_merger_type,
+                                  middleware_param=self.network_parameters.middleware_parameters,
+                                  head_param_list=self.network_parameters.heads_parameters[0:1],
+                                  head_type_idx_start=0,
+                                  spaces=self.spaces)
 
 
         model.build(input_shape=(None, 4))

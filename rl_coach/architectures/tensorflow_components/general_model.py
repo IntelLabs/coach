@@ -210,9 +210,12 @@ class SingleWorkerModel(keras.Model):
         """
         # Input Embeddings
         #state_embedding = map()
-        state_embedding = [ ]
-        for input, embedder in zip(inputs, self._input_embedders):
-            state_embedding.append(embedder(input))
+        state_embedding = []
+        # for input, embedder in zip(inputs, self._input_embedders):
+        #     state_embedding.append(embedder(input))
+
+        for embedder in self.input_embedders:
+            state_embedding.append(embedder(inputs))
 
         # Merger
         if len(state_embedding) == 1:
@@ -238,31 +241,31 @@ class SingleWorkerModel(keras.Model):
         #     outputs += out
 
         # Dan for debug
-        outputs = self._output_head(state_embedding)
+        outputs = self._output_heads(state_embedding)
         return outputs
 
 
 
-    def call(self, inputs):
-
-        embedded_inputs = []
-        for embedder in self.input_embedders:
-            embedded_inputs.append(embedder(inputs))
-
-
-        if len(embedded_inputs) == 1:
-            state_embedding = embedded_inputs[0]
-        else:
-            if self.network_parameters.embedding_merger_type == EmbeddingMergerType.Concat:
-                state_embedding = tf.keras.layers.Concatenate()(embedded_inputs)
-            elif self.network_parameters.embedding_merger_type == EmbeddingMergerType.Sum:
-                state_embedding = tf.keras.layers.Add()(embedded_inputs)
-
-        middleware_out = self.middleware(state_embedding)
-
-
-        output = self.out_head(middleware_out)
-        return output
+    # def call(self, inputs):
+    #
+    #     embedded_inputs = []
+    #     for embedder in self.input_embedders:
+    #         embedded_inputs.append(embedder(inputs))
+    #
+    #
+    #     if len(embedded_inputs) == 1:
+    #         state_embedding = embedded_inputs[0]
+    #     else:
+    #         if self.network_parameters.embedding_merger_type == EmbeddingMergerType.Concat:
+    #             state_embedding = tf.keras.layers.Concatenate()(embedded_inputs)
+    #         elif self.network_parameters.embedding_merger_type == EmbeddingMergerType.Sum:
+    #             state_embedding = tf.keras.layers.Add()(embedded_inputs)
+    #
+    #     middleware_out = self.middleware(state_embedding)
+    #
+    #
+    #     output = self.out_head(middleware_out)
+    #     return output
 
 
 
