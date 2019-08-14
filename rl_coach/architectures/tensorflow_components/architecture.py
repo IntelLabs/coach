@@ -152,15 +152,15 @@ class TensorFlowArchitecture(Architecture):
             # set the fetches for training
             #self._set_initial_fetch_list()
 
-    def get_model(self) -> List:
-        """
-        Constructs the model using `network_parameters` and sets `input_embedders`, `middleware`,
-        `output_heads`, `outputs`, `losses`, `total_loss`, `adaptive_learning_rate_scheme`,
-        `current_learning_rate`, and `optimizer`.
-
-        :return: A list of the model's weights
-        """
-        raise NotImplementedError
+    # def get_model(self) -> List:
+    #     """
+    #     Constructs the model using `network_parameters` and sets `input_embedders`, `middleware`,
+    #     `output_heads`, `outputs`, `losses`, `total_loss`, `adaptive_learning_rate_scheme`,
+    #     `current_learning_rate`, and `optimizer`.
+    #
+    #     :return: A list of the model's weights
+    #     """
+    #     raise NotImplementedError
 
     def _set_initial_fetch_list(self):
         """

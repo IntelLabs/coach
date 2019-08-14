@@ -15,6 +15,7 @@
 #
 
 from typing import List, Tuple
+import numpy as np
 
 from rl_coach.base_parameters import Frameworks, AgentParameters
 from rl_coach.logger import failed_imports
@@ -84,6 +85,12 @@ class NetworkWrapper(object):
                                               network_is_local=True,
                                               spaces=spaces,
                                               network_is_trainable=True)
+
+        self.online_network.build(input_shape=(None, 4))
+        self.online_network.summary()
+        obs = np.array([1., 3., -44., 4.])
+        obs_batch = tf.expand_dims(obs, 0)
+        self.online_network(obs_batch)
 
         # Target network - a local, slow updating network used for stabilizing the learning
         self.target_network = None

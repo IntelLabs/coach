@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+'''
 
 import copy
 from types import MethodType
@@ -35,113 +35,9 @@ from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, Tensor
 from rl_coach.utils import get_all_subclasses, dynamic_import_and_instantiate_module_from_params, indent_string
 
 
-from rl_coach.architectures.tensorflow_components.general_model import GeneralModel
+from rl_coach.architectures.tensorflow_components.general_model import GeneralModel, GeneralModel2
+from rl_coach.architectures.tensorflow_components.general_model import SingleWorkerModel
 from rl_coach.architectures.tensorflow_components.general_loss import GeneralLoss
-
-
-
-class SingleModel(keras.Model):
-    """
-    Block that connects a single embedder, with middleware and one to multiple heads
-    """
-    def __init__(self,
-                 network_is_local: bool,
-                 network_name: str,
-                 agent_parameters: AgentParameters,
-                 in_emb_param_dict: {str: InputEmbedderParameters},
-                 embedding_merger_type: EmbeddingMergerType,
-                 middleware_param: MiddlewareParameters,
-                 head_param_list: [HeadParameters],
-                 head_type_idx_start: int,
-                 spaces: SpacesDefinition,
-                 *args, **kwargs):
-        """
-        :param network_is_local: True if network is local
-        :param network_name: name of the network
-        :param agent_parameters: agent parameters
-        :param in_emb_param_dict: dictionary of embedder name to embedding parameters
-        :param embedding_merger_type: type of merging output of embedders: concatenate or sum
-        :param middleware_param: middleware parameters
-        :param head_param_list: list of head parameters, one per head type
-        :param head_type_idx_start: start index for head type index counting
-        :param spaces: state and action space definition
-        """
-        super(SingleModel, self).__init__(*args, **kwargs)
-
-        self._embedding_merger_type = embedding_merger_type
-        self._input_embedders = list()
-        self._output_heads = list()
-
-        for input_name in sorted(in_emb_param_dict):
-            input_type = in_emb_param_dict[input_name]
-            input_embedder = _get_input_embedder(spaces, input_name, input_type)
-            self.register_child(input_embedder)
-            self._input_embedders.append(input_embedder)
-
-        self.middleware = _get_middleware(middleware_param)
-
-        for i, head_param in enumerate(head_param_list):
-            for head_copy_idx in range(head_param.num_output_head_copies):
-                # create output head and add it to the output heads list
-                output_head = ScaledGradHead(
-                    head_index=(head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx,
-                    head_type_index=head_type_idx_start + i,
-                    network_name=network_name,
-                    spaces=spaces,
-                    network_is_local=network_is_local,
-                    agent_params=agent_parameters,
-                    head_params=head_param)
-                self.register_child(output_head)
-                self._output_heads.append(output_head)
-
-    def hybrid_forward(self, F, *inputs: Union[NDArray, Symbol]) -> Tuple[Union[NDArray, Symbol], ...]:
-        """ Overrides gluon.HybridBlock.hybrid_forward
-        :param nd or sym F: ndarray or symbol block
-        :param inputs: model inputs, one for each embedder
-        :return: head outputs in a tuple
-        """
-        # Input Embeddings
-        state_embedding = list()
-        for input, embedder in zip(inputs, self._input_embedders):
-            state_embedding.append(embedder(input))
-
-        # Merger
-        if len(state_embedding) == 1:
-            state_embedding = state_embedding[0]
-        else:
-            if self._embedding_merger_type == EmbeddingMergerType.Concat:
-                state_embedding = F.concat(*state_embedding, dim=1, name='merger')  # NC or NCHW layout
-            elif self._embedding_merger_type == EmbeddingMergerType.Sum:
-                state_embedding = F.add_n(*state_embedding, name='merger')
-
-        # Middleware
-        state_embedding = self.middleware(state_embedding)
-
-        # Head
-        outputs = tuple()
-        for head in self._output_heads:
-            out = head(state_embedding)
-            if not isinstance(out, tuple):
-                out = (out,)
-            outputs += out
-
-        return outputs
-
-    @property
-    def input_embedders(self) -> List[HybridBlock]:
-        """
-        :return: list of input embedders
-        """
-        return self._input_embedders
-
-    @property
-    def output_heads(self) -> List[Head]:
-        """
-        :return: list of output heads
-        """
-        return [h.head for h in self._output_heads]
-
-
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
@@ -291,7 +187,27 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # DEBUG
         obs = np.array([1., 3., -44., 4.])
         obs_batch = tf.expand_dims(obs, 0)
-        model = GeneralModel(self.ap, self.spaces, self.name)
+        model = GeneralModel2(self.ap, self.spaces, self.name)
+
+        model = GeneralModel(num_networks=self.num_networks,
+                             num_heads_per_network=self.num_heads_per_network,
+                             network_is_local=self.network_is_local,
+                             network_name=self.name,
+                             agent_parameters=self.ap,
+                             network_parameters=self.network_parameters,
+                             spaces=self.spaces)
+
+        # model = SingleWorkerModel(network_is_local=self.network_is_local,
+        #                           network_name=self.name,
+        #                           agent_parameters=self.ap,
+        #                           in_emb_param_dict=self.network_parameters.input_embedders_parameters,
+        #                           embedding_merger_type=self.network_parameters.embedding_merger_type,
+        #                           middleware_param=self.network_parameters.middleware_parameters,
+        #                           head_param_list=self.network_parameters.heads_parameters[0:1],
+        #                           head_type_idx_start=0,
+        #                           spaces=self.spaces)
+
+
         model.build(input_shape=(None, 4))
         #model(obs_batch)
         self.optimizer = self.get_optimizer()
@@ -321,12 +237,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         elif (self.distributed_training and self.network_is_local and not self.network_parameters.shared_optimizer) \
                 or self.network_parameters.shared_optimizer or not self.distributed_training:
-            # distributed training + is a global network + optimizer shared
-            # OR
-            # distributed training + is a local network + optimizer not shared
-            # OR
-            # non-distributed training
-            # -> create an optimizer
+         # distributed training + is a global network + optimizer shared
+         # OR
+         # distributed training + is a local network + optimizer not shared
+         # OR
+         # non-distributed training
+         # -> create an optimizer
             if self.network_parameters.optimizer_type == 'Adam':
 
                 optimizer = keras.optimizers.Adam(
@@ -343,13 +259,16 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
             elif self.network_parameters.optimizer_type == 'LBFGS':
                 raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: Dan to update function
-                # Dan manual fix
-                # self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
-                #                                                                          options={'maxiter': 25})
+             # Dan manual fix
+             # self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.total_loss, method='L-BFGS-B',
+             #                                                                          options={'maxiter': 25})
             else:
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
         return optimizer
+
+
+
 
     def __str__(self):
         result = []
@@ -364,7 +283,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
             if len(self.input_embedders) > 1:
                 network_structure.append("{} ({})".format(self.network_parameters.embedding_merger_type.name,
-                                               ", ".join(["{} embedding".format(e.name) for e in self.input_embedders])))
+                                            ", ".join(["{} embedding".format(e.name) for e in self.input_embedders])))
 
             # middleware
             network_structure.append("Middleware:")
@@ -394,3 +313,6 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         result = '\n'.join(result)
         return result
+
+
+'''

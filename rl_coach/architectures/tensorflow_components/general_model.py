@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+'''
 
 import copy
 from types import MethodType
@@ -740,4 +740,5 @@ class GeneralModel2(keras.Model):
                 result.append('\n'.join(network_structure))
 
         result = '\n'.join(result)
-        return result
+
+'''
