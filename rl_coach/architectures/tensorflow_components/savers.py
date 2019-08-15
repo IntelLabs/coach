@@ -15,116 +15,39 @@
 #
 
 
-import pickle
-from typing import Any, List, Dict
+from typing import Any, List, Tuple
 
-import tensorflow as tf
+
 import numpy as np
 
 from rl_coach.saver import Saver
 
 
-
-class GlobalVariableSaver(Saver):
-    def __init__(self, name):
-        self._names = [name]
-        # if graph is finalized, savers must have already already been added. This happens
-        # in the case of a MonitoredSession
-        self._variables = tf.compat.v1.global_variables()
-
-        # target network is never saved or restored directly from checkpoint, so we are removing all its variables from the list
-        # the target network would be synched back from the online network in graph_manager.improve(...), at the beginning of the run flow.
-        self._variables = [v for v in self._variables if "/target" not in v.name]
-
-        # Using a placeholder to update the variable during restore to avoid memory leak.
-        # Ref: https://github.com/tensorflow/tensorflow/issues/4151
-        self._variable_placeholders = []
-        self._variable_update_ops = []
-        for v in self._variables:
-            variable_placeholder = tf.compat.v1.placeholder(v.dtype, shape=v.get_shape())
-            self._variable_placeholders.append(variable_placeholder)
-            self._variable_update_ops.append(v.assign(variable_placeholder))
-
-        self._saver = tf.compat.v1.train.Saver(self._variables, max_to_keep=None)
+class ParameterDictSaver(Saver):
+    """
+    Child class that implements saver for mxnet gluon parameter dictionary
+    """
+    def __init__(self, name: str, param_dict: gluon.ParameterDict):
+        self._name = name
+        self._param_dict = param_dict
 
     @property
     def path(self):
         """
         Relative path for save/load. If two checkpoint objects return the same path, they must be merge-able.
         """
-        return ""  # use empty string for global file
+        return self._name
 
     def save(self, sess: None, save_path: str) -> List[str]:
         """
         Save to save_path
-        :param sess: active session
-        :param save_path: full path to save checkpoint (typically directory plus checkpoint prefix plus self.path)
+        :param sess: active session for session-based frameworks (e.g. TF)
+        :param save_path: full path to save checkpoint (typically directory plus self.path plus checkpoint count).
         :return: list of all saved paths
         """
-        save_path = self._saver.save(sess, save_path)
+        assert sess is None
+        self._param_dict.save(save_path)
         return [save_path]
-
-    def to_arrays(self, session: Any) -> Dict[str, np.ndarray]:
-        """
-        Save to dictionary of arrays
-        :param sess: active session
-        :return: dictionary of arrays
-        """
-        return {
-            k.name.split(":")[0]: v for k, v in zip(self._variables, session.run(self._variables))
-        }
-
-    def from_arrays(self, session: Any, tensors: Any):
-        """
-        Restore from restore_path
-        :param sess: active session for session-based frameworks (e.g. TF)
-        :param tensors: {name: array}
-        """
-        # if variable was saved using global network, re-map it to online
-        # network
-        # TODO: Can this be more generic so that `global/` and `online/` are not
-        # hardcoded here?
-        if isinstance(tensors, dict):
-            tensors = tensors.items()
-
-        variables = {k.replace("global/", "online/"): v for k, v in tensors}
-
-        # Assign all variables using placeholder
-        placeholder_dict = {
-            ph: variables[v.name.split(":")[0]]
-            for ph, v in zip(self._variable_placeholders, self._variables)
-        }
-        session.run(self._variable_update_ops, placeholder_dict)
-
-    def to_string(self, session: Any) -> str:
-        """
-        Save to byte string
-        :param session: active session
-        :return: serialized byte string
-        """
-        return pickle.dumps(self.to_arrays(session), protocol=-1)
-
-    def from_string(self, session: Any, string: str):
-        """
-        Restore from byte string
-        :param session: active session
-        :param string: byte string to restore from
-        """
-        self.from_arrays(session, pickle.loads(string))
-
-    def _read_tensors(self, restore_path: str):
-        """
-        Load tensors from a checkpoint
-        :param restore_path: full path to load checkpoint from.
-        """
-        # We don't use saver.restore() because checkpoint is loaded to online
-        # network, but if the checkpoint is from the global network, a namespace
-        # mismatch exists and variable name must be modified before loading.
-        reader = tf.train.Checkpoint.restore(tf.train.latest_checkpoint(restore_path))
-        # reader =  tf.contrib.framework.load_checkpoint(restore_path)
-        # Dan manual fix
-        for var_name, _ in reader.get_variable_to_shape_map().items():
-            yield var_name, reader.get_tensor(var_name)
 
     def restore(self, sess: Any, restore_path: str):
         """
@@ -132,14 +55,15 @@ class GlobalVariableSaver(Saver):
         :param sess: active session for session-based frameworks (e.g. TF)
         :param restore_path: full path to load checkpoint from.
         """
-        self.from_arrays(sess, self._read_tensors(restore_path))
+        assert sess is None
+        self._param_dict.load(restore_path)
 
-    def merge(self, other: "Saver"):
+    def merge(self, other: 'Saver'):
         """
         Merge other saver into this saver
         :param other: saver to be merged into self
         """
-        assert isinstance(other, GlobalVariableSaver)
-        self._names.extend(other._names)
-        # There is nothing else to do because variables must already be part of
-        # the global collection.
+        if not isinstance(other, ParameterDictSaver):
+            raise TypeError('merging only supported with ParameterDictSaver (type:{})'.format(type(other)))
+        self._param_dict.update(other._param_dict)
+

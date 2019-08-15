@@ -287,21 +287,26 @@ class TensorFlowArchitecture(Architecture):
     #     # update gradients
     #     self.trainer.update(batch_size=batch_size)
     #
-    # def _predict(self, inputs: Dict[str, np.ndarray]) -> Tuple[NDArray, ...]:
-    #     """
-    #     Run a forward pass of the network using the given input
-    #     :param inputs: The input dictionary for the network. Key is name of the embedder.
-    #     :return: The network output
-    #
-    #     WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
-    #     """
-    #     embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
-    #     nd_inputs = tuple(nd.array(inputs[emb], ctx=self._devices[0]) for emb in embedders)
-    #
-    #     assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
-    #
-    #     output = self.model(*nd_inputs)
-    #     return output
+
+    def _predict(self, inputs: Dict[str, np.ndarray]):
+        """
+        Run a forward pass of the network using the given input
+        :param inputs: The input dictionary for the network. Key is name of the embedder.
+        :return: The network output
+
+        WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
+        """
+        embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+        _inputs = tuple(inputs[emb] for emb in embedders)
+        #tf.data.Dataset.from_tensor_slices(_inputs)
+
+        # # can also
+        # v = np.array([[1., 2., 3., 4.], [4., 4., 5., 6.], [2., 3., 3., 3.]])
+        # self.model(v)
+        assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
+
+        output = self.model(_inputs[0])
+        return output
     #
     # def predict(self,
     #             inputs: Dict[str, np.ndarray],
@@ -327,21 +332,24 @@ class TensorFlowArchitecture(Architecture):
     #         output = squeeze_list(output)
     #     return output
     #
-    # @staticmethod
-    # def parallel_predict(sess: Any,
-    #                      network_input_tuples: List[Tuple['MxnetArchitecture', Dict[str, np.ndarray]]]) -> \
-    #         Tuple[np.ndarray, ...]:
-    #     """
-    #     :param sess: active session to use for prediction (must be None for MXNet)
-    #     :param network_input_tuples: tuple of network and corresponding input
-    #     :return: tuple of outputs from all networks
-    #     """
-    #     assert sess is None
-    #     output = list()
-    #     for net, inputs in network_input_tuples:
-    #         output += net._predict(inputs)
-    #     return tuple(o.asnumpy() for o in output)
-    #
+
+
+
+    @staticmethod
+    def parallel_predict(sess: Any,
+                         network_input_tuples: List[Tuple['MxnetArchitecture', Dict[str, np.ndarray]]]) -> \
+            Tuple[np.ndarray, ...]:
+        """
+        :param sess: active session to use for prediction (must be None for MXNet)
+        :param network_input_tuples: tuple of network and corresponding input
+        :return: tuple of outputs from all networks
+        """
+        assert sess is None
+        output = []
+        for net, inputs in network_input_tuples:
+            output.append(net._predict(inputs).numpy())
+        return output
+
     # def train_on_batch(self,
     #                    inputs: Dict[str, np.ndarray],
     #                    targets: List[np.ndarray],
@@ -372,22 +380,25 @@ class TensorFlowArchitecture(Architecture):
     #     self.apply_and_reset_gradients(self.accumulated_gradients, scaler)
     #     return loss
     #
-    # def get_weights(self) -> gluon.ParameterDict:
-    #     """
-    #     :return: a ParameterDict containing all network weights
-    #     """
-    #     return self.model.collect_params()
-    #
-    # def set_weights(self, weights: gluon.ParameterDict, new_rate: float=1.0) -> None:
-    #     """
-    #     Sets the network weights from the given ParameterDict
-    #     :param new_rate: ratio for adding new and old weight values: val=rate*weights + (1-rate)*old_weights
-    #     """
-    #     old_weights = self.model.collect_params()
-    #     for name, p in weights.items():
-    #         name = name[len(weights.prefix):]  # Strip prefix
-    #         old_p = old_weights[old_weights.prefix + name]  # Add prefix
-    #         old_p.set_data(new_rate * p._reduce() + (1 - new_rate) * old_p._reduce())
+    def get_weights(self):
+        """
+        :return: a list of tensors containing the network weights for each layer
+        """
+        return self.model.get_weights()
+
+    def set_weights(self, source_weights, new_rate=1.0):
+        """
+        Updates the target network weights from the given source model weights tensors
+        """
+        updated_target = []
+        if new_rate < 0 or new_rate > 1:
+            raise ValueError('new_rate parameter values should be between 0 to 1.')
+        target_weights = self.model.get_weights()
+        for (source_layer, target_layer) in zip(source_weights, target_weights):
+            updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
+        self.model.set_weights(updated_target)
+
+
     #
     # def get_variable_value(self, variable: Union[gluon.Parameter, NDArray]) -> np.ndarray:
     #     """
@@ -411,35 +422,30 @@ class TensorFlowArchitecture(Architecture):
     #     assert callable(assign_op)
     #     assign_op(value)
     #
-    # def set_is_training(self, state: bool) -> None:
-    #     """
-    #     Set the phase of the network between training and testing
-    #     :param state: The current state (True = Training, False = Testing)
-    #     :return: None
-    #     """
-    #     self.is_training = state
-    #
-    # def reset_internal_memory(self) -> None:
-    #     """
-    #     Reset any internal memory used by the network. For example, an LSTM internal state
-    #     :return: None
-    #     """
-    #     assert self.middleware.__class__.__name__ != 'LSTMMiddleware', 'LSTM middleware not supported'
-    #
-    # def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
-    #     """
-    #     Collection of all checkpoints for the network (typically only one checkpoint)
-    #     :param parent_path_suffix: path suffix of the parent of the network
-    #         (e.g. could be name of level manager plus name of agent)
-    #     :return: checkpoint collection for the network
-    #     """
-    #     name = self.name.replace('/', '.')
-    #     savers = SaverCollection(ParameterDictSaver(
-    #         name="{}.{}".format(parent_path_suffix, name),
-    #         param_dict=self.model.collect_params()))
-    #     if self.ap.task_parameters.export_onnx_graph:
-    #         savers.add(OnnxSaver(
-    #             name="{}.{}.onnx".format(parent_path_suffix, name),
-    #             model=self.model,
-    #             input_shapes=self._model_input_shapes()))
-    #     return savers
+
+    def set_is_training(self, state: bool) -> None:
+        """
+        Set the phase of the network between training and testing
+        :param state: The current state (True = Training, False = Testing)
+        :return: None
+        """
+        self.is_training = state
+
+    def reset_internal_memory(self) -> None:
+        """
+        Reset any internal memory used by the network. For example, an LSTM internal state
+        :return: None
+        """
+        assert self.middleware.__class__.__name__ != 'LSTMMiddleware', 'LSTM middleware not supported'
+
+    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+        """
+        Collection of all checkpoints for the network (typically only one checkpoint)
+        :param parent_path_suffix: path suffix of the parent of the network
+            (e.g. could be name of level manager plus name of agent)
+        :return: checkpoint collection for the network
+        """
+        name = self.name.replace('/', '.')
+        savers = SaverCollection()
+
+        return savers
