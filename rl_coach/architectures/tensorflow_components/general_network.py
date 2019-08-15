@@ -59,7 +59,6 @@ class GeneralLoss(keras.losses.Loss):
         return {**base_config, "loss_type": self.loss_type}
 
 
-
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
     """
     A generalized version of all possible networks implemented using tensorflow along with the optimizer and loss.
@@ -121,6 +120,9 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :param network_is_local: is the network global (shared between workers) or local (dedicated to the worker)
         :param network_is_trainable: is the network trainable (we can apply gradients on it)
         """
+
+        super().__init__(agent_parameters, spaces, name, global_network, network_is_local, network_is_trainable)
+
         self.global_network = global_network
 
         self.network_wrapper_name = name.split('/')[0]
@@ -209,13 +211,18 @@ def _get_input_embedder(spaces: SpacesDefinition,
         raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
                          .format(input_name, allowed_inputs.keys()))
 
+
     type = "vector"
     if isinstance(allowed_inputs[input_name], TensorObservationSpace):
         type = "tensor"
     elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
         type = "image"
 
+    embedder_params = copy.copy(embedder_params)
+    embedder_params.name = input_name
+
     if type == 'vector':
+
         module = VectorEmbedder(input_size=allowed_inputs[input_name].shape,
                                 activation_function=embedder_params.activation_function,
                                 scheme=embedder_params.scheme,

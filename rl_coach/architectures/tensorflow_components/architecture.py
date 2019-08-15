@@ -118,7 +118,8 @@ class TensorFlowArchitecture(Architecture):
         """
         Construct network model. Implemented by child class.
         """
-        raise NotImplementedError
+        print('Construct is empty for now and is called from class constructor')
+
 
     def set_session(self, sess) -> None:
         """
@@ -136,7 +137,7 @@ class TensorFlowArchitecture(Architecture):
 
         # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
         self.model(self._dummy_model_inputs())
-        a = 1
+        self.model.summary()
 
         # if self.network_is_trainable:
         #     self.trainer = gluon.Trainer(

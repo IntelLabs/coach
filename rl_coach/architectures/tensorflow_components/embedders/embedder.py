@@ -44,11 +44,12 @@ class InputEmbedder(keras.layers.Layer):
         super().__init__(**kwargs)
         # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
+        self.embedder_name = name
 
         #self.scheme = scheme
         self.return_type = InputEmbedding
 
-        self.input_rescaling = input_rescaling
+        self.input_rescaling = tf.cast(input_rescaling, tf.float64)
         self.input_offset = input_offset
         self.input_clipping = input_clipping
 
