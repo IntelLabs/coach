@@ -86,11 +86,11 @@ class NetworkWrapper(object):
                                               spaces=spaces,
                                               network_is_trainable=True)
 
-        # self.online_network.build(input_shape=(None, 4))
-        # self.online_network.summary()
+        # self.online_network.model.build(input_shape=(None, 4))
+        # self.online_network.model.summary()
         # obs = np.array([1., 3., -44., 4.])
         # obs_batch = tf.expand_dims(obs, 0)
-        # self.online_network(obs_batch)
+        # self.online_network.model(obs_batch)
 
         # Target network - a local, slow updating network used for stabilizing the learning
         self.target_network = None

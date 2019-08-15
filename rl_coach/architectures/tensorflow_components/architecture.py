@@ -14,53 +14,29 @@
 # limitations under the License.
 #
 
-
-import os
-import time
-from typing import Any, List, Tuple, Dict
+import copy
+from typing import Any, Dict, Generator, List, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
 from rl_coach.architectures.architecture import Architecture
-from rl_coach.architectures.tensorflow_components.savers import GlobalVariableSaver
-from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
-from rl_coach.core_types import GradientClippingMethod
+
+from rl_coach.base_parameters import AgentParameters
+from rl_coach.logger import screen
 from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import force_list, squeeze_list, start_shell_command_and_wait
-
-def variable_summaries(var):
-    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
-    with tf.compat.v1.name_scope('summaries'):
-        layer_weight_name = '_'.join(var.name.split('/')[-3:])[:-2]
-
-        with tf.compat.v1.name_scope(layer_weight_name):
-            mean = tf.reduce_mean(input_tensor=var)
-            tf.compat.v1.summary.scalar('mean', mean)
-            with tf.compat.v1.name_scope('stddev'):
-                stddev = tf.sqrt(tf.reduce_mean(input_tensor=tf.square(var - mean)))
-            tf.compat.v1.summary.scalar('stddev', stddev)
-            tf.compat.v1.summary.scalar('max', tf.reduce_max(input_tensor=var))
-            tf.compat.v1.summary.scalar('min', tf.reduce_min(input_tensor=var))
-            tf.compat.v1.summary.histogram('histogram', var)
-
-
-def local_getter(getter, name, *args, **kwargs):
-    """
-    This is a wrapper around the tf.get_variable function which puts the variables in the local variables collection
-    instead of the global variables collection. The local variables collection will hold variables which are not shared
-    between workers. these variables are also assumed to be non-trainable (the optimizer does not apply gradients to
-    these variables), but we can calculate the gradients wrt these variables, and we can update their content.
-    """
-    kwargs['collections'] = [tf.compat.v1.GraphKeys.LOCAL_VARIABLES]
-    return getter(name, *args, **kwargs)
+from rl_coach.utils import force_list, squeeze_list
 
 
 class TensorFlowArchitecture(Architecture):
-    def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, name: str= "",
-                 global_network=None, network_is_local: bool=True, network_is_trainable: bool=False):
+    def __init__(self, agent_parameters: AgentParameters,
+                 spaces: SpacesDefinition,
+                 name: str = "",
+                 global_network=None,
+                 network_is_local: bool=True,
+                 network_is_trainable: bool=False):
         """
         :param agent_parameters: the agent parameters
         :param spaces: the spaces definition of the agent
@@ -75,15 +51,7 @@ class TensorFlowArchitecture(Architecture):
         self.global_network = global_network
         if not self.network_parameters.tensorflow_support:
             raise ValueError('TensorFlow is not supported for this agent')
-        #self.sess = None Dan manual fix- no sessions in tf2
-        self.inputs = {}
-        self.outputs = []
-        self.targets = []
-        self.importance_weights = []
-        self.losses = []
-        self.total_loss = None
-        self.trainable_weights = []
-        self.weights_placeholders = []
+        self.losses = []  # type: List[HeadLoss]
         self.shared_accumulated_gradients = []
         self.curr_rnn_c_in = None
         self.curr_rnn_h_in = None
@@ -91,6 +59,8 @@ class TensorFlowArchitecture(Architecture):
         self.train_writer = None
         self.accumulated_gradients = None
         self.network_is_trainable = network_is_trainable
+        self.is_training = False
+        self.model = None  # type: GeneralModel
 
         self.is_chief = self.ap.task_parameters.task_index == 0
         self.network_is_global = not self.network_is_local and global_network is None
@@ -99,669 +69,376 @@ class TensorFlowArchitecture(Architecture):
         self.optimizer_type = self.network_parameters.optimizer_type
         if self.ap.task_parameters.seed is not None:
             tf.compat.v1.set_random_seed(self.ap.task_parameters.seed)
-        with tf.compat.v1.variable_scope("/".join(self.name.split("/")[1:]), initializer=tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform"),
-                               custom_getter=local_getter if network_is_local and global_network else None):
-            self.global_step = tf.compat.v1.train.get_or_create_global_step()
 
-            # build the network
-            # Dan
-            self.dnn_model = self.get_model()
-            self.weights = self.get_model()
+        # Call to child class to create the model
+        self.construct_model()
 
-            # # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
-            # for idx, var in enumerate(self.weights):
-            #     placeholder = tf.compat.v1.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
-            #     self.weights_placeholders.append(placeholder)
-            #     if self.ap.visualization.tensorboard:
-            #         variable_summaries(var)
+        self.trainer = None
 
-            # Dan
-            for idx, var in enumerate(self.dnn_model.variables):
-                if self.ap.visualization.tensorboard:
-                    variable_summaries(var)
+    def __str__(self):
+        return self.model.summary(self._dummy_model_inputs())
 
 
-            # create op for assigning a list of weights to the network weights
-            # self.update_weights_from_list = [weights.assign(holder) for holder, weights in
-            #                                  zip(self.weights_placeholders, self.weights)]
 
-            # locks for synchronous training
-            if self.network_is_global:
-                self._create_locks_for_synchronous_training()
-
-            # gradients ops
-            #self._create_gradient_ops()
-
-            self.inc_step = self.global_step.assign_add(1)
-
-            # reset LSTM hidden cells
-            self.reset_internal_memory()
-
-            if self.ap.visualization.tensorboard:
-                current_scope_summaries = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.SUMMARIES,
-                                                            scope=tf.compat.v1.name_scope())
-                                         #  Dan manual fix: scope = tf.contrib.framework.get_name_scope())
-                self.merged = tf.compat.v1.summary.merge(current_scope_summaries)
-
-            # initialize or restore model
-            self.init_op = tf.group(
-                tf.compat.v1.global_variables_initializer(),
-                tf.compat.v1.local_variables_initializer()
-            )
-
-            # set the fetches for training
-            #self._set_initial_fetch_list()
-
-    # def get_model(self) -> List:
-    #     """
-    #     Constructs the model using `network_parameters` and sets `input_embedders`, `middleware`,
-    #     `output_heads`, `outputs`, `losses`, `total_loss`, `adaptive_learning_rate_scheme`,
-    #     `current_learning_rate`, and `optimizer`.
-    #
-    #     :return: A list of the model's weights
-    #     """
-    #     raise NotImplementedError
-
-    def _set_initial_fetch_list(self):
+    def _model_grads(self, index: int=0):
         """
-        Create an initial list of tensors to fetch in each training iteration
-        :return: None
+        Creates a copy of model gradients and returns them in a list, in the same order as collect_params()
+        :param index: device index. Set to -1 to get a tuple of list of NDArrays for all devices
+        :return: a generator for model gradient values
         """
-        self.train_fetches = [self.gradients_norm]
-        if self.network_parameters.clip_gradients:
-            self.train_fetches.append(self.clipped_grads)
+        if index < 0:
+            return (p.list_grad() for p in self.model.collect_params().values() if p.grad_req != 'null')
         else:
-            self.train_fetches.append(self.tensor_gradients)
-        self.train_fetches += [self.total_loss, self.losses]
-        if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-            self.train_fetches.append(self.middleware.state_out)
-        self.additional_fetches_start_idx = len(self.train_fetches)
+            return (p.list_grad()[index] for p in self.model.collect_params().values() if p.grad_req != 'null')
 
-    def _create_locks_for_synchronous_training(self):
+
+
+    def _model_input_shapes(self) -> List[List[int]]:
         """
-        Create locks for synchronizing the different workers during training
-        :return: None
+        Create a list of input array shapes
+        :return: type of input shapes
         """
-        self.lock_counter = tf.compat.v1.get_variable("lock_counter", [], tf.int32,
-                                            initializer=tf.compat.v1.constant_initializer(0, dtype=tf.int32),
-                                            trainable=False, use_resource=False)
-                                            #  Dan manual fix: use_resource=False
-        self.lock = self.lock_counter.assign_add(1, use_locking=True)
-        self.lock_init = self.lock_counter.assign(0)
+        allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
+        allowed_inputs["action"] = copy.copy(self.spaces.action)
+        allowed_inputs["goal"] = copy.copy(self.spaces.goal)
+        embedders = self.model.nets[0].input_embedders
+        return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in embedders)
 
-        self.release_counter = tf.compat.v1.get_variable("release_counter", [], tf.int32,
-                                               initializer=tf.compat.v1.constant_initializer(0, dtype=tf.int32),
-                                               trainable=False, use_resource=False)
-                                               #  Dan manual fix: use_resource=False
-        self.release = self.release_counter.assign_add(1, use_locking=True)
-        self.release_decrement = self.release_counter.assign_add(-1, use_locking=True)
-        self.release_init = self.release_counter.assign(0)
-
-    def _create_gradient_ops(self):
+    def _dummy_model_inputs(self):
         """
-        Create all the tensorflow operations for calculating gradients, processing the gradients and applying them
-        :return: None
+        Creates a tuple of input arrays with correct shapes that can be used for shape inference
+        of the model weights and for printing the summary
+        :return: tuple of inputs for model forward pass
         """
+        input_shapes = self._model_input_shapes()
+        inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
+        return inputs
 
-        self.tensor_gradients = tf.gradients(ys=self.total_loss, xs=self.weights)
-        self.gradients_norm = tf.linalg.global_norm(self.tensor_gradients)
-
-        # gradient clipping
-        if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
-            self._create_gradient_clipping_ops()
-
-        # when using a shared optimizer, we create accumulators to store gradients from all the workers before
-        # applying them
-        if self.distributed_training:
-            self._create_gradient_accumulators()
-
-        # gradients of the outputs w.r.t. the inputs
-        self.gradients_wrt_inputs = [{name: tf.gradients(ys=output, xs=input_ph) for name, input_ph in
-                                      self.inputs.items()} for output in self.outputs]
-        self.gradients_weights_ph = [tf.compat.v1.placeholder('float32', self.outputs[i].shape, 'output_gradient_weights')
-                                     for i in range(len(self.outputs))]
-        self.weighted_gradients = []
-        for i in range(len(self.outputs)):
-            unnormalized_gradients = tf.gradients(ys=self.outputs[i], xs=self.weights, grad_ys=self.gradients_weights_ph[i])
-            # unnormalized gradients seems to be better at the time. TODO: validate this accross more environments
-            # self.weighted_gradients.append(list(map(lambda x: tf.div(x, self.network_parameters.batch_size),
-            #                                         unnormalized_gradients)))
-            self.weighted_gradients.append(unnormalized_gradients)
-
-        # defining the optimization process (for LBFGS we have less control over the optimizer)
-        if self.optimizer_type != 'LBFGS' and self.network_is_trainable:
-            self._create_gradient_applying_ops()
-
-    def _create_gradient_accumulators(self):
-        if self.network_is_global:
-            self.shared_accumulated_gradients = [tf.Variable(initial_value=tf.zeros_like(var)) for var in self.weights]
-            self.accumulate_shared_gradients = [var.assign_add(holder, use_locking=True) for holder, var in
-                                                zip(self.weights_placeholders, self.shared_accumulated_gradients)]
-            self.init_shared_accumulated_gradients = [var.assign(tf.zeros_like(var)) for var in
-                                                      self.shared_accumulated_gradients]
-        elif self.network_is_local:
-            self.accumulate_shared_gradients = self.global_network.accumulate_shared_gradients
-            self.init_shared_accumulated_gradients = self.global_network.init_shared_accumulated_gradients
-
-    def _create_gradient_clipping_ops(self):
+    def construct_model(self) -> None:
         """
-        Create tensorflow ops for clipping the gradients according to the given GradientClippingMethod
-        :return: None
+        Construct network model. Implemented by child class.
         """
-        if self.network_parameters.gradients_clipping_method == GradientClippingMethod.ClipByGlobalNorm:
-            self.clipped_grads, self.grad_norms = tf.clip_by_global_norm(self.tensor_gradients,
-                                                                         self.network_parameters.clip_gradients)
-        elif self.network_parameters.gradients_clipping_method == GradientClippingMethod.ClipByValue:
-            self.clipped_grads = [tf.clip_by_value(grad,
-                                                   -self.network_parameters.clip_gradients,
-                                                   self.network_parameters.clip_gradients)
-                                  for grad in self.tensor_gradients]
-        elif self.network_parameters.gradients_clipping_method == GradientClippingMethod.ClipByNorm:
-            self.clipped_grads = [tf.clip_by_norm(grad, self.network_parameters.clip_gradients)
-                                  for grad in self.tensor_gradients]
+        raise NotImplementedError
 
-    def _create_gradient_applying_ops(self):
+    def set_session(self, sess) -> None:
         """
-        Create tensorflow ops for applying the gradients to the network weights according to the training scheme
-        (distributed training - local or global network, shared optimizer, etc.)
-        :return: None
-        """
-        if self.network_is_global and self.network_parameters.shared_optimizer and \
-                not self.network_parameters.async_training:
-            # synchronous training with shared optimizer? -> create an operation for applying the gradients
-            # accumulated in the shared gradients accumulator
-            self.update_weights_from_shared_gradients = self.optimizer.apply_gradients(
-                zip(self.shared_accumulated_gradients, self.weights),
-                global_step=self.global_step)
-
-        elif self.distributed_training and self.network_is_local:
-            # distributed training but independent optimizer? -> create an operation for applying the gradients
-            # to the global weights
-            self.update_weights_from_batch_gradients = self.optimizer.apply_gradients(
-                zip(self.weights_placeholders, self.global_network.weights), global_step=self.global_step)
-
-        elif self.network_is_trainable:
-            # not any of the above but is trainable? -> create an operation for applying the gradients to
-            # this network weights
-            update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS, scope=self.full_name)
-
-            with tf.control_dependencies(update_ops):
-                self.   update_weights_from_batch_gradients = self.optimizer.apply_gradients(
-                    zip(self.weights_placeholders, self.weights), global_step=self.global_step)
-
-    def set_session(self, sess):
-        self.sess = sess
-
-        task_is_distributed = isinstance(self.ap.task_parameters, DistributedTaskParameters)
-        # initialize the session parameters in single threaded runs. Otherwise, this is done through the
-        # MonitoredSession object in the graph manager
-        if not task_is_distributed:
-            a = 1
-            #self.sess.run(self.init_op)
-
-        if self.ap.visualization.tensorboard:
-            # Write the merged summaries to the current experiment directory
-            if not task_is_distributed:
-                self.train_writer = tf.compat.v1.summary.FileWriter(self.ap.task_parameters.experiment_path + '/tensorboard')
-                self.train_writer.add_graph(self.sess.graph)
-            elif self.network_is_local:
-                self.train_writer = tf.compat.v1.summary.FileWriter(self.ap.task_parameters.experiment_path +
-                                                          '/tensorboard/worker{}'.format(self.ap.task_parameters.task_index))
-                self.train_writer.add_graph(self.sess.graph)
-
-        # wait for all the workers to set their session
-        if not self.network_is_local:
-            self.wait_for_all_workers_barrier()
-
-    def reset_accumulated_gradients(self):
-        """
-        Reset the gradients accumulation placeholder
-        """
-        if self.accumulated_gradients is None:
-            # Dan, is this mxnet compatible?
-
-            self.accumulated_gradients = self.sess.run(self.weights)
-
-        for ix, grad in enumerate(self.accumulated_gradients):
-            self.accumulated_gradients[ix] = grad * 0
-
-    def accumulate_gradients(self,
-                             inputs, targets, additional_fetches=None, importance_weights=None,
-                             no_accumulation=False):
-        """
-        Runs a forward pass & backward pass, clips gradients if needed and accumulates them into the accumulation
-        placeholders
-        :param additional_fetches: Optional tensors to fetch during gradients calculation
-        :param inputs: The input batch for the network
-        :param targets: The targets corresponding to the input batch
-        :param importance_weights: A coefficient for each sample in the batch, which will be used to rescale the loss
-                                   error of this sample. If it is not given, the samples losses won't be scaled
-        :param no_accumulation: If is set to True, the gradients in the accumulated gradients placeholder will be
-                                replaced by the newely calculated gradients instead of accumulating the new gradients.
-                                This can speed up the function runtime by around 10%.
-        :return: A list containing the total loss and the individual network heads losses
-        """
-
-        assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported for now"
-
-        with tf.GradientTape() as tape:
-            #y_pred = self.model(inputs, training=True)
-            y_pred = self.dnn_model(inputs['observation'])
-            main_loss = tf.reduce_mean(self.loss(targets, y_pred))
-            # Dan will add model loss later for regularization
-            #total_loss = tf.add_n([main_loss] + model.losses)
-            total_loss = main_loss
-
-        gradients = tape.gradient(main_loss, self.dnn_model.trainable_variables)
-
-        self.accumulated_gradients = gradients
-        #
-        # if self.accumulated_gradients is None:
-        #     self.reset_accumulated_gradients()
-        #
-        # #accumulate the gradients
-        # for idx, grad in enumerate(gradients):
-        #     if no_accumulation:
-        #         self.accumulated_gradients[idx] = grad
-        #     else:
-        #         self.accumulated_gradients[idx] += grad
-
-
-
-        loss_list = total_loss
-
-        return total_loss, loss_list, gradients
-
-        #
-        # if self.accumulated_gradients is None:
-        #     self.reset_accumulated_gradients()
-        #
-        # # feed inputs
-        # if additional_fetches is None:
-        #     additional_fetches = []
-        # feed_dict = self.create_feed_dict(inputs)
-        #
-        # # feed targets
-        # targets = force_list(targets)
-        # for placeholder_idx, target in enumerate(targets):
-        #     feed_dict[self.targets[placeholder_idx]] = target
-        #
-        # # feed importance weights
-        # importance_weights = force_list(importance_weights)
-        # for placeholder_idx, target_ph in enumerate(targets):
-        #     if len(importance_weights) <= placeholder_idx or importance_weights[placeholder_idx] is None:
-        #         importance_weight = np.ones(target_ph.shape[0])
-        #     else:
-        #         importance_weight = importance_weights[placeholder_idx]
-        #     importance_weight = np.reshape(importance_weight, (-1,) + (1,) * (len(target_ph.shape) - 1))
-        #
-        #     feed_dict[self.importance_weights[placeholder_idx]] = importance_weight
-        #
-        # if self.optimizer_type != 'LBFGS':
-        #
-        #     # feed the lstm state if necessary
-        #     if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-        #         # we can't always assume that we are starting from scratch here can we?
-        #         feed_dict[self.middleware.c_in] = self.middleware.c_init
-        #         feed_dict[self.middleware.h_in] = self.middleware.h_init
-        #
-        #     fetches = self.train_fetches + additional_fetches
-        #     if self.ap.visualization.tensorboard:
-        #         fetches += [self.merged]
-        #
-        #     # get grads
-        #     result = self.sess.run(fetches, feed_dict=feed_dict)
-        #
-        #     if hasattr(self, 'train_writer') and self.train_writer is not None:
-        #         self.train_writer.add_summary(result[-1], self.sess.run(self.global_step))
-        #
-        #     # extract the fetches
-        #     norm_unclipped_grads, grads, total_loss, losses = result[:4]
-        #     if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-        #         (self.curr_rnn_c_in, self.curr_rnn_h_in) = result[4]
-        #     fetched_tensors = []
-        #     if len(additional_fetches) > 0:
-        #         fetched_tensors = result[self.additional_fetches_start_idx:self.additional_fetches_start_idx +
-        #                                                               len(additional_fetches)]
-        #
-        #     # accumulate the gradients
-        #     for idx, grad in enumerate(grads):
-        #         if no_accumulation:
-        #             self.accumulated_gradients[idx] = grad
-        #         else:
-        #             self.accumulated_gradients[idx] += grad
-        #
-        #     return total_loss, losses, norm_unclipped_grads, fetched_tensors
-        #
-        # else:
-        #     self.optimizer.minimize(session=self.sess, feed_dict=feed_dict)
-        #
-        #     return [0]
-
-    def create_feed_dict(self, inputs):
-        feed_dict = {}
-        for input_name, input_value in inputs.items():
-            if isinstance(input_name, str):
-                if input_name not in self.inputs:
-                    raise ValueError((
-                        'input name {input_name} was provided to create a feed '
-                        'dictionary, but there is no placeholder with that name. '
-                        'placeholder names available include: {placeholder_names}'
-                    ).format(
-                        input_name=input_name,
-                        placeholder_names=', '.join(self.inputs.keys())
-                    ))
-
-                feed_dict[self.inputs[input_name]] = input_value
-            elif isinstance(input_name, tf.Tensor) and input_name.op.type == 'Placeholder':
-                feed_dict[input_name] = input_value
-            else:
-                raise ValueError((
-                    'input dictionary expects strings or placeholders as keys, '
-                    'but found key {key} of type {type}'
-                ).format(
-                    key=input_name,
-                    type=type(input_name),
-                ))
-
-        return feed_dict
-
-    def apply_and_reset_gradients(self, gradients, scaler=1., additional_inputs=None):
-        """
-        Applies the given gradients to the network weights and resets the accumulation placeholder
-        :param gradients: The gradients to use for the update
-        :param scaler: A scaling factor that allows rescaling the gradients before applying them
-        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
-                                  update ops also requires the inputs)
-
-        """
-        self.apply_gradients(gradients, scaler, additional_inputs=additional_inputs)
-        self.reset_accumulated_gradients()
-
-    def wait_for_all_workers_to_lock(self, lock: str, include_only_training_workers: bool=False):
-        """
-        Waits for all the workers to lock a certain lock and then continues
-        :param lock: the name of the lock to use
-        :param include_only_training_workers: wait only for training workers or for all the workers?
-        :return: None
-        """
-        if include_only_training_workers:
-            num_workers_to_wait_for = self.ap.task_parameters.num_training_tasks
-        else:
-            num_workers_to_wait_for = self.ap.task_parameters.num_tasks
-
-        # lock
-        if hasattr(self, '{}_counter'.format(lock)):
-            self.sess.run(getattr(self, lock))
-            while self.sess.run(getattr(self, '{}_counter'.format(lock))) % num_workers_to_wait_for != 0:
-                time.sleep(0.00001)
-            # self.sess.run(getattr(self, '{}_init'.format(lock)))
-        else:
-            raise ValueError("no counter was defined for the lock {}".format(lock))
-
-    def wait_for_all_workers_barrier(self, include_only_training_workers: bool=False):
-        """
-        A barrier that allows waiting for all the workers to finish a certain block of commands
-        :param include_only_training_workers: wait only for training workers or for all the workers?
-        :return: None
-        """
-        self.wait_for_all_workers_to_lock('lock', include_only_training_workers=include_only_training_workers)
-        self.sess.run(self.lock_init)
-
-        # we need to lock again (on a different lock) in order to prevent a situation where one of the workers continue
-        # and then was able to first increase the lock again by one, only to have a late worker to reset it again.
-        # so we want to make sure that all workers are done resetting the lock before continuting to reuse that lock.
-
-        self.wait_for_all_workers_to_lock('release', include_only_training_workers=include_only_training_workers)
-        self.sess.run(self.release_init)
-
-    def apply_gradients(self, gradients, scaler=1., additional_inputs=None):
-        """
-        Applies the given gradients to the network weights
-        :param gradients: The gradients to use for the update
-        :param scaler: A scaling factor that allows rescaling the gradients before applying them.
-                       The gradients will be MULTIPLIED by this factor
-        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
-                                  update ops also requires the inputs)
-        """
-
-        if self.network_parameters.async_training or not isinstance(self.ap.task_parameters, DistributedTaskParameters):
-            if hasattr(self, 'global_step') and not self.network_is_local:
-                self.sess.run(self.inc_step)
-
-        if self.optimizer_type != 'LBFGS':
-
-            if self.distributed_training and not self.network_parameters.async_training:
-                # rescale the gradients so that they average out with the gradients from the other workers
-                if self.network_parameters.scale_down_gradients_by_number_of_workers_for_sync_training:
-                    scaler /= float(self.ap.task_parameters.num_training_tasks)
-
-            # rescale the gradients
-            if scaler != 1.:
-                for gradient in gradients:
-                    gradient *= scaler
-
-            # apply the gradients
-            feed_dict = dict(zip(self.weights_placeholders, gradients))
-            if self.distributed_training and self.network_parameters.shared_optimizer \
-                    and not self.network_parameters.async_training:
-                # synchronous distributed training with shared optimizer:
-                # - each worker adds its gradients to the shared gradients accumulators
-                # - we wait for all the workers to add their gradients
-                # - the chief worker (worker with task index = 0) applies the gradients once and resets the accumulators
-
-                self.sess.run(self.accumulate_shared_gradients, feed_dict=feed_dict)
-
-                self.wait_for_all_workers_barrier(include_only_training_workers=True)
-
-                if self.is_chief:
-                    self.sess.run(self.update_weights_from_shared_gradients)
-                    self.sess.run(self.init_shared_accumulated_gradients)
-            else:
-                # async distributed training / distributed training with independent optimizer
-                #  / non-distributed training - just apply the gradients
-                feed_dict = dict(zip(self.weights_placeholders, gradients))
-                if additional_inputs is not None:
-                    feed_dict = {**feed_dict, **self.create_feed_dict(additional_inputs)}
-                self.sess.run(self.update_weights_from_batch_gradients, feed_dict=feed_dict)
-
-            # release barrier
-            if self.distributed_training and not self.network_parameters.async_training:
-                self.wait_for_all_workers_barrier(include_only_training_workers=True)
-
-    def predict(self, inputs, outputs=None, squeeze_output=True, initial_feed_dict=None):
-        """
-        Run a forward pass of the network using the given input
-        :param inputs: The input for the network
-        :param outputs: The output for the network, defaults to self.outputs
-        :param squeeze_output: call squeeze_list on output
-        :param initial_feed_dict: a dictionary to use as the initial feed_dict. other inputs will be added to this dict
-        :return: The network output
-
-        WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
-        """
-        feed_dict = self.create_feed_dict(inputs)
-        if initial_feed_dict:
-            feed_dict.update(initial_feed_dict)
-        if outputs is None:
-            outputs = self.outputs
-
-        if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-            feed_dict[self.middleware.c_in] = self.curr_rnn_c_in
-            feed_dict[self.middleware.h_in] = self.curr_rnn_h_in
-
-            output, (self.curr_rnn_c_in, self.curr_rnn_h_in) = self.sess.run([outputs, self.middleware.state_out],
-                                                                             feed_dict=feed_dict)
-        else:
-            output = self.sess.run(outputs, feed_dict)
-
-        if squeeze_output:
-            output = squeeze_list(output)
-        return output
-
-    @staticmethod
-    def parallel_predict(sess: Any,
-                         network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) ->\
-            List[np.ndarray]:
-        """
-        :param sess: active session to use for prediction
-        :param network_input_tuples: tuple of network and corresponding input
-        :return: list of outputs from all networks
+        Initializes the model parameters and creates the model trainer.
+        NOTEL Session for mxnet backend must be None.
+        :param sess: must be None
         """
         assert sess is None
-        output = list()
-        for net, inputs in network_input_tuples:
-            output += net.dnn_model(inputs['observation'])
-        return tuple(o.numpy() for o in output)
-        #return output#tuple(o.numpy() for o in output)
+        # FIXME Add initializer
+        # self.model.collect_params().initialize(ctx=self._devices)
+        # # Hybridize model and losses
+        # self.model.hybridize()
+        # for l in self.losses:
+        #     l.hybridize()
 
-        # feed_dict = {}
-        # fetches = []
-        # for network, input in network_input_tuples:
-        #     feed_dict.update(network.create_feed_dict(input))
-        #     fetches += network.outputs
-        #
-        # outputs = sess.run(fetches, feed_dict)
-        #
-        # return outputs
+        # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
+        self.model(self._dummy_model_inputs())
+        a = 1
 
+        # if self.network_is_trainable:
+        #     self.trainer = gluon.Trainer(
+        #         self.model.collect_params(), optimizer=self.optimizer, update_on_kvstore=False)
 
-
-
-    def train_on_batch(self, inputs, targets, scaler=1., additional_fetches=None, importance_weights=None):
-        """
-        Given a batch of examples and targets, runs a forward pass & backward pass and then applies the gradients
-        :param additional_fetches: Optional tensors to fetch during the training process
-        :param inputs: The input for the network
-        :param targets: The targets corresponding to the input batch
-        :param scaler: A scaling factor that allows rescaling the gradients before applying them
-        :param importance_weights: A coefficient for each sample in the batch, which will be used to rescale the loss
-                                   error of this sample. If it is not given, the samples losses won't be scaled
-        :return: The loss of the network
-        """
-        if additional_fetches is None:
-            additional_fetches = []
-        force_list(additional_fetches)
-        loss = self.accumulate_gradients(inputs, targets, additional_fetches=additional_fetches,
-                                         importance_weights=importance_weights)
-        self.apply_and_reset_gradients(self.accumulated_gradients, scaler)
-        return loss
-
-    def get_weights(self):
-        """
-        :return: a list of tensors containing the network weights for each layer
-        """
-        return self.weights
-
-    # def set_weights(self, weights, new_rate=1.0):
+    # def reset_accumulated_gradients(self) -> None:
     #     """
-    #     Sets the network weights from the given list of weights tensors
+    #     Reset model gradients as well as accumulated gradients to zero. If accumulated gradients
+    #     have not been created yet, it constructs them on CPU.
     #     """
-    #     feed_dict = {}
-    #     old_weights, new_weights = self.sess.run([self.get_weights(), weights])
-    #     for placeholder_idx, new_weight in enumerate(new_weights):
-    #         feed_dict[self.weights_placeholders[placeholder_idx]]\
-    #             = new_rate * new_weight + (1 - new_rate) * old_weights[placeholder_idx]
-    #     self.sess.run(self.update_weights_from_list, feed_dict)
-
-
-    def set_weights(self, source_model, new_rate=1.0):
-        """
-        Updates the target network weights from the given source model weights tensors
-        """
-        updated_target = []
-        if new_rate < 0 or new_rate > 1:
-            raise ValueError('new_rate parameter values should be between 0 to 1.')
-        target_weights = self.dnn_model.get_weights()
-        source_weights = source_model.get_weights()
-        for (source_layer, target_layer) in zip(source_weights, target_weights):
-            updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
-        self.dnn_model.set_weights(updated_target)
-
-
-
-    def get_variable_value(self, variable):
-        """
-        Get the value of a variable from the graph
-        :param variable: the variable
-        :return: the value of the variable
-        """
-        return self.sess.run(variable)
-
-    def set_variable_value(self, assign_op, value, placeholder=None):
-        """
-        Updates the value of a variable.
-        This requires having an assign operation for the variable, and a placeholder which will provide the value
-        :param assign_op: an assign operation for the variable
-        :param value: a value to set the variable to
-        :param placeholder: a placeholder to hold the given value for injecting it into the variable
-        """
-        self.sess.run(assign_op, feed_dict={placeholder: value})
-
-    def set_is_training(self, state: bool):
-        """
-        Set the phase of the network between training and testing
-        :param state: The current state (True = Training, False = Testing)
-        :return: None
-        """
-        self.set_variable_value(self.assign_is_training, state, self.is_training_placeholder)
-
-    def reset_internal_memory(self):
-        """
-        Reset any internal memory used by the network. For example, an LSTM internal state
-        :return: None
-        """
-        # initialize LSTM hidden states
-        if self.middleware.__class__.__name__ == 'LSTMMiddleware':
-            self.curr_rnn_c_in = self.middleware.c_init
-            self.curr_rnn_h_in = self.middleware.h_init
-
-    def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
-        """
-        Collection of all checkpoints for the network (typically only one checkpoint)
-        :param parent_path_suffix: path suffix of the parent of the network
-            (e.g. could be name of level manager plus name of agent)
-        :return: checkpoint collection for the network
-        """
-        savers = SaverCollection()
-        if not self.distributed_training:
-            savers.add(GlobalVariableSaver(self.name))
-        return savers
-
-
-def save_onnx_graph(input_nodes, output_nodes, checkpoint_save_dir: str) -> None:
-    """
-    Given the input nodes and output nodes of the TF graph, save it as an onnx graph
-    This requires the TF graph and the weights checkpoint to be stored in the experiment directory.
-    It then freezes the graph (merging the graph and weights checkpoint), and converts it to ONNX.
-
-    :param input_nodes: A list of input nodes for the TF graph
-    :param output_nodes: A list of output nodes for the TF graph
-    :param checkpoint_save_dir: The directory to save the ONNX graph to
-    :return: None
-    """
-    import tf2onnx  # just to verify that tf2onnx is installed
-
-    # freeze graph
-    frozen_graph_path = os.path.join(checkpoint_save_dir, "frozen_graph.pb")
-    freeze_graph_command = [
-        "python -m tensorflow.python.tools.freeze_graph",
-        "--input_graph={}".format(os.path.join(checkpoint_save_dir, "graphdef.pb")),
-        "--input_binary=true",
-        "--output_node_names='{}'".format(','.join([o.split(":")[0] for o in output_nodes])),
-        "--input_checkpoint={}".format(tf.train.latest_checkpoint(checkpoint_save_dir)),
-        "--output_graph={}".format(frozen_graph_path)
-    ]
-    start_shell_command_and_wait(" ".join(freeze_graph_command))
-
-    # convert graph to onnx
-    onnx_graph_path = os.path.join(checkpoint_save_dir, "model.onnx")
-    convert_to_onnx_command = [
-        "python -m tf2onnx.convert",
-        "--input {}".format(frozen_graph_path),
-        "--inputs '{}'".format(','.join(input_nodes)),
-        "--outputs '{}'".format(','.join(output_nodes)),
-        "--output {}".format(onnx_graph_path),
-        "--verbose"
-    ]
-    start_shell_command_and_wait(" ".join(convert_to_onnx_command))
+    #     # Set model gradients to zero
+    #     for p in self.model.collect_params().values():
+    #         p.zero_grad()
+    #     # Set accumulated gradients to zero if already initialized, otherwise create a copy
+    #     if self.accumulated_gradients:
+    #         for a in self.accumulated_gradients:
+    #             a *= 0
+    #     else:
+    #         self.accumulated_gradients = [g.copy() for g in self._model_grads()]
+    #
+    # def accumulate_gradients(self,
+    #                          inputs: Dict[str, np.ndarray],
+    #                          targets: List[np.ndarray],
+    #                          additional_fetches: List[Tuple[int, str]] = None,
+    #                          importance_weights: np.ndarray = None,
+    #                          no_accumulation: bool = False) -> Tuple[float, List[float], float, list]:
+    #     """
+    #     Runs a forward & backward pass, clips gradients if needed and accumulates them into the accumulation
+    #     :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
+    #         is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
+    #     :param targets: targets required by  loss (e.g. sum of discounted rewards)
+    #     :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
+    #         tuple of head-type-index and fetch-name. The tuple is obtained from each head.
+    #     :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.
+    #     :param no_accumulation: if True, set gradient values to the new gradients, otherwise sum with previously
+    #         calculated gradients
+    #     :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
+    #         total_loss (float): sum of all head losses
+    #         losses (list of float): list of all losses. The order is list of target losses followed by list of
+    #             regularization losses. The specifics of losses is dependant on the network parameters
+    #             (number of heads, etc.)
+    #         norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
+    #         fetched_tensors: all values for additional_fetches
+    #     """
+    #     if self.accumulated_gradients is None:
+    #         self.reset_accumulated_gradients()
+    #
+    #     embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+    #     nd_inputs = tuple(nd.array(inputs[emb], ctx=self._devices[0]) for emb in embedders)
+    #
+    #     assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
+    #
+    #     targets = force_list(targets)
+    #     with autograd.record():
+    #         out_per_head = utils.split_outputs_per_head(self.model(*nd_inputs), self.model.output_heads)
+    #         tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
+    #
+    #         losses = list()
+    #         regularizations = list()
+    #         additional_fetches = [(k, None) for k in additional_fetches]
+    #         for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
+    #             l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
+    #             # Align arguments with loss.loss_forward and convert to NDArray
+    #             l_args = utils.to_mx_ndarray(utils.align_loss_args(h_out, l_in, l_tgt, h_loss), h_out[0].context)
+    #             # Calculate loss and all auxiliary outputs
+    #             loss_outputs = utils.loss_output_dict(utils.to_list(h_loss(*l_args)), h_loss.output_schema)
+    #             if LOSS_OUT_TYPE_LOSS in loss_outputs:
+    #                 losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
+    #             if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
+    #                 regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
+    #             # Set additional fetches
+    #             for i, fetch in enumerate(additional_fetches):
+    #                 head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+    #                 if head_type_idx == h.head_type_idx:
+    #                     assert fetch[1] is None  # sanity check that fetch is None
+    #                     additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
+    #
+    #         # Total loss is losses and regularization (NOTE: order is important)
+    #         total_loss_list = losses + regularizations
+    #         total_loss = nd.add_n(*total_loss_list)
+    #
+    #     # Calculate gradients
+    #     total_loss.backward()
+    #
+    #     assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
+    #
+    #     # allreduce gradients from all contexts
+    #     self.trainer.allreduce_grads()
+    #
+    #     model_grads_cpy = [g.copy() for g in self._model_grads()]
+    #     # Calculate global norm of gradients
+    #     # FIXME global norm is returned even when not used for clipping! Is this necessary?
+    #     # FIXME global norm might be calculated twice if clipping method is global norm
+    #     norm_unclipped_grads = utils.global_norm(model_grads_cpy)
+    #
+    #     # Clip gradients
+    #     if self.network_parameters.clip_gradients:
+    #         utils.clip_grad(
+    #             model_grads_cpy,
+    #             clip_method=self.network_parameters.gradients_clipping_method,
+    #             clip_val=self.network_parameters.clip_gradients,
+    #             inplace=True)
+    #
+    #     # Update self.accumulated_gradients depending on no_accumulation flag
+    #     if no_accumulation:
+    #         for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
+    #             acc_grad[:] = model_grad
+    #     else:
+    #         for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
+    #             acc_grad += model_grad
+    #
+    #     # result of of additional fetches
+    #     fetched_tensors = [fetch[1] for fetch in additional_fetches]
+    #
+    #     # convert everything to numpy or scalar before returning
+    #     result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads, fetched_tensors))
+    #     return result
+    #
+    # def apply_and_reset_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
+    #     """
+    #     Applies the given gradients to the network weights and resets accumulated gradients to zero
+    #     :param gradients: The gradients to use for the update
+    #     :param scaler: A scaling factor that allows rescaling the gradients before applying them
+    #     """
+    #     self.apply_gradients(gradients, scaler)
+    #     self.reset_accumulated_gradients()
+    #
+    # def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
+    #     """
+    #     Applies the given gradients to the network weights
+    #     :param gradients: The gradients to use for the update
+    #     :param scaler: A scaling factor that allows rescaling the gradients before applying them.
+    #                    The gradients will be MULTIPLIED by this factor
+    #     """
+    #     assert self.optimizer_type != 'LBFGS'
+    #
+    #     batch_size = 1
+    #     if self.distributed_training and not self.network_parameters.async_training:
+    #         # rescale the gradients so that they average out with the gradients from the other workers
+    #         if self.network_parameters.scale_down_gradients_by_number_of_workers_for_sync_training:
+    #             batch_size = self.ap.task_parameters.num_training_tasks
+    #
+    #     # set parameter gradients to gradients passed in
+    #     for param_grad, gradient in zip(self._model_grads(-1), gradients):
+    #         for pg in param_grad:
+    #             pg[:] = gradient
+    #     # update gradients
+    #     self.trainer.update(batch_size=batch_size)
+    #
+    # def _predict(self, inputs: Dict[str, np.ndarray]) -> Tuple[NDArray, ...]:
+    #     """
+    #     Run a forward pass of the network using the given input
+    #     :param inputs: The input dictionary for the network. Key is name of the embedder.
+    #     :return: The network output
+    #
+    #     WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
+    #     """
+    #     embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+    #     nd_inputs = tuple(nd.array(inputs[emb], ctx=self._devices[0]) for emb in embedders)
+    #
+    #     assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
+    #
+    #     output = self.model(*nd_inputs)
+    #     return output
+    #
+    # def predict(self,
+    #             inputs: Dict[str, np.ndarray],
+    #             outputs: List[str]=None,
+    #             squeeze_output: bool=True,
+    #             initial_feed_dict: Dict[str, np.ndarray]=None) -> Tuple[np.ndarray, ...]:
+    #     """
+    #     Run a forward pass of the network using the given input
+    #     :param inputs: The input dictionary for the network. Key is name of the embedder.
+    #     :param outputs: list of outputs to return. Return all outputs if unspecified (currently not supported)
+    #     :param squeeze_output: call squeeze_list on output if True
+    #     :param initial_feed_dict: a dictionary of extra inputs for forward pass (currently not supported)
+    #     :return: The network output
+    #
+    #     WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
+    #     """
+    #     assert initial_feed_dict is None, "initial_feed_dict must be None"
+    #     assert outputs is None, "outputs must be None"
+    #
+    #     output = self._predict(inputs)
+    #     output = list(o.asnumpy() for o in output)
+    #     if squeeze_output:
+    #         output = squeeze_list(output)
+    #     return output
+    #
+    # @staticmethod
+    # def parallel_predict(sess: Any,
+    #                      network_input_tuples: List[Tuple['MxnetArchitecture', Dict[str, np.ndarray]]]) -> \
+    #         Tuple[np.ndarray, ...]:
+    #     """
+    #     :param sess: active session to use for prediction (must be None for MXNet)
+    #     :param network_input_tuples: tuple of network and corresponding input
+    #     :return: tuple of outputs from all networks
+    #     """
+    #     assert sess is None
+    #     output = list()
+    #     for net, inputs in network_input_tuples:
+    #         output += net._predict(inputs)
+    #     return tuple(o.asnumpy() for o in output)
+    #
+    # def train_on_batch(self,
+    #                    inputs: Dict[str, np.ndarray],
+    #                    targets: List[np.ndarray],
+    #                    scaler: float = 1.,
+    #                    additional_fetches: list = None,
+    #                    importance_weights: np.ndarray = None) -> Tuple[float, List[float], float, list]:
+    #     """
+    #     Given a batch of inputs (e.g. states) and targets (e.g. discounted rewards), takes a training step: i.e. runs a
+    #     forward pass and backward pass of the network, accumulates the gradients and applies an optimization step to
+    #     update the weights.
+    #     :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
+    #         is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
+    #     :param targets: targets required by  loss (e.g. sum of discounted rewards)
+    #     :param scaler: value to scale gradients by before optimizing network weights
+    #     :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
+    #         tuple of head-type-index and fetch-name. The tuple is obtained from each head.
+    #     :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.
+    #     :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
+    #         total_loss (float): sum of all head losses
+    #         losses (list of float): list of all losses. The order is list of target losses followed by list
+    #             of regularization losses. The specifics of losses is dependant on the network parameters
+    #             (number of heads, etc.)
+    #         norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
+    #         fetched_tensors: all values for additional_fetches
+    #     """
+    #     loss = self.accumulate_gradients(inputs, targets, additional_fetches=additional_fetches,
+    #                                      importance_weights=importance_weights)
+    #     self.apply_and_reset_gradients(self.accumulated_gradients, scaler)
+    #     return loss
+    #
+    # def get_weights(self) -> gluon.ParameterDict:
+    #     """
+    #     :return: a ParameterDict containing all network weights
+    #     """
+    #     return self.model.collect_params()
+    #
+    # def set_weights(self, weights: gluon.ParameterDict, new_rate: float=1.0) -> None:
+    #     """
+    #     Sets the network weights from the given ParameterDict
+    #     :param new_rate: ratio for adding new and old weight values: val=rate*weights + (1-rate)*old_weights
+    #     """
+    #     old_weights = self.model.collect_params()
+    #     for name, p in weights.items():
+    #         name = name[len(weights.prefix):]  # Strip prefix
+    #         old_p = old_weights[old_weights.prefix + name]  # Add prefix
+    #         old_p.set_data(new_rate * p._reduce() + (1 - new_rate) * old_p._reduce())
+    #
+    # def get_variable_value(self, variable: Union[gluon.Parameter, NDArray]) -> np.ndarray:
+    #     """
+    #     Get the value of a variable
+    #     :param variable: the variable
+    #     :return: the value of the variable
+    #     """
+    #     if isinstance(variable, gluon.Parameter):
+    #         variable = variable._reduce().asnumpy()
+    #     if isinstance(variable, NDArray):
+    #         return variable.asnumpy()
+    #     return variable
+    #
+    # def set_variable_value(self, assign_op: callable, value: Any, placeholder=None) -> None:
+    #     """
+    #     Updates value of a variable.
+    #     :param assign_op: a callable assign function for setting the variable
+    #     :param value: a value to set the variable to
+    #     :param placeholder: unused (placeholder in symbolic framework backends)
+    #     """
+    #     assert callable(assign_op)
+    #     assign_op(value)
+    #
+    # def set_is_training(self, state: bool) -> None:
+    #     """
+    #     Set the phase of the network between training and testing
+    #     :param state: The current state (True = Training, False = Testing)
+    #     :return: None
+    #     """
+    #     self.is_training = state
+    #
+    # def reset_internal_memory(self) -> None:
+    #     """
+    #     Reset any internal memory used by the network. For example, an LSTM internal state
+    #     :return: None
+    #     """
+    #     assert self.middleware.__class__.__name__ != 'LSTMMiddleware', 'LSTM middleware not supported'
+    #
+    # def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
+    #     """
+    #     Collection of all checkpoints for the network (typically only one checkpoint)
+    #     :param parent_path_suffix: path suffix of the parent of the network
+    #         (e.g. could be name of level manager plus name of agent)
+    #     :return: checkpoint collection for the network
+    #     """
+    #     name = self.name.replace('/', '.')
+    #     savers = SaverCollection(ParameterDictSaver(
+    #         name="{}.{}".format(parent_path_suffix, name),
+    #         param_dict=self.model.collect_params()))
+    #     if self.ap.task_parameters.export_onnx_graph:
+    #         savers.add(OnnxSaver(
+    #             name="{}.{}.onnx".format(parent_path_suffix, name),
+    #             model=self.model,
+    #             input_shapes=self._model_input_shapes()))
+    #     return savers

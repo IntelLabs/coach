@@ -60,7 +60,7 @@ class GeneralLoss(keras.losses.Loss):
 
 
 
-class GeneralTensorFlowNetwork(object):
+class GeneralTensorFlowNetwork(TensorFlowArchitecture):
     """
     A generalized version of all possible networks implemented using tensorflow along with the optimizer and loss.
     """
@@ -74,15 +74,15 @@ class GeneralTensorFlowNetwork(object):
         :return: a GeneralTensorFlowNetwork object
         """
         # TODO: Dan place holder for distributed training in TensorFlow
-        generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+
         mirrored_strategy = tf.distribute.MirroredStrategy()
         with mirrored_strategy.scope():
-            model = generalized_network.model
+            generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
             loss = generalized_network.losses
             optimizer = generalized_network.optimizer
-            model.compile(loss=loss, optimizer=optimizer)
+            generalized_network.model.compile(loss=loss, optimizer=optimizer)
 
-        return model
+        return generalized_network
 
 
     @staticmethod
