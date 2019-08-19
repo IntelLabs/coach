@@ -353,8 +353,8 @@ class SingleWorkerModel(keras.Model):
                     agent_params=agent_parameters,
                     head_params=head_param)
 
-                #self._output_heads.append(output_head)
-                self._output_heads = output_head
+                self._output_heads.append(output_head)
+                #self._output_heads = output_head
 
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
@@ -362,16 +362,16 @@ class SingleWorkerModel(keras.Model):
         :return: head outputs in a tuple
         """
         # Input Embeddings
-        #state_embedding = map()
-        state_embedding = []
-        # for input, embedder in zip(inputs, self._input_embedders):
-        #     state_embedding.append(embedder(input))
+        state_embedding = list()
+        for input, embedder in zip(inputs, self._input_embedders):
+            state_embedding.append(embedder(input))
 
-        for embedder in self.input_embedders:
-            state_embedding.append(embedder(inputs))
+        # for embedder in self.input_embedders:
+        #     state_embedding.append(embedder(inputs))
 
         # Merger
         if len(state_embedding) == 1:
+            # TODO: change to squeeze
             state_embedding = state_embedding[0]
         else:
             if self._embedding_merger_type == EmbeddingMergerType.Concat:
@@ -386,15 +386,15 @@ class SingleWorkerModel(keras.Model):
         state_embedding = self.middleware(state_embedding)
 
         # Head
-        # outputs = tuple()
-        # for head in self._output_heads:
-        #     out = head(state_embedding)
-        #     if not isinstance(out, tuple):
-        #         out = (out,)
-        #     outputs += out
+        outputs = tuple()
+        for head in self._output_heads:
+            out = head(state_embedding)
+            if not isinstance(out, tuple):
+                out = (out,)
+            outputs += out
 
         # Dan for debug
-        outputs = self._output_heads(state_embedding)
+        #outputs = self._output_heads(state_embedding)
         return outputs
 
     @property
@@ -459,11 +459,13 @@ class GeneralModel(keras.Model):
         :param inputs: model inputs, one for each embedder. Passed to all networks.
         :return: head outputs in a tuple
         """
-        outputs = self.single_model(inputs)
-        # outputs = tuple()
-        # for net in self.nets:
-        #     out = net(inputs)
-        #     outputs += out
+        # outputs = self.single_model(inputs)
+        # outputs = tuple(outputs)
+        outputs = []
+        for net in self.nets:
+            out = net(inputs)
+            outputs.append(out)
+            #outputs = out
 
 
         return outputs

@@ -28,6 +28,7 @@ from rl_coach.logger import screen
 from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list, squeeze_list
+from rl_coach.architectures.tensorflow_components import utils
 
 
 class TensorFlowArchitecture(Architecture):
@@ -143,118 +144,154 @@ class TensorFlowArchitecture(Architecture):
         #     self.trainer = gluon.Trainer(
         #         self.model.collect_params(), optimizer=self.optimizer, update_on_kvstore=False)
 
-    # def reset_accumulated_gradients(self) -> None:
-    #     """
-    #     Reset model gradients as well as accumulated gradients to zero. If accumulated gradients
-    #     have not been created yet, it constructs them on CPU.
-    #     """
-    #     # Set model gradients to zero
-    #     for p in self.model.collect_params().values():
-    #         p.zero_grad()
-    #     # Set accumulated gradients to zero if already initialized, otherwise create a copy
-    #     if self.accumulated_gradients:
-    #         for a in self.accumulated_gradients:
-    #             a *= 0
-    #     else:
-    #         self.accumulated_gradients = [g.copy() for g in self._model_grads()]
-    #
-    # def accumulate_gradients(self,
-    #                          inputs: Dict[str, np.ndarray],
-    #                          targets: List[np.ndarray],
-    #                          additional_fetches: List[Tuple[int, str]] = None,
-    #                          importance_weights: np.ndarray = None,
-    #                          no_accumulation: bool = False) -> Tuple[float, List[float], float, list]:
-    #     """
-    #     Runs a forward & backward pass, clips gradients if needed and accumulates them into the accumulation
-    #     :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
-    #         is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
-    #     :param targets: targets required by  loss (e.g. sum of discounted rewards)
-    #     :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
-    #         tuple of head-type-index and fetch-name. The tuple is obtained from each head.
-    #     :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.
-    #     :param no_accumulation: if True, set gradient values to the new gradients, otherwise sum with previously
-    #         calculated gradients
-    #     :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
-    #         total_loss (float): sum of all head losses
-    #         losses (list of float): list of all losses. The order is list of target losses followed by list of
-    #             regularization losses. The specifics of losses is dependant on the network parameters
-    #             (number of heads, etc.)
-    #         norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
-    #         fetched_tensors: all values for additional_fetches
-    #     """
-    #     if self.accumulated_gradients is None:
-    #         self.reset_accumulated_gradients()
-    #
-    #     embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
-    #     nd_inputs = tuple(nd.array(inputs[emb], ctx=self._devices[0]) for emb in embedders)
-    #
-    #     assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
-    #
-    #     targets = force_list(targets)
-    #     with autograd.record():
-    #         out_per_head = utils.split_outputs_per_head(self.model(*nd_inputs), self.model.output_heads)
-    #         tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
-    #
-    #         losses = list()
-    #         regularizations = list()
-    #         additional_fetches = [(k, None) for k in additional_fetches]
-    #         for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
-    #             l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
-    #             # Align arguments with loss.loss_forward and convert to NDArray
-    #             l_args = utils.to_mx_ndarray(utils.align_loss_args(h_out, l_in, l_tgt, h_loss), h_out[0].context)
-    #             # Calculate loss and all auxiliary outputs
-    #             loss_outputs = utils.loss_output_dict(utils.to_list(h_loss(*l_args)), h_loss.output_schema)
-    #             if LOSS_OUT_TYPE_LOSS in loss_outputs:
-    #                 losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
-    #             if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
-    #                 regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
-    #             # Set additional fetches
-    #             for i, fetch in enumerate(additional_fetches):
-    #                 head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-    #                 if head_type_idx == h.head_type_idx:
-    #                     assert fetch[1] is None  # sanity check that fetch is None
-    #                     additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
-    #
-    #         # Total loss is losses and regularization (NOTE: order is important)
-    #         total_loss_list = losses + regularizations
-    #         total_loss = nd.add_n(*total_loss_list)
-    #
-    #     # Calculate gradients
-    #     total_loss.backward()
-    #
-    #     assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
-    #
-    #     # allreduce gradients from all contexts
-    #     self.trainer.allreduce_grads()
-    #
-    #     model_grads_cpy = [g.copy() for g in self._model_grads()]
-    #     # Calculate global norm of gradients
-    #     # FIXME global norm is returned even when not used for clipping! Is this necessary?
-    #     # FIXME global norm might be calculated twice if clipping method is global norm
-    #     norm_unclipped_grads = utils.global_norm(model_grads_cpy)
-    #
-    #     # Clip gradients
-    #     if self.network_parameters.clip_gradients:
-    #         utils.clip_grad(
-    #             model_grads_cpy,
-    #             clip_method=self.network_parameters.gradients_clipping_method,
-    #             clip_val=self.network_parameters.clip_gradients,
-    #             inplace=True)
-    #
-    #     # Update self.accumulated_gradients depending on no_accumulation flag
-    #     if no_accumulation:
-    #         for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
-    #             acc_grad[:] = model_grad
-    #     else:
-    #         for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
-    #             acc_grad += model_grad
-    #
-    #     # result of of additional fetches
-    #     fetched_tensors = [fetch[1] for fetch in additional_fetches]
-    #
-    #     # convert everything to numpy or scalar before returning
-    #     result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads, fetched_tensors))
-    #     return result
+    def reset_accumulated_gradients(self) -> None:
+        """
+        Reset the gradients accumulation
+        """
+
+        if self.accumulated_gradients is None:
+            self.accumulated_gradients = self.model.get_weights().copy()
+
+        for ix, grad in enumerate(self.accumulated_gradients):
+            self.accumulated_gradients[ix] = grad * 0
+
+
+    def accumulate_gradients(self,
+                             inputs: Dict[str, np.ndarray],
+                             targets: List[np.ndarray],
+                             additional_fetches: List[Tuple[int, str]] = None,
+                             importance_weights: np.ndarray = None,
+                             no_accumulation: bool = False) -> Tuple[float, List[float], float, list]:
+        """
+        Runs a forward & backward pass, clips gradients if needed and accumulates them into the accumulation
+        :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
+            is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
+        :param targets: targets required by  loss (e.g. sum of discounted rewards)
+        :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
+            tuple of head-type-index and fetch-name. The tuple is obtained from each head.
+        :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.
+        :param no_accumulation: if True, set gradient values to the new gradients, otherwise sum with previously
+            calculated gradients
+        :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
+            total_loss (float): sum of all head losses
+            losses (list of float): list of all losses. The order is list of target losses followed by list of
+                regularization losses. The specifics of losses is dependant on the network parameters
+                (number of heads, etc.)
+            norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
+            fetched_tensors: all values for additional_fetches
+        """
+        if self.accumulated_gradients is None:
+            self.reset_accumulated_gradients()
+
+        embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+        #_inputs = np.squeeze(tuple(inputs[emb] for emb in embedders))
+        _inputs = tuple(inputs[emb] for emb in embedders)
+
+        assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
+
+        targets = force_list(targets)
+
+
+
+
+
+
+
+        #
+        with tf.GradientTape() as tape:
+            out_per_head = utils.split_outputs_per_head(self.model(_inputs), self.model.output_heads)
+            tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
+
+
+
+            #y_pred = self.model(inputs, training=True)
+            y_pred = self.dnn_model(inputs['observation'])
+            main_loss = tf.reduce_mean(self.loss(targets, y_pred))
+            # Dan will add model loss later for regularization
+            #total_loss = tf.add_n([main_loss] + model.losses)
+            total_loss = main_loss
+
+        gradients = tape.gradient(main_loss, self.dnn_model.trainable_variables)
+
+        self.accumulated_gradients = gradients
+        #
+
+
+
+
+
+        with autograd.record():
+            out_per_head = utils.split_outputs_per_head(self.model(_inputs), self.model.output_heads)
+            tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
+
+            losses = list()
+            regularizations = list()
+            additional_fetches = [(k, None) for k in additional_fetches]
+            for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
+                l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
+                # Align arguments with loss.loss_forward and convert to NDArray
+                l_args = utils.to_mx_ndarray(utils.align_loss_args(h_out, l_in, l_tgt, h_loss), h_out[0].context)
+                # Calculate loss and all auxiliary outputs
+                loss_outputs = utils.loss_output_dict(utils.to_list(h_loss(*l_args)), h_loss.output_schema)
+                if LOSS_OUT_TYPE_LOSS in loss_outputs:
+                    losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
+                if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
+                    regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
+                # Set additional fetches
+                for i, fetch in enumerate(additional_fetches):
+                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+                    if head_type_idx == h.head_type_idx:
+                        assert fetch[1] is None  # sanity check that fetch is None
+                        additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
+
+            # Total loss is losses and regularization (NOTE: order is important)
+            total_loss_list = losses + regularizations
+            total_loss = nd.add_n(*total_loss_list)
+
+        # Calculate gradients
+        total_loss.backward()
+
+        assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
+
+        # allreduce gradients from all contexts
+        self.trainer.allreduce_grads()
+
+        model_grads_cpy = [g.copy() for g in self._model_grads()]
+        # Calculate global norm of gradients
+        # FIXME global norm is returned even when not used for clipping! Is this necessary?
+        # FIXME global norm might be calculated twice if clipping method is global norm
+        norm_unclipped_grads = utils.global_norm(model_grads_cpy)
+
+        # Clip gradients
+        if self.network_parameters.clip_gradients:
+            utils.clip_grad(
+                model_grads_cpy,
+                clip_method=self.network_parameters.gradients_clipping_method,
+                clip_val=self.network_parameters.clip_gradients,
+                inplace=True)
+
+        # Update self.accumulated_gradients depending on no_accumulation flag
+        if no_accumulation:
+            for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
+                acc_grad[:] = model_grad
+        else:
+            for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
+                acc_grad += model_grad
+
+        # result of of additional fetches
+        fetched_tensors = [fetch[1] for fetch in additional_fetches]
+
+        # convert everything to numpy or scalar before returning
+        result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads, fetched_tensors))
+        return result
+
+
+
+
+
+
+
+
     #
     # def apply_and_reset_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
     #     """
@@ -297,7 +334,9 @@ class TensorFlowArchitecture(Architecture):
         WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
         embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+        #_inputs = np.squeeze(tuple(inputs[emb] for emb in embedders))
         _inputs = tuple(inputs[emb] for emb in embedders)
+
         #tf.data.Dataset.from_tensor_slices(_inputs)
 
         # # can also
@@ -305,7 +344,7 @@ class TensorFlowArchitecture(Architecture):
         # self.model(v)
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
-        output = self.model(_inputs[0])
+        output = self.model(_inputs)
         return output
     #
     # def predict(self,
@@ -345,10 +384,12 @@ class TensorFlowArchitecture(Architecture):
         :return: tuple of outputs from all networks
         """
         assert sess is None
-        output = []
+        output = list()
         for net, inputs in network_input_tuples:
-            output.append(net._predict(inputs).numpy())
-        return output
+            output += net._predict(inputs)
+            #output.append(net._predict(inputs))
+
+        return tuple(o[0].numpy() for o in output)
 
     # def train_on_batch(self,
     #                    inputs: Dict[str, np.ndarray],
