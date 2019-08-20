@@ -235,10 +235,12 @@ class TensorFlowArchitecture(Architecture):
                 # Calculate loss and all auxiliary outputs
                 loss_outputs = h_loss(h_out, l_tgt)
 
-                if LOSS_OUT_TYPE_LOSS in loss_outputs:
-                    losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
-                if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
-                    regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
+                #losses.extend(loss_outputs)
+                losses.append(loss_outputs)
+                # if LOSS_OUT_TYPE_LOSS in loss_outputs:
+                #     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
+                # if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
+                #     regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
                 # Set additional fetches
                 for i, fetch in enumerate(additional_fetches):
                     head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
@@ -248,10 +250,15 @@ class TensorFlowArchitecture(Architecture):
 
             # Total loss is losses and regularization (NOTE: order is important)
             total_loss_list = losses + regularizations
-            total_loss = nd.add_n(*total_loss_list)
+            #total_loss = tf.add_n([main_loss] + model.losses)
+            total_loss = tf.add_n(total_loss_list)
+            #total_loss = nd.add_n(*total_loss_list)
 
         # Calculate gradients
-        total_loss.backward()
+        gradients = tape.gradient(total_loss, self.model.trainable_variables)
+
+        # Calculate gradients
+        #total_loss.backward()
 
         assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
 
