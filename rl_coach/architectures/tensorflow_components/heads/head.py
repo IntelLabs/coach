@@ -166,18 +166,18 @@ class HeadLoss(keras.losses.Loss):
         """
         return self._output_schema
 
-    def forward(self, *args):
-        """
-        Override forward() so that number of outputs can be checked against the schema
-        """
-        outputs = super(HeadLoss, self).forward(*args)
-        if isinstance(outputs, tuple) or isinstance(outputs, list):
-            num_outputs = len(outputs)
-        else:
-            num_outputs = 1
-        assert num_outputs == len(self.output_schema), "Number of outputs don't match schema ({} != {})".format(
-            num_outputs, len(self.output_schema))
-        return outputs
+    # def forward(self, *args):
+    #     """
+    #     Override forward() so that number of outputs can be checked against the schema
+    #     """
+    #     outputs = super(HeadLoss, self).forward(*args)
+    #     if isinstance(outputs, tuple) or isinstance(outputs, list):
+    #         num_outputs = len(outputs)
+    #     else:
+    #         num_outputs = 1
+    #     assert num_outputs == len(self.output_schema), "Number of outputs don't match schema ({} != {})".format(
+    #         num_outputs, len(self.output_schema))
+    #     return outputs
 
     def _loss_output(self, outputs):
         """
@@ -191,14 +191,14 @@ class HeadLoss(keras.losses.Loss):
         return tuple(o[0] for o in outputs)
 
 
-    def call(self, F, x, *args, **kwargs):
-        """
-        Passes the cal to loss_forward() and constructs output schema from its output by calling loss_output()
-        """
-        return self._loss_output(self.loss_call(F, x, *args, **kwargs))
+    # def call(self, y_true, y_pred):
+    #     """
+    #     Passes the cal to loss_forward() and constructs output schema from its output by calling loss_output()
+    #     """
+    #     return self._loss_output(self.loss_call(y_true, y_pred))
 
 
-    def loss_call(self, F, x, *args, **kwargs):
+    def loss_call(self, y_true, y_pred):
         """
         Similar to hybrid_forward, but returns list of (NDArray, type_str)
         """

@@ -22,7 +22,9 @@ Module containing utility functions
 import tensorflow as tf
 from tensorflow import keras
 #from tensorflow.keras.layers import Activation
-from typing import List
+from typing import List, Dict, Any
+import numpy as np
+import inspect
 
 
 
@@ -66,6 +68,21 @@ def squeeze_tensor(tensor):
     else:
         return tensor
 
+def get_loss_agent_inputs(inputs: Dict[str, np.ndarray], head_type_idx: int, loss: Any) -> List[np.ndarray]:
+    """
+    Collects all inputs with prefix 'output_<head_idx>_' and matches them against agent_inputs in loss input schema.
+    :param inputs: list of all agent inputs
+    :param head_type_idx: head-type index of the corresponding head
+    :param loss: corresponding loss
+    :return: list of agent inputs for this loss. This list matches the length in loss input schema.
+    """
+    loss_inputs = list()
+    for k in sorted(inputs.keys()):
+        if k.startswith('output_{}_'.format(head_type_idx)):
+            loss_inputs.append(inputs[k])
+    # Enforce that number of inputs for head_type are the same as agent_inputs specified by loss input_schema
+    assert len(loss_inputs) == len(loss.input_schema.agent_inputs), "agent_input length doesn't match schema"
+    return loss_inputs
 
 
 def split_outputs_per_head(outputs, heads: list):
@@ -98,3 +115,40 @@ def split_targets_per_loss(targets: list, losses: list) -> List[list]:
         targets = targets[loss_data_len:]
     assert len(targets) == 0
     return loss_targets
+
+
+# def align_loss_args(
+#         head_outputs: List[NDArray],
+#         agent_inputs: List[np.ndarray],
+#         targets: List[np.ndarray],
+#         loss: Any) -> List[np.ndarray]:
+#     """
+#     Creates a list of arguments from head_outputs, agent_inputs, and targets aligned with parameters of
+#     loss.loss_forward() based on their name in loss input_schema
+#     :param head_outputs: list of all head_outputs for this loss
+#     :param agent_inputs: list of all agent_inputs for this loss
+#     :param targets: list of all targets for this loss
+#     :param loss: corresponding loss
+#     :return: list of arguments in correct order to be passed to loss
+#     """
+#     arg_list = list()
+#     schema = loss.input_schema
+#     assert len(schema.head_outputs) == len(head_outputs)
+#     assert len(schema.agent_inputs) == len(agent_inputs)
+#     assert len(schema.targets) == len(targets)
+#
+#     prev_found = True
+#     for arg_name in inspect.getfullargspec(loss.loss_forward).args[2:]:  # First two args are self and F
+#         found = False
+#         for schema_list, data in [(schema.head_outputs, head_outputs),
+#                                   (schema.agent_inputs, agent_inputs),
+#                                   (schema.targets, targets)]:
+#             try:
+#                 arg_list.append(data[schema_list.index(arg_name)])
+#                 found = True
+#                 break
+#             except ValueError:
+#                 continue
+#         assert not found or prev_found, "missing arguments detected!"
+#         prev_found = found
+#     return arg_list

@@ -116,6 +116,7 @@ from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition, BoxActionSpace, DiscreteActionSpace
 
 from tensorflow import keras
+import tensorflow as tf
 
 LOSS_OUT_TYPE_LOSS = 'loss'
 LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
@@ -132,7 +133,8 @@ class QHeadLoss(HeadLoss):
         """
         super().__init__(**kwargs)
 
-        self.loss_fn = keras.losses.get(loss_type)
+        self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
+
 
 
     @property
@@ -144,7 +146,7 @@ class QHeadLoss(HeadLoss):
         )
 
 
-    def call(self, target, pred):
+    def call(self, y_true, y_pred):
         """
         Used for forward pass through loss computations.
         :param pred: state-action q-values predicted by QHead network, of shape (batch_size, num_actions).
@@ -153,8 +155,9 @@ class QHeadLoss(HeadLoss):
         """
         # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
         #  This way, Keras can apply class weights or sample weights when requested.
-        loss = self.loss_fn(pred, target).mean()
-        return [(loss, LOSS_OUT_TYPE_LOSS)]
+        loss = tf.reduce_mean(self.loss_fn(y_pred, y_true))
+        return loss
+        #return [(loss, LOSS_OUT_TYPE_LOSS)]
 
 
 
@@ -202,7 +205,7 @@ class QHead(Head):
 
         :return: loss block (can be called as function) for outputs returned by the head network.
         """
-        return QHeadLoss(loss_type=self.loss_type, weight=self.loss_weight)
+        return QHeadLoss(loss_type=self.loss_type)#, weight=self.loss_weight)
 
     def call(self, inputs, **kwargs):
         """

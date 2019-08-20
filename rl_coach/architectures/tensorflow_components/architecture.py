@@ -29,6 +29,7 @@ from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list, squeeze_list
 from rl_coach.architectures.tensorflow_components import utils
+from rl_coach.architectures.tensorflow_components.heads import Head, HeadLoss
 
 
 class TensorFlowArchitecture(Architecture):
@@ -198,41 +199,42 @@ class TensorFlowArchitecture(Architecture):
 
 
         #
-        with tf.GradientTape() as tape:
-            out_per_head = utils.split_outputs_per_head(self.model(_inputs), self.model.output_heads)
-            tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
-
-
-
-            #y_pred = self.model(inputs, training=True)
-            y_pred = self.dnn_model(inputs['observation'])
-            main_loss = tf.reduce_mean(self.loss(targets, y_pred))
-            # Dan will add model loss later for regularization
-            #total_loss = tf.add_n([main_loss] + model.losses)
-            total_loss = main_loss
-
-        gradients = tape.gradient(main_loss, self.dnn_model.trainable_variables)
-
-        self.accumulated_gradients = gradients
+        # with tf.GradientTape() as tape:
+        #     out_per_head = self.model(_inputs)
+        #     tgt_per_loss = targets
+        #
+        #
+        #
+        #     #y_pred = self.model(inputs, training=True)
+        #     y_pred = self.dnn_model(inputs['observation'])
+        #     main_loss = tf.reduce_mean(self.loss(targets, y_pred))
+        #     # Dan will add model loss later for regularization
+        #     #total_loss = tf.add_n([main_loss] + model.losses)
+        #     total_loss = main_loss
+        #
+        # gradients = tape.gradient(main_loss, self.dnn_model.trainable_variables)
+        #
+        # self.accumulated_gradients = gradients
         #
 
 
 
 
 
-        with autograd.record():
-            out_per_head = utils.split_outputs_per_head(self.model(_inputs), self.model.output_heads)
-            tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
+        with tf.GradientTape() as tape:
+            out_per_head = self.model(_inputs)
+            tgt_per_loss = targets
 
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
             for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
                 l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
-                # Align arguments with loss.loss_forward and convert to NDArray
-                l_args = utils.to_mx_ndarray(utils.align_loss_args(h_out, l_in, l_tgt, h_loss), h_out[0].context)
+                # Align arguments with loss.loss_forward
+                #l_args = utils.align_loss_args(h_out, l_in, l_tgt, h_loss)
                 # Calculate loss and all auxiliary outputs
-                loss_outputs = utils.loss_output_dict(utils.to_list(h_loss(*l_args)), h_loss.output_schema)
+                loss_outputs = h_loss(h_out, l_tgt)
+
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
                 if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:

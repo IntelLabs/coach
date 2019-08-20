@@ -38,7 +38,7 @@ from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
-from rl_coach.architectures.tensorflow_components.heads import Head, QHead
+from rl_coach.architectures.tensorflow_components.heads import Head, HeadLoss, QHead
 from rl_coach.architectures.head_parameters import QHeadParameters
 from itertools import chain
 from rl_coach.base_parameters import NetworkParameters
@@ -154,7 +154,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             network_parameters=network_parameters,
             spaces=spaces)
 
-        self.losses = GeneralLoss()
+        self.losses = self.model.losses()#GeneralLoss()
         self.optimizer = self.get_optimizer(network_parameters)
         self.network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
@@ -301,7 +301,7 @@ def _get_output_head(
 
 
 
-class SingleWorkerModel(keras.Model):
+class SingleModel(keras.Model):
     """
     Block that connects a single embedder, with middleware and one to multiple heads
     """
@@ -327,11 +327,11 @@ class SingleWorkerModel(keras.Model):
         :param head_type_idx_start: start index for head type index counting
         :param spaces: state and action space definition
         """
-        super(SingleWorkerModel, self).__init__(*args, **kwargs)
+        super(SingleModel, self).__init__(*args, **kwargs)
 
         self._embedding_merger_type = embedding_merger_type
         self._input_embedders = []
-        self._output_heads = []
+        self._output_heads = list()
 
         for input_name in sorted(in_emb_param_dict):
             input_type = in_emb_param_dict[input_name]
@@ -344,12 +344,20 @@ class SingleWorkerModel(keras.Model):
             for head_copy_idx in range(head_param.num_output_head_copies):
                 # create output head and add it to the output heads list
                 head_idx = (head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx
-                output_head = _get_output_head(
-                    head_idx=head_idx,
+                # output_head = _get_output_head(
+                #     head_idx=head_idx,
+                #     head_type_index=head_type_idx_start + i,
+                #     network_name=network_name,
+                #     spaces=spaces,
+                #     is_local=network_is_local,
+                #     agent_params=agent_parameters,
+                #     head_params=head_param)
+                output_head = ScaledGradHead(
+                    head_index=(head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx,
                     head_type_index=head_type_idx_start + i,
                     network_name=network_name,
                     spaces=spaces,
-                    is_local=network_is_local,
+                    network_is_local=network_is_local,
                     agent_params=agent_parameters,
                     head_params=head_param)
 
@@ -412,6 +420,59 @@ class SingleWorkerModel(keras.Model):
         return [h.head for h in self._output_heads]
 
 
+
+
+class ScaledGradHead(keras.layers.Layer):
+    """
+    Wrapper block for applying gradient scaling to input before feeding the head network
+    """
+    def __init__(self,
+                 head_index: int,
+                 head_type_index: int,
+                 network_name: str,
+                 spaces: SpacesDefinition,
+                 network_is_local: bool,
+                 agent_params: AgentParameters,
+                 head_params: HeadParameters) -> None:
+        """
+        :param head_index: the head index
+        :param head_type_index: the head type index (same index if head_param.num_output_head_copies>0)
+        :param network_name: name of the network
+        :param spaces: state and action space definitions
+        :param network_is_local: whether network is local
+        :param agent_params: agent parameters
+        :param head_params: head parameters
+        """
+        super(ScaledGradHead, self).__init__()
+
+
+        self.head = _get_output_head(
+            head_params=head_params,
+            head_idx=head_index,
+            head_type_index=head_type_index,
+            agent_params=agent_params,
+            spaces=spaces,
+            network_name=network_name,
+            is_local=network_is_local)
+
+        self.gradient_rescaler = 1
+        #self.params.get_constant(name='gradient_rescaler', value=np.array([float(head_params.rescale_gradient_from_head_by_factor)]))
+
+    def call(self, inputs, **kwargs):
+        """ Overrides gluon.HybridBlock.hybrid_forward
+        :param nd or sym F: ndarray or symbol module
+        :param x: head input
+        :param gradient_rescaler: gradient rescaler for partial blocking of gradient
+        :return: head output
+        """
+
+        #grad_scaled_x = (F.broadcast_mul((1 - gradient_rescaler), F.BlockGrad(x)) + F.broadcast_mul(gradient_rescaler, x))
+        out = self.head(inputs)
+        return out
+
+
+
+
 class GeneralModel(keras.Model):
     """
     Block that creates multiple single models
@@ -440,7 +501,7 @@ class GeneralModel(keras.Model):
         for network_idx in range(num_networks):
             head_type_idx_start = network_idx * num_heads_per_network
             head_type_idx_end = head_type_idx_start + num_heads_per_network
-            net = SingleWorkerModel(
+            net = SingleModel(
                 head_type_idx_start=head_type_idx_start,
                 network_name=network_name,
                 network_is_local=network_is_local,
@@ -478,12 +539,12 @@ class GeneralModel(keras.Model):
         """
         return list(chain.from_iterable(net.output_heads for net in self.nets))
 
-    # def losses(self) -> List[HeadLoss]:
-    #     """ Construct loss blocks for network training
-    #     Note: There is a one-to-one mapping between output_heads and losses
-    #     :return: list of loss blocks
-    #     """
-    #     return [h.loss() for net in self.nets for h in net.output_heads]
+    def losses(self) -> List[HeadLoss]:
+        """ Construct loss blocks for network training
+        Note: There is a one-to-one mapping between output_heads and losses
+        :return: list of loss blocks
+        """
+        return [h.loss() for net in self.nets for h in net.output_heads]
 
 
 
