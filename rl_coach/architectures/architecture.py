@@ -14,13 +14,12 @@
 # limitations under the License.
 #
 
-from typing import Any, Dict, List, Tuple
 
 import numpy as np
-
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
+from typing import Any, Dict, List, Tuple
 
 
 class Architecture(object):

@@ -110,7 +110,7 @@ from typing import Union, List, Tuple
 from types import ModuleType
 
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
-from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadLoss, LossInputSchema
+from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadLoss
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition, BoxActionSpace, DiscreteActionSpace
@@ -134,16 +134,6 @@ class QHeadLoss(HeadLoss):
         super().__init__(**kwargs)
 
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
-
-
-
-    @property
-    def input_schema(self) -> LossInputSchema:
-        return LossInputSchema(
-            head_outputs=['pred'],
-            agent_inputs=[],
-            targets=['target']
-        )
 
 
     def call(self, y_true, y_pred):

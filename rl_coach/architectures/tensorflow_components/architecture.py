@@ -74,25 +74,10 @@ class TensorFlowArchitecture(Architecture):
 
         # Call to child class to create the model
         self.construct_model()
-
         self.trainer = None
 
     def __str__(self):
         return self.model.summary(self._dummy_model_inputs())
-
-
-
-    def _model_grads(self, index: int=0):
-        """
-        Creates a copy of model gradients and returns them in a list, in the same order as collect_params()
-        :param index: device index. Set to -1 to get a tuple of list of NDArrays for all devices
-        :return: a generator for model gradient values
-        """
-        if index < 0:
-            return (p.list_grad() for p in self.model.collect_params().values() if p.grad_req != 'null')
-        else:
-            return (p.list_grad()[index] for p in self.model.collect_params().values() if p.grad_req != 'null')
-
 
 
     def _model_input_shapes(self) -> List[List[int]]:
@@ -115,6 +100,7 @@ class TensorFlowArchitecture(Architecture):
         input_shapes = self._model_input_shapes()
         inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
         return inputs
+
 
     def construct_model(self) -> None:
         """
@@ -143,8 +129,13 @@ class TensorFlowArchitecture(Architecture):
         if self.accumulated_gradients is None:
             self.accumulated_gradients = self.model.get_weights().copy()
 
-        for ix, grad in enumerate(self.accumulated_gradients):
-            self.accumulated_gradients[ix] = grad * 0
+        self.accumulated_gradients = list(map(lambda grad: grad * 0, self.accumulated_gradients))
+
+        # for ix, grad in enumerate(self.accumulated_gradients):
+        #     self.accumulated_gradients[ix] = grad * 0
+
+
+
 
 
     def accumulate_gradients(self,
@@ -177,38 +168,8 @@ class TensorFlowArchitecture(Architecture):
         embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
         #_inputs = np.squeeze(tuple(inputs[emb] for emb in embedders))
         _inputs = tuple(inputs[emb] for emb in embedders)
-
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
-
         targets = force_list(targets)
-
-
-
-
-
-
-
-        #
-        # with tf.GradientTape() as tape:
-        #     out_per_head = self.model(_inputs)
-        #     tgt_per_loss = targets
-        #
-        #
-        #
-        #     #y_pred = self.model(inputs, training=True)
-        #     y_pred = self.dnn_model(inputs['observation'])
-        #     main_loss = tf.reduce_mean(self.loss(targets, y_pred))
-        #     # Dan will add model loss later for regularization
-        #     #total_loss = tf.add_n([main_loss] + model.losses)
-        #     total_loss = main_loss
-        #
-        # gradients = tape.gradient(main_loss, self.dnn_model.trainable_variables)
-        #
-        # self.accumulated_gradients = gradients
-        #
-
-
-
 
 
         with tf.GradientTape() as tape:
@@ -219,19 +180,9 @@ class TensorFlowArchitecture(Architecture):
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
             for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
-                l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
-                # Align arguments with loss.loss_forward
-                #l_args = utils.align_loss_args(h_out, l_in, l_tgt, h_loss)
-                # Calculate loss and all auxiliary outputs
+                #l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
                 loss_outputs = h_loss(h_out, l_tgt)
-
-                #losses.extend(loss_outputs)
                 losses.append(loss_outputs)
-                # if LOSS_OUT_TYPE_LOSS in loss_outputs:
-                #     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
-                # if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
-                #     regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
-                # Set additional fetches
                 for i, fetch in enumerate(additional_fetches):
                     head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
                     if head_type_idx == h.head_type_idx:
@@ -242,32 +193,16 @@ class TensorFlowArchitecture(Architecture):
             total_loss_list = losses + regularizations
             #total_loss = tf.add_n([main_loss] + model.losses)
             total_loss = tf.add_n(total_loss_list)
-            #total_loss = nd.add_n(*total_loss_list)
 
         # Calculate gradients
         gradients = tape.gradient(total_loss, self.model.trainable_variables)
 
         # Calculate gradients
-        #total_loss.backward()
-
         assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
 
-        # allreduce gradients from all contexts
-        #self.trainer.allreduce_grads()
-
-        model_grads_cpy = gradients.copy()#[g.copy() for g in self._model_grads()]
+        model_grads_cpy = gradients.copy()
         # Calculate global norm of gradients
-        # FIXME global norm is returned even when not used for clipping! Is this necessary?
-        # FIXME global norm might be calculated twice if clipping method is global norm
         norm_unclipped_grads = tf.linalg.global_norm(model_grads_cpy)
-
-        # # Clip gradients
-        # if self.network_parameters.clip_gradients:
-        #     utils.clip_grad(
-        #         model_grads_cpy,
-        #         clip_method=self.network_parameters.gradients_clipping_method,
-        #         clip_val=self.network_parameters.clip_gradients,
-        #         inplace=True)
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
@@ -277,33 +212,13 @@ class TensorFlowArchitecture(Architecture):
             for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
                 acc_grad += model_grad
 
-
-
         # result of of additional fetches
         fetched_tensors = [fetch[1] for fetch in additional_fetches]
-
         # convert everything to numpy or scalar before returning
         result = (total_loss.numpy(), total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)
-        #result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads, fetched_tensors))
         return result
 
 
-
-
-
-
-
-
-    #
-    # def apply_and_reset_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
-    #     """
-    #     Applies the given gradients to the network weights and resets accumulated gradients to zero
-    #     :param gradients: The gradients to use for the update
-    #     :param scaler: A scaling factor that allows rescaling the gradients before applying them
-    #     """
-    #     self.apply_gradients(gradients, scaler)
-    #     self.reset_accumulated_gradients()
-    #
     def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
         """
         Applies the given gradients to the network weights
@@ -319,14 +234,10 @@ class TensorFlowArchitecture(Architecture):
             if self.network_parameters.scale_down_gradients_by_number_of_workers_for_sync_training:
                 batch_size = self.ap.task_parameters.num_training_tasks
 
-        # set parameter gradients to gradients passed in
-        # for param_grad, gradient in zip(self._model_grads(-1), gradients):
-        #     for pg in param_grad:
-        #         pg[:] = gradient
-        # # update gradients
-        # self.trainer.update(batch_size=batch_size)
+
         self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
-    #
+
+
 
     def _predict(self, inputs: Dict[str, np.ndarray]):
         """
@@ -437,9 +348,13 @@ class TensorFlowArchitecture(Architecture):
         updated_target = []
         if new_rate < 0 or new_rate > 1:
             raise ValueError('new_rate parameter values should be between 0 to 1.')
+
+
         target_weights = self.model.get_weights()
         for (source_layer, target_layer) in zip(source_weights, target_weights):
             updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
+
+
         self.model.set_weights(updated_target)
 
 

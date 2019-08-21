@@ -374,8 +374,6 @@ class SingleModel(keras.Model):
         for input, embedder in zip(inputs, self._input_embedders):
             state_embedding.append(embedder(input))
 
-        # for embedder in self.input_embedders:
-        #     state_embedding.append(embedder(inputs))
 
         # Merger
         if len(state_embedding) == 1:
@@ -383,12 +381,9 @@ class SingleModel(keras.Model):
             state_embedding = state_embedding[0]
         else:
             if self._embedding_merger_type == EmbeddingMergerType.Concat:
-                #state_embedding = F.concat(*state_embedding, dim=1, name='merger')
                 state_embedding = tf.keras.layers.Concatenate()(state_embedding)
             elif self._embedding_merger_type == EmbeddingMergerType.Sum:
                 state_embedding = tf.keras.layers.Add()(state_embedding)
-                #state_embedding = F.add_n(*state_embedding, name='merger')
-
 
         # Middleware
         state_embedding = self.middleware(state_embedding)
@@ -401,8 +396,6 @@ class SingleModel(keras.Model):
                 out = (out,)
             outputs += out
 
-        # Dan for debug
-        #outputs = self._output_heads(state_embedding)
         return outputs
 
     @property
@@ -526,8 +519,6 @@ class GeneralModel(keras.Model):
         for net in self.nets:
             out = net(inputs)
             outputs.append(out)
-            #outputs = out
-
 
         return outputs
 
