@@ -287,6 +287,8 @@ class TensorFlowArchitecture(Architecture):
             for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
                 acc_grad += model_grad
 
+
+
         # result of of additional fetches
         fetched_tensors = [fetch[1] for fetch in additional_fetches]
 
@@ -312,27 +314,28 @@ class TensorFlowArchitecture(Architecture):
     #     self.apply_gradients(gradients, scaler)
     #     self.reset_accumulated_gradients()
     #
-    # def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
-    #     """
-    #     Applies the given gradients to the network weights
-    #     :param gradients: The gradients to use for the update
-    #     :param scaler: A scaling factor that allows rescaling the gradients before applying them.
-    #                    The gradients will be MULTIPLIED by this factor
-    #     """
-    #     assert self.optimizer_type != 'LBFGS'
-    #
-    #     batch_size = 1
-    #     if self.distributed_training and not self.network_parameters.async_training:
-    #         # rescale the gradients so that they average out with the gradients from the other workers
-    #         if self.network_parameters.scale_down_gradients_by_number_of_workers_for_sync_training:
-    #             batch_size = self.ap.task_parameters.num_training_tasks
-    #
-    #     # set parameter gradients to gradients passed in
-    #     for param_grad, gradient in zip(self._model_grads(-1), gradients):
-    #         for pg in param_grad:
-    #             pg[:] = gradient
-    #     # update gradients
-    #     self.trainer.update(batch_size=batch_size)
+    def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
+        """
+        Applies the given gradients to the network weights
+        :param gradients: The gradients to use for the update
+        :param scaler: A scaling factor that allows rescaling the gradients before applying them.
+                       The gradients will be MULTIPLIED by this factor
+        """
+        assert self.optimizer_type != 'LBFGS'
+
+        batch_size = 1
+        if self.distributed_training and not self.network_parameters.async_training:
+            # rescale the gradients so that they average out with the gradients from the other workers
+            if self.network_parameters.scale_down_gradients_by_number_of_workers_for_sync_training:
+                batch_size = self.ap.task_parameters.num_training_tasks
+
+        # set parameter gradients to gradients passed in
+        # for param_grad, gradient in zip(self._model_grads(-1), gradients):
+        #     for pg in param_grad:
+        #         pg[:] = gradient
+        # # update gradients
+        # self.trainer.update(batch_size=batch_size)
+        self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
     #
 
     def _predict(self, inputs: Dict[str, np.ndarray]):
