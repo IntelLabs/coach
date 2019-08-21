@@ -359,31 +359,31 @@ class TensorFlowArchitecture(Architecture):
 
         output = self.model(_inputs)
         return output
-    #
-    # def predict(self,
-    #             inputs: Dict[str, np.ndarray],
-    #             outputs: List[str]=None,
-    #             squeeze_output: bool=True,
-    #             initial_feed_dict: Dict[str, np.ndarray]=None) -> Tuple[np.ndarray, ...]:
-    #     """
-    #     Run a forward pass of the network using the given input
-    #     :param inputs: The input dictionary for the network. Key is name of the embedder.
-    #     :param outputs: list of outputs to return. Return all outputs if unspecified (currently not supported)
-    #     :param squeeze_output: call squeeze_list on output if True
-    #     :param initial_feed_dict: a dictionary of extra inputs for forward pass (currently not supported)
-    #     :return: The network output
-    #
-    #     WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
-    #     """
-    #     assert initial_feed_dict is None, "initial_feed_dict must be None"
-    #     assert outputs is None, "outputs must be None"
-    #
-    #     output = self._predict(inputs)
-    #     output = list(o.asnumpy() for o in output)
-    #     if squeeze_output:
-    #         output = squeeze_list(output)
-    #     return output
-    #
+
+    def predict(self,
+                inputs: Dict[str, np.ndarray],
+                outputs: List[str]=None,
+                squeeze_output: bool=True,
+                initial_feed_dict: Dict[str, np.ndarray]=None) -> Tuple[np.ndarray, ...]:
+        """
+        Run a forward pass of the network using the given input
+        :param inputs: The input dictionary for the network. Key is name of the embedder.
+        :param outputs: list of outputs to return. Return all outputs if unspecified (currently not supported)
+        :param squeeze_output: call squeeze_list on output if True
+        :param initial_feed_dict: a dictionary of extra inputs for forward pass (currently not supported)
+        :return: The network output
+
+        WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
+        """
+        assert initial_feed_dict is None, "initial_feed_dict must be None"
+        assert outputs is None, "outputs must be None"
+
+        output = self._predict(inputs)
+        output = list(o[0].numpy() for o in output)
+        if squeeze_output:
+            output = squeeze_list(output)
+        return output
+
 
 
 
