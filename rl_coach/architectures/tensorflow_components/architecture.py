@@ -263,21 +263,21 @@ class TensorFlowArchitecture(Architecture):
         assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
 
         # allreduce gradients from all contexts
-        self.trainer.allreduce_grads()
+        #self.trainer.allreduce_grads()
 
-        model_grads_cpy = [g.copy() for g in self._model_grads()]
+        model_grads_cpy = gradients.copy()#[g.copy() for g in self._model_grads()]
         # Calculate global norm of gradients
         # FIXME global norm is returned even when not used for clipping! Is this necessary?
         # FIXME global norm might be calculated twice if clipping method is global norm
-        norm_unclipped_grads = utils.global_norm(model_grads_cpy)
+        norm_unclipped_grads = tf.linalg.global_norm(model_grads_cpy)
 
-        # Clip gradients
-        if self.network_parameters.clip_gradients:
-            utils.clip_grad(
-                model_grads_cpy,
-                clip_method=self.network_parameters.gradients_clipping_method,
-                clip_val=self.network_parameters.clip_gradients,
-                inplace=True)
+        # # Clip gradients
+        # if self.network_parameters.clip_gradients:
+        #     utils.clip_grad(
+        #         model_grads_cpy,
+        #         clip_method=self.network_parameters.gradients_clipping_method,
+        #         clip_val=self.network_parameters.clip_gradients,
+        #         inplace=True)
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
@@ -291,7 +291,8 @@ class TensorFlowArchitecture(Architecture):
         fetched_tensors = [fetch[1] for fetch in additional_fetches]
 
         # convert everything to numpy or scalar before returning
-        result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads, fetched_tensors))
+        result = (total_loss.numpy(), total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)
+        #result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads, fetched_tensors))
         return result
 
 
