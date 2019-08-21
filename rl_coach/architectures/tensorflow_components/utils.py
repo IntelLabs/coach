@@ -117,43 +117,6 @@ def split_targets_per_loss(targets: list, losses: list) -> List[list]:
     return loss_targets
 
 
-# def align_loss_args(
-#         head_outputs: List[NDArray],
-#         agent_inputs: List[np.ndarray],
-#         targets: List[np.ndarray],
-#         loss: Any) -> List[np.ndarray]:
-#     """
-#     Creates a list of arguments from head_outputs, agent_inputs, and targets aligned with parameters of
-#     loss.loss_forward() based on their name in loss input_schema
-#     :param head_outputs: list of all head_outputs for this loss
-#     :param agent_inputs: list of all agent_inputs for this loss
-#     :param targets: list of all targets for this loss
-#     :param loss: corresponding loss
-#     :return: list of arguments in correct order to be passed to loss
-#     """
-#     arg_list = list()
-#     schema = loss.input_schema
-#     assert len(schema.head_outputs) == len(head_outputs)
-#     assert len(schema.agent_inputs) == len(agent_inputs)
-#     assert len(schema.targets) == len(targets)
-#
-#     prev_found = True
-#     for arg_name in inspect.getfullargspec(loss.loss_forward).args[2:]:  # First two args are self and F
-#         found = False
-#         for schema_list, data in [(schema.head_outputs, head_outputs),
-#                                   (schema.agent_inputs, agent_inputs),
-#                                   (schema.targets, targets)]:
-#             try:
-#                 arg_list.append(data[schema_list.index(arg_name)])
-#                 found = True
-#                 break
-#             except ValueError:
-#                 continue
-#         assert not found or prev_found, "missing arguments detected!"
-#         prev_found = found
-#     return arg_list
-
-
 # def clip_grad(
 #         grads: Union[Generator[NDArray, NDArray, NDArray], List[NDArray], Tuple[NDArray]],
 #         clip_method: GradientClippingMethod,

@@ -113,17 +113,10 @@ from rl_coach.spaces import SpacesDefinition
 
 class LossInputSchema(object):
     """
-    Helper class to contain schema for loss hybrid_forward input
+    Helper class to contain schema for loss hcall input
     """
     def __init__(self, head_outputs: List[str], agent_inputs: List[str], targets: List[str]):
-        """
-        :param head_outputs: list of argument names in hybrid_forward that are outputs of the head.
-            The order and number MUST MATCH the output from the head.
-        :param agent_inputs: list of argument names in hybrid_forward that are inputs from the agent.
-            The order and number MUST MATCH `output_<head_type_idx>_<order>` for this head.
-        :param targets: list of argument names in hybrid_forward that are targets for the loss.
-            The order and number MUST MATCH targets passed from the agent.
-        """
+
         self._head_outputs = head_outputs
         self._agent_inputs = agent_inputs
         self._targets = targets
@@ -149,39 +142,21 @@ class HeadLoss(keras.losses.Loss):
         super(HeadLoss, self).__init__(*args, **kwargs)
         self._output_schema = None  # type: List[str]
 
-    @property
-    def input_schema(self) -> LossInputSchema:
-        """
-        :return: schema for input of hybrid_forward. Read docstring for LossInputSchema for details.
-        """
-        raise NotImplementedError
 
     @property
     def output_schema(self) -> List[str]:
         """
-        :return: schema for output of hybrid_forward. Must contain 'loss' and 'regularization' keys at least once.
+        :return: Must contain 'loss' and 'regularization' keys at least once.
             The order and total number must match that of returned values from the loss. 'loss' and 'regularization'
             are special keys. Any other string is treated as auxiliary outputs and must include match auxiliary
             fetch names returned by the head.
         """
         return self._output_schema
 
-    # def forward(self, *args):
-    #     """
-    #     Override forward() so that number of outputs can be checked against the schema
-    #     """
-    #     outputs = super(HeadLoss, self).forward(*args)
-    #     if isinstance(outputs, tuple) or isinstance(outputs, list):
-    #         num_outputs = len(outputs)
-    #     else:
-    #         num_outputs = 1
-    #     assert num_outputs == len(self.output_schema), "Number of outputs don't match schema ({} != {})".format(
-    #         num_outputs, len(self.output_schema))
-    #     return outputs
+
 
     def _loss_output(self, outputs):
         """
-        Must be called on the output from hybrid_forward().
         Saves the returned output as the schema and returns output values in a list
         :return: list of output values
         """
@@ -196,20 +171,6 @@ class HeadLoss(keras.losses.Loss):
     #     Passes the cal to loss_forward() and constructs output schema from its output by calling loss_output()
     #     """
     #     return self._loss_output(self.loss_call(y_true, y_pred))
-
-
-    def loss_call(self, y_true, y_pred):
-        """
-        Similar to hybrid_forward, but returns list of (NDArray, type_str)
-        """
-        raise NotImplementedError
-
-
-
-
-
-
-
 
 
 
@@ -269,30 +230,5 @@ class Head(keras.layers.Layer):
         assert self._num_outputs is not None, 'must call forward() once to configure number of outputs'
         return self._num_outputs
 
-    def forward(self, *args):
-        """
-        Override forward() so that number of outputs can be automatically set
-        """
-        outputs = super(Head, self).forward(*args)
-        if isinstance(outputs, tuple):
-            num_outputs = len(outputs)
-        else:
-            assert isinstance(outputs, NDArray) or isinstance(outputs, Symbol)
-            num_outputs = 1
-        if self._num_outputs is None:
-            self._num_outputs = num_outputs
-        else:
-            assert self._num_outputs == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
-                self._num_outputs, num_outputs)
-        assert self._num_outputs == len(self.loss().input_schema.head_outputs)
-        return outputs
 
-    def hybrid_forward(self, F, x, *args, **kwargs):
-        """
-        Used for forward pass through head network.
 
-        :param F: backend api, either `mxnet.nd` or `mxnet.sym` (if block has been hybridized).
-        :param x: middleware state representation, of shape (batch_size, in_channels).
-        :return: final output of network, that will be used in loss calculations.
-        """
-        raise NotImplementedError()

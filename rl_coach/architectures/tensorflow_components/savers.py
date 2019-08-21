@@ -24,10 +24,8 @@ from rl_coach.saver import Saver
 
 
 class ParameterDictSaver(Saver):
-    """
-    Child class that implements saver for mxnet gluon parameter dictionary
-    """
-    def __init__(self, name: str, param_dict: gluon.ParameterDict):
+
+    def __init__(self, name: str, param_dict):
         self._name = name
         self._param_dict = param_dict
 

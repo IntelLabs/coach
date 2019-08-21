@@ -126,24 +126,14 @@ class TensorFlowArchitecture(Architecture):
     def set_session(self, sess) -> None:
         """
         Initializes the model parameters and creates the model trainer.
-        NOTEL Session for mxnet backend must be None.
+        NOTEL Session for TF2 backend must be None.
         :param sess: must be None
         """
         assert sess is None
-        # FIXME Add initializer
-        # self.model.collect_params().initialize(ctx=self._devices)
-        # # Hybridize model and losses
-        # self.model.hybridize()
-        # for l in self.losses:
-        #     l.hybridize()
-
         # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
         self.model(self._dummy_model_inputs())
         self.model.summary()
 
-        # if self.network_is_trainable:
-        #     self.trainer = gluon.Trainer(
-        #         self.model.collect_params(), optimizer=self.optimizer, update_on_kvstore=False)
 
     def reset_accumulated_gradients(self) -> None:
         """
@@ -389,10 +379,10 @@ class TensorFlowArchitecture(Architecture):
 
     @staticmethod
     def parallel_predict(sess: Any,
-                         network_input_tuples: List[Tuple['MxnetArchitecture', Dict[str, np.ndarray]]]) -> \
+                         network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) -> \
             Tuple[np.ndarray, ...]:
         """
-        :param sess: active session to use for prediction (must be None for MXNet)
+        :param sess: active session to use for prediction (must be None for TF2)
         :param network_input_tuples: tuple of network and corresponding input
         :return: tuple of outputs from all networks
         """
@@ -452,30 +442,6 @@ class TensorFlowArchitecture(Architecture):
             updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
         self.model.set_weights(updated_target)
 
-
-    #
-    # def get_variable_value(self, variable: Union[gluon.Parameter, NDArray]) -> np.ndarray:
-    #     """
-    #     Get the value of a variable
-    #     :param variable: the variable
-    #     :return: the value of the variable
-    #     """
-    #     if isinstance(variable, gluon.Parameter):
-    #         variable = variable._reduce().asnumpy()
-    #     if isinstance(variable, NDArray):
-    #         return variable.asnumpy()
-    #     return variable
-    #
-    # def set_variable_value(self, assign_op: callable, value: Any, placeholder=None) -> None:
-    #     """
-    #     Updates value of a variable.
-    #     :param assign_op: a callable assign function for setting the variable
-    #     :param value: a value to set the variable to
-    #     :param placeholder: unused (placeholder in symbolic framework backends)
-    #     """
-    #     assert callable(assign_op)
-    #     assign_op(value)
-    #
 
     def set_is_training(self, state: bool) -> None:
         """

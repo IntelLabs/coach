@@ -459,14 +459,14 @@ class ScaledGradHead(keras.layers.Layer):
         #self.params.get_constant(name='gradient_rescaler', value=np.array([float(head_params.rescale_gradient_from_head_by_factor)]))
 
     def call(self, inputs, **kwargs):
-        """ Overrides gluon.HybridBlock.hybrid_forward
+        """ Overrides Keras call
         :param nd or sym F: ndarray or symbol module
         :param x: head input
         :param gradient_rescaler: gradient rescaler for partial blocking of gradient
         :return: head output
         """
 
-        #grad_scaled_x = (F.broadcast_mul((1 - gradient_rescaler), F.BlockGrad(x)) + F.broadcast_mul(gradient_rescaler, x))
+        #grad_scaled_x = (((1 - gradient_rescaler), (x)) + (gradient_rescaler, x))
         out = self.head(inputs)
         return out
 
