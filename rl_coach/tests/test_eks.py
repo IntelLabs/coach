@@ -135,14 +135,17 @@ class EKSHandler():
 
         # Delete pod
         try:
-            self.corev1_api.delete_namespaced_pod(self.test_name, self.namespace, client.V1DeleteOptions())
+            self.corev1_api.delete_namespaced_pod(self.test_name,
+                    self.namespace,
+                    client.V1DeleteOptions(grace_period_seconds=0))
         except client.rest.ApiException as e:
             if not silent:
                 print("Got exception while deleting pod: {}".format(e))
 
         # Delete namespace
         try:
-            self.corev1_api.delete_namespace(self.namespace, client.V1DeleteOptions())
+            self.corev1_api.delete_namespace(self.namespace,
+                    client.V1DeleteOptions(grace_period_seconds=0))
         except client.rest.ApiException as e:
             if not silent:
                 print("Got exception while deleting namespace: {}".format(e))
