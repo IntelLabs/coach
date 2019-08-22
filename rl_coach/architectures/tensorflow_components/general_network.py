@@ -353,7 +353,7 @@ class SingleModel(keras.Model):
                 #     agent_params=agent_parameters,
                 #     head_params=head_param)
                 output_head = ScaledGradHead(
-                    head_index=(head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx,
+                    head_index=head_idx,
                     head_type_index=head_type_idx_start + i,
                     network_name=network_name,
                     spaces=spaces,
@@ -362,7 +362,8 @@ class SingleModel(keras.Model):
                     head_params=head_param)
 
                 self._output_heads.append(output_head)
-                #self._output_heads = output_head
+
+                self.gradient_rescaler = 1
 
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
@@ -388,10 +389,12 @@ class SingleModel(keras.Model):
         # Middleware
         state_embedding = self.middleware(state_embedding)
 
+        head_input = (1 - self.gradient_rescaler) * tf.stop_gradient(state_embedding) + self.gradient_rescaler * state_embedding
+
         # Head
         outputs = tuple()
         for head in self._output_heads:
-            out = head(state_embedding)
+            out = head(head_input)
             if not isinstance(out, tuple):
                 out = (out,)
             outputs += out
@@ -458,9 +461,9 @@ class ScaledGradHead(keras.layers.Layer):
         :param gradient_rescaler: gradient rescaler for partial blocking of gradient
         :return: head output
         """
+        head_input = (1 - self.gradient_rescaler) * tf.stop_gradient(inputs) + self.gradient_rescaler * inputs
 
-        #grad_scaled_x = (((1 - gradient_rescaler), (x)) + (gradient_rescaler, x))
-        out = self.head(inputs)
+        out = self.head(head_input)
         return out
 
 
@@ -505,7 +508,6 @@ class GeneralModel(keras.Model):
                 head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
                 spaces=spaces)
             self.nets.append(net)
-            self.single_model = self.nets[0]
 
 
     def call(self, inputs, **kwargs):
@@ -513,8 +515,6 @@ class GeneralModel(keras.Model):
         :param inputs: model inputs, one for each embedder. Passed to all networks.
         :return: head outputs in a tuple
         """
-        # outputs = self.single_model(inputs)
-        # outputs = tuple(outputs)
         outputs = []
         for net in self.nets:
             out = net(inputs)

@@ -346,6 +346,7 @@ class TensorFlowArchitecture(Architecture):
         Updates the target network weights from the given source model weights tensors
         """
         updated_target = []
+
         if new_rate < 0 or new_rate > 1:
             raise ValueError('new_rate parameter values should be between 0 to 1.')
 
