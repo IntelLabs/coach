@@ -300,8 +300,7 @@ def _get_output_head(
     return module
 
 
-
-class SingleModel(keras.Model):
+class DnnModel(keras.Model):
     """
     Block that connects a single embedder, with middleware and one to multiple heads
     """
@@ -327,7 +326,7 @@ class SingleModel(keras.Model):
         :param head_type_idx_start: start index for head type index counting
         :param spaces: state and action space definition
         """
-        super(SingleModel, self).__init__(*args, **kwargs)
+        super(DnnModel, self).__init__(*args, **kwargs)
 
         self._embedding_merger_type = embedding_merger_type
         self._input_embedders = []
@@ -344,20 +343,12 @@ class SingleModel(keras.Model):
             for head_copy_idx in range(head_param.num_output_head_copies):
                 # create output head and add it to the output heads list
                 head_idx = (head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx
-                # output_head = _get_output_head(
-                #     head_idx=head_idx,
-                #     head_type_index=head_type_idx_start + i,
-                #     network_name=network_name,
-                #     spaces=spaces,
-                #     is_local=network_is_local,
-                #     agent_params=agent_parameters,
-                #     head_params=head_param)
-                output_head = ScaledGradHead(
-                    head_index=head_idx,
+                output_head = _get_output_head(
+                    head_idx=head_idx,
                     head_type_index=head_type_idx_start + i,
                     network_name=network_name,
                     spaces=spaces,
-                    network_is_local=network_is_local,
+                    is_local=network_is_local,
                     agent_params=agent_parameters,
                     head_params=head_param)
 
@@ -413,59 +404,9 @@ class SingleModel(keras.Model):
         """
         :return: list of output heads
         """
-        return [h.head for h in self._output_heads]
+        #return [h.head for h in self._output_heads]
 
-
-
-
-class ScaledGradHead(keras.layers.Layer):
-    """
-    Wrapper block for applying gradient scaling to input before feeding the head network
-    """
-    def __init__(self,
-                 head_index: int,
-                 head_type_index: int,
-                 network_name: str,
-                 spaces: SpacesDefinition,
-                 network_is_local: bool,
-                 agent_params: AgentParameters,
-                 head_params: HeadParameters) -> None:
-        """
-        :param head_index: the head index
-        :param head_type_index: the head type index (same index if head_param.num_output_head_copies>0)
-        :param network_name: name of the network
-        :param spaces: state and action space definitions
-        :param network_is_local: whether network is local
-        :param agent_params: agent parameters
-        :param head_params: head parameters
-        """
-        super(ScaledGradHead, self).__init__()
-
-
-        self.head = _get_output_head(
-            head_params=head_params,
-            head_idx=head_index,
-            head_type_index=head_type_index,
-            agent_params=agent_params,
-            spaces=spaces,
-            network_name=network_name,
-            is_local=network_is_local)
-
-        self.gradient_rescaler = 1
-        #self.params.get_constant(name='gradient_rescaler', value=np.array([float(head_params.rescale_gradient_from_head_by_factor)]))
-
-    def call(self, inputs, **kwargs):
-        """ Overrides Keras call
-        :param nd or sym F: ndarray or symbol module
-        :param x: head input
-        :param gradient_rescaler: gradient rescaler for partial blocking of gradient
-        :return: head output
-        """
-        head_input = (1 - self.gradient_rescaler) * tf.stop_gradient(inputs) + self.gradient_rescaler * inputs
-
-        out = self.head(head_input)
-        return out
-
+        return self._output_heads
 
 
 
@@ -497,7 +438,7 @@ class GeneralModel(keras.Model):
         for network_idx in range(num_networks):
             head_type_idx_start = network_idx * num_heads_per_network
             head_type_idx_end = head_type_idx_start + num_heads_per_network
-            net = SingleModel(
+            net = DnnModel(
                 head_type_idx_start=head_type_idx_start,
                 network_name=network_name,
                 network_is_local=network_is_local,
