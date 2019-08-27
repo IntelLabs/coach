@@ -47,8 +47,8 @@ class NetworkWrapper(object):
                 import tensorflow as tf
             except ImportError:
                 raise Exception('Install tensorflow before using it as framework')
-            from rl_coach.architectures.tensorflow_components.general_network import GeneralTensorFlowNetwork
-            general_network = GeneralTensorFlowNetwork.construct
+            from rl_coach.architectures.tensorflow_components.trainer import Trainer
+            general_network = Trainer.construct
         elif self.network_parameters.framework == Frameworks.mxnet:
             try:
                 import mxnet as mx

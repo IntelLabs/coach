@@ -20,7 +20,7 @@ from rl_coach.base_parameters import NetworkParameters
 from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, TensorObservationSpace
 
 
-class DnnModel(keras.Model):
+class SingleDnnModel(keras.Model):
     """
     Block that connects a single embedder, with middleware and one to multiple heads
     """
@@ -46,7 +46,7 @@ class DnnModel(keras.Model):
         :param head_type_idx_start: start index for head type index counting
         :param spaces: state and action space definition
         """
-        super(DnnModel, self).__init__(*args, **kwargs)
+        super(SingleDnnModel, self).__init__(*args, **kwargs)
 
         self._embedding_merger_type = embedding_merger_type
         self._input_embedders = []
@@ -234,7 +234,7 @@ class DnnModel(keras.Model):
 
 
 
-class MultiDnnModel(keras.Model):
+class DnnModel(keras.Model):
     """
     Block that creates two single models. One for the actor and one for the critic
     """
@@ -256,13 +256,13 @@ class MultiDnnModel(keras.Model):
         :param network_parameters: network parameters
         :param spaces: state and action space definitions
         """
-        super(MultiDnnModel, self).__init__(*args, **kwargs)
+        super(DnnModel, self).__init__(*args, **kwargs)
 
         self.nets = list()
         for network_idx in range(num_networks):
             head_type_idx_start = network_idx * num_heads_per_network
             head_type_idx_end = head_type_idx_start + num_heads_per_network
-            net = DnnModel(
+            net = SingleDnnModel(
                 head_type_idx_start=head_type_idx_start,
                 network_name=network_name,
                 network_is_local=network_is_local,
@@ -295,12 +295,12 @@ class MultiDnnModel(keras.Model):
         """
         return list(chain.from_iterable(net.output_heads for net in self.nets))
 
-    def losses(self) -> List[HeadLoss]:
-        """ Construct loss blocks for network training
-        Note: There is a one-to-one mapping between output_heads and losses
-        :return: list of loss blocks
-        """
-        return [h.loss() for net in self.nets for h in net.output_heads]
+    # def losses(self) -> List[HeadLoss]:
+    #     """ Construct loss blocks for network training
+    #     Note: There is a one-to-one mapping between output_heads and losses
+    #     :return: list of loss blocks
+    #     """
+    #     return [h.loss() for net in self.nets for h in net.output_heads]
 
 
 

@@ -24,16 +24,16 @@ from tensorflow import keras
 from rl_coach.base_parameters import AgentParameters, Device, DeviceType
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
-from rl_coach.architectures.tensorflow_components.dnn_model import MultiDnnModel, DnnModel
+from rl_coach.architectures.tensorflow_components.dnn_model import DnnModel, SingleDnnModel
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QHeadLoss
 
 
-class GeneralTensorFlowNetwork(TensorFlowArchitecture):
+class Trainer(TensorFlowArchitecture):
     """
     A generalized version of all possible networks implemented using tensorflow along with the optimizer and loss.
     """
-    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'GeneralTensorFlowNetwork':
+    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Trainer':
         """
         Construct a network class using the provided variable scope and on requested devices
         :param variable_scope: string specifying variable scope under which to create network variables
@@ -46,7 +46,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         mirrored_strategy = tf.distribute.MirroredStrategy()
         with mirrored_strategy.scope():
-            generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+            generalized_network = Trainer(*args, **kwargs)
             loss = generalized_network.losses
             optimizer = generalized_network.optimizer
             generalized_network.model.compile(loss=loss, optimizer=optimizer)
@@ -115,7 +115,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             num_heads_per_network = len(network_parameters.heads_parameters)
             num_networks = 1
 
-        self.model = MultiDnnModel(
+        self.model = DnnModel(
             num_networks=num_networks,
             num_heads_per_network=num_heads_per_network,
             network_is_local=network_is_local,
@@ -143,6 +143,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.losses = self._get_losses(network_parameters.loss_parameters, self.network_wrapper_name)
 
         self.optimizer = self.get_optimizer(network_parameters)
+
         self.network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
     def get_optimizer(self, network_parameters):
