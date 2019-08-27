@@ -25,7 +25,8 @@ from rl_coach.base_parameters import AgentParameters, Device, DeviceType
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.dnn_model import MultiDnnModel, DnnModel
-from rl_coach.architectures.loss_parameters import LossParameters
+from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
+from rl_coach.architectures.tensorflow_components.losses.q_loss import QHeadLoss
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
@@ -137,8 +138,10 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         #
         # self.losses = [h.loss() for h in self.model.output_heads]
 
-        self.losses = self.model.losses()#GeneralLoss()
-        #self.losses = self._get_loss(network_parameters.input_embedders_parameters[head_type_idx_start:head_type_idx_end])
+        #self.losses = self.model.losses()
+
+        self.losses = self._get_losses(network_parameters.loss_parameters, self.network_wrapper_name)
+
         self.optimizer = self.get_optimizer(network_parameters)
         self.network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
@@ -176,43 +179,29 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
 
 
-    def _get_loss(self,
+
+    def _get_losses(self,
             loss_params: LossParameters,
-            head_idx: int,
-            head_type_index: int,
-            network_name: str,
-            is_local: bool):
+            network_name: str):
         """
         Given a loss type, creates the loss and returns it
         :param loss_params: the parameters of the loss to create
         :param head_idx: the head index
-        :param head_type_index: the head type index (same index if head_param.num_output_head_copies>0)
         :param network_name: name of the network
-        :param is_local:
         :return: loss block
         """
-
+        losses = list()
+        head_idx = 0
         if isinstance(loss_params, QLossParameters):
-            loss = QLoss(
-                agent_parameters=agent_params,
+            loss = QHeadLoss(
                 network_name=network_name,
-                head_type_idx=head_type_index,
-                loss_weight=head_params.loss_weight,
-                is_local=is_local)
+                head_idx=head_idx,
+                loss_weight=loss_params.loss_weight)
         else:
             raise KeyError('Unsupported loss type: {}'.format(type(loss_params)))
 
-        return loss
-
-
-    # def _get_multi_losses(self, network_parameters):
-    #     self.losses = list()
-    #     for network_idx in range(num_networks):
-    #         head_type_idx_start = network_idx * num_heads_per_network
-    #         head_type_idx_end = head_type_idx_start + num_heads_per_network
-    #         loss_parameters =
-    #         loss = self.get_loss()
-    #         self.losess.append(loss)
+        losses.append(loss)
+        return losses
 
 
 

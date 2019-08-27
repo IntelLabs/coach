@@ -46,7 +46,7 @@ class DQNNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters(scheme=MiddlewareScheme.Medium)
         self.heads_parameters = [QHeadParameters()]
-        self.loss_parameters = [QLossParameters()]
+        self.loss_parameters = QLossParameters()
         self.optimizer_type = 'Adam'
         self.batch_size = 32
         self.replace_mse_with_huber_loss = True
