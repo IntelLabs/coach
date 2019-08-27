@@ -21,6 +21,7 @@ import numpy as np
 from rl_coach.agents.value_optimization_agent import ValueOptimizationAgent
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.head_parameters import QHeadParameters
+from rl_coach.architectures.loss_parameters import QLossParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, AgentParameters, \
     MiddlewareScheme
@@ -45,6 +46,7 @@ class DQNNetworkParameters(NetworkParameters):
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters(scheme=MiddlewareScheme.Medium)
         self.heads_parameters = [QHeadParameters()]
+        self.loss_parameters = [QLossParameters()]
         self.optimizer_type = 'Adam'
         self.batch_size = 32
         self.replace_mse_with_huber_loss = True

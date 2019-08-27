@@ -29,7 +29,8 @@ from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list, squeeze_list
 from rl_coach.architectures.tensorflow_components import utils
-from rl_coach.architectures.tensorflow_components.heads import Head, HeadLoss
+from rl_coach.architectures.tensorflow_components.heads import Head
+from rl_coach.architectures.tensorflow_components.losses import HeadLoss
 
 
 class TensorFlowArchitecture(Architecture):

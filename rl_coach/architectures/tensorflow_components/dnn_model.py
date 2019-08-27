@@ -10,6 +10,7 @@ from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
 from rl_coach.architectures.tensorflow_components.heads import Head, HeadLoss, QHead
+#from rl_coach.architectures.tensorflow_components.losses import HeadLoss
 from rl_coach.architectures.head_parameters import QHeadParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.head_parameters import HeadParameters
@@ -233,9 +234,9 @@ class DnnModel(keras.Model):
 
 
 
-class GeneralModel(keras.Model):
+class MultiDnnModel(keras.Model):
     """
-    Block that creates multiple single models
+    Block that creates two single models. One for the actor and one for the critic
     """
     def __init__(self,
                  num_networks: int,
@@ -255,7 +256,7 @@ class GeneralModel(keras.Model):
         :param network_parameters: network parameters
         :param spaces: state and action space definitions
         """
-        super(GeneralModel, self).__init__(*args, **kwargs)
+        super(MultiDnnModel, self).__init__(*args, **kwargs)
 
         self.nets = list()
         for network_idx in range(num_networks):
