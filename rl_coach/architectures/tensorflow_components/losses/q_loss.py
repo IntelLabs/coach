@@ -1,13 +1,11 @@
 
-from rl_coach.architectures.tensorflow_components.losses.loss import HeadLoss
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 
-
 from rl_coach.architectures.tensorflow_components.losses.loss import HeadLoss
 
-class QHeadLoss(HeadLoss):
+class DqnLoss(HeadLoss):
     def __init__(self, network_name, loss_weight=1.0, head_idx: int=0, loss_type: Loss = MeanSquaredError, **kwargs):
         """
         Loss for Q-Value Head.
@@ -17,9 +15,9 @@ class QHeadLoss(HeadLoss):
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
         super().__init__(**kwargs)
-
+        assert (loss_type == MeanSquaredError) or (loss_type == HuberLoss), "Only expecting L2Loss or HuberLoss."
+        self.loss_type = loss_type
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
-
 
     def call(self, y_true, y_pred):
         """
@@ -32,4 +30,4 @@ class QHeadLoss(HeadLoss):
         #  This way, Keras can apply class weights or sample weights when requested.
         loss = tf.reduce_mean(self.loss_fn(y_pred, y_true))
         return loss
-        #return [(loss, LOSS_OUT_TYPE_LOSS)]
+

@@ -9,8 +9,7 @@ from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
-from rl_coach.architectures.tensorflow_components.heads import Head, HeadLoss, QHead
-#from rl_coach.architectures.tensorflow_components.losses import HeadLoss
+from rl_coach.architectures.tensorflow_components.heads import Head,QHead
 from rl_coach.architectures.head_parameters import QHeadParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.head_parameters import HeadParameters
@@ -177,7 +176,6 @@ class SingleDnnModel(keras.Model):
             module = LSTMMiddleware(middleware_params)
         else:
             raise KeyError('Unsupported middleware type: {}'.format(type(middleware_params)))
-
         return module
 
     def _get_output_head(self,
@@ -215,8 +213,6 @@ class SingleDnnModel(keras.Model):
 
         return module
 
-
-
     @property
     def input_embedders(self):
         """
@@ -231,7 +227,6 @@ class SingleDnnModel(keras.Model):
         """
         #return [h.head for h in self._output_heads]
         return self._output_heads
-
 
 
 class DnnModel(keras.Model):
@@ -274,7 +269,6 @@ class DnnModel(keras.Model):
                 spaces=spaces)
             self.nets.append(net)
 
-
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
         :param inputs: model inputs, one for each embedder. Passed to all networks.
@@ -294,13 +288,5 @@ class DnnModel(keras.Model):
         :return: list of heads
         """
         return list(chain.from_iterable(net.output_heads for net in self.nets))
-
-    # def losses(self) -> List[HeadLoss]:
-    #     """ Construct loss blocks for network training
-    #     Note: There is a one-to-one mapping between output_heads and losses
-    #     :return: list of loss blocks
-    #     """
-    #     return [h.loss() for net in self.nets for h in net.output_heads]
-
 
 

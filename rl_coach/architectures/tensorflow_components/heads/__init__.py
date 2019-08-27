@@ -1,4 +1,4 @@
-from .head import Head, HeadLoss
+from .head import Head#, HeadLoss
 from .q_head import QHead
 from .categorical_q_head import CategoricalQHead
 from .ddpg_actor_head import DDPGActor
@@ -22,7 +22,7 @@ from .ddpg_v_head import DDPGVHead
 
 __all__ = [
     'Head',
-    'HeadLoss',
+    #'HeadLoss',
     'CategoricalQHead',
     'DDPGActor',
     'DNDQHead',

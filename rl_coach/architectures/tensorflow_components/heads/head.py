@@ -44,27 +44,9 @@ def normalized_columns_initializer(std=1.0):
 # limitations under the License.
 #
 
-from typing import List
+
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition
-
-
-class HeadLoss(keras.losses.Loss):
-    """
-    ABC for loss functions of each head. Child class must implement input_schema() and loss_forward()
-    """
-    def __init__(self, *args, **kwargs):
-        super(HeadLoss, self).__init__(*args, **kwargs)
-
-    def _loss_output(self, outputs):
-        """
-        Saves the returned output as the schema and returns output values in a list
-        :return: list of output values
-        """
-        output_schema = [o[1] for o in outputs]
-        assert self._output_schema is None or self._output_schema == output_schema
-        self._output_schema = output_schema
-        return tuple(o[0] for o in outputs)
 
 
 class Head(keras.layers.Layer):
@@ -102,14 +84,6 @@ class Head(keras.layers.Layer):
         self.activation_function = activation_function
         self.dense_layer = dense_layer
         self._num_outputs = None
-
-    def loss(self) -> HeadLoss:
-        """
-        Returns loss block to be used for specific head implementation.
-
-        :return: loss block (can be called as function) for outputs returned by the head network.
-        """
-        raise NotImplementedError()
 
     @property
     def num_outputs(self):

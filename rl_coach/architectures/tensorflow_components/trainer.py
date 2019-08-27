@@ -26,7 +26,7 @@ from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.dnn_model import DnnModel, SingleDnnModel
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
-from rl_coach.architectures.tensorflow_components.losses.q_loss import QHeadLoss
+from rl_coach.architectures.tensorflow_components.losses.q_loss import DqnLoss
 
 
 class Trainer(TensorFlowArchitecture):
@@ -194,7 +194,7 @@ class Trainer(TensorFlowArchitecture):
         losses = list()
         head_idx = 0
         if isinstance(loss_params, QLossParameters):
-            loss = QHeadLoss(
+            loss = DqnLoss(
                 network_name=network_name,
                 head_idx=head_idx,
                 loss_weight=loss_params.loss_weight)

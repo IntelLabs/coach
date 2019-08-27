@@ -105,52 +105,12 @@
 # limitations under the License.
 #
 
-
-from typing import Union, List, Tuple
-from types import ModuleType
-
-from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
-from rl_coach.architectures.tensorflow_components.heads.head import Head, HeadLoss
+from tensorflow import keras
+from typing import Union
+from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
 from rl_coach.spaces import SpacesDefinition, BoxActionSpace, DiscreteActionSpace
-
-from tensorflow import keras
-import tensorflow as tf
-
-LOSS_OUT_TYPE_LOSS = 'loss'
-LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
-
-
-# class QHeadLoss(HeadLoss):
-#     def __init__(self, loss_type: Loss = MeanSquaredError, **kwargs):
-#         """
-#         Loss for Q-Value Head.
-#
-#         :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
-#         :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
-#         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
-#         """
-#         super().__init__(**kwargs)
-#
-#         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
-#
-#
-#     def call(self, y_true, y_pred):
-#         """
-#         Used for forward pass through loss computations.
-#         :param pred: state-action q-values predicted by QHead network, of shape (batch_size, num_actions).
-#         :param target: actual state-action q-values, of shape (batch_size, num_actions).
-#         :return: loss, of shape (batch_size).
-#         """
-#         # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
-#         #  This way, Keras can apply class weights or sample weights when requested.
-#         loss = tf.reduce_mean(self.loss_fn(y_pred, y_true))
-#         return loss
-#         #return [(loss, LOSS_OUT_TYPE_LOSS)]
-
-
-
 
 
 class QHead(Head):
@@ -158,12 +118,11 @@ class QHead(Head):
                  agent_parameters: AgentParameters,
                  spaces: SpacesDefinition,
                  network_name: str,
-                 head_type_idx: int=0,
-                 loss_weight: float=1.,
-                 is_local: bool=True,
-                 activation_function: str='relu',
-                 dense_layer: None=None,
-                 loss_type: Union[Huber, MeanSquaredError]=MeanSquaredError) -> None:
+                 head_type_idx: int = 0,
+                 loss_weight: float = 1.,
+                 is_local: bool = True,
+                 activation_function: str = 'relu',
+                 dense_layer: None = None) -> None:
         """
         Q-Value Head for predicting state-action Q-Values.
 
@@ -184,18 +143,8 @@ class QHead(Head):
         elif isinstance(self.spaces.action, DiscreteActionSpace):
             self.num_actions = len(self.spaces.action.actions)
         self.return_type = QActionStateValue
-        assert (loss_type == MeanSquaredError) or (loss_type == HuberLoss), "Only expecting L2Loss or HuberLoss."
-        self.loss_type = loss_type
 
         self.dense = keras.layers.Dense(units=self.num_actions)
-
-    # def loss(self) -> Loss:
-    #     """
-    #     Specifies loss block to be used for specific value head implementation.
-    #
-    #     :return: loss block (can be called as function) for outputs returned by the head network.
-    #     """
-    #     return QHeadLoss(loss_type=self.loss_type)#, weight=self.loss_weight)
 
     def call(self, inputs, **kwargs):
         """
