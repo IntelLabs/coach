@@ -17,14 +17,13 @@
 import copy
 from typing import Union
 from collections import OrderedDict
-
 import numpy as np
 
 from rl_coach.agents.ddpg_agent import DDPGAlgorithmParameters, DDPGActorNetworkParameters, \
     DDPGCriticNetworkParameters, DDPGAgent
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import ActionInfo
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
+from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.memories.non_episodic.differentiable_neural_dictionary import AnnoyDictionary
 from rl_coach.spaces import DiscreteActionSpace
@@ -49,9 +48,10 @@ class WolpertingerAlgorithmParameters(DDPGAlgorithmParameters):
         self.k = 1
 
 
-class WolpertingerExplorationParameters(EGreedyParameters):
+class WolpertingerExplorationParameters(AdditiveNoiseParameters):
     def __init__(self):
         super().__init__()
+        self.noise_as_percentage_from_action_space = False
 
 
 class WolpertingerAgentParameters(AgentParameters):
@@ -100,9 +100,10 @@ class WolpertingerAgent(DDPGAgent):
         tf_input_state = self.prepare_batch_for_inference(curr_state, 'actor')
         actor_network = self.networks['actor'].online_network
         critic_network = self.networks['critic'].online_network
-        action_embedding = actor_network.predict(tf_input_state) * self.action_max_abs_range
+        proto_action = actor_network.predict(tf_input_state) * self.action_max_abs_range
+        proto_action = np.expand_dims(self.exploration_policy.get_action(proto_action), 0)
 
-        nn_action_embeddings, indices, _, _ = self.knn_tree.query(keys=action_embedding, k=self.ap.algorithm.k)
+        nn_action_embeddings, indices, _, _ = self.knn_tree.query(keys=proto_action, k=self.ap.algorithm.k)
 
         # now move the actions through the critic and choose the one with the highest q value
         critic_inputs = copy.copy(tf_input_state)
@@ -110,14 +111,6 @@ class WolpertingerAgent(DDPGAgent):
         critic_inputs['action'] = nn_action_embeddings[0]
         q_values = critic_network.predict(critic_inputs)[0]
         action = int(indices[0][np.argmax(q_values)])
-
-        # TODO-fixme - egreedy is doing an argmax when not acting random, this is not the case here...
-        #             need to replace with the get_q_values_for_state() method
-        # TODO-fixme - egreedy is not printing to screen on policy_optimization_agent
-        if not self.exploration_policy.requires_action_values():
-            action, _ = self.exploration_policy.get_action(action)
-        else:
-            self.exploration_policy.step_epsilon()
         self.action_signal.add_sample(action)
         return ActionInfo(action=action, action_value=0)
 
@@ -126,6 +119,7 @@ class WolpertingerAgent(DDPGAgent):
         self.action_max_abs_range = list(self.output_filter.action_filters.values())[0].output_action_space.max_abs_range
         self.knn_tree = self.get_initialized_knn(self.action_max_abs_range)
 
+    # TODO - ideally the knn should not be defined here, but somehow be defined by the user in the preset
     def get_initialized_knn(self, action_max_abs_range):
         num_actions = len(self.spaces.action.actions)
         keys = np.expand_dims((np.arange(num_actions) / (num_actions - 1) - 0.5) * 2, 1) * action_max_abs_range

@@ -30,24 +30,22 @@ class WolpertingerActorHead(Head):
         self.name = 'wolpertinger_actor_head'
         self.return_type = Embedding
         self.action_embedding_width = agent_parameters.algorithm.action_embedding_width
-        self.num_actions = len(self.spaces.action.actions)
         self.batchnorm = batchnorm
-        self.action_max_abs_range = None
 
     def _build_module(self, input_layer):
         # mean
         pre_activation_policy_value = self.dense_layer(self.action_embedding_width)(input_layer,
                                                                                     name='actor_action_embedding')
         self.proto_action = batchnorm_activation_dropout(input_layer=pre_activation_policy_value,
-                                                                    batchnorm=self.batchnorm,
-                                                                    activation_function=self.activation_function,
-                                                                    dropout_rate=0,
-                                                                    is_training=self.is_training,
-                                                                    name="BatchnormActivationDropout_0")[-1]
+                                                         batchnorm=self.batchnorm,
+                                                         activation_function=self.activation_function,
+                                                         dropout_rate=0,
+                                                         is_training=self.is_training,
+                                                         name="BatchnormActivationDropout_0")[-1]
         self.output = [self.proto_action]
 
     def __str__(self):
         result = [
-            'Dense (num outputs = {})'.format(self.num_actions)
+            'Dense (num outputs = {})'.format(self.action_embedding_width)
         ]
         return '\n'.join(result)

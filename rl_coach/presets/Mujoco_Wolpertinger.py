@@ -14,8 +14,6 @@ from rl_coach.agents.wolpertinger_agent import WolpertingerAgentParameters
 ####################
 # Graph Scheduling #
 ####################
-from rl_coach.schedules import LinearSchedule
-
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = EnvironmentSteps(2000000)
 schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(100)
@@ -27,16 +25,11 @@ schedule_params.heatup_steps = EnvironmentSteps(10000)
 # Agent #
 #########
 agent_params = WolpertingerAgentParameters()
-
-# TODO: can we do something smarter than EGreedy for cases where we discretize a continuous action space?
-#  i.e. use a continuous exploration policy and match its continuous sampled values to the discretized ones?
-
 agent_params.network_wrappers['actor'].input_embedders_parameters['observation'].scheme = [Dense(400)]
 agent_params.network_wrappers['actor'].middleware_parameters.scheme = [Dense(300)]
 agent_params.network_wrappers['critic'].input_embedders_parameters['observation'].scheme = [Dense(400)]
 agent_params.network_wrappers['critic'].middleware_parameters.scheme = [Dense(300)]
 agent_params.network_wrappers['critic'].input_embedders_parameters['action'].scheme = EmbedderScheme.Empty
-agent_params.exploration.epsilon_schedule = LinearSchedule(1, 0.1, 1000000)
 agent_params.output_filter = \
     OutputFilter(
         action_filters=OrderedDict([

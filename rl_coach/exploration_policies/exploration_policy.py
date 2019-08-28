@@ -115,5 +115,5 @@ class ContinuousActionExplorationPolicy(ExplorationPolicy):
         """
         :param action_space: the action space used by the environment
         """
-        assert isinstance(action_space, BoxActionSpace) or isinstance(action_space, GoalsSpace)
+        # assert isinstance(action_space, BoxActionSpace) or isinstance(action_space, GoalsSpace)
         super().__init__(action_space)
