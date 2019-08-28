@@ -53,7 +53,7 @@ env_params = GymVectorEnvironment(level='CartPole-v0')
 preset_validation_params = PresetValidationParameters()
 preset_validation_params.test = True
 preset_validation_params.min_reward_threshold = 150
-preset_validation_params.max_episodes_to_achieve_reward = 250
+preset_validation_params.max_episodes_to_achieve_reward = 300
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=VisualizationParameters(),

@@ -26,6 +26,9 @@ from rl_coach.architectures.tensorflow_components import utils
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout_rate, is_training, name):
     layers = [input_layer]
 
+    # Rationale: passing a bool here will mean that batchnorm and or activation will never activate
+    assert not isinstance(is_training, bool)
+
     # batchnorm
     if batchnorm:
         layers.append(
@@ -165,15 +168,18 @@ class Dense(layers.Dense):
     def __init__(self, units: int):
         super(Dense, self).__init__(units=units)
 
-    def __call__(self, input_layer, name: str=None, kernel_initializer=None, activation=None, is_training=None):
+    def __call__(self, input_layer, name: str=None, kernel_initializer=None, bias_initializer=None,
+                 activation=None, is_training=None):
         """
         returns a tensorflow dense layer
         :param input_layer: previous layer
         :param name: layer name
         :return: dense layer
         """
+        if bias_initializer is None:
+            bias_initializer = tf.zeros_initializer()
         return tf.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
-                               activation=activation)
+                               activation=activation, bias_initializer=bias_initializer)
 
     @staticmethod
     @reg_to_tf_instance(layers.Dense)
@@ -196,7 +202,8 @@ class NoisyNetDense(layers.NoisyNetDense):
     def __init__(self, units: int):
         super(NoisyNetDense, self).__init__(units=units)
 
-    def __call__(self, input_layer, name: str, kernel_initializer=None, activation=None, is_training=None):
+    def __call__(self, input_layer, name: str, kernel_initializer=None, activation=None, is_training=None,
+                 bias_initializer=None):
         """
         returns a NoisyNet dense layer
         :param input_layer: previous layer
@@ -230,10 +237,12 @@ class NoisyNetDense(layers.NoisyNetDense):
             kernel_stddev_initializer = tf.random_uniform_initializer(-stddev * self.sigma0, stddev * self.sigma0)
         else:
             kernel_mean_initializer = kernel_stddev_initializer = kernel_initializer
+        if bias_initializer is None:
+            bias_initializer = tf.zeros_initializer()
         with tf.variable_scope(None, default_name=name):
             weight_mean = tf.get_variable('weight_mean', shape=(num_inputs, num_outputs),
                                           initializer=kernel_mean_initializer)
-            bias_mean = tf.get_variable('bias_mean', shape=(num_outputs,), initializer=tf.zeros_initializer())
+            bias_mean = tf.get_variable('bias_mean', shape=(num_outputs,), initializer=bias_initializer)
 
             weight_stddev = tf.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
                                             initializer=kernel_stddev_initializer)

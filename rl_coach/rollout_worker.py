@@ -23,14 +23,55 @@ this rollout worker:
 - exits
 """
 
-from rl_coach.base_parameters import DistributedCoachSynchronizationType
-from rl_coach.core_types import RunPhase
+
+
+import time
+import os
+
+from rl_coach.base_parameters import TaskParameters, DistributedCoachSynchronizationType
+from rl_coach.checkpoint import CheckpointStateFile, CheckpointStateReader
+from rl_coach.data_stores.data_store import SyncFiles
+
+
+def wait_for(wait_func, data_store=None, timeout=10):
+    """
+    block until wait_func is true
+    """
+    for i in range(timeout):
+        if data_store:
+            data_store.load_from_store()
+
+        if wait_func():
+            return
+        time.sleep(10)
+
+    # one last time
+    if wait_func():
+        return
+
+    raise ValueError((
+        'Waited {timeout} seconds, but condition timed out'
+    ).format(
+        timeout=timeout,
+    ))
+
+
+def wait_for_trainer_ready(checkpoint_dir, data_store=None, timeout=10):
+    """
+    Block until trainer is ready
+    """
+
+    def wait():
+        return os.path.exists(os.path.join(checkpoint_dir, SyncFiles.TRAINER_READY.value))
+
+    wait_for(wait, data_store, timeout)
 
 
 def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
     """
     wait for first checkpoint then perform rollouts using the model
     """
+    wait_for_trainer_ready(checkpoint_dir, data_store)
     if (
         graph_manager.agent_params.algorithm.distributed_coach_synchronization_type
         == DistributedCoachSynchronizationType.SYNC
@@ -46,6 +87,7 @@ def rollout_worker(graph_manager, data_store, num_workers, task_parameters):
 
     with graph_manager.phase_context(RunPhase.TRAIN):
         # this worker should play a fraction of the total playing steps per rollout
+
         act_steps = (
             graph_manager.agent_params.algorithm.num_consecutive_playing_steps
             / num_workers

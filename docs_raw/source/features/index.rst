@@ -8,3 +8,4 @@ Features
    algorithms
    environments
    benchmarks
+   batch_rl

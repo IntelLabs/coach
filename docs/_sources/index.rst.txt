@@ -25,7 +25,11 @@ Blog posts from the Intel® AI website:
 
 * `Release 0.10.0 <https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/)>`_
 
-* `Release 0.11.0 <https://ai.intel.com/rl-coach-data-science-at-scale/>`_ (current release)
+* `Release 0.11.0 <https://ai.intel.com/rl-coach-data-science-at-scale/>`_
+
+* `Release 0.12.0 <https://github.com/NervanaSystems/coach/releases/tag/v0.12.0>`_
+
+* `Release 1.0.0 <https://www.intel.ai/rl-coach-new-release>`_ (current release)
 
 You can find more details in the `GitHub repository <https://github.com/NervanaSystems/coach>`_.
 
@@ -73,5 +77,3 @@ You can find more details in the `GitHub repository <https://github.com/NervanaS
    components/core_types
    components/spaces
    components/additional_parameters
-
-

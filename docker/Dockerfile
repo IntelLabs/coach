@@ -2,7 +2,7 @@ FROM coach-base:master as builder
 
 # prep some of the more common environments
 # Gym (installed with coach)
-Run pip3 install gym[atari] box2d
+Run pip3 install gym[atari]==0.12.5 box2d
 # Mujoco
 RUN mkdir -p ~/.mujoco \
     && wget https://www.roboti.us/download/mjpro150_linux.zip -O mujoco.zip \
@@ -29,5 +29,5 @@ COPY --from=builder /root/.cache /root/.cache
 COPY setup.py /root/src/.
 COPY requirements.txt /root/src/.
 COPY README.md /root/src/.
-RUN pip3 install gym[atari] box2d mujoco_py==1.50.1.68 vizdoom && pip3 install -e .[all] && rm -rf /root/.cache
+RUN pip3 install gym[atari]==0.12.5 box2d mujoco_py==1.50.1.68 vizdoom && pip3 install -e .[all] && rm -rf /root/.cache
 COPY . /root/src

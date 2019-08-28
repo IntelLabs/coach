@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>rl_coach.exploration_policies.e_greedy &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>rl_coach.exploration_policies.e_greedy &mdash; Reinforcement Learning Coach 0.12.0 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -31,21 +39,16 @@
     <link rel="search" title="Search" href="../../../search.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -200,8 +203,7 @@
 
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RunPhase</span><span class="p">,</span> <span class="n">ActionType</span>
 <span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.additive_noise</span> <span class="k">import</span> <span class="n">AdditiveNoiseParameters</span>
-<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">ExplorationParameters</span>
-<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">ExplorationPolicy</span>
+<span class="kn">from</span> <span class="nn">rl_coach.exploration_policies.exploration_policy</span> <span class="k">import</span> <span class="n">ExplorationParameters</span><span class="p">,</span> <span class="n">ExplorationPolicy</span>
 <span class="kn">from</span> <span class="nn">rl_coach.schedules</span> <span class="k">import</span> <span class="n">Schedule</span><span class="p">,</span> <span class="n">LinearSchedule</span>
 <span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ActionSpace</span><span class="p">,</span> <span class="n">DiscreteActionSpace</span><span class="p">,</span> <span class="n">BoxActionSpace</span>
 <span class="kn">from</span> <span class="nn">rl_coach.utils</span> <span class="k">import</span> <span class="n">dynamic_import_and_instantiate_module_from_params</span>
@@ -213,7 +215,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_schedule</span> <span class="o">=</span> <span class="n">LinearSchedule</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mi">50000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_epsilon</span> <span class="o">=</span> <span class="mf">0.05</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">continuous_exploration_policy_parameters</span> <span class="o">=</span> <span class="n">AdditiveNoiseParameters</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">continuous_exploration_policy_parameters</span><span class="o">.</span><span class="n">noise_percentage_schedule</span> <span class="o">=</span> <span class="n">LinearSchedule</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">50000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continuous_exploration_policy_parameters</span><span class="o">.</span><span class="n">noise_schedule</span> <span class="o">=</span> <span class="n">LinearSchedule</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">50000</span><span class="p">)</span>
         <span class="c1"># for continuous control -</span>
         <span class="c1"># (see http://www.cs.ubc.ca/~van/papers/2017-TOG-deepLoco/2017-TOG-deepLoco.pdf)</span>
 
@@ -262,26 +264,32 @@
         <span class="n">epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_epsilon</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_schedule</span><span class="o">.</span><span class="n">current_value</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_random_value</span> <span class="o">&gt;=</span> <span class="n">epsilon</span>
 
-    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ActionType</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">ActionType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="n">epsilon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_epsilon</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TEST</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_schedule</span><span class="o">.</span><span class="n">current_value</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">DiscreteActionSpace</span><span class="p">):</span>
-            <span class="n">top_action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_random_value</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">:</span>
                 <span class="n">chosen_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+                <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">actions</span><span class="p">),</span>
+                                      <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">high</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">low</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">chosen_action</span> <span class="o">=</span> <span class="n">top_action</span>
+                <span class="n">chosen_action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
+
+                <span class="c1"># one-hot probabilities vector</span>
+                <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">actions</span><span class="p">))</span>
+                <span class="n">probabilities</span><span class="p">[</span><span class="n">chosen_action</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_epsilon</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">chosen_action</span><span class="p">,</span> <span class="n">probabilities</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_random_value</span> <span class="o">&lt;</span> <span class="n">epsilon</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
                 <span class="n">chosen_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">chosen_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuous_exploration_policy</span><span class="o">.</span><span class="n">get_action</span><span class="p">(</span><span class="n">action_values</span><span class="p">)</span>
 
-        <span class="c1"># step the epsilon schedule and generate a new random value for next time</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_schedule</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_random_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">chosen_action</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_epsilon</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">chosen_action</span>
 
     <span class="k">def</span> <span class="nf">get_control_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">DiscreteActionSpace</span><span class="p">):</span>
@@ -292,7 +300,13 @@
     <span class="k">def</span> <span class="nf">change_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">change_phase</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">continuous_exploration_policy</span><span class="o">.</span><span class="n">change_phase</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">continuous_exploration_policy</span><span class="o">.</span><span class="n">change_phase</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">step_epsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># step the epsilon schedule and generate a new random value for next time</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">==</span> <span class="n">RunPhase</span><span class="o">.</span><span class="n">TRAIN</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_schedule</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_random_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span></div>
 </pre></div>
 
            </div>
@@ -305,7 +319,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -322,27 +336,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

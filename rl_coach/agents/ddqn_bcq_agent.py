@@ -90,7 +90,7 @@ class DDQNBCQAgent(DQNAgent):
                 if self.ap.algorithm.action_drop_method_parameters.use_state_embedding_instead_of_state:
                     return self.networks['reward_model'].online_network.predict(
                         states,
-                        outputs=[self.networks['reward_model'].online_network.state_embedding])
+                        outputs=[self.networks['reward_model'].online_network.state_embedding[0]])
                 else:
                     return states['observation']
             self.embedding = to_embedding
@@ -155,7 +155,7 @@ class DDQNBCQAgent(DQNAgent):
             reward_model_loss = 0
             imitation_model_loss = 0
             total_transitions_processed = 0
-            for i, batch in enumerate(self.call_memory('get_shuffled_data_generator', batch_size)):
+            for i, batch in enumerate(self.call_memory('get_shuffled_training_data_generator', batch_size)):
                 batch = Batch(batch)
 
                 # reward model
@@ -189,7 +189,7 @@ class DDQNBCQAgent(DQNAgent):
             if self.ap.algorithm.action_drop_method_parameters.use_state_embedding_instead_of_state:
                 self.knn_trees = [AnnoyDictionary(
                     dict_size=knn_size,
-                    key_width=int(self.networks['reward_model'].online_network.state_embedding.shape[-1]),
+                    key_width=int(self.networks['reward_model'].online_network.state_embedding[0].shape[-1]),
                     batch_size=knn_size)
                     for _ in range(len(self.spaces.action.actions))]
             else:

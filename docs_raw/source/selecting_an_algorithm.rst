@@ -198,12 +198,30 @@ The algorithms are ordered by their release date in descending order.
                improve stability it also employs bias correction and trust region optimization techniques.
             </span>
          </div>
+         <div class="algorithm continuous off-policy" data-year="201808">
+            <span class="badge">
+               <a href="components/agents/policy_optimization/sac.html">SAC</a>
+               <br>
+               Soft Actor-Critic is an algorithm which optimizes a stochastic policy in an off-policy way.
+               One of the key features of SAC is that it solves a maximum entropy reinforcement learning problem.
+            </span>
+         </div>
          <div class="algorithm continuous off-policy" data-year="201509">
             <span class="badge">
                <a href="components/agents/policy_optimization/ddpg.html">DDPG</a>
                <br>
                An actor critic scheme for continuous action spaces which assumes that the policy is deterministic,
                and therefore it is able to use a replay buffer in order to improve sample efficiency.
+            </span>
+         </div>
+         <div class="algorithm continuous off-policy" data-year="201509">
+            <span class="badge">
+               <a href="components/agents/policy_optimization/td3.html">TD3</a>
+               <br>
+               Very similar to DDPG, i.e. an actor-critic for continuous action spaces, that uses a replay buffer in
+               order to improve sample efficiency. TD3 uses two critic networks in order to mitigate the overestimation
+               in the Q state-action value prediction, slows down the actor updates in order to increase stability and
+               adds noise to actions while training the critic in order to smooth out the critic's predictions.
             </span>
          </div>
          <div class="algorithm continuous discrete on-policy" data-year="201706">

@@ -117,32 +117,33 @@ def is_reward_reached(csv_path, p_valid_params, start_time, time_limit):
     last_num_episodes = 0
     csv = None
     reward_reached = False
+    reward_str = 'Evaluation Reward'
 
-    while csv is None or (csv['Episode #'].values[-1]
-           < p_valid_params.max_episodes_to_achieve_reward and
-           time.time() - start_time < time_limit):
-
-        csv = pd.read_csv(csv_path)
-
-        if 'Evaluation Reward' not in csv.keys():
+    while csv is None or (csv[csv.columns[0]].values[
+                              -1] < p_valid_params.max_episodes_to_achieve_reward and time.time() - start_time < time_limit):
+        try:
+            csv = pd.read_csv(csv_path)
+        except:
+            # sometimes the csv is being written at the same time we are
+            # trying to read it. no problem -> try again
             continue
 
-        rewards = csv['Evaluation Reward'].values
+        if reward_str not in csv.keys():
+            continue
 
+        rewards = csv[reward_str].values
         rewards = rewards[~np.isnan(rewards)]
-        if len(rewards) >= 1:
-            averaged_rewards = np.convolve(rewards, np.ones(
-                min(len(rewards), win_size)) / win_size, mode='valid')
 
+        if len(rewards) >= 1:
+            averaged_rewards = np.convolve(rewards, np.ones(min(len(rewards), win_size)) / win_size, mode='valid')
         else:
-            # May be in heat-up steps
             time.sleep(1)
             continue
 
-        if csv['Episode #'].shape[0] - last_num_episodes <= 0:
+        if csv[csv.columns[0]].shape[0] - last_num_episodes <= 0:
             continue
 
-        last_num_episodes = csv['Episode #'].values[-1]
+        last_num_episodes = csv[csv.columns[0]].values[-1]
 
         # check if reward is enough
         if np.any(averaged_rewards >= p_valid_params.min_reward_threshold):
@@ -385,23 +386,20 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         csv = pd.read_csv(csv_path[0])
 
         # check heat-up value
-        results = []
-        if csv["In Heatup"].values[-1] == 0:
-            results.append(csv["Total steps"].values[-1])
-        else:
-            while csv["In Heatup"].values[-1] == 1:
-                csv = pd.read_csv(csv_path[0])
-                last_step = csv["Total steps"].values
-                results.append(last_step[-1])
-                time.sleep(1)
+        while csv["In Heatup"].values[-1] == 1:
+            csv = pd.read_csv(csv_path[0])
+            time.sleep(1)
 
-        # get the first value after heat-up
-        time.sleep(1)
-        results.append(csv["Total steps"].values[-1])
+        csv.columns = [column.replace(" ", "_") for column in csv.columns]
+        results = csv.query("In_Heatup == 1")
+        total_values = len(results.Total_steps.values)
+        assert len(results.Total_steps.values) > 0, \
+            Def.Consts.ASSERT_MSG("no data in csv", str(total_values))
 
-        assert int(results[-1]) >= Def.Consts.num_hs, \
+        last_val_in_heatup = results.Total_steps.values[-1]
+        assert int(last_val_in_heatup) >= Def.Consts.num_hs, \
             Def.Consts.ASSERT_MSG.format("bigger than " +
-                                         str(Def.Consts.num_hs), results[-1])
+                                         str(Def.Consts.num_hs), last_val_in_heatup)
 
     elif flag[0] == "-f" or flag[0] == "--framework":
         """
@@ -411,6 +409,7 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
         csv_path = get_csv_path(clres=clres)
         assert len(csv_path) > 0, \
             Def.Consts.ASSERT_MSG.format("path not found", csv_path)
+        time.sleep(5)
 
         get_reward = is_reward_reached(csv_path=csv_path[0],
                                        p_valid_params=p_valid_params,
@@ -453,10 +452,10 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                                 num_expected_files=int(flag[1]))
 
         assert len(csv_path) > 0, \
-            Def.Consts.ASSERT_MSG.format("paths are not found", csv_path)
+            Def.Consts.ASSERT_MSG.format("paths are not found", str(csv_path))
 
         assert int(flag[1]) == len(csv_path), Def.Consts.ASSERT_MSG. \
-            format(len(csv_path), int(flag[1]))
+            format(int(flag[1]), len(csv_path))
 
         # wait for getting results in csv's
         for i in range(len(csv_path)):
@@ -494,9 +493,10 @@ def validate_arg_result(flag, p_valid_params, clres=None, process=None,
                            worker, and check results.
         """
         # wait until files created
-        csv_path = get_csv_path(clres=clres, extra_tries=20)
-
         num_expected_files = int(flag[1])
+        csv_path = get_csv_path(clres=clres, extra_tries=20,
+                                num_expected_files=num_expected_files)
+
         assert len(csv_path) >= num_expected_files, \
             Def.Consts.ASSERT_MSG.format(str(num_expected_files),
                                          str(len(csv_path)))

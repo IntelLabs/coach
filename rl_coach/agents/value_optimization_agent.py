@@ -14,16 +14,18 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 
 from rl_coach.agents.agent import Agent
 from rl_coach.core_types import ActionInfo, StateType, Batch
+from rl_coach.filters.filter import NoInputFilter
 from rl_coach.logger import screen
 from rl_coach.memories.non_episodic.prioritized_experience_replay import PrioritizedExperienceReplay
 from rl_coach.spaces import DiscreteActionSpace
-from copy import deepcopy
+from copy import deepcopy, copy
+
 
 ## This is an abstract agent - there is no learn_from_batch method ##
 
@@ -33,6 +35,12 @@ class ValueOptimizationAgent(Agent):
         super().__init__(agent_parameters, parent)
         self.q_values = self.register_signal("Q")
         self.q_value_for_action = {}
+
+        # currently we use softmax action probabilities only in batch-rl,
+        # but we might want to extend this later at some point.
+        self.should_get_softmax_probabilities = \
+            hasattr(self.ap.network_wrappers['main'], 'should_get_softmax_probabilities') and  \
+            self.ap.network_wrappers['main'].should_get_softmax_probabilities
 
     def init_environment_dependent_modules(self):
         super().init_environment_dependent_modules()
@@ -44,11 +52,20 @@ class ValueOptimizationAgent(Agent):
 
     # Algorithms for which q_values are calculated from predictions will override this function
     def get_all_q_values_for_states(self, states: StateType):
+        actions_q_values = None
         if self.exploration_policy.requires_action_values():
             actions_q_values = self.get_prediction(states)
-        else:
-            actions_q_values = None
+
         return actions_q_values
+
+    def get_all_q_values_for_states_and_softmax_probabilities(self, states: StateType):
+        actions_q_values, softmax_probabilities = None, None
+        if self.exploration_policy.requires_action_values():
+            outputs = copy(self.networks['main'].online_network.outputs)
+            outputs.append(self.networks['main'].online_network.output_heads[0].softmax)
+
+            actions_q_values, softmax_probabilities = self.get_prediction(states, outputs=outputs)
+        return actions_q_values, softmax_probabilities
 
     def get_prediction(self, states, outputs=None):
         return self.networks['main'].online_network.predict(self.prepare_batch_for_inference(states, 'main'),
@@ -71,10 +88,19 @@ class ValueOptimizationAgent(Agent):
             ).format(policy.__class__.__name__))
 
     def choose_action(self, curr_state):
-        actions_q_values = self.get_all_q_values_for_states(curr_state)
+        if self.should_get_softmax_probabilities:
+            actions_q_values, softmax_probabilities = \
+                self.get_all_q_values_for_states_and_softmax_probabilities(curr_state)
+        else:
+            actions_q_values = self.get_all_q_values_for_states(curr_state)
 
         # choose action according to the exploration policy and the current phase (evaluating or training the agent)
-        action = self.exploration_policy.get_action(actions_q_values)
+        action, action_probabilities = self.exploration_policy.get_action(actions_q_values)
+        if self.should_get_softmax_probabilities and softmax_probabilities is not None:
+            # override the exploration policy's generated probabilities when an action was taken
+            # with the agent's actual policy
+            action_probabilities = softmax_probabilities
+
         self._validate_action(self.exploration_policy, action)
 
         if actions_q_values is not None:
@@ -86,15 +112,18 @@ class ValueOptimizationAgent(Agent):
             self.q_values.add_sample(actions_q_values)
 
             actions_q_values = actions_q_values.squeeze()
+            action_probabilities = action_probabilities.squeeze()
 
             for i, q_value in enumerate(actions_q_values):
                 self.q_value_for_action[i].add_sample(q_value)
 
             action_info = ActionInfo(action=action,
                                      action_value=actions_q_values[action],
-                                     max_action_value=np.max(actions_q_values))
+                                     max_action_value=np.max(actions_q_values),
+                                     all_action_probabilities=action_probabilities)
+
         else:
-            action_info = ActionInfo(action=action)
+            action_info = ActionInfo(action=action, all_action_probabilities=action_probabilities)
 
         return action_info
 
@@ -108,18 +137,18 @@ class ValueOptimizationAgent(Agent):
         :return: None
         """
         assert self.ope_manager
-        dataset_as_episodes = self.call_memory('get_all_complete_episodes_from_to',
-                                               (self.call_memory('get_last_training_set_episode_id') + 1,
-                                                self.call_memory('num_complete_episodes')))
-        if len(dataset_as_episodes) == 0:
-            raise ValueError('train_to_eval_ratio is too high causing the evaluation set to be empty. '
-                             'Consider decreasing its value.')
 
-        ips, dm, dr, seq_dr = self.ope_manager.evaluate(
-                                  dataset_as_episodes=dataset_as_episodes,
+        if not isinstance(self.pre_network_filter, NoInputFilter) and len(self.pre_network_filter.reward_filters) != 0:
+            raise ValueError("Defining a pre-network reward filter when OPEs are calculated will result in a mismatch "
+                             "between q values (which are scaled), and actual rewards, which are not. It is advisable "
+                             "to use an input_filter, if possible, instead, which will filter the transitions directly "
+                             "in the replay buffer, affecting both the q_values and the rewards themselves. ")
+
+        ips, dm, dr, seq_dr, wis = self.ope_manager.evaluate(
+                                  evaluation_dataset_as_episodes=self.memory.evaluation_dataset_as_episodes,
+                                  evaluation_dataset_as_transitions=self.memory.evaluation_dataset_as_transitions,
                                   batch_size=self.ap.network_wrappers['main'].batch_size,
                                   discount_factor=self.ap.algorithm.discount,
-                                  reward_model=self.networks['reward_model'].online_network,
                                   q_network=self.networks['main'].online_network,
                                   network_keys=list(self.ap.network_wrappers['main'].input_embedders_parameters.keys()))
 
@@ -129,6 +158,7 @@ class ValueOptimizationAgent(Agent):
         log['IPS'] = ips
         log['DM'] = dm
         log['DR'] = dr
+        log['WIS'] = wis
         log['Sequential-DR'] = seq_dr
         screen.log_dict(log, prefix='Off-Policy Evaluation')
 
@@ -138,6 +168,7 @@ class ValueOptimizationAgent(Agent):
         self.agent_logger.create_signal_value('Direct Method Reward', dm)
         self.agent_logger.create_signal_value('Doubly Robust', dr)
         self.agent_logger.create_signal_value('Sequential Doubly Robust', seq_dr)
+        self.agent_logger.create_signal_value('Weighted Importance Sampling', wis)
 
     def get_reward_model_loss(self, batch: Batch):
         network_keys = self.ap.network_wrappers['reward_model'].input_embedders_parameters.keys()
@@ -161,7 +192,7 @@ class ValueOptimizationAgent(Agent):
         for epoch in range(epochs):
             loss = 0
             total_transitions_processed = 0
-            for i, batch in enumerate(self.call_memory('get_shuffled_data_generator', batch_size)):
+            for i, batch in enumerate(self.call_memory('get_shuffled_training_data_generator', batch_size)):
                 batch = Batch(batch)
                 loss += self.get_reward_model_loss(batch)
                 total_transitions_processed += batch.size

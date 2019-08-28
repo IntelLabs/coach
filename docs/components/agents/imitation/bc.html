@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Behavioral Cloning &mdash; Reinforcement Learning Coach 0.11.0 documentation</title>
+  <title>Behavioral Cloning &mdash; Reinforcement Learning Coach 0.12.0 documentation</title>
   
 
   
@@ -17,13 +17,21 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
@@ -33,21 +41,16 @@
     <link rel="prev" title="ACER" href="../policy_optimization/acer.html" />
     <link href="../../../_static/css/custom.css" rel="stylesheet" type="text/css">
 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -121,6 +124,8 @@
 <li class="toctree-l2"><a class="reference internal" href="cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../policy_optimization/sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/double_dqn.html">Double DQN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../value_optimization/dqn.html">Deep Q Networks</a></li>
@@ -229,13 +234,13 @@ These demonstrations are given as state, action tuples, and with no reward.
 The training goal is to reduce the difference between the actions predicted by the network and the actions taken by
 the expert for each state.</p>
 <ol class="arabic simple">
-<li>Sample a batch of transitions from the replay buffer.</li>
-<li>Use the current states as input to the network, and the expert actions as the targets of the network.</li>
-<li>For the network head, we use the policy head, which uses the cross entropy loss function.</li>
+<li><p>Sample a batch of transitions from the replay buffer.</p></li>
+<li><p>Use the current states as input to the network, and the expert actions as the targets of the network.</p></li>
+<li><p>For the network head, we use the policy head, which uses the cross entropy loss function.</p></li>
 </ol>
 <dl class="class">
 <dt id="rl_coach.agents.bc_agent.BCAlgorithmParameters">
-<em class="property">class </em><code class="descclassname">rl_coach.agents.bc_agent.</code><code class="descname">BCAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/bc_agent.html#BCAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.bc_agent.BCAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rl_coach.agents.bc_agent.</code><code class="sig-name descname">BCAlgorithmParameters</code><a class="reference internal" href="../../../_modules/rl_coach/agents/bc_agent.html#BCAlgorithmParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.bc_agent.BCAlgorithmParameters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -253,7 +258,7 @@ the expert for each state.</p>
         <a href="../value_optimization/bs_dqn.html" class="btn btn-neutral float-right" title="Bootstrapped DQN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../policy_optimization/acer.html" class="btn btn-neutral" title="ACER" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../policy_optimization/acer.html" class="btn btn-neutral float-left" title="ACER" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -262,7 +267,7 @@ the expert for each state.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Intel AI Lab
+        &copy; Copyright 2018-2019, Intel AI Lab
 
     </p>
   </div>
@@ -279,27 +284,16 @@ the expert for each state.</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

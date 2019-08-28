@@ -66,7 +66,11 @@ class DataStore(object):
     def end_of_policies(self) -> bool:
         raise NotImplementedError()
 
+    def setup_checkpoint_dir(self, crd=None):
+        pass
+
 
 class SyncFiles(Enum):
     FINISHED = ".finished"
     LOCKFILE = ".lock"
+    TRAINER_READY = ".ready"

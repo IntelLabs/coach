@@ -45,7 +45,6 @@ class Definitions:
          ** 1 parameter    = Flag - no need for string or int
          ** 2 parameters   = add value for the selected flag
         """
-
         cmd_args = [
             ['-ew'],
             ['--play'],
@@ -53,9 +52,6 @@ class Definitions:
             ['-f', fw_ten],
             ['--nocolor'],
             ['-s', css],
-            # ['-crd', crd], # Tested in checkpoint test
-            ['-dg'],
-            ['-dm'],
             ['-cp', cp],
             ['--print_networks_summary'],
             ['-tb'],
@@ -63,6 +59,9 @@ class Definitions:
             ['-onnx'],
             ['-asc'],
             ['--dump_worker_logs'],
+            ['-dg'],
+            ['-dm'],
+            # ['-crd', crd], # Tested in checkpoint test
             # ['-et', et],
             # '-lvl': '{level}',  # TODO: Add test validation on args_utils
             # '-e': '{}',  # TODO: Add test validation on args_utils
@@ -140,7 +139,7 @@ class Definitions:
         N_csv_lines = 100  # number of lines to validate on csv file
 
     class TimeOuts:
-        test_time_limit = 60 * 60
+        test_time_limit = 30 * 60
         wait_for_files = 20
         wait_for_csv = 240
         test_run = 60

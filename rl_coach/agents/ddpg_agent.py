@@ -23,7 +23,7 @@ import numpy as np
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
 from rl_coach.agents.agent import Agent
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
-from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, VHeadParameters
+from rl_coach.architectures.head_parameters import DDPGActorHeadParameters, DDPGVHeadParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
     AgentParameters, EmbedderScheme
@@ -34,29 +34,34 @@ from rl_coach.spaces import BoxActionSpace, GoalsSpace
 
 
 class DDPGCriticNetworkParameters(NetworkParameters):
-    def __init__(self):
+    def __init__(self, use_batchnorm=False):
         super().__init__()
-        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=True),
+        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=use_batchnorm),
                                             'action': InputEmbedderParameters(scheme=EmbedderScheme.Shallow)}
         self.middleware_parameters = FCMiddlewareParameters()
-        self.heads_parameters = [VHeadParameters()]
+        self.heads_parameters = [DDPGVHeadParameters()]
         self.optimizer_type = 'Adam'
         self.batch_size = 64
         self.async_training = False
         self.learning_rate = 0.001
+        self.adam_optimizer_beta2 = 0.999
+        self.optimizer_epsilon = 1e-8
         self.create_target_network = True
         self.shared_optimizer = True
         self.scale_down_gradients_by_number_of_workers_for_sync_training = False
+        # self.l2_regularization = 1e-2
 
 
 class DDPGActorNetworkParameters(NetworkParameters):
-    def __init__(self):
+    def __init__(self, use_batchnorm=False):
         super().__init__()
-        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=True)}
-        self.middleware_parameters = FCMiddlewareParameters(batchnorm=True)
-        self.heads_parameters = [DDPGActorHeadParameters()]
+        self.input_embedders_parameters = {'observation': InputEmbedderParameters(batchnorm=use_batchnorm)}
+        self.middleware_parameters = FCMiddlewareParameters(batchnorm=use_batchnorm)
+        self.heads_parameters = [DDPGActorHeadParameters(batchnorm=use_batchnorm)]
         self.optimizer_type = 'Adam'
         self.batch_size = 64
+        self.adam_optimizer_beta2 = 0.999
+        self.optimizer_epsilon = 1e-8
         self.async_training = False
         self.learning_rate = 0.0001
         self.create_target_network = True
@@ -104,12 +109,12 @@ class DDPGAlgorithmParameters(AlgorithmParameters):
 
 
 class DDPGAgentParameters(AgentParameters):
-    def __init__(self):
+    def __init__(self, use_batchnorm=False):
         super().__init__(algorithm=DDPGAlgorithmParameters(),
                          exploration=OUProcessParameters(),
                          memory=EpisodicExperienceReplayParameters(),
-                         networks=OrderedDict([("actor", DDPGActorNetworkParameters()),
-                                               ("critic", DDPGCriticNetworkParameters())]))
+                         networks=OrderedDict([("actor", DDPGActorNetworkParameters(use_batchnorm=use_batchnorm)),
+                                               ("critic", DDPGCriticNetworkParameters(use_batchnorm=use_batchnorm))]))
 
     @property
     def path(self):
@@ -140,7 +145,7 @@ class DDPGAgent(ActorCriticAgent):
 
         critic_inputs = copy.copy(batch.next_states(critic_keys))
         critic_inputs['action'] = next_actions
-        q_st_plus_1 = critic.target_network.predict(critic_inputs)
+        q_st_plus_1 = critic.target_network.predict(critic_inputs)[0]
 
         # calculate the bootstrapped TD targets while discounting terminal states according to
         # use_non_zero_discount_for_terminal_states
@@ -160,12 +165,14 @@ class DDPGAgent(ActorCriticAgent):
         critic_inputs = copy.copy(batch.states(critic_keys))
         critic_inputs['action'] = actions_mean
         action_gradients = critic.online_network.predict(critic_inputs,
-                                                         outputs=critic.online_network.gradients_wrt_inputs[0]['action'])
+                                                         outputs=critic.online_network.gradients_wrt_inputs[1]['action'])
 
         # train the critic
         critic_inputs = copy.copy(batch.states(critic_keys))
         critic_inputs['action'] = batch.actions(len(batch.actions().shape) == 1)
-        result = critic.train_and_sync_networks(critic_inputs, TD_targets)
+
+        # also need the inputs for when applying gradients so batchnorm's update of running mean and stddev will work
+        result = critic.train_and_sync_networks(critic_inputs, TD_targets, use_inputs_for_apply_gradients=True)
         total_loss, losses, unclipped_grads = result[:3]
 
         # apply the gradients from the critic to the actor
@@ -174,11 +181,12 @@ class DDPGAgent(ActorCriticAgent):
                                                  outputs=actor.online_network.weighted_gradients[0],
                                                  initial_feed_dict=initial_feed_dict)
 
+        # also need the inputs for when applying gradients so batchnorm's update of running mean and stddev will work
         if actor.has_global:
-            actor.apply_gradients_to_global_network(gradients)
+            actor.apply_gradients_to_global_network(gradients, additional_inputs=copy.copy(batch.states(critic_keys)))
             actor.update_online_network()
         else:
-            actor.apply_gradients_to_online_network(gradients)
+            actor.apply_gradients_to_online_network(gradients, additional_inputs=copy.copy(batch.states(critic_keys)))
 
         return total_loss, losses, unclipped_grads
 

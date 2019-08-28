@@ -23,12 +23,10 @@ from typing import List, Tuple
 import contextlib
 
 from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, Frameworks, \
-    VisualizationParameters, \
-    Parameters, PresetValidationParameters, RunType
+    VisualizationParameters, Parameters, PresetValidationParameters, RunType
 from rl_coach.checkpoint import CheckpointStateUpdater, get_checkpoint_state, SingleCheckpoint, CheckpointState
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
-    EnvironmentSteps, \
-    StepMethod, Transition
+    EnvironmentSteps, StepMethod, Transition
 from rl_coach.environments.environment import Environment
 from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen, Logger
@@ -37,6 +35,7 @@ from rl_coach.utils import set_cpu, start_shell_command_and_wait
 from rl_coach.data_stores.data_store_impl import get_data_store as data_store_creator
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.data_stores.data_store import SyncFiles
+from rl_coach.checkpoint import CheckpointStateReader
 
 from rl_coach.core_types import TimeTypes
 
@@ -94,10 +93,7 @@ class GraphManager(object):
         self.level_managers = []  # type: List[LevelManager]
         self.top_level_manager = None
         self.environments = []
-        self.heatup_steps = schedule_params.heatup_steps
-        self.evaluation_steps = schedule_params.evaluation_steps
-        self.steps_between_evaluation_periods = schedule_params.steps_between_evaluation_periods
-        self.improve_steps = schedule_params.improve_steps
+        self.set_schedule_params(schedule_params)
         self.visualization_parameters = vis_params
         self.name = name
         self.task_parameters = None
@@ -125,6 +121,10 @@ class GraphManager(object):
         self.time_metric = TimeTypes.EpisodeNumber
 
     def create_graph(self, task_parameters: TaskParameters=TaskParameters()):
+        # check if create graph has been already called
+        if self.graph_creation_time is not None:
+            return self
+
         self.graph_creation_time = time.time()
         self.task_parameters = task_parameters
 
@@ -572,6 +572,11 @@ class GraphManager(object):
                         self.task_parameters.checkpoint_restore_path))
                 model_checkpoint_path = checkpoint.model_checkpoint_path
                 checkpoint_restore_dir = self.task_parameters.checkpoint_restore_path
+
+                # Set the last checkpoint ID - only in the case of the path being a dir
+                chkpt_state_reader = CheckpointStateReader(self.task_parameters.checkpoint_restore_path,
+                                                           checkpoint_state_optional=False)
+                self.checkpoint_id = chkpt_state_reader.get_latest().num + 1
             else:
                 # a checkpoint file
                 if self.task_parameters.framework_type == Frameworks.tensorflow:
@@ -720,6 +725,13 @@ class GraphManager(object):
 
         return data_store_creator(param)
 
+    def signal_ready(self):
+        if self.task_parameters.checkpoint_save_dir and os.path.exists(self.task_parameters.checkpoint_save_dir):
+                open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.TRAINER_READY.value), 'w').close()
+        if hasattr(self, 'data_store_params'):
+                data_store = self.get_data_store(self.data_store_params)
+                data_store.save_to_store()
+
     def close(self) -> None:
         """
         Clean up to close environments.
@@ -745,3 +757,14 @@ class GraphManager(object):
         if hasattr(self, 'data_store_params'):
             data_store = self.get_data_store(self.data_store_params)
             data_store.save_to_store()
+
+    def set_schedule_params(self, schedule_params: ScheduleParameters):
+        """
+        Set schedule parameters for the graph.
+
+        :param schedule_params: the schedule params to set.
+        """
+        self.heatup_steps = schedule_params.heatup_steps
+        self.evaluation_steps = schedule_params.evaluation_steps
+        self.steps_between_evaluation_periods = schedule_params.steps_between_evaluation_periods
+        self.improve_steps = schedule_params.improve_steps
