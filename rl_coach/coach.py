@@ -113,7 +113,6 @@ def handle_distributed_coach_tasks(graph_manager, args, task_parameters):
             graph_manager=graph_manager,
             data_store=data_store,
             task_parameters=task_parameters,
-            data_store=data_store,
             is_multi_node_test=args.is_multi_node_test
         )
 
