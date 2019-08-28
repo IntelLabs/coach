@@ -26,23 +26,45 @@ class DataStoreParameters(object):
 
 
 class DataStore(object):
+    """
+    DataStores are used primarily to synchronize policies between training workers and rollout
+    workers. In the case of the S3DataStore, it is also being used to explicitly log artifacts such
+    as videos and logs into s3 for users to look at later. Artifact logging should be moved into a
+    separate instance of the DataStore class, or a different class altogether. It is possible that
+    users might be interested in logging artifacts through s3, but coordinating communication of
+    policies using something else like redis.
+    """
+
     def __init__(self, params: DataStoreParameters):
-        pass
+        """
+        The parameters provided in the constructor to a DataStore are expected to contain the
+        parameters necessary to serialize and deserialize this DataStore.
+        """
+        raise NotImplementedError()
 
     def deploy(self) -> bool:
-        pass
+        raise NotImplementedError()
 
     def get_info(self):
-        pass
+        raise NotImplementedError()
 
     def undeploy(self) -> bool:
-        pass
+        raise NotImplementedError()
 
     def save_to_store(self):
-        pass
+        raise NotImplementedError()
 
     def load_from_store(self):
-        pass
+        raise NotImplementedError()
+
+    def save_policy(self, graph_manager):
+        raise NotImplementedError()
+
+    def load_policy(self, graph_manager, timeout=-1):
+        raise NotImplementedError()
+
+    def end_of_policies(self) -> bool:
+        raise NotImplementedError()
 
     def setup_checkpoint_dir(self, crd=None):
         pass
