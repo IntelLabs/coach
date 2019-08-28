@@ -16,9 +16,7 @@ class GeneralLoss(keras.losses.Loss):
 
 
 class HeadLoss(keras.losses.Loss):
-    """
-    ABC for loss functions of each head. Child class must implement input_schema() and loss_forward()
-    """
+
     def __init__(self, *args, **kwargs):
         super(HeadLoss, self).__init__(*args, **kwargs)
 

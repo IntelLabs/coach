@@ -99,7 +99,7 @@ class TensorFlowArchitecture(Architecture):
         :return: tuple of inputs for model forward pass
         """
         input_shapes = self._model_input_shapes()
-        inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
+        inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes) #make this the same type as the actual input
         return inputs
 
 

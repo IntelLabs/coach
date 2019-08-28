@@ -151,7 +151,18 @@ class SingleDnnModel(keras.Model):
                                     input_clipping=embedder_params.input_clipping,
                                     is_training=embedder_params.is_training)
         elif type == 'image':
-            module = ImageEmbedder(embedder_params)
+            #module = ImageEmbedder(embedder_params)
+            module = ImageEmbedder(input_size=allowed_inputs[input_name].shape,
+                                   activation_function=embedder_params.activation_function,
+                                   scheme=embedder_params.scheme,
+                                   batchnorm=embedder_params.batchnorm,
+                                   dropout_rate=embedder_params.dropout_rate,
+                                   name=embedder_params.name,
+                                   input_rescaling=embedder_params.input_rescaling[type],
+                                   input_offset=embedder_params.input_offset[type],
+                                   input_clipping=embedder_params.input_clipping,
+                                   is_training=embedder_params.is_training)
+
         elif type == 'tensor':
             module = TensorEmbedder(embedder_params)
         else:

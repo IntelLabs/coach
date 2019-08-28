@@ -124,29 +124,13 @@ class Trainer(TensorFlowArchitecture):
             network_parameters=network_parameters,
             spaces=spaces)
 
-
-        # self.model = DnnModel(
-        #     head_type_idx_start=0,
-        #     network_name=self.network_wrapper_name,
-        #     network_is_local=network_is_local,
-        #     agent_parameters=agent_parameters,
-        #     in_emb_param_dict=network_parameters.input_embedders_parameters,
-        #     embedding_merger_type=network_parameters.embedding_merger_type,
-        #     middleware_param=network_parameters.middleware_parameters,
-        #     head_param_list=network_parameters.heads_parameters[0:1],
-        #     spaces=spaces)
-        #
-        # self.losses = [h.loss() for h in self.model.output_heads]
-
-        #self.losses = self.model.losses()
-
         self.losses = self._get_losses(network_parameters.loss_parameters, self.network_wrapper_name)
 
-        self.optimizer = self.get_optimizer(network_parameters)
+        self.optimizer = self._get_optimizer(network_parameters)
 
         self.network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
-    def get_optimizer(self, network_parameters):
+    def _get_optimizer(self, network_parameters):
 
         # callback = tf.keras.callbacks.LearningRateScheduler(
         #     (lambda lr, decay_rate, decay_steps, global_step: lr * (decay_rate ** (global_step / decay_steps))))
@@ -176,10 +160,6 @@ class Trainer(TensorFlowArchitecture):
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
         return optimizer
-
-
-
-
 
     def _get_losses(self,
             loss_params: LossParameters,

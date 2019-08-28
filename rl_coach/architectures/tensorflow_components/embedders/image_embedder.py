@@ -39,7 +39,6 @@ class ImageEmbedder(InputEmbedder):
                  input_rescaling: float = 255.0,
                  input_offset: float = 0.0,
                  input_clipping=None,
-                 dense_layer=Dense,
                  is_training=False):
 
         super().__init__(input_size,
@@ -51,7 +50,6 @@ class ImageEmbedder(InputEmbedder):
                          input_rescaling,
                          input_offset,
                          input_clipping,
-                         dense_layer=dense_layer,
                          is_training=is_training)
 
         self.return_type = InputImageEmbedding
@@ -68,6 +66,7 @@ class ImageEmbedder(InputEmbedder):
             EmbedderScheme.Shallow:
                 [
                     Conv2d(32, 3, 1)
+                    #tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=1)# default data_format='channels_last')
                 ],
 
             # atari dqn
@@ -76,6 +75,9 @@ class ImageEmbedder(InputEmbedder):
                     Conv2d(32, 8, 4),
                     Conv2d(64, 4, 2),
                     Conv2d(64, 3, 1)
+                    # tf.keras.layers.Conv2D(filters=32, kernel_size=8, strides=4),
+                    # tf.keras.layers.Conv2D(filters=64, kernel_size=4, strides=3),
+                    # tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=1)
                 ],
 
             # carla
