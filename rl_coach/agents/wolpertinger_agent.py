@@ -26,7 +26,7 @@ from rl_coach.core_types import ActionInfo
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.memories.non_episodic.differentiable_neural_dictionary import AnnoyDictionary
-from rl_coach.spaces import DiscreteActionSpace
+from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 from rl_coach.architectures.head_parameters import WolpertingerActorHeadParameters
 
 
@@ -100,7 +100,7 @@ class WolpertingerAgent(DDPGAgent):
         tf_input_state = self.prepare_batch_for_inference(curr_state, 'actor')
         actor_network = self.networks['actor'].online_network
         critic_network = self.networks['critic'].online_network
-        proto_action = actor_network.predict(tf_input_state) * self.action_max_abs_range
+        proto_action = actor_network.predict(tf_input_state)
         proto_action = np.expand_dims(self.exploration_policy.get_action(proto_action), 0)
 
         nn_action_embeddings, indices, _, _ = self.knn_tree.query(keys=proto_action, k=self.ap.algorithm.k)
@@ -116,12 +116,15 @@ class WolpertingerAgent(DDPGAgent):
 
     def init_environment_dependent_modules(self):
         super().init_environment_dependent_modules()
-        self.action_max_abs_range = list(self.output_filter.action_filters.values())[0].output_action_space.max_abs_range
-        self.knn_tree = self.get_initialized_knn(self.action_max_abs_range)
+        self.knn_tree = self.get_initialized_knn()
 
     # TODO - ideally the knn should not be defined here, but somehow be defined by the user in the preset
-    def get_initialized_knn(self, action_max_abs_range):
+    def get_initialized_knn(self):
         num_actions = len(self.spaces.action.actions)
+        action_max_abs_range = self.spaces.action.filtered_action_space.max_abs_range if \
+            (hasattr(self.spaces.action, 'filtered_action_space') and
+             isinstance(self.spaces.action.filtered_action_space, BoxActionSpace)) \
+            else 1.0
         keys = np.expand_dims((np.arange(num_actions) / (num_actions - 1) - 0.5) * 2, 1) * action_max_abs_range
         values = np.expand_dims(np.arange(num_actions), 1)
         knn_tree = AnnoyDictionary(dict_size=num_actions, key_width=self.ap.algorithm.action_embedding_width)

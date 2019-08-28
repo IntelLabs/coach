@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import tensorflow as tf
 
 from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import Embedding
-from rl_coach.spaces import SpacesDefinition
+from rl_coach.spaces import SpacesDefinition, BoxActionSpace
 
 
 class WolpertingerActorHead(Head):
@@ -31,6 +32,10 @@ class WolpertingerActorHead(Head):
         self.return_type = Embedding
         self.action_embedding_width = agent_parameters.algorithm.action_embedding_width
         self.batchnorm = batchnorm
+        self.output_scale = self.spaces.action.filtered_action_space.max_abs_range if \
+            (hasattr(self.spaces.action, 'filtered_action_space') and
+             isinstance(self.spaces.action.filtered_action_space, BoxActionSpace)) \
+            else None
 
     def _build_module(self, input_layer):
         # mean
@@ -42,6 +47,9 @@ class WolpertingerActorHead(Head):
                                                          dropout_rate=0,
                                                          is_training=self.is_training,
                                                          name="BatchnormActivationDropout_0")[-1]
+        if self.output_scale is not None:
+            self.proto_action = tf.multiply(self.proto_action, self.output_scale, name='proto_action')
+
         self.output = [self.proto_action]
 
     def __str__(self):
