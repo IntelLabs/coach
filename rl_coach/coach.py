@@ -13,6 +13,12 @@
 # limitations under the License.
 #
 
+
+# Added for running the script from command line without rl-coach package installation
+from os import sys, path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+
+
 import sys
 sys.path.append('.')
 
@@ -793,4 +799,11 @@ if __name__ == "__main__":
 
     #sys.argv.append('temp_delete_preset')
     print(sys.argv)
+    import sys
+
+    print(sys.executable)
+
+    import os
+
+    print(os.getcwd())
     main()
