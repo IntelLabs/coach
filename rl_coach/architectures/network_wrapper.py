@@ -206,9 +206,6 @@ class NetworkWrapper(object):
                 self.online_network.apply_and_reset_gradients(self.online_network.accumulated_gradients,
                                                               additional_inputs=additional_inputs)
             else:
-                # # Dan manual fix
-                # self.online_network.optimizer.apply_gradients(zip(self.online_network.accumulated_gradients,
-                #                                                   self.online_network.dnn_model.trainable_variables))
 
                 # self.online_network.apply_gradients(self.online_network.accumulated_gradients,
                 #                                     additional_inputs=additional_inputs)

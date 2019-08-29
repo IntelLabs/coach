@@ -42,7 +42,7 @@ class InputEmbedder(keras.layers.Layer):
                  **kwargs):
 
         super().__init__(**kwargs)
-        # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
+        # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
         self.embedder_name = name
 

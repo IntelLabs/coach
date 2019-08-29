@@ -113,11 +113,9 @@ class PPOHead(Head):
 
         # define the distributions for the policy and the old policy
         self.policy_distribution = tf.compat.v1.random.categorical(probs=self.policy_mean)
-        # Dan manual fix
-        #self.policy_distribution = tf.contrib.distributions.Categorical(probs=self.policy_mean)
+
         self.old_policy_distribution = tf.compat.v1.random.categorical(probs=self.old_policy_mean)
-        # Dan manual fix
-        #self.old_policy_distribution = tf.contrib.distributions.Categorical(probs=self.old_policy_mean)
+
 
         self.output = self.policy_mean
 
@@ -149,7 +147,6 @@ class PPOHead(Head):
         self.old_policy_distribution = tfp.distributions.MultivariateNormalDiag(self.old_policy_mean,
                                                                                        self.old_policy_std + eps)
 
-        # Dan manual fix
         # self.policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std + eps)
         # self.old_policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.old_policy_mean, self.old_policy_std + eps)
 

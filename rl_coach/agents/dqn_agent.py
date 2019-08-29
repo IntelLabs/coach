@@ -87,12 +87,6 @@ class DQNAgent(ValueOptimizationAgent):
             (self.networks['main'].online_network, batch.states(network_keys))
         ])
 
-        # Dan Replace tha above line with the following two lines- check this!
-        # TD_targets = self.networks['main'].parallel_prediction([(self.networks['main'].target_network, batch.next_states(network_keys))])
-        # q_st_plus_1 = self.networks['main'].parallel_prediction([(self.networks['main'].online_network, batch.states(network_keys))])
-
-
-
 
         selected_actions = self.select_actions(batch.next_states(network_keys), q_st_plus_1)
 

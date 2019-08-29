@@ -99,8 +99,7 @@ class PolicyHead(Head):
         # (the + eps is to prevent probability 0 which will cause the log later on to be -inf)
 
         policy_distribution = tf.compat.v1.random.categorical(probs=(self.policy_probs + eps))
-        # Dan manual fix
-        #policy_distribution = tf.contrib.distributions.Categorical(probs=(self.policy_probs + eps))
+
 
         self.policy_distributions.append(policy_distribution)
         self.output.append(self.policy_probs)
@@ -150,8 +149,6 @@ class PolicyHead(Head):
         # define the distributions for the policy and the old policy
         policy_distribution = tfp.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std)
 
-        # Dan manual fix
-        #policy_distribution = tf.contrib.distributions.MultivariateNormalDiag(self.policy_mean, self.policy_std)
 
         self.policy_distributions.append(policy_distribution)
 

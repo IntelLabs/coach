@@ -42,7 +42,7 @@ class Middleware(keras.layers.Layer):
         super().__init__(**kwargs)
 
         self.middleware_layers = []
-        # Dan manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
+        # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         #self.scheme = scheme
         self.return_type = MiddlewareEmbedding
         self.is_training = is_training

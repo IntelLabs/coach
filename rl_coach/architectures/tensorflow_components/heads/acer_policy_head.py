@@ -97,8 +97,7 @@ class ACERPolicyHead(Head):
                                             name='{}_average_policy'.format(self.get_name()))
             self.input.append(average_policy)
             average_policy_distribution = tf.compat.v1.random.categorical(probs=(average_policy + eps))
-            # Dan manual fix
-            #average_policy_distribution = tf.contrib.distributions.Categorical(probs=(average_policy + eps))
+
 
             self.kl_divergence = tf.reduce_mean(input_tensor=tf.compat.v1.distributions.kl_divergence(average_policy_distribution,
                                                                                self.policy_distribution))
@@ -126,6 +125,5 @@ class ACERPolicyHead(Head):
 
         # (the + eps is to prevent probability 0 which will cause the log later on to be -inf)
         self.policy_distribution = tf.compat.v1.random.categorical(probs=(self.policy_probs + eps))
-        # Dan maual fix
-        #self.policy_distribution = tf.contrib.distributions.Categorical(probs=(self.policy_probs + eps))
+
         self.output = self.policy_probs

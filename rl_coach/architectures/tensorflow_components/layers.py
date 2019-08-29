@@ -181,9 +181,7 @@ class Dense(layers.Dense):
         :return: dense layer
         """
         return tf.keras.layers.Dense(input_layer.shape[0], name=name, kernel_initializer=kernel_initializer, activation=activation)
-        # Dan manual fix
-        # return tf.compat.v1.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
-        #                        activation=activation)
+
 
     @staticmethod
     @reg_to_tf_instance(layers.Dense)
@@ -243,17 +241,17 @@ class NoisyNetDense(layers.NoisyNetDense):
         with tf.compat.v1.variable_scope(None, default_name=name):
             weight_mean = tf.compat.v1.get_variable('weight_mean', shape=(num_inputs, num_outputs),
                                                     initializer=kernel_mean_initializer, use_resource=False)
-                                                    #  Dan manual fix: use_resource=False
+
             bias_mean = tf.compat.v1.get_variable('bias_mean', shape=(num_outputs,),
                                                   initializer=tf.compat.v1.zeros_initializer(), use_resource=False)
-                                                    #  Dan manual fix: use_resource=False
+
 
             weight_stddev = tf.compat.v1.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
                                             initializer=kernel_stddev_initializer, use_resource=False)
-                                                    #  Dan manual fix: use_resource=False
+
             bias_stddev = tf.compat.v1.get_variable('bias_stddev', shape=(num_outputs,),
                                           initializer=kernel_stddev_initializer, use_resource=False)
-                                                    #  Dan manual fix: use_resource=False
+
             bias_noise = _f(tf.random.normal((num_outputs,)))
             weight_noise = _factorized_noise(num_inputs, num_outputs)
 

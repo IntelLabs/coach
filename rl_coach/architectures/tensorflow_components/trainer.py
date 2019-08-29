@@ -42,7 +42,7 @@ class Trainer(TensorFlowArchitecture):
         :param kwargs: all other keyword arguments for class initializer
         :return: a GeneralTensorFlowNetwork object
         """
-        # TODO: Dan place holder for distributed training in TensorFlow
+        # TODO: TF2 place holder for distributed training in TensorFlow
 
         mirrored_strategy = tf.distribute.MirroredStrategy()
         with mirrored_strategy.scope():
@@ -155,7 +155,7 @@ class Trainer(TensorFlowArchitecture):
                     epsilon=network_parameters.optimizer_epsilon)
 
             elif network_parameters.optimizer_type == 'LBFGS':
-                raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: Dan to update function
+                raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: TF2 to update function
             else:
                 raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 

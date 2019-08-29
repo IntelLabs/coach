@@ -73,8 +73,7 @@ class SACPolicyHead(Head):
         # define the distributions for the policy
         # Tensorflow's multivariate normal distribution supports reparameterization
         tfd = tfp.distributions
-        # Dan manual fix
-        #tfd = tf.contrib.distributions
+
         self.policy_distribution = tfd.MultivariateNormalDiag(loc=self.policy_mean,
                                                               scale_diag=tf.exp(self.policy_log_std))
 
