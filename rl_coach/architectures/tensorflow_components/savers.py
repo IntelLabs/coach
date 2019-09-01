@@ -24,7 +24,7 @@ from rl_coach.saver import Saver
 
 
 class GlobalVariableSaver(Saver):
-    def __init__(self, name):
+    def __init__(self, name=""):
         self._names = [name]
         # if graph is finalized, savers must have already already been added. This happens
         # in the case of a MonitoredSession

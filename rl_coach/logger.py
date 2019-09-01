@@ -87,13 +87,15 @@ class ScreenLogger(object):
         print(data)
 
     def log_dict(self, data, prefix=""):
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S.%f') + ' '
         if self._use_colors:
-            str = "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
+            str = timestamp
+            str += "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
             for k, v in data.items():
                 str += "{}{}: {}{} ".format(Colors.BLUE, k, Colors.END, v)
             print(str)
         else:
-            logentries = []
+            logentries = [timestamp]
             for k, v in data.items():
                 logentries.append("{}={}".format(k, v))
             logline = "{}> {}".format(prefix, ", ".join(logentries))
