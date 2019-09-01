@@ -782,7 +782,7 @@ def main():
 
 
 if __name__ == "__main__":
-  
+
     # import tensorflow as tf
     # print("GPU Available: ", tf.test.is_gpu_available())
     # print('Device name is: ', tf.test.gpu_device_name())

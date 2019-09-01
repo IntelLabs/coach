@@ -256,10 +256,16 @@ class GraphManager(object):
         """
         self.set_session(sess=None)  # Initialize all modules
 
+    def _create_session_tf2(self):
+        """
+        Call set_session to initialize parameters and construct checkpoint_saver
+        """
+        self.set_session(sess=None)  # Initialize all modules
+
     def create_session(self, task_parameters: TaskParameters):
         if task_parameters.framework_type == Frameworks.tensorflow:
 
-            self.set_session(sess=None)
+            self._create_session_tf2()
         elif task_parameters.framework_type == Frameworks.mxnet:
             self._create_session_mx()
         else:
