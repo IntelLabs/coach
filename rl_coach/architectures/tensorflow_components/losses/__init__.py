@@ -1,2 +1,2 @@
 from .loss import HeadLoss
-from .q_loss import DqnLoss
+from .q_loss import QLoss

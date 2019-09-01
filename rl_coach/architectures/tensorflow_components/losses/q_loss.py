@@ -5,7 +5,7 @@ from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 
 from rl_coach.architectures.tensorflow_components.losses.loss import HeadLoss
 
-class DqnLoss(HeadLoss):
+class QLoss(HeadLoss):
     def __init__(self, network_name, loss_weight=1.0, head_idx: int=0, loss_type: Loss = MeanSquaredError, **kwargs):
         """
         Loss for Q-Value Head.

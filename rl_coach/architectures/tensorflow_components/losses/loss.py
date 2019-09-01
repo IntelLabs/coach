@@ -20,12 +20,5 @@ class HeadLoss(keras.losses.Loss):
     def __init__(self, *args, **kwargs):
         super(HeadLoss, self).__init__(*args, **kwargs)
 
-    def _loss_output(self, outputs):
-        """
-        Saves the returned output as the schema and returns output values in a list
-        :return: list of output values
-        """
-        output_schema = [o[1] for o in outputs]
-        assert self._output_schema is None or self._output_schema == output_schema
-        self._output_schema = output_schema
-        return tuple(o[0] for o in outputs)
+    # def _loss_output(self, outputs):
+    #     return tuple(o[0] for o in outputs)
