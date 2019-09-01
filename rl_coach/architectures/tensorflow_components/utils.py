@@ -87,28 +87,4 @@ def split_targets_per_loss(targets: list, losses: list) -> List[list]:
     return loss_targets
 
 
-# def clip_grad(
-#         grads: Union[Generator[NDArray, NDArray, NDArray], List[NDArray], Tuple[NDArray]],
-#         clip_method: GradientClippingMethod,
-#         clip_val: float,
-#         inplace=True) -> List[NDArray]:
-#     """
-#     Clip gradient values inplace
-#     :param grads: gradients to be clipped
-#     :param clip_method: clipping method
-#     :param clip_val: clipping value. Interpreted differently depending on clipping method.
-#     :param inplace: modify grads if True, otherwise create NDArrays
-#     :return: clipped gradients
-#     """
-#     output = list(grads) if inplace else list(nd.empty(g.shape) for g in grads)
-#     if clip_method == GradientClippingMethod.ClipByGlobalNorm:
-#         tf.clip_by_global_norm
-#
-#     elif clip_method == GradientClippingMethod.ClipByValue:
-#         tf.clip_by_value
-#
-#     elif clip_method == GradientClippingMethod.ClipByNorm:
-#         tf.clip_by_norm
-#     else:
-#         raise KeyError('Unsupported gradient clipping method')
-#     return output
+

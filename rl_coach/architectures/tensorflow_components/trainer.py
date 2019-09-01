@@ -131,7 +131,8 @@ class Trainer(TensorFlowArchitecture):
         self.network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
     def _get_optimizer(self, network_parameters):
-
+        #  G
+        self.network_parameters.gradients_clipping_method
         # callback = tf.keras.callbacks.LearningRateScheduler(
         #     (lambda lr, decay_rate, decay_steps, global_step: lr * (decay_rate ** (global_step / decay_steps))))
         # TODO: fix conditions in the if statement and add callback for learning rate scheduling

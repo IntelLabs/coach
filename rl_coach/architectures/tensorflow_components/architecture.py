@@ -31,6 +31,7 @@ from rl_coach.utils import force_list, squeeze_list
 from rl_coach.architectures.tensorflow_components import utils
 from rl_coach.architectures.tensorflow_components.heads import Head
 from rl_coach.architectures.tensorflow_components.losses import HeadLoss
+from rl_coach.core_types import GradientClippingMethod
 
 
 class TensorFlowArchitecture(Architecture):
@@ -197,20 +198,26 @@ class TensorFlowArchitecture(Architecture):
 
         # Calculate gradients
         gradients = tape.gradient(total_loss, self.model.trainable_variables)
+        norm_unclipped_grads = tf.linalg.global_norm(gradients)
+        # gradient clipping
+        if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
+            gradients, gradients_norm = self.clip_gradients(gradients, self.network_parameters.gradients_clipping_method,
+                                                            self.network_parameters.clip_gradients)
+
 
         # Calculate gradients
         assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
 
-        model_grads_cpy = gradients.copy()
-        # Calculate global norm of gradients
-        norm_unclipped_grads = tf.linalg.global_norm(model_grads_cpy)
+        # model_grads_cpy = gradients.copy()
+        # # Calculate global norm of gradients
+        # norm_unclipped_grads = tf.linalg.global_norm(model_grads_cpy)
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
-            for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
+            for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
                 acc_grad[:] = model_grad
         else:
-            for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
+            for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
                 acc_grad += model_grad
 
         # result of of additional fetches
@@ -386,3 +393,29 @@ class TensorFlowArchitecture(Architecture):
         savers = SaverCollection()
 
         return savers
+
+
+
+    def clip_gradients(self, grads: List[np.ndarray],
+                  clip_method: GradientClippingMethod,
+                  clip_val: float) -> List[np.ndarray]:
+        """
+        Clip gradient values
+        :param grads: gradients to be clipped
+        :param clip_method: clipping method
+        :param clip_val: clipping value. Interpreted differently depending on clipping method.
+        :return: clipped gradients
+        """
+
+        if clip_method == GradientClippingMethod.ClipByGlobalNorm:
+            clipped_grads, grad_norms = tf.clip_by_global_norm(grads, clip_val)
+
+        elif clip_method == GradientClippingMethod.ClipByValue:
+            clipped_grads = [tf.clip_by_value(grad, -clip_val, clip_val) for grad in grads]
+        elif clip_method == GradientClippingMethod.ClipByNorm:
+
+            clipped_grads = [tf.clip_by_norm(grad, clip_val) for grad in grads]
+        else:
+            raise KeyError('Unsupported gradient clipping method')
+        return clipped_grads
+
