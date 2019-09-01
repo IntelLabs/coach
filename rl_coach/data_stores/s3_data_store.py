@@ -15,7 +15,8 @@
 #
 
 
-from rl_coach.data_stores.data_store import DataStore, DataStoreParameters
+from rl_coach.data_stores.data_store import DataStoreParameters
+from rl_coach.data_stores.checkpoint_data_store import CheckpointDataStore
 from minio import Minio
 from minio.error import ResponseError
 from configparser import ConfigParser, Error
@@ -39,7 +40,7 @@ class S3DataStoreParameters(DataStoreParameters):
         self.expt_dir = expt_dir
 
 
-class S3DataStore(DataStore):
+class S3DataStore(CheckpointDataStore):
     """
     An implementation of the data store using S3 for storing policy checkpoints when using Coach in distributed mode.
     The policy checkpoints are written by the trainer and read by the rollout worker.
