@@ -65,32 +65,40 @@ class ImageEmbedder(InputEmbedder):
 
             EmbedderScheme.Shallow:
                 [
-                    Conv2d(32, 3, 1)
-                    #tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=1)# default data_format='channels_last')
+                    #Conv2d(32, 3, 1)
+                    tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=1)# default data_format='channels_last')
                 ],
 
             # atari dqn
             EmbedderScheme.Medium:
                 [
-                    Conv2d(32, 8, 4),
-                    Conv2d(64, 4, 2),
-                    Conv2d(64, 3, 1)
-                    # tf.keras.layers.Conv2D(filters=32, kernel_size=8, strides=4),
-                    # tf.keras.layers.Conv2D(filters=64, kernel_size=4, strides=3),
-                    # tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=1)
+                    # Conv2d(32, 8, 4),
+                    # Conv2d(64, 4, 2),
+                    # Conv2d(64, 3, 1)
+                    tf.keras.layers.Conv2D(filters=32, kernel_size=8, strides=4),
+                    tf.keras.layers.Conv2D(filters=64, kernel_size=4, strides=3),
+                    tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=1)
                 ],
 
             # carla
             EmbedderScheme.Deep: \
                 [
-                    Conv2d(32, 5, 2),
-                    Conv2d(32, 3, 1),
-                    Conv2d(64, 3, 2),
-                    Conv2d(64, 3, 1),
-                    Conv2d(128, 3, 2),
-                    Conv2d(128, 3, 1),
-                    Conv2d(256, 3, 2),
-                    Conv2d(256, 3, 1)
+                    # Conv2d(32, 5, 2),
+                    # Conv2d(32, 3, 1),
+                    # Conv2d(64, 3, 2),
+                    # Conv2d(64, 3, 1),
+                    # Conv2d(128, 3, 2),
+                    # Conv2d(128, 3, 1),
+                    # Conv2d(256, 3, 2),
+                    # Conv2d(256, 3, 1)
+                    tf.keras.layers.Conv2D(filters=32, kernel_size=5, strides=2),
+                    tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=1),
+                    tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=2),
+                    tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=1),
+                    tf.keras.layers.Conv2D(filters=128, kernel_size=3, strides=2),
+                    tf.keras.layers.Conv2D(filters=128, kernel_size=3, strides=1),
+                    tf.keras.layers.Conv2D(filters=256, kernel_size=3, strides=2),
+                    tf.keras.layers.Conv2D(filters=256, kernel_size=3, strides=1)
                 ]
         }
 

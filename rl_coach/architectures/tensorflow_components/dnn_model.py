@@ -27,7 +27,7 @@ class SingleDnnModel(keras.Model):
                  network_is_local: bool,
                  network_name: str,
                  agent_parameters: AgentParameters,
-                 in_emb_param_dict: {str: InputEmbedderParameters},
+                 input_embedders_parameters: {str: InputEmbedderParameters},
                  embedding_merger_type: EmbeddingMergerType,
                  middleware_param: MiddlewareParameters,
                  head_param_list: [HeadParameters],
@@ -38,7 +38,7 @@ class SingleDnnModel(keras.Model):
         :param network_is_local: True if network is local
         :param network_name: name of the network
         :param agent_parameters: agent parameters
-        :param in_emb_param_dict: dictionary of embedder name to embedding parameters
+        :param input_embedders_parameters: dictionary of embedder name to embedding parameters
         :param embedding_merger_type: type of merging output of embedders: concatenate or sum
         :param middleware_param: middleware parameters
         :param head_param_list: list of head parameters, one per head type
@@ -51,8 +51,8 @@ class SingleDnnModel(keras.Model):
         self._input_embedders = []
         self._output_heads = list()
 
-        for input_name in sorted(in_emb_param_dict):
-            input_type = in_emb_param_dict[input_name]
+        for input_name in sorted(input_embedders_parameters):
+            input_type = input_embedders_parameters[input_name]
             input_embedder = self._get_input_embedder(spaces, input_name, input_type)
             self._input_embedders.append(input_embedder)
 
@@ -273,7 +273,7 @@ class DnnModel(keras.Model):
                 network_name=network_name,
                 network_is_local=network_is_local,
                 agent_parameters=agent_parameters,
-                in_emb_param_dict=network_parameters.input_embedders_parameters,
+                input_embedders_parameters=network_parameters.input_embedders_parameters,
                 embedding_merger_type=network_parameters.embedding_merger_type,
                 middleware_param=network_parameters.middleware_parameters,
                 head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],

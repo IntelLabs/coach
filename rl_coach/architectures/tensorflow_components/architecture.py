@@ -173,15 +173,12 @@ class TensorFlowArchitecture(Architecture):
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
         targets = force_list(targets)
 
-
         with tf.GradientTape() as tape:
             out_per_head = self.model(_inputs)
-            tgt_per_loss = targets
-
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
-            for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
+            for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, targets):
                 #l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
                 loss_outputs = h_loss(h_out, l_tgt)
                 losses.append(loss_outputs)
@@ -203,14 +200,7 @@ class TensorFlowArchitecture(Architecture):
         if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
             gradients, gradients_norm = self.clip_gradients(gradients, self.network_parameters.gradients_clipping_method,
                                                             self.network_parameters.clip_gradients)
-
-
-        # Calculate gradients
         assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
-
-        # model_grads_cpy = gradients.copy()
-        # # Calculate global norm of gradients
-        # norm_unclipped_grads = tf.linalg.global_norm(model_grads_cpy)
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:

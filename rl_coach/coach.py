@@ -792,9 +792,9 @@ if __name__ == "__main__":
     #     dan_delete = tf.compat.v1.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
 
     sys.argv.append('-p')
-    sys.argv.append('CartPole_DQN')
-    # sys.argv.append('Atari_DQN')
-    # sys.argv.extend(['-lvl', 'breakout'])
+    #sys.argv.append('CartPole_DQN')
+    sys.argv.append('Atari_DQN')
+    sys.argv.extend(['-lvl', 'breakout'])
     #sys.argv.extend(['-f', 'mxnet'])
 
     #sys.argv.append('temp_delete_preset')

@@ -49,13 +49,13 @@ class InputEmbedder(keras.layers.Layer):
         #self.scheme = scheme
         self.return_type = InputEmbedding
 
-        #self.input_rescaling = tf.cast(input_rescaling, tf.float64)
-        self.input_rescaling = input_rescaling
+        self.input_rescaling = tf.cast(input_rescaling, tf.float32)
+        #self.input_rescaling = input_rescaling
         self.input_offset = input_offset
         self.input_clipping = input_clipping
 
         self.embbeder_layers = []
-        self.embbeder_layers.extend([keras.layers.InputLayer(input_shape=input_size)])
+        #self.embbeder_layers.extend([keras.layers.InputLayer(input_shape=input_size)])
 
         for layer in self.schemes[scheme]:
             self.embbeder_layers.extend([layer])
@@ -73,7 +73,8 @@ class InputEmbedder(keras.layers.Layer):
         :param inputs: environment state, where first dimension is batch_size, then dimensions are data type dependent.
         :return: embedding of environment state, where shape is (batch_size, channels).
         """
-        self.input_rescaling = tf.cast(self.input_rescaling, inputs.dtype)
+        #self.input_rescaling = tf.cast(self.input_rescaling, inputs.dtype)
+        inputs = tf.cast(inputs, tf.float32)
         x = inputs / self.input_rescaling
         x = x - self.input_offset
         if self.input_clipping is not None:

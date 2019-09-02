@@ -117,20 +117,20 @@ class Conv2d(layers.Conv2d):
         :param name: layer name
         :return: conv2d layer
         """
-        return tf.compat.v1.layers.conv2d(input_layer, filters=self.num_filters, kernel_size=self.kernel_size,
-                                strides=self.strides, data_format='channels_last', name=name)
+        # return tf.compat.v1.layers.conv2d(input_layer, filters=self.num_filters, kernel_size=self.kernel_size,
+        #                         strides=self.strides, data_format='channels_last', name=name)
 
-        # return tf.keras.layers.Conv2D(filters=self.num_filters, kernel_size=self.kernel_size,
-        #                                   strides=self.strides, data_format='channels_last', name=name)
+        return tf.keras.layers.Conv2D(filters=self.num_filters, kernel_size=self.kernel_size,
+                                          strides=self.strides, data_format='channels_last', name=name)
 
 
-    @staticmethod
-    @reg_to_tf_instance(layers.Conv2d)
-    def to_tf_instance(base: layers.Conv2d):
-            return Conv2d(
-                num_filters=base.num_filters,
-                kernel_size=base.kernel_size,
-                strides=base.strides)
+    # @staticmethod
+    # @reg_to_tf_instance(layers.Conv2d)
+    # def to_tf_instance(base: layers.Conv2d):
+    #         return Conv2d(
+    #             num_filters=base.num_filters,
+    #             kernel_size=base.kernel_size,
+    #             strides=base.strides)
 
     @staticmethod
     @reg_to_tf_class(layers.Conv2d)
