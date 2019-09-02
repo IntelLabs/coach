@@ -226,16 +226,32 @@ class TensorFlowArchitecture(Architecture):
         """
         assert self.optimizer_type != 'LBFGS'
 
-        batch_size = 1
-        if self.distributed_training and not self.network_parameters.async_training:
-            # rescale the gradients so that they average out with the gradients from the other workers
-            if self.network_parameters.scale_down_gradients_by_number_of_workers_for_sync_training:
-                batch_size = self.ap.task_parameters.num_training_tasks
-
-
         self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
 
 
+
+    def clip_gradients(self, grads: List[np.ndarray],
+                  clip_method: GradientClippingMethod,
+                  clip_val: float) -> List[np.ndarray]:
+        """
+        Clip gradient values
+        :param grads: gradients to be clipped
+        :param clip_method: clipping method
+        :param clip_val: clipping value. Interpreted differently depending on clipping method.
+        :return: clipped gradients
+        """
+
+        if clip_method == GradientClippingMethod.ClipByGlobalNorm:
+            clipped_grads, grad_norms = tf.clip_by_global_norm(grads, clip_val)
+
+        elif clip_method == GradientClippingMethod.ClipByValue:
+            clipped_grads = [tf.clip_by_value(grad, -clip_val, clip_val) for grad in grads]
+        elif clip_method == GradientClippingMethod.ClipByNorm:
+
+            clipped_grads = [tf.clip_by_norm(grad, clip_val) for grad in grads]
+        else:
+            raise KeyError('Unsupported gradient clipping method')
+        return clipped_grads
 
     def _predict(self, inputs: Dict[str, np.ndarray]):
         """
@@ -386,26 +402,5 @@ class TensorFlowArchitecture(Architecture):
 
 
 
-    def clip_gradients(self, grads: List[np.ndarray],
-                  clip_method: GradientClippingMethod,
-                  clip_val: float) -> List[np.ndarray]:
-        """
-        Clip gradient values
-        :param grads: gradients to be clipped
-        :param clip_method: clipping method
-        :param clip_val: clipping value. Interpreted differently depending on clipping method.
-        :return: clipped gradients
-        """
 
-        if clip_method == GradientClippingMethod.ClipByGlobalNorm:
-            clipped_grads, grad_norms = tf.clip_by_global_norm(grads, clip_val)
-
-        elif clip_method == GradientClippingMethod.ClipByValue:
-            clipped_grads = [tf.clip_by_value(grad, -clip_val, clip_val) for grad in grads]
-        elif clip_method == GradientClippingMethod.ClipByNorm:
-
-            clipped_grads = [tf.clip_by_norm(grad, clip_val) for grad in grads]
-        else:
-            raise KeyError('Unsupported gradient clipping method')
-        return clipped_grads
 
