@@ -46,18 +46,15 @@ class WolpertingerAlgorithmParameters(DDPGAlgorithmParameters):
         super().__init__()
         self.action_embedding_width = 1
         self.k = 1
-
-
-class WolpertingerExplorationParameters(AdditiveNoiseParameters):
-    def __init__(self):
-        super().__init__()
-        self.noise_as_percentage_from_action_space = False
-
+        
 
 class WolpertingerAgentParameters(AgentParameters):
     def __init__(self, use_batchnorm=False):
+        exploration_params = AdditiveNoiseParameters()
+        exploration_params.noise_as_percentage_from_action_space = False
+
         super().__init__(algorithm=WolpertingerAlgorithmParameters(),
-                         exploration=WolpertingerExplorationParameters(),
+                         exploration=exploration_params,
                          memory=EpisodicExperienceReplayParameters(),
                          networks=OrderedDict(
                              [("actor", WolpertingerActorNetworkParameters(use_batchnorm=use_batchnorm)),
