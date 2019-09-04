@@ -2,10 +2,6 @@ REGISTRY=gcr.io
 REGISTRY=docker.io
 ORGANIZATION=nervana
 
-# REGISTRY=amr-registry.caas.intel.com
-# ORGANIZATION=aipg
-# IMAGE=coach
-
 CONTEXT = $(realpath ..)
 
 BUILD_ARGUMENTS=
