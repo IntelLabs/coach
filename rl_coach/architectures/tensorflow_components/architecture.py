@@ -32,6 +32,8 @@ from rl_coach.architectures.tensorflow_components import utils
 from rl_coach.architectures.tensorflow_components.heads import Head
 from rl_coach.architectures.tensorflow_components.losses import HeadLoss
 from rl_coach.core_types import GradientClippingMethod
+from rl_coach.architectures.tensorflow_components.savers import TfSaver
+
 
 
 class TensorFlowArchitecture(Architecture):
@@ -397,10 +399,9 @@ class TensorFlowArchitecture(Architecture):
         """
         name = self.name.replace('/', '.')
         savers = SaverCollection()
-
+        if not self.distributed_training:
+            savers.add(TfSaver(
+                name="{}.{}".format(parent_path_suffix, name),
+                model=self.model))
         return savers
-
-
-
-
 

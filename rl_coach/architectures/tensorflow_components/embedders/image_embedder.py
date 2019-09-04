@@ -17,6 +17,8 @@
 
 from typing import List
 import tensorflow as tf
+from tensorflow import keras
+from functools import partial
 from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
@@ -57,6 +59,7 @@ class ImageEmbedder(InputEmbedder):
             raise ValueError("Image embedders expect the input size to have 3 dimensions. The given size is: {}"
                              .format(input_size))
 
+    DefaultConv2D = partial(keras.layers.Conv2D, default_data_format='channels_last', activation=None, padding="SAME")
     @property
     def schemes(self):
         return {
@@ -65,7 +68,8 @@ class ImageEmbedder(InputEmbedder):
 
             EmbedderScheme.Shallow:
                 [
-                    #Conv2d(32, 3, 1)
+                    # Conv2d(32, 3, 1)
+                    # DefaultConv2D(filters=32, kernel_size=3, strides=1)
                     tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=1)# default data_format='channels_last')
                 ],
 

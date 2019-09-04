@@ -14,38 +14,61 @@
 # limitations under the License.
 #
 
+import pickle
+from typing import Any, List, Dict
 
-from typing import Any, List, Tuple
-
-
+import tensorflow as tf
 import numpy as np
 
 from rl_coach.saver import Saver
 
 
-class ParameterDictSaver(Saver):
+class TfSaver(Saver):
+    """
+    child class that implements saver for saving tensorflow DNN model.
+    """
 
-    def __init__(self, name: str, param_dict):
+    def __init__(self,
+                 name: str,
+                 model):
+                 #inputs: List[List[int]]):
+        #self._name = name.replace('/', '.')
         self._name = name
-        self._param_dict = param_dict
+        self.model = model
+        #self.model._set_inputs(inputs)
+        self._weights_dict = model.get_weights()
 
     @property
     def path(self):
         """
         Relative path for save/load. If two checkpoint objects return the same path, they must be merge-able.
         """
-        return self._name
+        return ""  # use empty string for global file
+
 
     def save(self, sess: None, save_path: str) -> List[str]:
         """
         Save to save_path
-        :param sess: active session for session-based frameworks (e.g. TF)
-        :param save_path: full path to save checkpoint (typically directory plus self.path plus checkpoint count).
+        :param sess: active session for session-based frameworks (TF1 legacy). Must be Non
+        :param save_path: full path to save checkpoint (typically directory plus checkpoint prefix plus self.path)
         :return: list of all saved paths
         """
         assert sess is None
-        self._param_dict.save(save_path)
+        #self.model.save(save_path, save_format="tf")
+        self.model.save_weights(save_path)
+
+        # # Save the model weights
+        # model_weights_path = "{}.{}.h5".format(save_path, 'weights')
+        # self.model.save_weights(model_weights_path)
+        #
+        # # Save the model architecture
+        # model_architecture_path = "{}.{}.json".format(save_path, 'architecture')
+        # with open(model_architecture_path, 'w') as f:
+        #     f.write(self.model.to_json())
+
         return [save_path]
+
+
 
     def restore(self, sess: Any, restore_path: str):
         """
@@ -54,14 +77,16 @@ class ParameterDictSaver(Saver):
         :param restore_path: full path to load checkpoint from.
         """
         assert sess is None
-        self._param_dict.load(restore_path)
+        self.model.load_weights(restore_path)
+        self._weights_dict = self.model.get_weights()
 
-    def merge(self, other: 'Saver'):
+    def merge(self, other: "Saver"):
         """
         Merge other saver into this saver
         :param other: saver to be merged into self
         """
-        if not isinstance(other, ParameterDictSaver):
-            raise TypeError('merging only supported with ParameterDictSaver (type:{})'.format(type(other)))
-        self._param_dict.update(other._param_dict)
+        pass
+
+
+
 
