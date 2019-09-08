@@ -396,6 +396,14 @@
         <span class="c1"># Support for parameter noise</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supports_parameter_noise</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="c1"># Override, in retrospective, all the episode rewards with the last reward in the episode</span>
+        <span class="c1"># (sometimes useful for sparse, end of the episode, rewards problems)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">override_episode_rewards_with_the_last_transition_reward</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Filters - TODO consider creating a FilterParameters class and initialize the filters with it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_pre_network_filters_state_on_train</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_pre_network_filters_state_on_inference</span> <span class="o">=</span> <span class="kc">True</span>
+        
 
 <div class="viewcode-block" id="PresetValidationParameters"><a class="viewcode-back" href="../../components/additional_parameters.html#rl_coach.base_parameters.PresetValidationParameters">[docs]</a><span class="k">class</span> <span class="nc">PresetValidationParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>

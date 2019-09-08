@@ -117,8 +117,6 @@
 <li class="toctree-l2"><a class="reference internal" href="imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="policy_optimization/td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
-<li class="toctree-l2"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="value_optimization/double_dqn.html">Double DQN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="value_optimization/dqn.html">Deep Q Networks</a></li>
@@ -132,6 +130,9 @@
 <li class="toctree-l2"><a class="reference internal" href="policy_optimization/ppo.html">Proximal Policy Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="value_optimization/rainbow.html">Rainbow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="value_optimization/qr_dqn.html">Quantile Regression DQN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy_optimization/td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policy_optimization/wolpertinger.html">Wolpertinger</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../architectures/index.html">Architectures</a></li>
@@ -226,8 +227,6 @@ A detailed description of those algorithms can be found by navigating to each of
 <li class="toctree-l1"><a class="reference internal" href="imitation/cil.html">Conditional Imitation Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/cppo.html">Clipped Proximal Policy Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/ddpg.html">Deep Deterministic Policy Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="policy_optimization/td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
 <li class="toctree-l1"><a class="reference internal" href="other/dfp.html">Direct Future Prediction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="value_optimization/double_dqn.html">Double DQN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="value_optimization/dqn.html">Deep Q Networks</a></li>
@@ -241,6 +240,9 @@ A detailed description of those algorithms can be found by navigating to each of
 <li class="toctree-l1"><a class="reference internal" href="policy_optimization/ppo.html">Proximal Policy Optimization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="value_optimization/rainbow.html">Rainbow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="value_optimization/qr_dqn.html">Quantile Regression DQN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policy_optimization/sac.html">Soft Actor-Critic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policy_optimization/td3.html">Twin Delayed Deep Deterministic Policy Gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policy_optimization/wolpertinger.html">Wolpertinger</a></li>
 </ul>
 </div>
 <dl class="class">
@@ -512,7 +514,7 @@ given observation</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.agent.Agent.prepare_batch_for_inference">
-<code class="sig-name descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em class="sig-param">states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.array]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.prepare_batch_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em class="sig-param">states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.core.multiarray.array]<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.prepare_batch_for_inference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
 observations together, measurements together, etc.</p>
 <dl class="field-list simple">
@@ -652,7 +654,7 @@ dependent on those values, by calling init_environment_dependent_modules</p>
 <code class="sig-name descname">set_incoming_directive</code><span class="sig-paren">(</span><em class="sig-param">action: Union[int, float, numpy.ndarray, List]</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../../_modules/rl_coach/agents/agent.html#Agent.set_incoming_directive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#rl_coach.agents.agent.Agent.set_incoming_directive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows setting a directive for the agent to follow. This is useful in hierarchy structures, where the agent
 has another master agent that is controlling it. In such cases, the master agent can define the goals for the
-slave agent, define it’s observation, possible actions, etc. The directive type is defined by the agent
+slave agent, define its observation, possible actions, etc. The directive type is defined by the agent
 in-action-space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

@@ -198,7 +198,8 @@
 <span class="c1">#</span>
 
 
-<span class="kn">from</span> <span class="nn">rl_coach.data_stores.data_store</span> <span class="k">import</span> <span class="n">DataStore</span><span class="p">,</span> <span class="n">DataStoreParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.data_stores.data_store</span> <span class="k">import</span> <span class="n">DataStoreParameters</span>
+<span class="kn">from</span> <span class="nn">rl_coach.data_stores.checkpoint_data_store</span> <span class="k">import</span> <span class="n">CheckpointDataStore</span>
 <span class="kn">from</span> <span class="nn">minio</span> <span class="k">import</span> <span class="n">Minio</span>
 <span class="kn">from</span> <span class="nn">minio.error</span> <span class="k">import</span> <span class="n">ResponseError</span>
 <span class="kn">from</span> <span class="nn">configparser</span> <span class="k">import</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">Error</span>
@@ -222,7 +223,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">expt_dir</span> <span class="o">=</span> <span class="n">expt_dir</span>
 
 
-<div class="viewcode-block" id="S3DataStore"><a class="viewcode-back" href="../../../components/data_stores/index.html#rl_coach.data_stores.s3_data_store.S3DataStore">[docs]</a><span class="k">class</span> <span class="nc">S3DataStore</span><span class="p">(</span><span class="n">DataStore</span><span class="p">):</span>
+<div class="viewcode-block" id="S3DataStore"><a class="viewcode-back" href="../../../components/data_stores/index.html#rl_coach.data_stores.s3_data_store.S3DataStore">[docs]</a><span class="k">class</span> <span class="nc">S3DataStore</span><span class="p">(</span><span class="n">CheckpointDataStore</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An implementation of the data store using S3 for storing policy checkpoints when using Coach in distributed mode.</span>
 <span class="sd">    The policy checkpoints are written by the trainer and read by the rollout worker.</span>

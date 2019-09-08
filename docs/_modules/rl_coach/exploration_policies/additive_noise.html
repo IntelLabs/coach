@@ -245,7 +245,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_noise</span> <span class="o">=</span> <span class="n">evaluation_noise</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">noise_as_percentage_from_action_space</span> <span class="o">=</span> <span class="n">noise_as_percentage_from_action_space</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">)</span> <span class="ow">and</span> \
+                <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="s1">&#39;filtered_action_space&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span>
+                 <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="o">.</span><span class="n">filtered_action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Additive noise exploration works only for continuous controls.&quot;</span>
                              <span class="s2">&quot;The given action space is of type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">action_space</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
 

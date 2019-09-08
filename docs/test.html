@@ -439,7 +439,7 @@ given observation</p>
 
 <dl class="method">
 <dt id="rl_coach.agents.dqn_agent.DQNAgent.prepare_batch_for_inference">
-<code class="sig-name descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em class="sig-param">states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.array]<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">prepare_batch_for_inference</code><span class="sig-paren">(</span><em class="sig-param">states: Union[Dict[str, numpy.ndarray], List[Dict[str, numpy.ndarray]]], network_name: str</em><span class="sig-paren">)</span> &#x2192; Dict[str, numpy.core.multiarray.array]<a class="headerlink" href="#rl_coach.agents.dqn_agent.DQNAgent.prepare_batch_for_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert curr_state into input tensors tensorflow is expecting. i.e. if we have several inputs states, stack all
 observations together, measurements together, etc.</p>
 <dl class="field-list simple">

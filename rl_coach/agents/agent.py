@@ -1003,7 +1003,7 @@ class Agent(AgentInterface):
         """
         Allows setting a directive for the agent to follow. This is useful in hierarchy structures, where the agent
         has another master agent that is controlling it. In such cases, the master agent can define the goals for the
-        slave agent, define it's observation, possible actions, etc. The directive type is defined by the agent
+        slave agent, define its observation, possible actions, etc. The directive type is defined by the agent
         in-action-space.
 
         :param action: The action that should be set as the directive
