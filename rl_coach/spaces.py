@@ -385,7 +385,8 @@ class DiscreteActionSpace(ActionSpace):
     """
     A discrete action space with action indices as actions
     """
-    def __init__(self, num_actions: int, descriptions: Union[None, List, Dict]=None, default_action: np.ndarray=None):
+    def __init__(self, num_actions: int, descriptions: Union[None, List, Dict]=None, default_action: np.ndarray=None,
+                 filtered_action_space=None):
         super().__init__(1, low=0, high=num_actions-1, descriptions=descriptions)
         # the number of actions is mapped to high
 
@@ -394,6 +395,9 @@ class DiscreteActionSpace(ActionSpace):
             self.default_action = 0
         else:
             self.default_action = default_action
+
+        if filtered_action_space is not None:
+            self.filtered_action_space = filtered_action_space
 
     @property
     def actions(self) -> List[ActionType]:

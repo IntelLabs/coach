@@ -57,7 +57,7 @@ class AnnoyDictionary(object):
 
         self.built_capacity = 0
 
-    def add(self, keys, values, additional_data=None):
+    def add(self, keys, values, additional_data=None, force_rebuild_tree=False):
         if not additional_data:
             additional_data = [None] * len(keys)
 
@@ -96,7 +96,7 @@ class AnnoyDictionary(object):
         if len(self.buffered_indices) >= self.min_update_size:
             self.min_update_size = max(self.initial_update_size, int(self.curr_size * 0.02))
             self._rebuild_index()
-        elif self.rebuild_on_every_update:
+        elif force_rebuild_tree or self.rebuild_on_every_update:
             self._rebuild_index()
 
         self.current_timestamp += 1
