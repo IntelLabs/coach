@@ -33,6 +33,10 @@ import atexit
 import time
 import sys
 import json
+
+from memory_profiler import profile
+
+
 from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskParameters, DistributedTaskParameters, \
     RunType, DistributedCoachSynchronizationType
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
@@ -793,13 +797,14 @@ if __name__ == "__main__":
 
     from os import path
 
+
     sys.argv.append('-p')
-    #sys.argv.append('CartPole_DQN')
-    sys.argv.append('Atari_DQN')
-    sys.argv.extend(['-lvl', 'breakout'])
+    sys.argv.append('CartPole_DQN')
+    # sys.argv.append('Atari_DQN')
+    # sys.argv.extend(['-lvl', 'breakout'])
     #sys.argv.extend(['-f', 'mxnet'])
 
-    sys.argv.extend(['-s', '1500'])
+    #sys.argv.extend(['-s', '1500'])
     CHECKPOINT_RESTORE_DIR = path.join('experiments', 'atari', '04_09_2019-20_52', 'checkpoint')
     #CHECKPOINT_RESTORE_DIR = path.join('experiments', '04_09_2019-20_44', 'checkpoint')
     #sys.argv.extend(['-crd', CHECKPOINT_RESTORE_DIR])

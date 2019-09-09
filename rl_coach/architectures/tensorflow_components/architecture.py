@@ -33,6 +33,7 @@ from rl_coach.architectures.tensorflow_components.heads import Head
 from rl_coach.architectures.tensorflow_components.losses import HeadLoss
 from rl_coach.core_types import GradientClippingMethod
 from rl_coach.architectures.tensorflow_components.savers import TfSaver
+#from memory_profiler import profile
 
 
 
@@ -124,7 +125,7 @@ class TensorFlowArchitecture(Architecture):
         self.model(self._dummy_model_inputs())
         self.model.summary()
 
-
+    #@profile
     def reset_accumulated_gradients(self) -> None:
         """
         Reset the gradients accumulation
@@ -141,7 +142,7 @@ class TensorFlowArchitecture(Architecture):
 
 
 
-
+    #@profile
     def accumulate_gradients(self,
                              inputs: Dict[str, np.ndarray],
                              targets: List[np.ndarray],
@@ -166,13 +167,17 @@ class TensorFlowArchitecture(Architecture):
             norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
             fetched_tensors: all values for additional_fetches
         """
+
+        assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
+
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
 
         embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
-        #_inputs = np.squeeze(tuple(inputs[emb] for emb in embedders))
+
         _inputs = tuple(inputs[emb] for emb in embedders)
-        assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
+
+
         targets = force_list(targets)
 
         with tf.GradientTape() as tape:
@@ -180,15 +185,17 @@ class TensorFlowArchitecture(Architecture):
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
-            for h, h_loss, h_out, l_tgt in zip(self.model.output_heads, self.losses, out_per_head, targets):
-                #l_in = utils.get_loss_agent_inputs(inputs, head_type_idx=h.head_type_idx, loss=h_loss)
-                loss_outputs = h_loss(h_out, l_tgt)
+            #for h, h_loss, h_out, target in zip(self.model.output_heads, self.losses, out_per_head, targets):
+            for h_loss, h_out, target in zip(self.losses, out_per_head, targets):
+
+                loss_outputs = h_loss(h_out, target)
                 losses.append(loss_outputs)
-                for i, fetch in enumerate(additional_fetches):
-                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-                    if head_type_idx == h.head_type_idx:
-                        assert fetch[1] is None  # sanity check that fetch is None
-                        additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
+
+                # for i, fetch in enumerate(additional_fetches):
+                #     head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+                #     if head_type_idx == h.head_type_idx:
+                #         assert fetch[1] is None  # sanity check that fetch is None
+                #         additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
             # Total loss is losses and regularization (NOTE: order is important)
             total_loss_list = losses + regularizations
@@ -206,11 +213,14 @@ class TensorFlowArchitecture(Architecture):
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
-            for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
-                acc_grad[:] = model_grad
+            self.accumulated_gradients = gradients.copy()
+            # for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
+            #     acc_grad[:] = model_grad
         else:
-            for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
-                acc_grad += model_grad
+            self.accumulated_gradients += gradients.copy()
+            # for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
+            #     self.accumulated_gradients = gradients.copy()
+            #     acc_grad += model_grad
 
         # result of of additional fetches
         fetched_tensors = [fetch[1] for fetch in additional_fetches]
@@ -264,18 +274,13 @@ class TensorFlowArchitecture(Architecture):
         WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
         embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
-        #_inputs = np.squeeze(tuple(inputs[emb] for emb in embedders))
         _inputs = tuple(inputs[emb] for emb in embedders)
 
-        #tf.data.Dataset.from_tensor_slices(_inputs)
-
-        # # can also
-        # v = np.array([[1., 2., 3., 4.], [4., 4., 5., 6.], [2., 3., 3., 3.]])
-        # self.model(v)
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
         output = self.model(_inputs)
         return output
+
 
     def predict(self,
                 inputs: Dict[str, np.ndarray],
