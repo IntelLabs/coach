@@ -170,49 +170,15 @@ class BatchnormActivationDropout(layers.BatchnormActivationDropout):
         return BatchnormActivationDropout
 
 
-class Dense(layers.Dense):
-    def __init__(self, units: int):
-        super(Dense, self).__init__(units=units)
-        self.layer = tf.keras.layers.Dense(units)
+class Dense(keras.layers.Layer):
+    def __init__(self, units, **kwargs):
+        super().__init__(**kwargs)
+        self.dense = tf.keras.layers.Dense(units)
 
-    def __call__(self, input_layer, name: str = None, kernel_initializer=None, activation=None, is_training=None):
-        """
-        returns a keras dense layer
-        :param input_layer: previous layer
-        :param name: layer name
-        :return: dense layer
-        """
-        return self.layer(input_layer)
+    def call(self, inputs):
+        return self.dense(inputs)
 
 
-
-# class Dense(layers.Dense):
-#     def __init__(self, units: int):
-#         super(Dense, self).__init__(units=units)
-#
-#     def __call__(self, input_layer, name: str=None, kernel_initializer=None, activation=None, is_training=None):
-#         """
-#         returns a keras dense layer
-#         :param input_layer: previous layer
-#         :param name: layer name
-#         :return: dense layer
-#         """
-#         #return tf.keras.layers.Dense(input_layer.shape[0], name=name, kernel_initializer=kernel_initializer, activation=activation)
-#
-#         return tf.keras.layers.Dense(name=name, kernel_initializer=kernel_initializer)
-#
-#
-#
-#
-#     @staticmethod
-#     @reg_to_tf_instance(layers.Dense)
-#     def to_tf_instance(base: layers.Dense):
-#         return Dense(units=base.units)
-#
-#     @staticmethod
-#     @reg_to_tf_class(layers.Dense)
-#     def to_tf_class():
-#         return Dense
 
 
 class NoisyNetDense(layers.NoisyNetDense):

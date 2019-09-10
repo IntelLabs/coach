@@ -31,10 +31,10 @@ agent_params = ClippedPPOAgentParameters()
 
 agent_params.network_wrappers['main'].learning_rate = 0.0003
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].activation_function = 'tanh'
-#agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(64)]
-agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [keras.layers.Dense(64)]
-#agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(64)]
-agent_params.network_wrappers['main'].middleware_parameters.scheme = [keras.layers.Dense(64)]
+agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(64)]
+#agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [keras.layers.Dense(64)]
+agent_params.network_wrappers['main'].middleware_parameters.scheme = [Dense(64)]
+#agent_params.network_wrappers['main'].middleware_parameters.scheme = [keras.layers.Dense(64)]
 agent_params.network_wrappers['main'].middleware_parameters.activation_function = 'tanh'
 agent_params.network_wrappers['main'].batch_size = 64
 agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5

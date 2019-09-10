@@ -21,7 +21,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 
-#from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputVectorEmbedding
@@ -71,20 +71,25 @@ class VectorEmbedder(InputEmbedder):
 
             EmbedderScheme.Shallow:
                 [
-                    keras.layers.Dense(128)
+                    Dense(128)
+                    #keras.layers.Dense(128)
                 ],
 
             # Use for DQN
             EmbedderScheme.Medium:
                 [
-                    keras.layers.Dense(256)
+                    Dense(256)
+                    #keras.layers.Dense(256)
                 ],
 
             # Use for Carla
             EmbedderScheme.Deep: \
                 [
-                    keras.layers.Dense(128),
-                    keras.layers.Dense(128),
-                    keras.layers.Dense(128)
+                    Dense(128),
+                    Dense(128),
+                    Dense(128)
+                    # keras.layers.Dense(128),
+                    # keras.layers.Dense(128),
+                    # keras.layers.Dense(128)
                 ]
         }
