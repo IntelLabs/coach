@@ -43,11 +43,15 @@ class Middleware(keras.layers.Layer):
 
         self.middleware_layers = []
         # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
-        #self.scheme = scheme
         self.return_type = MiddlewareEmbedding
         self.is_training = is_training
 
-        for layer in self.schemes[scheme]:
+        if isinstance(scheme, MiddlewareScheme):
+            layers = self.schemes[scheme]
+        else:
+            layers = scheme
+
+        for layer in layers:
             self.middleware_layers.extend([layer])
             if batchnorm:
                 self.middleware_layers.extend([keras.layers.BatchNormalization()])

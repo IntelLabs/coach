@@ -475,31 +475,31 @@ class ReaderWriterLock(object):
         return self.now_writing is True
 
     def lock_writing_and_reading(self):
-        pass
-        # self.writers_lock.acquire()  # first things first - block all other writers
-        # self.now_writing = True  # block new readers who haven't started reading yet
-        # while self.some_worker_is_reading():  # let existing readers finish their homework
-        #     time.sleep(0.05)
+        #pass
+        self.writers_lock.acquire()  # first things first - block all other writers
+        self.now_writing = True  # block new readers who haven't started reading yet
+        while self.some_worker_is_reading():  # let existing readers finish their homework
+            time.sleep(0.05)
 
     def release_writing_and_reading(self):
-        pass
-        # self.now_writing = False  # release readers - guarantee no readers starvation
-        # self.writers_lock.release()  # release writers
+        #pass
+        self.now_writing = False  # release readers - guarantee no readers starvation
+        self.writers_lock.release()  # release writers
 
     def lock_writing(self):
-        pass
-        # while self.now_writing:
-        #     time.sleep(0.05)
-        #
-        # self.num_readers_lock.acquire()
-        # self.num_readers += 1
-        # self.num_readers_lock.release()
+        #pass
+        while self.now_writing:
+            time.sleep(0.05)
+
+        self.num_readers_lock.acquire()
+        self.num_readers += 1
+        self.num_readers_lock.release()
 
     def release_writing(self):
-        pass
-        # self.num_readers_lock.acquire()
-        # self.num_readers -= 1
-        # self.num_readers_lock.release()
+        #pass
+        self.num_readers_lock.acquire()
+        self.num_readers -= 1
+        self.num_readers_lock.release()
 
 
 class ProgressBar(object):

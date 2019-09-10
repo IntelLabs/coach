@@ -142,7 +142,7 @@ atari_schedule = ScheduleParameters()
 atari_schedule.improve_steps = EnvironmentSteps(50000000)
 atari_schedule.steps_between_evaluation_periods = EnvironmentSteps(250000)
 atari_schedule.evaluation_steps = EnvironmentSteps(135000)
-atari_schedule.heatup_steps = EnvironmentSteps(1)
+atari_schedule.heatup_steps = EnvironmentSteps(50000)
 
 
 class MaxOverFramesAndFrameskipEnvWrapper(gym.Wrapper):

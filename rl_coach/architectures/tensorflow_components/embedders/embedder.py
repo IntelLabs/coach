@@ -55,9 +55,13 @@ class InputEmbedder(keras.layers.Layer):
         self.input_clipping = input_clipping
 
         self.embbeder_layers = []
-        #self.embbeder_layers.extend([keras.layers.InputLayer(input_shape=input_size)])
 
-        for layer in self.schemes[scheme]:
+        if isinstance(scheme, EmbedderScheme):
+            layers = self.schemes[scheme]
+        else:
+            layers = scheme
+
+        for layer in layers:
             self.embbeder_layers.extend([layer])
             if batchnorm:
                 self.embbeder_layers.extend([keras.layers.BatchNormalization()])
@@ -104,8 +108,16 @@ class InputEmbedder(keras.layers.Layer):
             ).format(value=value, type=type(value)))
         self._input_size = value
 
+
     @property
-    def schemes(self):
+    def schemes(self) -> dict:
+        """
+        Schemes are the pre-defined network architectures of various depths and complexities that can be used for the
+        InputEmbedder. Should be implemented in child classes, and are used to create Block when InputEmbedder is
+        initialised.
+
+        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of mxnet.gluon.Block.
+        """
         raise NotImplementedError("Inheriting embedder must define schemes matching its allowed default "
                                   "configurations.")
 
