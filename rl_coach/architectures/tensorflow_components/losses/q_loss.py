@@ -6,12 +6,16 @@ from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 #from rl_coach.architectures.tensorflow_components.losses.loss import Loss
 
 class QLoss(keras.losses.Loss):
-    def __init__(self, network_name, loss_weight=1.0, head_idx: int=0, loss_type: Loss = MeanSquaredError, **kwargs):
+    def __init__(self, network_name,
+                 head_idx: int = 0,
+                 loss_type: Loss = MeanSquaredError,
+                 loss_weight=1.0,
+                 **kwargs):
         """
         Loss for Q-Value Head.
 
         :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
-        :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
+        :param loss_weight: scalar used to adjust relative weight of loss (if using this loss with others).
 
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """

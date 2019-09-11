@@ -13,20 +13,19 @@
 # limitations under the License.
 #
 
-
+import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 
 from rl_coach.architectures.mxnet_components.heads.head import LOSS_OUT_TYPE_LOSS
 
-
-
-
-
 class VLoss(keras.losses.Loss):
-    def __init__(self, loss_type: Loss = MeanSquaredError,
-                 weight: float = 1.0,
-                 batch_axis: int = 0) -> None:
+
+    def __init__(self, network_name,
+                 head_idx: int = 0,
+                 loss_type: Loss = MeanSquaredError,
+                 loss_weight=1.0,
+                 **kwargs):
         """
         Loss for Value Head.
 
@@ -34,19 +33,21 @@ class VLoss(keras.losses.Loss):
         :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
-        super(VLoss, self).__init__(weight=weight, batch_axis=batch_axis)
-        self.loss_fn = loss_type(weight=weight, batch_axis=batch_axis)
+        super().__init__(**kwargs)
+        self.loss_type = loss_type
+        self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
 
-
-
-    def loss_forward(self, pred, target):
+    def call(self, prediction, target):
         """
         Used for forward pass through loss computations.
 
-        :param F: backend api, either `mxnet.nd` or `mxnet.sym` (if block has been hybridized).
-        :param pred: state values predicted by VHead network, of shape (batch_size).
+        :param prediction: state values predicted by VHead network, of shape (batch_size).
         :param target: actual state values, of shape (batch_size).
         :return: loss, of shape (batch_size).
         """
-        loss = self.loss_fn(pred, target).mean()
-        return [(loss, LOSS_OUT_TYPE_LOSS)]
+        # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
+        #  This way, Keras can apply class weights or sample weights when requested.
+        loss = tf.reduce_mean(self.loss_fn(prediction, target))
+        return loss
+        # loss = self.loss_fn(pred, target).mean()
+        # return [(loss, LOSS_OUT_TYPE_LOSS)]
