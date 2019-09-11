@@ -27,6 +27,8 @@ from rl_coach.architectures.tensorflow_components.architecture import TensorFlow
 from rl_coach.architectures.tensorflow_components.dnn_model import DnnModel, SingleDnnModel
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
+from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
+from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters
 
 
 class Trainer(TensorFlowArchitecture):
@@ -124,7 +126,8 @@ class Trainer(TensorFlowArchitecture):
             network_parameters=network_parameters,
             spaces=spaces)
 
-        self.losses = self._get_losses(network_parameters.loss_parameters, self.network_wrapper_name)
+        #self.losses = self._get_losses(network_parameters.loss_parameters, self.network_wrapper_name)
+        self.losses = self._get_losses(network_parameters.heads_parameters[0], self.network_wrapper_name)
 
         self.optimizer = self._get_optimizer(network_parameters)
 
@@ -163,7 +166,7 @@ class Trainer(TensorFlowArchitecture):
         return optimizer
 
     def _get_losses(self,
-            loss_params: LossParameters,
+            head_params: HeadParameters,
             network_name: str):
         """
         Given a loss type, creates the loss and returns it
@@ -174,16 +177,60 @@ class Trainer(TensorFlowArchitecture):
         """
         losses = list()
         head_idx = 0
-        if isinstance(loss_params, QLossParameters):
+        # if isinstance(loss_params, QLossParameters):
+        #     loss = QLoss(
+        #         network_name=network_name,
+        #         head_idx=head_idx,
+        #         loss_weight=loss_params.loss_weight)
+        # else:
+        #     raise KeyError('Unsupported loss type: {}'.format(type(loss_params)))
+        #
+        # losses.append(loss)
+        # return losses
+
+        if isinstance(head_params, QHeadParameters):
             loss = QLoss(
+                    network_name=network_name,
+                    head_idx=head_idx,
+                    loss_weight=head_params.loss_weight)
+
+        elif isinstance(head_params, PPOHeadParameters):
+            loss = PPOHead(
+                agent_parameters=agent_params,
+                spaces=spaces,
                 network_name=network_name,
-                head_idx=head_idx,
-                loss_weight=loss_params.loss_weight)
+                head_type_idx=head_type_index,
+                loss_weight=head_params.loss_weight,
+                is_local=is_local,
+                activation_function=head_params.activation_function,
+                dense_layer=head_params.dense_layer)
+
+        elif isinstance(head_params, VHeadParameters):
+            loss = VHead(
+                agent_parameters=agent_params,
+                spaces=spaces,
+                network_name=network_name,
+                head_type_idx=head_type_index,
+                loss_weight=head_params.loss_weight,
+                is_local=is_local,
+                activation_function=head_params.activation_function,
+                dense_layer=head_params.dense_layer)
+
+        elif isinstance(head_params, PPOVHeadParameters):
+            loss = PPOVHead(
+                agent_parameters=agent_params,
+                spaces=spaces,
+                network_name=network_name,
+                head_type_idx=head_type_index,
+                loss_weight=head_params.loss_weight,
+                is_local=is_local,
+                activation_function=head_params.activation_function,
+                dense_layer=head_params.dense_layer)
+
         else:
-            raise KeyError('Unsupported loss type: {}'.format(type(loss_params)))
+            raise KeyError('Unsupported loss type: {}'.format(type(head_params)))
 
         losses.append(loss)
         return losses
 
-
-
+        return module

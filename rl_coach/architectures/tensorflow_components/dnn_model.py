@@ -9,8 +9,14 @@ from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
-from rl_coach.architectures.tensorflow_components.heads import Head,QHead
-from rl_coach.architectures.head_parameters import QHeadParameters
+#from rl_coach.architectures.tensorflow_components.heads import Head, QHead
+from rl_coach.architectures.tensorflow_components.heads import Head, PPOHead, PPOVHead, VHead, QHead
+
+
+#from rl_coach.architectures.head_parameters import QHeadParameters
+from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
+from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters
+
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.head_parameters import HeadParameters
 from rl_coach.architectures.middleware_parameters import MiddlewareParameters
@@ -219,6 +225,40 @@ class SingleDnnModel(keras.Model):
                 is_local=is_local,
                 activation_function=head_params.activation_function,
                 dense_layer=head_params.dense_layer)
+
+        elif isinstance(head_params, PPOHeadParameters):
+            module = PPOHead(
+                agent_parameters=agent_params,
+                spaces=spaces,
+                network_name=network_name,
+                head_type_idx=head_type_index,
+                loss_weight=head_params.loss_weight,
+                is_local=is_local,
+                activation_function=head_params.activation_function,
+                dense_layer=head_params.dense_layer)
+
+        elif isinstance(head_params, VHeadParameters):
+            module = VHead(
+                agent_parameters=agent_params,
+                spaces=spaces,
+                network_name=network_name,
+                head_type_idx=head_type_index,
+                loss_weight=head_params.loss_weight,
+                is_local=is_local,
+                activation_function=head_params.activation_function,
+                dense_layer=head_params.dense_layer)
+
+        elif isinstance(head_params, PPOVHeadParameters):
+            module = PPOVHead(
+                agent_parameters=agent_params,
+                spaces=spaces,
+                network_name=network_name,
+                head_type_idx=head_type_index,
+                loss_weight=head_params.loss_weight,
+                is_local=is_local,
+                activation_function=head_params.activation_function,
+                dense_layer=head_params.dense_layer)
+
         else:
             raise KeyError('Unsupported head type: {}'.format(type(head_params)))
 

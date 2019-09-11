@@ -15,10 +15,10 @@ class GeneralLoss(keras.losses.Loss):
         return {**base_config, "loss_type": self.loss_type}
 
 
-class HeadLoss(keras.losses.Loss):
+class Loss(keras.losses.Loss):
 
     def __init__(self, *args, **kwargs):
-        super(HeadLoss, self).__init__(*args, **kwargs)
+        super(Loss, self).__init__(*args, **kwargs)
 
     # def _loss_output(self, outputs):
     #     return tuple(o[0] for o in outputs)

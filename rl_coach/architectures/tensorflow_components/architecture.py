@@ -30,7 +30,8 @@ from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list, squeeze_list
 from rl_coach.architectures.tensorflow_components import utils
 from rl_coach.architectures.tensorflow_components.heads import Head
-from rl_coach.architectures.tensorflow_components.losses import HeadLoss
+#from rl_coach.architectures.tensorflow_components.losses import HeadLoss
+from tensorflow.keras.losses import Loss
 from rl_coach.core_types import GradientClippingMethod
 from rl_coach.architectures.tensorflow_components.savers import TfSaver
 #from memory_profiler import profile
@@ -58,7 +59,7 @@ class TensorFlowArchitecture(Architecture):
         self.global_network = global_network
         if not self.network_parameters.tensorflow_support:
             raise ValueError('TensorFlow is not supported for this agent')
-        self.losses = []  # type: List[HeadLoss]
+        self.losses = []  # type: List[Loss]
         self.shared_accumulated_gradients = []
         self.curr_rnn_c_in = None
         self.curr_rnn_h_in = None
