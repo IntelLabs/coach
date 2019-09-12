@@ -85,6 +85,7 @@ class HeadLoss(keras.losses.Loss):
         """
         Override forward() so that number of outputs can be checked against the schema
         """
+
         outputs = super(HeadLoss, self).forward(*args)
         if isinstance(outputs, tuple) or isinstance(outputs, list):
             num_outputs = len(outputs)
@@ -106,18 +107,21 @@ class HeadLoss(keras.losses.Loss):
         self._output_schema = output_schema
         return tuple(o[0] for o in outputs)
 
-    def call(self, y_true, y_pred):
+
+    def loss_forward(self, y_true, y_pred):
         """
         Passes the cal to loss_forward() and constructs output schema from its output by calling loss_output()
         """
-        return self._loss_output(self.loss_forward(F, x, *args, **kwargs))
+        return self.call(y_true, y_pred)
+        # self.align_loss_args
+        # return self._loss_output(self.loss_forward(F, x, *args, **kwargs))
 
-    def loss_forward(self, F, x, *args, **kwargs) -> List[Tuple[Tensor, str]]:
+
+    def call(self, y_true, y_pred):
         """
         Similar to hybrid_forward, but returns list of (NDArray, type_str)
         """
         raise NotImplementedError
-
 
 
 

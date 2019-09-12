@@ -34,7 +34,6 @@ class QLoss(HeadLoss):
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
         # sample_weight can be used like https://github.com/keras-team/keras/blob/master/keras/losses.py
 
-
     def call(self, target, prediction):
         """
         Used for forward pass through loss computations.
