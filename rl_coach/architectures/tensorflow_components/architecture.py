@@ -187,7 +187,7 @@ class TensorFlowArchitecture(Architecture):
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            for head, loss, head_output, target in zip(self.model.output_heads, self.losses, out_per_head, targets):
+            for head, loss, head_output, target in zip(self.model.heads, self.losses, out_per_head, targets):
                 filter_agent_inputs = lambda key: key.startswith('output_{}_'.format(head.head_type_idx))
                 agent_inputs = list(filter(filter_agent_inputs, sorted(inputs.keys())))
 

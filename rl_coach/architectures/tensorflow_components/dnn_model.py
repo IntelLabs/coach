@@ -272,7 +272,7 @@ class SingleDnnModel(keras.Model):
         return self._input_embedders
 
     @property
-    def output_heads(self):
+    def heads(self):
         """
         :return: list of output heads
         """
@@ -333,11 +333,11 @@ class DnnModel(keras.Model):
         return outputs
 
     @property
-    def output_heads(self) -> List[Head]:
+    def heads(self) -> List[Head]:
         """ Return all heads in a single list
         Note: There is a one-to-one mapping between output_heads and losses
         :return: list of heads
         """
-        return list(chain.from_iterable(net.output_heads for net in self.nets))
+        return list(chain.from_iterable(net.heads for net in self.nets))
 
 
