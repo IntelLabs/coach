@@ -186,10 +186,16 @@ class TensorFlowArchitecture(Architecture):
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
-            #for h, h_loss, h_out, target in zip(self.model.output_heads, self.losses, out_per_head, targets):
-            for h_loss, h_out, target in zip(self.losses, out_per_head, targets):
 
-                loss_outputs = h_loss(h_out, target)
+            for head, loss, head_output, target in zip(self.model.output_heads, self.losses, out_per_head, targets):
+                filter_agent_inputs = lambda key: key.startswith('output_{}_'.format(head.head_type_idx))
+                agent_inputs = list(filter(filter_agent_inputs, sorted(inputs.keys())))
+
+                # loss_args = (head_output, l_in, targets)
+                # loss_outputs = loss.loss_forward(loss_args)
+                # loss_outputs = utils.loss_output_dict(utils.to_list(loss(loss_args)), loss.output_schema)
+
+                loss_outputs = loss(head_output, target)
                 losses.append(loss_outputs)
 
                 # for i, fetch in enumerate(additional_fetches):

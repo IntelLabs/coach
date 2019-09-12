@@ -3,9 +3,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 
-#from rl_coach.architectures.tensorflow_components.losses.loss import Loss
+from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema
 
-class QLoss(keras.losses.Loss):
+class QLoss(HeadLoss):
     def __init__(self, network_name,
                  head_idx: int = 0,
                  loss_type: Loss = MeanSquaredError,
@@ -20,10 +20,20 @@ class QLoss(keras.losses.Loss):
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
         super().__init__(**kwargs)
+
+        @property
+        def input_schema(self) -> LossInputSchema:
+            return LossInputSchema(
+                head_outputs=['pred'],
+                agent_inputs=[],
+                targets=['target']
+            )
+
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
         self.loss_type = loss_type
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
         # sample_weight can be used like https://github.com/keras-team/keras/blob/master/keras/losses.py
+
 
     def call(self, target, prediction):
         """

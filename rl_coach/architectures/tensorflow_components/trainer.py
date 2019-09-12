@@ -28,6 +28,8 @@ from rl_coach.architectures.tensorflow_components.dnn_model import DnnModel, Sin
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
+#from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
+
 from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
 from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
@@ -194,17 +196,12 @@ class Trainer(TensorFlowArchitecture):
                          loss_type=MeanSquaredError,
                          loss_weight=loss_weight)
 
-        # elif isinstance(loss_params, PPOHeadParameters):
-        #     loss = PPOHead(
-        #         agent_parameters=agent_params,
-        #         spaces=spaces,
-        #         network_name=network_name,
-        #         head_type_idx=head_type_index,
-        #         loss_weight=head_params.loss_weight,
-        #         is_local=is_local,
-        #         activation_function=head_params.activation_function,
-        #         dense_layer=head_params.dense_layer)
-        #
+        elif isinstance(loss_params, PPOHeadParameters):
+            loss = PPOLoss(network_name=network_name,
+                           head_idx=head_idx,
+                           loss_type=MeanSquaredError,
+                           loss_weight=loss_weight)
+
         #
         # elif isinstance(loss_params, PPOVHeadParameters):
         #     loss = PPOVHead(

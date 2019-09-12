@@ -17,6 +17,8 @@
 import tensorflow as tf
 from tensorflow import keras
 from typing import List
+from typing import Dict, Union, Any
+from tensorflow import Tensor
 
 
 """
@@ -86,5 +88,55 @@ def split_targets_per_loss(targets: list, losses: list) -> List[list]:
     assert len(targets) == 0
     return loss_targets
 
+
+
+def to_list(data: Union[tuple, list, Any]):
+    """
+    If input is tuple, it is converted to list. If it's list, it is returned untouched. Otherwise
+    returns a single-element list of the data.
+    :return: list-ified data
+    """
+    if isinstance(data, list):
+        pass
+    elif isinstance(data, tuple):
+        data = list(data)
+    else:
+        data = [data]
+    return data
+
+
+def loss_output_dict(output: List[Tensor], schema: List[str]) -> Dict[str, List[Tensor]]:
+    """
+    Creates a dictionary for loss output based on the output schema. If two output values have the same
+    type string in the schema they are concatenated in the same dicrionary item.
+    :param output: list of output values
+    :param schema: list of type-strings for output values
+    :return: dictionary of keyword to list of NDArrays
+    """
+    assert len(output) == len(schema)
+    output_dict = dict()
+    for name, val in zip(schema, output):
+        if name in output_dict:
+            output_dict[name].append(val)
+        else:
+            output_dict[name] = [val]
+    return output_dict
+
+
+# def get_loss_agent_inputs(inputs: Dict[str, np.ndarray], head_type_idx: int, loss: Any) -> List[np.ndarray]:
+#     """
+#     Collects all inputs with prefix 'output_<head_idx>_' and matches them against agent_inputs in loss input schema.
+#     :param inputs: list of all agent inputs
+#     :param head_type_idx: head-type index of the corresponding head
+#     :param loss: corresponding loss
+#     :return: list of agent inputs for this loss. This list matches the length in loss input schema.
+#     """
+#     loss_inputs = list()
+#     for k in sorted(inputs.keys()):
+#         if k.startswith('output_{}_'.format(head_type_idx)):
+#             loss_inputs.append(inputs[k])
+#     # Enforce that number of inputs for head_type are the same as agent_inputs specified by loss input_schema
+#     assert len(loss_inputs) == len(loss.input_schema.agent_inputs), "agent_input length doesn't match schema"
+#     return loss_inputs
 
 
