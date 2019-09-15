@@ -34,7 +34,19 @@ class QLoss(HeadLoss):
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
         # sample_weight can be used like https://github.com/keras-team/keras/blob/master/keras/losses.py
 
-    def loss_forward(self, target, prediction):
+    # def loss_forward(self, target, prediction):
+    #     """
+    #     Used for forward pass through loss computations.
+    #     :param prediction: state-action q-values predicted by QHead network, of shape (batch_size, num_actions).
+    #     :param target: actual state-action q-values, of shape (batch_size, num_actions).
+    #     :return: loss, of shape (batch_size).
+    #     """
+    #     # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
+    #     #  This way, Keras can apply class weights or sample weights when requested.
+    #     loss = tf.reduce_mean(self.loss_fn(prediction, target))
+    #     return loss
+
+    def call(self, target, prediction):
         """
         Used for forward pass through loss computations.
         :param prediction: state-action q-values predicted by QHead network, of shape (batch_size, num_actions).
