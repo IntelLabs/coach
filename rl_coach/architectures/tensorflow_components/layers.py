@@ -179,6 +179,17 @@ class Dense(keras.layers.Layer):
         return self.dense(inputs)
 
 
+# class Dense(layers.Dense):
+#     def __init__(self, units):
+#         super().__init__(units=units)
+#         self.dense = tf.keras.layers.Dense(units)
+#
+#     def __call__(self, inputs):
+#         return self.dense(inputs)
+
+
+
+
 
 
 class NoisyNetDense(layers.NoisyNetDense):

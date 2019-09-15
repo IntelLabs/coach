@@ -23,7 +23,8 @@ import inspect
 #     def __init__(self, *args, **kwargs):
 #         super(Loss, self).__init__(*args, **kwargs)
 
-
+LOSS_OUT_TYPE_LOSS = 'loss'
+LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
 
 class LossInputSchema(object):
     """

@@ -28,7 +28,7 @@ from rl_coach.architectures.tensorflow_components.dnn_model import DnnModel, Sin
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
-#from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
+from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
 
 from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
 from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters

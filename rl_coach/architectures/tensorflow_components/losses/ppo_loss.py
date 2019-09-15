@@ -16,9 +16,10 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
+from typing import List, Tuple
 
-from rl_coach.architectures.mxnet_components.heads.head import LOSS_OUT_TYPE_LOSS
-
+from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema, LOSS_OUT_TYPE_LOSS
+from tensorflow import Tensor
 
 class ClippedPPOLossContinuous(Loss):
     def __init__(self,
@@ -68,15 +69,14 @@ class ClippedPPOLossContinuous(Loss):
         )
 
     def loss_forward(self,
-                     F: ModuleType,
-                     new_policy_means: nd_sym_type,
-                     new_policy_stds: nd_sym_type,
-                     actions: nd_sym_type,
-                     old_policy_means: nd_sym_type,
-                     old_policy_stds: nd_sym_type,
-                     clip_param_rescaler: nd_sym_type,
-                     advantages: nd_sym_type,
-                     kl_coefficient: nd_sym_type) -> List[Tuple[nd_sym_type, str]]:
+                     new_policy_means,
+                     new_policy_stds,
+                     actions,
+                     old_policy_means,
+                     old_policy_stds,
+                     clip_param_rescaler,
+                     advantages,
+                     kl_coefficient) -> List[Tuple[Tensor, str]]:
         """
         Used for forward pass through loss computations.
         Works with batches of data, and optionally time_steps, but be consistent in usage: i.e. if using time_step,
