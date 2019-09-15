@@ -34,7 +34,7 @@ class QLoss(HeadLoss):
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
         # sample_weight can be used like https://github.com/keras-team/keras/blob/master/keras/losses.py
 
-    def call(self, target, prediction):
+    def loss_forward(self, target, prediction):
         """
         Used for forward pass through loss computations.
         :param prediction: state-action q-values predicted by QHead network, of shape (batch_size, num_actions).

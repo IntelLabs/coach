@@ -107,21 +107,20 @@ class HeadLoss(keras.losses.Loss):
         self._output_schema = output_schema
         return tuple(o[0] for o in outputs)
 
+    def call(self, target, prediction):
+        # self.align_loss_args
+        return self.loss_forward(target, prediction)
+        #return self._loss_output(self.loss_forward(F, x, *args, **kwargs))
 
-    def loss_forward(self, y_true, y_pred):
+
+
+    def loss_forward(self, target, prediction):
         """
         Passes the cal to loss_forward() and constructs output schema from its output by calling loss_output()
         """
-        return self.call(y_true, y_pred)
-        # self.align_loss_args
-        # return self._loss_output(self.loss_forward(F, x, *args, **kwargs))
-
-
-    def call(self, y_true, y_pred):
-        """
-        Similar to hybrid_forward, but returns list of (NDArray, type_str)
-        """
         raise NotImplementedError
+
+
 
 
 

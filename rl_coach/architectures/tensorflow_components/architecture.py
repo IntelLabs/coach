@@ -193,7 +193,8 @@ class TensorFlowArchitecture(Architecture):
                                            sorted(inputs.keys())))
 
                 #loss_outputs = loss.loss_forward(head_output, agent_input, target)
-                loss_outputs = loss.loss_forward(head_output, target)
+                #loss_outputs = loss.loss_forward(head_output, target)
+                loss_outputs = loss(head_output, target)
 
 
                 # loss_outputs = utils.loss_output_dict(utils.to_list(loss(loss_args)), loss.output_schema)
