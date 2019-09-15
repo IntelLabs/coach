@@ -21,7 +21,8 @@ from typing import List, Tuple
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema, LOSS_OUT_TYPE_LOSS
 from tensorflow import Tensor
 
-class ClippedPPOLossContinuous(Loss):
+
+class ClippedPPOLossContinuous(HeadLoss):
     def __init__(self,
                  num_actions: int,
                  clip_likelihood_ratio_using_epsilon: float,

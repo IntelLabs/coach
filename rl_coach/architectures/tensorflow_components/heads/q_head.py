@@ -150,7 +150,7 @@ class QHead(Head):
         """
         Used for forward pass through Q-Value head network.
 
-        :param x: middleware state representation, of shape (batch_size, in_channels).
+        :param inputs: middleware state representation, of shape (batch_size, in_channels).
         :return: predicted state-action q-values, of shape (batch_size, num_actions).
         """
         q_value = self.dense(inputs)
