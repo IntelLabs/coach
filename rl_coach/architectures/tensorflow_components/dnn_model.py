@@ -4,6 +4,7 @@ import tensorflow as tf
 from tensorflow import keras
 from typing import List
 from itertools import chain
+import numpy as np
 
 from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
@@ -57,10 +58,14 @@ class SingleDnnModel(keras.Model):
         self._input_embedders = []
         self._output_heads = list()
 
+
+
         for input_name in sorted(input_embedders_parameters):
             input_type = input_embedders_parameters[input_name]
             input_embedder = self._get_input_embedder(spaces, input_name, input_type)
             self._input_embedders.append(input_embedder)
+
+
 
         self.middleware = self._get_middleware(middleware_param)
 
@@ -80,6 +85,10 @@ class SingleDnnModel(keras.Model):
                 self._output_heads.append(output_head)
 
                 self.gradient_rescaler = 1
+
+
+
+
 
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
@@ -271,13 +280,21 @@ class SingleDnnModel(keras.Model):
         """
         return self._input_embedders
 
+    # @property
+    # def heads(self):
+    #     """
+    #     :return: list of output heads
+    #     """
+    #     #return [h.head for h in self._output_heads]
+    #     return self._output_heads
+
     @property
-    def heads(self):
+    def output_heads(self) -> List[Head]:
         """
         :return: list of output heads
         """
-        #return [h.head for h in self._output_heads]
         return self._output_heads
+        #return [h.head for h in self._output_heads]
 
 
 class DnnModel(keras.Model):
@@ -320,6 +337,34 @@ class DnnModel(keras.Model):
                 spaces=spaces)
             self.nets.append(net)
 
+        self._input_shapes = self._get_input_shapes(spaces, self.nets[0].input_embedders)
+
+
+
+    def _get_input_shapes(self, spaces, input_embedders) -> List[List[int]]:
+        """
+        Create a list of input array shapes
+        :return: type of input shapes
+        """
+        allowed_inputs = copy.copy(spaces.state.sub_spaces)
+        allowed_inputs["action"] = copy.copy(spaces.action)
+        allowed_inputs["goal"] = copy.copy(spaces.goal)
+        return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in input_embedders)
+
+
+    @property
+    def dummy_model_inputs(self):
+        """
+        Creates a tuple of input arrays with correct shapes that can be used for shape inference
+        of the model weights and for printing the summary
+        :return: tuple of inputs for model forward pass
+        """
+        input_shapes = self._input_shapes
+        # TODO make this the same type as the actual input
+        inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
+        return inputs
+
+
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
         :param inputs: model inputs, one for each embedder. Passed to all networks.
@@ -333,11 +378,12 @@ class DnnModel(keras.Model):
         return outputs
 
     @property
-    def heads(self) -> List[Head]:
+    def output_heads(self) -> List[Head]:
         """ Return all heads in a single list
         Note: There is a one-to-one mapping between output_heads and losses
         :return: list of heads
         """
-        return list(chain.from_iterable(net.heads for net in self.nets))
+        return list(chain.from_iterable(net.output_heads for net in self.nets))
+
 
 

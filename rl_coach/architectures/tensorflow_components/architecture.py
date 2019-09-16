@@ -86,26 +86,26 @@ class TensorFlowArchitecture(Architecture):
         return self.model.summary(self._dummy_model_inputs())
 
 
-    def _model_input_shapes(self) -> List[List[int]]:
-        """
-        Create a list of input array shapes
-        :return: type of input shapes
-        """
-        allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
-        allowed_inputs["action"] = copy.copy(self.spaces.action)
-        allowed_inputs["goal"] = copy.copy(self.spaces.goal)
-        embedders = self.model.nets[0].input_embedders
-        return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in embedders)
-
-    def _dummy_model_inputs(self):
-        """
-        Creates a tuple of input arrays with correct shapes that can be used for shape inference
-        of the model weights and for printing the summary
-        :return: tuple of inputs for model forward pass
-        """
-        input_shapes = self._model_input_shapes()
-        inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes) #make this the same type as the actual input
-        return inputs
+    # def _model_input_shapes(self) -> List[List[int]]:
+    #     """
+    #     Create a list of input array shapes
+    #     :return: type of input shapes
+    #     """
+    #     allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
+    #     allowed_inputs["action"] = copy.copy(self.spaces.action)
+    #     allowed_inputs["goal"] = copy.copy(self.spaces.goal)
+    #     embedders = self.model.nets[0].input_embedders
+    #     return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in embedders)
+    #
+    # def _dummy_model_inputs(self):
+    #     """
+    #     Creates a tuple of input arrays with correct shapes that can be used for shape inference
+    #     of the model weights and for printing the summary
+    #     :return: tuple of inputs for model forward pass
+    #     """
+    #     input_shapes = self._model_input_shapes()
+    #     inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes) #make this the same type as the actual input
+    #     return inputs
 
 
     def construct_model(self) -> None:
@@ -115,6 +115,26 @@ class TensorFlowArchitecture(Architecture):
         print('Construct is empty for now and is called from class constructor')
 
 
+    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Trainer':
+        """
+        Construct a network class using the provided variable scope and on requested devices
+        :param variable_scope: string specifying variable scope under which to create network variables
+        :param devices: list of devices (can be list of Device objects, or string for TF distributed)
+        :param args: all other arguments for class initializer
+        :param kwargs: all other keyword arguments for class initializer
+        :return: a GeneralTensorFlowNetwork object
+        """
+        # TODO: TF2 place holder for distributed training in TensorFlow
+
+        mirrored_strategy = tf.distribute.MirroredStrategy()
+        with mirrored_strategy.scope():
+            generalized_network = TensorFlowArchitecture(*args, **kwargs)
+            loss = generalized_network.losses
+            optimizer = generalized_network.optimizer
+            generalized_network.model.compile(loss=loss, optimizer=optimizer)
+
+        return generalized_network
+
     def set_session(self, sess) -> None:
         """
         Initializes the model parameters and creates the model trainer.
@@ -123,7 +143,8 @@ class TensorFlowArchitecture(Architecture):
         """
         assert sess is None
         # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
-        self.model(self._dummy_model_inputs())
+        #self.model(self._dummy_model_inputs())
+        self.model(self.model.dummy_model_inputs)
         self.model.summary()
 
     #@profile
@@ -137,8 +158,6 @@ class TensorFlowArchitecture(Architecture):
 
         self.accumulated_gradients = list(map(lambda grad: grad * 0, self.accumulated_gradients))
 
-        # for ix, grad in enumerate(self.accumulated_gradients):
-        #     self.accumulated_gradients[ix] = grad * 0
 
 
 
@@ -187,7 +206,7 @@ class TensorFlowArchitecture(Architecture):
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            for head, loss, head_output, target in zip(self.model.heads, self.losses, heads_outputs, targets):
+            for head, loss, head_output, target in zip(self.model.output_heads, self.losses, heads_outputs, targets):
 
                 agent_input = list(filter(lambda key: key.startswith('output_{}_'.format(head.head_type_idx)),
                                            sorted(inputs.keys())))
