@@ -47,17 +47,22 @@ class VLoss(HeadLoss):
             targets=['target']
         )
 
-    def call(self, prediction, target):
-        """
-        Used for forward pass through loss computations.
+    # def call(self, head_output, agent_input, target):
+    #     """
+    #     Used for forward pass through loss computations.
+    #
+    #     :param prediction: state values predicted by VHead network, of shape (batch_size).
+    #     :param target: actual state values, of shape (batch_size).
+    #     :return: loss, of shape (batch_size).
+    #     """
+    #     # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
+    #     #  This way, Keras can apply class weights or sample weights when requested.
+    #     loss = tf.reduce_mean(self.loss_fn(head_output, target))
+    #     return loss
+    #     # loss = self.loss_fn(pred, target).mean()
+    #     # return [(loss, LOSS_OUT_TYPE_LOSS)]
 
-        :param prediction: state values predicted by VHead network, of shape (batch_size).
-        :param target: actual state values, of shape (batch_size).
-        :return: loss, of shape (batch_size).
-        """
-        # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
-        #  This way, Keras can apply class weights or sample weights when requested.
-        loss = tf.reduce_mean(self.loss_fn(prediction, target))
-        return loss
-        # loss = self.loss_fn(pred, target).mean()
-        # return [(loss, LOSS_OUT_TYPE_LOSS)]
+    def loss_forward(self, head_output, agent_input, target):
+
+        loss = tf.reduce_mean(self.loss_fn(head_output, target))
+        return [(loss, LOSS_OUT_TYPE_LOSS)]

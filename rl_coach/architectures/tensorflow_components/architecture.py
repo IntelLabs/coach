@@ -211,14 +211,15 @@ class TensorFlowArchitecture(Architecture):
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            for head, loss, head_output, target in zip(self.model.output_heads, self.losses, heads_outputs, tgt_per_loss):
+            for head, head_loss, head_output, target in zip(self.model.output_heads, self.losses, heads_outputs, tgt_per_loss):
+            #for head_loss, head_output, target in zip(self.losses, heads_outputs, tgt_per_loss):
 
                 agent_input = list(filter(lambda key: key.startswith('output_{}_'.format(head.head_type_idx)),
                                            sorted(inputs.keys())))
 
-                loss_outputs = loss.loss_forward(head_output, agent_input, target)
+                #loss_outputs = loss.loss_forward(head_output, agent_input, target)
                 #loss_outputs = loss.loss_forward(head_output, target)
-                #loss_outputs = loss(head_output, agent_input, target)
+                loss_outputs = head_loss(head_output, agent_input, target)
                 #loss_outputs = loss(head_output, target)
 
 
