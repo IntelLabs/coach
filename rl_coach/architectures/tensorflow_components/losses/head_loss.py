@@ -38,7 +38,8 @@ class LossInputSchema(object):
         return self._targets
 
 
-class HeadLoss(keras.losses.Loss):
+#class HeadLoss(keras.losses.Loss):
+class HeadLoss(keras.layers.Layer):
     """
     ABC for loss functions of each agent. Child class must implement input_schema() and loss_forward()
     """
