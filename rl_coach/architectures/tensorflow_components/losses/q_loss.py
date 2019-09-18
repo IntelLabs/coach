@@ -4,6 +4,7 @@ from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema
+from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS
 
 class QLoss(HeadLoss):
     def __init__(self, network_name,
@@ -13,34 +14,16 @@ class QLoss(HeadLoss):
                  **kwargs):
         """
         Loss for Q-Value Head.
-
         :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
         :param loss_weight: scalar used to adjust relative weight of loss (if using this loss with others).
-
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
         super().__init__(**kwargs)
-
-
-
-
-
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
         self.loss_type = loss_type
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
         # sample_weight can be used like https://github.com/keras-team/keras/blob/master/keras/losses.py
 
-    # def loss_forward(self, target, prediction):
-    #     """
-    #     Used for forward pass through loss computations.
-    #     :param prediction: state-action q-values predicted by QHead network, of shape (batch_size, num_actions).
-    #     :param target: actual state-action q-values, of shape (batch_size, num_actions).
-    #     :return: loss, of shape (batch_size).
-    #     """
-    #     # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
-    #     #  This way, Keras can apply class weights or sample weights when requested.
-    #     loss = tf.reduce_mean(self.loss_fn(prediction, target))
-    #     return loss
 
     @property
     def input_schema(self) -> LossInputSchema:
@@ -50,15 +33,12 @@ class QLoss(HeadLoss):
             targets=['target']
         )
 
-    def call(self, target, prediction):
-        """
-        Used for forward pass through loss computations.
-        :param prediction: state-action q-values predicted by QHead network, of shape (batch_size, num_actions).
-        :param target: actual state-action q-values, of shape (batch_size, num_actions).
-        :return: loss, of shape (batch_size).
-        """
+
+    def loss_forward(self, head_output, agent_input, target):
+        pred = head_output
+        target = target
         # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
         #  This way, Keras can apply class weights or sample weights when requested.
-        loss = tf.reduce_mean(self.loss_fn(prediction, target))
-        return loss
+        loss = tf.reduce_mean(self.loss_fn(pred, target))
+        return [(loss, LOSS_OUT_TYPE_LOSS)]
 
