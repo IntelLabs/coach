@@ -21,13 +21,9 @@ class QLoss(HeadLoss):
         """
         super().__init__(**kwargs)
 
-        @property
-        def input_schema(self) -> LossInputSchema:
-            return LossInputSchema(
-                head_outputs=['pred'],
-                agent_inputs=[],
-                targets=['target']
-            )
+
+
+
 
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
         self.loss_type = loss_type
@@ -45,6 +41,14 @@ class QLoss(HeadLoss):
     #     #  This way, Keras can apply class weights or sample weights when requested.
     #     loss = tf.reduce_mean(self.loss_fn(prediction, target))
     #     return loss
+
+    @property
+    def input_schema(self) -> LossInputSchema:
+        return LossInputSchema(
+            head_outputs=['pred'],
+            agent_inputs=[],
+            targets=['target']
+        )
 
     def call(self, target, prediction):
         """

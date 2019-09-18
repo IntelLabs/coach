@@ -90,6 +90,41 @@ def split_targets_per_loss(targets: list, losses: list) -> List[list]:
 
 
 
+
+
+
+# def split_outputs_per_head(outputs: Tuple[NDArray], heads: list) -> List[List[NDArray]]:
+#     """
+#     Split outputs into outputs per head
+#     :param outputs: list of all outputs
+#     :param heads: list of all heads
+#     :return: list of outputs for each head
+#     """
+#     head_outputs = []
+#     for h in heads:
+#         head_outputs.append(list(outputs[:h.num_outputs]))
+#         outputs = outputs[h.num_outputs:]
+#     assert len(outputs) == 0
+#     return head_outputs
+#
+#
+# def split_targets_per_loss(targets: list, losses: list) -> List[list]:
+#     """
+#     Splits targets into targets per loss
+#     :param targets: list of all targets (typically numpy ndarray)
+#     :param losses: list of all losses
+#     :return: list of targets for each loss
+#     """
+#     loss_targets = list()
+#     for l in losses:
+#         loss_data_len = len(l.input_schema.targets)
+#         assert len(targets) >= loss_data_len, "Data length doesn't match schema"
+#         loss_targets.append(targets[:loss_data_len])
+#         targets = targets[loss_data_len:]
+#     assert len(targets) == 0
+#     return loss_targets
+
+
 def to_list(data: Union[tuple, list, Any]):
     """
     If input is tuple, it is converted to list. If it's list, it is returned untouched. Otherwise

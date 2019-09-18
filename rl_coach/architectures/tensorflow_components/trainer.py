@@ -133,8 +133,10 @@ class Trainer(TensorFlowArchitecture):
         #self.losses = self._get_losses(network_parameters.loss_parameters[0], self.network_wrapper_name)
         self.losses = list()
         for index, loss_params in enumerate(network_parameters.heads_parameters):
-            loss = self._get_loss(loss_params=loss_params,
+            loss = self._get_loss(agent_parameters=agent_parameters,
+                                  loss_params=loss_params,
                                   network_name=loss_params.name,
+                                  num_actions=spaces.action.shape[0],
                                   head_idx=index,
                                   loss_type=None,
                                   loss_weight=loss_params.loss_weight)
@@ -175,7 +177,13 @@ class Trainer(TensorFlowArchitecture):
 
         return optimizer
 
-    def _get_loss(self, loss_params, network_name: str, head_idx, loss_type, loss_weight):
+    def _get_loss(self, agent_parameters,
+                  loss_params,
+                  network_name: str,
+                  num_actions,
+                  head_idx,
+                  loss_type,
+                  loss_weight):
         """
         Given a loss type, creates the loss and returns it
         :param loss_params: the parameters of the loss to create
@@ -198,9 +206,15 @@ class Trainer(TensorFlowArchitecture):
 
         elif isinstance(loss_params, PPOHeadParameters):
             loss = PPOLoss(network_name=network_name,
+                           agent_parameters=agent_parameters,
+                           num_actions=num_actions,
                            head_idx=head_idx,
                            loss_type=MeanSquaredError,
                            loss_weight=loss_weight)
+
+
+
+
 
         #
         # elif isinstance(loss_params, PPOVHeadParameters):
@@ -218,5 +232,9 @@ class Trainer(TensorFlowArchitecture):
             raise KeyError('Unsupported loss type: {}'.format(type(loss_params)))
 
         return loss
+
+    @property
+    def output_heads(self):
+        return self.model.output_heads
 
 

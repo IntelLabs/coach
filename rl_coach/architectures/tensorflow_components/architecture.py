@@ -201,12 +201,17 @@ class TensorFlowArchitecture(Architecture):
         targets = force_list(targets)
 
         with tf.GradientTape() as tape:
+
             heads_outputs = self.model(_inputs)
+
+            # out_per_head = utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
+            tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
+
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            for head, loss, head_output, target in zip(self.model.output_heads, self.losses, heads_outputs, targets):
+            for head, loss, head_output, target in zip(self.model.output_heads, self.losses, heads_outputs, tgt_per_loss):
 
                 agent_input = list(filter(lambda key: key.startswith('output_{}_'.format(head.head_type_idx)),
                                            sorted(inputs.keys())))

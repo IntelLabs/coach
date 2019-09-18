@@ -179,17 +179,33 @@ class Dense(keras.layers.Layer):
         return self.dense(inputs)
 
 
-# class Dense(layers.Dense):
-#     def __init__(self, units):
-#         super().__init__(units=units)
-#         self.dense = tf.keras.layers.Dense(units)
+
+
 #
-#     def __call__(self, inputs):
-#         return self.dense(inputs)
-
-
-
-
+# class Dense(layers.Dense):
+#     def __init__(self, units: int):
+#         super(Dense, self).__init__(units=units)
+#
+#     def __call__(self, input_layer, name: str=None, kernel_initializer=None, activation=None, is_training=None):
+#         """
+#         returns a tensorflow dense layer
+#         :param input_layer: previous layer
+#         :param name: layer name
+#         :return: dense layer
+#         """
+#         return tf.compat.v1.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
+#                                activation=activation)
+#
+#     @staticmethod
+#     @reg_to_tf_instance(layers.Dense)
+#     def to_tf_instance(base: layers.Dense):
+#         return Dense(units=base.units)
+#
+#     @staticmethod
+#     @reg_to_tf_class(layers.Dense)
+#     def to_tf_class():
+#         return Dense
+#
 
 
 class NoisyNetDense(layers.NoisyNetDense):

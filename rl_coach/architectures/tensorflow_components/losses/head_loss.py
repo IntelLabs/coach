@@ -4,27 +4,9 @@ from tensorflow import Tensor
 import numpy as np
 import inspect
 
-# class GeneralLoss(keras.losses.Loss):
-#     def __init__(self, loss_type='MeanSquaredError', **kwargs):
-#         self.loss_type = loss_type
-#         self.loss_fn = keras.losses.get(self.loss_type)
-#         super().__init__(**kwargs)
-#
-#     def call(self, y_true, y_pred):
-#         return self.loss_fn(y_true, y_pred)
-#
-#     def get_config(self):
-#         base_config = super().get_config()
-#         return {**base_config, "loss_type": self.loss_type}
-#
-#
-# class Loss(keras.losses.Loss):
-#
-#     def __init__(self, *args, **kwargs):
-#         super(Loss, self).__init__(*args, **kwargs)
-
 LOSS_OUT_TYPE_LOSS = 'loss'
 LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
+
 
 class LossInputSchema(object):
     """
@@ -88,6 +70,7 @@ class HeadLoss(keras.losses.Loss):
         """
 
         outputs = super(HeadLoss, self).forward(*args)
+
         if isinstance(outputs, tuple) or isinstance(outputs, list):
             num_outputs = len(outputs)
         else:
@@ -128,7 +111,7 @@ class HeadLoss(keras.losses.Loss):
         """
         Passes the cal to loss_forward() and constructs output schema from its output by calling loss_output()
         """
-        #self.align_loss_args()
+        loss_args = self.align_loss_args(head_outputs, agent_inputs, targets)
         return self.call(targets, head_outputs)
         # return self._loss_output(self.loss_forward(F, x, *args, **kwargs))
 

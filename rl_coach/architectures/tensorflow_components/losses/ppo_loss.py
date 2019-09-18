@@ -22,17 +22,38 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLo
 from tensorflow import Tensor
 
 
-class ClippedPPOLossContinuous(HeadLoss):
+
+#class ClippedPPOLossContinuous(HeadLoss):
+#     def __init__(self, network_name,
+#                  head_idx: int = 0,
+#                  loss_type: Loss = MeanSquaredError,
+#                  loss_weight=1.0,
+#                  **kwargs):
+
+
+# class PPOLoss(HeadLoss):
+#     def __init__(self,
+#                  num_actions: int,
+#                  clip_likelihood_ratio_using_epsilon: float,
+#                  beta: float=0,
+#                  use_kl_regularization: bool=False,
+#                  initial_kl_coefficient: float=1,
+#                  kl_cutoff: float=0,
+#                  high_kl_penalty_coefficient: float=1,
+#                  weight: float=1,):
+
+
+
+
+class PPOLoss(HeadLoss):
     def __init__(self,
-                 num_actions: int,
-                 clip_likelihood_ratio_using_epsilon: float,
-                 beta: float=0,
-                 use_kl_regularization: bool=False,
-                 initial_kl_coefficient: float=1,
-                 kl_cutoff: float=0,
-                 high_kl_penalty_coefficient: float=1,
-                 weight: float=1,
-                 batch_axis: int=0):
+                 network_name,
+                 agent_parameters,
+                 num_actions,
+                 head_idx,
+                 loss_type,
+                 loss_weight):
+
         """
         Loss for continuous version of Clipped PPO.
 
@@ -47,19 +68,21 @@ class ClippedPPOLossContinuous(HeadLoss):
         :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
-        super(ClippedPPOLossContinuous, self).__init__(weight=weight, batch_axis=batch_axis)
-        self.weight = weight
+        super(PPOLoss, self).__init__()
+        self.weight = loss_weight
         self.num_actions = num_actions
-        self.clip_likelihood_ratio_using_epsilon = clip_likelihood_ratio_using_epsilon
-        self.beta = beta
-        self.use_kl_regularization = use_kl_regularization
-        self.initial_kl_coefficient = initial_kl_coefficient if self.use_kl_regularization else 0.0
-        self.kl_coefficient = self.params.get('kl_coefficient',
-                                              shape=(1,),
-                                              init=mx.init.Constant([initial_kl_coefficient,]),
-                                              differentiable=False)
-        self.kl_cutoff = kl_cutoff
-        self.high_kl_penalty_coefficient = high_kl_penalty_coefficient
+        self.clip_likelihood_ratio_using_epsilon = agent_parameters.algorithm.clip_likelihood_ratio_using_epsilon
+        self.beta = agent_parameters.algorithm.beta_entropy
+        self.use_kl_regularization = agent_parameters.algorithm.use_kl_regularization
+
+        if self.use_kl_regularization:
+            self.initial_kl_coefficient = agent_parameters.algorithm.initial_kl_coefficient
+            self.kl_cutoff = 2 * agent_parameters.algorithm.target_kl_divergence
+            self.high_kl_penalty_coefficient = agent_parameters.algorithm.high_kl_penalty_coefficient
+        else:
+            self.initial_kl_coefficient, self.kl_cutoff, self.high_kl_penalty_coefficient = (0.0, None, None)
+
+
 
     @property
     def input_schema(self) -> LossInputSchema:
@@ -69,15 +92,24 @@ class ClippedPPOLossContinuous(HeadLoss):
             targets=['advantages']
         )
 
-    def loss_forward(self,
-                     new_policy_means,
-                     new_policy_stds,
-                     actions,
-                     old_policy_means,
-                     old_policy_stds,
-                     clip_param_rescaler,
-                     advantages,
-                     kl_coefficient) -> List[Tuple[Tensor, str]]:
+    # def loss_forward(self,
+    #                  new_policy_means,
+    #                  new_policy_stds,
+    #                  actions,
+    #                  old_policy_means,
+    #                  old_policy_stds,
+    #                  clip_param_rescaler,
+    #                  advantages,
+    #                  kl_coefficient) -> List[Tuple[Tensor, str]]:
+    def call(self,
+             new_policy_means,
+             new_policy_stds,
+             actions,
+             old_policy_means,
+             old_policy_stds,
+             clip_param_rescaler,
+             advantages,
+             kl_coefficient) -> List[Tuple[Tensor, str]]:
         """
         Used for forward pass through loss computations.
         Works with batches of data, and optionally time_steps, but be consistent in usage: i.e. if using time_step,
@@ -115,11 +147,11 @@ class ClippedPPOLossContinuous(HeadLoss):
             return covars
 
         old_covar = diagonal_covariance(stds=old_policy_stds, size=self.num_actions)
-        old_policy_dist = MultivariateNormalDist(self.num_actions, old_policy_means, old_covar, F=F)
+        old_policy_dist = MultivariateNormalDist(self.num_actions, old_policy_means, old_covar)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
 
         new_covar = diagonal_covariance(stds=new_policy_stds, size=self.num_actions)
-        new_policy_dist = MultivariateNormalDist(self.num_actions, new_policy_means, new_covar, F=F)
+        new_policy_dist = MultivariateNormalDist(self.num_actions, new_policy_means, new_covar)
         action_probs_wrt_new_policy = new_policy_dist.log_prob(actions)
 
         entropy_loss = - self.beta * new_policy_dist.entropy().mean()
@@ -169,62 +201,62 @@ class ClippedPPOLossContinuous(HeadLoss):
             (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
         ]
 
-
-class PPOLoss(keras.losses.Loss):
-
-    def __init__(self, network_name,
-                 head_idx: int = 0,
-                 loss_type: Loss = MeanSquaredError,
-                 loss_weight=1.0,
-                 **kwargs):
-        """
-        Loss for Value Head.
-
-        :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
-        :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
-        :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
-        """
-        super().__init__(**kwargs)
-        self.loss_type = loss_type
-        self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
-
-
-    def call(self, prediction, target):
-        """
-        Used for forward pass through loss computations.
-
-        :param prediction: state values predicted by VHead network, of shape (batch_size).
-        :param target: actual state values, of shape (batch_size).
-        :return: loss, of shape (batch_size).
-        """
-        # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
-        #  This way, Keras can apply class weights or sample weights when requested.
-        loss = tf.reduce_mean(self.loss_fn(prediction, target))
-        return loss
-
-
-        """
-        Specifies loss block to be used for this policy head.
-
-        :return: loss block (can be called as function) for action probabilities returned by this policy network.
-        """
-        if isinstance(self.spaces.action, DiscreteActionSpace):
-            loss = ClippedPPOLossDiscrete(len(self.spaces.action.actions),
-                                          self.clip_likelihood_ratio_using_epsilon,
-                                          self.beta,
-                                          self.use_kl_regularization, self.initial_kl_coefficient,
-                                          self.kl_cutoff, self.high_kl_penalty_coefficient,
-                                          self.loss_weight)
-        elif isinstance(self.spaces.action, BoxActionSpace):
-            loss = ClippedPPOLossContinuous(self.spaces.action.shape[0],
-                                            self.clip_likelihood_ratio_using_epsilon,
-                                            self.beta,
-                                            self.use_kl_regularization, self.initial_kl_coefficient,
-                                            self.kl_cutoff, self.high_kl_penalty_coefficient,
-                                            self.loss_weight)
-        else:
-            raise ValueError("Only discrete or continuous action spaces are supported for PPO.")
-        loss.initialize()
-
-        self._loss = [loss]
-        return loss
+#
+# class PPOLoss(keras.losses.Loss):
+#
+#     def __init__(self, network_name,
+#                  head_idx: int = 0,
+#                  loss_type: Loss = MeanSquaredError,
+#                  loss_weight=1.0,
+#                  **kwargs):
+#         """
+#         Loss for Value Head.
+#
+#         :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
+#         :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
+#         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
+#         """
+#         super().__init__(**kwargs)
+#         self.loss_type = loss_type
+#         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
+#
+#
+#     def call(self, prediction, target):
+#         """
+#         Used for forward pass through loss computations.
+#
+#         :param prediction: state values predicted by VHead network, of shape (batch_size).
+#         :param target: actual state values, of shape (batch_size).
+#         :return: loss, of shape (batch_size).
+#         """
+#         # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
+#         #  This way, Keras can apply class weights or sample weights when requested.
+#         loss = tf.reduce_mean(self.loss_fn(prediction, target))
+#         return loss
+#
+#
+#         """
+#         Specifies loss block to be used for this policy head.
+#
+#         :return: loss block (can be called as function) for action probabilities returned by this policy network.
+#         """
+#         if isinstance(self.spaces.action, DiscreteActionSpace):
+#             loss = ClippedPPOLossDiscrete(len(self.spaces.action.actions),
+#                                           self.clip_likelihood_ratio_using_epsilon,
+#                                           self.beta,
+#                                           self.use_kl_regularization, self.initial_kl_coefficient,
+#                                           self.kl_cutoff, self.high_kl_penalty_coefficient,
+#                                           self.loss_weight)
+#         elif isinstance(self.spaces.action, BoxActionSpace):
+#             loss = ClippedPPOLossContinuous(self.spaces.action.shape[0],
+#                                             self.clip_likelihood_ratio_using_epsilon,
+#                                             self.beta,
+#                                             self.use_kl_regularization, self.initial_kl_coefficient,
+#                                             self.kl_cutoff, self.high_kl_penalty_coefficient,
+#                                             self.loss_weight)
+#         else:
+#             raise ValueError("Only discrete or continuous action spaces are supported for PPO.")
+#         loss.initialize()
+#
+#         self._loss = [loss]
+#         return loss
