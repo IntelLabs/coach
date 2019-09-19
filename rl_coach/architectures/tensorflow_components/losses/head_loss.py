@@ -97,9 +97,6 @@ class HeadLoss(keras.layers.Layer):
         return self._loss_output(self.loss_forward(*loss_args))
 
     def loss_forward(self, *args, **kwargs):
-        """
-        Similar to hybrid_forward, but returns list of (NDArray, type_str)
-        """
         raise NotImplementedError
 
     def align_loss_args(self,
