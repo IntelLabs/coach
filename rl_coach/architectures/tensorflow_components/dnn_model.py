@@ -370,10 +370,12 @@ class DnnModel(keras.Model):
         :param inputs: model inputs, one for each embedder. Passed to all networks.
         :return: head outputs in a tuple
         """
-        outputs = []
+        #outputs = []
+        outputs = tuple()
         for net in self.nets:
             out = net(inputs)
-            outputs.append(out)
+            outputs += out
+            #outputs.append(out)
 
         return outputs
 

@@ -42,27 +42,14 @@ class VLoss(HeadLoss):
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
-            head_outputs=['pred'],
+            head_outputs=['value_prediction'],
             agent_inputs=[],
             targets=['target']
         )
 
-    # def call(self, head_output, agent_input, target):
-    #     """
-    #     Used for forward pass through loss computations.
-    #
-    #     :param prediction: state values predicted by VHead network, of shape (batch_size).
-    #     :param target: actual state values, of shape (batch_size).
-    #     :return: loss, of shape (batch_size).
-    #     """
-    #     # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
-    #     #  This way, Keras can apply class weights or sample weights when requested.
-    #     loss = tf.reduce_mean(self.loss_fn(head_output, target))
-    #     return loss
-    #     # loss = self.loss_fn(pred, target).mean()
-    #     # return [(loss, LOSS_OUT_TYPE_LOSS)]
+    def loss_forward(self, value_prediction, target):
 
-    def loss_forward(self, head_output, agent_input, target):
-
-        loss = tf.reduce_mean(self.loss_fn(head_output, target))
+        loss = tf.reduce_mean(self.loss_fn(value_prediction, target))
+        # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
+        #  This way, Keras can apply class weights or sample weights when requested.
         return [(loss, LOSS_OUT_TYPE_LOSS)]

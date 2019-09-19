@@ -93,13 +93,13 @@ class HeadLoss(keras.layers.Layer):
         return tuple(o[0] for o in outputs)
 
     def call(self, head_output, agent_input, target):
-        loss_args = self.align_loss_args(head_output, agent_input, target)
+        loss_args = self.extract_loss_args(head_output, agent_input, target)
         return self._loss_output(self.loss_forward(*loss_args))
 
     def loss_forward(self, *args, **kwargs):
         raise NotImplementedError
 
-    def align_loss_args(self,
+    def extract_loss_args(self,
             head_outputs: List[Tensor],
             agent_inputs: List[np.ndarray],
             targets: List[np.ndarray]) -> List[np.ndarray]:

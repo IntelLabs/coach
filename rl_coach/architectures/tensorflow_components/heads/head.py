@@ -23,12 +23,12 @@ from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition
 
 # Used to initialize weights for policy and value output layers
-def normalized_columns_initializer(std=1.0):
-    def _initializer(shape, dtype=None, partition_info=None):
-        out = np.random.randn(*shape).astype(np.float32)
-        out *= std / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
-        return tf.constant(out)
-    return _initializer
+# def normalized_columns_initializer(std=1.0):
+#     def _initializer(shape, dtype=None, partition_info=None):
+#         out = np.random.randn(*shape).astype(np.float32)
+#         out *= std / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
+#         return tf.constant(out)
+#     return _initializer
 
 
 class Head(keras.layers.Layer):
@@ -75,4 +75,6 @@ class Head(keras.layers.Layer):
         """
         assert self._num_outputs is not None, 'must call forward() once to configure number of outputs'
         return self._num_outputs
+
+    #def call(self, inputs, **kwargs):
 

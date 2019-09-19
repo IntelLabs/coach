@@ -20,7 +20,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer
+from rl_coach.architectures.tensorflow_components.heads.head import Head#, normalized_columns_initializer
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
@@ -232,7 +232,9 @@ class ContinuousPPOHead(keras.layers.Layer):
             of shape (batch_size, time_step, action_mean).
         """
         policy_means = self.dense(inputs)
-        policy_std = np.exp(self.log_std)
+        #policy_std = np.exp(self.log_std)
+        # TODO: Change to variable
+        policy_std = tf.constant(np.exp(self.log_std))
         return policy_means, policy_std
 
 

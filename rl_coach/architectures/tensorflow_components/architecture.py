@@ -204,22 +204,27 @@ class TensorFlowArchitecture(Architecture):
 
             heads_outputs = self.model(_inputs)
 
-            # out_per_head = utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
+            out_per_head = [heads_outputs] #utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
 
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            for head, head_loss, head_output, target in zip(self.model.output_heads, self.losses, heads_outputs, tgt_per_loss):
+            for head, head_loss, head_output, target in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
             #for head_loss, head_output, target in zip(self.losses, heads_outputs, tgt_per_loss):
 
-                agent_input = list(filter(lambda key: key.startswith('output_{}_'.format(head.head_type_idx)),
-                                           sorted(inputs.keys())))
+                # agent_input = list(filter(lambda key: key.startswith('output_{}_'.format(head.head_type_idx)),
+                #                            sorted(inputs.keys())))
+                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
+                                          inputs.items()))
 
-                #loss_outputs = loss.loss_forward(head_output, agent_input, target)
-                #loss_outputs = loss.loss_forward(head_output, target)
                 loss_outputs = head_loss(head_output, agent_input, target)
+
+                # loss_outputs = loss.loss_forward(head_output, agent_input, target)
+                # loss_outputs = loss.loss_forward(head_output, target)
+
+
                 #loss_outputs = loss(head_output, target)
 
 
@@ -339,7 +344,7 @@ class TensorFlowArchitecture(Architecture):
         assert outputs is None, "outputs must be None"
 
         output = self._predict(inputs)
-        output = list(o[0].numpy() for o in output)
+        output = list(o.numpy() for o in output)
         if squeeze_output:
             output = squeeze_list(output)
         return output
@@ -362,7 +367,9 @@ class TensorFlowArchitecture(Architecture):
             output += net._predict(inputs)
             #output.append(net._predict(inputs))
 
-        return tuple(o[0].numpy() for o in output)
+        #return tuple(o[0].numpy() for o in output)
+
+        return tuple(o.numpy() for o in output)
 
     # def train_on_batch(self,
     #                    inputs: Dict[str, np.ndarray],

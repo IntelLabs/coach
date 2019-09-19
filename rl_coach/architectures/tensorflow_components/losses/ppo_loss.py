@@ -92,15 +92,6 @@ class PPOLoss(HeadLoss):
             targets=['advantages']
         )
 
-    # def loss_forward(self,
-    #                  new_policy_means,
-    #                  new_policy_stds,
-    #                  actions,
-    #                  old_policy_means,
-    #                  old_policy_stds,
-    #                  clip_param_rescaler,
-    #                  advantages,
-    #                  kl_coefficient) -> List[Tuple[Tensor, str]]:
     def loss_forward(self,
              new_policy_means,
              new_policy_stds,
