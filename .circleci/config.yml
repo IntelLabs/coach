@@ -27,7 +27,7 @@ aliases:
         $(aws ecr get-login --no-include-email --region us-west-2)
         sudo curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
         sudo chmod a+x /usr/local/bin/aws-iam-authenticator
-        aws eks update-kubeconfig --name coach-cicd
+        aws eks update-kubeconfig --name coach-ci
         sudo curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         sudo chmod a+x /usr/local/bin/kubectl
 
@@ -349,7 +349,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-cicd \
+                          && aws eks update-kubeconfig --name coach-ci \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-gym-test-${CIRCLE_BUILD_NUM} \
@@ -378,7 +378,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-cicd \
+                          && aws eks update-kubeconfig --name coach-ci \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} \
@@ -407,7 +407,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-cicd \
+                          && aws eks update-kubeconfig --name coach-ci \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-mujoco-test-${CIRCLE_BUILD_NUM} \
@@ -436,7 +436,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-cicd \
+                          && aws eks update-kubeconfig --name coach-ci \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-gym-test-${CIRCLE_BUILD_NUM} \
@@ -467,7 +467,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-cicd \
+                          && aws eks update-kubeconfig --name coach-ci \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} \
@@ -498,7 +498,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-cicd \
+                          && aws eks update-kubeconfig --name coach-ci \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-mujoco-test-${CIRCLE_BUILD_NUM} \
@@ -551,7 +551,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-cicd \
+                          && aws eks update-kubeconfig --name coach-ci \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=multinode-test-${CIRCLE_BUILD_NUM} \
