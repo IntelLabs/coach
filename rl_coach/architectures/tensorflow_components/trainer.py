@@ -57,28 +57,16 @@ class Trainer(TensorFlowArchitecture):
             optimizer = generalized_network.optimizer
             generalized_network.model.compile(loss=loss, optimizer=optimizer)
 
+        # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
+        generalized_network.model(generalized_network.model.dummy_model_inputs)
+
+        # TODO: add check here
+        # for head in generalized_network.model.output_heads:
+        #     assert head._num_outputs == len(self.loss().input_schema.head_outputs)
+
+        generalized_network.model.summary()
+
         return generalized_network
-
-
-    # @staticmethod
-    # def _tf_device(device: Union[str, MethodType, Device]) -> str:
-    #     """
-    #     Convert device to tensorflow-specific device representation
-    #     :param device: either a specific string or method (used in distributed mode) which is returned without
-    #         any change or a Device type, which will be converted to a string
-    #     :return: tensorflow-specific string for device
-    #     """
-    #     if isinstance(device, str) or isinstance(device, MethodType):
-    #         return device
-    #     elif isinstance(device, Device):
-    #         if device.device_type == DeviceType.CPU:
-    #             return "/cpu:0"
-    #         elif device.device_type == DeviceType.GPU:
-    #             return "/device:GPU:{}".format(device.index)
-    #         else:
-    #             raise ValueError("Invalid device_type: {}".format(device.device_type))
-    #     else:
-    #         raise ValueError("Invalid device instance type: {}".format(type(device)))
 
     def __init__(self,
                  agent_parameters: AgentParameters,
@@ -213,10 +201,6 @@ class Trainer(TensorFlowArchitecture):
                            loss_weight=loss_weight)
 
 
-
-
-
-        #
         # elif isinstance(loss_params, PPOVHeadParameters):
         #     loss = PPOVHead(
         #         agent_parameters=agent_params,

@@ -76,5 +76,22 @@ class Head(keras.layers.Layer):
         assert self._num_outputs is not None, 'must call forward() once to configure number of outputs'
         return self._num_outputs
 
+
+    def forward(self, *args):
+        """
+        Override forward() so that number of outputs can be automatically set
+        """
+        outputs = super(Head, self).forward(*args)
+        num_outputs = len(outputs)
+        if self._num_outputs is None:
+            self._num_outputs = num_outputs
+        else:
+            assert self._num_outputs == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
+                self._num_outputs, num_outputs)
+        assert self._num_outputs == len(self.loss().input_schema.head_outputs)
+        return outputs
+
+    #def compute_output_shape(self):
+
     #def call(self, inputs, **kwargs):
 

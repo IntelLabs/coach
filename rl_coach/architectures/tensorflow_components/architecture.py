@@ -115,25 +115,25 @@ class TensorFlowArchitecture(Architecture):
         print('Construct is empty for now and is called from class constructor')
 
 
-    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Trainer':
-        """
-        Construct a network class using the provided variable scope and on requested devices
-        :param variable_scope: string specifying variable scope under which to create network variables
-        :param devices: list of devices (can be list of Device objects, or string for TF distributed)
-        :param args: all other arguments for class initializer
-        :param kwargs: all other keyword arguments for class initializer
-        :return: a GeneralTensorFlowNetwork object
-        """
-        # TODO: TF2 place holder for distributed training in TensorFlow
-
-        mirrored_strategy = tf.distribute.MirroredStrategy()
-        with mirrored_strategy.scope():
-            generalized_network = TensorFlowArchitecture(*args, **kwargs)
-            loss = generalized_network.losses
-            optimizer = generalized_network.optimizer
-            generalized_network.model.compile(loss=loss, optimizer=optimizer)
-
-        return generalized_network
+    # def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Trainer':
+    #     """
+    #     Construct a network class using the provided variable scope and on requested devices
+    #     :param variable_scope: string specifying variable scope under which to create network variables
+    #     :param devices: list of devices (can be list of Device objects, or string for TF distributed)
+    #     :param args: all other arguments for class initializer
+    #     :param kwargs: all other keyword arguments for class initializer
+    #     :return: a GeneralTensorFlowNetwork object
+    #     """
+    #     # TODO: TF2 place holder for distributed training in TensorFlow
+    #
+    #     mirrored_strategy = tf.distribute.MirroredStrategy()
+    #     with mirrored_strategy.scope():
+    #         generalized_network = TensorFlowArchitecture(*args, **kwargs)
+    #         loss = generalized_network.losses
+    #         optimizer = generalized_network.optimizer
+    #         generalized_network.model.compile(loss=loss, optimizer=optimizer)
+    #
+    #     return generalized_network
 
     def set_session(self, sess) -> None:
         """
@@ -142,10 +142,9 @@ class TensorFlowArchitecture(Architecture):
         :param sess: must be None
         """
         assert sess is None
-        # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
-        #self.model(self._dummy_model_inputs())
-        self.model(self.model.dummy_model_inputs)
-        self.model.summary()
+        # # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
+        # self.model(self.model.dummy_model_inputs)
+        # self.model.summary()
 
     #@profile
     def reset_accumulated_gradients(self) -> None:
@@ -204,7 +203,9 @@ class TensorFlowArchitecture(Architecture):
 
             heads_outputs = self.model(_inputs)
 
-            out_per_head = [heads_outputs] #utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
+            #out_per_head = [heads_outputs] #utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
+            out_per_head = utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
+
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
 
             losses = list()

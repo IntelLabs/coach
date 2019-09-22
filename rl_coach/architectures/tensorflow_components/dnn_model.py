@@ -340,7 +340,6 @@ class DnnModel(keras.Model):
         self._input_shapes = self._get_input_shapes(spaces, self.nets[0].input_embedders)
 
 
-
     def _get_input_shapes(self, spaces, input_embedders) -> List[List[int]]:
         """
         Create a list of input array shapes
@@ -370,13 +369,19 @@ class DnnModel(keras.Model):
         :param inputs: model inputs, one for each embedder. Passed to all networks.
         :return: head outputs in a tuple
         """
-        #outputs = []
         outputs = tuple()
         for net in self.nets:
             out = net(inputs)
+            num_outputs = len(out)
+
+            if net.output_heads[0]._num_outputs is None:
+                net.output_heads[0]._num_outputs = num_outputs
+            else:
+                assert net.output_heads[0]._num_outputs == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
+                    net.output_heads[0]._num_outputs, num_outputs)
+
             outputs += out
             #outputs.append(out)
-
         return outputs
 
     @property
