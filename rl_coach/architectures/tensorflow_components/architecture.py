@@ -35,6 +35,7 @@ from tensorflow.keras.losses import Loss
 from rl_coach.core_types import GradientClippingMethod
 from rl_coach.architectures.tensorflow_components.savers import TfSaver
 #from memory_profiler import profile
+from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
 
 
 
@@ -215,25 +216,18 @@ class TensorFlowArchitecture(Architecture):
             for head, head_loss, head_output, target in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
             #for head_loss, head_output, target in zip(self.losses, heads_outputs, tgt_per_loss):
 
-                # agent_input = list(filter(lambda key: key.startswith('output_{}_'.format(head.head_type_idx)),
-                #                            sorted(inputs.keys())))
-                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
+                agent_input = list(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
                                           inputs.items()))
 
                 loss_outputs = head_loss(head_output, agent_input, target)
 
-                # loss_outputs = loss.loss_forward(head_output, agent_input, target)
-                # loss_outputs = loss.loss_forward(head_output, target)
+                if LOSS_OUT_TYPE_LOSS in loss_outputs:
+                    losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
+                if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
+                    regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
 
 
-                #loss_outputs = loss(head_output, target)
-
-
-
-                # loss_outputs = utils.loss_output_dict(utils.to_list(loss(loss_args)), loss.output_schema)
-
-                #loss_outputs = loss(head_output, target)
-                losses.append(loss_outputs)
+                #losses.append(loss_outputs)
 
                 # for i, fetch in enumerate(additional_fetches):
                 #     head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)

@@ -18,10 +18,18 @@ from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 from typing import List, Tuple
 
-from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema, LOSS_OUT_TYPE_LOSS
+from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema,\
+    LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
 from tensorflow import Tensor
 
 
+LOSS_OUT_TYPE_KL = 'kl_divergence'
+LOSS_OUT_TYPE_ENTROPY = 'entropy'
+LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
+LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
+
+import tensorflow_probability as tfp
+tfd = tfp.distributions
 
 #class ClippedPPOLossContinuous(HeadLoss):
 #     def __init__(self, network_name,
@@ -92,15 +100,24 @@ class PPOLoss(HeadLoss):
             targets=['advantages']
         )
 
+    # def loss_forward(self,
+    #          new_policy_means,
+    #          new_policy_stds,
+    #          actions,
+    #          old_policy_means,
+    #          old_policy_stds,
+    #          clip_param_rescaler,
+    #          advantages,
+    #          kl_coefficient) -> List[Tuple[Tensor, str]]:
     def loss_forward(self,
-             new_policy_means,
-             new_policy_stds,
-             actions,
-             old_policy_means,
-             old_policy_stds,
-             clip_param_rescaler,
-             advantages,
-             kl_coefficient) -> List[Tuple[Tensor, str]]:
+                     new_policy_means,
+                     new_policy_stds,
+                     actions,
+                     old_policy_means,
+                     old_policy_stds,
+                     clip_param_rescaler,
+                     advantages) -> List[Tuple[Tensor, str]]:
+
         """
         Used for forward pass through loss computations.
         Works with batches of data, and optionally time_steps, but be consistent in usage: i.e. if using time_step,
@@ -137,15 +154,28 @@ class PPOLoss(HeadLoss):
             covars = F.broadcast_mul(vars_tiled, F.eye(size))
             return covars
 
-        old_covar = diagonal_covariance(stds=old_policy_stds, size=self.num_actions)
-        old_policy_dist = MultivariateNormalDist(self.num_actions, old_policy_means, old_covar)
-        action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
+        # old_covar = diagonal_covariance(stds=old_policy_stds, size=self.num_actions)
+        # old_policy_dist = MultivariateNormalDist(self.num_actions, old_policy_means, old_covar)
+        # action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
+        #tf.squeeze(tf.random.normal(logits, 1), axis=-1)
+        #tf.squeeze(tf.random.categorical(logits, 1), axis=-1)
+        # Initialize a single num_actions-variate Gaussian.
+        #old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds)
+        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1])
+        action_probs_wrt_old_policy = old_policy_dist.log_prob(actions[1])
 
-        new_covar = diagonal_covariance(stds=new_policy_stds, size=self.num_actions)
-        new_policy_dist = MultivariateNormalDist(self.num_actions, new_policy_means, new_covar)
-        action_probs_wrt_new_policy = new_policy_dist.log_prob(actions)
 
-        entropy_loss = - self.beta * new_policy_dist.entropy().mean()
+
+        # new_covar = diagonal_covariance(stds=new_policy_stds, size=self.num_actions)
+        # new_policy_dist = MultivariateNormalDist(self.num_actions, new_policy_means, new_covar)
+        # action_probs_wrt_new_policy = new_policy_dist.log_prob(actions)
+
+        # Initialize a single num_actions-variate Gaussian.
+        new_policy_dist = tfd.MultivariateNormalDiag(loc=new_policy_means[1])
+        action_probs_wrt_new_policy = old_policy_dist.log_prob(actions[1])
+
+        #entropy_loss = - self.beta * new_policy_dist.entropy().mean()
+        entropy_loss = - self.beta * new_policy_dist.entropy()
 
         if self.use_kl_regularization:
             kl_div = old_policy_dist.kl_div(new_policy_dist).mean()
@@ -154,34 +184,37 @@ class PPOLoss(HeadLoss):
             weighted_high_kl_div = self.high_kl_penalty_coefficient * high_kl_div
             kl_div_loss = weighted_kl_div + weighted_high_kl_div
         else:
-            kl_div_loss = F.zeros(shape=(1,))
+            kl_div_loss = 0#F.zeros(shape=(1,))
 
         # working with log probs, so minus first, then exponential (same as division)
-        likelihood_ratio = (action_probs_wrt_new_policy - action_probs_wrt_old_policy).exp()
+        likelihood_ratio = tf.exp(action_probs_wrt_new_policy - action_probs_wrt_old_policy)
 
         if self.clip_likelihood_ratio_using_epsilon is not None:
             # clipping of likelihood ratio
-            min_value = 1 - self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler
-            max_value = 1 + self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler
+            min_value = 1 - self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler[1]
+            max_value = 1 + self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler[1]
 
             # can't use F.clip (with variable clipping bounds), hence custom implementation
-            clipped_likelihood_ratio = hybrid_clip(F, likelihood_ratio, clip_lower=min_value, clip_upper=max_value)
+            clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
 
             # lower bound of original, and clipped versions or each scaled advantage
             # element-wise min between the two ndarrays
             unclipped_scaled_advantages = likelihood_ratio * advantages
             clipped_scaled_advantages = clipped_likelihood_ratio * advantages
-            scaled_advantages = F.stack(unclipped_scaled_advantages, clipped_scaled_advantages).min(axis=0)
+            scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
+
         else:
             scaled_advantages = likelihood_ratio * advantages
             clipped_likelihood_ratio = F.zeros_like(likelihood_ratio)
 
-        # for each batch, calculate expectation of scaled_advantages across time steps,
-        # but want code to work with data without time step too, so reshape to add timestep if doesn't exist.
-        scaled_advantages_w_time = scaled_advantages.reshape(shape=(0, -1))
-        expected_scaled_advantages = scaled_advantages_w_time.mean(axis=1)
-        # want to maximize expected_scaled_advantages, add minus so can minimize.
-        surrogate_loss = (-expected_scaled_advantages * self.weight).mean()
+        # # for each batch, calculate expectation of scaled_advantages across time steps,
+        # # but want code to work with data without time step too, so reshape to add timestep if doesn't exist.
+        # scaled_advantages_w_time = scaled_advantages.reshape(shape=(0, -1))
+        # expected_scaled_advantages = scaled_advantages_w_time.mean(axis=1)
+        # # want to maximize expected_scaled_advantages, add minus so can minimize.
+        # surrogate_loss = (-expected_scaled_advantages * self.weight).mean()
+
+        surrogate_loss = -tf.reduce_mean(scaled_advantages)
 
         return [
             (surrogate_loss, LOSS_OUT_TYPE_LOSS),

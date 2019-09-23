@@ -15,20 +15,9 @@
 #
 
 
-import numpy as np
-import tensorflow as tf
 from tensorflow import keras
-
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition
-
-# Used to initialize weights for policy and value output layers
-# def normalized_columns_initializer(std=1.0):
-#     def _initializer(shape, dtype=None, partition_info=None):
-#         out = np.random.randn(*shape).astype(np.float32)
-#         out *= std / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
-#         return tf.constant(out)
-#     return _initializer
 
 
 class Head(keras.layers.Layer):
@@ -75,23 +64,3 @@ class Head(keras.layers.Layer):
         """
         assert self._num_outputs is not None, 'must call forward() once to configure number of outputs'
         return self._num_outputs
-
-
-    def forward(self, *args):
-        """
-        Override forward() so that number of outputs can be automatically set
-        """
-        outputs = super(Head, self).forward(*args)
-        num_outputs = len(outputs)
-        if self._num_outputs is None:
-            self._num_outputs = num_outputs
-        else:
-            assert self._num_outputs == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
-                self._num_outputs, num_outputs)
-        assert self._num_outputs == len(self.loss().input_schema.head_outputs)
-        return outputs
-
-    #def compute_output_shape(self):
-
-    #def call(self, inputs, **kwargs):
-

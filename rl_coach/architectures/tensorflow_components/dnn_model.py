@@ -363,7 +363,6 @@ class DnnModel(keras.Model):
         inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
         return inputs
 
-
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
         :param inputs: model inputs, one for each embedder. Passed to all networks.
@@ -379,7 +378,6 @@ class DnnModel(keras.Model):
             else:
                 assert net.output_heads[0]._num_outputs == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
                     net.output_heads[0]._num_outputs, num_outputs)
-
             outputs += out
             #outputs.append(out)
         return outputs

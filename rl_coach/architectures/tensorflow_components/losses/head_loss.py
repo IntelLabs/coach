@@ -38,7 +38,6 @@ class LossInputSchema(object):
         return self._targets
 
 
-#class HeadLoss(keras.losses.Loss):
 class HeadLoss(keras.layers.Layer):
     """
     ABC for loss functions of each agent. Child class must implement input_schema() and loss_forward()
@@ -94,7 +93,9 @@ class HeadLoss(keras.layers.Layer):
 
     def call(self, head_output, agent_input, target):
         loss_args = self.extract_loss_args(head_output, agent_input, target)
-        return self._loss_output(self.loss_forward(*loss_args))
+        #return self._loss_output(self.loss_forward(*loss_args))
+        loss_output = self._loss_output(self.loss_forward(*loss_args))
+        return self.loss_output_dict(loss_output)
 
     def loss_forward(self, *args, **kwargs):
         raise NotImplementedError
@@ -135,5 +136,20 @@ class HeadLoss(keras.layers.Layer):
 
 
 
-
-
+    def loss_output_dict(self, output: List) -> Dict[str, List]:
+        """
+        Creates a dictionary for loss output based on the output schema. If two output values have the same
+        type string in the schema they are concatenated in the same dicrionary item.
+        :param output: list of output values
+        :param schema: list of type-strings for output values
+        :return: dictionary of keyword to list of NDArrays
+        """
+        schema = self.output_schema
+        assert len(output) == len(schema)
+        output_dict = dict()
+        for name, val in zip(schema, output):
+            if name in output_dict:
+                output_dict[name].append(val)
+            else:
+                output_dict[name] = [val]
+        return output_dict
