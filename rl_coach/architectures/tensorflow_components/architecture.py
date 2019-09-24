@@ -36,7 +36,7 @@ from rl_coach.core_types import GradientClippingMethod
 from rl_coach.architectures.tensorflow_components.savers import TfSaver
 #from memory_profiler import profile
 from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
-
+from tensorflow_probability import edward2 as ed
 
 
 class TensorFlowArchitecture(Architecture):
@@ -87,54 +87,12 @@ class TensorFlowArchitecture(Architecture):
         return self.model.summary(self._dummy_model_inputs())
 
 
-    # def _model_input_shapes(self) -> List[List[int]]:
-    #     """
-    #     Create a list of input array shapes
-    #     :return: type of input shapes
-    #     """
-    #     allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
-    #     allowed_inputs["action"] = copy.copy(self.spaces.action)
-    #     allowed_inputs["goal"] = copy.copy(self.spaces.goal)
-    #     embedders = self.model.nets[0].input_embedders
-    #     return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in embedders)
-    #
-    # def _dummy_model_inputs(self):
-    #     """
-    #     Creates a tuple of input arrays with correct shapes that can be used for shape inference
-    #     of the model weights and for printing the summary
-    #     :return: tuple of inputs for model forward pass
-    #     """
-    #     input_shapes = self._model_input_shapes()
-    #     inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes) #make this the same type as the actual input
-    #     return inputs
-
 
     def construct_model(self) -> None:
         """
         Construct network model. Implemented by child class.
         """
         print('Construct is empty for now and is called from class constructor')
-
-
-    # def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Trainer':
-    #     """
-    #     Construct a network class using the provided variable scope and on requested devices
-    #     :param variable_scope: string specifying variable scope under which to create network variables
-    #     :param devices: list of devices (can be list of Device objects, or string for TF distributed)
-    #     :param args: all other arguments for class initializer
-    #     :param kwargs: all other keyword arguments for class initializer
-    #     :return: a GeneralTensorFlowNetwork object
-    #     """
-    #     # TODO: TF2 place holder for distributed training in TensorFlow
-    #
-    #     mirrored_strategy = tf.distribute.MirroredStrategy()
-    #     with mirrored_strategy.scope():
-    #         generalized_network = TensorFlowArchitecture(*args, **kwargs)
-    #         loss = generalized_network.losses
-    #         optimizer = generalized_network.optimizer
-    #         generalized_network.model.compile(loss=loss, optimizer=optimizer)
-    #
-    #     return generalized_network
 
     def set_session(self, sess) -> None:
         """
@@ -143,11 +101,7 @@ class TensorFlowArchitecture(Architecture):
         :param sess: must be None
         """
         assert sess is None
-        # # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
-        # self.model(self.model.dummy_model_inputs)
-        # self.model.summary()
 
-    #@profile
     def reset_accumulated_gradients(self) -> None:
         """
         Reset the gradients accumulation
@@ -157,10 +111,6 @@ class TensorFlowArchitecture(Architecture):
             self.accumulated_gradients = self.model.get_weights().copy()
 
         self.accumulated_gradients = list(map(lambda grad: grad * 0, self.accumulated_gradients))
-
-
-
-
 
     #@profile
     def accumulate_gradients(self,
@@ -199,22 +149,17 @@ class TensorFlowArchitecture(Architecture):
 
 
         targets = force_list(targets)
-
+        #with ed.tape() as tape:
         with tf.GradientTape() as tape:
 
             heads_outputs = self.model(_inputs)
-
-            #out_per_head = [heads_outputs] #utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
             out_per_head = utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
-
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
-
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
             for head, head_loss, head_output, target in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
-            #for head_loss, head_output, target in zip(self.losses, heads_outputs, tgt_per_loss):
 
                 agent_input = list(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
                                           inputs.items()))
@@ -341,6 +286,16 @@ class TensorFlowArchitecture(Architecture):
 
         output = self._predict(inputs)
         output = list(o.numpy() for o in output)
+
+        # out2 = list()
+        # for o in output:
+        #     try:
+        #         out2.append(o.numpy())
+        #     except:
+        #         out2.append(o)
+
+
+        #if 0.name == 'MultivariateNormalDiag/'
         if squeeze_output:
             output = squeeze_list(output)
         return output

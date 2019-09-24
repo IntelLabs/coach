@@ -22,33 +22,15 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLo
     LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
 from tensorflow import Tensor
 
+import tensorflow_probability as tfp
+tfd = tfp.distributions
+from tensorflow_probability import edward2 as ed
 
 LOSS_OUT_TYPE_KL = 'kl_divergence'
 LOSS_OUT_TYPE_ENTROPY = 'entropy'
 LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
 LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
 
-import tensorflow_probability as tfp
-tfd = tfp.distributions
-
-#class ClippedPPOLossContinuous(HeadLoss):
-#     def __init__(self, network_name,
-#                  head_idx: int = 0,
-#                  loss_type: Loss = MeanSquaredError,
-#                  loss_weight=1.0,
-#                  **kwargs):
-
-
-# class PPOLoss(HeadLoss):
-#     def __init__(self,
-#                  num_actions: int,
-#                  clip_likelihood_ratio_using_epsilon: float,
-#                  beta: float=0,
-#                  use_kl_regularization: bool=False,
-#                  initial_kl_coefficient: float=1,
-#                  kl_cutoff: float=0,
-#                  high_kl_penalty_coefficient: float=1,
-#                  weight: float=1,):
 
 
 
@@ -152,6 +134,7 @@ class PPOLoss(HeadLoss):
         #tf.squeeze(tf.random.categorical(logits, 1), axis=-1)
         # Initialize a single num_actions-variate Gaussian.
         #old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds)
+
         old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1])
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions[1])
 
