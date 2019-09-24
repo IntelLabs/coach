@@ -147,16 +147,7 @@ class PPOLoss(HeadLoss):
         :return: loss, of shape (batch_size).
         """
 
-        def diagonal_covariance(stds, size):
-            vars = stds ** 2
-            # sets diagonal in (batch size and time step) covariance matrices
-            vars_tiled = vars.expand_dims(2).tile((1, 1, size))
-            covars = F.broadcast_mul(vars_tiled, F.eye(size))
-            return covars
 
-        # old_covar = diagonal_covariance(stds=old_policy_stds, size=self.num_actions)
-        # old_policy_dist = MultivariateNormalDist(self.num_actions, old_policy_means, old_covar)
-        # action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
         #tf.squeeze(tf.random.normal(logits, 1), axis=-1)
         #tf.squeeze(tf.random.categorical(logits, 1), axis=-1)
         # Initialize a single num_actions-variate Gaussian.
@@ -177,14 +168,9 @@ class PPOLoss(HeadLoss):
         #entropy_loss = - self.beta * new_policy_dist.entropy().mean()
         entropy_loss = - self.beta * new_policy_dist.entropy()
 
-        if self.use_kl_regularization:
-            kl_div = old_policy_dist.kl_div(new_policy_dist).mean()
-            weighted_kl_div = kl_coefficient * kl_div
-            high_kl_div = F.stack(F.zeros_like(kl_div), kl_div - self.kl_cutoff).max().square()
-            weighted_high_kl_div = self.high_kl_penalty_coefficient * high_kl_div
-            kl_div_loss = weighted_kl_div + weighted_high_kl_div
-        else:
-            kl_div_loss = 0#F.zeros(shape=(1,))
+        assert self.use_kl_regularization == False # Not supported yet
+
+        kl_div_loss = 0#tf.zeros(shape=(1,))
 
         # working with log probs, so minus first, then exponential (same as division)
         likelihood_ratio = tf.exp(action_probs_wrt_new_policy - action_probs_wrt_old_policy)

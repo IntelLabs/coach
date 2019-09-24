@@ -229,15 +229,16 @@ class TensorFlowArchitecture(Architecture):
 
                 #losses.append(loss_outputs)
 
-                # for i, fetch in enumerate(additional_fetches):
-                #     head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-                #     if head_type_idx == h.head_type_idx:
-                #         assert fetch[1] is None  # sanity check that fetch is None
-                #         additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
+                for i, fetch in enumerate(additional_fetches):
+                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+                    if head_type_idx == head.head_type_idx:
+                        assert fetch[1] is None  # sanity check that fetch is None
+                        additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
             # Total loss is losses and regularization (NOTE: order is important)
             total_loss_list = losses + regularizations
             #total_loss = tf.add_n([main_loss] + model.losses)
+            total_loss_list = list(map(lambda x: tf.cast(x, tf.float32), total_loss_list))
             total_loss = tf.add_n(total_loss_list)
 
         # Calculate gradients
