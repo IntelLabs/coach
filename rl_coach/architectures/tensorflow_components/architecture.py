@@ -37,7 +37,8 @@ from rl_coach.architectures.tensorflow_components.savers import TfSaver
 #from memory_profiler import profile
 from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
 from tensorflow_probability import edward2 as ed
-
+import tensorflow_probability as tfp
+from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
 
 class TensorFlowArchitecture(Architecture):
     def __init__(self, agent_parameters: AgentParameters,
@@ -142,14 +143,10 @@ class TensorFlowArchitecture(Architecture):
 
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
-
         embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
-
         _inputs = tuple(inputs[emb] for emb in embedders)
-
-
         targets = force_list(targets)
-        #with ed.tape() as tape:
+
         with tf.GradientTape() as tape:
 
             heads_outputs = self.model(_inputs)
@@ -165,6 +162,13 @@ class TensorFlowArchitecture(Architecture):
                                           inputs.items()))
 
                 loss_outputs = head_loss(head_output, agent_input, target)
+
+                # if not(isinstance(head_loss, PPOLoss)):
+                #     loss_outputs = head_loss(head_output, agent_input, target)
+                # else:
+                #     loss_outputs = dict()
+                #     loss_outputs['loss'] = [tf.reduce_mean(head_output[0].entropy())]
+
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
@@ -263,6 +267,13 @@ class TensorFlowArchitecture(Architecture):
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
         output = self.model(_inputs)
+        # distributions = list(filter(lambda x: isinstance(x, tfp.distributions.Distribution), output))
+        # output = list(filter(lambda x: not(isinstance(x, tfp.distributions.Distribution)), output))
+        # for distribution in distributions:
+        #     policy_means = distribution.mean()
+        #     policy_std = distribution.stddev()
+        #     output += (policy_means, policy_std)
+
         return output
 
 
@@ -287,15 +298,6 @@ class TensorFlowArchitecture(Architecture):
         output = self._predict(inputs)
         output = list(o.numpy() for o in output)
 
-        # out2 = list()
-        # for o in output:
-        #     try:
-        #         out2.append(o.numpy())
-        #     except:
-        #         out2.append(o)
-
-
-        #if 0.name == 'MultivariateNormalDiag/'
         if squeeze_output:
             output = squeeze_list(output)
         return output
@@ -316,9 +318,6 @@ class TensorFlowArchitecture(Architecture):
         output = list()
         for net, inputs in network_input_tuples:
             output += net._predict(inputs)
-            #output.append(net._predict(inputs))
-
-        #return tuple(o[0].numpy() for o in output)
 
         return tuple(o.numpy() for o in output)
 

@@ -77,20 +77,12 @@ class PPOLoss(HeadLoss):
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
-            head_outputs=['new_policy_means','new_policy_stds'],
+            head_outputs=['new_policy_means', 'new_policy_stds'],
+            # head_outputs=['new_policy_distribution'],
             agent_inputs=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler'],
             targets=['advantages']
         )
 
-    # def loss_forward(self,
-    #          new_policy_means,
-    #          new_policy_stds,
-    #          actions,
-    #          old_policy_means,
-    #          old_policy_stds,
-    #          clip_param_rescaler,
-    #          advantages,
-    #          kl_coefficient) -> List[Tuple[Tensor, str]]:
     def loss_forward(self,
                      new_policy_means,
                      new_policy_stds,

@@ -66,8 +66,16 @@ class ContinuousPPOHead(keras.layers.Layer):
 
         policy_std = tf.constant(np.exp(self.log_std), dtype=tf.float32, name='policy_std')
         #policy_std = tf.exp(self.log_std)
-        #return tfd.MultivariateNormalDiag(loc=policy_means, scale_diag=policy_std)
+
+        ########
+        # action_proba = tfd.MultivariateNormalDiag(loc=policy_means, scale_diag=policy_std)
+        # policy_means = action_proba.mean()
+        # policy_std = action_proba.stddev()
+        # ########
+        #
+        # return action_proba
         return policy_means, policy_std
+
 
 
 
