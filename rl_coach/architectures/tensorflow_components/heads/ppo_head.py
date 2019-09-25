@@ -27,6 +27,16 @@ from tensorflow import Tensor
 
 import tensorflow_probability as tfp
 tfd = tfp.distributions
+import numpy as np
+import tensorflow as tf
+
+from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.architectures.tensorflow_components.heads.head import Head#, normalized_columns_initializer
+from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
+from rl_coach.core_types import ActionProbabilities
+from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
+from rl_coach.spaces import SpacesDefinition
+
 
 
 class ContinuousPPOHead(keras.layers.Layer):
@@ -40,6 +50,7 @@ class ContinuousPPOHead(keras.layers.Layer):
         super(ContinuousPPOHead, self).__init__()
 
         self.dense = tf.keras.layers.Dense(units=num_actions)
+        self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.Normal(loc=t, scale=1))
         # all samples (across batch, and time step) share the same covariance, which is learnt,
         # but since we assume the action probability variables are independent,
         # only the diagonal entries of the covariance matrix are specified.
@@ -68,29 +79,15 @@ class ContinuousPPOHead(keras.layers.Layer):
         #policy_std = tf.exp(self.log_std)
 
         ########
-        # action_proba = tfd.MultivariateNormalDiag(loc=policy_means, scale_diag=policy_std)
+
+        #action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=policy_means)) # , scale_diag=policy_std))
+        a_prob = self.action_proba(policy_means)
         # policy_means = action_proba.mean()
         # policy_std = action_proba.stddev()
         # ########
         #
-        # return action_proba
+        #return a_prob
         return policy_means, policy_std
-
-
-
-
-
-
-import numpy as np
-import tensorflow as tf
-
-from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.heads.head import Head#, normalized_columns_initializer
-from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
-from rl_coach.core_types import ActionProbabilities
-from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
-from rl_coach.spaces import SpacesDefinition
-
 
 
 

@@ -30,6 +30,7 @@ LOSS_OUT_TYPE_KL = 'kl_divergence'
 LOSS_OUT_TYPE_ENTROPY = 'entropy'
 LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
 LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
+from rl_coach.utils import eps
 
 
 
@@ -125,27 +126,31 @@ class PPOLoss(HeadLoss):
         #tf.squeeze(tf.random.normal(logits, 1), axis=-1)
         #tf.squeeze(tf.random.categorical(logits, 1), axis=-1)
         # Initialize a single num_actions-variate Gaussian.
-        #old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds)
 
-        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1])
+        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1])#, scale_diag=old_policy_stds[1] + eps)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions[1])
 
+        # old_policy_dist = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=old_policy_means[1]))
+        # action_probs_wrt_old_policy = tfp.layers.DistributionLambda(lambda t: old_policy_dist.log_prob(actions[1]))
+
+        new_policy_dist = tfd.MultivariateNormalDiag(loc=new_policy_means[1])#, scale_diag=new_policy_stds[1] + eps)
+        action_probs_wrt_new_policy = new_policy_dist.log_prob(actions[1])
+
+        # new_policy_dist = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=new_policy_means[1]))
+        # action_probs_wrt_new_policy = tfp.layers.DistributionLambda(lambda t: new_policy_dist.log_prob(actions[1]))
 
 
-        # new_covar = diagonal_covariance(stds=new_policy_stds, size=self.num_actions)
-        # new_policy_dist = MultivariateNormalDist(self.num_actions, new_policy_means, new_covar)
-        # action_probs_wrt_new_policy = new_policy_dist.log_prob(actions)
 
-        # Initialize a single num_actions-variate Gaussian.
-        new_policy_dist = tfd.MultivariateNormalDiag(loc=new_policy_means[1])
-        action_probs_wrt_new_policy = old_policy_dist.log_prob(actions[1])
+
+
 
         #entropy_loss = - self.beta * new_policy_dist.entropy().mean()
-        entropy_loss = - self.beta * new_policy_dist.entropy()
+        entropy_loss = new_policy_dist.entropy()
+
 
         assert self.use_kl_regularization == False # Not supported yet
 
-        kl_div_loss = 0#tf.zeros(shape=(1,))
+        kl_div_loss = tf.constant(0, dtype=tf.float32)
 
         # working with log probs, so minus first, then exponential (same as division)
         likelihood_ratio = tf.exp(action_probs_wrt_new_policy - action_probs_wrt_old_policy)
@@ -185,7 +190,17 @@ class PPOLoss(HeadLoss):
             (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
             (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
         ]
-
+        # loss_fn = keras.losses.mean_squared_error
+        # dummy_loss = tf.constant(0, dtype=tf.float32)#tf.reduce_mean(loss_fn(old_policy_means[1], new_policy_means[1]))
+        #
+        # return [
+        #     (surrogate_loss, LOSS_OUT_TYPE_LOSS),
+        #     (dummy_loss, LOSS_OUT_TYPE_REGULARIZATION),
+        #     (dummy_loss, LOSS_OUT_TYPE_KL),
+        #     (dummy_loss, LOSS_OUT_TYPE_ENTROPY),
+        #     (dummy_loss, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
+        #     (dummy_loss, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
+        # ]
 #
 # class PPOLoss(keras.losses.Loss):
 #
