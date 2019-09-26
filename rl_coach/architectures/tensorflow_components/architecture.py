@@ -264,12 +264,15 @@ class TensorFlowArchitecture(Architecture):
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
         output = self.model(_inputs)
-        # distributions = list(filter(lambda x: isinstance(x, tfp.distributions.Distribution), output))
-        # output = list(filter(lambda x: not(isinstance(x, tfp.distributions.Distribution)), output))
-        # for distribution in distributions:
-        #     policy_means = distribution.mean()
-        #     policy_std = distribution.stddev()
-        #     output += (policy_means, policy_std)
+        distribution_output = list(filter(lambda x: isinstance(x, tfp.distributions.Distribution), output))
+        output = list(filter(lambda x: not (isinstance(x, tfp.distributions.Distribution)), output))
+
+        for distribution in distribution_output:
+            policy_means = distribution.mean()
+            policy_std = distribution.stddev()
+            output += (policy_means, policy_std)
+
+        #output = list(o.numpy() for o in output)
 
         return output
 
@@ -293,26 +296,6 @@ class TensorFlowArchitecture(Architecture):
         assert outputs is None, "outputs must be None"
 
         output = self._predict(inputs)
-
-        distribution_output = list(filter(lambda x: isinstance(x, tfp.distributions.Distribution), output))
-        #
-        # deterministic_output = list(filter(lambda x: not(isinstance(x, tfp.distributions.Distribution)), output))
-        output = list(filter(lambda x: not(isinstance(x, tfp.distributions.Distribution)), output))
-        #
-        # output = list(o.numpy() for o in deterministic_output)
-        #
-        # if squeeze_output:
-        #     output = squeeze_list(output)
-        #
-        # if distribution_output:
-        #     output += distribution_output
-        #
-        #
-        for distribution in distribution_output:
-            policy_means = distribution.mean()
-            policy_std = distribution.stddev()
-            output += (policy_means, policy_std)
-
 
         output = list(o.numpy() for o in output)
 
