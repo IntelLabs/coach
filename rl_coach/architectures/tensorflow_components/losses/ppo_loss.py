@@ -133,30 +133,16 @@ class PPOLoss(HeadLoss):
         old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1])#, scale_diag=old_policy_stds[1] + eps)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions[1])
 
-        # old_policy_dist = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=old_policy_means[1]))
-        # action_probs_wrt_old_policy = tfp.layers.DistributionLambda(lambda t: old_policy_dist.log_prob(actions[1]))
+        action_probs_wrt_new_policy = new_policy_distribution.log_prob(actions[1])
 
-        new_policy_dist = new_policy_distribution#tfd.MultivariateNormalDiag(loc=new_policy_means[1])#, scale_diag=new_policy_stds[1] + eps)
-        action_probs_wrt_new_policy = new_policy_dist.log_prob(actions[1])
-
-        # new_policy_dist = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=new_policy_means[1]))
-        # action_probs_wrt_new_policy = tfp.layers.DistributionLambda(lambda t: new_policy_dist.log_prob(actions[1]))
-
-
-
-
-
-
-        #entropy_loss = - self.beta * new_policy_dist.entropy().mean()
-        entropy_loss = tf.reduce_mean(new_policy_dist.entropy())
-
+        entropy_loss = - self.beta * tf.reduce_mean(new_policy_distribution.entropy())
 
         assert self.use_kl_regularization == False # Not supported yet
 
         kl_div_loss = entropy_loss#tf.constant(0, dtype=tf.float32)
 
         # working with log probs, so minus first, then exponential (same as division)
-        likelihood_ratio = tf.exp(action_probs_wrt_new_policy - action_probs_wrt_old_policy)
+        likelihood_ratio = tf.exp(action_probs_wrt_new_policy - tf.reshape(action_probs_wrt_old_policy, action_probs_wrt_new_policy.shape))
 
         if self.clip_likelihood_ratio_using_epsilon is not None:
             # clipping of likelihood ratio

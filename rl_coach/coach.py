@@ -810,7 +810,7 @@ if __name__ == "__main__":
 
 
 
-    sys.argv.extend(['-f', 'mxnet'])
+    #sys.argv.extend(['-f', 'mxnet'])
 
     #sys.argv.extend(['-s', '1500'])
     CHECKPOINT_RESTORE_DIR = path.join('experiments', 'atari', '04_09_2019-20_52', 'checkpoint')
