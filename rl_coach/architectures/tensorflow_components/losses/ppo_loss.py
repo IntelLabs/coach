@@ -78,15 +78,23 @@ class PPOLoss(HeadLoss):
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
-            head_outputs=['new_policy_means', 'new_policy_stds'],
-            # head_outputs=['new_policy_distribution'],
+            #head_outputs=['new_policy_means', 'new_policy_stds'],
+            head_outputs=['new_policy_distribution'],
             agent_inputs=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler'],
             targets=['advantages']
         )
 
+    # def loss_forward(self,
+    #                  new_policy_means,
+    #                  new_policy_stds,
+    #                  actions,
+    #                  old_policy_means,
+    #                  old_policy_stds,
+    #                  clip_param_rescaler,
+    #                  advantages) -> List[Tuple[Tensor, str]]:
+
     def loss_forward(self,
-                     new_policy_means,
-                     new_policy_stds,
+                     new_policy_distribution,
                      actions,
                      old_policy_means,
                      old_policy_stds,
@@ -122,18 +130,13 @@ class PPOLoss(HeadLoss):
         :return: loss, of shape (batch_size).
         """
 
-
-        #tf.squeeze(tf.random.normal(logits, 1), axis=-1)
-        #tf.squeeze(tf.random.categorical(logits, 1), axis=-1)
-        # Initialize a single num_actions-variate Gaussian.
-
         old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1])#, scale_diag=old_policy_stds[1] + eps)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions[1])
 
         # old_policy_dist = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=old_policy_means[1]))
         # action_probs_wrt_old_policy = tfp.layers.DistributionLambda(lambda t: old_policy_dist.log_prob(actions[1]))
 
-        new_policy_dist = tfd.MultivariateNormalDiag(loc=new_policy_means[1])#, scale_diag=new_policy_stds[1] + eps)
+        new_policy_dist = new_policy_distribution#tfd.MultivariateNormalDiag(loc=new_policy_means[1])#, scale_diag=new_policy_stds[1] + eps)
         action_probs_wrt_new_policy = new_policy_dist.log_prob(actions[1])
 
         # new_policy_dist = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=new_policy_means[1]))
@@ -145,12 +148,12 @@ class PPOLoss(HeadLoss):
 
 
         #entropy_loss = - self.beta * new_policy_dist.entropy().mean()
-        entropy_loss = new_policy_dist.entropy()
+        entropy_loss = tf.reduce_mean(new_policy_dist.entropy())
 
 
         assert self.use_kl_regularization == False # Not supported yet
 
-        kl_div_loss = tf.constant(0, dtype=tf.float32)
+        kl_div_loss = entropy_loss#tf.constant(0, dtype=tf.float32)
 
         # working with log probs, so minus first, then exponential (same as division)
         likelihood_ratio = tf.exp(action_probs_wrt_new_policy - action_probs_wrt_old_policy)

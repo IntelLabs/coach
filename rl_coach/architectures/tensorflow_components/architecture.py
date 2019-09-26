@@ -143,6 +143,7 @@ class TensorFlowArchitecture(Architecture):
 
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
+
         embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
         _inputs = tuple(inputs[emb] for emb in embedders)
         targets = force_list(targets)
@@ -202,13 +203,9 @@ class TensorFlowArchitecture(Architecture):
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
             self.accumulated_gradients = gradients.copy()
-            # for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
-            #     acc_grad[:] = model_grad
         else:
             self.accumulated_gradients += gradients.copy()
-            # for acc_grad, model_grad in zip(self.accumulated_gradients, gradients):
-            #     self.accumulated_gradients = gradients.copy()
-            #     acc_grad += model_grad
+
 
         # result of of additional fetches
         fetched_tensors = [fetch[1] for fetch in additional_fetches]
@@ -296,10 +293,32 @@ class TensorFlowArchitecture(Architecture):
         assert outputs is None, "outputs must be None"
 
         output = self._predict(inputs)
+
+        distribution_output = list(filter(lambda x: isinstance(x, tfp.distributions.Distribution), output))
+        #
+        # deterministic_output = list(filter(lambda x: not(isinstance(x, tfp.distributions.Distribution)), output))
+        output = list(filter(lambda x: not(isinstance(x, tfp.distributions.Distribution)), output))
+        #
+        # output = list(o.numpy() for o in deterministic_output)
+        #
+        # if squeeze_output:
+        #     output = squeeze_list(output)
+        #
+        # if distribution_output:
+        #     output += distribution_output
+        #
+        #
+        for distribution in distribution_output:
+            policy_means = distribution.mean()
+            policy_std = distribution.stddev()
+            output += (policy_means, policy_std)
+
+
         output = list(o.numpy() for o in output)
 
         if squeeze_output:
             output = squeeze_list(output)
+
         return output
 
 

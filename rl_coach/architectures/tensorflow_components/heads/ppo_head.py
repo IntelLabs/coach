@@ -82,12 +82,12 @@ class ContinuousPPOHead(keras.layers.Layer):
 
         #action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=policy_means)) # , scale_diag=policy_std))
         a_prob = self.action_proba(policy_means)
-        # policy_means = action_proba.mean()
+        # policy_means = a_prob.mean()
         # policy_std = action_proba.stddev()
         # ########
         #
-        #return a_prob
-        return policy_means, policy_std
+        return a_prob
+        #return policy_means, policy_std
 
 
 
