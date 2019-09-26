@@ -130,8 +130,14 @@ class PPOLoss(HeadLoss):
         :return: loss, of shape (batch_size).
         """
 
-        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1])#, scale_diag=old_policy_stds[1] + eps)
+        # old_policy_means = tf.reshape(old_policy_means[1], actions[1].shape)
+        # old_policy_stds = tf.reshape(old_policy_stds[1], actions[1].shape)
+        # advantages = tf.reshape(advantages, actions[1].shape)
+
+
+        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1], scale_diag=old_policy_stds[1])# + eps)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions[1])
+
 
         action_probs_wrt_new_policy = new_policy_distribution.log_prob(actions[1])
 
@@ -139,10 +145,11 @@ class PPOLoss(HeadLoss):
 
         assert self.use_kl_regularization == False # Not supported yet
 
-        kl_div_loss = entropy_loss#tf.constant(0, dtype=tf.float32)
+        kl_div_loss = tf.constant(0, dtype=tf.float32)
 
         # working with log probs, so minus first, then exponential (same as division)
-        likelihood_ratio = tf.exp(action_probs_wrt_new_policy - tf.reshape(action_probs_wrt_old_policy, action_probs_wrt_new_policy.shape))
+        #likelihood_ratio = tf.exp(action_probs_wrt_new_policy - tf.reshape(action_probs_wrt_old_policy, action_probs_wrt_new_policy.shape))
+        likelihood_ratio = tf.exp(action_probs_wrt_new_policy - action_probs_wrt_old_policy)
 
         if self.clip_likelihood_ratio_using_epsilon is not None:
             # clipping of likelihood ratio
@@ -179,18 +186,22 @@ class PPOLoss(HeadLoss):
             (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
             (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
         ]
-        # loss_fn = keras.losses.mean_squared_error
-        # dummy_loss = tf.constant(0, dtype=tf.float32)#tf.reduce_mean(loss_fn(old_policy_means[1], new_policy_means[1]))
-        #
+        # dummy_loss = tf.reduce_mean(advantages*new_policy_distribution.log_prob(actions[1]))
+        # dummy_loss = tf.reduce_mean(tf.sqrt(tf.square(new_policy_distribution.mean()- 5)))
+        # print(new_policy_distribution.mean())
+        #dummy_loss = tf.reduce_mean(advantages*new_policy_distribution.log_prob())
+        #print(new_policy_distribution.mean())
+        #dummy_loss = tf.constant(0, dtype=tf.float32)
         # return [
-        #     (surrogate_loss, LOSS_OUT_TYPE_LOSS),
+        #     (1e-7*surrogate_loss, LOSS_OUT_TYPE_LOSS),
         #     (dummy_loss, LOSS_OUT_TYPE_REGULARIZATION),
-        #     (dummy_loss, LOSS_OUT_TYPE_KL),
-        #     (dummy_loss, LOSS_OUT_TYPE_ENTROPY),
-        #     (dummy_loss, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
-        #     (dummy_loss, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
+        #     (1e-7*kl_div_loss, LOSS_OUT_TYPE_KL),
+        #     (1e-7*entropy_loss, LOSS_OUT_TYPE_ENTROPY),
+        #     (1e-7*likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
+        #     (1e-7*clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
         # ]
-#
+
+
 # class PPOLoss(keras.losses.Loss):
 #
 #     def __init__(self, network_name,

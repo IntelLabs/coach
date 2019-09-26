@@ -49,14 +49,19 @@ class ContinuousPPOHead(keras.layers.Layer):
         """
         super(ContinuousPPOHead, self).__init__()
 
-        self.dense = tf.keras.layers.Dense(units=num_actions)
-        self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.Normal(loc=t, scale=1))
+        self.policy_means_layer = tf.keras.layers.Dense(units=num_actions)
+        self.policy_stds_layer = tf.keras.layers.Dense(units=num_actions, activation='softplus')
+
+
+        #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))
+        self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[0], scale_diag=t[1]))
+
         # all samples (across batch, and time step) share the same covariance, which is learnt,
         # but since we assume the action probability variables are independent,
         # only the diagonal entries of the covariance matrix are specified.
 
         #self.log_std = tf.zeros(shape=(num_actions, 1), dtype=tf.float32)
-        self.log_std = np.zeros(shape=(num_actions, 1))
+        #self.policy_std = tf.Variable(9, shape=(num_actions, 1), dtype=tf.float32)
 
 
 
@@ -71,21 +76,16 @@ class ContinuousPPOHead(keras.layers.Layer):
             of shape (batch_size, action_mean) or
             of shape (batch_size, time_step, action_mean).
         """
-        policy_means = self.dense(inputs)
-        #policy_std = np.exp(self.log_std)
-        # TODO: Change to variable
+        policy_means = self.policy_means_layer(inputs)
+        policy_stds = self.policy_stds_layer(inputs)
 
-        policy_std = tf.constant(np.exp(self.log_std), dtype=tf.float32, name='policy_std')
-        #policy_std = tf.exp(self.log_std)
 
         ########
-
-        #action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=policy_means)) # , scale_diag=policy_std))
-        a_prob = self.action_proba(policy_means)
+        #policy_std = 0.5 * tf.ones(policy_means.shape)
+        a_prob = self.action_proba([policy_means, policy_stds])
         # policy_means = a_prob.mean()
         # policy_std = action_proba.stddev()
-        # ########
-        #
+        ########
         return a_prob
         #return policy_means, policy_std
 
