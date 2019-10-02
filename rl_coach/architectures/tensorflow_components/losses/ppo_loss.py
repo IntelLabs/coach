@@ -135,11 +135,10 @@ class PPOLoss(HeadLoss):
         # advantages = tf.reshape(advantages, actions[1].shape)
 
 
-        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means[1], scale_diag=old_policy_stds[1])# + eps)
-        action_probs_wrt_old_policy = old_policy_dist.log_prob(actions[1])
+        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds + eps)
+        action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
 
-
-        action_probs_wrt_new_policy = new_policy_distribution.log_prob(actions[1])
+        action_probs_wrt_new_policy = new_policy_distribution.log_prob(actions)
 
         entropy_loss = - self.beta * tf.reduce_mean(new_policy_distribution.entropy())
 
@@ -153,14 +152,13 @@ class PPOLoss(HeadLoss):
 
         if self.clip_likelihood_ratio_using_epsilon is not None:
             # clipping of likelihood ratio
-            min_value = 1 - self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler[1]
-            max_value = 1 + self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler[1]
+            min_value = 1 - self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler
+            max_value = 1 + self.clip_likelihood_ratio_using_epsilon * clip_param_rescaler
 
-            # can't use F.clip (with variable clipping bounds), hence custom implementation
             clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
 
             # lower bound of original, and clipped versions or each scaled advantage
-            # element-wise min between the two ndarrays
+            # element-wise min between the two arrays
             unclipped_scaled_advantages = likelihood_ratio * advantages
             clipped_scaled_advantages = clipped_likelihood_ratio * advantages
             scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
@@ -169,37 +167,40 @@ class PPOLoss(HeadLoss):
             scaled_advantages = likelihood_ratio * advantages
             clipped_likelihood_ratio = F.zeros_like(likelihood_ratio)
 
-        # # for each batch, calculate expectation of scaled_advantages across time steps,
-        # # but want code to work with data without time step too, so reshape to add timestep if doesn't exist.
-        # scaled_advantages_w_time = scaled_advantages.reshape(shape=(0, -1))
-        # expected_scaled_advantages = scaled_advantages_w_time.mean(axis=1)
-        # # want to maximize expected_scaled_advantages, add minus so can minimize.
-        # surrogate_loss = (-expected_scaled_advantages * self.weight).mean()
+        #scaled_advantages = likelihood_ratio * advantages
+        # for each batch, calculate expectation of scaled_advantages across time steps,
+        # but want code to work with data without time step too, so reshape to add timestep if doesn't exist.
+        # scaled_advantages_w_time = tf.reshape(scaled_advantages, shape=(0, -1))
+        # expected_scaled_advantages = tf.reduce_mean(scaled_advantages_w_time, axis=1)
+        expected_scaled_advantages = tf.reduce_mean(scaled_advantages)
+        # want to maximize expected_scaled_advantages, add minus so can minimize.
+        surrogate_loss = -expected_scaled_advantages
+        #surrogate_loss = tf.reduce_mean(-expected_scaled_advantages * self.weight)
 
-        surrogate_loss = -tf.reduce_mean(scaled_advantages)
+        #surrogate_loss = -tf.reduce_mean(scaled_advantages)
 
-        return [
-            (surrogate_loss, LOSS_OUT_TYPE_LOSS),
-            (entropy_loss + kl_div_loss, LOSS_OUT_TYPE_REGULARIZATION),
-            (kl_div_loss, LOSS_OUT_TYPE_KL),
-            (entropy_loss, LOSS_OUT_TYPE_ENTROPY),
-            (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
-            (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
-        ]
+        # return [
+        #     (surrogate_loss, LOSS_OUT_TYPE_LOSS),
+        #     (entropy_loss + kl_div_loss, LOSS_OUT_TYPE_REGULARIZATION),
+        #     (kl_div_loss, LOSS_OUT_TYPE_KL),
+        #     (entropy_loss, LOSS_OUT_TYPE_ENTROPY),
+        #     (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
+        #     (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
+        # ]
         # dummy_loss = tf.reduce_mean(advantages*new_policy_distribution.log_prob(actions[1]))
         # dummy_loss = tf.reduce_mean(tf.sqrt(tf.square(new_policy_distribution.mean()- 5)))
         # print(new_policy_distribution.mean())
         #dummy_loss = tf.reduce_mean(advantages*new_policy_distribution.log_prob())
         #print(new_policy_distribution.mean())
         #dummy_loss = tf.constant(0, dtype=tf.float32)
-        # return [
-        #     (1e-7*surrogate_loss, LOSS_OUT_TYPE_LOSS),
-        #     (dummy_loss, LOSS_OUT_TYPE_REGULARIZATION),
-        #     (1e-7*kl_div_loss, LOSS_OUT_TYPE_KL),
-        #     (1e-7*entropy_loss, LOSS_OUT_TYPE_ENTROPY),
-        #     (1e-7*likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
-        #     (1e-7*clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
-        # ]
+        return [
+            (surrogate_loss, LOSS_OUT_TYPE_LOSS),
+            (1e-7*(entropy_loss + kl_div_loss), LOSS_OUT_TYPE_REGULARIZATION),
+            (1e-7*kl_div_loss, LOSS_OUT_TYPE_KL),
+            (1e-7*entropy_loss, LOSS_OUT_TYPE_ENTROPY),
+            (1e-7*likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
+            (1e-7*clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
+        ]
 
 
 # class PPOLoss(keras.losses.Loss):

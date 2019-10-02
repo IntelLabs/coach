@@ -159,9 +159,10 @@ class TensorFlowArchitecture(Architecture):
 
             for head, head_loss, head_output, target in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
 
-                agent_input = list(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
+                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
                                           inputs.items()))
 
+                agent_input = list(agent_input.values())
                 loss_outputs = head_loss(head_output, agent_input, target)
 
                 # if not(isinstance(head_loss, PPOLoss)):

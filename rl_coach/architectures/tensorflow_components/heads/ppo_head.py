@@ -37,7 +37,7 @@ from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
 from rl_coach.spaces import SpacesDefinition
 
-
+from rl_coach.utils import eps
 
 class ContinuousPPOHead(keras.layers.Layer):
     def __init__(self, num_actions: int) -> None:
@@ -78,7 +78,7 @@ class ContinuousPPOHead(keras.layers.Layer):
         """
         policy_means = self.policy_means_layer(inputs)
         policy_stds = self.policy_stds_layer(inputs)
-
+        policy_stds += eps
 
         ########
         #policy_std = 0.5 * tf.ones(policy_means.shape)

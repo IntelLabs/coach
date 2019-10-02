@@ -130,6 +130,7 @@ class HeadLoss(keras.layers.Layer):
                     break
                 except ValueError:
                     continue
+            # If found and also not prev_found then issue an exception
             assert not found or prev_found, "missing arguments detected!"
             prev_found = found
         return arg_list
