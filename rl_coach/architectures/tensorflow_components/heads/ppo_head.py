@@ -50,8 +50,9 @@ class ContinuousPPOHead(keras.layers.Layer):
         super(ContinuousPPOHead, self).__init__()
 
         self.policy_means_layer = tf.keras.layers.Dense(units=num_actions)
-        self.policy_stds_layer = tf.keras.layers.Dense(units=num_actions, activation='softplus')
-        #self.policy_stds_layer = tf.Variable(tf.ones(shape=(num_actions, 1)), dtype=tf.float32)
+        self.policy_log_std_layer = tf.keras.layers.Dense(units=num_actions)
+        #self.constain_positive_stds = tf.keras.activations.softplus
+        #self.policy_log_std_layer = tf.Variable(tf.zeros(shape=(num_actions, 1)), dtype=tf.float32)
 
 
         #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))
@@ -77,9 +78,11 @@ class ContinuousPPOHead(keras.layers.Layer):
             of shape (batch_size, time_step, action_mean).
         """
         policy_means = self.policy_means_layer(inputs)
-        policy_stds = self.policy_stds_layer(inputs)
-        #policy_stds = self.policy_stds_layer
-        policy_stds += eps
+        log_stds = self.policy_log_std_layer(inputs)
+        #log_stds = self.policy_log_std_layer
+        policy_stds = tf.exp(log_stds)
+ 
+        #policy_stds += eps
         #policy_stds = tf.tile(policy_stds, policy_means.shape)
 
         ########
