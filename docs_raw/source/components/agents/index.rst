@@ -21,7 +21,6 @@ A detailed description of those algorithms can be found by navigating to each of
    imitation/cil
    policy_optimization/cppo
    policy_optimization/ddpg
-   policy_optimization/sac
    other/dfp
    value_optimization/double_dqn
    value_optimization/dqn
@@ -35,6 +34,10 @@ A detailed description of those algorithms can be found by navigating to each of
    policy_optimization/ppo
    value_optimization/rainbow
    value_optimization/qr_dqn
+   policy_optimization/sac
+   policy_optimization/td3
+   policy_optimization/wolpertinger
+
 
 
 .. autoclass:: rl_coach.base_parameters.AgentParameters

@@ -87,13 +87,15 @@ class ScreenLogger(object):
         print(data)
 
     def log_dict(self, data, prefix=""):
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S.%f') + ' '
         if self._use_colors:
-            str = "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
+            str = timestamp
+            str += "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
             for k, v in data.items():
                 str += "{}{}: {}{} ".format(Colors.BLUE, k, Colors.END, v)
             print(str)
         else:
-            logentries = []
+            logentries = [timestamp]
             for k, v in data.items():
                 logentries.append("{}={}".format(k, v))
             logline = "{}> {}".format(prefix, ", ".join(logentries))
@@ -206,7 +208,7 @@ class BaseLogger(object):
             return True
         return False
 
-    def signal_value_exists(self, time, signal_name):
+    def signal_value_exists(self, signal_name, time):
         try:
             value = self.get_signal_value(time, signal_name)
             if value != value:  # value is nan
@@ -215,7 +217,9 @@ class BaseLogger(object):
             return False
         return True
 
-    def get_signal_value(self, time, signal_name):
+    def get_signal_value(self, signal_name, time=None):
+        if not time:
+            time = self.time
         return self.data.loc[time, signal_name]
 
     def dump_output_csv(self, append=True):
@@ -309,7 +313,7 @@ class Logger(BaseLogger):
 #######################################################################################################################
 
 global experiment_path
-experiment_path = None
+experiment_path = ""
 
 global experiment_name
 experiment_name = None
@@ -382,12 +386,12 @@ def summarize_experiment():
         screen.log_title("Results moved to: {}".format(new_path))
 
 
-def get_experiment_name(initial_experiment_name=''):
+def get_experiment_name(initial_experiment_name=None):
     global experiment_name
 
     match = None
     while match is None:
-        if initial_experiment_name == '':
+        if initial_experiment_name is None:
             msg_if_timeout = "Timeout waiting for experiement name."
             experiment_name = screen.ask_input_with_timeout("Please enter an experiment name: ", 60, msg_if_timeout)
         else:
@@ -407,10 +411,12 @@ def get_experiment_name(initial_experiment_name=''):
     return experiment_name
 
 
-def get_experiment_path(experiment_name, create_path=True):
+def get_experiment_path(experiment_name, initial_experiment_path=None, create_path=True):
     global experiment_path
 
-    general_experiments_path = os.path.join('./experiments/', experiment_name)
+    if not initial_experiment_path:
+        initial_experiment_path = './experiments/'
+    general_experiments_path = os.path.join(initial_experiment_path, experiment_name)
 
     cur_date = time_started.date()
     cur_time = time_started.time()

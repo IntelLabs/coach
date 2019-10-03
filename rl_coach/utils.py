@@ -532,3 +532,18 @@ def start_shell_command_and_wait(command):
 
 def indent_string(string):
     return '\t' + string.replace('\n', '\n\t')
+
+def get_latest_checkpoint(checkpoint_dir: str, checkpoint_prefix: str, checkpoint_file_extension: str) -> str:
+    latest_checkpoint_id = -1
+    latest_checkpoint = ''
+    # get all checkpoint files
+    for fname in os.listdir(checkpoint_dir):
+        path = os.path.join(checkpoint_dir, fname)
+        if os.path.isdir(path) or fname.split('.')[-1] != checkpoint_file_extension or checkpoint_prefix not in fname:
+            continue
+        checkpoint_id = int(fname.split('_')[0])
+        if checkpoint_id > latest_checkpoint_id:
+            latest_checkpoint = fname
+            latest_checkpoint_id = checkpoint_id
+
+    return latest_checkpoint

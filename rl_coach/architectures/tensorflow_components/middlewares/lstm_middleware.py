@@ -18,7 +18,7 @@
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import batchnorm_activation_dropout, Dense
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_LSTM_Embedding

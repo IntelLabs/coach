@@ -50,55 +50,24 @@ def test_preset_args(preset_args, flag, clres, start_time=time.time(),
     run_cmd.extend(test_flag)
     print(str(run_cmd))
 
-    proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
-
     try:
-        a_utils.validate_arg_result(flag=test_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
-    except AssertionError:
-        # close process once get assert false
-        proc.kill()
-        # if test failed - print logs
-        screen.error(open(clres.stdout.name).read(), crash=False)
-        assert False
+        proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
 
-    proc.kill()
+        try:
+            a_utils.validate_arg_result(flag=test_flag,
+                                        p_valid_params=p_valid_params, clres=clres,
+                                        process=proc, start_time=start_time,
+                                        timeout=time_limit)
+        except AssertionError:
+            # close process once get assert false
+            proc.kill()
+            # if test failed - print logs
+            screen.error(open(clres.stdout.name).read(), crash=False)
+            assert False
 
-
-@pytest.mark.functional_test
-def test_preset_mxnet_framework(preset_for_mxnet_args, clres,
-                                start_time=time.time(),
-                                time_limit=Def.TimeOuts.test_time_limit):
-    """ Test command arguments - the test will check mxnet framework"""
-
-    flag = ['-f', 'mxnet']
-    p_valid_params = p_utils.validation_params(preset_for_mxnet_args)
-
-    run_cmd = [
-        'python3', 'rl_coach/coach.py',
-        '-p', '{}'.format(preset_for_mxnet_args),
-        '-e', '{}'.format("ExpName_" + preset_for_mxnet_args),
-    ]
-
-    # add flags to run command
-    test_flag = a_utils.add_one_flag_value(flag=flag)
-    run_cmd.extend(test_flag)
-
-    print(str(run_cmd))
-
-    proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
-
-    try:
-        a_utils.validate_arg_result(flag=test_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
-    except AssertionError:
-        # close process once get assert false
-        proc.kill()
-        assert False
+    except OSError as e:
+        # if test launch failed due to OSError - skip test
+        pytest.skip(e)
 
     proc.kill()
 
@@ -138,18 +107,24 @@ def test_preset_seed(preset_args_for_seed, clres, start_time=time.time(),
     run_cmd.extend(test_flag)
     print(str(run_cmd))
 
-    for _ in range(seed_num):
-        proc.append(subprocess.Popen(run_cmd, stdout=clres.stdout,
-                                     stderr=clres.stdout))
-
     try:
-        a_utils.validate_arg_result(flag=test_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
-    except AssertionError:
-        close_processes()
-        assert False
+        for _ in range(seed_num):
+            proc.append(subprocess.Popen(run_cmd, stdout=clres.stdout,
+                                         stderr=clres.stdout))
+        try:
+            a_utils.validate_arg_result(flag=test_flag,
+                                        p_valid_params=p_valid_params, clres=clres,
+                                        process=proc, start_time=start_time,
+                                        timeout=time_limit)
+        except AssertionError:
+            close_processes()
+            # if test failed - print logs
+            screen.error(open(clres.stdout.name).read(), crash=False)
+            assert False
+
+    except OSError as e:
+        # if test launch failed due to OSError - skip test
+        pytest.skip(e)
 
     close_processes()
 
@@ -179,28 +154,35 @@ def test_preset_n_and_ew(preset_args, clres, start_time=time.time(),
 
     print(str(run_cmd))
 
-    proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
-
     try:
-        a_utils.validate_arg_result(flag=test_ew_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
+        proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
 
-        a_utils.validate_arg_result(flag=test_n_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
-    except AssertionError:
-        # close process once get assert false
-        proc.kill()
-        assert False
+        try:
+            a_utils.validate_arg_result(flag=test_ew_flag,
+                                        p_valid_params=p_valid_params, clres=clres,
+                                        process=proc, start_time=start_time,
+                                        timeout=time_limit)
+
+            a_utils.validate_arg_result(flag=test_n_flag,
+                                        p_valid_params=p_valid_params, clres=clres,
+                                        process=proc, start_time=start_time,
+                                        timeout=time_limit)
+        except AssertionError:
+            # close process once get assert false
+            proc.kill()
+            # if test failed - print logs
+            screen.error(open(clres.stdout.name).read(), crash=False)
+            assert False
+
+    except OSError as e:
+        # if test launch failed due to OSError - skip test
+        pytest.skip(e)
 
     proc.kill()
 
 
 @pytest.mark.functional_test
-@pytest.mark.xfail(reason="https://github.com/NervanaSystems/coach/issues/257")
+@pytest.mark.skip(reason="https://github.com/NervanaSystems/coach/issues/257")
 def test_preset_n_and_ew_and_onnx(preset_args, clres, start_time=time.time(),
                                   time_limit=Def.TimeOuts.test_time_limit):
     """
@@ -233,32 +215,39 @@ def test_preset_n_and_ew_and_onnx(preset_args, clres, start_time=time.time(),
 
     print(str(run_cmd))
 
-    proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
-
     try:
-        # Check csv files has been created
-        a_utils.validate_arg_result(flag=test_ew_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
+        proc = subprocess.Popen(run_cmd, stdout=clres.stdout, stderr=clres.stdout)
 
-        # Check csv files created same as the number of the workers
-        a_utils.validate_arg_result(flag=test_n_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
+        try:
+            # Check csv files has been created
+            a_utils.validate_arg_result(flag=test_ew_flag,
+                                        p_valid_params=p_valid_params, clres=clres,
+                                        process=proc, start_time=start_time,
+                                        timeout=time_limit)
 
-        # Check checkpoint files
-        a_utils.validate_arg_result(flag=test_s_flag,
-                                    p_valid_params=p_valid_params, clres=clres,
-                                    process=proc, start_time=start_time,
-                                    timeout=time_limit)
+            # Check csv files created same as the number of the workers
+            a_utils.validate_arg_result(flag=test_n_flag,
+                                        p_valid_params=p_valid_params, clres=clres,
+                                        process=proc, start_time=start_time,
+                                        timeout=time_limit)
 
-        # TODO: add onnx check; issue found #257
+            # Check checkpoint files
+            a_utils.validate_arg_result(flag=test_s_flag,
+                                        p_valid_params=p_valid_params, clres=clres,
+                                        process=proc, start_time=start_time,
+                                        timeout=time_limit)
 
-    except AssertionError:
-        # close process once get assert false
-        proc.kill()
-        assert False
+            # TODO: add onnx check; issue found #257
+
+        except AssertionError:
+            # close process once get assert false
+            proc.kill()
+            # if test failed - print logs
+            screen.error(open(clres.stdout.name).read(), crash=False)
+            assert False
+
+    except OSError as e:
+        # if test launch failed due to OSError - skip test
+        pytest.skip(e)
 
     proc.kill()

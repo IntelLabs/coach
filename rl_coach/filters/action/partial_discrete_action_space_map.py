@@ -48,7 +48,8 @@ class PartialDiscreteActionSpaceMap(ActionFilter):
 
     def get_unfiltered_action_space(self, output_action_space: ActionSpace) -> DiscreteActionSpace:
         self.output_action_space = output_action_space
-        self.input_action_space = DiscreteActionSpace(len(self.target_actions), self.descriptions)
+        self.input_action_space = DiscreteActionSpace(len(self.target_actions), self.descriptions,
+                                                      filtered_action_space=output_action_space)
         return self.input_action_space
 
     def filter(self, action: ActionType) -> ActionType:

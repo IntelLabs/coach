@@ -21,6 +21,7 @@ from rl_coach.spaces import RewardSpace
 class RewardFilter(Filter):
     def __init__(self):
         super().__init__()
+        self.supports_batching = False
 
     def get_filtered_reward_space(self, input_reward_space: RewardSpace) -> RewardSpace:
         """

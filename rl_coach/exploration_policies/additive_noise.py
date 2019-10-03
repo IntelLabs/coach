@@ -17,7 +17,6 @@
 from typing import List
 
 import numpy as np
-import scipy.stats
 
 from rl_coach.core_types import RunPhase, ActionType
 from rl_coach.exploration_policies.exploration_policy import ContinuousActionExplorationPolicy, ExplorationParameters
@@ -31,8 +30,9 @@ from rl_coach.spaces import ActionSpace, BoxActionSpace
 class AdditiveNoiseParameters(ExplorationParameters):
     def __init__(self):
         super().__init__()
-        self.noise_percentage_schedule = LinearSchedule(0.1, 0.1, 50000)
-        self.evaluation_noise_percentage = 0.05
+        self.noise_schedule = LinearSchedule(0.1, 0.1, 50000)
+        self.evaluation_noise = 0.05
+        self.noise_as_percentage_from_action_space = True
 
     @property
     def path(self):
@@ -48,19 +48,23 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
     2. Specified by the agents action. In case the agents action is a list with 2 values, the 1st one is assumed to
     be the mean of the action, and 2nd is assumed to be its standard deviation.
     """
-    def __init__(self, action_space: ActionSpace, noise_percentage_schedule: Schedule,
-                 evaluation_noise_percentage: float):
+    def __init__(self, action_space: ActionSpace, noise_schedule: Schedule,
+                 evaluation_noise: float, noise_as_percentage_from_action_space: bool = True):
         """
         :param action_space: the action space used by the environment
-        :param noise_percentage_schedule: the schedule for the noise variance percentage relative to the absolute range
-                                          of the action space
-        :param evaluation_noise_percentage: the noise variance percentage that will be used during evaluation phases
+        :param noise_schedule: the schedule for the noise
+        :param evaluation_noise: the noise variance that will be used during evaluation phases
+        :param noise_as_percentage_from_action_space: a bool deciding whether the noise is absolute or as a percentage
+                                                      from the action space
         """
         super().__init__(action_space)
-        self.noise_percentage_schedule = noise_percentage_schedule
-        self.evaluation_noise_percentage = evaluation_noise_percentage
+        self.noise_schedule = noise_schedule
+        self.evaluation_noise = evaluation_noise
+        self.noise_as_percentage_from_action_space = noise_as_percentage_from_action_space
 
-        if not isinstance(action_space, BoxActionSpace):
+        if not isinstance(action_space, BoxActionSpace) and \
+                (hasattr(action_space, 'filtered_action_space') and not
+                 isinstance(action_space.filtered_action_space, BoxActionSpace)):
             raise ValueError("Additive noise exploration works only for continuous controls."
                              "The given action space is of type: {}".format(action_space.__class__.__name__))
 
@@ -68,19 +72,20 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
                 or not np.all(-np.inf < action_space.low) or not np.all(action_space.low < np.inf):
             raise ValueError("Additive noise exploration requires bounded actions")
 
-        # TODO: allow working with unbounded actions by defining the noise in terms of range and not percentage
-
     def get_action(self, action_values: List[ActionType]) -> ActionType:
         # TODO-potential-bug consider separating internally defined stdev and externally defined stdev into 2 policies
 
-        # set the current noise percentage
+        # set the current noise
         if self.phase == RunPhase.TEST:
-            current_noise_precentage = self.evaluation_noise_percentage
+            current_noise = self.evaluation_noise
         else:
-            current_noise_precentage = self.noise_percentage_schedule.current_value
+            current_noise = self.noise_schedule.current_value
 
         # scale the noise to the action space range
-        action_values_std = current_noise_precentage * (self.action_space.high - self.action_space.low)
+        if self.noise_as_percentage_from_action_space:
+            action_values_std = current_noise * (self.action_space.high - self.action_space.low)
+        else:
+            action_values_std = current_noise
 
         # extract the mean values
         if isinstance(action_values, list):
@@ -92,15 +97,18 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
 
         # step the noise schedule
         if self.phase is not RunPhase.TEST:
-            self.noise_percentage_schedule.step()
+            self.noise_schedule.step()
             # the second element of the list is assumed to be the standard deviation
             if isinstance(action_values, list) and len(action_values) > 1:
                 action_values_std = action_values[1].squeeze()
 
         # add noise to the action means
-        action = np.random.normal(action_values_mean, action_values_std)
+        if self.phase is not RunPhase.TEST:
+            action = np.random.normal(action_values_mean, action_values_std)
+        else:
+            action = action_values_mean
 
-        return action
+        return np.atleast_1d(action)
 
     def get_control_param(self):
-        return np.ones(self.action_space.shape)*self.noise_percentage_schedule.current_value
+        return np.ones(self.action_space.shape)*self.noise_schedule.current_value

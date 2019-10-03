@@ -113,6 +113,8 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
         self.normalization_stats = None
         self.clipping_decay_schedule = ConstantSchedule(1)
         self.act_for_full_episodes = True
+        self.update_pre_network_filters_state_on_train = True
+        self.update_pre_network_filters_state_on_inference = False
 
         self.discount_for_additional_value_heads = []
         self.reward_coefficient = [1.0]
@@ -346,7 +348,9 @@ class ClippedPPOAgent(ActorCriticAgent):
 
             self.pre_training_commands()
             dataset = self.memory.transitions
-            dataset = self.pre_network_filter.filter(dataset, deep_copy=False)
+            update_internal_state = self.ap.algorithm.update_pre_network_filters_state_on_train
+            dataset = self.pre_network_filter.filter(dataset, deep_copy=False,
+                                                     update_internal_state=update_internal_state)
             batch = Batch(dataset)
 
             for training_step in range(self.ap.algorithm.num_consecutive_training_steps):
@@ -372,7 +376,9 @@ class ClippedPPOAgent(ActorCriticAgent):
 
     def run_pre_network_filter_for_inference(self, state: StateType, update_internal_state: bool=False):
         dummy_env_response = EnvResponse(next_state=state, reward=0, game_over=False)
-        return self.pre_network_filter.filter(dummy_env_response, update_internal_state=False)[0].next_state
+        update_internal_state = self.ap.algorithm.update_pre_network_filters_state_on_inference
+        return self.pre_network_filter.filter(
+            dummy_env_response, update_internal_state=update_internal_state)[0].next_state
 
     def choose_action(self, curr_state):
         self.ap.algorithm.clipping_decay_schedule.step()

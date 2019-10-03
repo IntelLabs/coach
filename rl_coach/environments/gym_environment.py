@@ -30,7 +30,7 @@ except ImportError:
     failed_imports.append("RoboSchool")
 
 try:
-    from rl_coach.gym_extensions.continuous import mujoco
+    from gym_extensions.continuous import mujoco
 except:
     from rl_coach.logger import failed_imports
     failed_imports.append("GymExtensions")
@@ -142,7 +142,7 @@ atari_schedule = ScheduleParameters()
 atari_schedule.improve_steps = EnvironmentSteps(50000000)
 atari_schedule.steps_between_evaluation_periods = EnvironmentSteps(250000)
 atari_schedule.evaluation_steps = EnvironmentSteps(135000)
-atari_schedule.heatup_steps = EnvironmentSteps(1)
+atari_schedule.heatup_steps = EnvironmentSteps(50000)
 
 
 class MaxOverFramesAndFrameskipEnvWrapper(gym.Wrapper):
@@ -392,9 +392,6 @@ class GymEnvironment(Environment):
             else:
                 screen.error("Error: Environment {} does not support human control.".format(self.env), crash=True)
 
-        # initialize the state by getting a new state from the environment
-        self.reset_internal_state(True)
-
         # render
         if self.is_rendered:
             image = self.get_rendered_image()
@@ -405,7 +402,6 @@ class GymEnvironment(Environment):
                 self.renderer.create_screen(image.shape[1]*scale, image.shape[0]*scale)
 
         # the info is only updated after the first step
-        self.state = self.step(self.action_space.default_action).next_state
         self.state_space['measurements'] = VectorObservationSpace(shape=len(self.info.keys()))
 
         if self.env.spec and custom_reward_threshold is None:

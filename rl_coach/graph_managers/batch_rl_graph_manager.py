@@ -37,7 +37,6 @@ from rl_coach.memories.episodic import EpisodicExperienceReplayParameters
 from rl_coach.core_types import TimeTypes
 
 
-# TODO build a tutorial for batch RL
 class BatchRLGraphManager(BasicRLGraphManager):
     """
     A batch RL graph manager creates a scenario of learning from a dataset without a simulator.
@@ -95,6 +94,8 @@ class BatchRLGraphManager(BasicRLGraphManager):
             self.schedule_params = schedule_params
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
+        assert self.agent_params.memory.load_memory_from_file_path or self.env_params, \
+            "BatchRL requires either a dataset to train from or an environment to collect a dataset from. "
         if self.env_params:
             # environment loading
             self.env_params.seed = task_parameters.seed
@@ -172,36 +173,38 @@ class BatchRLGraphManager(BasicRLGraphManager):
         # initialize the network parameters from the global network
         self.sync()
 
-        # TODO a bug in heatup where the last episode run is not fed into the ER. e.g. asked for 1024 heatup steps,
-        #  last ran episode ended increased the total to 1040 steps, but the ER will contain only 1014 steps.
-        #  The last episode is not there. Is this a bug in my changes or also on master?
+        # If we have both an environment and a dataset to load from, we will use the environment only for
+        # evaluating the policy, and will not run heatup. If no dataset is available to load from, we will be collecting
+        # a dataset from an environment.
+        if not self.agent_params.memory.load_memory_from_file_path:
+            if self.is_collecting_random_dataset:
+                # heatup
+                if self.env_params is not None:
+                    screen.log_title(
+                        "Collecting random-action experience to use for training the actual agent in a Batch RL "
+                        "fashion")
+                    # Creating a random dataset during the heatup phase is useful mainly for tutorial and debug
+                    # purposes.
+                    self.heatup(self.heatup_steps)
+            else:
+                screen.log_title(
+                    "Starting to improve an agent collecting experience to use for training the actual agent in a "
+                    "Batch RL fashion")
 
-        # Creating a dataset during the heatup phase is useful mainly for tutorial and debug purposes. If we have both
-        # an environment and a dataset to load from, we will use the environment only for evaluating the policy,
-        # and will not run heatup.
+                # set the experience generating agent to train
+                self.level_managers[0].agents = {'experience_generating_agent': self.experience_generating_agent}
 
-        screen.log_title("Starting to improve an agent collecting experience to use for training the actual agent in a "
-                         "Batch RL fashion")
+                # collect a dataset using the experience generating agent
+                super().improve()
 
-        if self.is_collecting_random_dataset:
-            # heatup
-            if self.env_params is not None and not self.agent_params.memory.load_memory_from_file_path:
-                self.heatup(self.heatup_steps)
-        else:
-            # set the experience generating agent to train
-            self.level_managers[0].agents = {'experience_generating_agent': self.experience_generating_agent}
+                # set the acquired experience to the actual agent that we're going to train
+                self.agent.memory = self.experience_generating_agent.memory
 
-            # collect a dataset using the experience generating agent
-            super().improve()
+                # switch the graph scheduling parameters
+                self.set_schedule_params(self.schedule_params)
 
-            # set the acquired experience to the actual agent that we're going to train
-            self.agent.memory = self.experience_generating_agent.memory
-
-            # switch the graph scheduling parameters
-            self.set_schedule_params(self.schedule_params)
-
-            # set the actual agent to train
-            self.level_managers[0].agents = {'agent': self.agent}
+                # set the actual agent to train
+                self.level_managers[0].agents = {'agent': self.agent}
 
         # this agent never actually plays
         self.level_managers[0].agents['agent'].ap.algorithm.num_consecutive_playing_steps = EnvironmentSteps(0)

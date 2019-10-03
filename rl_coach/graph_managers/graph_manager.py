@@ -23,12 +23,10 @@ from typing import List, Tuple
 import contextlib
 
 from rl_coach.base_parameters import iterable_to_items, TaskParameters, DistributedTaskParameters, Frameworks, \
-    VisualizationParameters, \
-    Parameters, PresetValidationParameters, RunType
+    VisualizationParameters, Parameters, PresetValidationParameters, RunType
 from rl_coach.checkpoint import CheckpointStateUpdater, get_checkpoint_state, SingleCheckpoint, CheckpointState
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
-    EnvironmentSteps, \
-    StepMethod, Transition
+    EnvironmentSteps, StepMethod, Transition
 from rl_coach.environments.environment import Environment
 from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen, Logger
@@ -123,6 +121,10 @@ class GraphManager(object):
         self.time_metric = TimeTypes.EpisodeNumber
 
     def create_graph(self, task_parameters: TaskParameters=TaskParameters()):
+        # check if create graph has been already called
+        if self.graph_creation_time is not None:
+            return self
+
         self.graph_creation_time = time.time()
         self.task_parameters = task_parameters
 
@@ -230,18 +232,14 @@ class GraphManager(object):
             else:
                 checkpoint_dir = task_parameters.checkpoint_save_dir
 
-            self.sess = create_monitored_session(target=task_parameters.worker_target,
-                                                 task_index=task_parameters.task_index,
-                                                 checkpoint_dir=checkpoint_dir,
-                                                 checkpoint_save_secs=task_parameters.checkpoint_save_secs,
-                                                 config=config)
-            # set the session for all the modules
-            self.set_session(self.sess)
+            self.set_session(create_monitored_session(target=task_parameters.worker_target,
+                                                      task_index=task_parameters.task_index,
+                                                      checkpoint_dir=checkpoint_dir,
+                                                      checkpoint_save_secs=task_parameters.checkpoint_save_secs,
+                                                      config=config))
         else:
             # regular session
-            self.sess = tf.Session(config=config)
-            # set the session for all the modules
-            self.set_session(self.sess)
+            self.set_session(tf.Session(config=config))
 
         # the TF graph is static, and therefore is saved once - in the beginning of the experiment
         if hasattr(self.task_parameters, 'checkpoint_save_dir') and self.task_parameters.checkpoint_save_dir:
@@ -364,6 +362,8 @@ class GraphManager(object):
         Set the deep learning framework session for all the modules in the graph
         :return: None
         """
+        self.sess = sess
+
         [manager.set_session(sess) for manager in self.level_managers]
 
     def heatup(self, steps: PlayingStepsType) -> None:
@@ -708,8 +708,9 @@ class GraphManager(object):
 
     def fetch_from_worker(self, num_consecutive_playing_steps=None):
         if hasattr(self, 'memory_backend'):
-            for transition in self.memory_backend.fetch(num_consecutive_playing_steps):
-                self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
+            with self.phase_context(RunPhase.TRAIN):
+                for transition in self.memory_backend.fetch(num_consecutive_playing_steps):
+                    self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
 
     def setup_memory_backend(self) -> None:
         if hasattr(self.agent_params.memory, 'memory_backend_params'):

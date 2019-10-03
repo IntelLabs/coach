@@ -201,7 +201,7 @@
 
 <span class="kn">from</span> <span class="nn">rl_coach.base_parameters</span> <span class="k">import</span> <span class="n">Parameters</span>
 <span class="kn">from</span> <span class="nn">rl_coach.core_types</span> <span class="k">import</span> <span class="n">RunPhase</span><span class="p">,</span> <span class="n">ActionType</span>
-<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ActionSpace</span>
+<span class="kn">from</span> <span class="nn">rl_coach.spaces</span> <span class="k">import</span> <span class="n">ActionSpace</span><span class="p">,</span> <span class="n">DiscreteActionSpace</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">,</span> <span class="n">GoalsSpace</span>
 
 
 <span class="k">class</span> <span class="nc">ExplorationParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
@@ -237,14 +237,10 @@
 <span class="sd">        Given a list of values corresponding to each action, </span>
 <span class="sd">        choose one actions according to the exploration policy</span>
 <span class="sd">        :param action_values: A list of action values</span>
-<span class="sd">        :return: The chosen action</span>
+<span class="sd">        :return: The chosen action,</span>
+<span class="sd">                 The probability of the action (if available, otherwise 1 for absolute certainty in the action)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">ExplorationPolicy</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The ExplorationPolicy class is an abstract class and should not be used directly. &quot;</span>
-                             <span class="s2">&quot;Please set the exploration parameters to point to an inheriting class like EGreedy or &quot;</span>
-                             <span class="s2">&quot;AdditiveNoise&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The get_action function should be overridden in the inheriting exploration class&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ExplorationPolicy.change_phase"><a class="viewcode-back" href="../../../components/exploration_policies/index.html#rl_coach.exploration_policies.exploration_policy.ExplorationPolicy.change_phase">[docs]</a>    <span class="k">def</span> <span class="nf">change_phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -265,6 +261,48 @@
 
     <span class="k">def</span> <span class="nf">get_control_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<span class="k">class</span> <span class="nc">DiscreteActionExplorationPolicy</span><span class="p">(</span><span class="n">ExplorationPolicy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A discrete action exploration policy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">:</span> <span class="n">ActionSpace</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param action_space: the action space used by the environment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">DiscreteActionSpace</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">ActionType</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a list of values corresponding to each action,</span>
+<span class="sd">        choose one actions according to the exploration policy</span>
+<span class="sd">        :param action_values: A list of action values</span>
+<span class="sd">        :return: The chosen action,</span>
+<span class="sd">                 The probabilities of actions to select from (if not available a one-hot vector)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">ExplorationPolicy</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The ExplorationPolicy class is an abstract class and should not be used directly. &quot;</span>
+                             <span class="s2">&quot;Please set the exploration parameters to point to an inheriting class like EGreedy or &quot;</span>
+                             <span class="s2">&quot;AdditiveNoise&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The get_action function should be overridden in the inheriting exploration class&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ContinuousActionExplorationPolicy</span><span class="p">(</span><span class="n">ExplorationPolicy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A continuous action exploration policy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">:</span> <span class="n">ActionSpace</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param action_space: the action space used by the environment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">)</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="s1">&#39;filtered_action_space&#39;</span><span class="p">)</span> <span class="ow">and</span>
+                 <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="o">.</span><span class="n">filtered_action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">))</span> <span class="ow">or</span> \
+               <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span>
 </pre></div>
 
            </div>

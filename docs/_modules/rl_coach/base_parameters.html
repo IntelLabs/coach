@@ -182,6 +182,7 @@
             
   <h1>Source code for rl_coach.base_parameters</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
+<span class="c1">#</span>
 <span class="c1"># Copyright (c) 2017 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -395,6 +396,14 @@
         <span class="c1"># Support for parameter noise</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supports_parameter_noise</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="c1"># Override, in retrospective, all the episode rewards with the last reward in the episode</span>
+        <span class="c1"># (sometimes useful for sparse, end of the episode, rewards problems)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">override_episode_rewards_with_the_last_transition_reward</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Filters - TODO consider creating a FilterParameters class and initialize the filters with it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_pre_network_filters_state_on_train</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_pre_network_filters_state_on_inference</span> <span class="o">=</span> <span class="kc">True</span>
+        
 
 <div class="viewcode-block" id="PresetValidationParameters"><a class="viewcode-back" href="../../components/additional_parameters.html#rl_coach.base_parameters.PresetValidationParameters">[docs]</a><span class="k">class</span> <span class="nc">PresetValidationParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -405,7 +414,8 @@
                  <span class="n">reward_test_level</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">test_using_a_trace_test</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">trace_test_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">trace_max_env_steps</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
+                 <span class="n">trace_max_env_steps</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+                 <span class="n">read_csv_tries</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param test:</span>
 <span class="sd">            A flag which specifies if the preset should be tested as part of the validation process.</span>
@@ -428,6 +438,8 @@
 <span class="sd">        :param trace_max_env_steps:</span>
 <span class="sd">            An integer representing the maximum number of environment steps to run when running this preset as part</span>
 <span class="sd">            of the trace tests suite.</span>
+<span class="sd">        :param read_csv_tries:</span>
+<span class="sd">            The number of retries to attempt for reading the experiment csv file, before declaring failure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -443,7 +455,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reward_test_level</span> <span class="o">=</span> <span class="n">reward_test_level</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">test_using_a_trace_test</span> <span class="o">=</span> <span class="n">test_using_a_trace_test</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trace_test_levels</span> <span class="o">=</span> <span class="n">trace_test_levels</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trace_max_env_steps</span> <span class="o">=</span> <span class="n">trace_max_env_steps</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trace_max_env_steps</span> <span class="o">=</span> <span class="n">trace_max_env_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_csv_tries</span> <span class="o">=</span> <span class="n">read_csv_tries</span></div>
 
 
 <div class="viewcode-block" id="NetworkParameters"><a class="viewcode-back" href="../../components/architectures/index.html#rl_coach.base_parameters.NetworkParameters">[docs]</a><span class="k">class</span> <span class="nc">NetworkParameters</span><span class="p">(</span><span class="n">Parameters</span><span class="p">):</span>

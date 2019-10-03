@@ -15,7 +15,7 @@ schedule_params = ScheduleParameters()
 schedule_params.improve_steps = EnvironmentSteps(2000000)
 schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(20)
 schedule_params.evaluation_steps = EnvironmentEpisodes(1)
-schedule_params.heatup_steps = EnvironmentSteps(1000)
+schedule_params.heatup_steps = EnvironmentSteps(10000)
 
 #########
 # Agent #
@@ -38,7 +38,7 @@ env_params = GymVectorEnvironment(level=SingleLevelSelection(mujoco_v2))
 preset_validation_params = PresetValidationParameters()
 preset_validation_params.test = True
 preset_validation_params.min_reward_threshold = 400
-preset_validation_params.max_episodes_to_achieve_reward = 1000
+preset_validation_params.max_episodes_to_achieve_reward = 3000
 preset_validation_params.reward_test_level = 'inverted_pendulum'
 preset_validation_params.trace_test_levels = ['inverted_pendulum', 'hopper']
 
