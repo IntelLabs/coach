@@ -104,20 +104,21 @@ class ActorCriticAgent(PolicyOptimizationAgent):
     def discount(self, x, gamma):
         return scipy.signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]
 
-    def get_general_advantage_estimation_values(self, rewards, values):
+    def get_general_advantage_estimation_values(self, rewards, values, discount=None):
+        if discount is None:
+            discount = self.ap.algorithm.discount
         # values contain n+1 elements (t ... t+n+1), rewards contain n elements (t ... t + n)
         bootstrap_extended_rewards = np.array(rewards.tolist() + [values[-1]])
 
         # Approximation based calculation of GAE (mathematically correct only when Tmax = inf,
         # although in practice works even in much smaller Tmax values, e.g. 20)
-        deltas = rewards + self.ap.algorithm.discount * values[1:] - values[:-1]
-        gae = self.discount(deltas, self.ap.algorithm.discount * self.ap.algorithm.gae_lambda)
+        deltas = rewards + discount * values[1:] - values[:-1]
+        gae = self.discount(deltas, discount * self.ap.algorithm.gae_lambda)
 
         if self.ap.algorithm.estimate_state_value_using_gae:
             discounted_returns = np.expand_dims(gae + values[:-1], -1)
         else:
-            discounted_returns = np.expand_dims(np.array(self.discount(bootstrap_extended_rewards,
-                                                                       self.ap.algorithm.discount)), 1)[:-1]
+            discounted_returns = np.expand_dims(np.array(self.discount(bootstrap_extended_rewards, discount)), 1)[:-1]
         return gae, discounted_returns
 
     def learn_from_batch(self, batch):
@@ -183,4 +184,5 @@ class ActorCriticAgent(PolicyOptimizationAgent):
 
     def get_prediction(self, states):
         tf_input_state = self.prepare_batch_for_inference(states, "main")
-        return self.networks['main'].online_network.predict(tf_input_state)[1:]  # index 0 is the state value
+        num_value_heads = len(self.networks['main'].online_network.output_heads) - 1
+        return self.networks['main'].online_network.predict(tf_input_state)[num_value_heads:]

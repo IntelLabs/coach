@@ -17,6 +17,7 @@ from .sac_q_head import SACQHead
 from .classification_head import ClassificationHead
 from .cil_head import RegressionHead
 from .ddpg_v_head import DDPGVHead
+from .RND_head import RNDHead
 
 __all__ = [
     'CategoricalQHead',
@@ -37,5 +38,6 @@ __all__ = [
     'SACQHead',
     'ClassificationHead',
     'RegressionHead',
-    'DDPGVHead'
+    'DDPGVHead',
+    'RNDHead'
 ]

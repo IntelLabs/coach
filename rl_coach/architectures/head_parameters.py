@@ -221,3 +221,8 @@ class SACQHeadParameters(HeadParameters):
         super().__init__(parameterized_class_name='SACQHead', activation_function=activation_function, name=name,
                          dense_layer=dense_layer)
         self.network_layers_sizes = layers_sizes
+
+
+class RNDHeadParameters(HeadParameters):
+    def __init__(self, name: str = 'rnd_head_params', dense_layer=None):
+        super().__init__(parameterized_class_name="RNDHead", name=name, dense_layer=dense_layer)

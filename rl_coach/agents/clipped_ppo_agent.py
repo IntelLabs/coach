@@ -114,6 +114,9 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
         self.clipping_decay_schedule = ConstantSchedule(1)
         self.act_for_full_episodes = True
 
+        self.discount_for_additional_value_heads = []
+        self.reward_coefficient = [1.0]
+
 
 class ClippedPPOAgentParameters(AgentParameters):
     def __init__(self):
@@ -149,10 +152,24 @@ class ClippedPPOAgent(ActorCriticAgent):
 
     def fill_advantages(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+        num_value_heads = len(self.networks['main'].online_network.output_heads) - 1
 
-        current_state_values = self.networks['main'].online_network.predict(batch.states(network_keys))[0]
-        current_state_values = current_state_values.squeeze()
-        self.state_values.add_sample(current_state_values)
+        state_values = []
+        for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
+            start = i * self.ap.network_wrappers['main'].batch_size
+            end = (i + 1) * self.ap.network_wrappers['main'].batch_size
+            res = self.networks['main'].online_network.predict(
+                {k: v[start:end] for k, v in batch.states(network_keys).items()})
+            state_values.append(res[:num_value_heads])
+        res = self.networks['main'].online_network.predict(
+            {k: v[end:] for k, v in batch.states(network_keys).items()})
+        state_values.append(res[:num_value_heads])
+
+        current_state_values = []
+        for i in range(num_value_heads):
+            current_state_values.append(np.concatenate([v[i] for v in state_values]).squeeze())
+        current_state_values = np.array(current_state_values)
+        self.state_values.add_sample(current_state_values[0])
 
         # calculate advantages
         advantages = []
@@ -162,29 +179,46 @@ class ClippedPPOAgent(ActorCriticAgent):
         if self.policy_gradient_rescaler == PolicyGradientRescaler.A_VALUE:
             advantages = total_returns - current_state_values
         elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
-            # get bootstraps
-            episode_start_idx = 0
-            advantages = np.array([])
-            value_targets = np.array([])
-            for idx, game_over in enumerate(batch.game_overs()):
-                if game_over:
-                    # get advantages for the rollout
-                    value_bootstrapping = np.zeros((1,))
-                    rollout_state_values = np.append(current_state_values[episode_start_idx:idx+1], value_bootstrapping)
-
-                    rollout_advantages, gae_based_value_targets = \
-                        self.get_general_advantage_estimation_values(batch.rewards()[episode_start_idx:idx+1],
-                                                                     rollout_state_values)
-                    episode_start_idx = idx + 1
-                    advantages = np.append(advantages, rollout_advantages)
-                    value_targets = np.append(value_targets, gae_based_value_targets)
+            total_advantages = np.zeros(batch.size)
+            value_targets_per_head = []
+            for i in range(num_value_heads):
+                if i == 0:
+                    discount = self.ap.algorithm.discount
+                else:
+                    discount = self.ap.algorithm.discount_for_additional_value_heads[i-1]
+                if num_value_heads == 1:
+                    rewards = batch.rewards()
+                    game_overs = batch.game_overs()
+                else:
+                    rewards = batch.rewards()[:, i]
+                    game_overs = batch.game_overs()[:, i]
+                # get bootstraps
+                episode_start_idx = 0
+                advantages = np.array([])
+                value_targets = np.array([])
+                for idx, game_over in enumerate(game_overs):
+                    if game_over or idx == batch.size - 1:
+                        # get advantages for the rollout
+                        value_bootstrapping = np.zeros((1,))
+                        rollout_state_values = np.append(current_state_values[i, episode_start_idx:idx+1],
+                                                         value_bootstrapping)
+                        rollout_advantages, gae_based_value_targets = \
+                            self.get_general_advantage_estimation_values(rewards[episode_start_idx:idx+1],
+                                                                         rollout_state_values,
+                                                                         discount)
+                        episode_start_idx = idx + 1
+                        advantages = np.append(advantages, rollout_advantages)
+                        value_targets = np.append(value_targets, gae_based_value_targets)
+                total_advantages += self.ap.algorithm.reward_coefficient[i] * advantages
+                value_targets_per_head.append(value_targets)
+            value_targets_per_head = np.array(value_targets_per_head).transpose()
         else:
             screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         # standardize
         advantages = (advantages - np.mean(advantages)) / np.std(advantages)
 
-        for transition, advantage, value_target in zip(batch.transitions, advantages, value_targets):
+        for transition, advantage, value_target in zip(batch.transitions, total_advantages, value_targets_per_head):
             transition.info['advantage'] = advantage
             transition.info['gae_based_value_target'] = value_target
 
@@ -202,10 +236,10 @@ class ClippedPPOAgent(ActorCriticAgent):
                 'entropy': []
             }
 
-            fetches = [self.networks['main'].online_network.output_heads[1].kl_divergence,
-                       self.networks['main'].online_network.output_heads[1].entropy,
-                       self.networks['main'].online_network.output_heads[1].likelihood_ratio,
-                       self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
+            fetches = [self.networks['main'].online_network.output_heads[-1].kl_divergence,
+                       self.networks['main'].online_network.output_heads[-1].entropy,
+                       self.networks['main'].online_network.output_heads[-1].likelihood_ratio,
+                       self.networks['main'].online_network.output_heads[-1].clipped_likelihood_ratio]
 
             # TODO-fixme if batch.size / self.ap.network_wrappers['main'].batch_size is not an integer, we do not train on
             #  some of the data
@@ -214,8 +248,10 @@ class ClippedPPOAgent(ActorCriticAgent):
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size
 
                 network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+                num_value_heads = len(self.networks['main'].online_network.output_heads) - 1
                 actions = batch.actions()[start:end]
                 gae_based_value_targets = batch.info('gae_based_value_target')[start:end]
+
                 if not isinstance(self.spaces.action, DiscreteActionSpace) and len(actions.shape) == 1:
                     actions = np.expand_dims(actions, -1)
 
@@ -224,7 +260,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                 # TODO-perf - the target network ("old_policy") is not changing. this can be calculated once for all epochs.
                 # the shuffling being done, should only be performed on the indices.
                 result = self.networks['main'].target_network.predict({k: v[start:end] for k, v in batch.states(network_keys).items()})
-                old_policy_distribution = result[1:]
+                old_policy_distribution = result[num_value_heads:]
 
                 total_returns = batch.n_step_discounted_rewards(expand_dims=True)
 
@@ -235,21 +271,24 @@ class ClippedPPOAgent(ActorCriticAgent):
                     value_targets = total_returns[start:end]
 
                 inputs = copy.copy({k: v[start:end] for k, v in batch.states(network_keys).items()})
-                inputs['output_1_0'] = actions
+                inputs['output_{}_0'.format(num_value_heads)] = actions
 
                 # The old_policy_distribution needs to be represented as a list, because in the event of
                 # discrete controls, it has just a mean. otherwise, it has both a mean and standard deviation
                 for input_index, input in enumerate(old_policy_distribution):
-                    inputs['output_1_{}'.format(input_index + 1)] = input
+                    inputs['output_{}_{}'.format(num_value_heads, input_index + 1)] = input
 
                 # update the clipping decay schedule value
-                inputs['output_1_{}'.format(len(old_policy_distribution)+1)] = \
+                inputs['output_{}_{}'.format(num_value_heads, len(old_policy_distribution)+1)] = \
                     self.ap.algorithm.clipping_decay_schedule.current_value
 
+                targets = []
+                for i in range(num_value_heads):
+                    targets.append(np.expand_dims(gae_based_value_targets[:, i], -1))
+                targets.append(batch.info('advantage')[start:end])
+
                 total_loss, losses, unclipped_grads, fetch_result = \
-                    self.networks['main'].train_and_sync_networks(
-                        inputs, [value_targets, batch.info('advantage')[start:end]], additional_fetches=fetches
-                    )
+                    self.networks['main'].train_and_sync_networks(inputs, targets, additional_fetches=fetches)
 
                 batch_results['total_loss'].append(total_loss)
                 batch_results['losses'].append(losses)
@@ -266,7 +305,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                 batch_results[key] = np.mean(batch_results[key], 0)
 
             self.value_loss.add_sample(batch_results['losses'][0])
-            self.policy_loss.add_sample(batch_results['losses'][1])
+            self.policy_loss.add_sample(batch_results['losses'][-1])
             self.loss.add_sample(batch_results['total_loss'])
 
             if self.ap.network_wrappers['main'].learning_rate_decay_rate != 0:
@@ -279,7 +318,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             # log training parameters
             screen.log_dict(
                 OrderedDict([
-                    ("Surrogate loss", batch_results['losses'][1]),
+                    ("Surrogate loss", batch_results['losses'][-1]),
                     ("KL divergence", batch_results['kl_divergence']),
                     ("Entropy", batch_results['entropy']),
                     ("training epoch", j),
@@ -297,11 +336,15 @@ class ClippedPPOAgent(ActorCriticAgent):
         # clean memory
         self.call_memory('clean')
 
+    def pre_training_commands(self):
+        pass
+
     def train(self):
         if self._should_train():
             for network in self.networks.values():
                 network.set_is_training(True)
 
+            self.pre_training_commands()
             dataset = self.memory.transitions
             dataset = self.pre_network_filter.filter(dataset, deep_copy=False)
             batch = Batch(dataset)
