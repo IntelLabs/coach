@@ -55,7 +55,8 @@ class Trainer(TensorFlowArchitecture):
             generalized_network = Trainer(*args, **kwargs)
             loss = generalized_network.losses
             optimizer = generalized_network.optimizer
-            generalized_network.model.compile(loss=loss, optimizer=optimizer)
+            #generalized_network.model.compile(loss=loss, optimizer=optimizer)
+            generalized_network.model.compile(optimizer=optimizer)
 
         # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
         generalized_network.model(generalized_network.model.dummy_model_inputs)

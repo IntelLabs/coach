@@ -51,6 +51,7 @@ class ContinuousPPOHead(keras.layers.Layer):
 
         self.policy_means_layer = tf.keras.layers.Dense(units=num_actions)
         self.policy_stds_layer = tf.keras.layers.Dense(units=num_actions, activation='softplus')
+        #self.policy_stds_layer = tf.Variable(tf.ones(shape=(num_actions, 1)), dtype=tf.float32)
 
 
         #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))
@@ -60,8 +61,7 @@ class ContinuousPPOHead(keras.layers.Layer):
         # but since we assume the action probability variables are independent,
         # only the diagonal entries of the covariance matrix are specified.
 
-        #self.log_std = tf.zeros(shape=(num_actions, 1), dtype=tf.float32)
-        #self.policy_std = tf.Variable(9, shape=(num_actions, 1), dtype=tf.float32)
+
 
 
 
@@ -78,10 +78,11 @@ class ContinuousPPOHead(keras.layers.Layer):
         """
         policy_means = self.policy_means_layer(inputs)
         policy_stds = self.policy_stds_layer(inputs)
+        #policy_stds = self.policy_stds_layer
         policy_stds += eps
+        #policy_stds = tf.tile(policy_stds, policy_means.shape)
 
         ########
-        #policy_std = 0.5 * tf.ones(policy_means.shape)
         a_prob = self.action_proba([policy_means, policy_stds])
         # policy_means = a_prob.mean()
         # policy_std = action_proba.stddev()
