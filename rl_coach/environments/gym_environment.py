@@ -459,7 +459,7 @@ class GymEnvironment(Environment):
     def _restart_environment_episode(self, force_environment_reset=False):
         # prevent reset of environment if there are ale lives left
         if (self.is_atari_env and self.env.unwrapped.ale.lives() > 0) \
-                and not force_environment_reset:
+                and not force_environment_reset and self.env.env._elapsed_steps < self.env.env._max_episode_steps:
             self.step(self.action_space.default_action)
         else:
             self.state = self.env.reset()
