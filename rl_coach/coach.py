@@ -34,7 +34,7 @@ import time
 import sys
 import json
 
-from memory_profiler import profile
+#from memory_profiler import profile
 
 
 from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskParameters, DistributedTaskParameters, \
@@ -793,12 +793,13 @@ if __name__ == "__main__":
     #
     # # with tf.device('/CPU:0'):
     # with tf.device("/device:GPU:0"):
-    #     dan_delete = tf.compat.v1.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+    #     dan_delete = tf.compat.v1.Variable(FExplain rewardalse, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
 
     from os import path
 
 
     sys.argv.append('-p')
+
     #sys.argv.append('CartPole_DQN')
 
     # sys.argv.append('Atari_DQN')

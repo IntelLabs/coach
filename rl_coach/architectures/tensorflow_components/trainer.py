@@ -66,6 +66,7 @@ class Trainer(TensorFlowArchitecture):
         #     assert head._num_outputs == len(self.loss().input_schema.head_outputs)
 
         generalized_network.model.summary()
+        keras.utils.plot_model(generalized_network.model)
 
         return generalized_network
 

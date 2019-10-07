@@ -48,23 +48,15 @@ class ContinuousPPOHead(keras.layers.Layer):
         :param num_actions: number of actions in action space.
         """
         super(ContinuousPPOHead, self).__init__()
-
-        self.policy_means_layer = tf.keras.layers.Dense(units=num_actions)
-        self.policy_log_std_layer = tf.keras.layers.Dense(units=num_actions)
-        #self.constain_positive_stds = tf.keras.activations.softplus
-        #self.policy_log_std_layer = tf.Variable(tf.zeros(shape=(num_actions, 1)), dtype=tf.float32)
-
-
-        #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))
-        self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[0], scale_diag=t[1]))
-
         # all samples (across batch, and time step) share the same covariance, which is learnt,
         # but since we assume the action probability variables are independent,
         # only the diagonal entries of the covariance matrix are specified.
-
-
-
-
+        self.policy_means_layer = tf.keras.layers.Dense(units=num_actions)
+        self.policy_log_std_layer = tf.keras.layers.Dense(units=num_actions)
+        #self.policy_log_std_layer = tf.Variable(tf.zeros(shape=(num_actions, 1)), dtype=tf.float32)
+        #self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32', name="policy_log_std")
+        #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))
+        self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[0], scale_diag=t[1]))
 
     def call(self, inputs) -> Tuple[Tensor, Tensor]:
         """
@@ -78,17 +70,21 @@ class ContinuousPPOHead(keras.layers.Layer):
             of shape (batch_size, time_step, action_mean).
         """
         policy_means = self.policy_means_layer(inputs)
-        log_stds = self.policy_log_std_layer(inputs)
-        #log_stds = self.policy_log_std_layer
+        log_stds = self.policy_log_std_layer(inputs.numpy())
         policy_stds = tf.exp(log_stds)
- 
-        #policy_stds += eps
-        #policy_stds = tf.tile(policy_stds, policy_means.shape)
+
+
+
+        #log_stds = self.policy_log_std_layer
+        #log_stds = tf.tile(log_stds, policy_means.shape)
+        #policy_stds = tf.exp(log_stds)
+        #policy_stds = tf.tile(tf.exp(self.policy_logstd), policy_means.shape)
+
 
         ########
         a_prob = self.action_proba([policy_means, policy_stds])
-        # policy_means = a_prob.mean()
-        # policy_std = action_proba.stddev()
+        #policy_means = a_prob.mean()
+        #policy_std = a_prob.stddev()
         ########
         return a_prob
         #return policy_means, policy_std

@@ -15,7 +15,7 @@
 from pprint import pprint
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
+#import seaborn as sns
 
 # import tensorflow as tf
 # from tensorflow.python import tf2
@@ -33,10 +33,10 @@ import tensorflow_probability as tfp
 
 negloglik = lambda y, rv_y: -rv_y.log_prob(y)
 
-sns.reset_defaults()
+#sns.reset_defaults()
 #sns.set_style('whitegrid')
 #sns.set_context('talk')
-sns.set_context(context='talk',font_scale=0.7)
+#sns.set_context(context='talk',font_scale=0.7)
 
 #@title Synthesize dataset.
 w0 = 0.125
