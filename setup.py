@@ -73,11 +73,11 @@ if not using_GPU:
             # (reproduced with intel-tensorflow 1.14.0 but not with 1.13.1)
             install_requires.append('intel-tensorflow==1.13.1')
         else:
-            install_requires.append('tensorflow>=1.9.0')
+            install_requires.append('tensorflow>=1.9.0,<=1.14.0')
     extras['mxnet'] = ['mxnet-mkl>=1.3.0']
 else:
     if not slim_package:
-        install_requires.append('tensorflow-gpu>=1.9.0')
+        install_requires.append('tensorflow-gpu>=1.9.0,<=1.14.0')
     extras['mxnet'] = ['mxnet-cu90mkl>=1.3.0']
 
 all_deps = []
@@ -88,7 +88,7 @@ extras['all'] = all_deps
 
 setup(
     name='rl-coach' if not slim_package else 'rl-coach-slim',
-    version='1.0.0',
+    version='1.0.1',
     description='Reinforcement Learning Coach enables easy experimentation with state of the art Reinforcement Learning algorithms.',
     url='https://github.com/NervanaSystems/coach',
     author='Intel AI Lab',
