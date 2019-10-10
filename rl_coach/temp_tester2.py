@@ -25,6 +25,9 @@ model.add(layers.Dense(64, activation='relu'))
 model.add(layers.Dense(64, activation='relu'))
 model.add(layers.Dense(10, activation='softmax'))
 model.compile(optimizer='adam',loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+
+tf.keras.utils.plot_model(model)
 model.fit(x_train, y_train, epochs=5)
 
 model.evaluate(x_test, y_test)

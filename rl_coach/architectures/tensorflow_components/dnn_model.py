@@ -27,12 +27,13 @@ from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, Tensor
 
 
 class SingleDnnModel(keras.Model):
+#class SingleDnnModel(keras.layers.Layer):
     """
     Block that connects a single embedder, with middleware and one to multiple heads
     """
     def __init__(self,
                  network_is_local: bool,
-                 network_name: str,
+                 name: str,
                  agent_parameters: AgentParameters,
                  input_embedders_parameters: {str: InputEmbedderParameters},
                  embedding_merger_type: EmbeddingMergerType,
@@ -43,7 +44,7 @@ class SingleDnnModel(keras.Model):
                  *args, **kwargs):
         """
         :param network_is_local: True if network is local
-        :param network_name: name of the network
+        :param name: name of the network
         :param agent_parameters: agent parameters
         :param input_embedders_parameters: dictionary of embedder name to embedding parameters
         :param embedding_merger_type: type of merging output of embedders: concatenate or sum
@@ -52,20 +53,17 @@ class SingleDnnModel(keras.Model):
         :param head_type_idx_start: start index for head type index counting
         :param spaces: state and action space definition
         """
-        super(SingleDnnModel, self).__init__(*args, **kwargs)
+        name = name + '_' + head_param_list[0].name.replace('head_params', 'network')
+        super(SingleDnnModel, self).__init__(name=name, *args, **kwargs)
 
         self._embedding_merger_type = embedding_merger_type
         self._input_embedders = []
         self._output_heads = list()
 
-
-
         for input_name in sorted(input_embedders_parameters):
             input_type = input_embedders_parameters[input_name]
             input_embedder = self._get_input_embedder(spaces, input_name, input_type)
             self._input_embedders.append(input_embedder)
-
-
 
         self.middleware = self._get_middleware(middleware_param)
 
@@ -73,21 +71,17 @@ class SingleDnnModel(keras.Model):
             for head_copy_idx in range(head_param.num_output_head_copies):
                 # create output head and add it to the output heads list
                 head_idx = (head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx
-                output_head = self._get_output_head(
+                network_head = self._get_output_head(
                     head_idx=head_idx,
                     head_type_index=head_type_idx_start + i,
-                    network_name=network_name,
+                    network_name=name,
                     spaces=spaces,
                     is_local=network_is_local,
                     agent_params=agent_parameters,
                     head_params=head_param)
 
-                self._output_heads.append(output_head)
-
+                self._output_heads.append(network_head)
                 self.gradient_rescaler = 1
-
-
-
 
 
     def call(self, inputs, **kwargs):
@@ -125,6 +119,11 @@ class SingleDnnModel(keras.Model):
             outputs += out
 
         return outputs
+
+
+
+
+
 
     def _get_input_embedder(self, spaces: SpacesDefinition,
                             input_name: str,
@@ -221,10 +220,11 @@ class SingleDnnModel(keras.Model):
         :param spaces: state and action space definitions
         :param network_name: name of the network
         :param is_local:
-        :return: head block
+        :return: head name and head block
         """
 
         if isinstance(head_params, QHeadParameters):
+            head_name = 'q_head'
             module = QHead(
                 agent_parameters=agent_params,
                 spaces=spaces,
@@ -236,6 +236,7 @@ class SingleDnnModel(keras.Model):
                 dense_layer=head_params.dense_layer)
 
         elif isinstance(head_params, PPOHeadParameters):
+            head_name = 'ppo_head'
             module = PPOHead(
                 agent_parameters=agent_params,
                 spaces=spaces,
@@ -247,6 +248,7 @@ class SingleDnnModel(keras.Model):
                 dense_layer=head_params.dense_layer)
 
         elif isinstance(head_params, VHeadParameters):
+            head_name = 'value_head'
             module = VHead(
                 agent_parameters=agent_params,
                 spaces=spaces,
@@ -258,6 +260,7 @@ class SingleDnnModel(keras.Model):
                 dense_layer=head_params.dense_layer)
 
         elif isinstance(head_params, PPOVHeadParameters):
+            head_name = 'ppo_v_head'
             module = PPOVHead(
                 agent_parameters=agent_params,
                 spaces=spaces,
@@ -297,6 +300,9 @@ class SingleDnnModel(keras.Model):
         #return [h.head for h in self._output_heads]
 
 
+
+
+
 class DnnModel(keras.Model):
     """
     Block that creates two single models. One for the actor and one for the critic
@@ -319,7 +325,12 @@ class DnnModel(keras.Model):
         :param network_parameters: network parameters
         :param spaces: state and action space definitions
         """
+        #input = tf.keras.layers.Input(shape=)
         super(DnnModel, self).__init__(*args, **kwargs)
+
+        input_emmbeders_types = network_parameters.input_embedders_parameters.keys()
+        self._input_shapes = self._get_input_shapes(spaces, input_emmbeders_types)
+
 
         self.nets = list()
         for network_idx in range(num_networks):
@@ -327,7 +338,7 @@ class DnnModel(keras.Model):
             head_type_idx_end = head_type_idx_start + num_heads_per_network
             net = SingleDnnModel(
                 head_type_idx_start=head_type_idx_start,
-                network_name=network_name,
+                name=network_name,
                 network_is_local=network_is_local,
                 agent_parameters=agent_parameters,
                 input_embedders_parameters=network_parameters.input_embedders_parameters,
@@ -337,10 +348,12 @@ class DnnModel(keras.Model):
                 spaces=spaces)
             self.nets.append(net)
 
-        self._input_shapes = self._get_input_shapes(spaces, self.nets[0].input_embedders)
+
+        #self._input_shapes = self._get_input_shapes(spaces, self.nets[0].input_embedders)
 
 
-    def _get_input_shapes(self, spaces, input_embedders) -> List[List[int]]:
+    def _get_input_shapes(self, spaces, input_emmbeders_types) -> List[List[int]]:
+    # def _get_input_shapes(self, spaces, input_embedders) -> List[List[int]]:
         """
         Create a list of input array shapes
         :return: type of input shapes
@@ -348,7 +361,8 @@ class DnnModel(keras.Model):
         allowed_inputs = copy.copy(spaces.state.sub_spaces)
         allowed_inputs["action"] = copy.copy(spaces.action)
         allowed_inputs["goal"] = copy.copy(spaces.goal)
-        return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in input_embedders)
+        #return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in input_embedders)
+        return list([1] + allowed_inputs[embedder_type].shape.tolist() for embedder_type in input_emmbeders_types)
 
 
     @property
@@ -379,7 +393,6 @@ class DnnModel(keras.Model):
                 assert net.output_heads[0]._num_outputs == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
                     net.output_heads[0]._num_outputs, num_outputs)
             outputs += out
-            #outputs.append(out)
         return outputs
 
     @property
@@ -390,5 +403,98 @@ class DnnModel(keras.Model):
         """
         return list(chain.from_iterable(net.output_heads for net in self.nets))
 
+
+# class DnnModel(keras.Model):
+#     """
+#     Block that creates two single models. One for the actor and one for the critic
+#     """
+#     def __init__(self,
+#                  num_networks: int,
+#                  num_heads_per_network: int,
+#                  network_is_local: bool,
+#                  network_name: str,
+#                  agent_parameters: AgentParameters,
+#                  network_parameters: NetworkParameters,
+#                  spaces: SpacesDefinition,
+#                  *args, **kwargs):
+#         """
+#         :param num_networks: number of networks to create
+#         :param num_heads_per_network: number of heads per network to create
+#         :param network_is_local: True if network is local
+#         :param network_name: name of the network
+#         :param agent_parameters: agent parameters
+#         :param network_parameters: network parameters
+#         :param spaces: state and action space definitions
+#         """
+#         super(DnnModel, self).__init__(*args, **kwargs)
+#
+#         self.nets = list()
+#         for network_idx in range(num_networks):
+#             head_type_idx_start = network_idx * num_heads_per_network
+#             head_type_idx_end = head_type_idx_start + num_heads_per_network
+#             net = SingleDnnModel(
+#                 head_type_idx_start=head_type_idx_start,
+#                 name=network_name,
+#                 network_is_local=network_is_local,
+#                 agent_parameters=agent_parameters,
+#                 input_embedders_parameters=network_parameters.input_embedders_parameters,
+#                 embedding_merger_type=network_parameters.embedding_merger_type,
+#                 middleware_param=network_parameters.middleware_parameters,
+#                 head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
+#                 spaces=spaces)
+#             self.nets.append(net)
+#
+#         self._input_shapes = self._get_input_shapes(spaces, self.nets[0].input_embedders)
+#
+#
+#     def _get_input_shapes(self, spaces, input_embedders) -> List[List[int]]:
+#         """
+#         Create a list of input array shapes
+#         :return: type of input shapes
+#         """
+#         allowed_inputs = copy.copy(spaces.state.sub_spaces)
+#         allowed_inputs["action"] = copy.copy(spaces.action)
+#         allowed_inputs["goal"] = copy.copy(spaces.goal)
+#         return list([1] + allowed_inputs[emb.embedder_name].shape.tolist() for emb in input_embedders)
+#
+#
+#     @property
+#     def dummy_model_inputs(self):
+#         """
+#         Creates a tuple of input arrays with correct shapes that can be used for shape inference
+#         of the model weights and for printing the summary
+#         :return: tuple of inputs for model forward pass
+#         """
+#         input_shapes = self._input_shapes
+#         # TODO make this the same type as the actual input
+#         inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
+#         return inputs
+#
+#     def call(self, inputs, **kwargs):
+#         """ Overrides tf.keras.call
+#         :param inputs: model inputs, one for each embedder. Passed to all networks.
+#         :return: head outputs in a tuple
+#         """
+#         outputs = tuple()
+#         for net in self.nets:
+#             out = net(inputs)
+#             num_outputs = len(out)
+#
+#             if net.output_heads[0]._num_outputs is None:
+#                 net.output_heads[0]._num_outputs = num_outputs
+#             else:
+#                 assert net.output_heads[0]._num_outputs == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
+#                     net.output_heads[0]._num_outputs, num_outputs)
+#             outputs += out
+#             #outputs.append(out)
+#         return outputs
+#
+#     @property
+#     def output_heads(self) -> List[Head]:
+#         """ Return all heads in a single list
+#         Note: There is a one-to-one mapping between output_heads and losses
+#         :return: list of heads
+#         """
+#         return list(chain.from_iterable(net.output_heads for net in self.nets))
 
 

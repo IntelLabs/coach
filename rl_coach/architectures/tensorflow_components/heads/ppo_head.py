@@ -52,7 +52,9 @@ class ContinuousPPOHead(keras.layers.Layer):
         # but since we assume the action probability variables are independent,
         # only the diagonal entries of the covariance matrix are specified.
         self.policy_means_layer = tf.keras.layers.Dense(units=num_actions)
-        self.policy_log_std_layer = tf.keras.layers.Dense(units=num_actions)
+        self.policy_log_std_layer = tf.keras.layers.Dense(units=num_actions,
+                                                          kernel_initializer=keras.initializers.RandomUniform(minval=-0.005, maxval=0.005, seed=None),
+                                                          bias_initializer='zeros')
         #self.policy_log_std_layer = tf.Variable(tf.zeros(shape=(num_actions, 1)), dtype=tf.float32)
         #self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32', name="policy_log_std")
         #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))

@@ -20,6 +20,8 @@ from typing import List, Union
 
 import tensorflow as tf
 from tensorflow import keras
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 from rl_coach.base_parameters import AgentParameters, Device, DeviceType
 from rl_coach.spaces import SpacesDefinition
@@ -56,7 +58,7 @@ class Trainer(TensorFlowArchitecture):
             loss = generalized_network.losses
             optimizer = generalized_network.optimizer
             #generalized_network.model.compile(loss=loss, optimizer=optimizer)
-            generalized_network.model.compile(optimizer=optimizer)
+            #generalized_network.model.compile(optimizer=optimizer)
 
         # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
         generalized_network.model(generalized_network.model.dummy_model_inputs)
@@ -66,7 +68,13 @@ class Trainer(TensorFlowArchitecture):
         #     assert head._num_outputs == len(self.loss().input_schema.head_outputs)
 
         generalized_network.model.summary()
-        keras.utils.plot_model(generalized_network.model)
+        keras.utils.plot_model(generalized_network.model,
+                               expand_nested=True,
+                               show_shapes=True,
+                               to_file='model_plot.png')
+        #img = mpimg.imread('model_plot.png')
+        # plt.imshow(img)
+        # plt.show()
 
         return generalized_network
 
