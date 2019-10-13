@@ -303,7 +303,7 @@ class SingleDnnModel(keras.Model):
 
 
 
-class DnnModel(keras.Model):
+class ModelWrapper(object):
     """
     Block that creates two single models. One for the actor and one for the critic
     """
@@ -325,31 +325,22 @@ class DnnModel(keras.Model):
         :param network_parameters: network parameters
         :param spaces: state and action space definitions
         """
-        #input = tf.keras.layers.Input(shape=)
-        super(DnnModel, self).__init__(*args, **kwargs)
+
+        super(ModelWrapper, self).__init__(*args, **kwargs)
 
         input_emmbeders_types = network_parameters.input_embedders_parameters.keys()
         self._input_shapes = self._get_input_shapes(spaces, input_emmbeders_types)
 
+        self.model = DnnModel(
+                 num_networks,
+                 num_heads_per_network,
+                 network_is_local,
+                 network_name,
+                 agent_parameters,
+                 network_parameters,
+                 spaces,
+                 *args, **kwargs)
 
-        self.nets = list()
-        for network_idx in range(num_networks):
-            head_type_idx_start = network_idx * num_heads_per_network
-            head_type_idx_end = head_type_idx_start + num_heads_per_network
-            net = SingleDnnModel(
-                head_type_idx_start=head_type_idx_start,
-                name=network_name,
-                network_is_local=network_is_local,
-                agent_parameters=agent_parameters,
-                input_embedders_parameters=network_parameters.input_embedders_parameters,
-                embedding_merger_type=network_parameters.embedding_merger_type,
-                middleware_param=network_parameters.middleware_parameters,
-                head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
-                spaces=spaces)
-            self.nets.append(net)
-
-
-        #self._input_shapes = self._get_input_shapes(spaces, self.nets[0].input_embedders)
 
 
     def _get_input_shapes(self, spaces, input_emmbeders_types) -> List[List[int]]:
@@ -376,6 +367,51 @@ class DnnModel(keras.Model):
         # TODO make this the same type as the actual input
         inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
         return inputs
+
+
+
+
+class DnnModel(keras.Model):
+    """
+    Block that creates two single models. One for the actor and one for the critic
+    """
+    def __init__(self,
+                 num_networks: int,
+                 num_heads_per_network: int,
+                 network_is_local: bool,
+                 network_name: str,
+                 agent_parameters: AgentParameters,
+                 network_parameters: NetworkParameters,
+                 spaces: SpacesDefinition,
+                 *args, **kwargs):
+        """
+        :param num_networks: number of networks to create
+        :param num_heads_per_network: number of heads per network to create
+        :param network_is_local: True if network is local
+        :param network_name: name of the network
+        :param agent_parameters: agent parameters
+        :param network_parameters: network parameters
+        :param spaces: state and action space definitions
+        """
+        super(DnnModel, self).__init__(*args, **kwargs)
+
+
+        self.nets = list()
+        for network_idx in range(num_networks):
+            head_type_idx_start = network_idx * num_heads_per_network
+            head_type_idx_end = head_type_idx_start + num_heads_per_network
+            net = SingleDnnModel(
+                head_type_idx_start=head_type_idx_start,
+                name=network_name,
+                network_is_local=network_is_local,
+                agent_parameters=agent_parameters,
+                input_embedders_parameters=network_parameters.input_embedders_parameters,
+                embedding_merger_type=network_parameters.embedding_merger_type,
+                middleware_param=network_parameters.middleware_parameters,
+                head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
+                spaces=spaces)
+            self.nets.append(net)
+
 
     def call(self, inputs, **kwargs):
         """ Overrides tf.keras.call
