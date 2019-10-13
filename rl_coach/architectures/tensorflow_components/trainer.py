@@ -51,14 +51,14 @@ class Trainer(TensorFlowArchitecture):
         :return: a GeneralTensorFlowNetwork object
         """
         # TODO: TF2 place holder for distributed training in TensorFlow
-
-        mirrored_strategy = tf.distribute.MirroredStrategy()
-        with mirrored_strategy.scope():
-            generalized_network = Trainer(*args, **kwargs)
-            loss = generalized_network.losses
-            optimizer = generalized_network.optimizer
-            #generalized_network.model.compile(loss=loss, optimizer=optimizer)
-            #generalized_network.model.compile(optimizer=optimizer)
+        generalized_network = Trainer(*args, **kwargs)
+        # mirrored_strategy = tf.distribute.MirroredStrategy()
+        # with mirrored_strategy.scope():
+        #     generalized_network = Trainer(*args, **kwargs)
+        #     loss = generalized_network.losses
+        #     optimizer = generalized_network.optimizer
+        #     #generalized_network.model.compile(loss=loss, optimizer=optimizer)
+        #     #generalized_network.model.compile(optimizer=optimizer)
 
         # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
         generalized_network.model(generalized_network.model_wrapper.dummy_model_inputs)
@@ -230,6 +230,7 @@ class Trainer(TensorFlowArchitecture):
 
     @property
     def output_heads(self):
-        return self.model.output_heads
+        #return self.model.output_heads
+        return self.model.layers[-1].output_heads
 
 

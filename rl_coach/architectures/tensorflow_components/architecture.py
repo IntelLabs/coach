@@ -143,21 +143,24 @@ class TensorFlowArchitecture(Architecture):
 
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
-
-        embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+        model_output_heads = self.model.layers[-1].output_heads
+        #embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+        embedders = [emb.embedder_name for emb in self.model.layers[-1].nets[0].input_embedders]
         _inputs = tuple(inputs[emb] for emb in embedders)
         targets = force_list(targets)
+
 
         with tf.GradientTape() as tape:
 
             heads_outputs = self.model(_inputs)
-            out_per_head = utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
+            #out_per_head = utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
+            out_per_head = utils.split_outputs_per_head(heads_outputs, model_output_heads)
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            for head, head_loss, head_output, target in zip(self.model.output_heads, self.losses, out_per_head, tgt_per_loss):
+            for head, head_loss, head_output, target in zip(model_output_heads, self.losses, out_per_head, tgt_per_loss):
 
                 agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
                                           inputs.items()))
@@ -259,7 +262,8 @@ class TensorFlowArchitecture(Architecture):
 
         WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
-        embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+        #embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
+        embedders = [emb.embedder_name for emb in self.model.layers[-1].nets[0].input_embedders]
         _inputs = tuple(inputs[emb] for emb in embedders)
 
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'

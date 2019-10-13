@@ -331,7 +331,7 @@ class ModelWrapper(object):
         input_emmbeders_types = network_parameters.input_embedders_parameters.keys()
         self._input_shapes = self._get_input_shapes(spaces, input_emmbeders_types)
 
-        self.model = DnnModel(
+        model = DnnModel(
                  num_networks,
                  num_heads_per_network,
                  network_is_local,
@@ -341,7 +341,11 @@ class ModelWrapper(object):
                  spaces,
                  *args, **kwargs)
 
-
+        inputs = list(map(lambda x: tf.keras.layers.Input(shape=x), self._input_shapes))
+        outputs = model(inputs)
+        self.model = keras.Model(inputs=inputs, outputs=outputs)
+        # Instantiate the sub moduls
+        #self.model(self.dummy_model_inputs)
 
     def _get_input_shapes(self, spaces, input_emmbeders_types) -> List[List[int]]:
     # def _get_input_shapes(self, spaces, input_embedders) -> List[List[int]]:
@@ -438,6 +442,11 @@ class DnnModel(keras.Model):
         :return: list of heads
         """
         return list(chain.from_iterable(net.output_heads for net in self.nets))
+
+
+    # def compute_output_shape(self, input_shape):
+    #
+    #     return input_shape[0], 1
 
 
 # class DnnModel(keras.Model):

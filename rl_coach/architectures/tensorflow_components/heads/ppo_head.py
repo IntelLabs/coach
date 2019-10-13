@@ -72,7 +72,9 @@ class ContinuousPPOHead(keras.layers.Layer):
             of shape (batch_size, time_step, action_mean).
         """
         policy_means = self.policy_means_layer(inputs)
-        log_stds = self.policy_log_std_layer(inputs.numpy())
+        #log_stds = self.policy_log_std_layer(inputs.numpy())
+        log_stds = self.policy_log_std_layer(tf.stop_gradient(inputs))
+        #log_stds = self.policy_log_std_layer(inputs)
         policy_stds = tf.exp(log_stds)
 
 
@@ -138,7 +140,7 @@ class PPOHead(Head):
         else:
             raise ValueError("Only discrete or continuous action spaces are supported for PPO.")
 
-    def call(self, inputs, ** kwargs):
+    def call(self, inputs):
         """
         :param inputs: middleware embedding
         :return: policy parameters/probabilities
