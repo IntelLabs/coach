@@ -129,7 +129,7 @@ class PPOLoss(HeadLoss):
         :param kl_coefficient: loss coefficient applied kl divergence loss (also see high_kl_penalty_coefficient).
         :return: loss, of shape (batch_size).
         """
-        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds + eps)
+        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds)# + eps)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
 
         action_probs_wrt_new_policy = new_policy_distribution.log_prob(actions)
