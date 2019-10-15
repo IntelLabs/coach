@@ -48,8 +48,9 @@ class VLoss(HeadLoss):
         )
 
     def loss_forward(self, value_prediction, target):
-
-        loss = tf.reduce_mean(self.loss_fn(value_prediction, target))
+        target = tf.reshape(target, shape=value_prediction.shape)
+        loss = self.loss_fn(value_prediction, target)
+        #loss = tf.reduce_mean(self.loss_fn(value_prediction, target))
         # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
         #  This way, Keras can apply class weights or sample weights when requested.
         return [(loss, LOSS_OUT_TYPE_LOSS)]

@@ -343,7 +343,7 @@ class ModelWrapper(object):
 
         inputs = list(map(lambda x: tf.keras.layers.Input(shape=x), self._input_shapes))
         outputs = model(inputs)
-        self.model = keras.Model(inputs=inputs, outputs=outputs)
+        self.model = keras.Model(name=network_name, inputs=inputs, outputs=outputs)
         # Instantiate the sub moduls
         #self.model(self.dummy_model_inputs)
 

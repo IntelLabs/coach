@@ -73,8 +73,8 @@ class ContinuousPPOHead(keras.layers.Layer):
         """
         policy_means = self.policy_means_layer(inputs)
         #log_stds = self.policy_log_std_layer(inputs.numpy())
-        log_stds = self.policy_log_std_layer(tf.stop_gradient(inputs))
-        #log_stds = self.policy_log_std_layer(inputs)
+        #log_stds = self.policy_log_std_layer(tf.stop_gradient(inputs))
+        log_stds = self.policy_log_std_layer(inputs)
         policy_stds = tf.exp(log_stds)
 
 
