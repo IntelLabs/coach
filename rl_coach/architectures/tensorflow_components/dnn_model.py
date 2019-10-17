@@ -302,6 +302,59 @@ class SingleDnnModel(keras.Model):
 
 
 
+def create_model(num_networks: int,
+                 num_heads_per_network: int,
+                 network_is_local: bool,
+                 network_name: str,
+                 agent_parameters: AgentParameters,
+                 network_parameters: NetworkParameters,
+                 spaces: SpacesDefinition,
+                 *args, **kwargs):
+    """
+    function that creates two single models. One for the actor and one for the critic
+    :param num_networks: number of networks to create
+    :param num_heads_per_network: number of heads per network to create
+    :param network_is_local: True if network is local
+    :param network_name: name of the network
+    :param agent_parameters: agent parameters
+    :param network_parameters: network parameters
+    :param spaces: state and action space definitions
+    """
+
+    input_emmbeders_types = network_parameters.input_embedders_parameters.keys()
+    input_shapes = get_input_shapes(spaces, input_emmbeders_types)
+
+    model = DnnModel(
+             num_networks,
+             num_heads_per_network,
+             network_is_local,
+             network_name,
+             agent_parameters,
+             network_parameters,
+             spaces,
+             *args, **kwargs)
+
+    inputs = list(map(lambda x: tf.keras.layers.Input(shape=x), input_shapes))
+    outputs = model(inputs)
+    model = keras.Model(name=network_name, inputs=inputs, outputs=outputs)
+    dummy_inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
+    model(dummy_inputs)
+    return model
+
+
+def get_input_shapes(spaces, input_emmbeders_types) -> List[List[int]]:
+    """
+    Create a list of input array shapes
+    :return: type of input shapes
+    """
+    allowed_inputs = copy.copy(spaces.state.sub_spaces)
+    allowed_inputs["action"] = copy.copy(spaces.action)
+    allowed_inputs["goal"] = copy.copy(spaces.goal)
+    return list([1] + allowed_inputs[embedder_type].shape.tolist() for embedder_type in input_emmbeders_types)
+
+
+
+
 
 
 class ModelWrapper(object):

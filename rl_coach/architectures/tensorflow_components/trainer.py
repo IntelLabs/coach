@@ -26,7 +26,7 @@ import matplotlib.image as mpimg
 from rl_coach.base_parameters import AgentParameters, Device, DeviceType
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
-from rl_coach.architectures.tensorflow_components.dnn_model import ModelWrapper, SingleDnnModel
+from rl_coach.architectures.tensorflow_components.dnn_model import ModelWrapper, SingleDnnModel, create_model
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
@@ -52,21 +52,6 @@ class Trainer(TensorFlowArchitecture):
         """
         # TODO: TF2 place holder for distributed training in TensorFlow
         generalized_network = Trainer(*args, **kwargs)
-        # mirrored_strategy = tf.distribute.MirroredStrategy()
-        # with mirrored_strategy.scope():
-        #     generalized_network = Trainer(*args, **kwargs)
-        #     loss = generalized_network.losses
-        #     optimizer = generalized_network.optimizer
-        #     #generalized_network.model.compile(loss=loss, optimizer=optimizer)
-        #     #generalized_network.model.compile(optimizer=optimizer)
-
-        # Pass dummy data with correct shape to trigger shape inference and full parameter initialization
-        generalized_network.model(generalized_network.model_wrapper.dummy_model_inputs)
-
-        # TODO: add check here
-        # for head in generalized_network.model.output_heads:
-        #     assert head._num_outputs == len(self.loss().input_schema.head_outputs)
-
         generalized_network.model.summary()
         keras.utils.plot_model(generalized_network.model,
                                expand_nested=True,
@@ -119,17 +104,14 @@ class Trainer(TensorFlowArchitecture):
             num_heads_per_network = len(network_parameters.heads_parameters)
             num_networks = 1
 
-        self.model_wrapper = ModelWrapper(
-            num_networks=num_networks,
-            num_heads_per_network=num_heads_per_network,
-            network_is_local=network_is_local,
-            network_name=self.network_wrapper_name,
-            agent_parameters=agent_parameters,
-            network_parameters=network_parameters,
-            spaces=spaces)
+        self.model = create_model(num_networks=num_networks,
+                                  num_heads_per_network=num_heads_per_network,
+                                  network_is_local=network_is_local,
+                                  network_name=self.network_wrapper_name,
+                                  agent_parameters=agent_parameters,
+                                  network_parameters=network_parameters,
+                                  spaces=spaces)
 
-        self.model = self.model_wrapper.model
-        #self.losses = self._get_losses(network_parameters.loss_parameters[0], self.network_wrapper_name)
         self.losses = list()
         for index, loss_params in enumerate(network_parameters.heads_parameters):
             loss = self._get_loss(agent_parameters=agent_parameters,
