@@ -24,13 +24,16 @@ LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
 
 from tensorflow import keras
 from tensorflow import Tensor
+from tensorflow.keras.layers import Dense, Input, Lambda
+#from tensorflow_probability.layers import DistributionLambda
 
 import tensorflow_probability as tfp
+
 tfd = tfp.distributions
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import Dense
+#from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head#, normalized_columns_initializer
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import ActionProbabilities
@@ -38,6 +41,8 @@ from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
 from rl_coach.spaces import SpacesDefinition
 
 from rl_coach.utils import eps
+
+
 
 class ContinuousPPOHead(keras.layers.Layer):
     def __init__(self, num_actions: int) -> None:
@@ -49,6 +54,7 @@ class ContinuousPPOHead(keras.layers.Layer):
         """
 
         super(ContinuousPPOHead, self).__init__()
+        self.output_dim = num_actions
         # all samples (across batch, and time step) share the same covariance, which is learnt,
         # but since we assume the action probability variables are independent,
         # only the diagonal entries of the covariance matrix are specified.
@@ -58,6 +64,8 @@ class ContinuousPPOHead(keras.layers.Layer):
         #                                                   bias_initializer='zeros')
 
         self.policy_log_std_layer = tf.Variable(tf.zeros((1, num_actions)), dtype='float32', name="policy_log_std")
+        self.repeat_layer = tf.keras.layers.RepeatVector(64)
+
         #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))
         self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[0], scale_diag=tf.exp(t[1])))
 
@@ -73,7 +81,16 @@ class ContinuousPPOHead(keras.layers.Layer):
             of shape (batch_size, time_step, action_mean).
         """
         policy_means = self.policy_means_layer(inputs)
-        log_stds = self.policy_log_std_layer#(inputs)
+        log_stds = self.policy_log_std_layer
+
+
+        if not inputs.shape[0]:
+            log_stds = self.policy_log_std_layer#(inputs)
+        #log_stds = tf.tile(self.policy_log_std_layer, [policy_means.shape[0], 1], name='log_std')
+        else:
+            #print('aa')
+            log_stds = tf.tile(self.policy_log_std_layer, [inputs.shape[0], self.output_dim], name='log_std')
+
 
         ########
         a_prob = self.action_proba([policy_means, log_stds])
@@ -126,7 +143,11 @@ class PPOHead(Head):
         self._loss = []
 
         if isinstance(self.spaces.action, BoxActionSpace):
-            self.net = ContinuousPPOHead(num_actions=self.spaces.action.shape[0])
+            #self.net = ContinuousPPOHead(num_actions=self.spaces.action.shape[0])
+            head_input_dim = 64 # middleware output dim hard coded, because scheme is hard coded
+            head_output_dim = self.spaces.action.shape[0]
+            #self.net_f = self.continuous_ppo_head(head_input_dim, head_output_dim)
+            self.net = self.continuous_ppo_head(head_input_dim, head_output_dim)
         else:
             raise ValueError("Only discrete or continuous action spaces are supported for PPO.")
 
@@ -135,7 +156,35 @@ class PPOHead(Head):
         :param inputs: middleware embedding
         :return: policy parameters/probabilities
         """
+        # a = self.net(inputs)
+        # b = self.net_f(inputs)
+        # c = 1
         return self.net(inputs)
+
+
+    def continuous_ppo_head(self, input_dim, output_dim):
+
+        # def repeat_vector(args):
+        #     layer_to_repeat = args[0]
+        #     reference_layer = args[1]
+        #     batch_size = tf.shape(reference_layer)[0]
+        #     return tf.keras.layers.RepeatVector(batch_size)(layer_to_repeat)
+
+        inputs = Input(shape=([input_dim]))
+        #dummy_input = tf.ones((1, 1))
+        policy_means = Dense(units=output_dim, name="policy_means")(inputs)
+        policy_log_std = Bias()(inputs)#Dense(units=output_dim, name="policy_log_std")(inputs)
+        #policy_log_std = tf.Variable(tf.zeros((1, output_dim)), dtype='float32', name="policy_log_std")
+        #policy_log_std = Lambda(repeat_vector)([policy_log_std, policy_means])
+        policy_stds = Lambda(lambda x: tf.exp(x))(policy_log_std)
+        #policy_stds = Lambda(lambda x: tf.squeeze(x, 0))(policy_stds)
+        actions_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[0], scale_diag=t[1]))([policy_means, policy_stds])
+
+        model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
+        #model.layers[-1].trainable_weights.append(policy_log_std)
+
+        return model
+
 
 
     @property
@@ -156,3 +205,21 @@ class PPOHead(Head):
 
     def assign_kl_coefficient(self, kl_coefficient: float) -> None:
         self._loss[0]
+
+
+
+class Bias(keras.layers.Layer):
+    def __init__(self, output_dim=1, **kwargs):
+        self.output_dim = output_dim
+        super().__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.bias = self.add_weight(shape=(1,), initializer='zeros', dtype=tf.float32, name='log_std_var')
+        super().build(input_shape)
+
+    def call(self, x):
+        temp = tf.reduce_mean(x, axis=-1, keepdims=True)
+        return temp * 0 + self.bias
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], self.output_dim)

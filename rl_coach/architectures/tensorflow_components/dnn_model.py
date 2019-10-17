@@ -67,6 +67,7 @@ class SingleDnnModel(keras.Model):
 
         self.middleware = self._get_middleware(middleware_param)
 
+
         for i, head_param in enumerate(head_param_list):
             for head_copy_idx in range(head_param.num_output_head_copies):
                 # create output head and add it to the output heads list

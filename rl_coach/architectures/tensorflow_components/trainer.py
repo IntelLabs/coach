@@ -71,7 +71,7 @@ class Trainer(TensorFlowArchitecture):
         keras.utils.plot_model(generalized_network.model,
                                expand_nested=True,
                                show_shapes=True,
-                               to_file='model_plot4.png')
+                               to_file='model_plot5.png')
         img = mpimg.imread('model_plot.png')
         plt.imshow(img)
         plt.show()
