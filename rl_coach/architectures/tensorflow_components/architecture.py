@@ -20,6 +20,7 @@ from typing import Any, Dict, Generator, List, Tuple, Union
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow_probability.python.distributions import Distribution
 
 from rl_coach.architectures.architecture import Architecture
 
@@ -143,26 +144,25 @@ class TensorFlowArchitecture(Architecture):
 
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
-        model_output_heads = self.model.layers[-1].output_heads
-        #embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
-        embedders = [emb.embedder_name for emb in self.model.layers[-1].nets[0].input_embedders]
-        _inputs = tuple(inputs[emb] for emb in embedders)
+        model_output_heads = self.model.output# self.model.layers[-1].output_heads
+        heads_indices = list(range(len(self.model.output)))
+        embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
+        model_inputs = tuple(inputs[emb] for emb in embedders)
         targets = force_list(targets)
-
 
         with tf.GradientTape() as tape:
 
-            heads_outputs = self.model(_inputs)
-            #out_per_head = utils.split_outputs_per_head(heads_outputs, self.model.output_heads)
-            out_per_head = utils.split_outputs_per_head(heads_outputs, model_output_heads)
+            model_outputs = self.model(model_inputs)
+            out_per_head = model_outputs #utils.split_outputs_per_head(heads_outputs, model_output_heads)
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
             losses = list()
             regularizations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            for head, head_loss, head_output, target in zip(model_output_heads, self.losses, out_per_head, tgt_per_loss):
+            #for head, head_loss, head_output, target in zip(model_output_heads, self.losses, out_per_head, tgt_per_loss):
+            for head_type_idx, head_loss, head_output, target in zip(heads_indices, self.losses, out_per_head, tgt_per_loss):
 
-                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head.head_type_idx)),
+                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_type_idx)),
                                           inputs.items()))
 
                 agent_input = list(agent_input.values())
@@ -184,8 +184,8 @@ class TensorFlowArchitecture(Architecture):
                 #losses.append(loss_outputs)
 
                 for i, fetch in enumerate(additional_fetches):
-                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-                    if head_type_idx == head.head_type_idx:
+                    fetch_head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+                    if head_type_idx == fetch_head_type_idx:
                         assert fetch[1] is None  # sanity check that fetch is None
                         additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
@@ -262,15 +262,16 @@ class TensorFlowArchitecture(Architecture):
 
         WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
-        #embedders = [emb.embedder_name for emb in self.model.nets[0].input_embedders]
-        embedders = [emb.embedder_name for emb in self.model.layers[-1].nets[0].input_embedders]
+        #embedders = [emb.embedder_name for emb in self.model.layers[-1].nets[0].input_embedders]
+        embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
         _inputs = tuple(inputs[emb] for emb in embedders)
 
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
-        output = self.model(_inputs)
-        distribution_output = list(filter(lambda x: isinstance(x, tfp.distributions.Distribution), output))
-        output = list(filter(lambda x: not (isinstance(x, tfp.distributions.Distribution)), output))
+        model_output = self.model(_inputs)
+        model_output = list(map(lambda x: x[0], model_output))
+        distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_output))
+        output = list(filter(lambda x: not (isinstance(x, Distribution)), model_output))
 
         for distribution in distribution_output:
             policy_means = distribution.mean()

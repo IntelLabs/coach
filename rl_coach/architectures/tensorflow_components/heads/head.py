@@ -54,7 +54,7 @@ class Head(keras.layers.Layer):
         self.return_type = None
         self.activation_function = activation_function
         self.dense_layer = dense_layer
-        self._num_outputs = None
+        self.num_outputs_ = None
 
     @property
     def num_outputs(self):
@@ -62,5 +62,5 @@ class Head(keras.layers.Layer):
 
         :return:
         """
-        assert self._num_outputs is not None, 'must call forward() once to configure number of outputs'
-        return self._num_outputs
+        assert self.num_outputs_ is not None, 'must call forward() once to configure number of outputs'
+        return self.num_outputs_

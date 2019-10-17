@@ -26,7 +26,7 @@ import matplotlib.image as mpimg
 from rl_coach.base_parameters import AgentParameters, Device, DeviceType
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
-from rl_coach.architectures.tensorflow_components.dnn_model import ModelWrapper, SingleDnnModel, create_model
+from rl_coach.architectures.tensorflow_components.dnn_model import create_model# ModelWrapper, SingleDnnModel, create_model
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
