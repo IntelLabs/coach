@@ -153,7 +153,7 @@ class TensorFlowArchitecture(Architecture):
 
         with tf.GradientTape() as tape:
 
-            model_outputs = self.model(model_inputs)
+            model_outputs = force_list(self.model(model_inputs))
             out_per_head = model_outputs#utils.split_outputs_per_head(heads_outputs, model_output_heads)
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
             losses = list()
@@ -345,7 +345,7 @@ class TensorFlowArchitecture(Architecture):
         for net, inputs in network_input_tuples:
             output += net._predict(inputs)
 
-        return tuple(o.numpy() for o in output)
+        return output#tuple(o.numpy() for o in output)
 
     # def train_on_batch(self,
     #                    inputs: Dict[str, np.ndarray],
