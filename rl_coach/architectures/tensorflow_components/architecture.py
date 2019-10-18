@@ -154,7 +154,7 @@ class TensorFlowArchitecture(Architecture):
         with tf.GradientTape() as tape:
 
             model_outputs = self.model(model_inputs)
-            out_per_head = [model_outputs]#utils.split_outputs_per_head(heads_outputs, model_output_heads)
+            out_per_head = model_outputs#utils.split_outputs_per_head(heads_outputs, model_output_heads)
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
             losses = list()
             regularizations = list()
@@ -268,20 +268,36 @@ class TensorFlowArchitecture(Architecture):
 
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
-        model_output = squeeze_model_outputs(self.model(model_inputs))
-        #model_output = self.model(model_inputs)
+        model_outputs = squeeze_model_outputs(self.model(model_inputs))
 
-        distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_output))
-        output = tuple(filter(lambda x: not (isinstance(x, Distribution)), model_output))
+        output_per_head = list()
+        for head_output in model_outputs:
+            if isinstance(head_output, Distribution):
+                #output_per_head.append((head_output.mean().numpy(), head_output.stddev().numpy()))
+                output_per_head.append(head_output.mean().numpy())
+                output_per_head.append(head_output.stddev().numpy())
 
-        # TODO Is the concatenion with value head is OK?
-        for distribution in distribution_output:
-            policy_means = distribution.mean()
-            policy_std = distribution.stddev()
-            output += (policy_means, policy_std)
+            else:
+                output_per_head.append(head_output.numpy())
+
+        #
+        # distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_output))
+        # value_output = tuple(filter(lambda x: not (isinstance(x, Distribution)), model_output))
+        #
+        #
+        # output_per_head = value_output
+        #
+        # if distribution_output:
+        #
+        #
+        # # TODO Is the concatenion with value head is OK? is the order correct value and then mean ,std
+        # for distribution in distribution_output:
+        #     policy_means = distribution.mean()
+        #     policy_std = distribution.stddev()
+        # output += (policy_means, policy_std)
 
         #output = list(o.numpy() for o in output)
-        return output
+        return output_per_head
         #return output
 
 
@@ -305,7 +321,7 @@ class TensorFlowArchitecture(Architecture):
 
         output = self._predict(inputs)
 
-        output = list(o.numpy() for o in output)
+        #output = list(o.numpy() for o in output)
 
         if squeeze_output:
             output = squeeze_list(output)
