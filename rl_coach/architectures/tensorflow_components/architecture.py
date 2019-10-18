@@ -30,6 +30,7 @@ from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list, squeeze_list
 from rl_coach.architectures.tensorflow_components import utils
+from rl_coach.architectures.tensorflow_components.dnn_model import squeeze_model_outputs
 from rl_coach.architectures.tensorflow_components.heads import Head
 #from rl_coach.architectures.tensorflow_components.losses import HeadLoss
 from tensorflow.keras.losses import Loss
@@ -153,7 +154,7 @@ class TensorFlowArchitecture(Architecture):
         with tf.GradientTape() as tape:
 
             model_outputs = self.model(model_inputs)
-            out_per_head = model_outputs #utils.split_outputs_per_head(heads_outputs, model_output_heads)
+            out_per_head = [model_outputs]#utils.split_outputs_per_head(heads_outputs, model_output_heads)
             tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
             losses = list()
             regularizations = list()
@@ -258,29 +259,30 @@ class TensorFlowArchitecture(Architecture):
         """
         Run a forward pass of the network using the given input
         :param inputs: The input dictionary for the network. Key is name of the embedder.
-        :return: The network output
+        :return: The network output per each head
 
         WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
-        #embedders = [emb.embedder_name for emb in self.model.layers[-1].nets[0].input_embedders]
         embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
-        _inputs = tuple(inputs[emb] for emb in embedders)
+        model_inputs = tuple(inputs[emb] for emb in embedders)
 
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
-        model_output = self.model(_inputs)
-        model_output = list(map(lambda x: x[0], model_output))
-        distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_output))
-        output = list(filter(lambda x: not (isinstance(x, Distribution)), model_output))
+        model_output = squeeze_model_outputs(self.model(model_inputs))
+        #model_output = self.model(model_inputs)
 
+        distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_output))
+        output = tuple(filter(lambda x: not (isinstance(x, Distribution)), model_output))
+
+        # TODO Is the concatenion with value head is OK?
         for distribution in distribution_output:
             policy_means = distribution.mean()
             policy_std = distribution.stddev()
             output += (policy_means, policy_std)
 
         #output = list(o.numpy() for o in output)
-
         return output
+        #return output
 
 
     def predict(self,

@@ -368,6 +368,11 @@ def get_input_shapes(spaces, input_emmbeders_types) -> List[List[int]]:
     return list([1] + allowed_inputs[embedder_type].shape.tolist() for embedder_type in input_emmbeders_types)
 
 
+def squeeze_model_outputs(model_outputs):
+    if len(model_outputs) == 1:
+        return model_outputs
+    else:
+        return list(map(lambda output: output[0], model_outputs))
 #
 #
 # class DnnModel(keras.Model):
