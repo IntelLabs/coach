@@ -154,44 +154,32 @@ class TensorFlowArchitecture(Architecture):
         with tf.GradientTape() as tape:
 
             model_outputs = force_list(self.model(model_inputs))
-            out_per_head = model_outputs#utils.split_outputs_per_head(heads_outputs, model_output_heads)
-            tgt_per_loss = utils.split_targets_per_loss(targets, self.losses)
+            targets = utils.split_targets_per_loss(targets, self.losses)
             losses = list()
-            regularizations = list()
+            regularisations = list()
             additional_fetches = [(k, None) for k in additional_fetches]
 
-            #for head, head_loss, head_output, target in zip(model_output_heads, self.losses, out_per_head, tgt_per_loss):
-            for head_type_idx, head_loss, head_output, target in zip(heads_indices, self.losses, out_per_head, tgt_per_loss):
+            for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
 
-                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_type_idx)),
+                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)),
                                           inputs.items()))
 
                 agent_input = list(agent_input.values())
-                loss_outputs = head_loss(head_output, agent_input, target)
-
-                # if not(isinstance(head_loss, PPOLoss)):
-                #     loss_outputs = head_loss(head_output, agent_input, target)
-                # else:
-                #     loss_outputs = dict()
-                #     loss_outputs['loss'] = [tf.reduce_mean(head_output[0].entropy())]
-
+                loss_outputs = head_loss(head_output, agent_input, head_target)
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
                 if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
-                    regularizations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
-
-
-                #losses.append(loss_outputs)
+                    regularisations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
 
                 for i, fetch in enumerate(additional_fetches):
-                    fetch_head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-                    if head_type_idx == fetch_head_type_idx:
+                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+                    if head_idx == head_type_idx:
                         assert fetch[1] is None  # sanity check that fetch is None
                         additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
             # Total loss is losses and regularization (NOTE: order is important)
-            total_loss_list = losses + regularizations
+            total_loss_list = losses + regularisations
             #total_loss = tf.add_n([main_loss] + model.losses)
             total_loss_list = list(map(lambda x: tf.cast(x, tf.float32), total_loss_list))
             total_loss = tf.add_n(total_loss_list)

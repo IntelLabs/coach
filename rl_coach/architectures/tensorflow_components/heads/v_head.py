@@ -25,10 +25,6 @@ from rl_coach.core_types import VStateValue
 from rl_coach.spaces import SpacesDefinition
 
 
-
-
-
-
 class VHead(Head):
     def __init__(self,
                  agent_parameters: AgentParameters,
@@ -50,15 +46,19 @@ class VHead(Head):
         :param activation_function: activation function to use between layers. currently unused.
         :param dense_layer: type of dense layer to use in network. currently unused.
         """
-        super(VHead, self).__init__(agent_parameters, spaces, network_name, head_type_idx, loss_weight,
-                                    is_local, activation_function, dense_layer)
+        super(VHead, self).__init__(agent_parameters,
+                                    spaces,
+                                    network_name,
+                                    head_type_idx,
+                                    loss_weight,
+                                    is_local,
+                                    activation_function,
+                                    dense_layer)
 
         self.return_type = VStateValue
         self.dense = keras.layers.Dense(units=1)
 
-
-
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         """
         Used for forward pass through Q-Value head network.
 
@@ -66,6 +66,6 @@ class VHead(Head):
         :return: predicted state-action q-values, of shape (batch_size, num_actions).
         """
         value = self.dense(inputs)
-        value = keras.backend.squeeze(value, axis=1)
+        #value = keras.backend.squeeze(value, axis=1)
         return value
 
