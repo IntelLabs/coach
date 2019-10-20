@@ -26,7 +26,7 @@ import matplotlib.image as mpimg
 from rl_coach.base_parameters import AgentParameters, Device, DeviceType
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
-from rl_coach.architectures.tensorflow_components.dnn_model import create_model# ModelWrapper, SingleDnnModel, create_model
+from rl_coach.architectures.tensorflow_components.dnn_model import create_full_model
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
@@ -104,13 +104,13 @@ class Trainer(TensorFlowArchitecture):
             num_heads_per_network = len(network_parameters.heads_parameters)
             num_networks = 1
 
-        self.model = create_model(num_networks=num_networks,
-                                  num_heads_per_network=num_heads_per_network,
-                                  network_is_local=network_is_local,
-                                  network_name=self.network_wrapper_name,
-                                  agent_parameters=agent_parameters,
-                                  network_parameters=network_parameters,
-                                  spaces=spaces)
+        self.model = create_full_model(num_networks=num_networks,
+                                       num_heads_per_network=num_heads_per_network,
+                                       network_is_local=network_is_local,
+                                       network_name=self.network_wrapper_name,
+                                       agent_parameters=agent_parameters,
+                                       network_parameters=network_parameters,
+                                       spaces=spaces)
 
         self.losses = list()
         for index, loss_params in enumerate(network_parameters.heads_parameters):
@@ -212,7 +212,7 @@ class Trainer(TensorFlowArchitecture):
 
     @property
     def output_heads(self):
-        #return self.model.output_heads
-        return self.model.layers[-1].output_heads
+        output_heads = list(map(lambda model: model.output_heads[0], self.model.layers[1:]))
+        return output_heads
 
 

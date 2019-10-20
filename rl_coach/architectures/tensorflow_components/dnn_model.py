@@ -28,7 +28,6 @@ from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, Tensor
 
 
 class SingleDnnModel(keras.Model):
-#class SingleDnnModel(keras.layers.Layer):
     """
     Block that connects a single embedder, with middleware and one to multiple heads
     """
@@ -121,11 +120,6 @@ class SingleDnnModel(keras.Model):
             outputs += out
 
         return outputs
-
-
-
-
-
 
     def _get_input_embedder(self, spaces: SpacesDefinition,
                             input_name: str,
@@ -285,13 +279,6 @@ class SingleDnnModel(keras.Model):
         """
         return self._input_embedders
 
-    # @property
-    # def heads(self):
-    #     """
-    #     :return: list of output heads
-    #     """
-    #     #return [h.head for h in self._output_heads]
-    #     return self._output_heads
 
     @property
     def output_heads(self) -> List[Head]:
@@ -302,13 +289,69 @@ class SingleDnnModel(keras.Model):
         #return [h.head for h in self._output_heads]
 
 
-def create_model(num_networks: int,
-                 num_heads_per_network: int,
-                 network_is_local: bool,
-                 network_name: str,
-                 agent_parameters: AgentParameters,
-                 network_parameters: NetworkParameters,
-                 spaces: SpacesDefinition):
+
+
+def create_single_network(network_is_local: bool,
+                          name: str,
+                          agent_parameters: AgentParameters,
+                          input_embedders_parameters: {str: InputEmbedderParameters},
+                          embedding_merger_type: EmbeddingMergerType,
+                          middleware_param: MiddlewareParameters,
+                          head_param_list: [HeadParameters],
+                          head_type_idx_start: int,
+                          spaces: SpacesDefinition,
+                          *args, **kwargs):
+    """
+    :param network_is_local: True if network is local
+    :param name: name of the network
+    :param agent_parameters: agent parameters
+    :param input_embedders_parameters: dictionary of embedder name to embedding parameters
+    :param embedding_merger_type: type of merging output of embedders: concatenate or sum
+    :param middleware_param: middleware parameters
+    :param head_param_list: list of head parameters, one per head type
+    :param head_type_idx_start: start index for head type index counting
+    :param spaces: state and action space definition
+    """
+    name = name + '_' + head_param_list[0].name.replace('head_params', 'network')
+    #super(SingleDnnModel, self).__init__(name=name, *args, **kwargs)
+
+    _embedding_merger_type = embedding_merger_type
+    _input_embedders = []
+    _output_heads = list()
+
+    for input_name in sorted(input_embedders_parameters):
+        input_type = input_embedders_parameters[input_name]
+        input_embedder = 1#self._get_input_embedder(spaces, input_name, input_type)
+        _input_embedders.append(input_embedder)
+
+    middleware = 1#_get_middleware(middleware_param)
+
+    for i, head_param in enumerate(head_param_list):
+        for head_copy_idx in range(head_param.num_output_head_copies):
+            # create output head and add it to the output heads list
+            head_idx = (head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx
+            network_head = 1
+                # _get_output_head(
+                # head_idx=head_idx,
+                # head_type_index=head_type_idx_start + i,
+                # network_name=name,
+                # spaces=spaces,
+                # is_local=network_is_local,
+                # agent_params=agent_parameters,
+                # head_params=head_param)
+
+            _output_heads.append(network_head)
+            gradient_rescaler = 1
+            return gradient_rescaler
+
+
+def create_full_model(num_networks: int,
+                      num_heads_per_network: int,
+                      network_is_local: bool,
+                      network_name: str,
+                      agent_parameters: AgentParameters,
+                      network_parameters: NetworkParameters,
+                      spaces: SpacesDefinition):
     """
     function that creates two single models. One for the actor and one for the critic
     :param num_networks: number of networks to create
@@ -322,12 +365,22 @@ def create_model(num_networks: int,
 
     input_emmbeders_types = network_parameters.input_embedders_parameters.keys()
     input_shapes = get_input_shapes(spaces, input_emmbeders_types)
-    inputs = list(map(lambda x: Input(shape=x), input_shapes))
+    inputs = list(map(lambda x: Input(name=network_name + '_inputs', shape=x), input_shapes))
 
     outputs = list()
     for network_idx in range(num_networks):
         head_type_idx_start = network_idx * num_heads_per_network
         head_type_idx_end = head_type_idx_start + num_heads_per_network
+        # net = create_single_network(head_type_idx_start=head_type_idx_start,
+        #                             name=network_name,
+        #                             network_is_local=network_is_local,
+        #                             agent_parameters=agent_parameters,
+        #                             input_embedders_parameters=network_parameters.input_embedders_parameters,
+        #                             embedding_merger_type=network_parameters.embedding_merger_type,
+        #                             middleware_param=network_parameters.middleware_parameters,
+        #                             head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
+        #                             spaces=spaces)
+
         net = SingleDnnModel(
             head_type_idx_start=head_type_idx_start,
             name=network_name,
@@ -351,7 +404,7 @@ def create_model(num_networks: int,
 
         outputs.append(dnn_output)
 
-    model = keras.Model(name=network_name, inputs=inputs, outputs=outputs)
+    model = keras.Model(name=network_name + '_model', inputs=inputs, outputs=outputs)
     dummy_inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
     model(dummy_inputs)
     return model

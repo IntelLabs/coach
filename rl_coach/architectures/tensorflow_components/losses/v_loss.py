@@ -49,8 +49,5 @@ class VLoss(HeadLoss):
         )
 
     def loss_forward(self, value_prediction, target):
-        #target = tf.reshape(target, shape=value_prediction.shape)
-        #target = tf.cast(target, dtype=value_prediction.dtype)
         loss = self.loss_fn(value_prediction, target)
-        #loss = tf.reduce_mean(self.loss_fn(value_prediction, target))
         return [(loss, LOSS_OUT_TYPE_LOSS)]
