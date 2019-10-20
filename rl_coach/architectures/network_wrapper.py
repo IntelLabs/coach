@@ -86,12 +86,6 @@ class NetworkWrapper(object):
                                               spaces=spaces,
                                               network_is_trainable=True)
 
-        # self.online_network.model.build(input_shape=(None, 4))
-        # self.online_network.model.summary()
-        # obs = np.array([1., 3., -44., 4.])
-        # obs_batch = tf.expand_dims(obs, 0)
-        # self.online_network.model(obs_batch)
-
         # Target network - a local, slow updating network used for stabilizing the learning
         self.target_network = None
         if self.has_target:
@@ -206,10 +200,6 @@ class NetworkWrapper(object):
                 self.online_network.apply_and_reset_gradients(self.online_network.accumulated_gradients,
                                                               additional_inputs=additional_inputs)
             else:
-
-                # self.online_network.apply_gradients(self.online_network.accumulated_gradients,
-                #                                     additional_inputs=additional_inputs)
-
                 self.online_network.apply_gradients(self.online_network.accumulated_gradients)
 
     def parallel_prediction(self, network_input_tuples: List[Tuple]):

@@ -207,7 +207,7 @@ class TensorFlowArchitecture(Architecture):
         return result
 
 
-    def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
+    def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1., additional_inputs=None) -> None:
         """
         Applies the given gradients to the network weights
         :param gradients: The gradients to use for the update
@@ -218,7 +218,17 @@ class TensorFlowArchitecture(Architecture):
 
         self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
 
+    def apply_and_reset_gradients(self, gradients, scaler=1., additional_inputs=None):
+        """
+        Applies the given gradients to the network weights and resets the accumulation placeholder
+        :param gradients: The gradients to use for the update
+        :param scaler: A scaling factor that allows rescaling the gradients before applying them
+        :param additional_inputs: optional additional inputs required for when applying the gradients (e.g. batchnorm's
+                                  update ops also requires the inputs)
 
+        """
+        self.apply_gradients(gradients, scaler)
+        self.reset_accumulated_gradients()
 
     def clip_gradients(self, grads: List[np.ndarray],
                   clip_method: GradientClippingMethod,

@@ -37,7 +37,8 @@ class VLoss(HeadLoss):
         super().__init__(**kwargs)
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
         self.loss_type = loss_type
-        self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
+        #self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
+        self.loss_fn = tf.keras.losses.MeanSquaredError()
 
     @property
     def input_schema(self) -> LossInputSchema:
@@ -50,6 +51,6 @@ class VLoss(HeadLoss):
     def loss_forward(self, value_prediction, target):
         #target = tf.reshape(target, shape=value_prediction.shape)
         #target = tf.cast(target, dtype=value_prediction.dtype)
-        #loss = self.loss_fn(value_prediction, target)
-        loss = tf.reduce_mean(self.loss_fn(value_prediction, target))
+        loss = self.loss_fn(value_prediction, target)
+        #loss = tf.reduce_mean(self.loss_fn(value_prediction, target))
         return [(loss, LOSS_OUT_TYPE_LOSS)]
