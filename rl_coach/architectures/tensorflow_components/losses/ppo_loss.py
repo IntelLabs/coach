@@ -14,6 +14,7 @@
 #
 
 import tensorflow as tf
+import numpy as np
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 from typing import List, Tuple
@@ -140,6 +141,8 @@ class PPOLoss(HeadLoss):
         kl_div_loss = tf.constant(0, dtype=tf.float32)
         # working with log probs, so minus first, then exponential (same as division)
         likelihood_ratio = tf.exp(action_probs_wrt_new_policy - action_probs_wrt_old_policy)
+        # Added when changed to functional
+        # advantages = np.float32(advantages).reshape(likelihood_ratio.shape)
 
         if self.clip_likelihood_ratio_using_epsilon is not None:
             # clipping of likelihood ratio

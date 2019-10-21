@@ -33,8 +33,8 @@ tfd = tfp.distributions
 import numpy as np
 import tensorflow as tf
 
-#from rl_coach.architectures.tensorflow_components.layers import Dense
-from rl_coach.architectures.tensorflow_components.heads.head import Head#, normalized_columns_initializer
+
+from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
@@ -156,32 +156,18 @@ class PPOHead(Head):
         :param inputs: middleware embedding
         :return: policy parameters/probabilities
         """
-        # a = self.net(inputs)
-        # b = self.net_f(inputs)
-        # c = 1
         return self.net(inputs)
-
 
     def continuous_ppo_head(self, input_dim, output_dim):
 
-        # def repeat_vector(args):
-        #     layer_to_repeat = args[0]
-        #     reference_layer = args[1]
-        #     batch_size = tf.shape(reference_layer)[0]
-        #     return tf.keras.layers.RepeatVector(batch_size)(layer_to_repeat)
-
         inputs = Input(shape=([input_dim]))
-        #dummy_input = tf.ones((1, 1))
         policy_means = Dense(units=output_dim, name="policy_means")(inputs)
-        policy_log_std = Bias()(inputs)#Dense(units=output_dim, name="policy_log_std")(inputs)
-        #policy_log_std = tf.Variable(tf.zeros((1, output_dim)), dtype='float32', name="policy_log_std")
-        #policy_log_std = Lambda(repeat_vector)([policy_log_std, policy_means])
+        policy_log_std = LogStddev()(inputs)
         policy_stds = Lambda(lambda x: tf.exp(x))(policy_log_std)
-        #policy_stds = Lambda(lambda x: tf.squeeze(x, 0))(policy_stds)
-        actions_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[0], scale_diag=t[1]))([policy_means, policy_stds])
-
+        actions_proba = tfp.layers.DistributionLambda(
+            lambda t: tfd.MultivariateNormalDiag(
+                loc=t[0], scale_diag=t[1]))([policy_means, policy_stds])
         model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
-        #model.layers[-1].trainable_weights.append(policy_log_std)
 
         return model
 
@@ -207,8 +193,7 @@ class PPOHead(Head):
         self._loss[0]
 
 
-
-class Bias(keras.layers.Layer):
+class LogStddev(keras.layers.Layer):
     def __init__(self, output_dim=1, **kwargs):
         self.output_dim = output_dim
         super().__init__(**kwargs)
@@ -222,4 +207,4 @@ class Bias(keras.layers.Layer):
         return temp * 0 + self.bias
 
     def compute_output_shape(self, input_shape):
-        return (input_shape[0], self.output_dim)
+        return input_shape[0], self.output_dim

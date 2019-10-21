@@ -56,10 +56,10 @@ class Trainer(TensorFlowArchitecture):
         keras.utils.plot_model(generalized_network.model,
                                expand_nested=True,
                                show_shapes=True,
-                               to_file='model_plot5.png')
-        img = mpimg.imread('model_plot.png')
-        plt.imshow(img)
-        plt.show()
+                               to_file='model_plot_new.png')
+        img = mpimg.imread('model_plot_new.png')
+        # plt.imshow(img)
+        # plt.show()
 
         return generalized_network
 
@@ -212,7 +212,8 @@ class Trainer(TensorFlowArchitecture):
 
     @property
     def output_heads(self):
-        output_heads = list(map(lambda model: model.output_heads[0], self.model.layers[1:]))
+        #output_heads = list(map(lambda model: model.output_heads[0], self.model.layers[1:]))
+        output_heads = list(map(lambda sub_model: sub_model.layers[-1], self.model.layers[1:]))
         return output_heads
 
 

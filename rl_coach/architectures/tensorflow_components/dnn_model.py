@@ -341,7 +341,7 @@ class ModelWrapper(object):
 
 
 
-def create_single_network(inputs,
+def create_single_network(inputs_shapes,
                           name: str,
                           network_is_local: bool,
                           head_type_idx_start: int,
@@ -362,27 +362,22 @@ def create_single_network(inputs,
     :param head_type_idx_start: start index for head type index counting
     :param spaces: state and action space definition
     """
-
+    name = name + '_' + head_param_list[0].name.replace('head_params', '_network')
+    inputs = list(map(lambda x: Input(name=name + '_input', shape=x), inputs_shapes))
     # Get list of input embedders
     embedders = [_get_input_embedder(spaces, k, v) for k, v in input_embedders_parameters.items()]
     # Apply each embbeder on its corresponding input
     state_embeddings = [embedder(input_t) for embedder, input_t in zip(embedders, inputs)]
 
-
-    # for input_name in sorted(input_embedders_parameters):
-    #     embedders_parameters = input_embedders_parameters[input_name]
-    #     embedding = _get_input_embedder(spaces, input_name, embedders_parameters)(inputs)
-    #     state_embedding.append(embedding)
-
-    ## Merger
+    # Merge embedders outputs
     if len(state_embeddings) == 1:
         # TODO: change to squeeze
         state_embeddings = state_embeddings[0]
     else:
         if embedding_merger_type == EmbeddingMergerType.Concat:
-            state_embedding = tf.keras.layers.Concatenate()(state_embeddings)
+            state_embeddings = tf.keras.layers.Concatenate()(state_embeddings)
         elif embedding_merger_type == EmbeddingMergerType.Sum:
-            state_embedding = tf.keras.layers.Add()(state_embeddings)
+            state_embeddings = tf.keras.layers.Add()(state_embeddings)
 
     middleware_output = _get_middleware(middleware_param)(state_embeddings)
 
@@ -433,33 +428,38 @@ def create_full_model(num_networks: int,
     inputs = list(map(lambda x: Input(name=network_name + '_input', shape=x), input_shapes))
 
     outputs = list()
+    networks = list()
     for network_idx in range(num_networks):
         head_type_idx_start = network_idx * num_heads_per_network
         head_type_idx_end = head_type_idx_start + num_heads_per_network
-        # net = create_single_network(inputs=inputs,
-        #                             name=network_name,
-        #                             network_is_local=network_is_local,
-        #                             head_type_idx_start=head_type_idx_start,
-        #                             agent_parameters=agent_parameters,
-        #                             input_embedders_parameters=network_parameters.input_embedders_parameters,
-        #                             embedding_merger_type=network_parameters.embedding_merger_type,
-        #                             middleware_param=network_parameters.middleware_parameters,
-        #                             head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
-        #                             spaces=spaces)
+        net = create_single_network(inputs_shapes=input_shapes,
+                                    name=network_name,
+                                    network_is_local=network_is_local,
+                                    head_type_idx_start=head_type_idx_start,
+                                    agent_parameters=agent_parameters,
+                                    input_embedders_parameters=network_parameters.input_embedders_parameters,
+                                    embedding_merger_type=network_parameters.embedding_merger_type,
+                                    middleware_param=network_parameters.middleware_parameters,
+                                    head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
+                                    spaces=spaces)
 
-        net = SingleDnnModel(
-            head_type_idx_start=head_type_idx_start,
-            name=network_name,
-            network_is_local=network_is_local,
-            agent_parameters=agent_parameters,
-            input_embedders_parameters=network_parameters.input_embedders_parameters,
-            embedding_merger_type=network_parameters.embedding_merger_type,
-            middleware_param=network_parameters.middleware_parameters,
-            head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
-            spaces=spaces)
 
-        dnn_output = net(inputs)
-        num_outputs = net.output_shape[-1]
+
+        # net = SingleDnnModel(
+        #     head_type_idx_start=head_type_idx_start,
+        #     name=network_name,
+        #     network_is_local=network_is_local,
+        #     agent_parameters=agent_parameters,
+        #     input_embedders_parameters=network_parameters.input_embedders_parameters,
+        #     embedding_merger_type=network_parameters.embedding_merger_type,
+        #     middleware_param=network_parameters.middleware_parameters,
+        #     head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
+        #     spaces=spaces)
+
+        outputs.append(net(inputs))
+
+        #dnn_output = net(inputs)
+        #num_outputs = net.output_shape[-1]
         #num_outputs = len(dnn_output)
 
         # if net.output_heads[0].num_outputs_ is None:
@@ -467,11 +467,13 @@ def create_full_model(num_networks: int,
         # else:
         #     assert net.output_heads[0].num_outputs_ == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
         #         net.output_heads[0].num_outputs_, num_outputs)
-
-        outputs.append(dnn_output)
+    #outputs = [net(inputs) for net in networks]
+    #outputs = list(map(, networks))
+    #outputs.append(net_out)
 
     model = keras.Model(name=network_name + '_full_model', inputs=inputs, outputs=outputs)
-    dummy_inputs = tuple(np.zeros(tuple(shape)) for shape in input_shapes)
+    # Dummy batch size 1, therefore [1] + shape
+    dummy_inputs = tuple(np.zeros(tuple([1] + shape)) for shape in input_shapes)
     model(dummy_inputs)
     return model
 
@@ -484,7 +486,9 @@ def get_input_shapes(spaces, input_emmbeders_types) -> List[List[int]]:
     allowed_inputs = copy.copy(spaces.state.sub_spaces)
     allowed_inputs["action"] = copy.copy(spaces.action)
     allowed_inputs["goal"] = copy.copy(spaces.goal)
-    return list([1] + allowed_inputs[embedder_type].shape.tolist() for embedder_type in input_emmbeders_types)
+    return list(allowed_inputs[embedder_type].shape.tolist() for embedder_type in input_emmbeders_types)
+
+    #return list([1] + allowed_inputs[embedder_type].shape.tolist() for embedder_type in input_emmbeders_types)
 
 
 def squeeze_model_outputs(model_outputs):

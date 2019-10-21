@@ -148,10 +148,14 @@ class TensorFlowArchitecture(Architecture):
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
         model_output_heads = self.model.output# self.model.layers[-1].output_heads
-        heads_indices = list(range(len(self.model.output)))
-        embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
-        model_inputs = tuple(inputs[emb] for emb in embedders)
+        heads_indices = list(range(len(self.model.outputs)))
+        #embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
+        #model_inputs = tuple(inputs[emb] for emb in embedders)
+        model_inputs = tuple(inputs[emb_type] for emb_type in self.emmbeding_types)
+
         targets = force_list(targets)
+
+        #targets = [target.reshape(-1, 1) for target in targets]
 
         with tf.GradientTape() as tape:
 
@@ -167,7 +171,8 @@ class TensorFlowArchitecture(Architecture):
                                           inputs.items()))
 
                 agent_input = list(agent_input.values())
-                loss_outputs = head_loss(head_output, agent_input, head_target)
+                head_target = list(map(lambda x: tf.cast(x, tf.float32), head_target))
+                loss_outputs = head_loss([head_output], agent_input, head_target)
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
@@ -183,7 +188,7 @@ class TensorFlowArchitecture(Architecture):
             # Total loss is losses and regularization (NOTE: order is important)
             total_loss_list = losses + regularisations
             #total_loss = tf.add_n([main_loss] + model.losses)
-            total_loss_list = list(map(lambda x: tf.cast(x, tf.float32), total_loss_list))
+            #total_loss_list = list(map(lambda x: tf.cast(x, tf.float32), total_loss_list))
             total_loss = tf.add_n(total_loss_list)
 
         # Calculate gradients
@@ -263,43 +268,49 @@ class TensorFlowArchitecture(Architecture):
 
         WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
-        #self.emmbeding_types
-        #embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
         model_inputs = tuple(inputs[emb] for emb in self.emmbeding_types)
 
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
-        model_outputs = squeeze_model_outputs(self.model(model_inputs))
+        #model_outputs = squeeze_model_outputs(self.model(model_inputs))
 
-        output_per_head = list()
-        for head_output in model_outputs:
-            if isinstance(head_output, Distribution):
-                #output_per_head.append((head_output.mean().numpy(), head_output.stddev().numpy()))
-                output_per_head.append(head_output.mean().numpy())
-                output_per_head.append(head_output.stddev().numpy())
+        model_outputs = self.model(model_inputs)
 
-            else:
-                output_per_head.append(head_output.numpy())
+        distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_outputs))
+        distribution_mean = [dist.mean().numpy() for dist in distribution_output]
+        distribution_stddev = [dist.stddev().numpy() for dist in distribution_output]
 
+        if distribution_output:
+            value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs))
+            value_output = [value.numpy() for value in value_output]
+            output_per_head = list(zip(value_output, distribution_mean, distribution_stddev))
+            output_per_head = list(output_per_head[0])
+        else:
+            output_per_head = model_outputs.numpy()
+
+
+
+        # output_per_head2 = list()
+        # for head_output in model_outputs:
+        #     if isinstance(head_output, Distribution):
+        #         output_per_head2.append(head_output.mean().numpy())
+        #         output_per_head2.append(head_output.stddev().numpy())
         #
-        # distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_output))
-        # value_output = tuple(filter(lambda x: not (isinstance(x, Distribution)), model_output))
-        #
-        #
-        # output_per_head = value_output
-        #
-        # if distribution_output:
-        #
-        #
-        # # TODO Is the concatenion with value head is OK? is the order correct value and then mean ,std
+        #     else:
+        #         output_per_head2.append(head_output.numpy())
+
+
         # for distribution in distribution_output:
         #     policy_means = distribution.mean()
         #     policy_std = distribution.stddev()
         # output += (policy_means, policy_std)
 
         #output = list(o.numpy() for o in output)
+
+        #return model_outputs.numpy()
+
+
         return output_per_head
-        #return output
 
 
     def predict(self,
@@ -324,8 +335,8 @@ class TensorFlowArchitecture(Architecture):
 
         #output = list(o.numpy() for o in output)
 
-        if squeeze_output:
-            output = squeeze_list(output)
+        # if squeeze_output:
+        #     output = squeeze_list(output)
 
         return output
 
@@ -342,9 +353,12 @@ class TensorFlowArchitecture(Architecture):
         :return: tuple of outputs from all networks
         """
         assert sess is None
-        output = list()
-        for net, inputs in network_input_tuples:
-            output += net._predict(inputs)
+        output = [net._predict(inputs) for net, inputs in network_input_tuples]
+
+        # output = list()
+        # for net, inputs in network_input_tuples:
+        #     output += net._predict(inputs)
+
 
         return output#tuple(o.numpy() for o in output)
 
