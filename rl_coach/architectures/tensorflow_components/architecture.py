@@ -79,11 +79,13 @@ class TensorFlowArchitecture(Architecture):
         self.distributed_training = self.network_is_global or self.network_is_local and global_network is not None
 
         self.optimizer_type = self.network_parameters.optimizer_type
+        self.emmbeding_types = list(self.network_parameters.input_embedders_parameters.keys())
         if self.ap.task_parameters.seed is not None:
             tf.compat.v1.set_random_seed(self.ap.task_parameters.seed)
 
         # Call to child class to create the model
         self.construct_model()
+
         self.trainer = None
 
     def __str__(self):
@@ -261,8 +263,9 @@ class TensorFlowArchitecture(Architecture):
 
         WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
-        embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
-        model_inputs = tuple(inputs[emb] for emb in embedders)
+        #self.emmbeding_types
+        #embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
+        model_inputs = tuple(inputs[emb] for emb in self.emmbeding_types)
 
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 

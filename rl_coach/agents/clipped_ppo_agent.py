@@ -202,7 +202,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                 'entropy': []
             }
 
-            ppo_head = self.networks['main'].online_network.model.layers[-1].layers[1]
+            # ppo_head = self.networks['main'].online_network.model.layers[-1].layers[1]
             # fetches = [ppo_head.kl_divergence,
             #            ppo_head.entropy,
             #            ppo_head.likelihood_ratio,

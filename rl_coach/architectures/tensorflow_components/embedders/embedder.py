@@ -70,16 +70,16 @@ class InputEmbedder(keras.layers.Layer):
             if dropout_rate:
                 self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         """
         Used for forward pass through embedder network.
 
         :param inputs: environment state, where first dimension is batch_size, then dimensions are data type dependent.
         :return: embedding of environment state, where shape is (batch_size, channels).
         """
-        #self.input_rescaling = tf.cast(self.input_rescaling, inputs.dtype)
-        inputs = tf.cast(inputs, tf.float32)
-        x = inputs / self.input_rescaling
+
+        # x = inputs / self.input_rescaling
+        x = tf.math.divide(inputs, self.input_rescaling)
         x = x - self.input_offset
         if self.input_clipping is not None:
             x = tf.clip_by_value(x, self.input_clipping[0], self.input_clipping[1])
@@ -87,7 +87,9 @@ class InputEmbedder(keras.layers.Layer):
         for layer in self.embbeder_layers:
             x = layer(x)
 
-        x = keras.layers.Flatten()(x)
+
+        # TODO : commented out, bring back for convolution
+        #x = keras.layers.Flatten()(x)
         return x
 
 

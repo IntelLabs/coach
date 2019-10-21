@@ -60,7 +60,7 @@ class Middleware(keras.layers.Layer):
             if dropout_rate:
                 self.middleware_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         """
         Used for forward pass through middleware network.
 
@@ -71,7 +71,6 @@ class Middleware(keras.layers.Layer):
         for layer in self.middleware_layers:
             x = layer(x)
         return x
-
 
     def get_name(self) -> str:
         """
