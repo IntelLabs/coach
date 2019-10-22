@@ -202,10 +202,15 @@ class ClippedPPOAgent(ActorCriticAgent):
                 'entropy': []
             }
 
-            fetches = [self.networks['main'].online_network.output_heads[1].kl_divergence,
-                       self.networks['main'].online_network.output_heads[1].entropy,
-                       self.networks['main'].online_network.output_heads[1].likelihood_ratio,
-                       self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
+            # fetches = [self.networks['main'].online_network.output_heads[1].kl_divergence,
+            #            self.networks['main'].online_network.output_heads[1].entropy,
+            #            self.networks['main'].online_network.output_heads[1].likelihood_ratio,
+            #            self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
+
+            fetches = [(1, 'kl_divergence'),
+                       (1, 'entropy'),
+                       (1, 'likelihood_ratio'),
+                       (1, 'clipped_likelihood_ratio')]
 
             # TODO-fixme if batch.size / self.ap.network_wrappers['main'].batch_size is not an integer, we do not train on
             #  some of the data

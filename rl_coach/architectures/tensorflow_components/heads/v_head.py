@@ -18,6 +18,7 @@ from typing import Union, List, Tuple
 from types import ModuleType
 
 from tensorflow import keras
+from tensorflow.keras.layers import Dense, Input, Lambda
 
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
@@ -66,6 +67,11 @@ class VHead(Head):
         :return: predicted state-action q-values, of shape (batch_size, num_actions).
         """
         value = self.dense(inputs)
-        #value = keras.backend.squeeze(value, axis=1)
         return value
 
+
+def value_head(input_dim, output_dim):
+    inputs = Input(shape=([input_dim]))
+    value = Dense(units=output_dim, name="value_output")(inputs)
+    model = keras.Model(name='value_head', inputs=inputs, outputs=value)
+    return model

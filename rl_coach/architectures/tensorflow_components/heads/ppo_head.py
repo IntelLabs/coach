@@ -117,7 +117,6 @@ def continuous_ppo_head(input_dim, output_dim):
     inputs = Input(shape=([input_dim]))
     policy_means = Dense(units=output_dim, name="policy_means")(inputs)
     policy_stds = StdDev()(inputs)
-    #policy_stds = Lambda(lambda x: tf.exp(x))(policy_log_std)
     actions_proba = tfp.layers.DistributionLambda(
         lambda t: tfd.MultivariateNormalDiag(
             loc=t[0], scale_diag=t[1]))([policy_means, policy_stds])
@@ -130,16 +129,16 @@ class StdDev(keras.layers.Layer):
     def __init__(self, output_dim=1, **kwargs):
         self.output_dim = output_dim
         super().__init__(**kwargs)
+        self.exponential_layer = tf.keras.layers.Lambda(lambda x: tf.exp(x))
 
     def build(self, input_shape):
         self.bias = self.add_weight(shape=(1,), initializer='zeros', dtype=tf.float32, name='log_std_var')
-        #self.exponential_layer = tf.keras.layers.Lambda(lambda x: tf.exp(x))
         super().build(input_shape)
 
     def call(self, x):
         temp = tf.reduce_mean(x, axis=-1, keepdims=True)
         log_std = temp * 0 + self.bias
-        std = Lambda(lambda ls: tf.exp(ls))(log_std)
+        std = self.exponential_layer(log_std)
         return std
 
     def compute_output_shape(self, input_shape):

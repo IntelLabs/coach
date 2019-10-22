@@ -13,7 +13,8 @@ from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters,
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
 #from rl_coach.architectures.tensorflow_components.heads import Head, QHead
 from rl_coach.architectures.tensorflow_components.heads import Head, PPOHead, PPOVHead, VHead, QHead
-
+from rl_coach.architectures.tensorflow_components.heads.ppo_head import continuous_ppo_head
+from rl_coach.architectures.tensorflow_components.heads.v_head import value_head
 
 #from rl_coach.architectures.head_parameters import QHeadParameters
 from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
@@ -126,54 +127,51 @@ def _get_output_head(
     """
 
     if isinstance(head_params, QHeadParameters):
-        head_name = 'q_head'
-        module = QHead(
-            agent_parameters=agent_params,
-            spaces=spaces,
-            network_name=network_name,
-            head_type_idx=head_type_index,
-            loss_weight=head_params.loss_weight,
-            is_local=is_local,
-            activation_function=head_params.activation_function,
-            dense_layer=head_params.dense_layer)
+        head_input_dim = 512 # middleware output dim hard coded, because scheme is hard coded
+        head_output_dim = len(spaces.action.actions)
+        module = value_head(head_input_dim, head_output_dim)
+
+        # module = QHead(
+        #     agent_parameters=agent_params,
+        #     spaces=spaces,
+        #     network_name=network_name,
+        #     head_type_idx=head_type_index,
+        #     loss_weight=head_params.loss_weight,
+        #     is_local=is_local,
+        #     activation_function=head_params.activation_function,
+        #     dense_layer=head_params.dense_layer)
 
     elif isinstance(head_params, PPOHeadParameters):
-        head_name = 'ppo_head'
-        module = PPOHead(
-            agent_parameters=agent_params,
-            spaces=spaces,
-            network_name=network_name,
-            head_type_idx=head_type_index,
-            loss_weight=head_params.loss_weight,
-            is_local=is_local,
-            activation_function=head_params.activation_function,
-            dense_layer=head_params.dense_layer)
+        head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
+        head_output_dim = spaces.action.shape[0]
+        module = continuous_ppo_head(head_input_dim, head_output_dim)
 
-        #module = module.net
+        # module = PPOHead(
+        #     agent_parameters=agent_params,
+        #     spaces=spaces,
+        #     network_name=network_name,
+        #     head_type_idx=head_type_index,
+        #     loss_weight=head_params.loss_weight,
+        #     is_local=is_local,
+        #     activation_function=head_params.activation_function,
+        #     dense_layer=head_params.dense_layer)
 
     elif isinstance(head_params, VHeadParameters):
-        head_name = 'value_head'
-        module = VHead(
-            agent_parameters=agent_params,
-            spaces=spaces,
-            network_name=network_name,
-            head_type_idx=head_type_index,
-            loss_weight=head_params.loss_weight,
-            is_local=is_local,
-            activation_function=head_params.activation_function,
-            dense_layer=head_params.dense_layer)
+        head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
+        head_output_dim = 1
+        module = value_head(head_input_dim, head_output_dim)
 
-    elif isinstance(head_params, PPOVHeadParameters):
-        head_name = 'ppo_v_head'
-        module = PPOVHead(
-            agent_parameters=agent_params,
-            spaces=spaces,
-            network_name=network_name,
-            head_type_idx=head_type_index,
-            loss_weight=head_params.loss_weight,
-            is_local=is_local,
-            activation_function=head_params.activation_function,
-            dense_layer=head_params.dense_layer)
+        #
+        # module = VHead(
+        #     agent_parameters=agent_params,
+        #     spaces=spaces,
+        #     network_name=network_name,
+        #     head_type_idx=head_type_index,
+        #     loss_weight=head_params.loss_weight,
+        #     is_local=is_local,
+        #     activation_function=head_params.activation_function,
+        #     dense_layer=head_params.dense_layer)
+
 
     else:
         raise KeyError('Unsupported head type: {}'.format(type(head_params)))
@@ -282,11 +280,7 @@ def create_full_model(num_networks: int,
                                     head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
                                     spaces=spaces)
 
-
-
-
         outputs.append(net(inputs))
-
 
         #num_outputs = net.output_shape[-1]
         #num_outputs = len(dnn_output)
