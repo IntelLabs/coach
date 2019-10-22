@@ -58,8 +58,8 @@ class Trainer(TensorFlowArchitecture):
                                show_shapes=True,
                                to_file='model_plot_new.png')
         img = mpimg.imread('model_plot_new.png')
-        # plt.imshow(img)
-        # plt.show()
+        plt.imshow(img)
+        plt.show()
 
         return generalized_network
 

@@ -33,7 +33,6 @@ tfd = tfp.distributions
 import numpy as np
 import tensorflow as tf
 
-
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import ActionProbabilities
@@ -41,66 +40,6 @@ from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
 from rl_coach.spaces import SpacesDefinition
 
 from rl_coach.utils import eps
-
-
-
-class ContinuousPPOHead(keras.layers.Layer):
-    def __init__(self, num_actions: int) -> None:
-        """
-        Head block for Continuous Proximal Policy Optimization, to calculate probabilities for each action given
-        middleware representation of the environment state.
-
-        :param num_actions: number of actions in action space.
-        """
-
-        super(ContinuousPPOHead, self).__init__()
-        self.output_dim = num_actions
-        # all samples (across batch, and time step) share the same covariance, which is learnt,
-        # but since we assume the action probability variables are independent,
-        # only the diagonal entries of the covariance matrix are specified.
-        self.policy_means_layer = tf.keras.layers.Dense(units=num_actions)
-        # self.policy_log_std_layer = tf.keras.layers.Dense(units=num_actions,
-        #                                                   kernel_initializer=keras.initializers.RandomUniform(minval=-0.005, maxval=0.005, seed=None),
-        #                                                   bias_initializer='zeros')
-
-        self.policy_log_std_layer = tf.Variable(tf.zeros((1, num_actions)), dtype='float32', name="policy_log_std")
-        self.repeat_layer = tf.keras.layers.RepeatVector(64)
-
-        #self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[..., 0], scale_diag=tf.exp(t[..., 1])))
-        self.action_proba = tfp.layers.DistributionLambda(lambda t: tfd.MultivariateNormalDiag(loc=t[0], scale_diag=tf.exp(t[1])))
-
-    def call(self, inputs) -> Tuple[Tensor, Tensor]:
-        """
-        Used for forward pass through head network.
-
-        :param inputs: middleware state representation,
-            of shape (batch_size, in_channels) or
-            of shape (batch_size, time_step, in_channels).
-        :return: batch of probabilities for each action,
-            of shape (batch_size, action_mean) or
-            of shape (batch_size, time_step, action_mean).
-        """
-        policy_means = self.policy_means_layer(inputs)
-        log_stds = self.policy_log_std_layer
-
-
-        if not inputs.shape[0]:
-            log_stds = self.policy_log_std_layer#(inputs)
-        #log_stds = tf.tile(self.policy_log_std_layer, [policy_means.shape[0], 1], name='log_std')
-        else:
-            #print('aa')
-            log_stds = tf.tile(self.policy_log_std_layer, [inputs.shape[0], self.output_dim], name='log_std')
-
-
-        ########
-        a_prob = self.action_proba([policy_means, log_stds])
-        #policy_means = a_prob.mean()
-        #policy_std = a_prob.stddev()
-        ########
-        return a_prob
-        #return policy_means, policy_std
-
-
 
 
 class PPOHead(Head):
@@ -146,8 +85,7 @@ class PPOHead(Head):
             #self.net = ContinuousPPOHead(num_actions=self.spaces.action.shape[0])
             head_input_dim = 64 # middleware output dim hard coded, because scheme is hard coded
             head_output_dim = self.spaces.action.shape[0]
-            #self.net_f = self.continuous_ppo_head(head_input_dim, head_output_dim)
-            self.net = self.continuous_ppo_head(head_input_dim, head_output_dim)
+            self.net = continuous_ppo_head(head_input_dim, head_output_dim)
         else:
             raise ValueError("Only discrete or continuous action spaces are supported for PPO.")
 
@@ -157,21 +95,6 @@ class PPOHead(Head):
         :return: policy parameters/probabilities
         """
         return self.net(inputs)
-
-    def continuous_ppo_head(self, input_dim, output_dim):
-
-        inputs = Input(shape=([input_dim]))
-        policy_means = Dense(units=output_dim, name="policy_means")(inputs)
-        policy_log_std = LogStddev()(inputs)
-        policy_stds = Lambda(lambda x: tf.exp(x))(policy_log_std)
-        actions_proba = tfp.layers.DistributionLambda(
-            lambda t: tfd.MultivariateNormalDiag(
-                loc=t[0], scale_diag=t[1]))([policy_means, policy_stds])
-        model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
-
-        return model
-
-
 
     @property
     def kl_divergence(self):
@@ -189,22 +112,35 @@ class PPOHead(Head):
     def clipped_likelihood_ratio(self):
         return self.head_type_idx, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO
 
-    def assign_kl_coefficient(self, kl_coefficient: float) -> None:
-        self._loss[0]
+
+def continuous_ppo_head(input_dim, output_dim):
+    inputs = Input(shape=([input_dim]))
+    policy_means = Dense(units=output_dim, name="policy_means")(inputs)
+    policy_stds = StdDev()(inputs)
+    #policy_stds = Lambda(lambda x: tf.exp(x))(policy_log_std)
+    actions_proba = tfp.layers.DistributionLambda(
+        lambda t: tfd.MultivariateNormalDiag(
+            loc=t[0], scale_diag=t[1]))([policy_means, policy_stds])
+    model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
+
+    return model
 
 
-class LogStddev(keras.layers.Layer):
+class StdDev(keras.layers.Layer):
     def __init__(self, output_dim=1, **kwargs):
         self.output_dim = output_dim
         super().__init__(**kwargs)
 
     def build(self, input_shape):
         self.bias = self.add_weight(shape=(1,), initializer='zeros', dtype=tf.float32, name='log_std_var')
+        #self.exponential_layer = tf.keras.layers.Lambda(lambda x: tf.exp(x))
         super().build(input_shape)
 
     def call(self, x):
         temp = tf.reduce_mean(x, axis=-1, keepdims=True)
-        return temp * 0 + self.bias
+        log_std = temp * 0 + self.bias
+        std = Lambda(lambda ls: tf.exp(ls))(log_std)
+        return std
 
     def compute_output_shape(self, input_shape):
         return input_shape[0], self.output_dim

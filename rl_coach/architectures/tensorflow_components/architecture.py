@@ -288,27 +288,12 @@ class TensorFlowArchitecture(Architecture):
         else:
             output_per_head = model_outputs.numpy()
 
-
-
-        # output_per_head2 = list()
-        # for head_output in model_outputs:
-        #     if isinstance(head_output, Distribution):
-        #         output_per_head2.append(head_output.mean().numpy())
-        #         output_per_head2.append(head_output.stddev().numpy())
-        #
-        #     else:
-        #         output_per_head2.append(head_output.numpy())
-
-
         # for distribution in distribution_output:
         #     policy_means = distribution.mean()
         #     policy_std = distribution.stddev()
         # output += (policy_means, policy_std)
 
-        #output = list(o.numpy() for o in output)
-
-        #return model_outputs.numpy()
-
+        # output = list(o.numpy() for o in output)
 
         return output_per_head
 
