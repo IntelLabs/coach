@@ -133,6 +133,7 @@ class PPOLoss(HeadLoss):
         old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds)# + eps)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
 
+        #new_policy_distribution = tfd.MultivariateNormalDiag(loc=new_policy_means, scale_diag=new_policy_stds)  # + eps)
         action_probs_wrt_new_policy = new_policy_distribution.log_prob(actions)
 
         entropy_loss = - self.beta * tf.reduce_mean(new_policy_distribution.entropy())
@@ -175,6 +176,9 @@ class PPOLoss(HeadLoss):
             (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
             (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
         ]
+
+
+
         # dummy_loss = tf.reduce_mean(advantages*new_policy_distribution.log_prob(actions[1]))
         # dummy_loss = tf.reduce_mean(tf.sqrt(tf.square(new_policy_distribution.mean()- 5)))
         # print(new_policy_distribution.mean())
@@ -189,6 +193,22 @@ class PPOLoss(HeadLoss):
         #     (1e-10*likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
         #     (1e-10*clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
         # ]
+
+
+def ppo_loss_f(new_policy, actions, old_means, old_stds, advantages):
+    min_value = 0.8
+    max_value = 1.2
+    old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds)
+
+    old_policy_log_prob = old_policy.log_prob(actions)
+    new_policy_log_prob = new_policy.log_prob(actions)
+    likelihood_ratio = tf.exp(new_policy_log_prob - old_policy_log_prob)
+    clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
+    unclipped_scaled_advantages = likelihood_ratio * advantages
+    clipped_scaled_advantages = clipped_likelihood_ratio * advantages
+    scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
+    loss = -tf.reduce_mean(scaled_advantages)
+    return loss
 
 
 # class PPOLoss(keras.losses.Loss):

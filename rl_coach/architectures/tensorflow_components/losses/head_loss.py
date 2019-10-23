@@ -39,6 +39,7 @@ class LossInputSchema(object):
 
 
 class HeadLoss(keras.layers.Layer):
+#class HeadLoss(keras.losses.Loss):
     """
     ABC for loss functions of each agent. Child class must implement input_schema() and loss_forward()
     """
@@ -64,21 +65,21 @@ class HeadLoss(keras.layers.Layer):
         """
         return self._output_schema
 
-    def forward(self, *args):
-        """
-        Override forward() so that number of outputs can be checked against the schema
-        """
-
-        outputs = super(HeadLoss, self).forward(*args)
-
-        if isinstance(outputs, tuple) or isinstance(outputs, list):
-            num_outputs = len(outputs)
-        else:
-            assert isinstance(outputs, NDArray) or isinstance(outputs, Symbol)
-            num_outputs = 1
-        assert num_outputs == len(self.output_schema), "Number of outputs don't match schema ({} != {})".format(
-            num_outputs, len(self.output_schema))
-        return outputs
+    # def forward(self, *args):
+    #     """
+    #     Override forward() so that number of outputs can be checked against the schema
+    #     """
+    #
+    #     outputs = super(HeadLoss, self).forward(*args)
+    #
+    #     if isinstance(outputs, tuple) or isinstance(outputs, list):
+    #         num_outputs = len(outputs)
+    #     else:
+    #         assert isinstance(outputs, NDArray) or isinstance(outputs, Symbol)
+    #         num_outputs = 1
+    #     assert num_outputs == len(self.output_schema), "Number of outputs don't match schema ({} != {})".format(
+    #         num_outputs, len(self.output_schema))
+    #     return outputs
 
     def _loss_output(self, outputs: List[Tuple[Tensor, str]]):
         """
@@ -93,7 +94,6 @@ class HeadLoss(keras.layers.Layer):
 
     def call(self, head_output, agent_input, target):
         loss_args = self.extract_loss_args(head_output, agent_input, target)
-        #return self._loss_output(self.loss_forward(*loss_args))
         loss_output = self._loss_output(self.loss_forward(*loss_args))
         return self.loss_output_dict(loss_output)
 

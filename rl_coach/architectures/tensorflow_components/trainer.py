@@ -28,9 +28,9 @@ from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.dnn_model import create_full_model
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
-from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
-from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
-from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
+from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss, q_loss_f
+from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss, v_loss_f
+from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss, ppo_loss_f
 
 from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
 from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters
@@ -178,6 +178,7 @@ class Trainer(TensorFlowArchitecture):
                          head_idx=head_idx,
                          loss_type=MeanSquaredError,
                          loss_weight=loss_weight)
+            #loss = q_loss_f
 
         elif isinstance(loss_params, VHeadParameters):
             loss = VLoss(network_name=network_name,

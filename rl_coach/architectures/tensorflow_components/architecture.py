@@ -41,6 +41,9 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_O
 from tensorflow_probability import edward2 as ed
 import tensorflow_probability as tfp
 from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
+from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss, q_loss_f
+from rl_coach.architectures.tensorflow_components.losses.v_loss import v_loss_f
+from rl_coach.architectures.tensorflow_components.losses.ppo_loss import ppo_loss_f
 
 class TensorFlowArchitecture(Architecture):
     def __init__(self, agent_parameters: AgentParameters,
@@ -147,23 +150,21 @@ class TensorFlowArchitecture(Architecture):
 
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
-        model_output_heads = self.model.output# self.model.layers[-1].output_heads
+
         heads_indices = list(range(len(self.model.outputs)))
-        #embedders = [emb.embedder_name for emb in self.model.layers[-1].input_embedders]
-        #model_inputs = tuple(inputs[emb] for emb in embedders)
         model_inputs = tuple(inputs[emb_type] for emb_type in self.emmbeding_types)
-
         targets = force_list(targets)
+        targets = utils.split_targets_per_loss(targets, self.losses)
+        losses = list()
+        regularisations = list()
+        additional_fetches = [(k, None) for k in additional_fetches]
 
-        #targets = [target.reshape(-1, 1) for target in targets]
+
 
         with tf.GradientTape() as tape:
 
             model_outputs = force_list(self.model(model_inputs))
-            targets = utils.split_targets_per_loss(targets, self.losses)
-            losses = list()
-            regularisations = list()
-            additional_fetches = [(k, None) for k in additional_fetches]
+            temp_loss_outputs = 0
 
             for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
 
@@ -173,6 +174,8 @@ class TensorFlowArchitecture(Architecture):
                 agent_input = list(agent_input.values())
                 head_target = list(map(lambda x: tf.cast(x, tf.float32), head_target))
                 loss_outputs = head_loss([head_output], agent_input, head_target)
+
+
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
@@ -185,16 +188,34 @@ class TensorFlowArchitecture(Architecture):
                         assert fetch[1] is None  # sanity check that fetch is None
                         additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
+                #########
+                #temp_loss_outputs += q_loss_f(q_value_pred=head_output, target=head_target[0])
+                if head_idx == 0:
+                    temp_loss_outputs += v_loss_f(value_prediction=head_output, target=head_target[0])
+                if head_idx == 1:
+                    temp_loss_outputs += ppo_loss_f(new_policy=head_output,
+                                                    actions=agent_input[0],
+                                                    old_means=agent_input[1],
+                                                    old_stds=agent_input[2],
+                                                    advantages=head_target)
+
+
+
+
+
             # Total loss is losses and regularization (NOTE: order is important)
             total_loss_list = losses + regularisations
             #total_loss = tf.add_n([main_loss] + model.losses)
-            #total_loss_list = list(map(lambda x: tf.cast(x, tf.float32), total_loss_list))
             total_loss = tf.add_n(total_loss_list)
+            # Dan
+            total_loss = temp_loss_outputs
 
         # Calculate gradients
         gradients = tape.gradient(total_loss, self.model.trainable_variables)
+        #gradients = tf.gradients(self.losses[0]())
         norm_unclipped_grads = tf.linalg.global_norm(gradients)
-        # gradient clipping
+
+        # Gradient clipping
         if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
             gradients, gradients_norm = self.clip_gradients(gradients, self.network_parameters.gradients_clipping_method,
                                                             self.network_parameters.clip_gradients)
@@ -206,8 +227,7 @@ class TensorFlowArchitecture(Architecture):
         else:
             self.accumulated_gradients += gradients.copy()
 
-
-        # result of of additional fetches
+        # Result of of additional fetches
         fetched_tensors = [fetch[1] for fetch in additional_fetches]
         # convert everything to numpy or scalar before returning
         result = (total_loss.numpy(), total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)
@@ -272,8 +292,6 @@ class TensorFlowArchitecture(Architecture):
 
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
-        #model_outputs = squeeze_model_outputs(self.model(model_inputs))
-
         model_outputs = self.model(model_inputs)
 
         distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_outputs))
@@ -288,14 +306,9 @@ class TensorFlowArchitecture(Architecture):
         else:
             output_per_head = model_outputs.numpy()
 
-        # for distribution in distribution_output:
-        #     policy_means = distribution.mean()
-        #     policy_std = distribution.stddev()
-        # output += (policy_means, policy_std)
-
-        # output = list(o.numpy() for o in output)
 
         return output_per_head
+        #return model_outputs
 
 
     def predict(self,
@@ -315,18 +328,8 @@ class TensorFlowArchitecture(Architecture):
         """
         assert initial_feed_dict is None, "initial_feed_dict must be None"
         assert outputs is None, "outputs must be None"
-
         output = self._predict(inputs)
-
-        #output = list(o.numpy() for o in output)
-
-        # if squeeze_output:
-        #     output = squeeze_list(output)
-
         return output
-
-
-
 
     @staticmethod
     def parallel_predict(sess: Any,
@@ -345,7 +348,7 @@ class TensorFlowArchitecture(Architecture):
         #     output += net._predict(inputs)
 
 
-        return output#tuple(o.numpy() for o in output)
+        return output
 
     # def train_on_batch(self,
     #                    inputs: Dict[str, np.ndarray],
