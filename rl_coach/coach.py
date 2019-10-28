@@ -778,4 +778,42 @@ def main():
 
 
 if __name__ == "__main__":
+
+
+    from os import path
+
+
+    sys.argv.append('-p')
+
+    sys.argv.append('ShortCorridor_PG')
+
+    # sys.argv.append('Atari_DQN')tf1gym
+
+
+
+    # sys.argv.extend(['-lvl', 'breakout'])
+
+    # sys.argv.append('Mujoco_ClippedPPO')
+    # sys.argv.extend(['-lvl', 'inverted_pendulum'])
+
+
+
+
+    #sys.argv.extend(['-f', 'mxnet'])
+
+    #sys.argv.extend(['-s', '1500'])
+    CHECKPOINT_RESTORE_DIR = path.join('experiments', 'atari', '04_09_2019-20_52', 'checkpoint')
+    #CHECKPOINT_RESTORE_DIR = path.join('experiments', '04_09_2019-20_44', 'checkpoint')
+    #sys.argv.extend(['-crd', CHECKPOINT_RESTORE_DIR])
+
+    # sys.argv.extend('--evaluate')
+
+    print(sys.argv)
+    import sys
+
+    print(sys.executable)
+
+    import os
+
+    print(os.getcwd())
     main()
