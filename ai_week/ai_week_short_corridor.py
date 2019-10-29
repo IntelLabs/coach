@@ -22,7 +22,7 @@ class ShortCorridorEnv(gym.Env):
 
     def _get_obs(self):
         self.observation = np.zeros((self.NUM_STATES,))
-        #self.observation[self.current_state] = 1 # For bug test = 0
+        self.observation[self.current_state] = 1 # For bug test = 0
         return self.observation
 
     def _terminate(self):

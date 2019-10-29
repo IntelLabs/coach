@@ -30,8 +30,6 @@ from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
-from ai_week.ai_week_head import AiWeekHead
-
 
 
 
@@ -47,6 +45,7 @@ class WorkShopHeadParameters(HeadParameters):
     @property
     def path(self):
         return 'ai_week.ai_week_head:AiWeekHead'
+
 
 
 
@@ -99,10 +98,10 @@ class AiWeekAgentParameters(AgentParameters):
 
     @property
     def path(self):
-        return 'ai_week.ai_week_agent:PolicyGradientsAgent'
+        return 'ai_week.ai_week_agent:SimplePgAgent'
 
 
-class PolicyGradientsAgent(PolicyOptimizationAgent):
+class SimplePgAgent(PolicyOptimizationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
         self.returns_mean = self.register_signal('Returns Mean')
@@ -113,28 +112,11 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
         # batch contains a list of episodes to learn from
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
+        # FUTURE_RETURN
         total_returns = batch.n_step_discounted_rewards()
-        for i in reversed(range(batch.size)):
-            if self.policy_gradient_rescaler == PolicyGradientRescaler.TOTAL_RETURN:
-                total_returns[i] = total_returns[0]
-            elif self.policy_gradient_rescaler == PolicyGradientRescaler.FUTURE_RETURN:
-                # just take the total return as it is
-                pass
-            elif self.policy_gradient_rescaler == PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_EPISODE:
-                # we can get a single transition episode while playing Doom Basic, causing the std to be 0
-                if self.std_discounted_return != 0:
-                    total_returns[i] = (total_returns[i] - self.mean_discounted_return) / self.std_discounted_return
-                else:
-                    total_returns[i] = 0
-            elif self.policy_gradient_rescaler == PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_TIMESTEP:
-                total_returns[i] -= self.mean_return_over_multiple_episodes[i]
-            else:
-                screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         targets = total_returns
         actions = batch.actions()
-        if type(self.spaces.action) != DiscreteActionSpace and len(actions.shape) < 2:
-            actions = np.expand_dims(actions, -1)
 
         self.returns_mean.add_sample(np.mean(total_returns))
         self.returns_variance.add_sample(np.std(total_returns))

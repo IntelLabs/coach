@@ -46,15 +46,16 @@ class AiWeekHead(Head):
 
         self._build_discrete_net(input_layer, self.spaces.action)
 
-        if self.is_local:
 
-            # calculate loss
-            self.action_log_probs_wrt_policy = \
-                tf.add_n([dist.log_prob(action) for dist, action in zip(self.policy_distributions, self.actions)])
-            self.advantages = tf.placeholder(tf.float32, [None], name="advantages")
-            self.target = self.advantages
-            self.loss = -tf.reduce_mean(self.action_log_probs_wrt_policy * self.advantages)
-            tf.losses.add_loss(self.loss_weight[0] * self.loss)
+        # calculate loss
+        action_log_prob = tf.add_n([dist.log_prob(action) for dist, action in zip(self.policy_distributions, self.actions)])
+
+        self.advantages = tf.placeholder(tf.float32, [None], name="advantages")
+
+        self.target = self.advantages
+
+        self.loss = -tf.reduce_mean(action_log_prob * self.advantages)
+        tf.losses.add_loss(self.loss_weight[0] * self.loss)
 
 
     def _build_discrete_net(self, input_layer, action_space):
