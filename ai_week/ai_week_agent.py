@@ -27,7 +27,6 @@ from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
 
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.categorical import CategoricalParameters
-from rl_coach.logger import screen
 from rl_coach.memories.episodic.single_episode_buffer import SingleEpisodeBufferParameters
 from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 
@@ -35,13 +34,9 @@ from rl_coach.spaces import DiscreteActionSpace, BoxActionSpace
 
 
 class WorkShopHeadParameters(HeadParameters):
-    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params',
-                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
-                 loss_weight: float = 1.0, dense_layer=None):
-        super().__init__(parameterized_class_name="AiWeekHead", activation_function=activation_function, name=name,
-                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
-                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight)
+    def __init__(self):
+        super().__init__(parameterized_class_name="AiWeekHead")
+
     @property
     def path(self):
         return 'ai_week.ai_week_head:AiWeekHead'
@@ -49,32 +44,17 @@ class WorkShopHeadParameters(HeadParameters):
 
 
 
-class PolicyGradientNetworkParameters(NetworkParameters):
+class NetwokTopology(NetworkParameters):
     def __init__(self):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [WorkShopHeadParameters()]
-        self.async_training = True
+        #self.async_training = True
 
 
-class PolicyGradientAlgorithmParameters(AlgorithmParameters):
+class SimplePGAlgorithmParameters(AlgorithmParameters):
     """
-    :param policy_gradient_rescaler: (PolicyGradientRescaler)
-        The rescaler type to use for the policy gradient loss. For policy gradients, we calculate log probability of
-        the action and then multiply it by the policy gradient rescaler. The most basic rescaler is the discounter
-        return, but there are other rescalers that are intended for reducing the variance of the updates.
-
-    :param apply_gradients_every_x_episodes: (int)
-        The number of episodes between applying the accumulated gradients to the network. After every
-        num_steps_between_gradient_updates steps, the agent will calculate the gradients for the collected data,
-        it will then accumulate it in internal accumulators, and will only apply them to the network once in every
-        apply_gradients_every_x_episodes episodes.
-
-    :param beta_entropy: (float)
-        A factor which defines the amount of entropy regularization to apply to the network. The entropy of the actions
-        will be added to the loss and scaled by the given beta factor.
-
     :param num_steps_between_gradient_updates: (int)
         The number of steps between calculating gradients for the collected data. In the A3C paper, this parameter is
         called t_max. Since this algorithm is on-policy, only the steps collected between each two gradient calculations
@@ -82,19 +62,16 @@ class PolicyGradientAlgorithmParameters(AlgorithmParameters):
     """
     def __init__(self):
         super().__init__()
-        self.policy_gradient_rescaler = PolicyGradientRescaler.FUTURE_RETURN_NORMALIZED_BY_TIMESTEP
-        self.apply_gradients_every_x_episodes = 5
-        self.beta_entropy = 0
         self.num_steps_between_gradient_updates = 20000  # this is called t_max in all the papers
 
 
 class AiWeekAgentParameters(AgentParameters):
     def __init__(self):
-        super().__init__(algorithm=PolicyGradientAlgorithmParameters(),
+        super().__init__(algorithm=SimplePGAlgorithmParameters(),
                          exploration={DiscreteActionSpace: CategoricalParameters(),
                                       BoxActionSpace: AdditiveNoiseParameters()},
                          memory=SingleEpisodeBufferParameters(),
-                         networks={"main": PolicyGradientNetworkParameters()})
+                         networks={"main": NetwokTopology()})
 
     @property
     def path(self):
@@ -115,14 +92,14 @@ class SimplePgAgent(PolicyOptimizationAgent):
         # FUTURE_RETURN
         total_returns = batch.n_step_discounted_rewards()
 
-        targets = total_returns
+        #targets = total_returns
         actions = batch.actions()
 
         self.returns_mean.add_sample(np.mean(total_returns))
         self.returns_variance.add_sample(np.std(total_returns))
 
         result = self.networks['main'].online_network.accumulate_gradients(
-            {**batch.states(network_keys), 'output_0_0': actions}, targets
+            {**batch.states(network_keys), 'output_0_0': actions}, total_returns
         )
         total_loss, losses, unclipped_grads = result[:3]
 

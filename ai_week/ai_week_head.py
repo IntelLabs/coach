@@ -55,7 +55,7 @@ class AiWeekHead(Head):
         self.target = self.advantages
 
         self.loss = -tf.reduce_mean(action_log_prob * self.advantages)
-        tf.losses.add_loss(self.loss_weight[0] * self.loss)
+        tf.losses.add_loss(self.loss)
 
 
     def _build_discrete_net(self, input_layer, action_space):
