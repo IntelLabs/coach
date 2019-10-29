@@ -42,15 +42,12 @@ class WorkShopHeadParameters(HeadParameters):
         return 'ai_week.ai_week_head:AiWeekHead'
 
 
-
-
 class NetwokTopology(NetworkParameters):
     def __init__(self):
         super().__init__()
         self.input_embedders_parameters = {'observation': InputEmbedderParameters()}
         self.middleware_parameters = FCMiddlewareParameters()
         self.heads_parameters = [WorkShopHeadParameters()]
-        #self.async_training = True
 
 
 class SimplePGAlgorithmParameters(AlgorithmParameters):
@@ -79,11 +76,10 @@ class AiWeekAgentParameters(AgentParameters):
 
 
 class SimplePgAgent(PolicyOptimizationAgent):
-    def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
-        super().__init__(agent_parameters, parent)
+    def __init__(self, agent_parameters):
+        super().__init__(agent_parameters)
         self.returns_mean = self.register_signal('Returns Mean')
         self.returns_variance = self.register_signal('Returns Variance')
-        self.last_gradient_update_step_idx = 0
 
     def learn_from_batch(self, batch):
         # batch contains a list of episodes to learn from
@@ -92,7 +88,6 @@ class SimplePgAgent(PolicyOptimizationAgent):
         # FUTURE_RETURN
         total_returns = batch.n_step_discounted_rewards()
 
-        #targets = total_returns
         actions = batch.actions()
 
         self.returns_mean.add_sample(np.mean(total_returns))

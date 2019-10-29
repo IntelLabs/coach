@@ -5,7 +5,7 @@ from gym import spaces
 
 
 class ShortCorridorEnv(gym.Env):
-    metadata = {'render.modes': ['human']}
+    #metadata = {'render.modes': ['human']}
 
     def __init__(self):
 
@@ -22,11 +22,11 @@ class ShortCorridorEnv(gym.Env):
 
     def _get_obs(self):
         self.observation = np.zeros((self.NUM_STATES,))
-        self.observation[self.current_state] = 1 # For bug test = 0
+        #self.observation[self.current_state] = 1 # For bug test = 0
         return self.observation
 
-    def _terminate(self):
-        return self.steps >= self.max_steps
+    # def _terminate(self):
+    #     return self.steps >= self.max_steps
 
     def step(self, action):
         step = -1 if action == 0 else 1
@@ -42,7 +42,7 @@ class ShortCorridorEnv(gym.Env):
         # For bug test observation = 0
         observation = self._get_obs()
         reward = -1
-        done = self.current_state >= self.GOAL_STATE or self._terminate()
+        done = self.current_state >= self.GOAL_STATE #or self._terminate()
         self.steps += 1
         #print('steps: ', self.steps)
         return observation, reward, done, {}
@@ -54,17 +54,17 @@ class ShortCorridorEnv(gym.Env):
         observation = self._get_obs()
         return observation
 
-    def render(self, mode='human'):
-        corridor = ""
-        for i in range(self.NUM_STATES):
-            marker = " "
-            if self.current_state == i:
-                marker = "x"
-            if i == self.REVERSE_STATE:
-                corridor += "{" + marker + "}"
-            else:
-                corridor += "[" + marker + "]"
-
-        print(corridor)
+    # def render(self, mode='human'):
+    #     corridor = ""
+    #     for i in range(self.NUM_STATES):
+    #         marker = " "
+    #         if self.current_state == i:
+    #             marker = "x"
+    #         if i == self.REVERSE_STATE:
+    #             corridor += "{" + marker + "}"
+    #         else:
+    #             corridor += "[" + marker + "]"
+    #
+    #     print(corridor)
 
 
