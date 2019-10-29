@@ -33,10 +33,9 @@ class WorkShopHead(Head):
                  dense_layer=Dense):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
                          dense_layer=dense_layer)
-        self.name = 'policy_values_head'
+        self.name = 'workshop_head'
         self.return_type = ActionProbabilities
-        self.beta = None
-        self.action_penalty = None
+
 
         self.exploration_policy = agent_parameters.exploration
 
@@ -47,22 +46,9 @@ class WorkShopHead(Head):
         self.policy_distributions = []
         self.output = []
 
-        action_spaces = [self.spaces.action]
-        if isinstance(self.spaces.action, CompoundActionSpace):
-            action_spaces = self.spaces.action.sub_action_spaces
-
-        # create a compound action network
-        for action_space_idx, action_space in enumerate(action_spaces):
-            with tf.variable_scope("sub_action_{}".format(action_space_idx)):
-
-                self._build_discrete_net(input_layer, action_space)
-
+        self._build_discrete_net(input_layer, self.spaces.action)
 
         if self.is_local:
-            # add entropy regularization
-            if self.beta:
-                self.entropy = tf.add_n([tf.reduce_mean(dist.entropy()) for dist in self.policy_distributions])
-                self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
 
             # calculate loss
             self.action_log_probs_wrt_policy = \
@@ -86,44 +72,47 @@ class WorkShopHead(Head):
         self.output.append(self.policy_probs)
 
 
-    def __str__(self):
-        action_spaces = [self.spaces.action]
-        if isinstance(self.spaces.action, CompoundActionSpace):
-            action_spaces = self.spaces.action.sub_action_spaces
 
-        result = []
-        for action_space_idx, action_space in enumerate(action_spaces):
-            action_head_mean_result = []
-            if isinstance(action_space, DiscreteActionSpace):
-                # create a discrete action network (softmax probabilities output)
-                action_head_mean_result.append("Dense (num outputs = {})".format(len(action_space.actions)))
-                action_head_mean_result.append("Softmax")
-            elif isinstance(action_space, BoxActionSpace):
-                # create a continuous action network (bounded mean and stdev outputs)
-                action_head_mean_result.append("Dense (num outputs = {})".format(action_space.shape))
-                if np.all(action_space.max_abs_range < np.inf):
-                    # bounded actions
-                    action_head_mean_result.append("Activation (type = {})".format(self.activation_function.__name__))
-                    action_head_mean_result.append("Multiply (factor = {})".format(action_space.max_abs_range))
 
-            action_head_stdev_result = []
-            if isinstance(self.exploration_policy, ContinuousEntropyParameters):
-                action_head_stdev_result.append("Dense (num outputs = {})".format(action_space.shape))
-                action_head_stdev_result.append("Softplus")
 
-            action_head_result = []
-            if action_head_stdev_result:
-                action_head_result.append("Mean Stream")
-                action_head_result.append(indent_string('\n'.join(action_head_mean_result)))
-                action_head_result.append("Stdev Stream")
-                action_head_result.append(indent_string('\n'.join(action_head_stdev_result)))
-            else:
-                action_head_result.append('\n'.join(action_head_mean_result))
-
-            if len(action_spaces) > 1:
-                result.append("Action head {}".format(action_space_idx))
-                result.append(indent_string('\n'.join(action_head_result)))
-            else:
-                result.append('\n'.join(action_head_result))
-
-        return '\n'.join(result)
+    # def __str__(self):
+    #     action_spaces = [self.spaces.action]
+    #     if isinstance(self.spaces.action, CompoundActionSpace):
+    #         action_spaces = self.spaces.action.sub_action_spaces
+    #
+    #     result = []
+    #     for action_space_idx, action_space in enumerate(action_spaces):
+    #         action_head_mean_result = []
+    #         if isinstance(action_space, DiscreteActionSpace):
+    #             # create a discrete action network (softmax probabilities output)
+    #             action_head_mean_result.append("Dense (num outputs = {})".format(len(action_space.actions)))
+    #             action_head_mean_result.append("Softmax")
+    #         elif isinstance(action_space, BoxActionSpace):
+    #             # create a continuous action network (bounded mean and stdev outputs)
+    #             action_head_mean_result.append("Dense (num outputs = {})".format(action_space.shape))
+    #             if np.all(action_space.max_abs_range < np.inf):
+    #                 # bounded actions
+    #                 action_head_mean_result.append("Activation (type = {})".format(self.activation_function.__name__))
+    #                 action_head_mean_result.append("Multiply (factor = {})".format(action_space.max_abs_range))
+    #
+    #         action_head_stdev_result = []
+    #         if isinstance(self.exploration_policy, ContinuousEntropyParameters):
+    #             action_head_stdev_result.append("Dense (num outputs = {})".format(action_space.shape))
+    #             action_head_stdev_result.append("Softplus")
+    #
+    #         action_head_result = []
+    #         if action_head_stdev_result:
+    #             action_head_result.append("Mean Stream")
+    #             action_head_result.append(indent_string('\n'.join(action_head_mean_result)))
+    #             action_head_result.append("Stdev Stream")
+    #             action_head_result.append(indent_string('\n'.join(action_head_stdev_result)))
+    #         else:
+    #             action_head_result.append('\n'.join(action_head_mean_result))
+    #
+    #         if len(action_spaces) > 1:
+    #             result.append("Action head {}".format(action_space_idx))
+    #             result.append(indent_string('\n'.join(action_head_result)))
+    #         else:
+    #             result.append('\n'.join(action_head_result))
+    #
+    #     return '\n'.join(result)
