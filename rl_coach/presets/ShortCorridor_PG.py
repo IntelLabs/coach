@@ -42,6 +42,7 @@ agent_params.output_filter = NoOutputFilter()
 # Environment #
 ###############
 
-env_params = GymEnvironmentParameters(level='rl_coach.environments.toy_problems.short_corridor:ShortCorridorEnv')
+#env_params = GymEnvironmentParameters(level='rl_coach.environments.toy_problems.short_corridor:ShortCorridorEnv')
+env_params = GymEnvironmentParameters(level='ai_week.ai_week_short_corridor:ShortCorridorEnv')
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=VisualizationParameters())

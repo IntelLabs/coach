@@ -49,8 +49,8 @@ class Categorical(DiscreteActionExplorationPolicy):
             return action, action_values
         else:
             # take the action with the highest probability
-            action = np.argmax(action_values)
-            #action = np.random.choice(self.action_space.actions, p=action_values)
+            #action = np.argmax(action_values)
+            action = np.random.choice(self.action_space.actions, p=action_values)
             one_hot_action_probabilities = np.zeros(len(self.action_space.actions))
             one_hot_action_probabilities[action] = 1
 
