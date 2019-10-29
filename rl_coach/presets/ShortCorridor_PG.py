@@ -7,8 +7,8 @@ from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.memories.memory import MemoryGranularity
 from rl_coach.schedules import LinearSchedule
-from rl_coach.agents.workshop_pg_agent import PolicyGradientsAgentParameters
-
+#from rl_coach.agents.workshop_pg_agent import PolicyGradientsAgentParameters
+from ai_week.ai_week_agent import AiWeekAgentParameters
 
 N = 20
 ####################
@@ -26,7 +26,7 @@ schedule_params.heatup_steps = EnvironmentSteps(N)
 #########
 # Agent #
 #########
-agent_params = PolicyGradientsAgentParameters()
+agent_params = AiWeekAgentParameters()
 
 agent_params.algorithm.discount = 0.99
 agent_params.algorithm.apply_gradients_every_x_episodes = 5
