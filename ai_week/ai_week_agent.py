@@ -94,9 +94,12 @@ class SimplePgAgent(PolicyOptimizationAgent):
         # self.returns_mean.add_sample(np.mean(total_returns))
         # self.returns_variance.add_sample(np.std(total_returns))
 
-        result = self.networks['main'].online_network.accumulate_gradients(
-            {**batch.states(network_keys), 'output_0_0': actions}, total_returns
-        )
+        # Both the inputs and the actions are inputs to the loss head
+        inputs_dict = batch.states(['observation'])
+        inputs_dict.update({'output_0_0': actions})
+
+        result = self.networks['main'].online_network.accumulate_gradients(inputs=inputs_dict, targets=total_returns)
+
         total_loss, losses, unclipped_grads = result[:3]
 
         return total_loss, losses, unclipped_grads
