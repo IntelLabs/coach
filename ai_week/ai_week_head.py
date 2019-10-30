@@ -42,28 +42,25 @@ class AiWeekHead(Head):
         self.actions = []
         self.input = self.actions
         self.policy_distributions = []
-        self.output = []
 
-        self._build_discrete_net(input_layer, self.spaces.action)
+        num_actions = len(self.spaces.action.actions)
 
+        self._build_net_head(input_layer, num_actions)
 
         # calculate loss
         action_log_prob = tf.add_n([dist.log_prob(action) for dist, action in zip(self.policy_distributions, self.actions)])
-
         self.advantages = tf.placeholder(tf.float32, [None], name="advantages")
-
         self.target = self.advantages
 
         self.loss = -tf.reduce_mean(action_log_prob * self.advantages)
         tf.losses.add_loss(self.loss)
 
+    def _build_net_head(self, input_layer, num_actions):
 
-    def _build_discrete_net(self, input_layer, action_space):
-        num_actions = len(action_space.actions)
         self.actions.append(tf.placeholder(tf.int32, [None], name="actions"))
 
-        policy_values = self.dense_layer(num_actions)(input_layer, name='fc')
-        self.policy_probs = tf.nn.softmax(policy_values, name="policy")
+        p_right = self.dense_layer(num_actions)(input_layer, name='fc')
+        self.policy_probs = tf.nn.softmax(p_right, name="policy")
 
         # define the distributions for the policy and the old policy
         # (the + eps is to prevent probability 0 which will cause the log later on to be -inf)

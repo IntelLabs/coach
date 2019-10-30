@@ -86,20 +86,19 @@ class SimplePgAgent(PolicyOptimizationAgent):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
         # FUTURE_RETURN
-        total_returns = batch.n_step_discounted_rewards()
+        advantages = batch.n_step_discounted_rewards()
 
-        actions = batch.actions()
-        self.agent_logger.create_signal_value('Returns Mean', np.mean(total_returns))
-        self.agent_logger.create_signal_value('Returns Variance', np.std(total_returns))
+
+        self.agent_logger.create_signal_value('Returns Mean', np.mean(advantages))
+        self.agent_logger.create_signal_value('Returns Variance', np.std(advantages))
         # self.returns_mean.add_sample(np.mean(total_returns))
         # self.returns_variance.add_sample(np.std(total_returns))
 
         # Both the inputs and the actions are inputs to the loss head
-        inputs_dict = batch.states(['observation'])
-        inputs_dict.update({'output_0_0': actions})
+        #actions = batch.actions()
+        agent_inputs = batch.states(['observation'])
+        agent_inputs.update({'output_0_0': batch.actions()})
 
-        result = self.networks['main'].online_network.accumulate_gradients(inputs=inputs_dict, targets=total_returns)
-
-        total_loss, losses, unclipped_grads = result[:3]
+        total_loss, losses, unclipped_grads, _ = self.networks['main'].online_network.accumulate_gradients(agent_inputs, advantages)
 
         return total_loss, losses, unclipped_grads
