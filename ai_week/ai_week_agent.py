@@ -78,8 +78,8 @@ class AiWeekAgentParameters(AgentParameters):
 class SimplePgAgent(PolicyOptimizationAgent):
     def __init__(self, agent_parameters):
         super().__init__(agent_parameters)
-        self.returns_mean = self.register_signal('Returns Mean')
-        self.returns_variance = self.register_signal('Returns Variance')
+        # self.returns_mean = self.register_signal('Returns Mean')
+        # self.returns_variance = self.register_signal('Returns Variance')
 
     def learn_from_batch(self, batch):
         # batch contains a list of episodes to learn from
@@ -89,9 +89,10 @@ class SimplePgAgent(PolicyOptimizationAgent):
         total_returns = batch.n_step_discounted_rewards()
 
         actions = batch.actions()
-
-        self.returns_mean.add_sample(np.mean(total_returns))
-        self.returns_variance.add_sample(np.std(total_returns))
+        self.agent_logger.create_signal_value('Returns Mean', np.mean(total_returns))
+        self.agent_logger.create_signal_value('Returns Variance', np.std(total_returns))
+        # self.returns_mean.add_sample(np.mean(total_returns))
+        # self.returns_variance.add_sample(np.std(total_returns))
 
         result = self.networks['main'].online_network.accumulate_gradients(
             {**batch.states(network_keys), 'output_0_0': actions}, total_returns
