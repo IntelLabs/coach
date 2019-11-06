@@ -3,19 +3,17 @@ from rl_coach.base_parameters import VisualizationParameters
 from rl_coach.core_types import EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-from rl_coach.schedules import LinearSchedule
-from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
+from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.layers import Dense
-from rl_coach.exploration_policies.e_greedy import EGreedyParameters
 from rl_coach.environments.gym_environment import atari_deterministic_v4
-from rl_coach.environments.gym_exploration_environment import AtariExploration
+from rl_coach.environments.gym_environment import Atari
 from rl_coach.environments.environment import SingleLevelSelection
 
 ###############
 # Environment #
 ###############
-env_params = AtariExploration(level=SingleLevelSelection(atari_deterministic_v4))
+env_params = Atari(level=SingleLevelSelection(atari_deterministic_v4))
 
 
 ####################
@@ -57,6 +55,14 @@ agent_params.network_wrappers['main'].middleware_parameters = FCMiddlewareParame
                                                                                              Dense(448)])
 agent_params.network_wrappers['predictor'].middleware_parameters = FCMiddlewareParameters(scheme=[Dense(512),
                                                                                                   Dense(512)])
+agent_params.network_wrappers['predictor'].input_embedders_parameters = \
+    {'observation': InputEmbedderParameters(activation_function='leaky_relu',
+                                            input_rescaling={'image': 1.0},
+                                            input_shape=[84, 84, 1])}
+agent_params.network_wrappers['constant'].input_embedders_parameters = \
+    {'observation': InputEmbedderParameters(activation_function='leaky_relu',
+                                            input_rescaling={'image': 1.0},
+                                            input_shape=[84, 84, 1])}
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=VisualizationParameters())

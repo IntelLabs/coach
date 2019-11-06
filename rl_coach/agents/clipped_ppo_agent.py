@@ -157,14 +157,14 @@ class ClippedPPOAgent(ActorCriticAgent):
         num_value_heads = len(self.networks['main'].online_network.output_heads) - 1
 
         state_values = []
-        for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
+        for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size) + 1):
             start = i * self.ap.network_wrappers['main'].batch_size
             end = (i + 1) * self.ap.network_wrappers['main'].batch_size
+            if start == batch.size:
+                break
             res = self.networks['main'].online_network.predict(
                 {k: v[start:end] for k, v in batch.states(network_keys).items()})
             state_values.append(res[:num_value_heads])
-        res = self.networks['main'].online_network.predict(
-            {k: v[end:] for k, v in batch.states(network_keys).items()})
         state_values.append(res[:num_value_heads])
 
         current_state_values = []
@@ -218,7 +218,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         # standardize
-        advantages = (advantages - np.mean(advantages)) / np.std(advantages)
+        total_advantages = (total_advantages - np.mean(total_advantages)) / np.std(total_advantages)
 
         for transition, advantage, value_target in zip(batch.transitions, total_advantages, value_targets_per_head):
             transition.info['advantage'] = advantage

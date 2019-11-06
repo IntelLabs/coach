@@ -50,8 +50,8 @@ class PPORNDNetworkParameters(ClippedPPONetworkParameters):
 class RNDNetworkParameters(NetworkParameters):
     def __init__(self):
         super().__init__()
-        self.input_embedders_parameters = {'rnd-observation': InputEmbedderParameters(activation_function='leaky_relu',
-                                                                                      input_rescaling={'image': 1.0})}
+        self.input_embedders_parameters = {'observation': InputEmbedderParameters(activation_function='leaky_relu',
+                                                                                  input_rescaling={'image': 1.0})}
         self.middleware_parameters = FCMiddlewareParameters(scheme=MiddlewareScheme.Empty)
         self.heads_parameters = [RNDHeadParameters()]
         self.create_target_network = False
@@ -85,8 +85,9 @@ class PPORNDAgent(ClippedPPOAgent):
         self.rnd_obs_stats = NumpySharedRunningStats(name='RND_observation_normalization', epsilon=1e-8)
 
     def prepare_rnd_inputs(self, batch):
+        # print(batch.transitions)
         states = batch.next_states(['observation'])['observation'][:, :, :, 0]
-        return {'rnd-observation': np.expand_dims(self.rnd_obs_stats.normalize(states), -1)}
+        return {'observation': np.expand_dims(self.rnd_obs_stats.normalize(states), -1)}
 
     def handle_intrinsic_reward_based_batch(self):
         transitions = self.memory.transitions
@@ -94,6 +95,8 @@ class PPORNDAgent(ClippedPPOAgent):
         for i in range(int(self.memory.num_transitions() / batch_size) + 1):
             start = i * batch_size
             end = (i + 1) * batch_size
+            if start == self.memory.num_transitions():
+                break
 
             inputs = self.prepare_rnd_inputs(Batch(transitions[start:end]))
             embedding = self.networks['constant'].online_network.predict(inputs)

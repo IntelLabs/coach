@@ -190,9 +190,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         embedder_params_copy.input_rescaling = embedder_params_copy.input_rescaling[emb_type]
         embedder_params_copy.input_offset = embedder_params_copy.input_offset[emb_type]
         embedder_params_copy.name = input_name
+        input_shape = allowed_inputs[input_name].shape
+        if embedder_params_copy.input_shape is not None:
+            input_shape = embedder_params_copy.input_shape
         module = dynamic_import_and_instantiate_module_from_params(embedder_params_copy,
                                                                    path=embedder_path,
-                                                                   positional_args=[allowed_inputs[input_name].shape])
+                                                                   positional_args=[input_shape])
         return module
 
     def get_middleware(self, middleware_params: MiddlewareParameters):
