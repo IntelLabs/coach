@@ -94,8 +94,6 @@ class BatchRLGraphManager(BasicRLGraphManager):
             self.schedule_params = schedule_params
 
     def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
-        assert self.agent_params.memory.load_memory_from_file_path or self.env_params, \
-            "BatchRL requires either a dataset to train from or an environment to collect a dataset from. "
         if self.env_params:
             # environment loading
             self.env_params.seed = task_parameters.seed

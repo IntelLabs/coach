@@ -208,7 +208,7 @@ class Kubernetes(Deploy):
                 tty=True,
                 resources=k8sclient.V1ResourceRequirements(
                     limits={
-                        "cpu": "40",
+                        "cpu": "24",
                         "memory": "4Gi",
                         "nvidia.com/gpu": "1",
                     }
@@ -322,7 +322,7 @@ class Kubernetes(Deploy):
                 tty=True,
                 resources=k8sclient.V1ResourceRequirements(
                     limits={
-                        "cpu": "8",
+                        "cpu": "4",
                         "memory": "4Gi",
                         # "nvidia.com/gpu": "0",
                     }
