@@ -5,7 +5,8 @@ from tensorflow import keras
 from typing import List
 from itertools import chain
 import numpy as np
-from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Input, Dense
+
 
 from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
@@ -28,7 +29,8 @@ from rl_coach.base_parameters import NetworkParameters
 from rl_coach.spaces import SpacesDefinition, PlanarMapsObservationSpace, TensorObservationSpace
 
 
-def _get_input_embedder(spaces: SpacesDefinition,
+def _get_input_embedder(name_prefix: str,
+                        spaces: SpacesDefinition,
                         input_name: str,
                         embedder_params: InputEmbedderParameters) -> ModuleType:
     """
@@ -38,6 +40,10 @@ def _get_input_embedder(spaces: SpacesDefinition,
     :param embedder_params: the parameters of the class of the embedder
     :return: the embedder instance
     """
+    embedder_params = copy.copy(embedder_params)
+
+    embedder_params.name = name_prefix + '_input_embedder'
+
     allowed_inputs = copy.copy(spaces.state.sub_spaces)
     allowed_inputs["action"] = copy.copy(spaces.action)
     allowed_inputs["goal"] = copy.copy(spaces.goal)
@@ -52,14 +58,12 @@ def _get_input_embedder(spaces: SpacesDefinition,
     elif isinstance(allowed_inputs[input_name], PlanarMapsObservationSpace):
         type = "image"
 
-    embedder_params = copy.copy(embedder_params)
-    embedder_params.name = input_name
-
     if type == 'vector':
 
         module = VectorEmbedder(input_size=allowed_inputs[input_name].shape,
                                 activation_function=embedder_params.activation_function,
-                                scheme=embedder_params.scheme,
+                                #scheme=embedder_params.scheme,
+                                scheme=[Dense(64)],
                                 batchnorm=embedder_params.batchnorm,
                                 dropout_rate=embedder_params.dropout_rate,
                                 name=embedder_params.name,
@@ -86,6 +90,8 @@ def _get_input_embedder(spaces: SpacesDefinition,
         raise KeyError('Unsupported embedder type: {}'.format(type))
     return module
 
+
+
 def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
     """
     Given a middleware type, creates the middleware and returns it
@@ -94,7 +100,8 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
     """
     if isinstance(middleware_params, FCMiddlewareParameters):
         module = FCMiddleware(activation_function=middleware_params.activation_function,
-                              scheme=middleware_params.scheme,
+                              #middleware_params.scheme,
+                              scheme=[Dense(64)],
                               batchnorm=middleware_params.batchnorm,
                               dropout_rate=middleware_params.dropout_rate,
                               name=middleware_params.name,
@@ -203,9 +210,10 @@ def create_single_network(inputs_shapes,
     name = name + '_' + head_param_list[0].name.replace('head_params', '_network')
     inputs = list(map(lambda x: Input(name=name + '_input', shape=x), inputs_shapes))
     # Get list of input embedders
-    embedders = [_get_input_embedder(spaces, k, v) for k, v in input_embedders_parameters.items()]
+    embedders = [_get_input_embedder(name, spaces, k, v) for k, v in input_embedders_parameters.items()]
     # Apply each embbeder on its corresponding input
     state_embeddings = [embedder(input_t) for embedder, input_t in zip(embedders, inputs)]
+
 
     # Merge embedders outputs
     if len(state_embeddings) == 1:
@@ -266,10 +274,12 @@ def create_full_model(num_networks: int,
     inputs = list(map(lambda x: Input(name=network_name + '_input', shape=x), input_shapes))
 
     outputs = list()
+    networks = {}
     for network_idx in range(num_networks):
+        #network_parameters = copy.deepcopy(network_params)
         head_type_idx_start = network_idx * num_heads_per_network
         head_type_idx_end = head_type_idx_start + num_heads_per_network
-        net = create_single_network(inputs_shapes=input_shapes,
+        networks[network_idx] = create_single_network(inputs_shapes=input_shapes,
                                     name=network_name,
                                     network_is_local=network_is_local,
                                     head_type_idx_start=head_type_idx_start,
@@ -280,7 +290,7 @@ def create_full_model(num_networks: int,
                                     head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
                                     spaces=spaces)
 
-        outputs.append(net(inputs))
+        outputs.append(networks[network_idx](inputs))
 
         #num_outputs = net.output_shape[-1]
         #num_outputs = len(dnn_output)

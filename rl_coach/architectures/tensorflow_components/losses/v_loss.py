@@ -52,8 +52,9 @@ class VLoss(HeadLoss):
         loss = self.loss_fn(value_prediction, target)
         return [(loss, LOSS_OUT_TYPE_LOSS)]
 
-
-def v_loss_f(value_prediction, target):
+#@tf.function
+def v_loss_f(target, value_prediction):
+    #loss_fn = tf.losses.mean_squared_error#
     loss_fn = tf.keras.losses.MeanSquaredError()
     loss = loss_fn(value_prediction, target)
     return loss

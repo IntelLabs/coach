@@ -42,7 +42,7 @@ class VectorEmbedder(InputEmbedder):
                  scheme: EmbedderScheme=EmbedderScheme.Medium,
                  batchnorm: bool=False,
                  dropout_rate: float=0.0,
-                 name: str= "embedder",
+                 name: str = "embedder",
                  input_rescaling: float=1.0,
                  input_offset: float=0.0,
                  input_clipping=None,

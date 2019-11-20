@@ -53,6 +53,8 @@ class Trainer(TensorFlowArchitecture):
         # TODO: TF2 place holder for distributed training in TensorFlow
         generalized_network = Trainer(*args, **kwargs)
         generalized_network.model.summary()
+
+        #generalized_network.model.compile(loss=[v_loss_f, ppo_loss_f], loss_weights=[1, 1])
         keras.utils.plot_model(generalized_network.model,
                                expand_nested=True,
                                show_shapes=True,

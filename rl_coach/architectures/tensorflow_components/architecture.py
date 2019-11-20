@@ -36,10 +36,8 @@ from rl_coach.architectures.tensorflow_components.heads import Head
 from tensorflow.keras.losses import Loss
 from rl_coach.core_types import GradientClippingMethod
 from rl_coach.architectures.tensorflow_components.savers import TfSaver
-#from memory_profiler import profile
+
 from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
-from tensorflow_probability import edward2 as ed
-import tensorflow_probability as tfp
 from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss, q_loss_f
 from rl_coach.architectures.tensorflow_components.losses.v_loss import v_loss_f
@@ -160,58 +158,83 @@ class TensorFlowArchitecture(Architecture):
         additional_fetches = [(k, None) for k in additional_fetches]
 
 
+        value_prediction = np.float32(targets[0][0])
+        advantage = np.float32(targets[1][0])
+        old_means = inputs['output_1_1']
+        old_stds = inputs['output_1_2']
+        actions = inputs['output_1_0']
+        rescalar = inputs['output_1_3']*self.ap.algorithm.clip_likelihood_ratio_using_epsilon
+        with tf.GradientTape(persistent=True) as tape:
 
-        with tf.GradientTape() as tape:
-
-            model_outputs = force_list(self.model(model_inputs))
-            temp_loss_outputs = 0
-
-            for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
-
-                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)),
-                                          inputs.items()))
-
-                agent_input = list(agent_input.values())
-                head_target = list(map(lambda x: tf.cast(x, tf.float32), head_target))
-                loss_outputs = head_loss([head_output], agent_input, head_target)
-
-
-
-                if LOSS_OUT_TYPE_LOSS in loss_outputs:
-                    losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
-                if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
-                    regularisations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
-
-                for i, fetch in enumerate(additional_fetches):
-                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-                    if head_idx == head_type_idx:
-                        assert fetch[1] is None  # sanity check that fetch is None
-                        additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
-
-                #########
-                #temp_loss_outputs += q_loss_f(q_value_pred=head_output, target=head_target[0])
-                if head_idx == 0:
-                    temp_loss_outputs += v_loss_f(value_prediction=head_output, target=head_target[0])
-                if head_idx == 1:
-                    temp_loss_outputs += ppo_loss_f(new_policy=head_output,
-                                                    actions=agent_input[0],
-                                                    old_means=agent_input[1],
-                                                    old_stds=agent_input[2],
-                                                    advantages=head_target)
+            loss_v = v_loss_f(value_prediction, self.model(model_inputs)[0])
+            loss_ppo = ppo_loss_f(advantages=advantage,
+                                  old_means=old_means,
+                                  old_stds=old_stds,
+                                  actions=actions,
+                                  rescalar=rescalar,
+                                  new_policy_rv=self.model(model_inputs)[1])
+            loss = loss_v + loss_ppo
 
 
+        gradients = tape.gradient(loss, self.model.trainable_variables)
+        losses.append(loss_v.numpy())
+        losses.append(loss_ppo.numpy())
+        losses.append(0.0)
+        total_loss = loss.numpy()
+        total_loss_list = losses
+        fetched_tensors = [[0.0], [0.0], np.zeros(64), np.zeros(64)]
 
 
+        # model_outputs = force_list(self.model(model_inputs))
+        # temp_loss_outputs = 0
+        #
+        # for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
+        #
+        #     agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)),
+        #                               inputs.items()))
+        #
+        #     agent_input = list(agent_input.values())
+        #     agent_input = list(map(lambda x: tf.cast(x, tf.float32), agent_input))
+        #     head_target = list(map(lambda x: tf.cast(x, tf.float32), head_target))
+        #     loss_outputs = head_loss([head_output], agent_input, head_target)
+        #
+        #
+        #
+        #     if LOSS_OUT_TYPE_LOSS in loss_outputs:
+        #         losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
+        #     if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
+        #         regularisations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
+        #
+        #     for i, fetch in enumerate(additional_fetches):
+        #         head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+        #         if head_idx == head_type_idx:
+        #             assert fetch[1] is None  # sanity check that fetch is None
+        #             additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
-            # Total loss is losses and regularization (NOTE: order is important)
-            total_loss_list = losses + regularisations
-            #total_loss = tf.add_n([main_loss] + model.losses)
-            total_loss = tf.add_n(total_loss_list)
-            # Dan
-            total_loss = temp_loss_outputs
+        #     #########
+        #     #temp_loss_outputs += q_loss_f(q_value_pred=head_output, target=head_target[0])
+        #     if head_idx == 0:
+        #         v_loss = v_loss_f(value_prediction=head_output, target=head_target[0])
+        #         temp_loss_outputs += v_loss
+        #     if head_idx == 1:
+        #         ppo_targets = [agent_input[0], agent_input[1], agent_input[2], head_target]
+        #         ppo_loss = 0#ppo_loss_f(new_policy_rv=head_output, targets=ppo_targets)
+        #         temp_loss_outputs += ppo_loss
+        #
+        #         # loss = ppo_loss_f(self.model.output[1], ppo_targets)
+        #         # gradients = keras.backend.gradients(loss, self.model.input)
+        #
+        #
+        #
+        # # Total loss is losses and regularization (NOTE: order is important)
+        # total_loss_list = losses + regularisations
+        # #total_loss = tf.add_n([main_loss] + model.losses)
+        # total_loss = tf.add_n(total_loss_list)
+        # Dan
+        #total_loss = temp_loss_outputs
 
         # Calculate gradients
-        gradients = tape.gradient(total_loss, self.model.trainable_variables)
+        #gradients = tape.gradient(total_loss, self.model.trainable_variables)
         #gradients = tf.gradients(self.losses[0]())
         norm_unclipped_grads = tf.linalg.global_norm(gradients)
 
@@ -223,14 +246,12 @@ class TensorFlowArchitecture(Architecture):
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
-            self.accumulated_gradients = gradients.copy()
-        else:
-            self.accumulated_gradients += gradients.copy()
+            self.accumulated_gradients = gradients#.copy()
+        # else:
+        #     self.accumulated_gradients += gradients.copy()
 
-        # Result of of additional fetches
-        fetched_tensors = [fetch[1] for fetch in additional_fetches]
         # convert everything to numpy or scalar before returning
-        result = (total_loss.numpy(), total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)
+        result = (total_loss, total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)
         return result
 
 
@@ -286,25 +307,40 @@ class TensorFlowArchitecture(Architecture):
         :param inputs: The input dictionary for the network. Key is name of the embedder.
         :return: The network output per each head
 
-        WARNING: must only call once per state since each call is assumed by LSTM to be a new time step.
         """
-        model_inputs = tuple(inputs[emb] for emb in self.emmbeding_types)
-
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware'
 
+        model_inputs = tuple(inputs[emb] for emb in self.emmbeding_types)
         model_outputs = self.model(model_inputs)
 
         distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_outputs))
-        distribution_mean = [dist.mean().numpy() for dist in distribution_output]
-        distribution_stddev = [dist.stddev().numpy() for dist in distribution_output]
 
-        if distribution_output:
-            value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs))
-            value_output = [value.numpy() for value in value_output]
-            output_per_head = list(zip(value_output, distribution_mean, distribution_stddev))
-            output_per_head = list(output_per_head[0])
-        else:
-            output_per_head = model_outputs.numpy()
+
+        # Assuming only one stochastic head for now
+        output_per_head = []
+        distribution_output = distribution_output.pop()
+        policy_mean = distribution_output.mean().numpy()
+        policy_stddev = np.tile(distribution_output.stddev().numpy(), policy_mean.shape)
+        value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs)).pop()
+        value_output = value_output.numpy().reshape(-1,)
+        output_per_head.append(value_output)
+        output_per_head.append(policy_mean)
+        output_per_head.append(policy_stddev)
+
+        #output_per_head = list(zip(value_output, policy_mean, policy_stddev))
+
+
+        # if distribution_output:
+        #     value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs))
+        #     value_output = [value.numpy() for value in value_output]
+        #
+        #     distribution_mean = [dist.mean().numpy() for dist in distribution_output]
+        #     distribution_stddev = [dist.stddev().numpy() for dist in distribution_output]
+        #
+        #     output_per_head = list(zip(value_output, distribution_mean, distribution_stddev))
+        #     output_per_head = list(output_per_head[0])
+        # else:
+        #     output_per_head = model_outputs.numpy()
 
 
         return output_per_head
@@ -329,57 +365,31 @@ class TensorFlowArchitecture(Architecture):
         assert initial_feed_dict is None, "initial_feed_dict must be None"
         assert outputs is None, "outputs must be None"
         output = self._predict(inputs)
+        #output = list(output[0])
         return output
 
-    @staticmethod
-    def parallel_predict(sess: Any,
-                         network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) -> \
-            Tuple[np.ndarray, ...]:
-        """
-        :param sess: active session to use for prediction (must be None for TF2)
-        :param network_input_tuples: tuple of network and corresponding input
-        :return: tuple of outputs from all networks
-        """
-        assert sess is None
-        output = [net._predict(inputs) for net, inputs in network_input_tuples]
 
-        # output = list()
-        # for net, inputs in network_input_tuples:
-        #     output += net._predict(inputs)
-
-
-        return output
-
-    # def train_on_batch(self,
-    #                    inputs: Dict[str, np.ndarray],
-    #                    targets: List[np.ndarray],
-    #                    scaler: float = 1.,
-    #                    additional_fetches: list = None,
-    #                    importance_weights: np.ndarray = None) -> Tuple[float, List[float], float, list]:
-    #     """
-    #     Given a batch of inputs (e.g. states) and targets (e.g. discounted rewards), takes a training step: i.e. runs a
-    #     forward pass and backward pass of the network, accumulates the gradients and applies an optimization step to
-    #     update the weights.
-    #     :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
-    #         is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
-    #     :param targets: targets required by  loss (e.g. sum of discounted rewards)
-    #     :param scaler: value to scale gradients by before optimizing network weights
-    #     :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
-    #         tuple of head-type-index and fetch-name. The tuple is obtained from each head.
-    #     :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.
-    #     :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
-    #         total_loss (float): sum of all head losses
-    #         losses (list of float): list of all losses. The order is list of target losses followed by list
-    #             of regularization losses. The specifics of losses is dependant on the network parameters
-    #             (number of heads, etc.)
-    #         norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
-    #         fetched_tensors: all values for additional_fetches
-    #     """
-    #     loss = self.accumulate_gradients(inputs, targets, additional_fetches=additional_fetches,
-    #                                      importance_weights=importance_weights)
-    #     self.apply_and_reset_gradients(self.accumulated_gradients, scaler)
-    #     return loss
     #
+    # @staticmethod
+    # def parallel_predict(sess: Any,
+    #                      network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) -> \
+    #         Tuple[np.ndarray, ...]:
+    #     """
+    #     :param sess: active session to use for prediction (must be None for TF2)
+    #     :param network_input_tuples: tuple of network and corresponding input
+    #     :return: tuple of outputs from all networks
+    #     """
+    #     assert sess is None
+    #     output = [net._predict(inputs) for net, inputs in network_input_tuples]
+    #
+    #     # output = list()
+    #     # for net, inputs in network_input_tuples:
+    #     #     output += net._predict(inputs)
+    #
+    #     return output
+
+
+
     def get_weights(self):
         """
         :return: a list of tensors containing the network weights for each layer
@@ -391,18 +401,12 @@ class TensorFlowArchitecture(Architecture):
         Updates the target network weights from the given source model weights tensors
         """
         updated_target = []
-
         if new_rate < 0 or new_rate > 1:
             raise ValueError('new_rate parameter values should be between 0 to 1.')
-
-
         target_weights = self.model.get_weights()
         for (source_layer, target_layer) in zip(source_weights, target_weights):
             updated_target.append(new_rate * source_layer + (1 - new_rate) * target_layer)
-
-
         self.model.set_weights(updated_target)
-
 
     def set_is_training(self, state: bool) -> None:
         """

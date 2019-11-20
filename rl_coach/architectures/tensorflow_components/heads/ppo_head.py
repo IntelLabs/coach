@@ -125,19 +125,44 @@ from rl_coach.utils import eps
 #
 #     return model
 
+def normalized_columns_initializer(std=1.0):
+    def _initializer(shape, dtype=None, partition_info=None):
+        out = np.random.randn(*shape).astype(np.float32)
+        out *= std / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
+        return tf.constant(out)
+    return _initializer
+
+# def continuous_ppo_head(input_dim, output_dim):
+#
+#     inputs = Input(shape=([input_dim]))
+#     policy_means = Dense(units=output_dim, name="policy_means", kernel_initializer=normalized_columns_initializer(0.01))(inputs)
+#     policy_stds = StdDev()(inputs)
+#     #policy_stds = tfp.layers.VariableLayer(shape=[1])
+#     actions_proba = tfp.layers.DistributionLambda(
+#         lambda t: tfd.MultivariateNormalDiag(
+#             loc=t[0], scale_diag=t[1]))([policy_means, policy_stds + eps])
+#     model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
+#     #model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=[actions_proba.mean(), actions_proba.stddev()])
+#
+#     return model
+
 
 def continuous_ppo_head(input_dim, output_dim):
 
+
     inputs = Input(shape=([input_dim]))
-    policy_means = Dense(units=output_dim, name="policy_means")(inputs)
-    policy_stds = StdDev()(inputs)
+    policy_means = Dense(units=output_dim, name="policy_means", kernel_initializer=normalized_columns_initializer(0.01))(inputs)
+    #policy_stds = StdDev()(inputs)
+    policy_stds = tfp.layers.VariableLayer(shape=1, dtype=tf.float32)(inputs)
+    #policy_stds = tf.exp(policy_log_stds)(policy_log_stds)
     actions_proba = tfp.layers.DistributionLambda(
         lambda t: tfd.MultivariateNormalDiag(
-            loc=t[0], scale_diag=t[1]))([policy_means, policy_stds])
+            loc=t[0], scale_diag=tf.exp(t[1])))([policy_means, policy_stds])
     model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
     #model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=[actions_proba.mean(), actions_proba.stddev()])
 
     return model
+
 
 
 class StdDev(keras.layers.Layer):

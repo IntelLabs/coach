@@ -41,11 +41,13 @@ class InputEmbedder(keras.layers.Layer):
                  is_training=False,
                  **kwargs):
 
-        super().__init__(**kwargs)
+        #super().__init__(**kwargs)
+        super(InputEmbedder, self).__init__(name=name)
         # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
         self.embedder_name = name
 
+        #self.name = name
         #self.scheme = scheme
         self.return_type = InputEmbedding
 
@@ -129,6 +131,11 @@ class InputEmbedder(keras.layers.Layer):
         :return: the formatted name
         """
         return self.name
+
+    def get_config(self):
+        config = super(InputEmbedder, self).get_config()
+        config.update({'name': self.name})
+        return config
 
     def __str__(self):
         result = ['Input size = {}'.format(self._input_size)]

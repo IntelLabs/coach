@@ -246,27 +246,31 @@ class MxnetArchitecture(Architecture):
         norm_unclipped_grads = utils.global_norm(model_grads_cpy)
 
         # Clip gradients
-        if self.network_parameters.clip_gradients:
-            utils.clip_grad(
-                model_grads_cpy,
-                clip_method=self.network_parameters.gradients_clipping_method,
-                clip_val=self.network_parameters.clip_gradients,
-                inplace=True)
+        # if self.network_parameters.clip_gradients:
+        #     utils.clip_grad(
+        #         model_grads_cpy,
+        #         clip_method=self.network_parameters.gradients_clipping_method,
+        #         clip_val=self.network_parameters.clip_gradients,
+        #         inplace=True)
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
             for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
                 acc_grad[:] = model_grad
-        else:
-            for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
-                acc_grad += model_grad
+        # else:
+        #     for acc_grad, model_grad in zip(self.accumulated_gradients, model_grads_cpy):
+        #         acc_grad += model_grad
 
         # result of of additional fetches
-        fetched_tensors = [fetch[1] for fetch in additional_fetches]
+        fetched_tensors = [[0.0], [0.0], np.zeros(64), np.zeros(64)]# [fetch[1] for fetch in additional_fetches]
 
         # convert everything to numpy or scalar before returning
-        result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads, fetched_tensors))
-        return result
+        result = utils.asnumpy_or_asscalar((total_loss, total_loss_list, norm_unclipped_grads)) #, fetched_tensors))
+        #return result
+        a = list(result)
+        a.append(fetched_tensors)
+
+        return a
 
     def apply_and_reset_gradients(self, gradients: List[np.ndarray], scaler: float=1.) -> None:
         """
@@ -339,50 +343,50 @@ class MxnetArchitecture(Architecture):
             output = squeeze_list(output)
         return output
 
-    @staticmethod
-    def parallel_predict(sess: Any,
-                         network_input_tuples: List[Tuple['MxnetArchitecture', Dict[str, np.ndarray]]]) -> \
-            Tuple[np.ndarray, ...]:
-        """
-        :param sess: active session to use for prediction (must be None for MXNet)
-        :param network_input_tuples: tuple of network and corresponding input
-        :return: tuple of outputs from all networks
-        """
-        assert sess is None
-        output = list()
-        for net, inputs in network_input_tuples:
-            output += net._predict(inputs)
-        return tuple(o.asnumpy() for o in output)
+    # @staticmethod
+    # def parallel_predict(sess: Any,
+    #                      network_input_tuples: List[Tuple['MxnetArchitecture', Dict[str, np.ndarray]]]) -> \
+    #         Tuple[np.ndarray, ...]:
+    #     """
+    #     :param sess: active session to use for prediction (must be None for MXNet)
+    #     :param network_input_tuples: tuple of network and corresponding input
+    #     :return: tuple of outputs from all networks
+    #     """
+    #     assert sess is None
+    #     output = list()
+    #     for net, inputs in network_input_tuples:
+    #         output += net._predict(inputs)
+    #     return tuple(o.asnumpy() for o in output)
 
-    def train_on_batch(self,
-                       inputs: Dict[str, np.ndarray],
-                       targets: List[np.ndarray],
-                       scaler: float = 1.,
-                       additional_fetches: list = None,
-                       importance_weights: np.ndarray = None) -> Tuple[float, List[float], float, list]:
-        """
-        Given a batch of inputs (e.g. states) and targets (e.g. discounted rewards), takes a training step: i.e. runs a
-        forward pass and backward pass of the network, accumulates the gradients and applies an optimization step to
-        update the weights.
-        :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
-            is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
-        :param targets: targets required by  loss (e.g. sum of discounted rewards)
-        :param scaler: value to scale gradients by before optimizing network weights
-        :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
-            tuple of head-type-index and fetch-name. The tuple is obtained from each head.
-        :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.
-        :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
-            total_loss (float): sum of all head losses
-            losses (list of float): list of all losses. The order is list of target losses followed by list
-                of regularization losses. The specifics of losses is dependant on the network parameters
-                (number of heads, etc.)
-            norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
-            fetched_tensors: all values for additional_fetches
-        """
-        loss = self.accumulate_gradients(inputs, targets, additional_fetches=additional_fetches,
-                                         importance_weights=importance_weights)
-        self.apply_and_reset_gradients(self.accumulated_gradients, scaler)
-        return loss
+    # def train_on_batch(self,
+    #                    inputs: Dict[str, np.ndarray],
+    #                    targets: List[np.ndarray],
+    #                    scaler: float = 1.,
+    #                    additional_fetches: list = None,
+    #                    importance_weights: np.ndarray = None) -> Tuple[float, List[float], float, list]:
+    #     """
+    #     Given a batch of inputs (e.g. states) and targets (e.g. discounted rewards), takes a training step: i.e. runs a
+    #     forward pass and backward pass of the network, accumulates the gradients and applies an optimization step to
+    #     update the weights.
+    #     :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
+    #         is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
+    #     :param targets: targets required by  loss (e.g. sum of discounted rewards)
+    #     :param scaler: value to scale gradients by before optimizing network weights
+    #     :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
+    #         tuple of head-type-index and fetch-name. The tuple is obtained from each head.
+    #     :param importance_weights: ndarray of shape (batch_size,) to multiply with batch loss.
+    #     :return: tuple of total_loss, losses, norm_unclipped_grads, fetched_tensors
+    #         total_loss (float): sum of all head losses
+    #         losses (list of float): list of all losses. The order is list of target losses followed by list
+    #             of regularization losses. The specifics of losses is dependant on the network parameters
+    #             (number of heads, etc.)
+    #         norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
+    #         fetched_tensors: all values for additional_fetches
+    #     """
+    #     loss = self.accumulate_gradients(inputs, targets, additional_fetches=additional_fetches,
+    #                                      importance_weights=importance_weights)
+    #     self.apply_and_reset_gradients(self.accumulated_gradients, scaler)
+    #     return loss
 
     def get_weights(self) -> gluon.ParameterDict:
         """
@@ -401,27 +405,27 @@ class MxnetArchitecture(Architecture):
             old_p = old_weights[old_weights.prefix + name]  # Add prefix
             old_p.set_data(new_rate * p._reduce() + (1 - new_rate) * old_p._reduce())
 
-    def get_variable_value(self, variable: Union[gluon.Parameter, NDArray]) -> np.ndarray:
-        """
-        Get the value of a variable
-        :param variable: the variable
-        :return: the value of the variable
-        """
-        if isinstance(variable, gluon.Parameter):
-            variable = variable._reduce().asnumpy()
-        if isinstance(variable, NDArray):
-            return variable.asnumpy()
-        return variable
+    # def get_variable_value(self, variable: Union[gluon.Parameter, NDArray]) -> np.ndarray:
+    #     """
+    #     Get the value of a variable
+    #     :param variable: the variable
+    #     :return: the value of the variable
+    #     """
+    #     if isinstance(variable, gluon.Parameter):
+    #         variable = variable._reduce().asnumpy()
+    #     if isinstance(variable, NDArray):
+    #         return variable.asnumpy()
+    #     return variable
 
-    def set_variable_value(self, assign_op: callable, value: Any, placeholder=None) -> None:
-        """
-        Updates value of a variable.
-        :param assign_op: a callable assign function for setting the variable
-        :param value: a value to set the variable to
-        :param placeholder: unused (placeholder in symbolic framework backends)
-        """
-        assert callable(assign_op)
-        assign_op(value)
+    # def set_variable_value(self, assign_op: callable, value: Any, placeholder=None) -> None:
+    #     """
+    #     Updates value of a variable.
+    #     :param assign_op: a callable assign function for setting the variable
+    #     :param value: a value to set the variable to
+    #     :param placeholder: unused (placeholder in symbolic framework backends)
+    #     """
+    #     assert callable(assign_op)
+    #     assign_op(value)
 
     def set_is_training(self, state: bool) -> None:
         """

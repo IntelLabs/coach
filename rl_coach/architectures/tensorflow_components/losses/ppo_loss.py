@@ -33,7 +33,7 @@ LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
 LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
 from rl_coach.utils import eps
 
-
+from tensorflow.keras.layers import Dense, Input, Lambda
 
 
 
@@ -168,6 +168,7 @@ class PPOLoss(HeadLoss):
         surrogate_loss = -expected_scaled_advantages * self.weight
 
 
+
         return [
             (surrogate_loss, LOSS_OUT_TYPE_LOSS),
             (entropy_loss + kl_div_loss, LOSS_OUT_TYPE_REGULARIZATION),
@@ -190,25 +191,67 @@ class PPOLoss(HeadLoss):
         #     (1e-10*(entropy_loss + kl_div_loss), LOSS_OUT_TYPE_REGULARIZATION),
         #     (1e-10*kl_div_loss, LOSS_OUT_TYPE_KL),
         #     (1e-10*entropy_loss, LOSS_OUT_TYPE_ENTROPY),
+
         #     (1e-10*likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
         #     (1e-10*clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
         # ]
 
+# order shoud be y_tensor, model.output)
 
-def ppo_loss_f(new_policy, actions, old_means, old_stds, advantages):
-    min_value = 0.8
-    max_value = 1.2
-    old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds)
+#def ppo_loss_f(targets, new_policy_rv):
+def ppo_loss_f(advantages, old_means, old_stds, actions, rescalar, new_policy_rv):
+    # actions = targets[0]
+    # old_means = targets[1]
+    # old_stds = targets[2]
+    # advantages = targets[3]
+    min_value = 1 - rescalar
+    max_value = 1 + rescalar
 
+    #x = Input([1])
+
+    # actions_proba = tfp.layers.DistributionLambda(
+    #     lambda t: tfd.MultivariateNormalDiag(
+    #         loc=t[0], scale_diag=t[1]))([old_means, old_stds])
+    #
+    # model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
+
+    old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds + eps)
+
+    # new_policy_log_prob = tfp.layers.DistributionLambda(
+    #     lambda t: new_policy.log_prob(t))(actions)
+
+    # new_policy_log_prob = old_policy.log_prob(actions)
+    # old_policy_log_prob = new_policy_rv.log_prob(actions)
     old_policy_log_prob = old_policy.log_prob(actions)
-    new_policy_log_prob = new_policy.log_prob(actions)
+    new_policy_log_prob = new_policy_rv.log_prob(actions)
     likelihood_ratio = tf.exp(new_policy_log_prob - old_policy_log_prob)
+
     clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
-    unclipped_scaled_advantages = likelihood_ratio * advantages
     clipped_scaled_advantages = clipped_likelihood_ratio * advantages
+    unclipped_scaled_advantages = likelihood_ratio * advantages
+
     scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
     loss = -tf.reduce_mean(scaled_advantages)
+
     return loss
+
+
+# def ppo_loss_f(new_policy_rv, actions, old_means, old_stds, advantages):
+#
+#     min_value = 0.8
+#     max_value = 1.2
+#     old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds)
+#
+#     old_policy_log_prob = old_policy.log_prob(actions)
+#     new_policy_log_prob = new_policy_rv.log_prob(actions)
+#     likelihood_ratio = tf.exp(new_policy_log_prob - old_policy_log_prob)
+#     clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
+#     unclipped_scaled_advantages = likelihood_ratio * advantages
+#     clipped_scaled_advantages = clipped_likelihood_ratio * advantages
+#     scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
+#     loss = -tf.reduce_mean(scaled_advantages)
+#     return loss
+#
 
 
 # class PPOLoss(keras.losses.Loss):
