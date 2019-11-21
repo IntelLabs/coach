@@ -52,13 +52,12 @@ class ObservationNormalizationFilter(ObservationFilter):
         :param mode: the arithmetic module to use {'tf' | 'numpy'}
         :return: None
         """
-        #if mode == 'tf':
-        if 0:
+        mode = 'numpy'
+        if mode == 'tf':
             from rl_coach.architectures.tensorflow_components.shared_variables import TFSharedRunningStats
             self.running_observation_stats = TFSharedRunningStats(device, name=self.name, create_ops=False,
                                                             pubsub_params=memory_backend_params)
-        #elif mode == 'numpy':
-        else:
+        elif mode == 'numpy':
             self.running_observation_stats = NumpySharedRunningStats(name=self.name,
                                                                      pubsub_params=memory_backend_params)
 
