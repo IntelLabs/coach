@@ -153,102 +153,82 @@ class TensorFlowArchitecture(Architecture):
         model_inputs = tuple(inputs[emb_type] for emb_type in self.emmbeding_types)
         targets = force_list(targets)
         targets = utils.split_targets_per_loss(targets, self.losses)
+        targets = list(map(lambda x: tf.cast(x, tf.float32), targets))
         losses = list()
         regularisations = list()
         additional_fetches = [(k, None) for k in additional_fetches]
 
-
-        value_prediction = np.float32(targets[0][0])
-        advantage = np.float32(targets[1][0])
-        old_means = inputs['output_1_1']
-        old_stds = inputs['output_1_2']
-        actions = inputs['output_1_0']
-        rescalar = inputs['output_1_3']*self.ap.algorithm.clip_likelihood_ratio_using_epsilon
+        #
+        # value_prediction = np.float32(targets[0][0])
+        # advantage = np.float32(targets[1][0])
+        # old_means = inputs['output_1_1']
+        # old_stds = inputs['output_1_2']
+        # actions = inputs['output_1_0']
+        # rescalar = inputs['output_1_3']*self.ap.algorithm.clip_likelihood_ratio_using_epsilon
         with tf.GradientTape(persistent=True) as tape:
 
-            loss_v = v_loss_f(value_prediction, self.model(model_inputs)[0])
-            loss_ppo = ppo_loss_f(advantages=advantage,
-                                  old_means=old_means,
-                                  old_stds=old_stds,
-                                  actions=actions,
-                                  rescalar=rescalar,
-                                  new_policy_rv=self.model(model_inputs)[1])
-            loss = loss_v + loss_ppo
+        #     loss_v = v_loss_f(value_prediction, self.model(model_inputs)[0])
+        #     loss_ppo = ppo_loss_f(advantages=advantage,
+        #                           old_means=old_means,
+        #                           old_stds=old_stds,
+        #                           actions=actions,
+        #                           rescalar=rescalar,
+        #                           new_policy_rv=self.model(model_inputs)[1])
+        #     loss = loss_v + loss_ppo
+        #
+        #
+        # gradients = tape.gradient(loss, self.model.trainable_variables)
+        # losses.append(loss_v.numpy())
+        # losses.append(loss_ppo.numpy())
+        # losses.append(0.0)
+        # total_loss = loss.numpy()
+        # total_loss_list = losses
+        # fetched_tensors = [[0.0], [0.0], np.zeros(64), np.zeros(64)]
 
 
-        gradients = tape.gradient(loss, self.model.trainable_variables)
-        losses.append(loss_v.numpy())
-        losses.append(loss_ppo.numpy())
-        losses.append(0.0)
-        total_loss = loss.numpy()
-        total_loss_list = losses
-        fetched_tensors = [[0.0], [0.0], np.zeros(64), np.zeros(64)]
+            model_outputs = force_list(self.model(model_inputs))
+            for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
+
+                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)),
+                                          inputs.items()))
+
+                agent_input = list(agent_input.values())
+
+                loss_outputs = head_loss([head_output], agent_input, head_target)
 
 
-        # model_outputs = force_list(self.model(model_inputs))
-        # temp_loss_outputs = 0
-        #
-        # for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
-        #
-        #     agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)),
-        #                               inputs.items()))
-        #
-        #     agent_input = list(agent_input.values())
-        #     agent_input = list(map(lambda x: tf.cast(x, tf.float32), agent_input))
-        #     head_target = list(map(lambda x: tf.cast(x, tf.float32), head_target))
-        #     loss_outputs = head_loss([head_output], agent_input, head_target)
-        #
-        #
-        #
-        #     if LOSS_OUT_TYPE_LOSS in loss_outputs:
-        #         losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
-        #     if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
-        #         regularisations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
-        #
-        #     for i, fetch in enumerate(additional_fetches):
-        #         head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-        #         if head_idx == head_type_idx:
-        #             assert fetch[1] is None  # sanity check that fetch is None
-        #             additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
+                if LOSS_OUT_TYPE_LOSS in loss_outputs:
+                    losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
+                if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
+                    regularisations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
+                for i, fetch in enumerate(additional_fetches):
+                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+                    if head_idx == head_type_idx:
+                        assert fetch[1] is None  # sanity check that fetch is None
+                        additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
-        #     #########
-        #     #temp_loss_outputs += q_loss_f(q_value_pred=head_output, target=head_target[0])
-        #     if head_idx == 0:
-        #         v_loss = v_loss_f(value_prediction=head_output, target=head_target[0])
-        #         temp_loss_outputs += v_loss
-        #     if head_idx == 1:
-        #         ppo_targets = [agent_input[0], agent_input[1], agent_input[2], head_target]
-        #         ppo_loss = 0#ppo_loss_f(new_policy_rv=head_output, targets=ppo_targets)
-        #         temp_loss_outputs += ppo_loss
-        #
-        #         # loss = ppo_loss_f(self.model.output[1], ppo_targets)
-        #         # gradients = keras.backend.gradients(loss, self.model.input)
-        #
-        #
-        #
-        # # Total loss is losses and regularization (NOTE: order is important)
-        # total_loss_list = losses + regularisations
-        # #total_loss = tf.add_n([main_loss] + model.losses)
-        # total_loss = tf.add_n(total_loss_list)
-        # Dan
-        #total_loss = temp_loss_outputs
+            # Total loss is losses and regularization (NOTE: order is important)
+            total_loss_list = losses + regularisations
+            total_loss = tf.add_n(total_loss_list)
 
         # Calculate gradients
-        #gradients = tape.gradient(total_loss, self.model.trainable_variables)
-        #gradients = tf.gradients(self.losses[0]())
+        gradients = tape.gradient(total_loss, self.model.trainable_variables)
         norm_unclipped_grads = tf.linalg.global_norm(gradients)
 
         # Gradient clipping
         if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
-            gradients, gradients_norm = self.clip_gradients(gradients, self.network_parameters.gradients_clipping_method,
+            gradients, gradients_norm = self.clip_gradients(gradients,
+                                                            self.network_parameters.gradients_clipping_method,
                                                             self.network_parameters.clip_gradients)
-        assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
 
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
-            self.accumulated_gradients = gradients#.copy()
-        # else:
-        #     self.accumulated_gradients += gradients.copy()
+            self.accumulated_gradients = gradients.copy()
+        else:
+            self.accumulated_gradients += gradients.copy()
+
+        # result of of additional fetches
+        fetched_tensors = [fetch[1] for fetch in additional_fetches]
 
         # convert everything to numpy or scalar before returning
         result = (total_loss, total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)
@@ -262,7 +242,7 @@ class TensorFlowArchitecture(Architecture):
         :param scaler: A scaling factor that allows rescaling the gradients before applying them.
                        The gradients will be MULTIPLIED by this factor
         """
-        assert self.optimizer_type != 'LBFGS'
+        assert self.optimizer_type != 'LBFGS', 'LBFGS not supported'
 
         self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
 
