@@ -59,7 +59,6 @@ def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dr
 
 # define global dictionary for storing layer type to layer implementation mapping
 tf_layer_dict = dict()
-tf_layer_class_dict = dict()
 
 
 def reg_to_tf_instance(layer_type) -> FunctionType:
@@ -73,16 +72,6 @@ def reg_to_tf_instance(layer_type) -> FunctionType:
     return reg_impl_decorator
 
 
-def reg_to_tf_class(layer_type) -> FunctionType:
-    """ function decorator that registers layer type
-    :return: decorated function
-    """
-    def reg_impl_decorator(func):
-        assert layer_type not in tf_layer_class_dict
-        tf_layer_class_dict[layer_type] = func
-        return func
-    return reg_impl_decorator
-
 
 def convert_layer(layer):
     """
@@ -95,16 +84,16 @@ def convert_layer(layer):
     return tf_layer_dict[type(layer)](layer)
 
 
-def convert_layer_class(layer_class):
-    """
-    If layer instance is callable, return layer, otherwise convert to TF type
-    :param layer: layer to be converted
-    :return: converted layer if not callable, otherwise layer itself
-    """
-    if hasattr(layer_class, 'to_tf_instance'):
-        return layer_class
-    else:
-        return tf_layer_class_dict[layer_class]()
+# def convert_layer_class(layer_class):
+#     """
+#     If layer instance is callable, return layer, otherwise convert to TF type
+#     :param layer: layer to be converted
+#     :return: converted layer if not callable, otherwise layer itself
+#     """
+#     if hasattr(layer_class, 'to_tf_instance'):
+#         return layer_class
+#     else:
+#         return tf_layer_class_dict[layer_class]()
 
 
 class Conv2d(layers.Conv2d):
@@ -125,18 +114,18 @@ class Conv2d(layers.Conv2d):
                                           strides=self.strides, data_format='channels_last', name=name)
 
 
-    # @staticmethod
-    # @reg_to_tf_instance(layers.Conv2d)
-    # def to_tf_instance(base: layers.Conv2d):
-    #         return Conv2d(
-    #             num_filters=base.num_filters,
-    #             kernel_size=base.kernel_size,
-    #             strides=base.strides)
-
     @staticmethod
-    @reg_to_tf_class(layers.Conv2d)
-    def to_tf_class():
-        return Conv2d
+    @reg_to_tf_instance(layers.Conv2d)
+    def to_tf_instance(base: layers.Conv2d):
+            return Conv2d(
+                num_filters=base.num_filters,
+                kernel_size=base.kernel_size,
+                strides=base.strides)
+
+    # @staticmethod
+    # @reg_to_tf_class(layers.Conv2d)
+    # def to_tf_class():
+    #     return Conv2d
 
 
 class BatchnormActivationDropout(layers.BatchnormActivationDropout):
@@ -164,19 +153,36 @@ class BatchnormActivationDropout(layers.BatchnormActivationDropout):
                 activation_function=base.activation_function,
                 dropout_rate=base.dropout_rate)
 
+    # @staticmethod
+    # @reg_to_tf_class(layers.BatchnormActivationDropout)
+    # def to_tf_class():
+    #     return BatchnormActivationDropout
+
+
+# class Dense(keras.layers.Layer):
+#     def __init__(self, units, **kwargs):
+#         super().__init__(**kwargs)
+#         self.dense = tf.keras.layers.Dense(units)
+#
+#     def call(self, inputs):
+#         return self.dense(inputs)
+
+class Dense(layers.Dense):
+    def __init__(self, units: int):
+        super(Dense, self).__init__(units=units)
+
+    def __call__(self):
+        """
+        returns a tensorflow dense layer
+        :return: dense layer
+        """
+        return tf.keras.layers.Dense(self.units)
+
     @staticmethod
-    @reg_to_tf_class(layers.BatchnormActivationDropout)
-    def to_tf_class():
-        return BatchnormActivationDropout
+    @reg_to_tf_instance(layers.Dense)
+    def to_tf_instance(base: layers.Dense):
+        return Dense(units=base.units)()
 
-
-class Dense(keras.layers.Layer):
-    def __init__(self, units, **kwargs):
-        super().__init__(**kwargs)
-        self.dense = tf.keras.layers.Dense(units)
-
-    def call(self, inputs):
-        return self.dense(inputs)
 
 
 
@@ -207,78 +213,3 @@ class Dense(keras.layers.Layer):
 #         return Dense
 #
 
-
-class NoisyNetDense(layers.NoisyNetDense):
-    """
-    A factorized Noisy Net layer
-
-    https://arxiv.org/abs/1706.10295.
-    """
-
-    def __init__(self, units: int):
-        super(NoisyNetDense, self).__init__(units=units)
-
-    def __call__(self, input_layer, name: str, kernel_initializer=None, activation=None, is_training=None):
-        """
-        returns a NoisyNet dense layer
-        :param input_layer: previous layer
-        :param name: layer name
-        :param kernel_initializer: initializer for kernels. Default is to use Gaussian noise that preserves stddev.
-        :param activation: the activation function
-        :return: dense layer
-        """
-        #TODO: noise sampling should be externally controlled. DQN is fine with sampling noise for every
-        #      forward (either act or train, both for online and target networks).
-        #      A3C, on the other hand, should sample noise only when policy changes (i.e. after every t_max steps)
-
-        def _f(values):
-            return tf.sqrt(tf.abs(values)) * tf.sign(values)
-
-        def _factorized_noise(inputs, outputs):
-            # TODO: use factorized noise only for compute intensive algos (e.g. DQN).
-            #      lighter algos (e.g. DQN) should not use it
-            noise1 = _f(tf.random.normal((inputs, 1)))
-            noise2 = _f(tf.random.normal((1, outputs)))
-            return tf.matmul(noise1, noise2)
-
-        num_inputs = input_layer.get_shape()[-1].value
-        num_outputs = self.units
-
-        stddev = 1 / math.sqrt(num_inputs)
-        activation = activation if activation is not None else (lambda x: x)
-
-        if kernel_initializer is None:
-            kernel_mean_initializer = tf.compat.v1.random_uniform_initializer(-stddev, stddev)
-            kernel_stddev_initializer = tf.compat.v1.random_uniform_initializer(-stddev * self.sigma0, stddev * self.sigma0)
-        else:
-            kernel_mean_initializer = kernel_stddev_initializer = kernel_initializer
-        with tf.compat.v1.variable_scope(None, default_name=name):
-            weight_mean = tf.compat.v1.get_variable('weight_mean', shape=(num_inputs, num_outputs),
-                                                    initializer=kernel_mean_initializer, use_resource=False)
-
-            bias_mean = tf.compat.v1.get_variable('bias_mean', shape=(num_outputs,),
-                                                  initializer=tf.compat.v1.zeros_initializer(), use_resource=False)
-
-
-            weight_stddev = tf.compat.v1.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
-                                            initializer=kernel_stddev_initializer, use_resource=False)
-
-            bias_stddev = tf.compat.v1.get_variable('bias_stddev', shape=(num_outputs,),
-                                          initializer=kernel_stddev_initializer, use_resource=False)
-
-            bias_noise = _f(tf.random.normal((num_outputs,)))
-            weight_noise = _factorized_noise(num_inputs, num_outputs)
-
-        bias = bias_mean + bias_stddev * bias_noise
-        weight = weight_mean + weight_stddev * weight_noise
-        return activation(tf.matmul(input_layer, weight) + bias)
-
-    @staticmethod
-    @reg_to_tf_instance(layers.NoisyNetDense)
-    def to_tf_instance(base: layers.NoisyNetDense):
-        return NoisyNetDense(units=base.units)
-
-    @staticmethod
-    @reg_to_tf_class(layers.NoisyNetDense)
-    def to_tf_class():
-        return NoisyNetDense

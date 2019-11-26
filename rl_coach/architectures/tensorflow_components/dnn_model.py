@@ -62,8 +62,8 @@ def _get_input_embedder(name_prefix: str,
 
         module = VectorEmbedder(input_size=allowed_inputs[input_name].shape,
                                 activation_function=embedder_params.activation_function,
-                                #scheme=embedder_params.scheme,
-                                scheme=[Dense(64)],
+                                scheme=embedder_params.scheme,
+                                #scheme=[Dense(64)],
                                 batchnorm=embedder_params.batchnorm,
                                 dropout_rate=embedder_params.dropout_rate,
                                 name=embedder_params.name,
@@ -100,8 +100,8 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
     """
     if isinstance(middleware_params, FCMiddlewareParameters):
         module = FCMiddleware(activation_function=middleware_params.activation_function,
-                              #scheme=middleware_params.scheme,
-                              scheme=[Dense(64)],
+                              scheme=middleware_params.scheme,
+                              #scheme=[Dense(64)],
                               batchnorm=middleware_params.batchnorm,
                               dropout_rate=middleware_params.dropout_rate,
                               name=middleware_params.name,

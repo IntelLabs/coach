@@ -51,6 +51,9 @@ class Middleware(keras.layers.Layer):
         else:
             layers = scheme
 
+        # Convert layer to TensorFlow layer
+        layers = [convert_layer(l) for l in layers]
+
         for layer in layers:
             self.middleware_layers.extend([layer])
             if batchnorm:

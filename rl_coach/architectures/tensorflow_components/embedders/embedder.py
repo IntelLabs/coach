@@ -20,6 +20,7 @@ import tensorflow as tf
 from tensorflow import keras
 from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputEmbedding
+from rl_coach.architectures.tensorflow_components.layers import convert_layer
 
 
 class InputEmbedder(keras.layers.Layer):
@@ -63,6 +64,9 @@ class InputEmbedder(keras.layers.Layer):
         else:
             layers = scheme
 
+        # Convert layer to TensorFlow layer
+        layers = [convert_layer(l) for l in layers]
+
         for layer in layers:
             self.embbeder_layers.extend([layer])
             if batchnorm:
@@ -71,6 +75,8 @@ class InputEmbedder(keras.layers.Layer):
                 self.embbeder_layers.extend([keras.activations.get(activation_function)])
             if dropout_rate:
                 self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
+
+        a = 1
 
     def call(self, inputs):
         """
