@@ -21,7 +21,8 @@ import tensorflow as tf
 from tensorflow import keras
 
 
-from rl_coach.architectures.tensorflow_components.layers import Dense
+#from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.architectures.layers import Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputVectorEmbedding

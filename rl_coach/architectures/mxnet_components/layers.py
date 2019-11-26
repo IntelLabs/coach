@@ -70,6 +70,7 @@ class Conv2d(layers.Conv2d):
         return Conv2d(num_filters=base.num_filters, kernel_size=base.kernel_size, strides=base.strides)
 
 
+
 class BatchnormActivationDropout(layers.BatchnormActivationDropout):
     def __init__(self, batchnorm: bool=False, activation_function=None, dropout_rate: float=0):
         super(BatchnormActivationDropout, self).__init__(

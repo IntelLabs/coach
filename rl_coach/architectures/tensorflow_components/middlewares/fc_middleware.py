@@ -19,7 +19,8 @@ from typing import Union, List
 import tensorflow as tf
 from tensorflow import keras
 
-from rl_coach.architectures.tensorflow_components.layers import Dense
+#from rl_coach.architectures.tensorflow_components.layers import Dense
+from rl_coach.architectures.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_FC_Embedding
@@ -52,20 +53,25 @@ class FCMiddleware(Middleware):
             # Use for PPO
             MiddlewareScheme.Shallow:
                 [
-                    keras.layers.Dense(64)
+                    Dense(64),
+                    #keras.layers.Dense(64)
                 ],
 
             # Use for DQN
             MiddlewareScheme.Medium:
                 [
-                    keras.layers.Dense(512)
+                    Dense(512),
+                    #keras.layers.Dense(512)
                 ],
 
             MiddlewareScheme.Deep: \
                 [
-                    keras.layers.Dense(128),
-                    keras.layers.Dense(128),
-                    keras.layers.Dense(128)
+                    Dense(128),
+                    Dense(128),
+                    Dense(128)
+                    # keras.layers.Dense(128),
+                    # keras.layers.Dense(128),
+                    # keras.layers.Dense(128)
                 ]
         }
 
