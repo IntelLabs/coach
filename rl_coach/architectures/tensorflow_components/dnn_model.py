@@ -100,7 +100,7 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
     """
     if isinstance(middleware_params, FCMiddlewareParameters):
         module = FCMiddleware(activation_function=middleware_params.activation_function,
-                              #middleware_params.scheme,
+                              #scheme=middleware_params.scheme,
                               scheme=[Dense(64)],
                               batchnorm=middleware_params.batchnorm,
                               dropout_rate=middleware_params.dropout_rate,

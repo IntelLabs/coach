@@ -800,7 +800,7 @@ if __name__ == "__main__":
 
     sys.argv.append('-p')
 
-    # sys.argv.append('CartPole_DQN')
+    #sys.argv.append('CartPole_DQN')
 
     # sys.argv.append('Atari_DQN')
     # sys.argv.extend(['-lvl', 'breakout'])

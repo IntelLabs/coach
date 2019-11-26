@@ -189,13 +189,11 @@ class TensorFlowArchitecture(Architecture):
             model_outputs = force_list(self.model(model_inputs))
             for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
 
-                agent_input = dict(filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)),
-                                          inputs.items()))
-
+                agent_input = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)), inputs.items())
+                agent_input = dict(agent_input)
                 agent_input = list(agent_input.values())
 
                 loss_outputs = head_loss([head_output], agent_input, head_target)
-
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
@@ -297,15 +295,18 @@ class TensorFlowArchitecture(Architecture):
 
 
         # Assuming only one stochastic head for now
-        output_per_head = []
-        distribution_output = distribution_output.pop()
-        policy_mean = distribution_output.mean().numpy()
-        policy_stddev = np.tile(distribution_output.stddev().numpy(), policy_mean.shape)
-        value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs)).pop()
-        value_output = value_output.numpy().reshape(-1,)
-        output_per_head.append(value_output)
-        output_per_head.append(policy_mean)
-        output_per_head.append(policy_stddev)
+        if distribution_output:
+            output_per_head = []
+            distribution_output = distribution_output.pop()
+            policy_mean = distribution_output.mean().numpy()
+            policy_stddev = np.tile(distribution_output.stddev().numpy(), policy_mean.shape)
+            value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs)).pop()
+            value_output = value_output.numpy().reshape(-1,)
+            output_per_head.append(value_output)
+            output_per_head.append(policy_mean)
+            output_per_head.append(policy_stddev)
+        else:
+            output_per_head = model_outputs.numpy()
 
         #output_per_head = list(zip(value_output, policy_mean, policy_stddev))
 
@@ -350,23 +351,23 @@ class TensorFlowArchitecture(Architecture):
 
 
     #
-    # @staticmethod
-    # def parallel_predict(sess: Any,
-    #                      network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) -> \
-    #         Tuple[np.ndarray, ...]:
-    #     """
-    #     :param sess: active session to use for prediction (must be None for TF2)
-    #     :param network_input_tuples: tuple of network and corresponding input
-    #     :return: tuple of outputs from all networks
-    #     """
-    #     assert sess is None
-    #     output = [net._predict(inputs) for net, inputs in network_input_tuples]
-    #
-    #     # output = list()
-    #     # for net, inputs in network_input_tuples:
-    #     #     output += net._predict(inputs)
-    #
-    #     return output
+    @staticmethod
+    def parallel_predict(sess: Any,
+                         network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) -> \
+            Tuple[np.ndarray, ...]:
+        """
+        :param sess: active session to use for prediction (must be None for TF2)
+        :param network_input_tuples: tuple of network and corresponding input
+        :return: tuple of outputs from all networks
+        """
+        assert sess is None
+        output = [net._predict(inputs) for net, inputs in network_input_tuples]
+
+        # output = list()
+        # for net, inputs in network_input_tuples:
+        #     output += net._predict(inputs)
+
+        return output
 
 
 
