@@ -807,6 +807,7 @@ if __name__ == "__main__":
 
     sys.argv.append('Mujoco_ClippedPPO')
     sys.argv.extend(['-lvl', 'inverted_pendulum'])
+    #sys.argv.extend(['-lvl', 'humanoid'])
 
 
 

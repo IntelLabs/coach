@@ -76,7 +76,7 @@ class InputEmbedder(keras.layers.Layer):
             if dropout_rate:
                 self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-        a = 1
+
 
     def call(self, inputs):
         """

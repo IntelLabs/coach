@@ -299,7 +299,8 @@ class TensorFlowArchitecture(Architecture):
             output_per_head = []
             distribution_output = distribution_output.pop()
             policy_mean = distribution_output.mean().numpy()
-            policy_stddev = np.tile(distribution_output.stddev().numpy(), policy_mean.shape)
+            policy_stddev = distribution_output.stddev().numpy()
+            #policy_stddev = np.tile(distribution_output.stddev().numpy(), policy_mean.shape)
             value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs)).pop()
             value_output = value_output.numpy().reshape(-1,)
             output_per_head.append(value_output)
@@ -349,8 +350,6 @@ class TensorFlowArchitecture(Architecture):
         #output = list(output[0])
         return output
 
-
-    #
     @staticmethod
     def parallel_predict(sess: Any,
                          network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) -> \
