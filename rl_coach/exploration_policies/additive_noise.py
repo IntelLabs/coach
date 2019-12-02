@@ -62,7 +62,9 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
         self.evaluation_noise = evaluation_noise
         self.noise_as_percentage_from_action_space = noise_as_percentage_from_action_space
 
-        if not isinstance(action_space, BoxActionSpace):
+        if not isinstance(action_space, BoxActionSpace) and \
+                (hasattr(action_space, 'filtered_action_space') and not
+                 isinstance(action_space.filtered_action_space, BoxActionSpace)):
             raise ValueError("Additive noise exploration works only for continuous controls."
                              "The given action space is of type: {}".format(action_space.__class__.__name__))
 

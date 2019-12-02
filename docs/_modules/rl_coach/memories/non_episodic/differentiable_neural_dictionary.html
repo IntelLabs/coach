@@ -240,7 +240,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">built_capacity</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">additional_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">additional_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_rebuild_tree</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">additional_data</span><span class="p">:</span>
             <span class="n">additional_data</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
 
@@ -279,7 +279,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffered_indices</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_update_size</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">min_update_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_update_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">curr_size</span> <span class="o">*</span> <span class="mf">0.02</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_index</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">rebuild_on_every_update</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">force_rebuild_tree</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rebuild_on_every_update</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_index</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">current_timestamp</span> <span class="o">+=</span> <span class="mi">1</span>

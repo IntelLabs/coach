@@ -298,7 +298,10 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param action_space: the action space used by the environment</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">)</span> <span class="ow">or</span> \
+               <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="s1">&#39;filtered_action_space&#39;</span><span class="p">)</span> <span class="ow">and</span>
+                 <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="o">.</span><span class="n">filtered_action_space</span><span class="p">,</span> <span class="n">BoxActionSpace</span><span class="p">))</span> <span class="ow">or</span> \
+               <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_space</span><span class="p">,</span> <span class="n">GoalsSpace</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action_space</span><span class="p">)</span>
 </pre></div>
 

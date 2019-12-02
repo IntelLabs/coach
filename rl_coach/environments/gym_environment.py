@@ -142,7 +142,7 @@ atari_schedule = ScheduleParameters()
 atari_schedule.improve_steps = EnvironmentSteps(50000000)
 atari_schedule.steps_between_evaluation_periods = EnvironmentSteps(250000)
 atari_schedule.evaluation_steps = EnvironmentSteps(135000)
-atari_schedule.heatup_steps = EnvironmentSteps(1)
+atari_schedule.heatup_steps = EnvironmentSteps(50000)
 
 
 class MaxOverFramesAndFrameskipEnvWrapper(gym.Wrapper):
@@ -459,7 +459,7 @@ class GymEnvironment(Environment):
     def _restart_environment_episode(self, force_environment_reset=False):
         # prevent reset of environment if there are ale lives left
         if (self.is_atari_env and self.env.unwrapped.ale.lives() > 0) \
-                and not force_environment_reset:
+                and not force_environment_reset and self.env.env._elapsed_steps < self.env.env._max_episode_steps:
             self.step(self.action_space.default_action)
         else:
             self.state = self.env.reset()

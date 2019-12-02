@@ -90,7 +90,8 @@ class EGreedy(ExplorationPolicy):
                 probabilities = np.full(len(self.action_space.actions),
                                       1. / (self.action_space.high[0] - self.action_space.low[0] + 1))
             else:
-                chosen_action = np.argmax(action_values)
+                chosen_action = np.argmax(np.random.random(action_values.shape) *
+                                          (np.isclose(action_values, action_values.max())))
 
                 # one-hot probabilities vector
                 probabilities = np.zeros(len(self.action_space.actions))

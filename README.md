@@ -148,7 +148,7 @@ To use these presets, the requeseted level should be defined using the `-lvl` fl
 For example:
 
 
-* Pong using the Nerual Episodic Control (NEC) algorithm:
+* Pong using the Neural Episodic Control (NEC) algorithm:
 
   ```bash
   coach -r -p Atari_NEC -lvl pong
