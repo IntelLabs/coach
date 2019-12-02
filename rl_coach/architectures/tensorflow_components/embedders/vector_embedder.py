@@ -15,18 +15,12 @@
 #
 
 
-from typing import List
-
 import tensorflow as tf
-from tensorflow import keras
-
-
-#from rl_coach.architectures.tensorflow_components.layers import Dense
+from typing import List
 from rl_coach.architectures.layers import Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputVectorEmbedding
-
 
 
 class VectorEmbedder(InputEmbedder):
@@ -73,14 +67,12 @@ class VectorEmbedder(InputEmbedder):
             EmbedderScheme.Shallow:
                 [
                     Dense(128)
-                    #keras.layers.Dense(128)
                 ],
 
             # Use for DQN
             EmbedderScheme.Medium:
                 [
                     Dense(256)
-                    #keras.layers.Dense(256)
                 ],
 
             # Use for Carla
@@ -89,8 +81,5 @@ class VectorEmbedder(InputEmbedder):
                     Dense(128),
                     Dense(128),
                     Dense(128)
-                    # keras.layers.Dense(128),
-                    # keras.layers.Dense(128),
-                    # keras.layers.Dense(128)
                 ]
         }

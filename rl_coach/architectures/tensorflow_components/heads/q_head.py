@@ -54,7 +54,7 @@ class QHead(Head):
 
         self.dense = keras.layers.Dense(units=self.num_actions)
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs):
         """
         Used for forward pass through Q-Value head network.
 

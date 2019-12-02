@@ -121,7 +121,6 @@ class Trainer(TensorFlowArchitecture):
                                   network_name=loss_params.name,
                                   num_actions=spaces.action.shape[0],
                                   head_idx=index,
-                                  loss_type=None,
                                   loss_weight=loss_params.loss_weight)
             self.losses.append(loss)
 
@@ -165,7 +164,6 @@ class Trainer(TensorFlowArchitecture):
                   network_name: str,
                   num_actions,
                   head_idx,
-                  loss_type,
                   loss_weight):
         """
         Given a loss type, creates the loss and returns it
@@ -180,7 +178,6 @@ class Trainer(TensorFlowArchitecture):
                          head_idx=head_idx,
                          loss_type=MeanSquaredError,
                          loss_weight=loss_weight)
-            #loss = q_loss_f
 
         elif isinstance(loss_params, VHeadParameters):
             loss = VLoss(network_name=network_name,
@@ -196,18 +193,6 @@ class Trainer(TensorFlowArchitecture):
                            loss_type=MeanSquaredError,
                            loss_weight=loss_weight)
 
-
-        # elif isinstance(loss_params, PPOVHeadParameters):
-        #     loss = PPOVHead(
-        #         agent_parameters=agent_params,
-        #         spaces=spaces,
-        #         network_name=network_name,
-        #         head_type_idx=head_type_index,
-        #         loss_weight=head_params.loss_weight,
-        #         is_local=is_local,
-        #         activation_function=head_params.activation_function,
-        #         dense_layer=head_params.dense_layer)
-
         else:
             raise KeyError('Unsupported loss type: {}'.format(type(loss_params)))
 
@@ -215,7 +200,6 @@ class Trainer(TensorFlowArchitecture):
 
     @property
     def output_heads(self):
-        #output_heads = list(map(lambda model: model.output_heads[0], self.model.layers[1:]))
         output_heads = list(map(lambda sub_model: sub_model.layers[-1], self.model.layers[1:]))
         return output_heads
 

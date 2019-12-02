@@ -35,28 +35,21 @@ class InputEmbedder(keras.layers.Layer):
                  scheme: EmbedderScheme = None,
                  batchnorm: bool = False,
                  dropout_rate: float = 0.0,
-                 name: str= "embedder",
+                 name: str = "embedder",
                  input_rescaling=1.0,
                  input_offset=0.0,
                  input_clipping=None,
                  is_training=False,
                  **kwargs):
 
-        #super().__init__(**kwargs)
         super(InputEmbedder, self).__init__(name=name)
         # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
         self.embedder_name = name
-
-        #self.name = name
-        #self.scheme = scheme
         self.return_type = InputEmbedding
-
         self.input_rescaling = tf.cast(input_rescaling, tf.float32)
-        #self.input_rescaling = input_rescaling
         self.input_offset = input_offset
         self.input_clipping = input_clipping
-
         self.embbeder_layers = []
 
         if isinstance(scheme, EmbedderScheme):
@@ -77,7 +70,6 @@ class InputEmbedder(keras.layers.Layer):
                 self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
 
-
     def call(self, inputs):
         """
         Used for forward pass through embedder network.
@@ -85,8 +77,7 @@ class InputEmbedder(keras.layers.Layer):
         :param inputs: environment state, where first dimension is batch_size, then dimensions are data type dependent.
         :return: embedding of environment state, where shape is (batch_size, channels).
         """
-
-        # x = inputs / self.input_rescaling
+        self.input_rescaling = tf.cast(self.input_rescaling, inputs.dtype)
         x = tf.math.divide(inputs, self.input_rescaling)
         x = x - self.input_offset
         if self.input_clipping is not None:
@@ -95,12 +86,9 @@ class InputEmbedder(keras.layers.Layer):
         for layer in self.embbeder_layers:
             x = layer(x)
 
-
         # TODO : commented out, bring back for convolution
-        #x = keras.layers.Flatten()(x)
+        x = keras.layers.Flatten()(x)
         return x
-
-
 
     @property
     def input_size(self) -> List[int]:
@@ -117,7 +105,6 @@ class InputEmbedder(keras.layers.Layer):
                 'input_size expected to be a list, found {value} which has type {type}'
             ).format(value=value, type=type(value)))
         self._input_size = value
-
 
     @property
     def schemes(self) -> dict:

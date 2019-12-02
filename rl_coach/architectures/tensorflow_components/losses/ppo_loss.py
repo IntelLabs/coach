@@ -14,9 +14,6 @@
 #
 
 import tensorflow as tf
-import numpy as np
-from tensorflow import keras
-from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 from typing import List, Tuple
 
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema,\
@@ -25,15 +22,13 @@ from tensorflow import Tensor
 
 import tensorflow_probability as tfp
 tfd = tfp.distributions
-from tensorflow_probability import edward2 as ed
+
 
 LOSS_OUT_TYPE_KL = 'kl_divergence'
 LOSS_OUT_TYPE_ENTROPY = 'entropy'
 LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
 LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
 from rl_coach.utils import eps
-
-from tensorflow.keras.layers import Dense, Input, Lambda
 
 
 
@@ -84,15 +79,6 @@ class PPOLoss(HeadLoss):
             agent_inputs=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler'],
             targets=['advantages']
         )
-
-    # def loss_forward(self,
-    #                  new_policy_means,
-    #                  new_policy_stds,
-    #                  actions,
-    #                  old_policy_means,
-    #                  old_policy_stds,
-    #                  clip_param_rescaler,
-    #                  advantages) -> List[Tuple[Tensor, str]]:
 
     def loss_forward(self,
                      new_policy_distribution,
@@ -180,23 +166,7 @@ class PPOLoss(HeadLoss):
 
 
 
-        # dummy_loss = tf.reduce_mean(advantages*new_policy_distribution.log_prob(actions[1]))
-        # dummy_loss = tf.reduce_mean(tf.sqrt(tf.square(new_policy_distribution.mean()- 5)))
-        # print(new_policy_distribution.mean())
-        #dummy_loss = tf.reduce_mean(advantages*new_policy_distribution.log_prob())
-        #print(new_policy_distribution.mean())
-        #dummy_loss = tf.constant(0, dtype=tf.float32)
-        # return [
-        #     (surrogate_loss, LOSS_OUT_TYPE_LOSS),
-        #     (1e-10*(entropy_loss + kl_div_loss), LOSS_OUT_TYPE_REGULARIZATION),
-        #     (1e-10*kl_div_loss, LOSS_OUT_TYPE_KL),
-        #     (1e-10*entropy_loss, LOSS_OUT_TYPE_ENTROPY),
 
-        #     (1e-10*likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
-        #     (1e-10*clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
-        # ]
-
-# order shoud be y_tensor, model.output)
 
 #def ppo_loss_f(targets, new_policy_rv):
 def ppo_loss_f(advantages, old_means, old_stds, actions, rescalar, new_policy_rv):

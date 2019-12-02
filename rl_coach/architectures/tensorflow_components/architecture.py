@@ -14,34 +14,22 @@
 # limitations under the License.
 #
 
-import copy
-from typing import Any, Dict, Generator, List, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
+from typing import Any, Dict, List, Tuple
 from tensorflow_probability.python.distributions import Distribution
-
+from tensorflow.keras.losses import Loss
 from rl_coach.architectures.architecture import Architecture
-
 from rl_coach.base_parameters import AgentParameters
-from rl_coach.logger import screen
 from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import force_list, squeeze_list
+from rl_coach.utils import force_list
 from rl_coach.architectures.tensorflow_components import utils
-from rl_coach.architectures.tensorflow_components.dnn_model import squeeze_model_outputs
-from rl_coach.architectures.tensorflow_components.heads import Head
-#from rl_coach.architectures.tensorflow_components.losses import HeadLoss
-from tensorflow.keras.losses import Loss
 from rl_coach.core_types import GradientClippingMethod
 from rl_coach.architectures.tensorflow_components.savers import TfSaver
-
 from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
-from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
-from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss, q_loss_f
-from rl_coach.architectures.tensorflow_components.losses.v_loss import v_loss_f
-from rl_coach.architectures.tensorflow_components.losses.ppo_loss import ppo_loss_f
+
 
 class TensorFlowArchitecture(Architecture):
     def __init__(self, agent_parameters: AgentParameters,
@@ -86,13 +74,10 @@ class TensorFlowArchitecture(Architecture):
 
         # Call to child class to create the model
         self.construct_model()
-
         self.trainer = None
 
     def __str__(self):
         return self.model.summary(self._dummy_model_inputs())
-
-
 
     def construct_model(self) -> None:
         """
@@ -158,33 +143,7 @@ class TensorFlowArchitecture(Architecture):
         regularisations = list()
         additional_fetches = [(k, None) for k in additional_fetches]
 
-        #
-        # value_prediction = np.float32(targets[0][0])
-        # advantage = np.float32(targets[1][0])
-        # old_means = inputs['output_1_1']
-        # old_stds = inputs['output_1_2']
-        # actions = inputs['output_1_0']
-        # rescalar = inputs['output_1_3']*self.ap.algorithm.clip_likelihood_ratio_using_epsilon
         with tf.GradientTape(persistent=True) as tape:
-
-        #     loss_v = v_loss_f(value_prediction, self.model(model_inputs)[0])
-        #     loss_ppo = ppo_loss_f(advantages=advantage,
-        #                           old_means=old_means,
-        #                           old_stds=old_stds,
-        #                           actions=actions,
-        #                           rescalar=rescalar,
-        #                           new_policy_rv=self.model(model_inputs)[1])
-        #     loss = loss_v + loss_ppo
-        #
-        #
-        # gradients = tape.gradient(loss, self.model.trainable_variables)
-        # losses.append(loss_v.numpy())
-        # losses.append(loss_ppo.numpy())
-        # losses.append(0.0)
-        # total_loss = loss.numpy()
-        # total_loss_list = losses
-        # fetched_tensors = [[0.0], [0.0], np.zeros(64), np.zeros(64)]
-
 
             model_outputs = force_list(self.model(model_inputs))
             for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
@@ -293,14 +252,11 @@ class TensorFlowArchitecture(Architecture):
 
         distribution_output = list(filter(lambda x: isinstance(x, Distribution), model_outputs))
 
-
-        # Assuming only one stochastic head for now
         if distribution_output:
             output_per_head = []
             distribution_output = distribution_output.pop()
             policy_mean = distribution_output.mean().numpy()
             policy_stddev = distribution_output.stddev().numpy()
-            #policy_stddev = np.tile(distribution_output.stddev().numpy(), policy_mean.shape)
             value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs)).pop()
             value_output = value_output.numpy().reshape(-1,)
             output_per_head.append(value_output)
@@ -309,31 +265,13 @@ class TensorFlowArchitecture(Architecture):
         else:
             output_per_head = model_outputs.numpy()
 
-        #output_per_head = list(zip(value_output, policy_mean, policy_stddev))
-
-
-        # if distribution_output:
-        #     value_output = list(filter(lambda x: not (isinstance(x, Distribution)), model_outputs))
-        #     value_output = [value.numpy() for value in value_output]
-        #
-        #     distribution_mean = [dist.mean().numpy() for dist in distribution_output]
-        #     distribution_stddev = [dist.stddev().numpy() for dist in distribution_output]
-        #
-        #     output_per_head = list(zip(value_output, distribution_mean, distribution_stddev))
-        #     output_per_head = list(output_per_head[0])
-        # else:
-        #     output_per_head = model_outputs.numpy()
-
-
         return output_per_head
-        #return model_outputs
-
 
     def predict(self,
                 inputs: Dict[str, np.ndarray],
-                outputs: List[str]=None,
-                squeeze_output: bool=True,
-                initial_feed_dict: Dict[str, np.ndarray]=None) -> Tuple[np.ndarray, ...]:
+                outputs: List[str] = None,
+                squeeze_output: bool = True,
+                initial_feed_dict: Dict[str, np.ndarray] = None) -> Tuple[np.ndarray, ...]:
         """
         Run a forward pass of the network using the given input
         :param inputs: The input dictionary for the network. Key is name of the embedder.
@@ -347,13 +285,12 @@ class TensorFlowArchitecture(Architecture):
         assert initial_feed_dict is None, "initial_feed_dict must be None"
         assert outputs is None, "outputs must be None"
         output = self._predict(inputs)
-        #output = list(output[0])
         return output
 
     @staticmethod
     def parallel_predict(sess: Any,
-                         network_input_tuples: List[Tuple['TensorFlowArchitecture', Dict[str, np.ndarray]]]) -> \
-            Tuple[np.ndarray, ...]:
+                         network_input_tuples: List[Tuple['TensorFlowArchitecture',
+                                                          Dict[str, np.ndarray]]]) -> Tuple[np.ndarray, ...]:
         """
         :param sess: active session to use for prediction (must be None for TF2)
         :param network_input_tuples: tuple of network and corresponding input
@@ -361,14 +298,7 @@ class TensorFlowArchitecture(Architecture):
         """
         assert sess is None
         output = [net._predict(inputs) for net, inputs in network_input_tuples]
-
-        # output = list()
-        # for net, inputs in network_input_tuples:
-        #     output += net._predict(inputs)
-
         return output
-
-
 
     def get_weights(self):
         """

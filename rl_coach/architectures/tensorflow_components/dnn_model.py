@@ -292,16 +292,6 @@ def create_full_model(num_networks: int,
 
         outputs.append(networks[network_idx](inputs))
 
-        #num_outputs = net.output_shape[-1]
-        #num_outputs = len(dnn_output)
-
-        # if net.output_heads[0].num_outputs_ is None:
-        #     net.output_heads[0].num_outputs_ = num_outputs
-        # else:
-        #     assert net.output_heads[0].num_outputs_ == num_outputs, 'Number of outputs cannot change ({} != {})'.format(
-        #         net.output_heads[0].num_outputs_, num_outputs)
-
-
     model = keras.Model(name=network_name + '_full_model', inputs=inputs, outputs=outputs)
     # Dummy batch size 1, therefore [1] + shape
     dummy_inputs = tuple(np.zeros(tuple([1] + shape)) for shape in input_shapes)

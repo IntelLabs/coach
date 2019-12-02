@@ -787,8 +787,10 @@ def main():
 
 if __name__ == "__main__":
 
-    # import tensorflow as tf
+    import tensorflow as tf
+    #
     # print("GPU Available: ", tf.test.is_gpu_available())
+    # print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
     # print('Device name is: ', tf.test.gpu_device_name())
     #
     # # with tf.device('/CPU:0'):
@@ -800,14 +802,14 @@ if __name__ == "__main__":
 
     sys.argv.append('-p')
 
-    #sys.argv.append('CartPole_DQN')
+    sys.argv.append('CartPole_DQN')
 
     # sys.argv.append('Atari_DQN')
     # sys.argv.extend(['-lvl', 'breakout'])
 
-    sys.argv.append('Mujoco_ClippedPPO')
-    #sys.argv.extend(['-lvl', 'inverted_pendulum'])
-    sys.argv.extend(['-lvl', 'humanoid'])
+    # sys.argv.append('Mujoco_ClippedPPO')
+    # sys.argv.extend(['-lvl', 'inverted_pendulum'])
+    #sys.argv.extend(['-lvl', 'humanoid'])
 
 
 
@@ -829,4 +831,8 @@ if __name__ == "__main__":
     import os
 
     print(os.getcwd())
-    main()
+    #main()
+    #with tf.device("/device:GPU:0"):
+
+    with tf.device("/GPU:0"):
+        main()

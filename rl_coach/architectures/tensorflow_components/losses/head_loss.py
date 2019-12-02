@@ -39,7 +39,6 @@ class LossInputSchema(object):
 
 
 class HeadLoss(keras.layers.Layer):
-#class HeadLoss(keras.losses.Loss):
     """
     ABC for loss functions of each agent. Child class must implement input_schema() and loss_forward()
     """
@@ -101,9 +100,9 @@ class HeadLoss(keras.layers.Layer):
         raise NotImplementedError
 
     def extract_loss_args(self,
-            head_outputs: List[Tensor],
-            agent_inputs: List[np.ndarray],
-            targets: List[np.ndarray]) -> List[np.ndarray]:
+                          head_outputs: List[Tensor],
+                          agent_inputs: List[np.ndarray],
+                          targets: List[np.ndarray]) -> List[np.ndarray]:
         """
         Creates a list of arguments from head_outputs, agent_inputs, and targets aligned with parameters of
         loss.loss_forward() based on their name in loss input_schema
@@ -134,8 +133,6 @@ class HeadLoss(keras.layers.Layer):
             assert not found or prev_found, "missing arguments detected!"
             prev_found = found
         return arg_list
-
-
 
     def loss_output_dict(self, output: List) -> Dict[str, List]:
         """

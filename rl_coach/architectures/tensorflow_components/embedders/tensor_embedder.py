@@ -15,16 +15,12 @@
 #
 
 
-from typing import List
-
 import tensorflow as tf
-
+from typing import List
 from rl_coach.architectures.tensorflow_components.layers import Conv2d, Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputTensorEmbedding
-
-
 
 
 class TensorEmbedder(InputEmbedder):
