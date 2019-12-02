@@ -14,22 +14,18 @@
 #
 
 import tensorflow as tf
+import tensorflow_probability as tfp
+from tensorflow import Tensor
 from typing import List, Tuple
-
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema,\
     LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
-from tensorflow import Tensor
 
-import tensorflow_probability as tfp
+
 tfd = tfp.distributions
-
-
 LOSS_OUT_TYPE_KL = 'kl_divergence'
 LOSS_OUT_TYPE_ENTROPY = 'entropy'
 LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
 LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
-from rl_coach.utils import eps
-
 
 
 class PPOLoss(HeadLoss):
@@ -166,119 +162,21 @@ class PPOLoss(HeadLoss):
 
 
 
-
-
-#def ppo_loss_f(targets, new_policy_rv):
-def ppo_loss_f(advantages, old_means, old_stds, actions, rescalar, new_policy_rv):
-    # actions = targets[0]
-    # old_means = targets[1]
-    # old_stds = targets[2]
-    # advantages = targets[3]
-    min_value = 1 - rescalar
-    max_value = 1 + rescalar
-
-    #x = Input([1])
-
-    # actions_proba = tfp.layers.DistributionLambda(
-    #     lambda t: tfd.MultivariateNormalDiag(
-    #         loc=t[0], scale_diag=t[1]))([old_means, old_stds])
-    #
-    # model = keras.Model(name='continuous_ppo_head', inputs=inputs, outputs=actions_proba)
-
-    old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds + eps)
-
-    # new_policy_log_prob = tfp.layers.DistributionLambda(
-    #     lambda t: new_policy.log_prob(t))(actions)
-
-    # new_policy_log_prob = old_policy.log_prob(actions)
-    # old_policy_log_prob = new_policy_rv.log_prob(actions)
-    old_policy_log_prob = old_policy.log_prob(actions)
-    new_policy_log_prob = new_policy_rv.log_prob(actions)
-    likelihood_ratio = tf.exp(new_policy_log_prob - old_policy_log_prob)
-
-    clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
-    clipped_scaled_advantages = clipped_likelihood_ratio * advantages
-    unclipped_scaled_advantages = likelihood_ratio * advantages
-
-    scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
-    loss = -tf.reduce_mean(scaled_advantages)
-
-    return loss
-
-
-# def ppo_loss_f(new_policy_rv, actions, old_means, old_stds, advantages):
+# def ppo_loss_f(advantages, old_means, old_stds, actions, rescalar, new_policy_rv):
 #
-#     min_value = 0.8
-#     max_value = 1.2
-#     old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds)
-#
+#     min_value = 1 - rescalar
+#     max_value = 1 + rescalar
+#     old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds + eps)
 #     old_policy_log_prob = old_policy.log_prob(actions)
 #     new_policy_log_prob = new_policy_rv.log_prob(actions)
 #     likelihood_ratio = tf.exp(new_policy_log_prob - old_policy_log_prob)
 #     clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
-#     unclipped_scaled_advantages = likelihood_ratio * advantages
 #     clipped_scaled_advantages = clipped_likelihood_ratio * advantages
+#     unclipped_scaled_advantages = likelihood_ratio * advantages
 #     scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
 #     loss = -tf.reduce_mean(scaled_advantages)
+#
 #     return loss
-#
 
 
-# class PPOLoss(keras.losses.Loss):
-#
-#     def __init__(self, network_name,
-#                  head_idx: int = 0,
-#                  loss_type: Loss = MeanSquaredError,
-#                  loss_weight=1.0,
-#                  **kwargs):
-#         """
-#         Loss for Value Head.
-#
-#         :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
-#         :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
-#         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
-#         """
-#         super().__init__(**kwargs)
-#         self.loss_type = loss_type
-#         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
-#
-#
-#     def call(self, prediction, target):
-#         """
-#         Used for forward pass through loss computations.
-#
-#         :param prediction: state values predicted by VHead network, of shape (batch_size).
-#         :param target: actual state values, of shape (batch_size).
-#         :return: loss, of shape (batch_size).
-#         """
-#         # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
-#         #  This way, Keras can apply class weights or sample weights when requested.
-#         loss = tf.reduce_mean(self.loss_fn(prediction, target))
-#         return loss
-#
-#
-#         """
-#         Specifies loss block to be used for this policy head.
-#
-#         :return: loss block (can be called as function) for action probabilities returned by this policy network.
-#         """
-#         if isinstance(self.spaces.action, DiscreteActionSpace):
-#             loss = ClippedPPOLossDiscrete(len(self.spaces.action.actions),
-#                                           self.clip_likelihood_ratio_using_epsilon,
-#                                           self.beta,
-#                                           self.use_kl_regularization, self.initial_kl_coefficient,
-#                                           self.kl_cutoff, self.high_kl_penalty_coefficient,
-#                                           self.loss_weight)
-#         elif isinstance(self.spaces.action, BoxActionSpace):
-#             loss = ClippedPPOLossContinuous(self.spaces.action.shape[0],
-#                                             self.clip_likelihood_ratio_using_epsilon,
-#                                             self.beta,
-#                                             self.use_kl_regularization, self.initial_kl_coefficient,
-#                                             self.kl_cutoff, self.high_kl_penalty_coefficient,
-#                                             self.loss_weight)
-#         else:
-#             raise ValueError("Only discrete or continuous action spaces are supported for PPO.")
-#         loss.initialize()
-#
-#         self._loss = [loss]
-#         return loss
+

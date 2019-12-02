@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
+
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema
 
@@ -52,9 +52,8 @@ class VLoss(HeadLoss):
         loss = self.loss_fn(value_prediction, target)
         return [(loss, LOSS_OUT_TYPE_LOSS)]
 
-#@tf.function
-def v_loss_f(target, value_prediction):
-    #loss_fn = tf.losses.mean_squared_error#
-    loss_fn = tf.keras.losses.MeanSquaredError()
-    loss = loss_fn(value_prediction, target)
-    return loss
+# #@tf.function
+# def v_loss_f(target, value_prediction):
+#     loss_fn = tf.keras.losses.MeanSquaredError()
+#     loss = loss_fn(value_prediction, target)
+#     return loss

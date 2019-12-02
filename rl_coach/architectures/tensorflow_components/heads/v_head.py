@@ -14,9 +14,6 @@
 # limitations under the License.
 #
 
-from typing import Union, List, Tuple
-from types import ModuleType
-
 from tensorflow import keras
 from tensorflow.keras.layers import Dense, Input, Lambda
 

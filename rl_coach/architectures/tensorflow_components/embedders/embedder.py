@@ -43,9 +43,7 @@ class InputEmbedder(keras.layers.Layer):
                  **kwargs):
 
         super(InputEmbedder, self).__init__(name=name)
-        # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.input_size = input_size
-        self.embedder_name = name
         self.return_type = InputEmbedding
         self.input_rescaling = tf.cast(input_rescaling, tf.float32)
         self.input_offset = input_offset
@@ -56,7 +54,6 @@ class InputEmbedder(keras.layers.Layer):
             layers = self.schemes[scheme]
         else:
             layers = scheme
-
         # Convert layer to TensorFlow layer
         layers = [convert_layer(l) for l in layers]
 
@@ -69,11 +66,9 @@ class InputEmbedder(keras.layers.Layer):
             if dropout_rate:
                 self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-
     def call(self, inputs):
         """
         Used for forward pass through embedder network.
-
         :param inputs: environment state, where first dimension is batch_size, then dimensions are data type dependent.
         :return: embedding of environment state, where shape is (batch_size, channels).
         """
@@ -86,7 +81,7 @@ class InputEmbedder(keras.layers.Layer):
         for layer in self.embbeder_layers:
             x = layer(x)
 
-        # TODO : commented out, bring back for convolution
+        # For convolution layer
         x = keras.layers.Flatten()(x)
         return x
 

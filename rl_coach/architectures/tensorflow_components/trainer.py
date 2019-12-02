@@ -15,11 +15,9 @@
 #
 
 
-from types import MethodType
-from typing import List, Union
-
-import tensorflow as tf
+from typing import List
 from tensorflow import keras
+from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
@@ -28,13 +26,12 @@ from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.dnn_model import create_full_model
 from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
-from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss, q_loss_f
-from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss, v_loss_f
-from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss, ppo_loss_f
+from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
+from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
+from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
 
-from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
-from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters
-from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
+from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParameters, QHeadParameters
+
 
 
 class Trainer(TensorFlowArchitecture):

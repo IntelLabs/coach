@@ -802,14 +802,14 @@ if __name__ == "__main__":
 
     sys.argv.append('-p')
 
-    sys.argv.append('CartPole_DQN')
+    #sys.argv.append('CartPole_DQN')
 
     # sys.argv.append('Atari_DQN')
     # sys.argv.extend(['-lvl', 'breakout'])
 
-    # sys.argv.append('Mujoco_ClippedPPO')
+    sys.argv.append('Mujoco_ClippedPPO')
     # sys.argv.extend(['-lvl', 'inverted_pendulum'])
-    #sys.argv.extend(['-lvl', 'humanoid'])
+    sys.argv.extend(['-lvl', 'humanoid'])
 
 
 

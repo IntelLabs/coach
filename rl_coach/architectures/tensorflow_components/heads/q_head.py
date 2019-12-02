@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+
 from tensorflow import keras
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters

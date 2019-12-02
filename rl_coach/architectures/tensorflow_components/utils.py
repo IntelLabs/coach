@@ -126,20 +126,3 @@ def loss_output_dict(output: List[Tensor], schema: List[str]) -> Dict[str, List[
     return output_dict
 
 
-# def get_loss_agent_inputs(inputs: Dict[str, np.ndarray], head_type_idx: int, loss: Any) -> List[np.ndarray]:
-#     """
-#     Collects all inputs with prefix 'output_<head_idx>_' and matches them against agent_inputs in loss input schema.
-#     :param inputs: list of all agent inputs
-#     :param head_type_idx: head-type index of the corresponding head
-#     :param loss: corresponding loss
-#     :return: list of agent inputs for this loss. This list matches the length in loss input schema.
-#     """
-#     loss_inputs = list()
-#     for k in sorted(inputs.keys()):
-#         if k.startswith('output_{}_'.format(head_type_idx)):
-#             loss_inputs.append(inputs[k])
-#     # Enforce that number of inputs for head_type are the same as agent_inputs specified by loss input_schema
-#     assert len(loss_inputs) == len(loss.input_schema.agent_inputs), "agent_input length doesn't match schema"
-#     return loss_inputs
-
-

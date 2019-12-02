@@ -51,7 +51,6 @@ class VectorEmbedder(InputEmbedder):
         if len(self.input_size) != 1 and scheme != EmbedderScheme.Empty:
             raise ValueError("The input size of a vector embedder must contain only a single dimension")
 
-
     @property
     def schemes(self):
         """

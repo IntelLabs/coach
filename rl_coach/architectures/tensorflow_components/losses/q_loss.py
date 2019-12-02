@@ -39,6 +39,6 @@ class QLoss(HeadLoss):
         return [(loss, LOSS_OUT_TYPE_LOSS)]
 
 
-def q_loss_f(q_value_pred, target):
-    loss = tf.reduce_mean(keras.losses.mean_squared_error(q_value_pred, target))
-    return loss
+# def q_loss_f(q_value_pred, target):
+#     loss = tf.reduce_mean(keras.losses.mean_squared_error(q_value_pred, target))
+#     return loss
