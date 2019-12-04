@@ -14,12 +14,8 @@
 # limitations under the License.
 #
 
-import pickle
-from typing import Any, List, Dict
 
-import tensorflow as tf
-import numpy as np
-
+from typing import Any, List
 from rl_coach.saver import Saver
 
 
@@ -31,8 +27,6 @@ class TfSaver(Saver):
     def __init__(self,
                  name: str,
                  model):
-                 #inputs: List[List[int]]):
-        #self._name = name.replace('/', '.')
         self._name = name
         self.model = model
         #self.model._set_inputs(inputs)

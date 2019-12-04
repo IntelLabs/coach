@@ -16,7 +16,6 @@
 
 from types import FunctionType
 import tensorflow as tf
-from tensorflow import keras
 from rl_coach.architectures import layers
 from rl_coach.architectures.tensorflow_components import utils
 

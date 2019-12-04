@@ -14,13 +14,11 @@
 # limitations under the License.
 #
 
-
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 from typing import List
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
 from rl_coach.base_parameters import AgentParameters, Device, DeviceType
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
@@ -29,9 +27,7 @@ from rl_coach.architectures.loss_parameters import LossParameters, QLossParamete
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
 from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
-
 from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParameters, QHeadParameters
-
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):

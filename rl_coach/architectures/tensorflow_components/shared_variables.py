@@ -13,14 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import os
 import pickle
-
 import numpy as np
 import tensorflow as tf
-
 from rl_coach.utilities.shared_running_stats import SharedRunningStats
-
 
 tf.compat.v1.disable_resource_variables()
 

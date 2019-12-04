@@ -19,22 +19,17 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from typing import List
-
-from tensorflow.keras.layers import Input, Dense
-
-
+from tensorflow.keras.layers import Input, Dense##
 from types import ModuleType
+
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
 from rl_coach.architectures.tensorflow_components.heads import Head#, PPOHead, PPOVHead, VHead, QHead
 from rl_coach.architectures.tensorflow_components.heads.ppo_head import continuous_ppo_head
 from rl_coach.architectures.tensorflow_components.heads.v_head import value_head
-
-
 from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
 from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters
-
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.head_parameters import HeadParameters
 from rl_coach.architectures.middleware_parameters import MiddlewareParameters
@@ -77,7 +72,6 @@ def _get_input_embedder(name_prefix: str,
         module = VectorEmbedder(input_size=allowed_inputs[input_name].shape,
                                 activation_function=embedder_params.activation_function,
                                 scheme=embedder_params.scheme,
-                                #scheme=[Dense(64)],
                                 batchnorm=embedder_params.batchnorm,
                                 dropout_rate=embedder_params.dropout_rate,
                                 name=embedder_params.name,
@@ -105,7 +99,6 @@ def _get_input_embedder(name_prefix: str,
     return module
 
 
-
 def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
     """
     Given a middleware type, creates the middleware and returns it
@@ -115,7 +108,6 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
     if isinstance(middleware_params, FCMiddlewareParameters):
         module = FCMiddleware(activation_function=middleware_params.activation_function,
                               scheme=middleware_params.scheme,
-                              #scheme=[Dense(64)],
                               batchnorm=middleware_params.batchnorm,
                               dropout_rate=middleware_params.dropout_rate,
                               name=middleware_params.name,
@@ -193,7 +185,6 @@ def _get_output_head(
         #     activation_function=head_params.activation_function,
         #     dense_layer=head_params.dense_layer)
 
-
     else:
         raise KeyError('Unsupported head type: {}'.format(type(head_params)))
 
@@ -257,8 +248,6 @@ def create_single_network(inputs_shapes,
                 head_params=head_param)
 
             heads_outputs.append(network_head(middleware_output))
-            gradient_rescaler = 1
-            #return gradient_rescaler
 
     name = name + '_' + head_param_list[0].name.replace('head_params', '_network')
     model = keras.Model(name=name, inputs=inputs, outputs=heads_outputs)
@@ -290,19 +279,18 @@ def create_full_model(num_networks: int,
     outputs = list()
     networks = {}
     for network_idx in range(num_networks):
-        #network_parameters = copy.deepcopy(network_params)
         head_type_idx_start = network_idx * num_heads_per_network
         head_type_idx_end = head_type_idx_start + num_heads_per_network
         networks[network_idx] = create_single_network(inputs_shapes=input_shapes,
-                                    name=network_name,
-                                    network_is_local=network_is_local,
-                                    head_type_idx_start=head_type_idx_start,
-                                    agent_parameters=agent_parameters,
-                                    input_embedders_parameters=network_parameters.input_embedders_parameters,
-                                    embedding_merger_type=network_parameters.embedding_merger_type,
-                                    middleware_param=network_parameters.middleware_parameters,
-                                    head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
-                                    spaces=spaces)
+                                                      name=network_name,
+                                                      network_is_local=network_is_local,
+                                                      head_type_idx_start=head_type_idx_start,
+                                                      agent_parameters=agent_parameters,
+                                                      input_embedders_parameters=network_parameters.input_embedders_parameters,
+                                                      embedding_merger_type=network_parameters.embedding_merger_type,
+                                                      middleware_param=network_parameters.middleware_parameters,
+                                                      head_param_list=network_parameters.heads_parameters[head_type_idx_start:head_type_idx_end],
+                                                      spaces=spaces)
 
         outputs.append(networks[network_idx](inputs))
 
