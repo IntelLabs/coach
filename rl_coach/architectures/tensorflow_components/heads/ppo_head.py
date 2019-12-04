@@ -113,7 +113,6 @@ from rl_coach.utils import eps
 #         return self.head_type_idx, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO
 
 
-
 def normalized_columns_initializer(std=1.0):
     def _initializer(shape, dtype=None, partition_info=None):
         out = np.random.randn(*shape).astype(np.float32)
@@ -134,23 +133,3 @@ def continuous_ppo_head(input_dim, output_dim):
 
     return model
 
-
-
-# class StdDev(keras.layers.Layer):
-#     def __init__(self, output_dim=1, **kwargs):
-#         self.output_dim = output_dim
-#         super().__init__(**kwargs)
-#         self.exponential_layer = tf.keras.layers.Lambda(lambda x: tf.exp(x))
-#
-#     def build(self, input_shape):
-#         self.bias = self.add_weight(shape=(1,), initializer='zeros', dtype=tf.float32, name='log_std_var')
-#         super().build(input_shape)
-#
-#     def call(self, x):
-#         temp = tf.reduce_mean(x, axis=-1, keepdims=True)
-#         log_std = temp * 0 + self.bias
-#         std = self.exponential_layer(log_std)
-#         return std
-#
-#     def compute_output_shape(self, input_shape):
-#         return input_shape[0], self.output_dim

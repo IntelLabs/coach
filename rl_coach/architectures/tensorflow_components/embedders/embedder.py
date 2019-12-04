@@ -42,7 +42,7 @@ class InputEmbedder(keras.layers.Layer):
                  is_training=False,
                  **kwargs):
 
-        super(InputEmbedder, self).__init__(name=name)
+        super(InputEmbedder, self).__init__(name=name)#, trainable=is_training)
         self.input_size = input_size
         self.return_type = InputEmbedding
         self.input_rescaling = tf.cast(input_rescaling, tf.float32)
@@ -108,7 +108,7 @@ class InputEmbedder(keras.layers.Layer):
         InputEmbedder. Should be implemented in child classes, and are used to create Block when InputEmbedder is
         initialised.
 
-        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of mxnet.gluon.Block.
+        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of Tensorflow layers.
         """
         raise NotImplementedError("Inheriting embedder must define schemes matching its allowed default "
                                   "configurations.")

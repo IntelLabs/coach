@@ -16,9 +16,8 @@
 
 import tensorflow as tf
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
-from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema
+from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema, LOSS_OUT_TYPE_LOSS
 
-from rl_coach.architectures.mxnet_components.heads.head import LOSS_OUT_TYPE_LOSS
 
 class VLoss(HeadLoss):
 

@@ -51,7 +51,7 @@ class PPOLoss(HeadLoss):
         :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
-        super(PPOLoss, self).__init__()
+        super(PPOLoss, self).__init__(name=network_name)
         self.weight = loss_weight
         self.num_actions = num_actions
         self.clip_likelihood_ratio_using_epsilon = agent_parameters.algorithm.clip_likelihood_ratio_using_epsilon
@@ -70,7 +70,6 @@ class PPOLoss(HeadLoss):
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
-            #head_outputs=['new_policy_means', 'new_policy_stds'],
             head_outputs=['new_policy_distribution'],
             agent_inputs=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler'],
             targets=['advantages']

@@ -57,21 +57,21 @@ def squeeze_tensor(tensor):
         return tensor
 
 
-def split_outputs_per_head(outputs, heads: list):
-    """
-    Split outputs into outputs per head
-    :param outputs: list of all outputs
-    :param heads: list of all heads
-    :return: list of outputs for each head
-    """
-    head_outputs = []
-    for h in heads:
-        head_outputs.append(list(outputs[:h.num_outputs]))
-        # Remove associated outputs
-        outputs = outputs[h.num_outputs:]
-    # A check that we don't forget something
-    assert len(outputs) == 0
-    return head_outputs
+# def split_outputs_per_head(outputs, heads: list):
+#     """
+#     Split outputs into outputs per head
+#     :param outputs: list of all outputs
+#     :param heads: list of all heads
+#     :return: list of outputs for each head
+#     """
+#     head_outputs = []
+#     for h in heads:
+#         head_outputs.append(list(outputs[:h.num_outputs]))
+#         # Remove associated outputs
+#         outputs = outputs[h.num_outputs:]
+#     # A check that we don't forget something
+#     assert len(outputs) == 0
+#     return head_outputs
 
 
 def split_targets_per_loss(targets: list, losses: list) -> List[list]:
