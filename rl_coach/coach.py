@@ -13,12 +13,6 @@
 # limitations under the License.
 #
 
-
-# Added for running the script from command line without rl-coach package installation
-from os import sys, path
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
-
 import sys
 sys.path.append('.')
 
@@ -33,10 +27,6 @@ import atexit
 import time
 import sys
 import json
-
-#from memory_profiler import profile
-
-
 from rl_coach.base_parameters import Frameworks, VisualizationParameters, TaskParameters, DistributedTaskParameters, \
     RunType, DistributedCoachSynchronizationType
 from rl_coach.core_types import TotalStepsCounter, RunPhase, PlayingStepsType, TrainingSteps, EnvironmentEpisodes, \
@@ -786,54 +776,4 @@ def main():
 
 
 if __name__ == "__main__":
-
-    import tensorflow as tf
-    #
-    # print("GPU Available: ", tf.test.is_gpu_available())
-    # print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
-    # print('Device name is: ', tf.test.gpu_device_name())
-    #
-    # # with tf.device('/CPU:0'):
-    # with tf.device("/device:GPU:0"):
-    #     dan_delete = tf.compat.v1.Variable(FExplain rewardalse, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
-
-    from os import path
-
-
-    sys.argv.append('-p')
-
-    sys.argv.append('CartPole_DQN')
-
-    # sys.argv.append('Atari_DQN')
-    # sys.argv.extend(['-lvl', 'breakout'])
-
-    # sys.argv.append('Mujoco_ClippedPPO')
-    # sys.argv.extend(['-lvl', 'inverted_pendulum'])
-    #sys.argv.extend(['-lvl', 'humanoid'])
-
-
-
-
-    #sys.argv.extend(['-f', 'mxnet'])
-
-    #sys.argv.extend(['-s', '1500'])
-    CHECKPOINT_RESTORE_DIR = path.join('experiments', 'atari', '04_09_2019-20_52', 'checkpoint')
-    #CHECKPOINT_RESTORE_DIR = path.join('experiments', '04_09_2019-20_44', 'checkpoint')
-    #sys.argv.extend(['-crd', CHECKPOINT_RESTORE_DIR])
-
-    # sys.argv.extend('--evaluate')
-
-    print(sys.argv)
-    import sys
-
-    print(sys.executable)
-
-    import os
-    print('brrrrreakou')
-
-    print(os.getcwd())
-    #main()
-    #with tf.device("/device:GPU:0"):
-
-    #with tf.device("/GPU:0"):
     main()

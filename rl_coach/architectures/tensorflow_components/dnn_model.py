@@ -1,10 +1,25 @@
+#
+# Copyright (c) 2017 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 import copy
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from typing import List
-from itertools import chain
-import numpy as np
+
 from tensorflow.keras.layers import Input, Dense
 
 
@@ -12,12 +27,11 @@ from types import ModuleType
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
 from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
-#from rl_coach.architectures.tensorflow_components.heads import Head, QHead
 from rl_coach.architectures.tensorflow_components.heads import Head#, PPOHead, PPOVHead, VHead, QHead
 from rl_coach.architectures.tensorflow_components.heads.ppo_head import continuous_ppo_head
 from rl_coach.architectures.tensorflow_components.heads.v_head import value_head
 
-#from rl_coach.architectures.head_parameters import QHeadParameters
+
 from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters
 from rl_coach.architectures.head_parameters import PPOVHeadParameters, VHeadParameters, QHeadParameters
 

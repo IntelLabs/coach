@@ -103,7 +103,6 @@ class TensorFlowArchitecture(Architecture):
 
         self.accumulated_gradients = list(map(lambda grad: grad * 0, self.accumulated_gradients))
 
-    #@profile
     def accumulate_gradients(self,
                              inputs: Dict[str, np.ndarray],
                              targets: List[np.ndarray],
@@ -190,7 +189,6 @@ class TensorFlowArchitecture(Architecture):
         # convert everything to numpy or scalar before returning
         result = (total_loss, total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)
         return result
-
 
     def apply_gradients(self, gradients: List[np.ndarray], scaler: float=1., additional_inputs=None) -> None:
         """

@@ -34,11 +34,11 @@ from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParam
 
 
 
-class Trainer(TensorFlowArchitecture):
+class GeneralTensorFlowNetwork(TensorFlowArchitecture):
     """
     A generalized version of all possible networks implemented using tensorflow along with the optimizer and loss.
     """
-    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Trainer':
+    def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'GeneralTensorFlowNetwork':
         """
         Construct a network class using the provided variable scope and on requested devices
         :param variable_scope: string specifying variable scope under which to create network variables
@@ -48,7 +48,7 @@ class Trainer(TensorFlowArchitecture):
         :return: a GeneralTensorFlowNetwork object
         """
         # TODO: TF2 place holder for distributed training in TensorFlow
-        generalized_network = Trainer(*args, **kwargs)
+        generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
         generalized_network.model.summary()
 
         #generalized_network.model.compile(loss=[v_loss_f, ppo_loss_f], loss_weights=[1, 1])

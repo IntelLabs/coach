@@ -92,7 +92,6 @@ def split_targets_per_loss(targets: list, losses: list) -> List[list]:
     return loss_targets
 
 
-
 def to_list(data: Union[tuple, list, Any]):
     """
     If input is tuple, it is converted to list. If it's list, it is returned untouched. Otherwise

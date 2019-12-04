@@ -54,14 +54,12 @@ class FCMiddleware(Middleware):
             MiddlewareScheme.Shallow:
                 [
                     Dense(64),
-                    #keras.layers.Dense(64)
                 ],
 
             # Use for DQN
             MiddlewareScheme.Medium:
                 [
                     Dense(512),
-                    #keras.layers.Dense(512)
                 ],
 
             MiddlewareScheme.Deep: \
@@ -69,9 +67,6 @@ class FCMiddleware(Middleware):
                     Dense(128),
                     Dense(128),
                     Dense(128)
-                    # keras.layers.Dense(128),
-                    # keras.layers.Dense(128),
-                    # keras.layers.Dense(128)
                 ]
         }
 
