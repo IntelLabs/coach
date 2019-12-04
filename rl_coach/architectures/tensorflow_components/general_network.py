@@ -34,6 +34,8 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
     """
     A generalized version of all possible networks implemented using tensorflow along with the optimizer and loss.
     """
+
+    @staticmethod
     def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'GeneralTensorFlowNetwork':
         """
         Construct a network class using the provided variable scope and on requested devices
@@ -79,7 +81,9 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         self.global_network = global_network
 
-        self.network_wrapper_name = name.split('/')[0]
+        self.network_wrapper_name = name.split('/')[0]# + '_' + name.split('/')[1]
+
+        network_name = name.split('/')[0] + '_' + name.split('/')[1]
 
         network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
@@ -102,7 +106,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.model = create_full_model(num_networks=num_networks,
                                        num_heads_per_network=num_heads_per_network,
                                        network_is_local=network_is_local,
-                                       network_name=self.network_wrapper_name,
+                                       network_name=network_name,
                                        agent_parameters=agent_parameters,
                                        network_parameters=network_parameters,
                                        spaces=spaces)

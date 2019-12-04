@@ -33,8 +33,8 @@ sys.argv.append('-p')
 # sys.argv.extend(['-lvl', 'breakout'])
 
 sys.argv.append('Mujoco_ClippedPPO')
-sys.argv.extend(['-lvl', 'inverted_pendulum'])
-#sys.argv.extend(['-lvl', 'humanoid'])
+#sys.argv.extend(['-lvl', 'inverted_pendulum'])
+sys.argv.extend(['-lvl', 'humanoid'])
 
 # sys.argv.extend(['-f', 'mxnet'])
 # sys.argv.extend(['-s', '1500'])
@@ -50,5 +50,5 @@ print(sys.argv)
 # main()
 # with tf.device("/device:GPU:0"):
 
-# with tf.device("/GPU:0"):
+#with tf.device("/GPU:0"):
 main()

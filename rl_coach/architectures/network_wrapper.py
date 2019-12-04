@@ -16,6 +16,7 @@
 
 from typing import List, Tuple
 import numpy as np
+import time
 
 from rl_coach.base_parameters import Frameworks, AgentParameters
 from rl_coach.logger import failed_imports
@@ -77,6 +78,7 @@ class NetworkWrapper(object):
 
         # Online network - local copy of the main network used for playing
         self.online_network = None
+        #time.sleep(1)
         self.online_network = general_network(variable_scope=variable_scope,
                                               devices=force_list(worker_device),
                                               agent_parameters=agent_parameters,
@@ -89,6 +91,7 @@ class NetworkWrapper(object):
         # Target network - a local, slow updating network used for stabilizing the learning
         self.target_network = None
         if self.has_target:
+            #time.sleep(1)
             self.target_network = general_network(variable_scope=variable_scope,
                                                   devices=force_list(worker_device),
                                                   agent_parameters=agent_parameters,

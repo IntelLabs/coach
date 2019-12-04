@@ -13,12 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+# Added for running the script from command line without rl-coach package installation
+from os import sys, path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 import sys
 sys.path.append('.')
 from subprocess import Popen
 import argparse
 from rl_coach.utils import set_gpu, force_list
+
+
 
 """
 This script makes it easier to run multiple instances of a given preset.
@@ -120,15 +124,17 @@ if __name__ == "__main__":
                     separator = "/"
                 else:
                     separator = "_"
-                command.extend(['-e', '{dir_prefix}{preset}_{seed}_{separator}{level}_{num_workers}_workers'.format(
+                command.extend(['-e', '{dir_prefix}{preset}__{separator}{level}__workers'.format(
                     dir_prefix=dir_prefix, preset=preset, seed=seed, level=level, separator=separator,
                     num_workers=args.num_workers)])
             else:
-                command.extend(['-e', '{dir_prefix}{preset}_{seed}_{num_workers}_workers'.format(
+                command.extend(['-e', '{dir_prefix}{preset}___workers'.format(
                     dir_prefix=dir_prefix, preset=preset, seed=seed, num_workers=args.num_workers)])
             print(command)
 
             p = Popen(command)
+            import time
+            time.sleep(5)
             processes.append(p)
 
             # for each run, select the next gpu from the available gpus

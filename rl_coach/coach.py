@@ -779,11 +779,16 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.argv.append('-p')
+    import tensorflow as tf
+    # sys.argv.append('-p')
+    # sys.argv.append('Atari_DQN')
+    # sys.argv.extend(['-lvl', 'breakout'])
 
-    sys.argv.append('CartPole_DQN')
+    #sys.argv.append('CartPole_DQN')
 
     # sys.argv.append('Mujoco_ClippedPPO')
     # sys.argv.extend(['-lvl', 'inverted_pendulum'])
 
+
+    #with tf.device("/GPU:0"):
     main()

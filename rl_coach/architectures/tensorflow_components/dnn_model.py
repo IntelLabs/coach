@@ -121,6 +121,7 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
 
 def _get_output_head(
         head_params: HeadParameters,
+        head_input_dim: int,
         head_idx: int,
         head_type_index: int,
         agent_params: AgentParameters,
@@ -140,7 +141,7 @@ def _get_output_head(
     """
 
     if isinstance(head_params, QHeadParameters):
-        head_input_dim = 512 # middleware output dim hard coded, because scheme is hard coded
+        #head_input_dim = 512 # middleware output dim hard coded, because scheme is hard coded
         head_output_dim = len(spaces.action.actions)
         module = value_head(head_input_dim, head_output_dim)
 
@@ -155,7 +156,7 @@ def _get_output_head(
         #     dense_layer=head_params.dense_layer)
 
     elif isinstance(head_params, PPOHeadParameters):
-        head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
+        #head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
         head_output_dim = spaces.action.shape[0]
         module = continuous_ppo_head(head_input_dim, head_output_dim)
 
@@ -170,7 +171,7 @@ def _get_output_head(
         #     dense_layer=head_params.dense_layer)
 
     elif isinstance(head_params, VHeadParameters):
-        head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
+        #head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
         head_output_dim = 1
         module = value_head(head_input_dim, head_output_dim)
 
@@ -239,6 +240,7 @@ def create_single_network(inputs_shapes,
             # create output head and add it to the output heads list
             head_idx = (head_type_idx_start + i) * head_param.num_output_head_copies + head_copy_idx
             network_head = _get_output_head(
+                head_input_dim=middleware_output.shape[-1],
                 head_idx=head_idx,
                 head_type_index=head_type_idx_start + i,
                 network_name=name,
