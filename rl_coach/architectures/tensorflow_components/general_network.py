@@ -81,7 +81,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         self.global_network = global_network
 
-        self.network_wrapper_name = name.split('/')[0]# + '_' + name.split('/')[1]
+        self.network_wrapper_name = name.split('/')[0]
 
         network_name = name.split('/')[0] + '_' + name.split('/')[1]
 
@@ -126,29 +126,23 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
     def _get_optimizer(self, network_parameters):
 
-        if 0:#network_parameters.shared_optimizer:
-            # Take the global optimizer
-            optimizer = self.global_network.optimizer
+        if network_parameters.optimizer_type == 'Adam':
+            optimizer = keras.optimizers.Adam(
+                lr=network_parameters.learning_rate,
+                beta_1=network_parameters.adam_optimizer_beta1,
+                beta_2=network_parameters.adam_optimizer_beta2,
+                epsilon=network_parameters.optimizer_epsilon)
 
+        elif network_parameters.optimizer_type == 'RMSProp':
+            optimizer = keras.optimizers.RMSprop(
+                lr=network_parameters.learning_rate,
+                decay=network_parameters.rms_prop_optimizer_decay,
+                epsilon=network_parameters.optimizer_epsilon)
+
+        elif network_parameters.optimizer_type == 'LBFGS':
+            raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: TF2 to update function
         else:
-            if network_parameters.optimizer_type == 'Adam':
-
-                optimizer = keras.optimizers.Adam(
-                    lr=network_parameters.learning_rate,
-                    beta_1=network_parameters.adam_optimizer_beta1,
-                    beta_2=network_parameters.adam_optimizer_beta2,
-                    epsilon=network_parameters.optimizer_epsilon)
-
-            elif network_parameters.optimizer_type == 'RMSProp':
-                optimizer = keras.optimizers.RMSprop(
-                    lr=network_parameters.learning_rate,
-                    decay=network_parameters.rms_prop_optimizer_decay,
-                    epsilon=network_parameters.optimizer_epsilon)
-
-            elif network_parameters.optimizer_type == 'LBFGS':
-                raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: TF2 to update function
-            else:
-                raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
+            raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 
         return optimizer
 

@@ -15,9 +15,8 @@
 #
 
 
-
 from tensorflow import keras
-from typing import Dict, List, Union, Tuple
+from typing import Dict, List, Tuple
 from tensorflow import Tensor
 import numpy as np
 import inspect
@@ -28,15 +27,15 @@ LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
 
 class LossInputSchema(object):
     """
-    Helper class to contain schema for loss hybrid_forward input
+    Helper class to contain schema for loss input
     """
     def __init__(self, head_outputs: List[str], agent_inputs: List[str], targets: List[str]):
         """
         :param head_outputs: list of argument names in call that are the outputs of the head.
             The order and number MUST MATCH the output from the head.
-        :param agent_inputs: list of argument names in hybrid_forward that are inputs from the agent.
+        :param agent_inputs: list of argument names that are inputs from the agent.
             The order and number MUST MATCH `output_<head_type_idx>_<order>` for this head.
-        :param targets: list of argument names in hybrid_forward that are targets for the loss.
+        :param targets: list of argument names that are targets for the loss.
             The order and number MUST MATCH targets passed from the agent.
         """
         self._head_outputs = head_outputs
@@ -68,35 +67,19 @@ class HeadLoss(keras.layers.Layer):
     @property
     def input_schema(self) -> LossInputSchema:
         """
-        :return: schema for input of hybrid_forward. Read docstring for LossInputSchema for details.
+        :return: schema for input of loss forward. Read docstring for LossInputSchema for details.
         """
         raise NotImplementedError
 
     @property
     def output_schema(self) -> List[str]:
         """
-        :return: schema for output of hybrid_forward. Must contain 'loss' and 'regularization' keys at least once.
+        :return: schema for output. Must contain 'loss' and 'regularization' keys at least once.
             The order and total number must match that of returned values from the loss. 'loss' and 'regularization'
             are special keys. Any other string is treated as auxiliary outputs and must include match auxiliary
             fetch names returned by the head.
         """
         return self._output_schema
-
-    # def forward(self, *args):
-    #     """
-    #     Override forward() so that number of outputs can be checked against the schema
-    #     """
-    #
-    #     outputs = super(HeadLoss, self).forward(*args)
-    #
-    #     if isinstance(outputs, tuple) or isinstance(outputs, list):
-    #         num_outputs = len(outputs)
-    #     else:
-    #         assert isinstance(outputs, NDArray) or isinstance(outputs, Symbol)
-    #         num_outputs = 1
-    #     assert num_outputs == len(self.output_schema), "Number of outputs don't match schema ({} != {})".format(
-    #         num_outputs, len(self.output_schema))
-    #     return outputs
 
     def _loss_output(self, outputs: List[Tuple[Tensor, str]]):
         """
@@ -135,27 +118,23 @@ class HeadLoss(keras.layers.Layer):
         assert len(schema.agent_inputs) == len(agent_inputs)
         assert len(schema.targets) == len(targets)
 
-        prev_found = True
         for arg_name in inspect.getfullargspec(self.loss_forward).args[1:]:  # First argument is self
-            found = False
             for schema_list, data in [(schema.head_outputs, head_outputs),
                                       (schema.agent_inputs, agent_inputs),
                                       (schema.targets, targets)]:
                 try:
-                    arg_list.append(data[schema_list.index(arg_name)])
-                    found = True
+                    # Index of loss function argument in the corresponding part of the loss input schema
+                    schema_index = schema_list.index(arg_name)
+                    arg_list.append(data[schema_index])
                     break
                 except ValueError:
                     continue
-            # If found and also not prev_found then issue an exception
-            assert not found or prev_found, "missing arguments detected!"
-            prev_found = found
         return arg_list
 
     def loss_output_dict(self, output: List) -> Dict[str, List]:
         """
         Creates a dictionary for loss output based on the output schema. If two output values have the same
-        type string in the schema they are concatenated in the same dicrionary item.
+        type string in the schema they are concatenated in the same dictionary item.
         :param output: list of output values
         :param schema: list of type-strings for output values
         :return: dictionary of keyword to list of NDArrays

@@ -19,8 +19,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from typing import List
-from tensorflow.keras.layers import Input, Dense##
 from types import ModuleType
+
+from tensorflow.keras.layers import Input
 
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
@@ -80,7 +81,6 @@ def _get_input_embedder(name_prefix: str,
                                 input_clipping=embedder_params.input_clipping,
                                 is_training=embedder_params.is_training)
     elif type == 'image':
-        #module = ImageEmbedder(embedder_params)
         module = ImageEmbedder(input_size=allowed_inputs[input_name].shape,
                                activation_function=embedder_params.activation_function,
                                scheme=embedder_params.scheme,
@@ -119,6 +119,7 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
         raise KeyError('Unsupported middleware type: {}'.format(type(middleware_params)))
     return module
 
+
 def _get_output_head(
         head_params: HeadParameters,
         head_input_dim: int,
@@ -141,10 +142,8 @@ def _get_output_head(
     """
 
     if isinstance(head_params, QHeadParameters):
-        #head_input_dim = 512 # middleware output dim hard coded, because scheme is hard coded
         head_output_dim = len(spaces.action.actions)
         module = value_head(head_input_dim, head_output_dim)
-
         # module = QHead(
         #     agent_parameters=agent_params,
         #     spaces=spaces,
@@ -156,7 +155,6 @@ def _get_output_head(
         #     dense_layer=head_params.dense_layer)
 
     elif isinstance(head_params, PPOHeadParameters):
-        #head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
         head_output_dim = spaces.action.shape[0]
         module = continuous_ppo_head(head_input_dim, head_output_dim)
 
@@ -171,11 +169,8 @@ def _get_output_head(
         #     dense_layer=head_params.dense_layer)
 
     elif isinstance(head_params, VHeadParameters):
-        #head_input_dim = 64  # middleware output dim hard coded, because scheme is hard coded
         head_output_dim = 1
         module = value_head(head_input_dim, head_output_dim)
-
-        #
         # module = VHead(
         #     agent_parameters=agent_params,
         #     spaces=spaces,
@@ -219,7 +214,6 @@ def create_single_network(inputs_shapes,
     embedders = [_get_input_embedder(name, spaces, k, v) for k, v in input_embedders_parameters.items()]
     # Apply each embbeder on its corresponding input
     state_embeddings = [embedder(input_t) for embedder, input_t in zip(embedders, inputs)]
-
 
     # Merge embedders outputs
     if len(state_embeddings) == 1:

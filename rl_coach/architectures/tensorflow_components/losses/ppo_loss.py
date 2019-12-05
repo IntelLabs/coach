@@ -87,8 +87,6 @@ class PPOLoss(HeadLoss):
         Used for forward pass through loss computations.
         Works with batches of data, and optionally time_steps, but be consistent in usage: i.e. if using time_step,
         new_policy_means, old_policy_means, actions and advantages all must include a time_step dimension.
-
-        :param (mx.nd or mx.sym) F: backend api (mx.sym if block has been hybridized).
         :param new_policy_means: action means predicted by MultivariateNormalDist network,
             of shape (batch_size, num_actions) or
             of shape (batch_size, time_step, num_actions).
