@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,30 +29,25 @@ class LossInputSchema(object):
     """
     Helper class to contain schema for loss input
     """
-    def __init__(self, head_outputs: List[str], agent_inputs: List[str], targets: List[str]):
+    def __init__(self, model_outputs: List[str], non_trainable_args: List[str]):
         """
-        :param head_outputs: list of argument names in call that are the outputs of the head.
+        :param model_outputs: list of argument names in call that are the outputs of the head.
             The order and number MUST MATCH the output from the head.
-        :param agent_inputs: list of argument names that are inputs from the agent.
+        :param non_trainable_args: list of argument names that are inputs from the agent.
             The order and number MUST MATCH `output_<head_type_idx>_<order>` for this head.
         :param targets: list of argument names that are targets for the loss.
             The order and number MUST MATCH targets passed from the agent.
         """
-        self._head_outputs = head_outputs
-        self._agent_inputs = agent_inputs
-        self._targets = targets
+        self._model_outputs = model_outputs
+        self._non_trainable_args = non_trainable_args
 
     @property
-    def head_outputs(self):
-        return self._head_outputs
+    def model_outputs(self):
+        return self._model_outputs
 
     @property
-    def agent_inputs(self):
-        return self._agent_inputs
-
-    @property
-    def targets(self):
-        return self._targets
+    def non_trainable_args(self):
+        return self._non_trainable_args
 
 
 class HeadLoss(keras.layers.Layer):
@@ -62,7 +57,6 @@ class HeadLoss(keras.layers.Layer):
 
     def __init__(self, *args, **kwargs):
         super(HeadLoss, self).__init__(*args, **kwargs)
-        self._output_schema = None  # type: List[str]
 
     @property
     def input_schema(self) -> LossInputSchema:
@@ -71,59 +65,31 @@ class HeadLoss(keras.layers.Layer):
         """
         raise NotImplementedError
 
-    # @property
-    # def output_schema(self) -> List[str]:
-    #     """
-    #     :return: schema for output. Must contain 'loss' and 'regularization' keys at least once.
-    #         The order and total number must match that of returned values from the loss. 'loss' and 'regularization'
-    #         are special keys. Any other string is treated as auxiliary outputs and must include match auxiliary
-    #         fetch names returned by the head.
-    #     """
-    #     return self._output_schema
-
-    # def _loss_output(self, outputs: List[Tuple[Tensor, str]]):
-    #     """
-    #     Must be called on the output from call ().
-    #     Saves the returned output as the schema and returns output values in a list
-    #     :return: list of output values
-    #     """
-    #     output_schema = [o[1] for o in outputs]
-    #     assert self._output_schema is None or self._output_schema == output_schema
-    #     self._output_schema = output_schema
-    #     return tuple(o[0] for o in outputs)
-
-    def call(self, head_output, agent_input, target):
-        loss_args = self.extract_loss_args(head_output, agent_input, target)
-        # loss_output = self._loss_output(self.loss_forward(*loss_args))
-        # return self.loss_output_dict(loss_output)
-
+    def call(self, model_outputs, non_trainable_args):
+        loss_args = self.extract_loss_args(model_outputs, non_trainable_args)
         return self.loss_forward(*loss_args)
 
     def loss_forward(self, *args, **kwargs):
         raise NotImplementedError
 
     def extract_loss_args(self,
-                          head_outputs: List[Tensor],
-                          agent_inputs: List[np.ndarray],
-                          targets: List[np.ndarray]) -> List[np.ndarray]:
+                          model_outputs: List[Tensor],
+                          non_trainable_args: List[np.ndarray]) -> List[np.ndarray]:
         """
-        Creates a list of arguments from head_outputs, agent_inputs, and targets aligned with parameters of
-        loss.loss_forward() based on their name in loss input_schema
-        :param head_outputs: list of all head_outputs for this loss
-        :param agent_inputs: list of all agent_inputs for this loss
-        :param targets: list of all targets for this loss
+        Creates a list of arguments from model_outputs and non_trainable_args aligned with parameters of
+        loss.loss_forward() based on their name in loss input_schema.
+        :param model_outputs: list of all trainable model_outputs for this loss
+        :param non_trainable_args: list of all non trainable args for this loss
         :return: list of arguments in correct order to be passed to loss
         """
         arg_list = list()
         schema = self.input_schema
-        assert len(schema.head_outputs) == len(head_outputs)
-        assert len(schema.agent_inputs) == len(agent_inputs)
-        assert len(schema.targets) == len(targets)
+        assert len(schema.model_outputs) == len(model_outputs)
+        assert len(schema.non_trainable_args) == len(non_trainable_args)
 
         for arg_name in inspect.getfullargspec(self.loss_forward).args[1:]:  # First argument is self
-            for schema_list, data in [(schema.head_outputs, head_outputs),
-                                      (schema.agent_inputs, agent_inputs),
-                                      (schema.targets, targets)]:
+            for schema_list, data in [(schema.model_outputs, model_outputs),
+                                      (schema.non_trainable_args, non_trainable_args)]:
                 try:
                     # Index of loss function argument in the corresponding part of the loss input schema
                     schema_index = schema_list.index(arg_name)
@@ -132,21 +98,3 @@ class HeadLoss(keras.layers.Layer):
                 except ValueError:
                     continue
         return arg_list
-
-    # def loss_output_dict(self, output: List) -> Dict[str, List]:
-    #     """
-    #     Creates a dictionary for loss output based on the output schema. If two output values have the same
-    #     type string in the schema they are concatenated in the same dictionary item.
-    #     :param output: list of output values
-    #     :param schema: list of type-strings for output values
-    #     :return: dictionary of keyword to list of NDArrays
-    #     """
-    #     schema = self.output_schema
-    #     assert len(output) == len(schema)
-    #     output_dict = dict()
-    #     for name, val in zip(schema, output):
-    #         if name in output_dict:
-    #             output_dict[name].append(val)
-    #         else:
-    #             output_dict[name] = [val]
-    #     return output_dict

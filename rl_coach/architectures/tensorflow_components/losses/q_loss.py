@@ -43,9 +43,8 @@ class QLoss(HeadLoss):
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
-            head_outputs=['q_value_pred'],
-            agent_inputs=[],
-            targets=['target']
+            model_outputs=['q_value_pred'],
+            non_trainable_args=['target']
         )
 
     def loss_forward(self, q_value_pred, target):
@@ -53,9 +52,3 @@ class QLoss(HeadLoss):
         #  This way, Keras can apply class weights or sample weights when requested.
         loss = tf.reduce_mean(self.loss_fn(q_value_pred, target))
         return {LOSS_OUT_TYPE_LOSS: [loss]}
-        #return [(loss, LOSS_OUT_TYPE_LOSS)]
-
-
-# def q_loss_f(q_value_pred, target):
-#     loss = tf.reduce_mean(keras.losses.mean_squared_error(q_value_pred, target))
-#     return loss

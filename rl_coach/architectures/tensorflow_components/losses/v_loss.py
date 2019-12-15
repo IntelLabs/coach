@@ -42,18 +42,10 @@ class VLoss(HeadLoss):
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
-            head_outputs=['value_prediction'],
-            agent_inputs=[],
-            targets=['target']
+            model_outputs=['value_prediction'],
+            non_trainable_args=['target']
         )
 
     def loss_forward(self, value_prediction, target):
         loss = self.loss_fn(value_prediction, target)
         return {LOSS_OUT_TYPE_LOSS: [loss]}
-        #return [(loss, LOSS_OUT_TYPE_LOSS)]
-
-# #@tf.function
-# def v_loss_f(target, value_prediction):
-#     loss_fn = tf.keras.losses.MeanSquaredError()
-#     loss = loss_fn(value_prediction, target)
-#     return loss

@@ -67,12 +67,19 @@ class PPOLoss(HeadLoss):
 
 
 
+    # @property
+    # def input_schema(self) -> LossInputSchema:
+    #     return LossInputSchema(
+    #         model_outputs=['new_policy_distribution'],
+    #         agent_inputs=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler'],
+    #         targets=['advantages']
+    #     )
+    #
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
-            head_outputs=['new_policy_distribution'],
-            agent_inputs=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler'],
-            targets=['advantages']
+            model_outputs=['new_policy_distribution'],
+            non_trainable_args=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler', 'advantages']
         )
 
     def loss_forward(self,
