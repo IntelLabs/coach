@@ -147,11 +147,15 @@ class TensorFlowArchitecture(Architecture):
             model_outputs = force_list(self.model(model_inputs))
             for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
 
-                agent_input = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)), inputs.items())
-                agent_input = dict(agent_input)
-                agent_input = list(agent_input.values())
+                non_trainable_args = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)), inputs.items())
+                non_trainable_args = dict(non_trainable_args)
+                non_trainable = []
+                for key in sorted(non_trainable_args.keys()):
+                    non_trainable.append(non_trainable_args[key])
 
-                loss_outputs = head_loss([head_output], agent_input, head_target)
+                non_trainable_args = list(non_trainable_args.values())
+
+                loss_outputs = head_loss([head_output], non_trainable, head_target)
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])

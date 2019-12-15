@@ -780,14 +780,25 @@ def main():
 
 if __name__ == "__main__":
     import tensorflow as tf
-    sys.argv.append('-p')
-    #sys.argv.append('Atari_DQN')
+
+    print("GPU Available: ", tf.test.is_gpu_available())
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+    print('DDevice name is: ', tf.test.gpu_device_name())
+
+    # sys.argv.append('-p')
+    # sys.argv.append('Atari_DQN')
     # sys.argv.extend(['-lvl', 'breakout'])
 
     #sys.argv.append('CartPole_DQN')
 
-    sys.argv.append('Mujoco_ClippedPPO')
-    sys.argv.extend(['-lvl', 'inverted_pendulum'])
+    # sys.argv.append('Mujoco_ClippedPPO')
+    # sys.argv.extend(['-lvl', 'inverted_pendulum'])
+
+    #sys.argv.extend(['-s', '30'])
+    #CHECKPOINT_RESTORE_DIR = os.path.join('experiments', 'atari', '04_09_2019-20_52', 'checkpoint')
+    # sys.argv.append('--evaluate')
+    # CHECKPOINT_RESTORE_DIR = os.path.join('experiments', 'debug', '10_12_2019-10_17', 'checkpoint')
+    # sys.argv.extend(['-crd', CHECKPOINT_RESTORE_DIR])
 
 
     #with tf.device("/GPU:0"):
