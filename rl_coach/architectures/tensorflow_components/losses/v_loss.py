@@ -49,7 +49,8 @@ class VLoss(HeadLoss):
 
     def loss_forward(self, value_prediction, target):
         loss = self.loss_fn(value_prediction, target)
-        return [(loss, LOSS_OUT_TYPE_LOSS)]
+        return {LOSS_OUT_TYPE_LOSS: [loss]}
+        #return [(loss, LOSS_OUT_TYPE_LOSS)]
 
 # #@tf.function
 # def v_loss_f(target, value_prediction):

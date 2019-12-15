@@ -16,7 +16,7 @@
 import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow import Tensor
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema,\
     LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
 
@@ -81,7 +81,7 @@ class PPOLoss(HeadLoss):
                      old_policy_means,
                      old_policy_stds,
                      clip_param_rescaler,
-                     advantages) -> List[Tuple[Tensor, str]]:
+                     advantages):#-> Dict: #List[Tuple[Tensor, str]]:
 
         """
         Used for forward pass through loss computations.
@@ -147,33 +147,23 @@ class PPOLoss(HeadLoss):
         surrogate_loss = -expected_scaled_advantages * self.weight
 
 
+        return {
+            LOSS_OUT_TYPE_LOSS: [surrogate_loss],
+            LOSS_OUT_TYPE_REGULARIZATION: [(entropy_loss + kl_div_loss)],
+            LOSS_OUT_TYPE_KL: kl_div_loss,
+            LOSS_OUT_TYPE_ENTROPY: [entropy_loss],
+            LOSS_OUT_TYPE_LIKELIHOOD_RATIO: [likelihood_ratio],
+            LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO: [clipped_likelihood_ratio],
+        }
 
-        return [
-            (surrogate_loss, LOSS_OUT_TYPE_LOSS),
-            (entropy_loss + kl_div_loss, LOSS_OUT_TYPE_REGULARIZATION),
-            (kl_div_loss, LOSS_OUT_TYPE_KL),
-            (entropy_loss, LOSS_OUT_TYPE_ENTROPY),
-            (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
-            (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
-        ]
-
-
-
-# def ppo_loss_f(advantages, old_means, old_stds, actions, rescalar, new_policy_rv):
-#
-#     min_value = 1 - rescalar
-#     max_value = 1 + rescalar
-#     old_policy = tfd.MultivariateNormalDiag(loc=old_means, scale_diag=old_stds + eps)
-#     old_policy_log_prob = old_policy.log_prob(actions)
-#     new_policy_log_prob = new_policy_rv.log_prob(actions)
-#     likelihood_ratio = tf.exp(new_policy_log_prob - old_policy_log_prob)
-#     clipped_likelihood_ratio = tf.clip_by_value(likelihood_ratio, min_value, max_value)
-#     clipped_scaled_advantages = clipped_likelihood_ratio * advantages
-#     unclipped_scaled_advantages = likelihood_ratio * advantages
-#     scaled_advantages = tf.minimum(unclipped_scaled_advantages, clipped_scaled_advantages)
-#     loss = -tf.reduce_mean(scaled_advantages)
-#
-#     return loss
+        # return [
+        #     (surrogate_loss, LOSS_OUT_TYPE_LOSS),
+        #     (entropy_loss + kl_div_loss, LOSS_OUT_TYPE_REGULARIZATION),
+        #     (kl_div_loss, LOSS_OUT_TYPE_KL),
+        #     (entropy_loss, LOSS_OUT_TYPE_ENTROPY),
+        #     (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
+        #     (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
+        # ]
 
 
 

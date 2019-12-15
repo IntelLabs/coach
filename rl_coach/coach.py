@@ -779,20 +779,23 @@ def main():
 
 
 if __name__ == "__main__":
+    os.environ['CUDA_VISIBLE_DEVICES'] = ""
     import tensorflow as tf
 
-    print("GPU Available: ", tf.test.is_gpu_available())
-    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
-    print('DDevice name is: ', tf.test.gpu_device_name())
+    # print("GPU Available: ", tf.test.is_gpu_available())
+    # print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+    # print('DDevice name is: ', tf.test.gpu_device_name())
 
-    # sys.argv.append('-p')
+    sys.argv.append('-p')
     # sys.argv.append('Atari_DQN')
     # sys.argv.extend(['-lvl', 'breakout'])
 
-    #sys.argv.append('CartPole_DQN')
+    sys.argv.append('CartPole_DQN')
 
     # sys.argv.append('Mujoco_ClippedPPO')
     # sys.argv.extend(['-lvl', 'inverted_pendulum'])
+
+    #sys.argv.extend(['-n', '8'])
 
     #sys.argv.extend(['-s', '30'])
     #CHECKPOINT_RESTORE_DIR = os.path.join('experiments', 'atari', '04_09_2019-20_52', 'checkpoint')

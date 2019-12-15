@@ -71,31 +71,33 @@ class HeadLoss(keras.layers.Layer):
         """
         raise NotImplementedError
 
-    @property
-    def output_schema(self) -> List[str]:
-        """
-        :return: schema for output. Must contain 'loss' and 'regularization' keys at least once.
-            The order and total number must match that of returned values from the loss. 'loss' and 'regularization'
-            are special keys. Any other string is treated as auxiliary outputs and must include match auxiliary
-            fetch names returned by the head.
-        """
-        return self._output_schema
+    # @property
+    # def output_schema(self) -> List[str]:
+    #     """
+    #     :return: schema for output. Must contain 'loss' and 'regularization' keys at least once.
+    #         The order and total number must match that of returned values from the loss. 'loss' and 'regularization'
+    #         are special keys. Any other string is treated as auxiliary outputs and must include match auxiliary
+    #         fetch names returned by the head.
+    #     """
+    #     return self._output_schema
 
-    def _loss_output(self, outputs: List[Tuple[Tensor, str]]):
-        """
-        Must be called on the output from call ().
-        Saves the returned output as the schema and returns output values in a list
-        :return: list of output values
-        """
-        output_schema = [o[1] for o in outputs]
-        assert self._output_schema is None or self._output_schema == output_schema
-        self._output_schema = output_schema
-        return tuple(o[0] for o in outputs)
+    # def _loss_output(self, outputs: List[Tuple[Tensor, str]]):
+    #     """
+    #     Must be called on the output from call ().
+    #     Saves the returned output as the schema and returns output values in a list
+    #     :return: list of output values
+    #     """
+    #     output_schema = [o[1] for o in outputs]
+    #     assert self._output_schema is None or self._output_schema == output_schema
+    #     self._output_schema = output_schema
+    #     return tuple(o[0] for o in outputs)
 
     def call(self, head_output, agent_input, target):
         loss_args = self.extract_loss_args(head_output, agent_input, target)
-        loss_output = self._loss_output(self.loss_forward(*loss_args))
-        return self.loss_output_dict(loss_output)
+        # loss_output = self._loss_output(self.loss_forward(*loss_args))
+        # return self.loss_output_dict(loss_output)
+
+        return self.loss_forward(*loss_args)
 
     def loss_forward(self, *args, **kwargs):
         raise NotImplementedError
@@ -131,20 +133,20 @@ class HeadLoss(keras.layers.Layer):
                     continue
         return arg_list
 
-    def loss_output_dict(self, output: List) -> Dict[str, List]:
-        """
-        Creates a dictionary for loss output based on the output schema. If two output values have the same
-        type string in the schema they are concatenated in the same dictionary item.
-        :param output: list of output values
-        :param schema: list of type-strings for output values
-        :return: dictionary of keyword to list of NDArrays
-        """
-        schema = self.output_schema
-        assert len(output) == len(schema)
-        output_dict = dict()
-        for name, val in zip(schema, output):
-            if name in output_dict:
-                output_dict[name].append(val)
-            else:
-                output_dict[name] = [val]
-        return output_dict
+    # def loss_output_dict(self, output: List) -> Dict[str, List]:
+    #     """
+    #     Creates a dictionary for loss output based on the output schema. If two output values have the same
+    #     type string in the schema they are concatenated in the same dictionary item.
+    #     :param output: list of output values
+    #     :param schema: list of type-strings for output values
+    #     :return: dictionary of keyword to list of NDArrays
+    #     """
+    #     schema = self.output_schema
+    #     assert len(output) == len(schema)
+    #     output_dict = dict()
+    #     for name, val in zip(schema, output):
+    #         if name in output_dict:
+    #             output_dict[name].append(val)
+    #         else:
+    #             output_dict[name] = [val]
+    #     return output_dict

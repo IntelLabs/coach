@@ -52,7 +52,8 @@ class QLoss(HeadLoss):
         # TODO: preferable to return a tensor containing one loss per instance, rather than returning the mean loss.
         #  This way, Keras can apply class weights or sample weights when requested.
         loss = tf.reduce_mean(self.loss_fn(q_value_pred, target))
-        return [(loss, LOSS_OUT_TYPE_LOSS)]
+        return {LOSS_OUT_TYPE_LOSS: [loss]}
+        #return [(loss, LOSS_OUT_TYPE_LOSS)]
 
 
 # def q_loss_f(q_value_pred, target):
