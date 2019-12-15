@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation 
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,8 @@
 # limitations under the License.
 #
 
-from typing import Any, Dict, List, Tuple
-
 import numpy as np
-
+from typing import Any, Dict, List, Tuple
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -145,6 +145,7 @@ class TensorFlowArchitecture(Architecture):
         with tf.GradientTape(persistent=True) as tape:
 
             model_outputs = force_list(self.model(model_inputs))
+
             for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
 
                 non_trainable_args = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)), inputs.items())
@@ -165,6 +166,7 @@ class TensorFlowArchitecture(Architecture):
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
                 if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
                     regularisations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
+
                 for i, fetch in enumerate(additional_fetches):
                     head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
                     if head_idx == head_type_idx:

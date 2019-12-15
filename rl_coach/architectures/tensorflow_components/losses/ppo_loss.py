@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,16 +65,6 @@ class PPOLoss(HeadLoss):
         else:
             self.initial_kl_coefficient, self.kl_cutoff, self.high_kl_penalty_coefficient = (0.0, None, None)
 
-
-
-    # @property
-    # def input_schema(self) -> LossInputSchema:
-    #     return LossInputSchema(
-    #         model_outputs=['new_policy_distribution'],
-    #         agent_inputs=['actions', 'old_policy_means', 'old_policy_stds', 'clip_param_rescaler'],
-    #         targets=['advantages']
-    #     )
-    #
     @property
     def input_schema(self) -> LossInputSchema:
         return LossInputSchema(
@@ -88,18 +78,15 @@ class PPOLoss(HeadLoss):
                      old_policy_means,
                      old_policy_stds,
                      clip_param_rescaler,
-                     advantages):#-> Dict: #List[Tuple[Tensor, str]]:
-
+                     advantages) -> Dict[str, Tensor]:
         """
         Used for forward pass through loss computations.
         Works with batches of data, and optionally time_steps, but be consistent in usage: i.e. if using time_step,
         new_policy_means, old_policy_means, actions and advantages all must include a time_step dimension.
-        :param new_policy_means: action means predicted by MultivariateNormalDist network,
+        :param new_policy_distribution: Used for calculation of the log probability of the actions,
             of shape (batch_size, num_actions) or
             of shape (batch_size, time_step, num_actions).
-        :param new_policy_stds: action standard deviation returned by head,
-            of shape (batch_size, num_actions) or
-            of shape (batch_size, time_step, num_actions).
+
         :param actions: true actions taken during rollout,
             of shape (batch_size, num_actions) or
             of shape (batch_size, time_step, num_actions).
@@ -113,13 +100,11 @@ class PPOLoss(HeadLoss):
         :param advantages: change in state value after taking action (a.k.a advantage)
             of shape (batch_size,) or
             of shape (batch_size, time_step).
-        :param kl_coefficient: loss coefficient applied kl divergence loss (also see high_kl_penalty_coefficient).
         :return: loss, of shape (batch_size).
         """
-        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds)# + eps)
+        old_policy_dist = tfd.MultivariateNormalDiag(loc=old_policy_means, scale_diag=old_policy_stds)
         action_probs_wrt_old_policy = old_policy_dist.log_prob(actions)
 
-        #new_policy_distribution = tfd.MultivariateNormalDiag(loc=new_policy_means, scale_diag=new_policy_stds)  # + eps)
         action_probs_wrt_new_policy = new_policy_distribution.log_prob(actions)
 
         entropy_loss = - self.beta * tf.reduce_mean(new_policy_distribution.entropy())
@@ -162,15 +147,5 @@ class PPOLoss(HeadLoss):
             LOSS_OUT_TYPE_LIKELIHOOD_RATIO: [likelihood_ratio],
             LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO: [clipped_likelihood_ratio],
         }
-
-        # return [
-        #     (surrogate_loss, LOSS_OUT_TYPE_LOSS),
-        #     (entropy_loss + kl_div_loss, LOSS_OUT_TYPE_REGULARIZATION),
-        #     (kl_div_loss, LOSS_OUT_TYPE_KL),
-        #     (entropy_loss, LOSS_OUT_TYPE_ENTROPY),
-        #     (likelihood_ratio, LOSS_OUT_TYPE_LIKELIHOOD_RATIO),
-        #     (clipped_likelihood_ratio, LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO)
-        # ]
-
 
 

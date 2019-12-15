@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ class TfSaver(Saver):
         """
         return ""  # use empty string for global file
 
-
     def save(self, sess: None, save_path: str) -> List[str]:
         """
         Save to save_path
@@ -61,8 +60,6 @@ class TfSaver(Saver):
         #     f.write(self.model.to_json())
 
         return [save_path]
-
-
 
     def restore(self, sess: Any, restore_path: str):
         """
