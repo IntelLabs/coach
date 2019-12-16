@@ -24,17 +24,16 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_O
 
 class QLoss(HeadLoss):
     def __init__(self,
-                 network_name,
+                 network_name: str,
                  head_idx: int = 0,
                  loss_type: Loss = MeanSquaredError,
-                 loss_weight=1.0):
+                 loss_weight: float=1.):
         """
         Loss for Q-Value Head.
         :param head_idx: the index of the corresponding head.
         :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
         :param loss_weight: scalar used to adjust relative weight of loss (if using this loss with others).
         """
-        #super().__init__(**kwargs)
         super(QLoss, self).__init__(name=network_name)
         self.head_idx = head_idx
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."

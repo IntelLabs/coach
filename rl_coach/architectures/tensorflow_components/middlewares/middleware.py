@@ -37,9 +37,9 @@ class Middleware(keras.layers.Layer):
                  batchnorm: bool = False,
                  dropout_rate: float = 0.0,
                  name="middleware_embedder",
-                 is_training=False,
-                 **kwargs):
-        super().__init__(**kwargs)
+                 is_training=False):
+        super(Middleware, self).__init__(name=name)
+        #super().__init__(**kwargs)
 
         self.middleware_layers = []
         # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
@@ -63,7 +63,7 @@ class Middleware(keras.layers.Layer):
             if dropout_rate:
                 self.middleware_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-    def call(self, inputs):
+    def call(self, inputs: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Used for forward pass through middleware network.
 

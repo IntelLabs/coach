@@ -20,6 +20,7 @@ import numpy as np
 import tensorflow as tf
 from rl_coach.utilities.shared_running_stats import SharedRunningStats
 
+# TODO-tf2 here: remove tf1 compatibility code
 tf.compat.v1.disable_resource_variables()
 
 class TFSharedRunningStats(SharedRunningStats):

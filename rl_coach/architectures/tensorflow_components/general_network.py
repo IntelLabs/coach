@@ -22,6 +22,7 @@ from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 from rl_coach.base_parameters import AgentParameters
 
 from rl_coach.spaces import SpacesDefinition
+from rl_coach.base_parameters import NetworkParameters
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.dnn_model import create_full_model
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss
@@ -125,7 +126,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.optimizer = self._get_optimizer(network_parameters)
         self.network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
-    def _get_optimizer(self, network_parameters):
+    def _get_optimizer(self, network_parameters: NetworkParameters) -> keras.optimizers:
         """
         :param network_parameters: class containing the relevant optimizer parameters.
         :return:  an instantiation of tensorFlow optimizer with the configured parameters
@@ -144,7 +145,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
                 epsilon=network_parameters.optimizer_epsilon)
 
         elif network_parameters.optimizer_type == 'LBFGS':
-            raise NotImplementedError(' Could not find updated LBFGS implementation')  # TODO: TF2 to update function
+            raise NotImplementedError(' Could not find updated LBFGS implementation')
         else:
             raise Exception("{} is not a valid optimizer type".format(self.network_parameters.optimizer_type))
 

@@ -21,6 +21,7 @@ from rl_coach.saver import SaverCollection
 from rl_coach.spaces import SpacesDefinition
 
 
+
 class Architecture(object):
     @staticmethod
     def construct(variable_scope: str, devices: List[str], *args, **kwargs) -> 'Architecture':
