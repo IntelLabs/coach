@@ -21,19 +21,19 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLo
 
 class VLoss(HeadLoss):
 
-    def __init__(self, network_name,
+    def __init__(self,
+                 network_name,
                  head_idx: int = 0,
                  loss_type: Loss = MeanSquaredError,
-                 loss_weight=1.0,
-                 **kwargs):
+                 loss_weight=1.0):
         """
         Loss for Value Head.
-
+        :param head_idx: the index of the corresponding head.
         :param loss_type: loss function with default of mean squared error (i.e. L2Loss).
-        :param weight: scalar used to adjust relative weight of loss (if using this loss with others).
-        :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
+        :param loss_weight: scalar used to adjust relative weight of loss (if using this loss with others).
         """
-        super().__init__(**kwargs)
+        #super().__init__(**kwargs)
+        super(VLoss, self).__init__(name=network_name)
         self.head_idx = head_idx
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
         self.loss_type = loss_type
@@ -48,5 +48,11 @@ class VLoss(HeadLoss):
         )
 
     def loss_forward(self, value_prediction, target):
+        """
+        Used for forward pass through loss computations.
+        :param value_prediction: state values predicted by VHead network, of shape (batch_size).
+        :param target: actual state values, of shape (batch_size).
+        :return: loss, of shape (batch_size).
+        """
         loss = self.loss_fn(value_prediction, target)
         return {LOSS_OUT_TYPE_LOSS: [loss]}

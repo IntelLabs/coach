@@ -24,18 +24,17 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 tfd = tfp.distributions
 
-from rl_coach.architectures.tensorflow_components.heads.head import Head
-from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
-from rl_coach.core_types import ActionProbabilities
-from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
-from rl_coach.spaces import SpacesDefinition
-from rl_coach.utils import eps
-
-
 LOSS_OUT_TYPE_KL = 'kl_divergence'
 LOSS_OUT_TYPE_ENTROPY = 'entropy'
 LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
 LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
+
+# from rl_coach.architectures.tensorflow_components.heads.head import Head
+# from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
+# from rl_coach.core_types import ActionProbabilities
+# from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
+# from rl_coach.spaces import SpacesDefinition
+# from rl_coach.utils import eps
 
 # class PPOHead(Head):
 #     def __init__(self,
@@ -109,6 +108,10 @@ LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
 
 
 def normalized_columns_initializer(std=1.0):
+    """
+    Standardizes Root Sum of Squares along the input channel dimension.
+    Used for Dense layer weight matrices only (ie. do not use on Convolution kernels).
+    """
     def _initializer(shape, dtype=None, partition_info=None):
         out = np.random.randn(*shape).astype(np.float32)
         out *= std / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
@@ -117,11 +120,13 @@ def normalized_columns_initializer(std=1.0):
 
 
 def continuous_ppo_head(input_dim, output_dim):
-    '''
-    Head block for Proximal Policy Optimization, to calculate probabilities for each action given middleware
+    """
+    Used for forward pass through Proximal Policy Optimization head Layer.
+    :param input_dim: middleware state representation, of shape (batch_size, in_channels).
+    :param output_dim: dimension of the output.
+    :return: probabilities distribution conditioned on the given middleware
     representation of the environment state.
-    '''
-
+    """
     inputs = Input(shape=([input_dim]))
     policy_means = Dense(units=output_dim, name="policy_means", kernel_initializer=normalized_columns_initializer(0.01))(inputs)
     policy_stds = tfp.layers.VariableLayer(shape=(1, output_dim), dtype=tf.float32)(inputs)

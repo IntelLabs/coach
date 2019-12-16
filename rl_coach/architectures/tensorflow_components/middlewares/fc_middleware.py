@@ -14,14 +14,26 @@
 # limitations under the License.
 #
 
+from typing import Dict
 import tensorflow as tf
 from rl_coach.architectures.layers import Dense
 from rl_coach.architectures.tensorflow_components.middlewares.middleware import Middleware
 from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import Middleware_FC_Embedding
 
+"""
+Module that defines the fully-connected middleware class
+"""
+
 
 class FCMiddleware(Middleware):
+    """
+    FCMiddleware or Fully-Connected Middleware can be used in the middle part of the network. It takes the
+    embeddings from the input embedders, after they were aggregated in some method (for example, concatenation)
+    and passes it through a neural network  which can be customizable but shared between the heads of the network.
+
+    :param params: parameters object containing batchnorm, activation_function and dropout properties.
+    """
     def __init__(self,
                  activation_function=tf.nn.relu,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
@@ -39,7 +51,13 @@ class FCMiddleware(Middleware):
         self.num_streams = num_streams
 
     @property
-    def schemes(self):
+    def schemes(self) -> Dict:
+        """
+       Schemes are the pre-defined network architectures of various depths and complexities that can be used for the
+       Middleware. Are used to create Block when FCMiddleware is initialised.
+
+       :return: dictionary of schemes, with key of type MiddlewareScheme enum and value being list of Tensorflow layers.
+       """
         return {
             MiddlewareScheme.Empty:
                 [],

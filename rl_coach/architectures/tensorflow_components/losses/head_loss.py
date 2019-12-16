@@ -14,12 +14,10 @@
 # limitations under the License.
 #
 
-
 from tensorflow import keras
 from typing import Dict, List, Tuple
 from tensorflow import Tensor
 import numpy as np
-import inspect
 
 LOSS_OUT_TYPE_LOSS = 'loss'
 LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
@@ -34,9 +32,8 @@ class LossInputSchema(object):
         :param model_outputs: list of argument names in call that are the outputs of the head.
             The order and number MUST MATCH the output from the head.
         :param non_trainable_args: list of argument names that are inputs from the agent.
-            The order and number MUST MATCH `output_<head_type_idx>_<order>` for this head.
-        :param targets: list of argument names that are targets for the loss.
-            The order and number MUST MATCH targets passed from the agent.
+            The order and number MUST MATCH the loss_forward call for this head.
+
         """
         self._model_outputs = model_outputs
         self._non_trainable_args = non_trainable_args
@@ -65,16 +62,25 @@ class HeadLoss(keras.layers.Layer):
         """
         raise NotImplementedError
 
-    def call(self, model_outputs, non_trainable_args):
+    def call(self, model_outputs, non_trainable_args) -> List[np.ndarray]:
+        """
+        Extracts and aligns loss arguments and Passes the cal to loss_forward()
+        :param model_outputs: list of all trainable model_outputs for this loss
+        :param non_trainable_args: list of all non trainable args for this loss
+        :return: list of arguments in containing the loss values regularization values and additional fetches.
+        """
         loss_args = self.align_loss_args(model_outputs, non_trainable_args)
         return self.loss_forward(*loss_args)
 
     def loss_forward(self, *args, **kwargs):
+        """
+        Needs to be implemented by each child class
+        """
         raise NotImplementedError
 
     def align_loss_args(self,
-                          model_outputs: List[Tensor],
-                          non_trainable_args: List[np.ndarray]) -> List[np.ndarray]:
+                        model_outputs: List[Tensor],
+                        non_trainable_args: List[np.ndarray]) -> List[np.ndarray]:
         """
         Creates a list of arguments from model_outputs and non_trainable_args aligned with parameters of
         loss.loss_forward() based on their name in loss input_schema.
@@ -90,31 +96,3 @@ class HeadLoss(keras.layers.Layer):
         arg_list.extend(model_outputs)
         arg_list.extend(non_trainable_args)
         return arg_list
-
-
-    # def extract_loss_args(self,
-    #                       model_outputs: List[Tensor],
-    #                       non_trainable_args: List[np.ndarray]) -> List[np.ndarray]:
-    #     """
-    #     Creates a list of arguments from model_outputs and non_trainable_args aligned with parameters of
-    #     loss.loss_forward() based on their name in loss input_schema.
-    #     :param model_outputs: list of all trainable model_outputs for this loss
-    #     :param non_trainable_args: list of all non trainable args for this loss
-    #     :return: list of arguments in correct order to be passed to loss
-    #     """
-    #     arg_list = list()
-    #     schema = self.input_schema
-    #     assert len(schema.model_outputs) == len(model_outputs)
-    #     assert len(schema.non_trainable_args) == len(non_trainable_args)
-    #
-    #     for arg_name in inspect.getfullargspec(self.loss_forward).args[1:]:  # First argument is self
-    #         for schema_list, data in [(schema.model_outputs, model_outputs),
-    #                                   (schema.non_trainable_args, non_trainable_args)]:
-    #             try:
-    #                 # Index of loss function argument in the corresponding part of the loss input schema
-    #                 schema_index = schema_list.index(arg_name)
-    #                 arg_list.append(data[schema_index])
-    #                 break
-    #             except ValueError:
-    #                 continue
-    #     return arg_list

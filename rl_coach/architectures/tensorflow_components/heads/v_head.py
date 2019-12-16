@@ -68,6 +68,12 @@ class VHead(Head):
 
 
 def value_head(input_dim, output_dim):
+    """
+    Used for forward pass through Value head network.
+    :param input_dim: middleware state representation, of shape (batch_size, in_channels).
+    :param output_dim: state value representation, of shape (1, in_channels).
+    :return: predicted svalues, of shape (batch_size, num_actions).
+    """
     inputs = Input(shape=([input_dim]))
     value = Dense(units=output_dim, name="value_output")(inputs)
     model = keras.Model(name='value_head', inputs=inputs, outputs=value)
