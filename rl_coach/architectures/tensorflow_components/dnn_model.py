@@ -25,7 +25,7 @@ from tensorflow.keras.layers import Input
 
 from rl_coach.architectures.tensorflow_components.embedders import ImageEmbedder, TensorEmbedder, VectorEmbedder
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters, LSTMMiddlewareParameters
-from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware, LSTMMiddleware
+from rl_coach.architectures.tensorflow_components.middlewares import FCMiddleware#, LSTMMiddleware
 from rl_coach.architectures.tensorflow_components.heads import Head#, PPOHead, PPOVHead, VHead, QHead
 from rl_coach.architectures.tensorflow_components.heads.ppo_head import continuous_ppo_head
 from rl_coach.architectures.tensorflow_components.heads.v_head import value_head
