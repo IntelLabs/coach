@@ -19,11 +19,12 @@ import matplotlib.image as mpimg
 from typing import List
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
-from rl_coach.base_parameters import AgentParameters, Device, DeviceType
+from rl_coach.base_parameters import AgentParameters
+
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.dnn_model import create_full_model
-from rl_coach.architectures.loss_parameters import LossParameters, QLossParameters
+from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
 from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
@@ -125,7 +126,10 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         self.network_parameters = agent_parameters.network_wrappers[self.network_wrapper_name]
 
     def _get_optimizer(self, network_parameters):
-
+        """
+        :param network_parameters: class containing the relevant optimizer parameters.
+        :return:  an instantiation of tensorFlow optimizer with the configured parameters
+        """
         if network_parameters.optimizer_type == 'Adam':
             optimizer = keras.optimizers.Adam(
                 lr=network_parameters.learning_rate,
@@ -146,12 +150,13 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         return optimizer
 
-    def _get_loss(self, agent_parameters,
+    def _get_loss(self,
+                  agent_parameters,
                   loss_params,
                   network_name: str,
                   num_actions,
                   head_idx,
-                  loss_weight):
+                  loss_weight) -> HeadLoss:
         """
         Given a loss type, creates the loss and returns it
         :param loss_params: the parameters of the loss to create
@@ -159,7 +164,6 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :param network_name: name of the network
         :return: loss block
         """
-
         if isinstance(loss_params, QHeadParameters):
             loss = QLoss(network_name=network_name,
                          head_idx=head_idx,

@@ -32,20 +32,21 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_O
 
 
 class TensorFlowArchitecture(Architecture):
+    """
+    :param agent_parameters: the agent parameters
+    :param spaces: the spaces definition of the agent
+    :param name: the name of the network
+    :param global_network: the global network replica that is shared between all the workers
+    :param network_is_local: is the network global (shared between workers) or local (dedicated to the worker)
+    :param network_is_trainable: is the network trainable (we can apply gradients on it)
+    """
     def __init__(self, agent_parameters: AgentParameters,
                  spaces: SpacesDefinition,
                  name: str = "",
                  global_network=None,
                  network_is_local: bool=True,
                  network_is_trainable: bool=False):
-        """
-        :param agent_parameters: the agent parameters
-        :param spaces: the spaces definition of the agent
-        :param name: the name of the network
-        :param global_network: the global network replica that is shared between all the workers
-        :param network_is_local: is the network global (shared between workers) or local (dedicated to the worker)
-        :param network_is_trainable: is the network trainable (we can apply gradients on it)
-        """
+
         super().__init__(agent_parameters, spaces, name)
         self.middleware = None
         self.network_is_local = network_is_local
@@ -95,14 +96,13 @@ class TensorFlowArchitecture(Architecture):
 
     def reset_accumulated_gradients(self) -> None:
         """
-        Reset the gradients accumulation
+        Reset model gradients as well as accumulated gradients to zero. If accumulated gradients
+        have not been created yet, it constructs them.
         """
-
         if self.accumulated_gradients is None:
             self.accumulated_gradients = self.model.get_weights().copy()
 
         self.accumulated_gradients = list(map(lambda grad: grad * 0, self.accumulated_gradients))
-
 
     def accumulate_gradients(self,
                              inputs: Dict[str, np.ndarray],
@@ -159,7 +159,6 @@ class TensorFlowArchitecture(Architecture):
         # Calculate gradients
         gradients = tape.gradient(total_loss, self.model.trainable_variables)
         norm_unclipped_grads = tf.linalg.global_norm(gradients)
-
         # Gradient clipping
         if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
             gradients, gradients_norm = self.clip_gradients(gradients,
@@ -186,7 +185,7 @@ class TensorFlowArchitecture(Architecture):
 
         self.optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
 
-    def apply_and_reset_gradients(self, gradients, scaler=1., additional_inputs=None):
+    def apply_and_reset_gradients(self, gradients: List[np.ndarray], scaler: float = 1., additional_inputs=None) -> None:
         """
         Applies the given gradients to the network weights and resets the accumulation placeholder
         :param gradients: The gradients to use for the update
@@ -221,7 +220,7 @@ class TensorFlowArchitecture(Architecture):
             raise KeyError('Unsupported gradient clipping method')
         return clipped_grads
 
-    def _predict(self, inputs: Dict[str, np.ndarray]):
+    def _predict(self, inputs: Dict[str, np.ndarray]) -> Tuple[np.ndarray, ...]:
         """
         Run a forward pass of the network using the given input
         :param inputs: The input dictionary for the network. Key is name of the embedder.
@@ -283,13 +282,13 @@ class TensorFlowArchitecture(Architecture):
         output = [net._predict(inputs) for net, inputs in network_input_tuples]
         return output
 
-    def get_weights(self):
+    def get_weights(self) -> Dict:
         """
         :return: a list of tensors containing the network weights for each layer
         """
         return self.model.get_weights()
 
-    def set_weights(self, source_weights, new_rate=1.0):
+    def set_weights(self, source_weights: Dict, new_rate: float = 1.0) -> None:
         """
         Updates the target network weights from the given source model weights tensors
         """

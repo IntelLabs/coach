@@ -113,8 +113,9 @@ def _get_middleware(middleware_params: MiddlewareParameters) -> ModuleType:
                               name=middleware_params.name,
                               is_training=middleware_params.is_training,
                               num_streams=middleware_params.num_streams)
+
     elif isinstance(middleware_params, LSTMMiddlewareParameters):
-        module = LSTMMiddleware(middleware_params)
+        raise KeyError('"LSTM middleware not supported": {}'.format(type(middleware_params)))
     else:
         raise KeyError('Unsupported middleware type: {}'.format(type(middleware_params)))
     return module
@@ -198,6 +199,9 @@ def create_single_network(inputs_shapes,
                           head_param_list: [HeadParameters],
                           spaces: SpacesDefinition):
     """
+
+    Block that connects a single embedder, with middleware and heads
+
     :param network_is_local: True if network is local
     :param name: name of the network
     :param agent_parameters: agent parameters
@@ -258,7 +262,8 @@ def create_full_model(num_networks: int,
                       network_parameters: NetworkParameters,
                       spaces: SpacesDefinition):
     """
-    function that creates two single models. One for the actor and one for the critic
+    function that creates multiple models.
+    For example, can be two single models, one for the actor and one for the critic. or online and target networks
     :param num_networks: number of networks to create
     :param num_heads_per_network: number of heads per network to create
     :param network_is_local: True if network is local

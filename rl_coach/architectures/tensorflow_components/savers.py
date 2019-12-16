@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 from typing import Any, List
 from rl_coach.saver import Saver
 

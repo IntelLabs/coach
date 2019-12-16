@@ -44,17 +44,6 @@ def convert_layer(layer):
         return layer
     return tf_layer_dict[type(layer)](layer)
 
-# def convert_layer_class(layer_class):
-#     """
-#     If layer instance is callable, return layer, otherwise convert to TF type
-#     :param layer: layer to be converted
-#     :return: converted layer if not callable, otherwise layer itself
-#     """
-#     if hasattr(layer_class, 'to_tf_instance'):
-#         return layer_class
-#     else:
-#         return tf_layer_class_dict[layer_class]()
-
 
 class Dense(layers.Dense):
     def __init__(self, units: int):
@@ -71,11 +60,6 @@ class Dense(layers.Dense):
     @reg_to_tf_instance(layers.Dense)
     def to_tf_instance(base: layers.Dense):
         return Dense(units=base.units)()
-
-    # @staticmethod
-    # @reg_to_tf_class(layers.Dense)
-    # def to_tf_class():
-    #     return Dense
 
 
 class Conv2d(layers.Conv2d):
@@ -99,11 +83,6 @@ class Conv2d(layers.Conv2d):
                 num_filters=base.num_filters,
                 kernel_size=base.kernel_size,
                 strides=base.strides)()
-
-    # @staticmethod
-    # @reg_to_tf_class(layers.Conv2d)
-    # def to_tf_class():
-    #     return Conv2d
 
 
 class BatchnormActivationDropout(layers.BatchnormActivationDropout):
@@ -130,16 +109,6 @@ class BatchnormActivationDropout(layers.BatchnormActivationDropout):
                 batchnorm=base.batchnorm,
                 activation_function=base.activation_function,
                 dropout_rate=base.dropout_rate)
-
-    # @staticmethod
-    # @reg_to_tf_class(layers.BatchnormActivationDropout)
-    # def to_tf_class():
-    #     return BatchnormActivationDropout
-
-
-
-
-
 
 
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout_rate, is_training, name):

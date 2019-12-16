@@ -74,38 +74,21 @@ def to_list(data: Union[tuple, list, Any]):
     return data
 
 
-def loss_output_dict(output: List[Tensor], schema: List[str]) -> Dict[str, List[Tensor]]:
-    """
-    Creates a dictionary for loss output based on the output schema. If two output values have the same
-    type string in the schema they are concatenated in the same dicrionary item.
-    :param output: list of output values
-    :param schema: list of type-strings for output values
-    :return: dictionary of keyword to list of NDArrays
-    """
-    assert len(output) == len(schema)
-    output_dict = dict()
-    for name, val in zip(schema, output):
-        if name in output_dict:
-            output_dict[name].append(val)
-        else:
-            output_dict[name] = [val]
-    return output_dict
-
-
-def extract_loss_inputs(head_index, inputs, targets: List[np.ndarray]) -> List[np.ndarray]:
+def extract_loss_inputs(head_index: int, inputs, targets: List[np.ndarray]) -> List[np.ndarray]:
     """
     Creates a list of arguments from model_outputs and non_trainable_args aligned with parameters of
     loss.loss_forward() based on their name in loss input_schema.
-    :param model_outputs: list of all trainable model_outputs for this loss
-    :param non_trainable_args: list of all non trainable args for this loss
-    :return: list of arguments in correct order to be passed to loss
+    :param head_index: the head index corresponding to the loss.
+    :param inputs: environment states (observation, etc.) as well extra inputs required by loss. Shape of ndarray
+            is (batch_size, observation_space_size) or (batch_size, observation_space_size, stack_size)
+    :param targets: targets required by  loss (e.g. sum of discounted rewards)
+    :return: list of non trainable arguments in correct order to be passed to loss
     """
-    arg_list = list()
-    non_trainable_args = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_index)), inputs.items())
-    non_trainable_args = dict(non_trainable_args)
+    arg_list = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_index)), inputs.items())
+    arg_list = dict(arg_list)
     non_trainable = []
-    for key in sorted(non_trainable_args.keys()):
-        non_trainable.append(non_trainable_args[key])
+    for key in sorted(arg_list.keys()):
+        non_trainable.append(arg_list[key])
 
     if non_trainable:
         non_trainable_args = non_trainable + [targets[head_index]]
@@ -115,19 +98,20 @@ def extract_loss_inputs(head_index, inputs, targets: List[np.ndarray]) -> List[n
     return non_trainable_args
 
 
-def extract_fetches(loss_outputs: List[Tensor], head_idx, additional_fetches):
+def extract_fetches(loss_outputs: List[Tensor], head_index, additional_fetches):
     """
     Creates a dictionary for loss output based on the output schema. If two output values have the same
     type string in the schema they are concatenated in the same dicrionary item.
-    :param output: list of output values
-    :param schema: list of type-strings for output values
-    :return: dictionary of keyword to list of NDArrays
+    :param head_index: the head index corresponding to the loss.
+    :param loss_outputs: list of output values from the head loss
+    :param additional_fetches: additional fetches to calculate and return. Each fetch is specified as (int, str)
+            tuple of head-type-index and fetch-name. The tuple is obtained from each head.
     """
     additional_fetches = [(k, None) for k in additional_fetches]
 
     for i, fetch in enumerate(additional_fetches):
         head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-        if head_idx == head_type_idx:
+        if head_index == head_type_idx:
             assert fetch[1] is None  # sanity check that fetch is None
             additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
 
