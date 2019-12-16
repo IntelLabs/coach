@@ -35,6 +35,7 @@ class QLoss(HeadLoss):
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
         super().__init__(**kwargs)
+        self.head_idx = head_idx
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
         self.loss_type = loss_type
         self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)

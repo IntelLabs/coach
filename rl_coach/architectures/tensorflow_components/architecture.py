@@ -136,7 +136,6 @@ class TensorFlowArchitecture(Architecture):
         heads_indices = list(range(len(self.model.outputs)))
         model_inputs = tuple(inputs[emb_type] for emb_type in self.emmbeding_types)
         targets = force_list(targets)
-        #targets = utils.split_targets_per_loss(targets, self.losses)
         targets = list(map(lambda x: tf.cast(x, tf.float32), targets))
         losses = list()
         regularisations = list()
@@ -148,19 +147,15 @@ class TensorFlowArchitecture(Architecture):
 
             for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
 
-                non_trainable_args = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_idx)), inputs.items())
-                non_trainable_args = dict(non_trainable_args)
-                non_trainable = []
-                for key in sorted(non_trainable_args.keys()):
-                    non_trainable.append(non_trainable_args[key])
 
-                # non_trainable_args = list(non_trainable_args.values())
-                if non_trainable:
-                    non_trainable_args = non_trainable + [head_target]
-                else:
-                    non_trainable_args = [head_target]
 
-                loss_outputs = head_loss([head_output], non_trainable_args)
+            #for head_loss, head_output in zip( self.losses, model_outputs):
+                #loss_value, regularisation, additional_fetches = head_loss([head_output], targets, inputs, additional_fetches)
+                loss_outputs = head_loss([head_output], targets, inputs)
+                # losses.extend(loss_value)
+                # regularisations.extend(regularisation)
+                #additional_fetches.extend(additional_info)
+
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])

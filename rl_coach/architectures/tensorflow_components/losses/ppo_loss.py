@@ -52,6 +52,7 @@ class PPOLoss(HeadLoss):
         :param batch_axis: axis used for mini-batch (default is 0) and excluded from loss aggregation.
         """
         super(PPOLoss, self).__init__(name=network_name)
+        self.head_idx = head_idx
         self.weight = loss_weight
         self.num_actions = num_actions
         self.clip_likelihood_ratio_using_epsilon = agent_parameters.algorithm.clip_likelihood_ratio_using_epsilon
