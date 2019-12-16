@@ -63,4 +63,13 @@ class TensorEmbedder(InputEmbedder):
 
     @property
     def schemes(self):
+        """
+        Schemes are the pre-defined network architectures of various depths and complexities that can be used. Are used
+        to create Block when InputEmbedder is initialised.
+
+        Note: Tensor embedder doesn't define any pre-defined scheme. User must provide custom scheme in preset.
+
+        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of TensorFlow layers.
+            For tensor embedder, this is an empty dictionary.
+        """
         return {}

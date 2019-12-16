@@ -16,7 +16,7 @@
 
 
 import tensorflow as tf
-from typing import List
+from typing import List, Dict
 from rl_coach.architectures.layers import Dense
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
@@ -52,12 +52,12 @@ class VectorEmbedder(InputEmbedder):
             raise ValueError("The input size of a vector embedder must contain only a single dimension")
 
     @property
-    def schemes(self):
+    def schemes(self) -> Dict:
         """
         Schemes are the pre-defined network architectures of various depths and complexities that can be used. Are used
         to create Block when VectorEmbedder is initialised.
 
-        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of Tensorflow 2 layers.
+        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of Tensorflow layers.
         """
         return {
             EmbedderScheme.Empty:

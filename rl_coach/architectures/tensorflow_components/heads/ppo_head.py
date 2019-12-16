@@ -16,31 +16,26 @@
 
 from typing import List, Tuple, Union
 
-
-LOSS_OUT_TYPE_KL = 'kl_divergence'
-LOSS_OUT_TYPE_ENTROPY = 'entropy'
-LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
-LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
-
 from tensorflow import keras
 from tensorflow import Tensor
 from tensorflow.keras.layers import Dense, Input, Lambda
-#from tensorflow_probability.layers import DistributionLambda
-
-import tensorflow_probability as tfp
-
-tfd = tfp.distributions
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
+tfd = tfp.distributions
 
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import ActionProbabilities
 from rl_coach.spaces import BoxActionSpace, DiscreteActionSpace
 from rl_coach.spaces import SpacesDefinition
-
 from rl_coach.utils import eps
 
+
+LOSS_OUT_TYPE_KL = 'kl_divergence'
+LOSS_OUT_TYPE_ENTROPY = 'entropy'
+LOSS_OUT_TYPE_LIKELIHOOD_RATIO = 'likelihood_ratio'
+LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
 
 # class PPOHead(Head):
 #     def __init__(self,
@@ -122,6 +117,10 @@ def normalized_columns_initializer(std=1.0):
 
 
 def continuous_ppo_head(input_dim, output_dim):
+    '''
+    Head block for Proximal Policy Optimization, to calculate probabilities for each action given middleware
+    representation of the environment state.
+    '''
 
     inputs = Input(shape=([input_dim]))
     policy_means = Dense(units=output_dim, name="policy_means", kernel_initializer=normalized_columns_initializer(0.01))(inputs)

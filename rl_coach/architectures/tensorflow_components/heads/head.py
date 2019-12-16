@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 from tensorflow import keras
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition

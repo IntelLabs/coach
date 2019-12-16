@@ -19,6 +19,7 @@ from typing import List
 import tensorflow as tf
 from tensorflow import keras
 from functools import partial
+from typing import Dict
 from rl_coach.architectures.layers import Conv2d
 from rl_coach.architectures.tensorflow_components.embedders.embedder import InputEmbedder
 from rl_coach.base_parameters import EmbedderScheme
@@ -61,7 +62,13 @@ class ImageEmbedder(InputEmbedder):
 
     DefaultConv2D = partial(keras.layers.Conv2D, default_data_format='channels_last', activation=None, padding="SAME")
     @property
-    def schemes(self):
+    def schemes(self) -> Dict:
+        """
+        Schemes are the pre-defined network architectures of various depths and complexities that can be used. Are used
+        to create Block when ImageEmbedder is initialised.
+
+        :return: dictionary of schemes, with key of type EmbedderScheme enum and value being list of Tensorflow layers.
+        """
         return {
             EmbedderScheme.Empty:
                 [],

@@ -17,7 +17,7 @@
 from typing import List, Union
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
+from tensorflow import keras, Tensor
 from rl_coach.base_parameters import EmbedderScheme
 from rl_coach.core_types import InputEmbedding
 from rl_coach.architectures.tensorflow_components.layers import convert_layer
@@ -66,7 +66,7 @@ class InputEmbedder(keras.layers.Layer):
             if dropout_rate:
                 self.embbeder_layers.extend([keras.layers.Dropout(rate=dropout_rate)])
 
-    def call(self, inputs):
+    def call(self, inputs) -> Tensor:
         """
         Used for forward pass through embedder network.
         :param inputs: environment state, where first dimension is batch_size, then dimensions are data type dependent.
