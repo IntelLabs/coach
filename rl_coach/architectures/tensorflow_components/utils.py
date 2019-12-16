@@ -15,6 +15,7 @@
 
 
 import tensorflow as tf
+import numpy as np
 from tensorflow import keras
 from typing import List
 from typing import Dict, Union, Any
@@ -24,7 +25,8 @@ from tensorflow import Tensor
 """
 Module containing utility functions
 """
-
+LOSS_OUT_TYPE_LOSS = 'loss'
+LOSS_OUT_TYPE_REGULARIZATION = 'regularization'
 
 
 def get_activation_function(activation_function_string: str):
@@ -55,41 +57,6 @@ def squeeze_tensor(tensor):
         return tensor[0]
     else:
         return tensor
-
-
-# def split_outputs_per_head(outputs, heads: list):
-#     """
-#     Split outputs into outputs per head
-#     :param outputs: list of all outputs
-#     :param heads: list of all heads
-#     :return: list of outputs for each head
-#     """
-#     head_outputs = []
-#     for h in heads:
-#         head_outputs.append(list(outputs[:h.num_outputs]))
-#         # Remove associated outputs
-#         outputs = outputs[h.num_outputs:]
-#     # A check that we don't forget something
-#     assert len(outputs) == 0
-#     return head_outputs
-
-
-# def split_targets_per_loss(targets: list, losses: list) -> List[list]:
-#     """
-#     Splits targets into targets per loss
-#     :param targets: list of all targets (typically numpy ndarray)
-#     :param losses: list of all losses
-#     :return: list of targets for each loss
-#     """
-#     loss_targets = list()
-#     for l in losses:
-#         loss_data_len = len(l.input_schema.targets)
-#         assert len(targets) >= loss_data_len, "Data length doesn't match schema"
-#         loss_targets.append(targets[:loss_data_len])
-#         targets = targets[loss_data_len:]
-#
-#     assert len(targets) == 0
-#     return loss_targets
 
 
 def to_list(data: Union[tuple, list, Any]):
@@ -125,3 +92,45 @@ def loss_output_dict(output: List[Tensor], schema: List[str]) -> Dict[str, List[
     return output_dict
 
 
+def extract_loss_inputs(head_index, inputs, targets: List[np.ndarray]) -> List[np.ndarray]:
+    """
+    Creates a list of arguments from model_outputs and non_trainable_args aligned with parameters of
+    loss.loss_forward() based on their name in loss input_schema.
+    :param model_outputs: list of all trainable model_outputs for this loss
+    :param non_trainable_args: list of all non trainable args for this loss
+    :return: list of arguments in correct order to be passed to loss
+    """
+    arg_list = list()
+    non_trainable_args = filter(lambda elem: elem[0].startswith('output_{}_'.format(head_index)), inputs.items())
+    non_trainable_args = dict(non_trainable_args)
+    non_trainable = []
+    for key in sorted(non_trainable_args.keys()):
+        non_trainable.append(non_trainable_args[key])
+
+    if non_trainable:
+        non_trainable_args = non_trainable + [targets[head_index]]
+    else:
+        non_trainable_args = [targets[head_index]]
+
+    return non_trainable_args
+
+
+def extract_fetches(loss_outputs: List[Tensor], head_idx, additional_fetches):
+    """
+    Creates a dictionary for loss output based on the output schema. If two output values have the same
+    type string in the schema they are concatenated in the same dicrionary item.
+    :param output: list of output values
+    :param schema: list of type-strings for output values
+    :return: dictionary of keyword to list of NDArrays
+    """
+    additional_fetches = [(k, None) for k in additional_fetches]
+
+    for i, fetch in enumerate(additional_fetches):
+        head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
+        if head_idx == head_type_idx:
+            assert fetch[1] is None  # sanity check that fetch is None
+            additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
+
+    # result of of additional fetches
+    fetched_tensors = [fetch[1] for fetch in additional_fetches]
+    return fetched_tensors

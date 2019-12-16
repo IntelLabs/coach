@@ -103,6 +103,7 @@ class TensorFlowArchitecture(Architecture):
 
         self.accumulated_gradients = list(map(lambda grad: grad * 0, self.accumulated_gradients))
 
+
     def accumulate_gradients(self,
                              inputs: Dict[str, np.ndarray],
                              targets: List[np.ndarray],
@@ -127,48 +128,31 @@ class TensorFlowArchitecture(Architecture):
             norm_unclippsed_grads (float): global norm of all gradients before any gradient clipping is applied
             fetched_tensors: all values for additional_fetches
         """
-
         assert self.middleware.__class__.__name__ != 'LSTMMiddleware', "LSTM middleware not supported"
-
         if self.accumulated_gradients is None:
             self.reset_accumulated_gradients()
 
-        heads_indices = list(range(len(self.model.outputs)))
         model_inputs = tuple(inputs[emb_type] for emb_type in self.emmbeding_types)
         targets = force_list(targets)
         targets = list(map(lambda x: tf.cast(x, tf.float32), targets))
         losses = list()
         regularisations = list()
-        additional_fetches = [(k, None) for k in additional_fetches]
 
         with tf.GradientTape(persistent=True) as tape:
 
             model_outputs = force_list(self.model(model_inputs))
 
-            for head_idx, head_loss, head_output, head_target in zip(heads_indices, self.losses, model_outputs, targets):
-
-
-
-            #for head_loss, head_output in zip( self.losses, model_outputs):
-                #loss_value, regularisation, additional_fetches = head_loss([head_output], targets, inputs, additional_fetches)
-                loss_outputs = head_loss([head_output], targets, inputs)
-                # losses.extend(loss_value)
-                # regularisations.extend(regularisation)
-                #additional_fetches.extend(additional_info)
-
+            for head_loss, head_output in zip(self.losses, model_outputs):
+                non_trainable_args = utils.extract_loss_inputs(head_loss.head_idx, inputs, targets)
+                loss_outputs = head_loss([head_output], non_trainable_args)
+                fetched_tensors = utils.extract_fetches(loss_outputs, head_loss.head_idx, additional_fetches)
 
                 if LOSS_OUT_TYPE_LOSS in loss_outputs:
                     losses.extend(loss_outputs[LOSS_OUT_TYPE_LOSS])
                 if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
                     regularisations.extend(loss_outputs[LOSS_OUT_TYPE_REGULARIZATION])
 
-                for i, fetch in enumerate(additional_fetches):
-                    head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-                    if head_idx == head_type_idx:
-                        assert fetch[1] is None  # sanity check that fetch is None
-                        additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
-
-            # Total loss is losses and regularization (NOTE: order is important)
+            # Total loss is losses and regularization
             total_loss_list = losses + regularisations
             total_loss = tf.add_n(total_loss_list)
 
@@ -181,15 +165,11 @@ class TensorFlowArchitecture(Architecture):
             gradients, gradients_norm = self.clip_gradients(gradients,
                                                             self.network_parameters.gradients_clipping_method,
                                                             self.network_parameters.clip_gradients)
-
         # Update self.accumulated_gradients depending on no_accumulation flag
         if no_accumulation:
             self.accumulated_gradients = gradients.copy()
         else:
             self.accumulated_gradients += gradients.copy()
-
-        # result of of additional fetches
-        fetched_tensors = [fetch[1] for fetch in additional_fetches]
 
         # convert everything to numpy or scalar before returning
         result = (total_loss, total_loss_list, norm_unclipped_grads.numpy(), fetched_tensors)

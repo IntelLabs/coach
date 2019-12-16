@@ -65,78 +65,12 @@ class HeadLoss(keras.layers.Layer):
         """
         raise NotImplementedError
 
-    # def call(self, model_outputs, non_trainable_args):
-    #     loss_args = self.extract_loss_args(model_outputs, non_trainable_args)
-    #     return self.loss_forward(*loss_args)
-
-    def call(self, model_outputs, targets, inputs):
-        non_trainable_args = self.extract_loss_args(inputs, targets)
-
+    def call(self, model_outputs, non_trainable_args):
         loss_args = self.align_loss_args(model_outputs, non_trainable_args)
-
-        # loss_value, regularisation, additional_info = self.extract_loss_outputs(self.loss_forward(*loss_args), additional_fetches)
-        #
-        # return loss_value, regularisation, additional_info
-
         return self.loss_forward(*loss_args)
-
 
     def loss_forward(self, *args, **kwargs):
         raise NotImplementedError
-
-
-
-    def extract_loss_args(self, inputs, targets: List[np.ndarray]) -> List[np.ndarray]:
-        """
-        Creates a list of arguments from model_outputs and non_trainable_args aligned with parameters of
-        loss.loss_forward() based on their name in loss input_schema.
-        :param model_outputs: list of all trainable model_outputs for this loss
-        :param non_trainable_args: list of all non trainable args for this loss
-        :return: list of arguments in correct order to be passed to loss
-        """
-        arg_list = list()
-        non_trainable_args = filter(lambda elem: elem[0].startswith('output_{}_'.format(self.head_idx)), inputs.items())
-        non_trainable_args = dict(non_trainable_args)
-        non_trainable = []
-        for key in sorted(non_trainable_args.keys()):
-            non_trainable.append(non_trainable_args[key])
-
-        if non_trainable:
-            non_trainable_args = non_trainable + [targets[self.head_idx]]
-        else:
-            non_trainable_args = [targets[self.head_idx]]
-
-        return non_trainable_args
-
-
-    def extract_loss_outputs(self, loss_outputs, additional_fetches) -> List[np.ndarray]:
-        """
-        Creates a list of arguments from model_outputs and non_trainable_args aligned with parameters of
-        loss.loss_forward() based on their name in loss input_schema.
-        :param model_outputs: list of all trainable model_outputs for this loss
-        :param non_trainable_args: list of all non trainable args for this loss
-        :return: list of arguments in correct order to be passed to loss
-        """
-        arg_list = list()
-        #additional_fetches = []
-        loss_value = None
-        regularisation = None
-
-        additional_fetches = [(k, None) for k in additional_fetches]
-
-        if LOSS_OUT_TYPE_LOSS in loss_outputs:
-            loss_value = loss_outputs[LOSS_OUT_TYPE_LOSS]
-        if LOSS_OUT_TYPE_REGULARIZATION in loss_outputs:
-            regularisation = loss_outputs[LOSS_OUT_TYPE_REGULARIZATION]
-
-        for i, fetch in enumerate(additional_fetches):
-            head_type_idx, fetch_name = fetch[0]  # fetch key is a tuple of (head_type_index, fetch_name)
-            if self.head_idx == head_type_idx:
-                assert fetch[1] is None  # sanity check that fetch is None
-                additional_fetches[i] = (fetch[0], loss_outputs[fetch_name])
-
-        return loss_value, regularisation, additional_fetches
-
 
     def align_loss_args(self,
                           model_outputs: List[Tensor],
@@ -153,16 +87,8 @@ class HeadLoss(keras.layers.Layer):
         assert len(schema.model_outputs) == len(model_outputs)
         assert len(schema.non_trainable_args) == len(non_trainable_args)
 
-        for arg_name in inspect.getfullargspec(self.loss_forward).args[1:]:  # First argument is self
-            for schema_list, data in [(schema.model_outputs, model_outputs),
-                                      (schema.non_trainable_args, non_trainable_args)]:
-                try:
-                    # Index of loss function argument in the corresponding part of the loss input schema
-                    schema_index = schema_list.index(arg_name)
-                    arg_list.append(data[schema_index])
-                    break
-                except ValueError:
-                    continue
+        arg_list.extend(model_outputs)
+        arg_list.extend(non_trainable_args)
         return arg_list
 
 
