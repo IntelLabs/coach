@@ -165,25 +165,31 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :param network_name: name of the network
         :return: loss block
         """
+        if agent_parameters.network_wrappers['main'].replace_mse_with_huber_loss:
+            loss_type = Huber
+        else:
+            loss_type = MeanSquaredError
+
         if isinstance(loss_params, QHeadParameters):
             loss = QLoss(network_name=network_name,
                          head_idx=head_idx,
-                         loss_type=MeanSquaredError,
+                         loss_type=loss_type,
+                         agent_parameters=agent_parameters,
                          loss_weight=loss_weight)
 
         elif isinstance(loss_params, VHeadParameters):
             loss = VLoss(network_name=network_name,
                          head_idx=head_idx,
-                         loss_type=MeanSquaredError,
+                         loss_type=loss_type,
                          loss_weight=loss_weight)
 
         elif isinstance(loss_params, PPOHeadParameters):
             loss = PPOLoss(network_name=network_name,
-                           agent_parameters=agent_parameters,
-                           num_actions=num_actions,
                            head_idx=head_idx,
-                           loss_type=MeanSquaredError,
-                           loss_weight=loss_weight)
+                           loss_type=loss_type,
+                           loss_weight=loss_weight,
+                           agent_parameters=agent_parameters,
+                           num_actions=num_actions)
 
         else:
             raise KeyError('Unsupported loss type: {}'.format(type(loss_params)))

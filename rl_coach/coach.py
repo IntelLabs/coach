@@ -15,7 +15,7 @@
 
 import sys
 sys.path.append('.')
-# Added for running the script from command line without rl-coach package installation
+# TODO: Remove. This is added for running the script from command line without rl-coach package installation
 from os import sys, path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
@@ -787,14 +787,15 @@ if __name__ == "__main__":
     print('DDevice name is: ', tf.test.gpu_device_name())
 
     sys.argv.append('-p')
-    sys.argv.append('Atari_DQN')
-    sys.argv.extend(['-lvl', 'breakout'])
+    # sys.argv.append('Atari_DQN')
+    # sys.argv.extend(['-lvl', 'breakout'])
 
-    #sys.argv.append('CartPole_DQN')
+    sys.argv.append('CartPole_DQN')
 
     # sys.argv.append('Mujoco_ClippedPPO')
     # sys.argv.extend(['-lvl', 'inverted_pendulum'])
 
+    #sys.argv.extend(['-f', 'mxnet'])
     #sys.argv.extend(['-n', '8'])
 
     #sys.argv.extend(['-s', '30'])

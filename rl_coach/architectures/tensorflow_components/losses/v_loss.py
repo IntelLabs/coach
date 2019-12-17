@@ -15,6 +15,7 @@
 
 
 import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema, LOSS_OUT_TYPE_LOSS
 
@@ -22,7 +23,7 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLo
 class VLoss(HeadLoss):
 
     def __init__(self,
-                 network_name: str,
+                 network_name,
                  head_idx: int = 0,
                  loss_type: Loss = MeanSquaredError,
                  loss_weight: float=1.):
@@ -35,9 +36,8 @@ class VLoss(HeadLoss):
         super(VLoss, self).__init__(name=network_name)
         self.head_idx = head_idx
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
-        self.loss_type = loss_type
-        #self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
-        self.loss_fn = tf.keras.losses.MeanSquaredError()
+        self.loss_fn = keras.losses.get(loss_type)()
+        #self.loss_fn = tf.keras.losses.MeanSquaredError()
 
     @property
     def input_schema(self) -> LossInputSchema:

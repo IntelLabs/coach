@@ -34,9 +34,9 @@ LOSS_OUT_TYPE_CLIPPED_LIKELIHOOD_RATIO = 'clipped_likelihood_ratio'
 class PPOLoss(HeadLoss):
     def __init__(self,
                  network_name: str,
+                 head_idx: int,
                  agent_parameters: AgentParameters,
                  num_actions: int,
-                 head_idx: int,
                  loss_type: Loss,
                  loss_weight: float = 1.):
 

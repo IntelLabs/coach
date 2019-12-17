@@ -20,12 +20,13 @@ from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema
 from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS
-
+from rl_coach.base_parameters import AgentParameters
 
 class QLoss(HeadLoss):
     def __init__(self,
                  network_name: str,
-                 head_idx: int = 0,
+                 head_idx: int,
+                 agent_parameters: AgentParameters,
                  loss_type: Loss = MeanSquaredError,
                  loss_weight: float=1.):
         """
@@ -37,8 +38,8 @@ class QLoss(HeadLoss):
         super(QLoss, self).__init__(name=network_name)
         self.head_idx = head_idx
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
-        self.loss_type = loss_type
-        self.loss_fn = keras.losses.mean_squared_error#keras.losses.get(loss_type)
+        #self.loss_fn = keras.losses.mean_squared_error
+        self.loss_fn = keras.losses.get(loss_type)()
         # sample_weight can be used like https://github.com/keras-team/keras/blob/master/keras/losses.py
 
     @property
