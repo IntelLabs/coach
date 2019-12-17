@@ -17,17 +17,18 @@
 from tensorflow import keras
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition
+from rl_coach.architectures.tensorflow_components.layers import Dense, convert_layer
 
 
 class Head(keras.layers.Layer):
     def __init__(self, agent_parameters: AgentParameters,
                  spaces: SpacesDefinition,
                  network_name: str,
-                 head_type_idx: int=0,
-                 loss_weight: float=1.,
-                 is_local: bool=True,
-                 activation_function: str='relu',
-                 dense_layer: None=None):
+                 head_type_idx: int = 0,
+                 loss_weight: float = 1.,
+                 is_local: bool = True,
+                 activation_function: str = 'relu',
+                 dense_layer: None = None):
         """
         A head is the final part of the network. It takes the embedding from the middleware embedder and passes it
         through a neural network to produce the output of the network. There can be multiple heads in a network, and
@@ -53,6 +54,12 @@ class Head(keras.layers.Layer):
         self.return_type = None
         self.activation_function = activation_function
         self.dense_layer = dense_layer
+
+        if self.dense_layer is None:
+            self.dense_layer = Dense
+        else:
+            self.dense_layer = convert_layer(self.dense_layer)
+
         self.num_outputs_ = None
 
     @property

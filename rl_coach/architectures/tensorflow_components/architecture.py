@@ -31,6 +31,23 @@ from rl_coach.architectures.tensorflow_components.savers import TfSaver
 from rl_coach.architectures.tensorflow_components.losses.head_loss import LOSS_OUT_TYPE_LOSS, LOSS_OUT_TYPE_REGULARIZATION
 
 
+# def variable_summaries(var):
+#     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+#     with tf.name_scope('summaries'):
+#         layer_weight_name = '_'.join(var.name.split('/')[-3:])[:-2]
+#
+#         with tf.name_scope(layer_weight_name):
+#             mean = tf.reduce_mean(var)
+#             tf.summary.scalar('mean', mean)
+#             with tf.name_scope('stddev'):
+#                 stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+#             tf.summary.scalar('stddev', stddev)
+#             tf.summary.scalar('max', tf.reduce_max(var))
+#             tf.summary.scalar('min', tf.reduce_min(var))
+#             tf.summary.histogram('histogram', var)
+
+
+
 class TensorFlowArchitecture(Architecture):
     """
     :param agent_parameters: the agent parameters
@@ -71,11 +88,19 @@ class TensorFlowArchitecture(Architecture):
         self.optimizer_type = self.network_parameters.optimizer_type
         self.emmbeding_types = list(self.network_parameters.input_embedders_parameters.keys())
         if self.ap.task_parameters.seed is not None:
+            # TODO - tf2: convert to tf2 syntax
             tf.compat.v1.set_random_seed(self.ap.task_parameters.seed)
 
         # Call to child class to create the model
         self.construct_model()
         self.trainer = None
+
+        # global step is used for multi-threaded agents
+        # self.global_step = tf.train.get_or_create_global_step()
+        # locks for synchronous training- not supported in tf2
+        # if self.network_is_global:
+        #     self._create_locks_for_synchronous_training()
+        # self.inc_step = self.global_step.assign_add(1)
 
     def __str__(self):
         return self.model.summary(self._dummy_model_inputs())

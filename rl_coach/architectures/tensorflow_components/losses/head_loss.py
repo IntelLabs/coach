@@ -62,7 +62,7 @@ class HeadLoss(keras.layers.Layer):
         """
         raise NotImplementedError
 
-    def call(self, model_outputs, non_trainable_args) -> List[np.ndarray]:
+    def call(self, model_outputs: List[Tensor], non_trainable_args: List[np.ndarray]) -> List[np.ndarray]:
         """
         Extracts and aligns loss arguments and Passes the cal to loss_forward()
         :param model_outputs: list of all trainable model_outputs for this loss

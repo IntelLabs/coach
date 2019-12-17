@@ -112,6 +112,8 @@ class BatchnormActivationDropout(layers.BatchnormActivationDropout):
 
 
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout_rate, is_training, name):
+    # TODO - tf2: remove tf1 compatibility code
+
     layers = [input_layer]
 
     # Rationale: passing a bool here will mean that batchnorm and or activation will never activate

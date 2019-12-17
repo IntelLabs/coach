@@ -16,6 +16,7 @@
 
 
 from tensorflow import keras
+from rl_coach.architectures.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.core_types import QActionStateValue
@@ -51,9 +52,14 @@ class QHead(Head):
             self.num_actions = 1
         elif isinstance(self.spaces.action, DiscreteActionSpace):
             self.num_actions = len(self.spaces.action.actions)
+        else:
+            raise ValueError(
+                'QHead does not support action spaces of type: {class_name}'.format(
+                    class_name=self.spaces.action.__class__.__name__,
+                )
+            )
         self.return_type = QActionStateValue
-
-        self.dense = keras.layers.Dense(units=self.num_actions)
+        self.dense = Dense(units=self.num_actions)
 
     def call(self, inputs):
         """
@@ -64,3 +70,8 @@ class QHead(Head):
         """
         q_value = self.dense(inputs)
         return q_value
+
+    # def add_softmax_with_temperature(self):
+    #     temperature = self.ap.network_wrappers[self.network_name].softmax_temperature
+    #     temperature_scaled_outputs = self.q_values / temperature
+    #     return tf.nn.softmax(temperature_scaled_outputs, name="softmax")
