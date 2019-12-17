@@ -16,13 +16,16 @@
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from typing import List
+from typing import List, Union
+from types import MethodType
+
+import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
 from rl_coach.base_parameters import AgentParameters
 
 from rl_coach.spaces import SpacesDefinition
-from rl_coach.base_parameters import NetworkParameters
+from rl_coach.base_parameters import NetworkParameters, Device, DeviceType
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
 from rl_coach.architectures.tensorflow_components.dnn_model import create_full_model
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss
@@ -30,6 +33,7 @@ from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
 from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
 from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParameters, QHeadParameters
+from rl_coach.logger import screen
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
@@ -47,8 +51,16 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :param kwargs: all other keyword arguments for class initializer
         :return: a GeneralTensorFlowNetwork object
         """
-        # TODO: TF2 place holder for distributed training in TensorFlow
-        generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+
+        if len(devices) > 1:
+            screen.warning("Tensorflow implementation only support a single device. Using {}".format(devices[0]))
+
+        with tf.device(GeneralTensorFlowNetwork._tf_device(devices[0])):
+            generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+
+
+
+        #generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
         generalized_network.model.summary()
 
         #generalized_network.model.compile(loss=[v_loss_f, ppo_loss_f], loss_weights=[1, 1])
@@ -61,6 +73,27 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         plt.show()
 
         return generalized_network
+
+
+    @staticmethod
+    def _tf_device(device: Union[str, MethodType, Device]) -> str:
+        """
+        Convert device to tensorflow-specific device representation
+        :param device: either a specific string or method (used in distributed mode) which is returned without
+            any change or a Device type, which will be converted to a string
+        :return: tensorflow-specific string for device
+        """
+        if isinstance(device, str) or isinstance(device, MethodType):
+            return device
+        elif isinstance(device, Device):
+            if device.device_type == DeviceType.CPU:
+                return "/cpu:0"
+            elif device.device_type == DeviceType.GPU:
+                return "/device:GPU:{}".format(device.index)
+            else:
+                raise ValueError("Invalid device_type: {}".format(device.device_type))
+        else:
+            raise ValueError("Invalid device instance type: {}".format(type(device)))
 
     def __init__(self,
                  agent_parameters: AgentParameters,

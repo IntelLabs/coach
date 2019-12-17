@@ -779,7 +779,7 @@ def main():
 
 
 if __name__ == "__main__":
-    os.environ['CUDA_VISIBLE_DEVICES'] = ""
+    #os.environ['CUDA_VISIBLE_DEVICES'] = ""
     import tensorflow as tf
 
     print("GPU Available: ", tf.test.is_gpu_available())
@@ -787,13 +787,13 @@ if __name__ == "__main__":
     print('DDevice name is: ', tf.test.gpu_device_name())
 
     sys.argv.append('-p')
-    # sys.argv.append('Atari_DQN')
-    # sys.argv.extend(['-lvl', 'breakout'])
+    sys.argv.append('Atari_DQN')
+    sys.argv.extend(['-lvl', 'breakout'])
 
     #sys.argv.append('CartPole_DQN')
 
-    sys.argv.append('Mujoco_ClippedPPO')
-    sys.argv.extend(['-lvl', 'inverted_pendulum'])
+    # sys.argv.append('Mujoco_ClippedPPO')
+    # sys.argv.extend(['-lvl', 'inverted_pendulum'])
 
     #sys.argv.extend(['-f', 'mxnet'])
     #sys.argv.extend(['-n', '8'])
