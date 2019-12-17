@@ -34,6 +34,7 @@ from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
 from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
 from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParameters, QHeadParameters
 from rl_coach.logger import screen
+from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
 
 
 class GeneralTensorFlowNetwork(TensorFlowArchitecture):
@@ -57,8 +58,6 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         with tf.device(GeneralTensorFlowNetwork._tf_device(devices[0])):
             generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
-
-
 
         #generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
         generalized_network.model.summary()
@@ -202,6 +201,10 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             loss_type = Huber
         else:
             loss_type = MeanSquaredError
+
+        # loss_path = 'rl_coach.architectures.tensorflow_components.losses:QLoss'
+        # loss_path = loss_params.path
+        # loss = dynamic_import_and_instantiate_module_from_params(loss_params, path=loss_path)
 
         if isinstance(loss_params, QHeadParameters):
             loss = QLoss(network_name=network_name,

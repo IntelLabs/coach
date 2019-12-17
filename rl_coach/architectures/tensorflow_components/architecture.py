@@ -88,12 +88,19 @@ class TensorFlowArchitecture(Architecture):
         self.optimizer_type = self.network_parameters.optimizer_type
         self.emmbeding_types = list(self.network_parameters.input_embedders_parameters.keys())
         if self.ap.task_parameters.seed is not None:
+            tf.random.set_seed(self.ap.task_parameters.seed)
             # TODO - tf2: convert to tf2 syntax
-            tf.compat.v1.set_random_seed(self.ap.task_parameters.seed)
+            # tf.compat.v1.set_random_seed(self.ap.task_parameters.seed)
 
         # Call to child class to create the model
         self.construct_model()
         self.trainer = None
+
+        # TODO: Need to fix this, when do we want to save the weights?
+        if self.ap.visualization.tensorboard:
+            weights = self.get_weights()
+            for idx, var in enumerate(weights):
+                variable_summaries(var)
 
         # global step is used for multi-threaded agents
         # self.global_step = tf.train.get_or_create_global_step()
