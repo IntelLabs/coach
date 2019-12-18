@@ -96,3 +96,7 @@ class HeadLoss(keras.layers.Layer):
         arg_list.extend(model_outputs)
         arg_list.extend(non_trainable_args)
         return arg_list
+
+    @classmethod
+    def path(cls):
+        return cls.__class__.__name__

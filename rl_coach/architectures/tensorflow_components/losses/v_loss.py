@@ -37,7 +37,6 @@ class VLoss(HeadLoss):
         self.head_idx = head_idx
         assert (loss_type == MeanSquaredError) or (loss_type == Huber), "Only expecting L2Loss or HuberLoss."
         self.loss_fn = keras.losses.get(loss_type)()
-        #self.loss_fn = tf.keras.losses.MeanSquaredError()
 
     @property
     def input_schema(self) -> LossInputSchema:

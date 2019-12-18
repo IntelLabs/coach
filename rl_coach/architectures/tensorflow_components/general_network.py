@@ -18,12 +18,10 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from typing import List, Union
 from types import MethodType
-
-import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.losses import Loss, Huber, MeanSquaredError
-from rl_coach.base_parameters import AgentParameters
 
+from rl_coach.base_parameters import AgentParameters
 from rl_coach.spaces import SpacesDefinition
 from rl_coach.base_parameters import NetworkParameters, Device, DeviceType
 from rl_coach.architectures.tensorflow_components.architecture import TensorFlowArchitecture
@@ -32,7 +30,7 @@ from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLo
 from rl_coach.architectures.tensorflow_components.losses.q_loss import QLoss
 from rl_coach.architectures.tensorflow_components.losses.v_loss import VLoss
 from rl_coach.architectures.tensorflow_components.losses.ppo_loss import PPOLoss
-from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParameters, QHeadParameters
+from rl_coach.architectures.head_parameters import HeadParameters, PPOHeadParameters, VHeadParameters, QHeadParameters
 from rl_coach.logger import screen
 from rl_coach.utils import dynamic_import_and_instantiate_module_from_params
 
@@ -53,16 +51,21 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         :return: a GeneralTensorFlowNetwork object
         """
 
+
         if len(devices) > 1:
             screen.warning("Tensorflow implementation only support a single device. Using {}".format(devices[0]))
 
-        with tf.device(GeneralTensorFlowNetwork._tf_device(devices[0])):
-            generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+        # strategy = tf.distribute.MirroredStrategy()
+        # with strategy.scope():
+        #     generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
 
-        #generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+        generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+
+        # with tf.device(GeneralTensorFlowNetwork._tf_device(devices[0])):
+        #     generalized_network = GeneralTensorFlowNetwork(*args, **kwargs)
+
         generalized_network.model.summary()
 
-        #generalized_network.model.compile(loss=[v_loss_f, ppo_loss_f], loss_weights=[1, 1])
         keras.utils.plot_model(generalized_network.model,
                                expand_nested=True,
                                show_shapes=True,
@@ -184,12 +187,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         return optimizer
 
     def _get_loss(self,
-                  agent_parameters,
-                  loss_params,
+                  agent_parameters: AgentParameters,
+                  loss_params: HeadParameters,
                   network_name: str,
-                  num_actions,
-                  head_idx,
-                  loss_weight) -> HeadLoss:
+                  num_actions: int,
+                  head_idx: int,
+                  loss_weight: float) -> HeadLoss:
         """
         Given a loss type, creates the loss and returns it
         :param loss_params: the parameters of the loss to create

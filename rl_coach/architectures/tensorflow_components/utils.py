@@ -15,10 +15,10 @@
 
 
 import tensorflow as tf
-import numpy as np
 from tensorflow import keras
+import numpy as np
 from typing import List
-from typing import Dict, Union, Any
+from typing import Union, Any
 from tensorflow import Tensor
 
 

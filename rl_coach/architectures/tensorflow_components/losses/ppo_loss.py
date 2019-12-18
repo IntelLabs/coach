@@ -17,7 +17,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow import Tensor
 from tensorflow.keras.losses import Loss
-from typing import List, Tuple, Dict
+from typing import Dict
 
 from rl_coach.base_parameters import AgentParameters
 from rl_coach.architectures.tensorflow_components.losses.head_loss import HeadLoss, LossInputSchema,\

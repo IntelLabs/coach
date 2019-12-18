@@ -14,12 +14,8 @@
 # limitations under the License.
 #
 
-
-
 from tensorflow import keras
 from tensorflow.keras.layers import Dense, Input, Lambda
-
-
 
 
 #from rl_coach.architectures.layers import Dense

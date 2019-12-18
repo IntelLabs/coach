@@ -14,14 +14,12 @@
 # limitations under the License.
 #
 
-import copy
-from typing import Union, Tuple
 
+from typing import Tuple
 import tensorflow as tf
 from tensorflow import keras
-
 from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
-from rl_coach.base_parameters import MiddlewareScheme, NetworkComponentParameters
+from rl_coach.base_parameters import MiddlewareScheme
 from rl_coach.core_types import MiddlewareEmbedding
 
 
@@ -37,14 +35,17 @@ class Middleware(keras.layers.Layer):
                  batchnorm: bool = False,
                  dropout_rate: float = 0.0,
                  name="middleware_embedder",
+                 dense_layer=Dense,
                  is_training=False):
         super(Middleware, self).__init__(name=name)
-        #super().__init__(**kwargs)
 
         self.middleware_layers = []
-        # TF2 manual fix self.name = name name is set in super().__init__ with self._init_set_name(name)
         self.return_type = MiddlewareEmbedding
         self.is_training = is_training
+
+        # self.dense_layer = dense_layer
+        # if self.dense_layer is None:
+        #     self.dense_layer = Dense
 
         if isinstance(scheme, MiddlewareScheme):
             layers = self.schemes[scheme]

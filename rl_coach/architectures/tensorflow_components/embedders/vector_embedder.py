@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 import tensorflow as tf
 from typing import List, Dict
 from rl_coach.architectures.layers import Dense
