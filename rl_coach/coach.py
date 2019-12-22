@@ -14,6 +14,7 @@
 #
 
 import sys
+import tensorflow as tf
 sys.path.append('.')
 # TODO: Remove. This is added for running the script from command line without rl-coach package installation
 from os import sys, path
@@ -38,6 +39,7 @@ from multiprocessing import Process
 from multiprocessing.managers import BaseManager
 import subprocess
 from glob import glob
+
 
 from rl_coach.graph_managers.graph_manager import HumanPlayScheduleParameters, GraphManager
 from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, get_base_dir
@@ -774,26 +776,43 @@ class CoachInterface(CoachLauncher):
 
 
 def main():
+
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        # Restrict TensorFlow to only allocate 2GB of memory on the first GPU
+        try:
+            tf.config.experimental.set_virtual_device_configuration(
+                gpus[0],
+                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=2048)])
+            logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+        except RuntimeError as e:
+            # Virtual devices must be set before GPUs have been initialized
+            print(e)
+
     launcher = CoachLauncher()
     launcher.launch()
 
 
 if __name__ == "__main__":
-    os.environ['CUDA_VISIBLE_DEVICES'] = ""
-    import tensorflow as tf
+    #os.environ['CUDA_VISIBLE_DEVICES'] = ""
+    #import tensorflow as tf
 
-    print("GPU Available: ", tf.test.is_gpu_available())
-    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
-    print('DDevice name is: ', tf.test.gpu_device_name())
+    # print("GPU Available: ", tf.test.is_gpu_available())
+    # #physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    # print("Num GPUs Available: ", len(physical_devices))
+    #
+    # print('Device name is: ', tf.test.gpu_device_name())
 
-    sys.argv.append('-p')
+    #sys.argv.append('-p')
     # sys.argv.append('Atari_DQN')
     # sys.argv.extend(['-lvl', 'breakout'])
 
     #sys.argv.append('CartPole_DQN')
 
-    sys.argv.append('Mujoco_ClippedPPO')
-    sys.argv.extend(['-lvl', 'inverted_pendulum'])
+    # sys.argv.append('Mujoco_ClippedPPO')
+    # sys.argv.extend(['-lvl', 'inverted_pendulum'])
+
 
     #sys.argv.extend(['-f', 'mxnet'])
     #sys.argv.extend(['-n', '8'])
