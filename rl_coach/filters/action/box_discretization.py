@@ -59,7 +59,7 @@ class BoxDiscretization(PartialDiscreteActionSpaceMap):
 
     def get_unfiltered_action_space(self, output_action_space: BoxActionSpace) -> DiscreteActionSpace:
         if isinstance(self.num_bins_per_dimension, int):
-            self.num_bins_per_dimension = np.ones(output_action_space.shape) * self.num_bins_per_dimension
+            self.num_bins_per_dimension = np.ones(output_action_space.shape).astype(int) * self.num_bins_per_dimension
 
         bins = []
         for i in range(len(output_action_space.low)):
