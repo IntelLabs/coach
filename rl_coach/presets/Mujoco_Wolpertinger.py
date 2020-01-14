@@ -32,7 +32,7 @@ agent_params.network_wrappers['critic'].input_embedders_parameters['action'].sch
 agent_params.output_filter = \
     OutputFilter(
         action_filters=OrderedDict([
-            ('discretization', BoxDiscretization(num_bins_per_dimension=1000000))
+            ('discretization', BoxDiscretization(num_bins_per_dimension=[1000000]))
         ]),
         is_a_reference_filter=False
     )
