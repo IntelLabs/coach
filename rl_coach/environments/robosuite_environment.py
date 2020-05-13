@@ -17,6 +17,8 @@
 from typing import Union
 from enum import Enum, Flag, auto
 from copy import deepcopy
+import numpy as np
+import random
 
 try:
     import robosuite
@@ -28,7 +30,8 @@ except ImportError:
 from rl_coach.base_parameters import Parameters, VisualizationParameters
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
-from rl_coach.spaces import BoxActionSpace, ImageObservationSpace, VectorObservationSpace, StateSpace
+from rl_coach.spaces import BoxActionSpace, ImageObservationSpace, VectorObservationSpace, StateSpace,\
+    PlanarMapsObservationSpace
 
 
 class RobosuiteRobotType(Enum):
@@ -41,10 +44,10 @@ _one_arm_robots = (RobosuiteRobotType.SAWYER, RobosuiteRobotType.PANDA)
 _two_arm_robots = (RobosuiteRobotType.BAXTER,)
 
 
-# class OptionalObservations(Flag):
-#     NONE = 0
-#     CAMERA = auto()
-#     OBJECT = auto()
+class OptionalObservations(Flag):
+    NONE = 0
+    CAMERA = auto()
+    OBJECT = auto()
 
 
 class RobosuiteCameraTypes(Enum):
@@ -54,7 +57,7 @@ class RobosuiteCameraTypes(Enum):
 
 
 class RobosuiteBaseParameters(Parameters):
-    def __init__(self):
+    def __init__(self, optional_observations: OptionalObservations = OptionalObservations.NONE):
         super(RobosuiteBaseParameters, self).__init__()
         # NOTE: Attribute names exactly match the attribute names in Robosuite
         self.horizon = 1000                 # Every episode lasts for exactly horizon timesteps
@@ -64,10 +67,14 @@ class RobosuiteBaseParameters(Parameters):
         self.use_indicator_obj = False      # if True, sets up an indicator object that is useful for debugging
 
         # Optional observations (robot state is always returned)
-        self.use_camera_obs = True          # if True, every observation includes a rendered image
-        self.use_object_obs = True          # if True, include object (cube/etc.) information in the observation
+        # if True, every observation includes a rendered image
+        self.use_camera_obs = optional_observations & OptionalObservations.CAMERA
+        # if True, include object (cube/etc.) information in the observation
+        self.use_object_obs = optional_observations & OptionalObservations.OBJECT
 
         # Camera parameters
+        self.has_renderer = False
+        self.has_offscreen_renderer = self.use_camera_obs
         self.render_collision_mesh = False              # True if rendering collision meshes in camera. False otherwise
         self.render_visual_mesh = True                  # True if rendering visual meshes in camera. False otherwise
         self.camera_name = RobosuiteCameraTypes.FRONT   # name of camera to be rendered (required for camera obs)
@@ -181,6 +188,8 @@ class RobosuiteEnvironmentParameters(EnvironmentParameters):
         self.base_parameters = RobosuiteBaseParameters()
         self.task_parameters = task_parameters
         self.robot = robot
+        self.ik_wrapper_enabled = False
+        self.ik_wrapper_action_repeat = 1
 
     @property
     def path(self):
@@ -198,6 +207,7 @@ class RobosuiteEnvironment(Environment):
                  base_parameters: RobosuiteBaseParameters,
                  task_parameters: RobosuiteTaskParameters,
                  robot: RobosuiteRobotType,
+                 ik_wrapper_enabled: bool, ik_wrapper_action_repeat: int,
                  target_success_rate: float = 1.0, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                                                    visualization_parameters, target_success_rate)
@@ -223,11 +233,14 @@ class RobosuiteEnvironment(Environment):
             ))
         self.robot = robot
 
-        # Load and initialize environment
+        self.base_parameters = base_parameters
+        self.base_parameters.has_renderer = self.is_rendered, self.native_rendering
+        self.base_parameters.has_offscreen_renderer = self.base_parameters.use_camera_obs or (self.is_rendered and not
+                                                                                              self.native_rendering)
 
-        env_args = base_parameters.env_kwargs_dict()
+        # Load and initialize environment
+        env_args = self.base_parameters.env_kwargs_dict()
         env_args.update(task_parameters.env_kwargs_dict())
-        env_args['has_renderer'] = visualization_parameters.native_rendering
 
         robosuite_env_name = self.robot.value + self.level.replace('TwoArm', '')
 
@@ -239,4 +252,39 @@ class RobosuiteEnvironment(Environment):
         mujoco_fps = 1. / self.env.model_timestep
         self.env.control_freq = mujoco_fps / frame_skip
         self.env.initialize_time(self.env.control_freq)
+
+        if ik_wrapper_enabled:
+            self.env = IKWrapper(self.env, action_repeat=ik_wrapper_action_repeat)
+
+        # Seed
+        if self.seed is not None:
+            np.random.seed(self.seed)
+            random.seed(self.seed)
+
+        # State space
+        self.state_space = StateSpace({})
+        dummy_obs = self.env.observation_spec()
+
+        self.state_space['robot-state'] = VectorObservationSpace(dummy_obs['robot-state'].shape)
+
+        if self.base_parameters.use_camera_obs:
+            self.state_space['image'] = ImageObservationSpace(dummy_obs['image'].shape, 255)
+            if self.base_parameters.camera_depth:
+                self.state_space['depth'] = PlanarMapsObservationSpace(dummy_obs['depth'].shape, 0, 1)
+
+        if self.base_parameters.use_object_obs:
+            self.state_space['object-state'] = VectorObservationSpace(dummy_obs['object-state'].shape)
+
+        # Action space
+        if ik_wrapper_enabled:
+            # TODO: Figure out high/low limits
+            shape = 14 if self.robot == RobosuiteRobotType.BAXTER else 7
+            self.action_space = BoxActionSpace(shape)
+        else:
+            low, high = self.env.action_spec()
+            self.action_space = BoxActionSpace(low.shape, low=low, high=high)
+
+        self.reset_internal_state()
+
+        # TODO: Other environments call rendering here, why? reset_internal_state does it
 

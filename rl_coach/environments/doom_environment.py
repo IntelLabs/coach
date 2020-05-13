@@ -151,8 +151,8 @@ class DoomEnvironment(Environment):
             Each camera should be an enum from CameraTypes, and there are several options like an RGB observation,
             a depth map, a segmentation map, and a top down map of the enviornment.
 
-		:param target_success_rate: (float)
-			Stop experiment if given target success rate was achieved.
+        :param target_success_rate: (float)
+            Stop experiment if given target success rate was achieved.
 
         """
         super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
