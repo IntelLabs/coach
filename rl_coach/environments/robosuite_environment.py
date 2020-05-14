@@ -19,6 +19,7 @@ from enum import Enum, Flag, auto
 from copy import deepcopy
 import numpy as np
 import random
+from collections import namedtuple
 
 try:
     import robosuite
@@ -199,6 +200,9 @@ class RobosuiteEnvironmentParameters(EnvironmentParameters):
 robosuite_envs = {env_name.lower(): env for env_name, env in robosuite.environments.REGISTERED_ENVS.items()}
 
 
+RobosuiteStepResult = namedtuple('RobosuiteStepResult', ['observation', 'reward', 'done', 'info'])
+
+
 # Environment
 class RobosuiteEnvironment(Environment):
     def __init__(self, level: LevelSelection,
@@ -287,4 +291,28 @@ class RobosuiteEnvironment(Environment):
         self.reset_internal_state()
 
         # TODO: Other environments call rendering here, why? reset_internal_state does it
+
+    def _take_action(self, action):
+        action = self.action_space.clip_action_to_space(action)
+        self.last_result = self.env.step(action)
+
+    def _update_state(self):
+        self.state = {k: self.last_result.observation[k] for k in self.state_space}
+        self.reward = self.last_result.reward or 0
+        self.done = self.last_result.done
+        self.info = self.last_result.info
+
+    def _restart_environment_episode(self, force_environment_reset=False):
+        reset_obs = self.env.reset()
+        self.last_result = RobosuiteStepResult(reset_obs, 0.0, False, {})
+
+    def _render(self):
+        self.env.render()
+
+    def get_rendered_image(self) -> np.ndarray:
+        obs = self.last_result.observation if self.last_result is not None else self.env._get_observation()
+        return obs['image']
+
+    def close(self):
+        self.env.close()
 
