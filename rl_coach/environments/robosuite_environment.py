@@ -30,7 +30,8 @@ except ImportError:
 
 from rl_coach.base_parameters import Parameters, VisualizationParameters
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
-from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
+from rl_coach.filters.filter import InputFilter, NoOutputFilter
+from rl_coach.filters.observation import ObservationStackingFilter
 from rl_coach.spaces import BoxActionSpace, ImageObservationSpace, VectorObservationSpace, StateSpace,\
     PlanarMapsObservationSpace
 
@@ -62,26 +63,48 @@ class RobosuiteBaseParameters(Parameters):
         super(RobosuiteBaseParameters, self).__init__()
         # NOTE: Attribute names exactly match the attribute names in Robosuite
         self.horizon = 1000                 # Every episode lasts for exactly horizon timesteps
-        self.ignore_done = False            # True if never terminating the environment (ignore horizon)
+        self.ignore_done = True             # True if never terminating the environment (ignore horizon)
         self.reward_shaping = True          # if True, use dense rewards.
         self.gripper_visualization = True   # True if using gripper visualization. Useful for teleoperation.
         self.use_indicator_obj = False      # if True, sets up an indicator object that is useful for debugging
 
+        # How many control signals to receive in every simulated second. This sets the amount of simulation time
+        # that passes between every action input (this is NOT the same as frame_skip)
+        self.control_freq = 100
+
         # Optional observations (robot state is always returned)
         # if True, every observation includes a rendered image
-        self.use_camera_obs = optional_observations & OptionalObservations.CAMERA
+        self.use_camera_obs = bool(optional_observations & OptionalObservations.CAMERA)
         # if True, include object (cube/etc.) information in the observation
-        self.use_object_obs = optional_observations & OptionalObservations.OBJECT
+        self.use_object_obs = bool(optional_observations & OptionalObservations.OBJECT)
 
         # Camera parameters
         self.has_renderer = False
         self.has_offscreen_renderer = self.use_camera_obs
         self.render_collision_mesh = False              # True if rendering collision meshes in camera. False otherwise
         self.render_visual_mesh = True                  # True if rendering visual meshes in camera. False otherwise
-        self.camera_name = RobosuiteCameraTypes.FRONT   # name of camera to be rendered (required for camera obs)
-        self.camera_height = 256                        # height of camera frame.
-        self.camera_width = 256                         # width of camera frame.
+        self.camera_name = RobosuiteCameraTypes.AGENT   # name of camera to be rendered (required for camera obs)
+        self.camera_height = 84                         # height of camera frame.
+        self.camera_width = 84                          # width of camera frame.
         self.camera_depth = False                       # True if rendering RGB-D, and RGB otherwise.
+
+    @property
+    def optional_observations(self):
+        flag = OptionalObservations.NONE
+        if self.use_camera_obs:
+            flag = OptionalObservations.CAMERA
+            if self.use_object_obs:
+                flag |= OptionalObservations.OBJECT
+        elif self.use_object_obs:
+            flag = OptionalObservations.OBJECT
+        return flag
+
+    @optional_observations.setter
+    def optional_observations(self, value):
+        self.use_camera_obs = bool(value & OptionalObservations.CAMERA)
+        if self.use_camera_obs:
+            self.has_offscreen_renderer = True
+        self.use_object_obs = bool(value & OptionalObservations.OBJECT)
 
     def env_kwargs_dict(self):
         res = deepcopy(vars(self))
@@ -183,14 +206,21 @@ robosuite_level_expected_types = {
 }
 
 
+RobosuiteInputFilter = InputFilter(is_a_reference_filter=True)
+RobosuiteInputFilter.add_observation_filter('image', 'stacking', ObservationStackingFilter(3))
+RobosuiteOutputFilter = NoOutputFilter()
+
+
 class RobosuiteEnvironmentParameters(EnvironmentParameters):
-    def __init__(self, level, task_parameters, robot):
+    def __init__(self, level, task_parameters, robot=None):
         super().__init__(level=level)
         self.base_parameters = RobosuiteBaseParameters()
         self.task_parameters = task_parameters
         self.robot = robot
         self.ik_wrapper_enabled = False
         self.ik_wrapper_action_repeat = 1
+        self.default_input_filter = RobosuiteInputFilter
+        self.default_output_filter = RobosuiteOutputFilter
 
     @property
     def path(self):
@@ -217,6 +247,8 @@ class RobosuiteEnvironment(Environment):
                                                    visualization_parameters, target_success_rate)
 
         # Validate arguments
+
+        self.frame_skip = max(1, self.frame_skip)
 
         try:
             self.level = RobosuiteLevels[self.env_id.upper()]
@@ -249,13 +281,6 @@ class RobosuiteEnvironment(Environment):
         robosuite_env_name = self.robot.value + self.level.replace('TwoArm', '')
 
         self.env: robosuite.environments.MujocoEnv = robosuite.make(robosuite_env_name, **env_args)
-
-        # Robosuite doesn't have the concept of frame skip, instead it takes a "control frequency"
-        # parameter which set the number of control (action) signals the simulator gets each
-        # simulated second.
-        mujoco_fps = 1. / self.env.model_timestep
-        self.env.control_freq = mujoco_fps / frame_skip
-        self.env.initialize_time(self.env.control_freq)
 
         if ik_wrapper_enabled:
             self.env = IKWrapper(self.env, action_repeat=ik_wrapper_action_repeat)
@@ -294,7 +319,18 @@ class RobosuiteEnvironment(Environment):
 
     def _take_action(self, action):
         action = self.action_space.clip_action_to_space(action)
-        self.last_result = self.env.step(action)
+
+        # We mimic the "action_repeat" mechanism of RobosuiteWrapper in Surreal.
+        # Same concept as frame_skip, only returning the average reward acrossrepeated actions instead
+        # of the total reward.
+        rewards = []
+        for _ in range(self.frame_skip):
+            obs, reward, done, info = self.env.step(action)
+            rewards.append(reward)
+            if done:
+                break
+        reward = np.mean(rewards)
+        self.last_result = RobosuiteStepResult(obs, reward, done, info)
 
     def _update_state(self):
         self.state = {k: self.last_result.observation[k] for k in self.state_space}
@@ -309,9 +345,8 @@ class RobosuiteEnvironment(Environment):
     def _render(self):
         self.env.render()
 
-    def get_rendered_image(self) -> np.ndarray:
-        obs = self.last_result.observation if self.last_result is not None else self.env._get_observation()
-        return obs['image']
+    def get_rendered_image(self):
+        return self.env.sim.render(camera_name='frontview', height=512, width=512, depth=False)
 
     def close(self):
         self.env.close()
