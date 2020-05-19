@@ -30,10 +30,7 @@ except ImportError:
 
 from rl_coach.base_parameters import Parameters, VisualizationParameters
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
-from rl_coach.filters.filter import InputFilter, NoOutputFilter
-from rl_coach.filters.observation import ObservationStackingFilter
-from rl_coach.spaces import BoxActionSpace, ImageObservationSpace, VectorObservationSpace, StateSpace,\
-    PlanarMapsObservationSpace
+from rl_coach.spaces import BoxActionSpace, VectorObservationSpace, StateSpace, PlanarMapsObservationSpace
 
 
 class RobosuiteRobotType(Enum):
@@ -206,11 +203,6 @@ robosuite_level_expected_types = {
 }
 
 
-RobosuiteInputFilter = InputFilter(is_a_reference_filter=True)
-RobosuiteInputFilter.add_observation_filter('image', 'stacking', ObservationStackingFilter(3))
-RobosuiteOutputFilter = NoOutputFilter()
-
-
 class RobosuiteEnvironmentParameters(EnvironmentParameters):
     def __init__(self, level, task_parameters, robot=None):
         super().__init__(level=level)
@@ -219,8 +211,6 @@ class RobosuiteEnvironmentParameters(EnvironmentParameters):
         self.robot = robot
         self.ik_wrapper_enabled = False
         self.ik_wrapper_action_repeat = 1
-        self.default_input_filter = RobosuiteInputFilter
-        self.default_output_filter = RobosuiteOutputFilter
 
     @property
     def path(self):
@@ -231,6 +221,26 @@ robosuite_envs = {env_name.lower(): env for env_name, env in robosuite.environme
 
 
 RobosuiteStepResult = namedtuple('RobosuiteStepResult', ['observation', 'reward', 'done', 'info'])
+
+
+def _process_observation(raw_obs):
+    new_obs = {}
+
+    camera_obs = raw_obs.get('image', None)
+    if camera_obs:
+        depth_obs = raw_obs.get('depth', None)
+        if depth_obs:
+            depth_obs = np.expand_dims(depth_obs, axis=2)
+            camera_obs = np.concatenate([camera_obs, depth_obs], axis=2)
+        new_obs['camera'] = camera_obs
+
+    measurements = raw_obs['robot-state']
+    object_obs = raw_obs.get['object-state']
+    if object_obs:
+        measurements = np.concatenate([measurements, object_obs])
+    new_obs['measurements'] = measurements
+
+    return new_obs
 
 
 # Environment
@@ -292,17 +302,12 @@ class RobosuiteEnvironment(Environment):
 
         # State space
         self.state_space = StateSpace({})
-        dummy_obs = self.env.observation_spec()
+        dummy_obs = _process_observation(self.env.observation_spec())
 
-        self.state_space['robot-state'] = VectorObservationSpace(dummy_obs['robot-state'].shape)
+        self.state_space['measurements'] = VectorObservationSpace(dummy_obs['measurements'].shape[0])
 
         if self.base_parameters.use_camera_obs:
-            self.state_space['image'] = ImageObservationSpace(dummy_obs['image'].shape, 255)
-            if self.base_parameters.camera_depth:
-                self.state_space['depth'] = PlanarMapsObservationSpace(dummy_obs['depth'].shape, 0, 1)
-
-        if self.base_parameters.use_object_obs:
-            self.state_space['object-state'] = VectorObservationSpace(dummy_obs['object-state'].shape)
+            self.state_space['camera'] = PlanarMapsObservationSpace(dummy_obs['camera'].shape, 0, 255)
 
         # Action space
         if ik_wrapper_enabled:
@@ -333,7 +338,8 @@ class RobosuiteEnvironment(Environment):
         self.last_result = RobosuiteStepResult(obs, reward, done, info)
 
     def _update_state(self):
-        self.state = {k: self.last_result.observation[k] for k in self.state_space}
+        obs = _process_observation(self.last_result.observation)
+        self.state = {k: obs[k] for k in self.state_space}
         self.reward = self.last_result.reward or 0
         self.done = self.last_result.done
         self.info = self.last_result.info
@@ -346,7 +352,8 @@ class RobosuiteEnvironment(Environment):
         self.env.render()
 
     def get_rendered_image(self):
-        return self.env.sim.render(camera_name='frontview', height=512, width=512, depth=False)
+        return self.env.sim.render(camera_name=RobosuiteCameraTypes.FRONT.value,
+                                   height=512, width=512, depth=False)
 
     def close(self):
         self.env.close()
