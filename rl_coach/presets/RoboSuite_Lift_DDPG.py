@@ -7,7 +7,7 @@ from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentS
 from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, RobosuiteLiftParameters, \
     RobosuiteRobotType, OptionalObservations
 from rl_coach.environments.environment import SingleLevelSelection
-from rl_coach.filters.filter import InputFilter
+from rl_coach.filters.filter import InputFilter, NoOutputFilter
 from rl_coach.filters.observation import ObservationStackingFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -40,10 +40,10 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 agent_params = DDPGAgentParameters()
 
 agent_params.input_filter = InputFilter()
-agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3))
+agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(4))
+agent_params.output_filter = NoOutputFilter()
 
-camera_obs_scheme = [Conv2d(16, 8, 4), Conv2d(32, 4, 2), Dense(200)]
-
+# Exploration
 agent_params.exploration = OUProcessParameters()
 agent_params.exploration.sigma = 2. / 3.
 agent_params.exploration.dt = 1e-3
@@ -52,7 +52,10 @@ agent_params.exploration.dt = 1e-3
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = TrainingSteps(500)
 agent_params.algorithm.rate_for_copying_weights_to_target = 1.0
 
-# actor
+# Camera observation pre-processing network scheme
+camera_obs_scheme = [Conv2d(16, 8, 4), Conv2d(32, 4, 2), Dense(200)]
+
+# Actor
 actor_network = agent_params.network_wrappers['actor']
 actor_network.input_embedders_parameters = {
     'measurements': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
@@ -65,7 +68,7 @@ actor_network.clip_gradients = 1.0
 actor_network.gradients_clipping_method = GradientClippingMethod.ClipByValue
 actor_network.batch_size = 512
 
-# critic
+# Critic
 critic_network = agent_params.network_wrappers['critic']
 critic_network.input_embedders_parameters = {
     'action': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
@@ -81,13 +84,16 @@ critic_network.batch_size = 512
 ###############
 # Environment #
 ###############
-env_params = RobosuiteEnvironmentParameters('lift', RobosuiteLiftParameters)
+env_params = RobosuiteEnvironmentParameters('lift', RobosuiteLiftParameters())
 env_params.robot = RobosuiteRobotType.SAWYER
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.camera_depth = False
 env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 10
+
+vis_params = VisualizationParameters()
+vis_params.print_networks_summary = True
 
 
 ########
@@ -97,5 +103,5 @@ preset_validation_params = PresetValidationParameters()
 # preset_validation_params.trace_test_levels = ['cartpole:swingup', 'hopper:hop']
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
-                                    schedule_params=schedule_params, vis_params=VisualizationParameters(),
+                                    schedule_params=schedule_params, vis_params=vis_params,
                                     preset_validation_params=preset_validation_params)
