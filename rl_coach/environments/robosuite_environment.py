@@ -23,7 +23,7 @@ from collections import namedtuple
 
 try:
     import robosuite
-    from robosuite.wrappers import IKWrapper
+    from robosuite.wrappers import IKWrapper, Wrapper
 except ImportError:
     from rl_coach.logger import failed_imports
     failed_imports.append("Robosuite")
@@ -63,7 +63,7 @@ class RobosuiteBaseParameters(Parameters):
         self.ignore_done = True             # True if never terminating the environment (ignore horizon)
         self.reward_shaping = True          # if True, use dense rewards.
         self.gripper_visualization = True   # True if using gripper visualization. Useful for teleoperation.
-        self.use_indicator_obj = False      # if True, sets up an indicator object that is useful for debugging
+        self.use_indicator_object = False   # if True, sets up an indicator object that is useful for debugging
 
         # How many control signals to receive in every simulated second. This sets the amount of simulation time
         # that passes between every action input (this is NOT the same as frame_skip)
@@ -114,7 +114,7 @@ class RobosuiteTaskParameters(Parameters):
         super(RobosuiteTaskParameters, self).__init__()
 
     def env_kwargs_dict(self):
-        res = {k: (v.value if isinstance(v, Enum) else v) for k, v in vars(self)}
+        res = {k: (v.value if isinstance(v, Enum) else v) for k, v in vars(self).items()}
         return res
 
 
@@ -185,11 +185,11 @@ class RobosuiteTwoArmPegInHoleParameters(RobosuiteTaskParameters):
 
 
 class RobosuiteLevels(Enum):
-    LIFT = 'Lift',
-    PICK_PLACE = 'PickPlace',
-    NUT_ASSEMBLY = 'NutAssembly',
-    STACK = 'Stack',
-    TWO_ARM_LIFT = 'TwoArmLift',
+    LIFT = 'Lift'
+    PICK_PLACE = 'PickPlace'
+    NUT_ASSEMBLY = 'NutAssembly'
+    STACK = 'Stack'
+    TWO_ARM_LIFT = 'TwoArmLift'
     TWO_ARM_PEG_IN_HOLE = 'TwoArmPegInHole'
 
 
@@ -227,16 +227,16 @@ def _process_observation(raw_obs):
     new_obs = {}
 
     camera_obs = raw_obs.get('image', None)
-    if camera_obs:
+    if camera_obs is not None:
         depth_obs = raw_obs.get('depth', None)
-        if depth_obs:
+        if depth_obs is not None:
             depth_obs = np.expand_dims(depth_obs, axis=2)
             camera_obs = np.concatenate([camera_obs, depth_obs], axis=2)
         new_obs['camera'] = camera_obs
 
     measurements = raw_obs['robot-state']
-    object_obs = raw_obs.get['object-state']
-    if object_obs:
+    object_obs = raw_obs.get('object-state', None)
+    if object_obs is not None:
         measurements = np.concatenate([measurements, object_obs])
     new_obs['measurements'] = measurements
 
@@ -264,41 +264,45 @@ class RobosuiteEnvironment(Environment):
             self.level = RobosuiteLevels[self.env_id.upper()]
         except KeyError:
             raise ValueError("Unknown Robosuite level passed: '{}' ; Supported levels are: {}".format(
-                level, ', '.join([lvl.name.lower() for lvl in RobosuiteLevels])
+                level, ' | '.join([lvl.name.lower() for lvl in RobosuiteLevels])
             ))
 
         expected_params, expected_robots = robosuite_level_expected_types.get(self.level)
         if not isinstance(task_parameters, expected_params):
-            raise TypeError("task_parameters for level '{}' must be of type ".format(self.env_id,
-                                                                                     expected_params.__name__))
+            raise TypeError("task_parameters for level '{}' must be of type {}".format(self.env_id,
+                                                                                       expected_params.__name__))
         self.task_parameters = task_parameters
 
         if robot not in expected_robots:
             raise ValueError('{} robot not incompatible with level {} ; Compatible robots: {}'.format(
-                robot, self.env_id, ', '.join([r for r in RobosuiteRobotType])
+                robot, self.env_id, ' | '.join([str(r) for r in expected_robots])
             ))
         self.robot = robot
 
         self.base_parameters = base_parameters
-        self.base_parameters.has_renderer = self.is_rendered, self.native_rendering
+        self.base_parameters.has_renderer = self.is_rendered and self.native_rendering
         self.base_parameters.has_offscreen_renderer = self.base_parameters.use_camera_obs or (self.is_rendered and not
                                                                                               self.native_rendering)
-
-        # Load and initialize environment
-        env_args = self.base_parameters.env_kwargs_dict()
-        env_args.update(task_parameters.env_kwargs_dict())
-
-        robosuite_env_name = self.robot.value + self.level.replace('TwoArm', '')
-
-        self.env: robosuite.environments.MujocoEnv = robosuite.make(robosuite_env_name, **env_args)
-
-        if ik_wrapper_enabled:
-            self.env = IKWrapper(self.env, action_repeat=ik_wrapper_action_repeat)
 
         # Seed
         if self.seed is not None:
             np.random.seed(self.seed)
             random.seed(self.seed)
+
+        # Load and initialize environment
+        env_args = self.base_parameters.env_kwargs_dict()
+        env_args.update(task_parameters.env_kwargs_dict())
+
+        robosuite_env_name = self.robot.value + self.level.value.replace('TwoArm', '')
+
+        self.env: robosuite.environments.MujocoEnv = robosuite.make(robosuite_env_name, **env_args)
+
+        if ik_wrapper_enabled:
+            self.env = IKWrapper(self.env, action_repeat=ik_wrapper_action_repeat)
+        else:
+            # Wrap with a dummy wrapper so we get a consistent API (there are subtle changes between
+            # wrappers and actual environments in Robosuite, for example action_spec as property vs. function)
+            self.env = Wrapper(self.env)
 
         # State space
         self.state_space = StateSpace({})
@@ -315,11 +319,14 @@ class RobosuiteEnvironment(Environment):
             shape = 14 if self.robot == RobosuiteRobotType.BAXTER else 7
             self.action_space = BoxActionSpace(shape)
         else:
-            low, high = self.env.action_spec()
+            low, high = self.env.unwrapped.action_spec
             self.action_space = BoxActionSpace(low.shape, low=low, high=high)
 
         self.reset_internal_state()
 
+        if self.is_rendered:
+            image = self.get_rendered_image()
+            self.renderer.create_screen(image.shape[1], image.shape[0])
         # TODO: Other environments call rendering here, why? reset_internal_state does it
 
     def _take_action(self, action):
@@ -339,7 +346,7 @@ class RobosuiteEnvironment(Environment):
 
     def _update_state(self):
         obs = _process_observation(self.last_result.observation)
-        self.state = {k: obs[k] for k in self.state_space}
+        self.state = {k: obs[k] for k in self.state_space.sub_spaces}
         self.reward = self.last_result.reward or 0
         self.done = self.last_result.done
         self.info = self.last_result.info
@@ -352,8 +359,9 @@ class RobosuiteEnvironment(Environment):
         self.env.render()
 
     def get_rendered_image(self):
-        return self.env.sim.render(camera_name=RobosuiteCameraTypes.FRONT.value,
-                                   height=512, width=512, depth=False)
+        img: np.ndarray = self.env.sim.render(camera_name=RobosuiteCameraTypes.FRONT.value,
+                                              height=512, width=512, depth=False)
+        return np.flip(img, 0)
 
     def close(self):
         self.env.close()
