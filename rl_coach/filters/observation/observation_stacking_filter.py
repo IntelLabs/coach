@@ -30,12 +30,13 @@ class LazyStack(object):
     needed.
     """
 
-    def __init__(self, history, axis=None):
+    def __init__(self, history, axis=None, concat=False):
         self.history = copy.copy(history)
         self.axis = axis
+        self.concat = concat
 
     def __array__(self, dtype=None):
-        array = np.stack(self.history, axis=self.axis)
+        array = np.concatenate(self.history, axis=self.axis) if self.concat else np.stack(self.history, axis=self.axis)
         if dtype is not None:
             array = array.astype(dtype)
         return array
@@ -54,7 +55,7 @@ class ObservationStackingFilter(ObservationFilter):
     applied after this filter. applying more filters will cause the LazyStack object to be converted to a numpy array
     and increase the memory footprint.
     """
-    def __init__(self, stack_size: int, stacking_axis: int=-1):
+    def __init__(self, stack_size: int, stacking_axis: int=-1, concat=False):
         """
         :param stack_size: the number of previous observations in the stack
         :param stacking_axis: the axis on which to stack the observation on
@@ -64,6 +65,8 @@ class ObservationStackingFilter(ObservationFilter):
         self.stacking_axis = stacking_axis
         self.stack = []
         self.input_observation_space = None
+        # TODO: Come up with a decent API for concat vs. stack
+        self.concat = concat
 
         if stack_size <= 0:
             raise ValueError("The stack shape must be a positive number")
@@ -92,7 +95,7 @@ class ObservationStackingFilter(ObservationFilter):
         else:
             if update_internal_state:
                 self.stack.append(observation)
-        observation = LazyStack(self.stack, self.stacking_axis)
+        observation = LazyStack(self.stack, self.stacking_axis, self.concat)
 
         if isinstance(self.input_observation_space, VectorObservationSpace):
             # when stacking vectors, we cannot avoid copying the memory as we're flattening it all
@@ -104,11 +107,14 @@ class ObservationStackingFilter(ObservationFilter):
         if isinstance(input_observation_space, VectorObservationSpace):
             self.input_observation_space = input_observation_space = VectorObservationSpace(input_observation_space.shape * self.stack_size)
         else:
-            if self.stacking_axis == -1:
-                input_observation_space.shape = np.append(input_observation_space.shape, values=[self.stack_size], axis=0)
+            if self.concat:
+                input_observation_space.shape[self.stacking_axis] *= self.stack_size
             else:
-                input_observation_space.shape = np.insert(input_observation_space.shape, obj=self.stacking_axis,
-                                                         values=[self.stack_size], axis=0)
+                if self.stacking_axis == -1:
+                    input_observation_space.shape = np.append(input_observation_space.shape, values=[self.stack_size], axis=0)
+                else:
+                    input_observation_space.shape = np.insert(input_observation_space.shape, obj=self.stacking_axis,
+                                                             values=[self.stack_size], axis=0)
         return input_observation_space
 
     def reset(self) -> None:

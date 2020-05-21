@@ -40,7 +40,7 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 agent_params = DDPGAgentParameters()
 
 agent_params.input_filter = InputFilter()
-agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(4))
+agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=True))
 agent_params.output_filter = NoOutputFilter()
 
 # Exploration
