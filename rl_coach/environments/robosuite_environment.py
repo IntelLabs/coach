@@ -259,6 +259,7 @@ class RobosuiteEnvironment(Environment):
         # Validate arguments
 
         self.frame_skip = max(1, self.frame_skip)
+        base_parameters.horizon *= self.frame_skip
 
         try:
             self.level = RobosuiteLevels[self.env_id.upper()]
