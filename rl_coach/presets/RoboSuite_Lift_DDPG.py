@@ -20,7 +20,7 @@ schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
 schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(20)
 schedule_params.evaluation_steps = EnvironmentEpisodes(1)
-schedule_params.heatup_steps = EnvironmentSteps(1000)
+schedule_params.heatup_steps = EnvironmentSteps(10000)
 
 #########
 # Agent #
@@ -38,6 +38,9 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 #   4. Surreal uses "basic" experience replay, not episodic (I think...)
 
 agent_params = DDPGAgentParameters()
+
+# Surreal works asynchronously, empirically we measure ~2 steps between each training iteration
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(2)
 
 agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=True))
