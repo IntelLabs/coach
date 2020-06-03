@@ -67,7 +67,7 @@ class RobosuiteBaseParameters(Parameters):
 
         # How many control signals to receive in every simulated second. This sets the amount of simulation time
         # that passes between every action input (this is NOT the same as frame_skip)
-        self.control_freq = 100
+        self.control_freq = 10
 
         # Optional observations (robot state is always returned)
         # if True, every observation includes a rendered image
@@ -334,7 +334,7 @@ class RobosuiteEnvironment(Environment):
         action = self.action_space.clip_action_to_space(action)
 
         # We mimic the "action_repeat" mechanism of RobosuiteWrapper in Surreal.
-        # Same concept as frame_skip, only returning the average reward acrossrepeated actions instead
+        # Same concept as frame_skip, only returning the average reward across repeated actions instead
         # of the total reward.
         rewards = []
         for _ in range(self.frame_skip):
