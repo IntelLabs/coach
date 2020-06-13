@@ -152,8 +152,17 @@ class ClippedPPOAgent(ActorCriticAgent):
     def fill_advantages(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
-        current_state_values = self.networks['main'].online_network.predict(batch.states(network_keys))[0]
-        current_state_values = current_state_values.squeeze()
+        state_values = []
+        for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size) + 1):
+            start = i * self.ap.network_wrappers['main'].batch_size
+            end = (i + 1) * self.ap.network_wrappers['main'].batch_size
+            if start == batch.size:
+                break
+
+            state_values.append(self.networks['main'].online_network.predict(
+                {k: v[start:end] for k, v in batch.states(network_keys).items()})[0])
+
+        current_state_values = np.concatenate(state_values)
         self.state_values.add_sample(current_state_values)
 
         # calculate advantages
