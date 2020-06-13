@@ -506,8 +506,14 @@ class GraphManager(object):
                 # act for at least `steps`, though don't interrupt an episode
                 count_end = self.current_step_counter + steps
                 while self.current_step_counter < count_end:
+                    # In case of an evaluation-only worker, fake a phase transition before and after every
+                    # episode to make sure results are logged correctly
+                    if self.task_parameters.evaluate_only is not None:
+                        self.phase = RunPhase.TEST
                     self.act(EnvironmentEpisodes(1))
                     self.sync()
+                    if self.task_parameters.evaluate_only is not None:
+                        self.phase = RunPhase.TRAIN
         if self.should_stop():
             self.flush_finished()
             screen.success("Reached required success rate. Exiting.")
