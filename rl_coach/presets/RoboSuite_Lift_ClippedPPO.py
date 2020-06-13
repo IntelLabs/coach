@@ -61,6 +61,7 @@ agent_params.output_filter = NoOutputFilter()
 agent_params.algorithm.gae_lambda = 0.97
 # Surreal also adapts the clip value according to the KLD between prev and current policies. Missing in Coach
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(10)
 
 ###########
 # Network #
