@@ -27,7 +27,7 @@ aliases:
         $(aws ecr get-login --no-include-email --region us-west-2)
         sudo curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
         sudo chmod a+x /usr/local/bin/aws-iam-authenticator
-        aws eks update-kubeconfig --name coach-ci
+        aws eks update-kubeconfig --name coach-ci-new
         sudo curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         sudo chmod a+x /usr/local/bin/kubectl
 
