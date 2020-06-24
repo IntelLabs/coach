@@ -101,14 +101,14 @@ class RedisDataStore(DataStore):
 
     def save_to_store(self):
         """
-        save_to_store and load_from_store are not used in the case where the data stored needs to
+        save_to_store and load_from_store are used in the case where the data stored needs to
         synchronize checkpoints saved to disk into a central file system, and not used here
         """
         pass
 
     def load_from_store(self):
         """
-        save_to_store and load_from_store are not used in the case where the data stored needs to
+        save_to_store and load_from_store are used in the case where the data stored needs to
         synchronize checkpoints saved to disk into a central file system, and not used here
         """
         pass

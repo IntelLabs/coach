@@ -571,11 +571,13 @@ class TaskParameters(Parameters):
     def __init__(self, framework_type: Frameworks=Frameworks.tensorflow, evaluate_only: int=None, use_cpu: bool=False,
                  experiment_path='/tmp', seed=None, checkpoint_save_secs=None, checkpoint_restore_dir=None,
                  checkpoint_restore_path=None, checkpoint_save_dir=None, export_onnx_graph: bool=False,
-                 apply_stop_condition: bool=False, num_gpu: int=1):
+                 apply_stop_condition: bool=False, num_gpu: int=1, train_only: int=None, act_only: int=None,
+                 task_index: int = 0):
         """
         :param framework_type: deep learning framework type. currently only tensorflow is supported
         :param evaluate_only: if not None, the task will be used only for evaluating the model for the given number of steps.
-                                A value of 0 means that task will be evaluated for an infinite number of steps.
+                               A value of 0 means that task will be evaluated for an infinite number of steps.
+                               Note that only one of {evaluate_only, train_only, act_only} can be set to a non-None int value.
         :param use_cpu: use the cpu for this task
         :param experiment_path: the path to the directory which will store all the experiment outputs
         :param seed: a seed to use for the random numbers generator
@@ -588,6 +590,13 @@ class TaskParameters(Parameters):
         :param export_onnx_graph: If set to True, this will export an onnx graph each time a checkpoint is saved
         :param apply_stop_condition: If set to True, this will apply the stop condition defined by reaching a target success rate
         :param num_gpu: number of GPUs to use
+        :param train_only: if not None, the task will be used only for training the model for the given number of steps.
+                           A value of 0 means that model will be trained for an infinite number of steps.
+                           Note that only one of {evaluate_only, train_only, act_only} can be set to a non-None int value.
+
+        :param act_only: if not None, the task will be used only for acting for the given number of steps.
+                         A value of 0 means that agent will act for an infinite number of steps.
+                         Note that only one of {evaluate_only, train_only, act_only} can be set to a non-None int value.
         """
         self.framework_type = framework_type
         self.task_index = 0  # TODO: not really needed
@@ -607,6 +616,8 @@ class TaskParameters(Parameters):
         self.export_onnx_graph = export_onnx_graph
         self.apply_stop_condition = apply_stop_condition
         self.num_gpu = num_gpu
+        self.train_only = train_only
+        self.act_only = act_only
 
 
 class DistributedTaskParameters(TaskParameters):

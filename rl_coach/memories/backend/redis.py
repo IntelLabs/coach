@@ -150,6 +150,11 @@ class RedisPubSubBackend(MemoryBackend):
             print("Got exception: %s\n while creating a service for redis-server", e)
             return False
 
+    def deploy_shell(self):
+        # should spawn a process calling `redis-server'
+        # subproces...
+        pass
+
     def undeploy(self):
         """
         Undeploy the Redis Pub/Sub service in an orchestrator.
