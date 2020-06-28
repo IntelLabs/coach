@@ -4,10 +4,9 @@ FROM coach-base:master as builder
 # Gym (installed with coach)
 Run pip3 install gym[atari]==0.12.5 box2d
 # Mujoco
-RUN mkdir -p /root/.mujoco \
+RUN mkdir -p ~/.mujoco \
  && wget https://www.roboti.us/download/mujoco200_linux.zip -O mujoco.zip \
- && unzip mujoco.zip -d /root/.mujoco \
- && mv /root/.mujoco/mujoco200_linux /root/.mujoco/mujoco200 \
+ && unzip mujoco.zip -d ~/.mujoco \
  && rm mujoco.zip
 ARG MUJOCO_KEY
 ENV MUJOCO_KEY=$MUJOCO_KEY
