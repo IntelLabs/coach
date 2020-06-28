@@ -11,7 +11,7 @@ ARG MUJOCO_KEY
 ENV MUJOCO_KEY=$MUJOCO_KEY
 RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
 ENV LD_LIBRARY_PATH /root/.mujoco/mujoco200/bin:${LD_LIBRARY_PATH}
-RUN pip3 install mujoco-py<2.1,>=2.0
+RUN pip3 install mujoco-py>=2.0
 
 # add coach source starting with files that could trigger
 # re-build if dependencies change.
@@ -28,5 +28,5 @@ COPY --from=builder /root/.cache /root/.cache
 COPY setup.py /root/src/.
 COPY requirements.txt /root/src/.
 COPY README.md /root/src/.
-RUN pip3 install mujoco-py<2.1,>=2.0 && pip3 install -e .[all] && rm -rf /root/.cache
+RUN pip3 install mujoco-py>=2.0 && pip3 install -e .[all] && rm -rf /root/.cache
 COPY . /root/src
