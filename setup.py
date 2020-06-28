@@ -94,7 +94,7 @@ setup(
     author='Intel AI Lab',
     author_email='coach@intel.com',
     packages=find_packages(),
-    python_requires=">=3.5.*",
+    python_requires=">=3.6.*",
     install_requires=install_requires,
     extras_require=extras,
     package_data={'rl_coach': ['dashboard_components/*.css',
