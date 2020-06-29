@@ -1,5 +1,15 @@
 FROM coach-base:master as builder
 
+################################
+# Install Python 3.6           #
+################################
+
+RUN DEBIAN_FRONTEND=noninteractive add-apt-repository --yes ppa:deadsnakes/ppa && apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install --yes python3.6-dev python3.6 python3-pip
+
+RUN rm /usr/bin/python3
+RUN ln -s /usr/bin/python3.6 /usr/bin/python3
+
 # prep vizdoom and any of its related requirements.
 RUN pip3 install vizdoom
 
