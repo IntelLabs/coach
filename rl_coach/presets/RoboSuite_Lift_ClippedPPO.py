@@ -7,7 +7,7 @@ from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, Pr
     MiddlewareScheme
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod
 from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, RobosuiteLiftParameters, \
-    RobosuiteRobotType, OptionalObservations
+    RobosuiteRobotType, OptionalObservations, RobosuiteControllerType
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.filters.filter import InputFilter, NoOutputFilter, NoInputFilter
 from rl_coach.filters.observation import ObservationStackingFilter, ObservationRGBToYFilter, \
@@ -97,10 +97,15 @@ network.batch_size = 64
 ###############
 # Environment #
 ###############
-env_params = RobosuiteEnvironmentParameters('lift', RobosuiteLiftParameters())
-env_params.robot = RobosuiteRobotType.SAWYER
+task_params = RobosuiteLiftParameters()
+task_params.table_full_size = (0.84, 1.25, 0.82)
+
+env_params = RobosuiteEnvironmentParameters('lift', task_params)
+env_params.robot = RobosuiteRobotType.PANDA
+env_params.controller = RobosuiteControllerType.JOINT_VELOCITY
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
-env_params.base_parameters.camera_depth = False
+env_params.base_parameters.camera_names = 'labview'
+env_params.base_parameters.camera_depths = False
 env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 1

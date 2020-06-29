@@ -23,7 +23,7 @@ from collections import namedtuple
 
 try:
     import robosuite
-    from robosuite.wrappers import IKWrapper, Wrapper
+    from robosuite.wrappers import Wrapper
 except ImportError:
     from rl_coach.logger import failed_imports
     failed_imports.append("Robosuite")
@@ -37,10 +37,23 @@ class RobosuiteRobotType(Enum):
     SAWYER = 'Sawyer'
     PANDA = 'Panda'
     BAXTER = 'Baxter'
+    IIWA = 'IIWA'
+    JACO = 'Jaco'
+    KINOVA3 = 'Kinova3'
+    UR5e = 'UR5e'
 
 
-_one_arm_robots = (RobosuiteRobotType.SAWYER, RobosuiteRobotType.PANDA)
 _two_arm_robots = (RobosuiteRobotType.BAXTER,)
+_one_arm_robots = tuple([r for r in RobosuiteRobotType if r not in _two_arm_robots])
+
+
+class RobosuiteControllerType(Enum):
+    JOINT_VELOCITY = "JOINT_VELOCITY"
+    JOINT_TORQUE = "JOINT_TORQUE"
+    JOINT_POSITION = "JOINT_POSITION"
+    OSC_POSITION = "OSC_POSITION"
+    OSC_POSE = "OSC_POSE"
+    IK_POSE = "IK_POSE"
 
 
 class OptionalObservations(Flag):
@@ -62,7 +75,7 @@ class RobosuiteBaseParameters(Parameters):
         self.horizon = 1000                 # Every episode lasts for exactly horizon timesteps
         self.ignore_done = True             # True if never terminating the environment (ignore horizon)
         self.reward_shaping = True          # if True, use dense rewards.
-        self.gripper_visualization = True   # True if using gripper visualization. Useful for teleoperation.
+        self.gripper_visualizations = True  # True if using gripper visualization. Useful for teleoperation.
         self.use_indicator_object = False   # if True, sets up an indicator object that is useful for debugging
 
         # How many control signals to receive in every simulated second. This sets the amount of simulation time
@@ -80,10 +93,10 @@ class RobosuiteBaseParameters(Parameters):
         self.has_offscreen_renderer = self.use_camera_obs
         self.render_collision_mesh = False              # True if rendering collision meshes in camera. False otherwise
         self.render_visual_mesh = True                  # True if rendering visual meshes in camera. False otherwise
-        self.camera_name = RobosuiteCameraTypes.AGENT   # name of camera to be rendered (required for camera obs)
-        self.camera_height = 84                         # height of camera frame.
-        self.camera_width = 84                          # width of camera frame.
-        self.camera_depth = False                       # True if rendering RGB-D, and RGB otherwise.
+        self.camera_names = RobosuiteCameraTypes.AGENT  # name of camera to be rendered (required for camera obs)
+        self.camera_heights = 84                        # height of camera frame.
+        self.camera_widths = 84                         # width of camera frame.
+        self.camera_depths = False                      # True if rendering RGB-D, and RGB otherwise.
 
     @property
     def optional_observations(self):
@@ -104,8 +117,7 @@ class RobosuiteBaseParameters(Parameters):
         self.use_object_obs = bool(value & OptionalObservations.OBJECT)
 
     def env_kwargs_dict(self):
-        res = deepcopy(vars(self))
-        res['camera_name'] = res['camera_name'].value
+        res = {k: (v.value if isinstance(v, Enum) else v) for k, v in vars(self).items()}
         return res
 
 
@@ -204,13 +216,12 @@ robosuite_level_expected_types = {
 
 
 class RobosuiteEnvironmentParameters(EnvironmentParameters):
-    def __init__(self, level, task_parameters, robot=None):
+    def __init__(self, level, task_parameters, robot=None, controller=None):
         super().__init__(level=level)
         self.base_parameters = RobosuiteBaseParameters()
         self.task_parameters = task_parameters
         self.robot = robot
-        self.ik_wrapper_enabled = False
-        self.ik_wrapper_action_repeat = 1
+        self.controller = controller
 
     @property
     def path(self):
@@ -223,18 +234,18 @@ robosuite_envs = {env_name.lower(): env for env_name, env in robosuite.environme
 RobosuiteStepResult = namedtuple('RobosuiteStepResult', ['observation', 'reward', 'done', 'info'])
 
 
-def _process_observation(raw_obs):
+def _process_observation(raw_obs, camera_name):
     new_obs = {}
 
-    camera_obs = raw_obs.get('image', None)
+    camera_obs = raw_obs.get(camera_name + '_image', None)
     if camera_obs is not None:
-        depth_obs = raw_obs.get('depth', None)
+        depth_obs = raw_obs.get(camera_name + '_depth', None)
         if depth_obs is not None:
             depth_obs = np.expand_dims(depth_obs, axis=2)
             camera_obs = np.concatenate([camera_obs, depth_obs], axis=2)
         new_obs['camera'] = camera_obs
 
-    measurements = raw_obs['robot-state']
+    measurements = raw_obs['robot0_robot-state']
     object_obs = raw_obs.get('object-state', None)
     if object_obs is not None:
         measurements = np.concatenate([measurements, object_obs])
@@ -251,7 +262,7 @@ class RobosuiteEnvironment(Environment):
                  base_parameters: RobosuiteBaseParameters,
                  task_parameters: RobosuiteTaskParameters,
                  robot: RobosuiteRobotType,
-                 ik_wrapper_enabled: bool, ik_wrapper_action_repeat: int,
+                 controller: RobosuiteControllerType,
                  target_success_rate: float = 1.0, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                                                    visualization_parameters, target_success_rate)
@@ -280,6 +291,8 @@ class RobosuiteEnvironment(Environment):
             ))
         self.robot = robot
 
+        self.controller = controller
+
         self.base_parameters = base_parameters
         self.base_parameters.has_renderer = self.is_rendered and self.native_rendering
         self.base_parameters.has_offscreen_renderer = self.base_parameters.use_camera_obs or (self.is_rendered and not
@@ -293,21 +306,25 @@ class RobosuiteEnvironment(Environment):
         # Load and initialize environment
         env_args = self.base_parameters.env_kwargs_dict()
         env_args.update(task_parameters.env_kwargs_dict())
+        env_args['robots'] = self.robot.value
+        controller_cfg = None
+        if controller is not None:
+            controller_cfg = robosuite.controllers.load_controller_config(default_controller=self.controller.value)
+        env_args['controller_configs'] = controller_cfg
 
-        robosuite_env_name = self.robot.value + self.level.value.replace('TwoArm', '')
+        self.env: robosuite.environments.MujocoEnv = robosuite.make(self.level.value, **env_args)
 
-        self.env: robosuite.environments.MujocoEnv = robosuite.make(robosuite_env_name, **env_args)
+        # TODO: Add DR
+        # Wrap with a dummy wrapper so we get a consistent API (there are subtle changes between
+        # wrappers and actual environments in Robosuite, for example action_spec as property vs. function)
+        self.env = Wrapper(self.env)
 
-        if ik_wrapper_enabled:
-            self.env = IKWrapper(self.env, action_repeat=ik_wrapper_action_repeat)
-        else:
-            # Wrap with a dummy wrapper so we get a consistent API (there are subtle changes between
-            # wrappers and actual environments in Robosuite, for example action_spec as property vs. function)
-            self.env = Wrapper(self.env)
+        if isinstance(self.base_parameters.camera_names, Enum):
+            self.base_parameters.camera_names = self.base_parameters.camera_names.value
 
         # State space
         self.state_space = StateSpace({})
-        dummy_obs = _process_observation(self.env.observation_spec())
+        dummy_obs = _process_observation(self.env.observation_spec(), self.base_parameters.camera_names)
 
         self.state_space['measurements'] = VectorObservationSpace(dummy_obs['measurements'].shape[0])
 
@@ -315,13 +332,8 @@ class RobosuiteEnvironment(Environment):
             self.state_space['camera'] = PlanarMapsObservationSpace(dummy_obs['camera'].shape, 0, 255)
 
         # Action space
-        if ik_wrapper_enabled:
-            # TODO: Figure out high/low limits
-            shape = 14 if self.robot == RobosuiteRobotType.BAXTER else 7
-            self.action_space = BoxActionSpace(shape)
-        else:
-            low, high = self.env.unwrapped.action_spec
-            self.action_space = BoxActionSpace(low.shape, low=low, high=high)
+        low, high = self.env.unwrapped.action_spec
+        self.action_space = BoxActionSpace(low.shape, low=low, high=high)
 
         self.reset_internal_state()
 
@@ -346,7 +358,7 @@ class RobosuiteEnvironment(Environment):
         self.last_result = RobosuiteStepResult(obs, reward, done, info)
 
     def _update_state(self):
-        obs = _process_observation(self.last_result.observation)
+        obs = _process_observation(self.last_result.observation, self.base_parameters.camera_names)
         self.state = {k: obs[k] for k in self.state_space.sub_spaces}
         self.reward = self.last_result.reward or 0
         self.done = self.last_result.done
