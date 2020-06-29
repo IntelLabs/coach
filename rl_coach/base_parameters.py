@@ -577,7 +577,7 @@ class TaskParameters(Parameters):
         :param framework_type: deep learning framework type. currently only tensorflow is supported
         :param evaluate_only: if not None, the task will be used only for evaluating the model for the given number of steps.
                                A value of 0 means that task will be evaluated for an infinite number of steps.
-                               Note that only one of {evaluate_only, train_only, act_only} can be set to a non-None int value.
+                               Note that only one of {evaluate_only, train_only, act_only} can be set to a int value.
         :param use_cpu: use the cpu for this task
         :param experiment_path: the path to the directory which will store all the experiment outputs
         :param seed: a seed to use for the random numbers generator

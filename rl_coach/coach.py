@@ -14,7 +14,6 @@
 #
 
 import sys
-
 sys.path.append('.')
 
 import copy
@@ -102,11 +101,13 @@ def open_dashboard(experiment_path):
 
 
 def register_local_redis_memory_backend_and_data_store(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'):
+    # redis memory backend
     memory_backend_params = RedisPubSubMemoryBackendParameters(redis_address='localhost',
                                                                orchestrator_type='local_shell')
     memory_backend_params.run_type = 'trainer' if task_parameters.train_only else 'actor'
     graph_manager.agent_params.memory.register_var('memory_backend_params', memory_backend_params)
 
+    # redis datastore
     ds_params = DataStoreParameters("redis", "kubernetes", "")
     ds_params_instance = RedisDataStoreParameters(ds_params, redis_address='localhost')
     return get_data_store(ds_params_instance)
@@ -117,7 +118,7 @@ def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'
     Runs the graph_manager using the configured task_parameters.
     This stand-alone method is a convenience for multiprocessing.
     """
-    data_store = None
+    data_store = None  # only used with a MAST graph, where we need the trainer to publish policies using the data store
 
     if isinstance(graph_manager, MASTGraphManager):
         if not sum([x is not None for x in
@@ -779,19 +780,18 @@ class CoachLauncher(object):
         for task_index in range(0, total_actors):
             actors.append(start_mast_task("actor", base_task_parameters, task_index))
 
-        # TODO enable evaluation actor
         # trainer
         trainer = start_mast_task("trainer", base_task_parameters, task_index=total_actors)
 
-        # # evaluation worker
-        # if args.evaluation_worker or args.render:
-        #     evaluation_worker = start_mast_task("evaluator", base_task_parameters, task_index=total_actors + 1)
+        # evaluation worker
+        if args.evaluation_worker or args.render:
+            evaluation_worker = start_mast_task("evaluator", base_task_parameters, task_index=total_actors + 1)
 
         # wait for all workers
         [w.join() for w in actors + [trainer]]
 
-        # if args.evaluation_worker or args.render:
-        #     evaluation_worker.terminate()
+        if args.evaluation_worker or args.render:
+            evaluation_worker.terminate()
 
     @staticmethod
     def start_multi_threaded(graph_manager: 'GraphManager', args: argparse.Namespace):
