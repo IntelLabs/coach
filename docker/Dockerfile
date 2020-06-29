@@ -12,7 +12,7 @@ RUN mkdir -p ~/.mujoco \
 ARG MUJOCO_KEY
 ENV MUJOCO_KEY=$MUJOCO_KEY
 RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
-ENV LD_LIBRARY_PATH /root/.mujoco/mujoco200/bin:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=/root/.mujoco/mujoco200/bin:${LD_LIBRARY_PATH}
 RUN pip3 install cffi
 RUN pip3 install Cython
 RUN pip3 install mujoco-py>=2.0
