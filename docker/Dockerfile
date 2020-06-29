@@ -11,8 +11,9 @@ RUN mkdir -p ~/.mujoco \
  && rm mujoco.zip
 ARG MUJOCO_KEY
 ENV MUJOCO_KEY=$MUJOCO_KEY
+ENV LD_LIBRARY_PATH /root/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
 RUN echo $MUJOCO_KEY | base64 --decode > /root/.mujoco/mjkey.txt
-ENV LD_LIBRARY_PATH=/root/.mujoco/mujoco200/bin:${LD_LIBRARY_PATH}
+
 RUN pip3 install cffi
 RUN pip3 install Cython
 RUN pip3 install mujoco-py>=2.0
@@ -28,6 +29,7 @@ RUN pip3 install -r /root/src/requirements.txt
 FROM coach-base:master
 WORKDIR /root/src
 COPY --from=builder /root/.mujoco /root/.mujoco
+ENV LD_LIBRARY_PATH /root/.mujoco/mujoco200/bin:$LD_LIBRARY_PATH
 COPY --from=builder /root/.cache /root/.cache
 COPY setup.py /root/src/.
 COPY requirements.txt /root/src/.
