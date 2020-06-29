@@ -92,7 +92,7 @@ task_params.table_full_size = (0.84, 1.25, 0.82)
 
 env_params = RobosuiteEnvironmentParameters('lift', task_params)
 env_params.robot = RobosuiteRobotType.PANDA
-env_params.controller = RobosuiteControllerType.JOINT_VELOCITY
+env_params.controller = RobosuiteControllerType.IK_POSE
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.camera_names = 'labview'
 env_params.base_parameters.camera_depth = False
