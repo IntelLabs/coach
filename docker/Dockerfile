@@ -7,6 +7,7 @@ Run pip3 install gym[atari]==0.12.5 box2d
 RUN mkdir -p ~/.mujoco \
  && wget https://www.roboti.us/download/mujoco200_linux.zip -O mujoco.zip \
  && unzip mujoco.zip -d ~/.mujoco \
+ && mv /root/.mujoco/mujoco200_linux /root/.mujoco/mujoco200 \
  && rm mujoco.zip
 ARG MUJOCO_KEY
 ENV MUJOCO_KEY=$MUJOCO_KEY
