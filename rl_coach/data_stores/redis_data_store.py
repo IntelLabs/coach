@@ -156,7 +156,7 @@ class RedisDataStore(DataStore):
         :param graph_manager: the graph_manager to load the policy into
         """
         self._initialize_saver_and_subscribe_redis()
-        self._load_policy(graph_manager)
+        return self._load_policy(graph_manager)
 
     def load_policy(self, graph_manager, require_new_policy=True, timeout=0):
         """
