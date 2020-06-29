@@ -134,7 +134,7 @@ class MASTGraphManager(BasicRLGraphManager):
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     self.fetch_from_worker(self.agent_params.algorithm.num_consecutive_playing_steps)
                     self.train()
-                    if (self.current_step_counter[EnvironmentSteps] - self.last_publish_time) > 6000:  # TODO extract hyper-param
+                    if (self.current_step_counter[EnvironmentSteps] - self.last_publish_time) > 90000:  # TODO extract hyper-param
                         # TODO fix the shared running stats to also be published at this same rate (make sure in surreal that the same rate is used)
                         data_store.save_policy(self)
                         self.occasionally_save_checkpoint()

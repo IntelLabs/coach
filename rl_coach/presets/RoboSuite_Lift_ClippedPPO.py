@@ -18,10 +18,11 @@ from rl_coach.graph_managers.graph_manager import ScheduleParameters
 ####################
 # Graph Scheduling #
 ####################
+from rl_coach.graph_managers.mast_graph_manager import MASTGraphManager
 
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
-schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(10)
+schedule_params.steps_between_evaluation_periods = EnvironmentSteps(100000)
 schedule_params.evaluation_steps = EnvironmentEpisodes(5)
 schedule_params.heatup_steps = EnvironmentSteps(0)
 
@@ -61,7 +62,9 @@ agent_params.output_filter = NoOutputFilter()
 agent_params.algorithm.gae_lambda = 0.97
 # Surreal also adapts the clip value according to the KLD between prev and current policies. Missing in Coach
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
-# agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(10)
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1500)
+agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(1500)
+agent_params.algorithm.optimization_epochs = 1
 
 ###########
 # Network #
@@ -120,6 +123,6 @@ vis_params.print_networks_summary = True
 preset_validation_params = PresetValidationParameters()
 # preset_validation_params.trace_test_levels = ['cartpole:swingup', 'hopper:hop']
 
-graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
+graph_manager = MASTGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,
                                     preset_validation_params=preset_validation_params)
