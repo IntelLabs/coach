@@ -54,6 +54,7 @@ class RedisPubSubBackend(MemoryBackend):
         self.redis_connection = redis.Redis(self.params.redis_address, self.params.redis_port)
         self.redis_server_name = 'redis-server-{}'.format(uuid.uuid4())
         self.redis_service_name = 'redis-service-{}'.format(uuid.uuid4())
+        self.redis_sub = None
 
     def store(self, obj):
         """
@@ -185,6 +186,15 @@ class RedisPubSubBackend(MemoryBackend):
         :param num_consecutive_playing_steps: The number steps to fetch.
         """
         return RedisSub(redis_address=self.params.redis_address, redis_port=self.params.redis_port, channel=self.params.channel).run(num_consecutive_playing_steps)
+
+    def fetch_subscribe_all_msgs(self, num_consecutive_playing_steps=None):
+        """
+        :param num_consecutive_playing_steps: The number steps to fetch.
+        """
+        if not self.redis_sub:
+            self.redis_sub = RedisSub(redis_address=self.params.redis_address, redis_port=self.params.redis_port,
+                                  channel=self.params.channel)
+        return self.redis_sub.run(num_consecutive_playing_steps)
 
     def subscribe(self, agent):
         """

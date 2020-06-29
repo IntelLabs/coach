@@ -66,6 +66,7 @@ class RedisDataStore(DataStore):
         self.params = params
         self.saver = None
         self._end_of_policies = False
+        self.old_policy_string = "old"
 
         # NOTE: a connection is not attempted at this stage because the address and port are likely
         # not available yet. This is because of how the kubernetes orchestrator works. At the time
@@ -134,11 +135,28 @@ class RedisDataStore(DataStore):
         Get the most recent policy from redis and loaded into the graph_manager
         """
         policy_string = self.redis_connection.get(self.params.redis_channel)
-        if policy_string is None:
+        if policy_string is None or policy_string == self.old_policy_string:
             return False
-
+        self.old_policy_string = policy_string
         self.saver.from_string(graph_manager.sess, policy_string)
         return True
+
+    def _initialize_saver_and_subscribe_redis(self):
+        if self.saver is None:
+            # the GlobalVariableSaver needs to be instantiated after the graph is created. For now,
+            # it can be instantiated here, but it might be nicer to have a more explicit
+            # on_graph_creation_end callback or similar to put it in
+            self.saver = GlobalVariableSaver()
+            self._connect()
+
+    def attempt_load_policy(self, graph_manager: 'GraphManager'):
+        """
+        Try loading a policy if one is ready yet. Will not load a policy if it is the same as the current loaded one.
+
+        :param graph_manager: the graph_manager to load the policy into
+        """
+        self._initialize_saver_and_subscribe_redis()
+        self._load_policy(graph_manager)
 
     def load_policy(self, graph_manager, require_new_policy=True, timeout=0):
         """
@@ -148,13 +166,8 @@ class RedisDataStore(DataStore):
         :param timeout: Will only try to load the policy once if timeout is None, otherwise will
         retry for timeout seconds
         """
-        if self.saver is None:
-            # the GlobalVariableSaver needs to be instantiated after the graph is created. For now,
-            # it can be instantiated here, but it might be nicer to have a more explicit
-            # on_graph_creation_end callback or similar to put it in
-            self.saver = GlobalVariableSaver()
-            self._connect()
 
+        self._initialize_saver_and_subscribe_redis()
         if not require_new_policy:
             # try just loading whatever policy is available most recently
             if self._load_policy(graph_manager):

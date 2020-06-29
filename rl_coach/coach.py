@@ -74,23 +74,36 @@ def open_dashboard(experiment_path):
     subprocess.Popen(cmd, shell=True, executable="bash")
 
 
+def register_local_redis_memory_backend_and_data_store(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'):
+    memory_backend_params = RedisPubSubMemoryBackendParameters(redis_address='localhost',
+                                                               orchestrator_type='local_shell')
+    memory_backend_params.run_type = 'trainer' if task_parameters.train_only else 'actor'
+    graph_manager.agent_params.memory.register_var('memory_backend_params', memory_backend_params)
+
+    ds_params = DataStoreParameters("redis", "kubernetes", "")
+    ds_params_instance = RedisDataStoreParameters(ds_params, redis_address='localhost')
+    return get_data_store(ds_params_instance)
+
+
 def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'):
     """
     Runs the graph_manager using the configured task_parameters.
     This stand-alone method is a convenience for multiprocessing.
     """
-    if sum([x is not None for x in [task_parameters.evaluate_only, task_parameters.train_only, task_parameters.act_only]]) > 1:
-        raise ValueError("A task can be set to a maximum of one of {evaluate_only, train_only, act_only}")
+    data_store = None
 
     if isinstance(graph_manager, MASTGraphManager):
-        memory_backend_params = RedisPubSubMemoryBackendParameters(redis_address='localhost',
-                                                                   orchestrator_type='local_shell')
-        memory_backend_params.run_type = 'trainer' if task_parameters.train_only else 'actor'
-        graph_manager.agent_params.memory.register_var('memory_backend_params', memory_backend_params)
+        if not sum([x is not None for x in
+                    [task_parameters.evaluate_only, task_parameters.train_only, task_parameters.act_only]
+                    ]) == 1:
+            raise ValueError(
+                "A MASTGraphManager should have exactly one of {evaluate_only, train_only, act_only} "
+                "task parameters set")
+        data_store = register_local_redis_memory_backend_and_data_store(graph_manager, task_parameters)
 
-        ds_params = DataStoreParameters("redis", "kubernetes", "")
-        ds_params_instance = RedisDataStoreParameters(ds_params, redis_address='localhost')
-        data_store = get_data_store(ds_params_instance)
+    else:
+        if any([x is not None for x in [task_parameters.train_only, task_parameters.act_only]]):
+            raise ValueError("train_only and act_only task parameters are only supported for a MASTGraphManager")
 
     graph_manager.create_graph(task_parameters)
 
@@ -98,17 +111,11 @@ def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'
     if task_parameters.evaluate_only is not None:
         steps_to_evaluate = task_parameters.evaluate_only if task_parameters.evaluate_only > 0 \
             else sys.maxsize
-        graph_manager.evaluate(EnvironmentSteps(steps_to_evaluate))
+        graph_manager.evaluate(EnvironmentSteps(steps_to_evaluate), data_store)
     elif task_parameters.train_only is not None:
-        if not isinstance(graph_manager, MASTGraphManager):
-            raise ValueError("train_only can only be set for a MASTGraphManager's actor.")
         total_steps_to_train = task_parameters.train_only if task_parameters.train_only > 0 else sys.maxsize
         graph_manager.trainer(TrainingSteps(total_steps_to_train), data_store)
     elif task_parameters.act_only is not None:
-        # todo start with this one - have actors writing to redis
-        if not isinstance(graph_manager, MASTGraphManager):
-            raise ValueError("act_only can only be set for a MASTGraphManager's actor.")
-
         total_steps_to_act = task_parameters.act_only if task_parameters.act_only > 0 else sys.maxsize
         graph_manager.actor(EnvironmentSteps(total_steps_to_act), data_store)
     else:
@@ -752,7 +759,6 @@ class CoachLauncher(object):
         # # evaluation worker
         # if args.evaluation_worker or args.render:
         #     evaluation_worker = start_mast_task("evaluator", base_task_parameters, task_index=total_actors + 1)
-
 
         # wait for all workers
         [w.join() for w in actors + [trainer]]

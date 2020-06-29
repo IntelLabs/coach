@@ -34,7 +34,7 @@ from rl_coach.saver import SaverCollection
 from rl_coach.utils import set_cpu, start_shell_command_and_wait
 from rl_coach.data_stores.data_store_impl import get_data_store as data_store_creator
 from rl_coach.memories.backend.memory_impl import get_memory_backend
-from rl_coach.data_stores.data_store import SyncFiles
+from rl_coach.data_stores.data_store import SyncFiles, DataStore
 from rl_coach.checkpoint import CheckpointStateReader
 
 from rl_coach.core_types import TimeTypes
@@ -489,10 +489,11 @@ class GraphManager(object):
         """
         [manager.sync() for manager in self.level_managers]
 
-    def evaluate(self, steps: PlayingStepsType) -> bool:
+    def evaluate(self, steps: PlayingStepsType, data_store: DataStore = None) -> bool:
         """
         Perform evaluation for several steps
         :param steps: the number of steps as a tuple of steps time and steps count
+        :param data_store: [optional param]
         :return: bool, True if the target reward and target success has been reached
         """
         self.verify_graph_was_created()

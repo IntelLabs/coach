@@ -38,6 +38,8 @@ class MASTGraphManager(BasicRLGraphManager):
                  name='mast_rl_graph'):
         super().__init__(agent_params=agent_params, env_params=env_params, name=name, schedule_params=schedule_params,
                          vis_params=vis_params, preset_validation_params=preset_validation_params)
+        self.first_policy_publish = False
+        self.last_publish_time = 0
 
     def actor(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore):
         self.verify_graph_was_created()
@@ -62,22 +64,11 @@ class MASTGraphManager(BasicRLGraphManager):
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     if data_store.end_of_policies():
                         break
-                    if self.current_step_counter[EnvironmentSteps] % 100 == 0: # TODO extract hyper-param
-                        data_store.load_policy(self, require_new_policy=False)
+                    if self.current_step_counter[EnvironmentSteps] % 100 == 0:  # TODO extract hyper-param
+                        data_store.attempt_load_policy(self)
                     self.act(EnvironmentSteps(1))
 
     def trainer(self, total_steps_to_train: TrainingSteps, data_store: RedisDataStore):
-        #
-        # import redis
-        # rc = redis.Redis('localhost', 6379)
-        # pubsub = rc.pubsub(ignore_subscribe_messages=True)
-        # self.setup_memory_backend()
-        # s = pubsub.subscribe(self.memory_backend.params.channel)
-        #
-        # i = 0
-        # for message in pubsub.listen():
-        #     i += 1
-        #     print(i)
         self.verify_graph_was_created()
 
         # initialize the network parameters from the global network
@@ -86,7 +77,7 @@ class MASTGraphManager(BasicRLGraphManager):
         self.setup_memory_backend()
 
         # train
-        screen.log_title("{}-trainer{}: Starting to act on the environment".format(self.name, self.task_parameters.task_index))
+        screen.log_title("{}-trainer{}: Starting to train from collected experience".format(self.name, self.task_parameters.task_index))
 
         # perform several steps of training interleaved with acting
         if total_steps_to_train.num_steps > 0:
@@ -102,7 +93,18 @@ class MASTGraphManager(BasicRLGraphManager):
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     self.fetch_from_worker(self.agent_params.algorithm.num_consecutive_playing_steps)
                     self.train()
-                    data_store.save_policy(self)
-                    self.occasionally_save_checkpoint()
+                    if (self.current_step_counter[EnvironmentSteps] - self.last_publish_time) > 90000:  # TODO extract hyper-param
+                        print("publishing")
+                        self.last_publish_time = self.current_step_counter[EnvironmentSteps]
+                        data_store.save_policy(self)
+                        self.occasionally_save_checkpoint()
 
-        # TODO working but a complete mess according to the prints. run it and you will see.
+    def fetch_from_worker(self, num_consecutive_playing_steps=None):
+        if hasattr(self, 'memory_backend'):
+            with self.phase_context(RunPhase.TRAIN):
+                # for transition in self.memory_backend.fetch_subscribe_all_msgs(num_consecutive_playing_steps):
+                for transition in self.memory_backend.fetch(num_consecutive_playing_steps):
+                    self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
+
+
+# TODO POMODORO trainer cannot keep up with the actors input rate to the queue, thus becoming very off policy. how come? also need to fix the shared running stats to also be published every 2048 steps
