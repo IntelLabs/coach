@@ -14,6 +14,7 @@
 #
 
 import sys
+
 sys.path.append('.')
 
 import copy
@@ -40,6 +41,7 @@ from rl_coach.graph_managers.graph_manager import HumanPlayScheduleParameters, G
 from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, \
     get_base_dir, set_gpu
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
+from rl_coach.graph_managers.mast_graph_manager import MASTGraphManager
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.memories.backend.redis import RedisPubSubMemoryBackendParameters
 from rl_coach.memories.backend.memory_impl import construct_memory_params
@@ -99,18 +101,50 @@ def open_dashboard(experiment_path):
     subprocess.Popen(cmd, shell=True, executable="bash")
 
 
+def register_local_redis_memory_backend_and_data_store(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'):
+    memory_backend_params = RedisPubSubMemoryBackendParameters(redis_address='localhost',
+                                                               orchestrator_type='local_shell')
+    memory_backend_params.run_type = 'trainer' if task_parameters.train_only else 'actor'
+    graph_manager.agent_params.memory.register_var('memory_backend_params', memory_backend_params)
+
+    ds_params = DataStoreParameters("redis", "kubernetes", "")
+    ds_params_instance = RedisDataStoreParameters(ds_params, redis_address='localhost')
+    return get_data_store(ds_params_instance)
+
+
 def start_graph(graph_manager: 'GraphManager', task_parameters: 'TaskParameters'):
     """
     Runs the graph_manager using the configured task_parameters.
     This stand-alone method is a convenience for multiprocessing.
     """
+    data_store = None
+
+    if isinstance(graph_manager, MASTGraphManager):
+        if not sum([x is not None for x in
+                    [task_parameters.evaluate_only, task_parameters.train_only, task_parameters.act_only]
+                    ]) == 1:
+            raise ValueError(
+                "A MASTGraphManager should have exactly one of {evaluate_only, train_only, act_only} "
+                "task parameters set")
+        data_store = register_local_redis_memory_backend_and_data_store(graph_manager, task_parameters)
+
+    else:
+        if any([x is not None for x in [task_parameters.train_only, task_parameters.act_only]]):
+            raise ValueError("train_only and act_only task parameters are only supported for a MASTGraphManager")
+
     graph_manager.create_graph(task_parameters)
 
     # let the adventure begin
     if task_parameters.evaluate_only is not None:
         steps_to_evaluate = task_parameters.evaluate_only if task_parameters.evaluate_only > 0 \
             else sys.maxsize
-        graph_manager.evaluate(EnvironmentSteps(steps_to_evaluate))
+        graph_manager.evaluate(EnvironmentSteps(steps_to_evaluate), data_store)
+    elif task_parameters.train_only is not None:
+        total_steps_to_train = task_parameters.train_only if task_parameters.train_only > 0 else sys.maxsize
+        graph_manager.trainer(TrainingSteps(total_steps_to_train), data_store)
+    elif task_parameters.act_only is not None:
+        total_steps_to_act = task_parameters.act_only if task_parameters.act_only > 0 else sys.maxsize
+        graph_manager.actor(EnvironmentSteps(total_steps_to_act), data_store)
     else:
         graph_manager.improve()
     graph_manager.close()
@@ -263,6 +297,10 @@ class CoachLauncher(object):
         # if a preset was given we will load the graph manager for the preset
         if args.preset is not None:
             graph_manager = short_dynamic_import(args.preset, ignore_module_case=True)
+
+            if args.multi_actor_single_trainer and not isinstance(graph_manager, MASTGraphManager):
+                raise ValueError("The selcted preset does not create a MASTGraphManager which is required for a "
+                                 "multi-actor single-trainer type of run.")
 
         # for human play we need to create a custom graph manager
         if args.play:
@@ -624,6 +662,10 @@ class CoachLauncher(object):
         parser.add_argument('--is_multi_node_test',
                             help=argparse.SUPPRESS,
                             action='store_true')
+        parser.add_argument('-mast', '--multi_actor_single_trainer',
+                            help='Start a multi-actor single-trainer run. Should be combined with the --num_agents flag,'
+                                 ' which will be used to determine the number of actors.',
+                            action='store_true')
 
         return parser
 
@@ -635,7 +677,9 @@ class CoachLauncher(object):
             return
 
         # Single-threaded runs
-        if args.num_workers == 1:
+        if args.multi_actor_single_trainer:
+            self.start_multi_threaded_multi_actor_single_trainer(task_parameters, graph_manager, args)
+        elif args.num_workers == 1:
             self.start_single_threaded(task_parameters, graph_manager, args)
         else:
             self.start_multi_threaded(graph_manager, args)
@@ -699,6 +743,55 @@ class CoachLauncher(object):
     def start_single_threaded(task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
         # Start the training or evaluation
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
+
+    @staticmethod
+    def start_multi_threaded_multi_actor_single_trainer(base_task_parameters, graph_manager: 'GraphManager',
+                                                        args: argparse.Namespace):
+        total_actors = args.num_workers
+        # TODO handle checkpointing
+
+        def start_mast_task(job_type, base_task_parameters: 'TaskParameters',
+                            task_index: int):
+
+            task_parameters = copy.deepcopy(base_task_parameters)
+
+            if job_type == "actor":
+                task_parameters.act_only = sys.maxsize
+            elif job_type == "trainer":
+                task_parameters.train_only = sys.maxsize
+            elif job_type == "evaluator":
+                task_parameters.evaluate_only = sys.maxsize
+
+                # we assume that only the evaluation workers are rendering
+                graph_manager.visualization_parameters.render = args.render
+            else:
+                raise ValueError("Job type should be set to one of {actor, trainer, evaluator}")
+
+            task_parameters.task_index = task_index
+
+            p = Process(target=start_graph, args=(graph_manager, task_parameters))
+            # p.daemon = True
+            p.start()
+            return p
+
+        # actors
+        actors = []
+        for task_index in range(0, total_actors):
+            actors.append(start_mast_task("actor", base_task_parameters, task_index))
+
+        # TODO enable evaluation actor
+        # trainer
+        trainer = start_mast_task("trainer", base_task_parameters, task_index=total_actors)
+
+        # # evaluation worker
+        # if args.evaluation_worker or args.render:
+        #     evaluation_worker = start_mast_task("evaluator", base_task_parameters, task_index=total_actors + 1)
+
+        # wait for all workers
+        [w.join() for w in actors + [trainer]]
+
+        # if args.evaluation_worker or args.render:
+        #     evaluation_worker.terminate()
 
     @staticmethod
     def start_multi_threaded(graph_manager: 'GraphManager', args: argparse.Namespace):
