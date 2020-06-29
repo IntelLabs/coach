@@ -6,7 +6,7 @@ FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
 
 # General
 RUN apt-get update && \
-    apt-get install -y python3-pip cmake zlib1g-dev python3-tk python-opencv \
+    apt-get install -y python3-pip cmake zlib1g-dev python3-tk python-opencv virtualenv \
     # Boost libraries
     libboost-all-dev \
     # Scipy requirements
