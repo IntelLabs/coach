@@ -48,10 +48,10 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 #########
 agent_params = ClippedPPOAgentParameters()
 
-agent_params.input_filter = InputFilter()
+agent_params.pre_network_filter = InputFilter()
 # Normlization filter on robot/object features (called "Z filter" in surreal for some reason)
-agent_params.input_filter.add_observation_filter('measurements', 'normalize',
-                                                 ObservationNormalizationFilter(clip_min=-5.0, clip_max=5.0))
+agent_params.pre_network_filter.add_observation_filter('measurements', 'normalize',
+                                                        ObservationNormalizationFilter(clip_min=-5.0, clip_max=5.0))
 agent_params.output_filter = NoOutputFilter()
 
 
