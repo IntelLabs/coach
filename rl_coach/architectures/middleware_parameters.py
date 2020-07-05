@@ -50,6 +50,7 @@ class FCMiddlewareParameters(MiddlewareParameters):
 
 class LSTMMiddlewareParameters(MiddlewareParameters):
     def __init__(self, activation_function='relu', number_of_lstm_cells=256,
+                 sequence_length=-1, stride=-1,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout_rate: float = 0.0,
                  name="middleware_lstm_embedder", dense_layer=None, is_training=False):
@@ -57,3 +58,5 @@ class LSTMMiddlewareParameters(MiddlewareParameters):
                          scheme=scheme, batchnorm=batchnorm, dropout_rate=dropout_rate, name=name, dense_layer=dense_layer,
                          is_training=is_training)
         self.number_of_lstm_cells = number_of_lstm_cells
+        self.sequence_length = sequence_length
+        self.stride = stride
