@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from typing import Union
+from typing import Union ,Dict, Any
 from enum import Enum, Flag, auto
 from copy import deepcopy
 import numpy as np
@@ -33,27 +33,18 @@ from rl_coach.environments.environment import Environment, EnvironmentParameters
 from rl_coach.spaces import BoxActionSpace, VectorObservationSpace, StateSpace, PlanarMapsObservationSpace
 
 
-class RobosuiteRobotType(Enum):
-    SAWYER = 'Sawyer'
-    PANDA = 'Panda'
-    BAXTER = 'Baxter'
-    IIWA = 'IIWA'
-    JACO = 'Jaco'
-    KINOVA3 = 'Kinova3'
-    UR5e = 'UR5e'
+robosuite_environments = list(robosuite.ALL_ENVIRONMENTS)
+robosuite_robots = list(robosuite.ALL_ROBOTS)
+robosuite_controllers = list(robosuite.ALL_CONTROLLERS)
 
 
-_two_arm_robots = (RobosuiteRobotType.BAXTER,)
-_one_arm_robots = tuple([r for r in RobosuiteRobotType if r not in _two_arm_robots])
+def get_robosuite_env_extra_parameters(env_name: str):
+    import inspect
+    assert env_name in robosuite_environments
 
-
-class RobosuiteControllerType(Enum):
-    JOINT_VELOCITY = "JOINT_VELOCITY"
-    JOINT_TORQUE = "JOINT_TORQUE"
-    JOINT_POSITION = "JOINT_POSITION"
-    OSC_POSITION = "OSC_POSITION"
-    OSC_POSE = "OSC_POSE"
-    IK_POSE = "IK_POSE"
+    env_params = inspect.signature(robosuite.environments.REGISTERED_ENVS[env_name]).parameters
+    base_params = list(RobosuiteBaseParameters().env_kwargs_dict().keys()) + ['robots', 'controller_configs']
+    return {n: p.default for n, p in env_params.items() if n not in base_params}
 
 
 class OptionalObservations(Flag):
@@ -62,21 +53,18 @@ class OptionalObservations(Flag):
     OBJECT = auto()
 
 
-class RobosuiteCameraTypes(Enum):
-    FRONT = 'frontview'
-    BIRD = 'birdview'
-    AGENT = 'agentview'
-
-
 class RobosuiteBaseParameters(Parameters):
     def __init__(self, optional_observations: OptionalObservations = OptionalObservations.NONE):
         super(RobosuiteBaseParameters, self).__init__()
-        # NOTE: Attribute names exactly match the attribute names in Robosuite
-        self.horizon = 1000                 # Every episode lasts for exactly horizon timesteps
-        self.ignore_done = True             # True if never terminating the environment (ignore horizon)
-        self.reward_shaping = True          # if True, use dense rewards.
-        self.gripper_visualizations = True  # True if using gripper visualization. Useful for teleoperation.
-        self.use_indicator_object = False   # if True, sets up an indicator object that is useful for debugging
+
+        # NOTE: Attribute names should exactly match the attribute names in Robosuite
+
+        self.horizon = 1000         # Every episode lasts for exactly horizon timesteps
+        self.ignore_done = True     # True if never terminating the environment (ignore horizon)
+        self.reward_scale = 0       # Scales the reward by the amount specified. Use 0 to take Robosuite default
+        self.reward_shaping = True  # if True, use dense rewards.
+
+        self.use_indicator_object = False  # if True, sets up an indicator object that is useful for debugging
 
         # How many control signals to receive in every simulated second. This sets the amount of simulation time
         # that passes between every action input (this is NOT the same as frame_skip)
@@ -89,14 +77,17 @@ class RobosuiteBaseParameters(Parameters):
         self.use_object_obs = bool(optional_observations & OptionalObservations.OBJECT)
 
         # Camera parameters
-        self.has_renderer = False
+        self.has_renderer = False            # Set to true to use Mujoco native viewer for on-screen rendering
+        self.render_camera = 'frontview'     # name of camera to use for on-screen rendering
         self.has_offscreen_renderer = self.use_camera_obs
-        self.render_collision_mesh = False              # True if rendering collision meshes in camera. False otherwise
-        self.render_visual_mesh = True                  # True if rendering visual meshes in camera. False otherwise
-        self.camera_names = RobosuiteCameraTypes.AGENT  # name of camera to be rendered (required for camera obs)
-        self.camera_heights = 84                        # height of camera frame.
-        self.camera_widths = 84                         # width of camera frame.
-        self.camera_depths = False                      # True if rendering RGB-D, and RGB otherwise.
+        self.gripper_visualizations = False  # True if using gripper visualization. Useful for teleoperation.
+        self.render_collision_mesh = False   # True if rendering collision meshes in camera. False otherwise
+        self.render_visual_mesh = True       # True if rendering visual meshes in camera. False otherwise
+        self.camera_names = 'agentview'      # name of camera for rendering camera observations
+        self.camera_heights = 84             # height of camera frame.
+        self.camera_widths = 84              # width of camera frame.
+        self.camera_depths = False           # True if rendering RGB-D, and RGB otherwise.
+
 
     @property
     def optional_observations(self):
@@ -118,117 +109,22 @@ class RobosuiteBaseParameters(Parameters):
 
     def env_kwargs_dict(self):
         res = {k: (v.value if isinstance(v, Enum) else v) for k, v in vars(self).items()}
+        if self.reward_scale == 0:
+            res.pop('reward_scale')
         return res
-
-
-class RobosuiteTaskParameters(Parameters):
-    def __init__(self):
-        super(RobosuiteTaskParameters, self).__init__()
-
-    def env_kwargs_dict(self):
-        res = {k: (v.value if isinstance(v, Enum) else v) for k, v in vars(self).items()}
-        return res
-
-
-class RobosuiteLiftParameters(RobosuiteTaskParameters):
-    def __init__(self):
-        super(RobosuiteLiftParameters, self).__init__()
-        self.table_full_size = (0.8, 0.8, 0.8)
-        self.table_friction = (1., 5e-3, 1e-4)
-        # self.placement_initializer = None
-
-
-class RobosuiteSingleObjectMode(Enum):
-    MULTI_OBJECT = 0
-    SINGLE_RANDOM_PER_RESET = 1
-    SINGLE_CONSTANT = 2
-
-
-class RobosuitePickPlaceParameters(RobosuiteTaskParameters):
-    class OBJECT_TYPES(Enum):
-        MILK = 'milk'
-        BREAD = 'bread'
-        CEREAL = 'cereal'
-        CAN = 'can'
-
-    def __init__(self):
-        super(RobosuitePickPlaceParameters, self).__init__()
-        self.table_full_size = (0.39, 0.49, 0.82)
-        self.table_friction = (1, 0.005, 0.0001)
-        # self.placement_initializer = None
-        self.single_object_mode = RobosuiteSingleObjectMode.MULTI_OBJECT
-        self.object_type = None
-
-
-class RobosuiteNutAssemblyParameters(RobosuiteTaskParameters):
-    class NUT_TYPES(Enum):
-        ROUND = 'round'
-        SQUARE = 'square'
-
-    def __init__(self):
-        super(RobosuiteNutAssemblyParameters, self).__init__()
-        self.table_full_size = (0.45, 0.69, 0.82)
-        self.table_friction = (1, 0.005, 0.0001)
-        # self.placement_initializer = None
-        self.single_object_mode = RobosuiteSingleObjectMode.MULTI_OBJECT
-        self.nut_type = None
-
-
-class RobosuiteStackParameters(RobosuiteTaskParameters):
-    def __init__(self):
-        super(RobosuiteStackParameters, self).__init__()
-        self.table_full_size = (0.8, 0.8, 0.8)
-        self.table_friction = (1., 5e-3, 1e-4)
-        # self.placement_initializer = None
-
-
-class RobosuiteTwoArmLiftParameters(RobosuiteTaskParameters):
-    def __init__(self):
-        super(RobosuiteTwoArmLiftParameters, self).__init__()
-        self.rescale_actions = True
-
-
-class RobosuiteTwoArmPegInHoleParameters(RobosuiteTaskParameters):
-    def __init__(self):
-        super(RobosuiteTwoArmPegInHoleParameters, self).__init__()
-        self.rescale_actions = True
-        self.cylinder_radius = (0.015, 0.03)
-        self.cylinder_length = 0.13
-
-
-class RobosuiteLevels(Enum):
-    LIFT = 'Lift'
-    PICK_PLACE = 'PickPlace'
-    NUT_ASSEMBLY = 'NutAssembly'
-    STACK = 'Stack'
-    TWO_ARM_LIFT = 'TwoArmLift'
-    TWO_ARM_PEG_IN_HOLE = 'TwoArmPegInHole'
-
-
-robosuite_level_expected_types = {
-    RobosuiteLevels.LIFT: (RobosuiteLiftParameters, _one_arm_robots),
-    RobosuiteLevels.PICK_PLACE: (RobosuitePickPlaceParameters, _one_arm_robots),
-    RobosuiteLevels.NUT_ASSEMBLY: (RobosuiteNutAssemblyParameters, _one_arm_robots),
-    RobosuiteLevels.STACK: (RobosuiteStackParameters, _one_arm_robots),
-    RobosuiteLevels.TWO_ARM_LIFT: (RobosuiteTwoArmLiftParameters, _two_arm_robots),
-    RobosuiteLevels.TWO_ARM_PEG_IN_HOLE: (RobosuiteTwoArmPegInHoleParameters, _two_arm_robots)
-}
 
 
 class RobosuiteEnvironmentParameters(EnvironmentParameters):
-    def __init__(self, level, task_parameters, robot=None, controller=None):
+    def __init__(self, level, robot=None, controller=None):
         super().__init__(level=level)
         self.base_parameters = RobosuiteBaseParameters()
-        self.task_parameters = task_parameters
+        self.extra_parameters = {}
         self.robot = robot
         self.controller = controller
 
     @property
     def path(self):
         return 'rl_coach.environments.robosuite_environment:RobosuiteEnvironment'
-
-
-robosuite_envs = {env_name.lower(): env for env_name, env in robosuite.environments.REGISTERED_ENVS.items()}
 
 
 RobosuiteStepResult = namedtuple('RobosuiteStepResult', ['observation', 'reward', 'done', 'info'])
@@ -257,12 +153,12 @@ def _process_observation(raw_obs, camera_name):
 # Environment
 class RobosuiteEnvironment(Environment):
     def __init__(self, level: LevelSelection,
-                 seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float],
+                 seed: int, frame_skip: int, human_control: bool, custom_reward_threshold: Union[int, float, None],
                  visualization_parameters: VisualizationParameters,
                  base_parameters: RobosuiteBaseParameters,
-                 task_parameters: RobosuiteTaskParameters,
-                 robot: RobosuiteRobotType,
-                 controller: RobosuiteControllerType,
+                 extra_parameters: Dict[str, Any],
+                 robot: str,
+                 controller: str,
                  target_success_rate: float = 1.0, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                                                    visualization_parameters, target_success_rate)
@@ -272,25 +168,17 @@ class RobosuiteEnvironment(Environment):
         self.frame_skip = max(1, self.frame_skip)
         base_parameters.horizon *= self.frame_skip
 
-        try:
-            self.level = RobosuiteLevels[self.env_id.upper()]
-        except KeyError:
-            raise ValueError("Unknown Robosuite level passed: '{}' ; Supported levels are: {}".format(
-                level, ' | '.join([lvl.name.lower() for lvl in RobosuiteLevels])
-            ))
+        def validate_input(input, supported, name):
+            if input not in supported:
+                raise ValueError("Unknown Robosuite {0} passed: '{1}' ; Supported {0}s are: {2}".format(
+                    name, input, ' | '.join(supported)
+                ))
 
-        expected_params, expected_robots = robosuite_level_expected_types.get(self.level)
-        if not isinstance(task_parameters, expected_params):
-            raise TypeError("task_parameters for level '{}' must be of type {}".format(self.env_id,
-                                                                                       expected_params.__name__))
-        self.task_parameters = task_parameters
-
-        if robot not in expected_robots:
-            raise ValueError('{} robot not incompatible with level {} ; Compatible robots: {}'.format(
-                robot, self.env_id, ' | '.join([str(r) for r in expected_robots])
-            ))
+        validate_input(self.env_id, robosuite_environments, 'environment')
+        validate_input(robot, robosuite_robots, 'robot')
         self.robot = robot
-
+        if controller is not None:
+            validate_input(controller, robosuite_controllers, 'controller')
         self.controller = controller
 
         self.base_parameters = base_parameters
@@ -305,22 +193,19 @@ class RobosuiteEnvironment(Environment):
 
         # Load and initialize environment
         env_args = self.base_parameters.env_kwargs_dict()
-        env_args.update(task_parameters.env_kwargs_dict())
-        env_args['robots'] = self.robot.value
+        env_args.update(extra_parameters)
+        env_args['robots'] = self.robot
         controller_cfg = None
-        if controller is not None:
-            controller_cfg = robosuite.controllers.load_controller_config(default_controller=self.controller.value)
+        if self.controller is not None:
+            controller_cfg = robosuite.controllers.load_controller_config(default_controller=self.controller)
         env_args['controller_configs'] = controller_cfg
 
-        self.env: robosuite.environments.MujocoEnv = robosuite.make(self.level.value, **env_args)
+        self.env: robosuite.environments.MujocoEnv = robosuite.make(self.env_id, **env_args)
 
         # TODO: Add DR
         # Wrap with a dummy wrapper so we get a consistent API (there are subtle changes between
         # wrappers and actual environments in Robosuite, for example action_spec as property vs. function)
         self.env = Wrapper(self.env)
-
-        if isinstance(self.base_parameters.camera_names, Enum):
-            self.base_parameters.camera_names = self.base_parameters.camera_names.value
 
         # State space
         self.state_space = StateSpace({})
@@ -372,7 +257,7 @@ class RobosuiteEnvironment(Environment):
         self.env.render()
 
     def get_rendered_image(self):
-        img: np.ndarray = self.env.sim.render(camera_name=RobosuiteCameraTypes.FRONT.value,
+        img: np.ndarray = self.env.sim.render(camera_name=self.base_parameters.render_camera,
                                               height=512, width=512, depth=False)
         return np.flip(img, 0)
 

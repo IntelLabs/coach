@@ -4,8 +4,7 @@ from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.layers import Dense, Conv2d
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod
-from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, RobosuiteLiftParameters, \
-    RobosuiteRobotType, OptionalObservations, RobosuiteControllerType
+from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.filters.filter import InputFilter, NoOutputFilter, NoInputFilter
 from rl_coach.filters.observation import ObservationStackingFilter, ObservationRGBToYFilter
@@ -87,18 +86,22 @@ critic_network.batch_size = 512
 ###############
 # Environment #
 ###############
-task_params = RobosuiteLiftParameters()
-task_params.table_full_size = (0.84, 1.25, 0.82)
-
-env_params = RobosuiteEnvironmentParameters('lift', task_params)
-env_params.robot = RobosuiteRobotType.PANDA
-env_params.controller = RobosuiteControllerType.IK_POSE
+env_params = RobosuiteEnvironmentParameters('LiftLab')
+env_params.robot = 'PandaLab'
+env_params.controller = 'IK_POSE'
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
+env_params.base_parameters.render_camera = 'frontview'
 env_params.base_parameters.camera_names = 'labview'
-env_params.base_parameters.camera_depth = False
+env_params.base_parameters.camera_depths = False
 env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 10
+
+# Use extra_parameters for any Robosuite parameter not exposed by RobosuiteBaseParameters
+# These are mostly task-specific parameters. For example, for the "lift" task once could modify
+# the table size:
+# env_params.extra_parameters = {'table_full_size': (0.5, 0.5, 0.5)}
+env_params.extra_parameters = {}
 
 vis_params = VisualizationParameters()
 vis_params.print_networks_summary = True
