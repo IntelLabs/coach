@@ -174,7 +174,8 @@ class Agent(AgentInterface):
         self.accumulated_shaped_rewards_across_evaluation_episodes = 0
         self.num_successes_across_evaluation_episodes = 0
         self.num_evaluation_episodes_completed = 0
-        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step)
+        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step,
+                                              task_id=self.task_id, episode_id=0)
         # TODO: add agents observation rendering for debugging purposes (not the same as the environment rendering)
 
         # environment parameters
@@ -617,7 +618,8 @@ class Agent(AgentInterface):
         self.curr_state = {}
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
-        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step)
+        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step,
+                                              task_id=self.task_id, episode_id=self.current_episode + 1)
         if self.exploration_policy:
             self.exploration_policy.reset()
         self.input_filter.reset()

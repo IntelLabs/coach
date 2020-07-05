@@ -72,8 +72,6 @@ class ObservationNormalizationFilter(ObservationFilter):
         observations = np.array(observations)
         if update_internal_state:
             self.running_observation_stats.push(observations)
-            self.last_mean = self.running_observation_stats.mean
-            self.last_stdev = self.running_observation_stats.std
 
         return self.running_observation_stats.normalize(observations)
 

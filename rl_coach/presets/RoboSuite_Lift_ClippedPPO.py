@@ -4,7 +4,7 @@ from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameters
 from rl_coach.architectures.layers import Dense, Conv2d
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters, \
-    MiddlewareScheme
+    MiddlewareScheme, DistributedCoachSynchronizationType
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod
 from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations
 from rl_coach.environments.environment import SingleLevelSelection
@@ -61,10 +61,9 @@ agent_params.output_filter = NoOutputFilter()
 agent_params.algorithm.gae_lambda = 0.97
 # Surreal also adapts the clip value according to the KLD between prev and current policies. Missing in Coach
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1500)
-agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(1500)
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(2000)
 agent_params.algorithm.optimization_epochs = 1
-
+agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
 ###########
 # Network #
 ###########
@@ -94,7 +93,6 @@ network.learning_rate = 1e-4
 network.l2_regularization = 0.0
 network.clip_gradients = 5.0
 network.batch_size = 64
-
 
 ###############
 # Environment #
@@ -129,6 +127,7 @@ vis_params.print_networks_summary = True
 preset_validation_params = PresetValidationParameters()
 # preset_validation_params.trace_test_levels = ['cartpole:swingup', 'hopper:hop']
 
-graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
+graph_manager = MASTGraphManager(agent_params=agent_params, env_params=env_params,
+# graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,
                                     preset_validation_params=preset_validation_params)

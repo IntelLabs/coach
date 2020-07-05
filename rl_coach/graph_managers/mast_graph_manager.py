@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
 import sys
 from collections import OrderedDict
 
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters, \
     PresetValidationParameters
-from rl_coach.core_types import EnvironmentSteps, RunPhase, TrainingSteps
+from rl_coach.core_types import EnvironmentSteps, RunPhase, TrainingSteps, EnvironmentEpisodes
 from rl_coach.data_stores.redis_data_store import RedisDataStore
 from rl_coach.environments.environment import EnvironmentParameters
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
@@ -39,7 +40,7 @@ class MASTGraphManager(BasicRLGraphManager):
         super().__init__(agent_params=agent_params, env_params=env_params, name=name, schedule_params=schedule_params,
                          vis_params=vis_params, preset_validation_params=preset_validation_params)
         self.first_policy_publish = False
-        self.last_publish_time = 0
+        self.last_publish_step = 0
         self.latest_published_policy_id = 0
 
     def actor(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore):
@@ -95,13 +96,20 @@ class MASTGraphManager(BasicRLGraphManager):
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     if data_store.end_of_policies():
                         break
-                    if self.current_step_counter[EnvironmentSteps] % 100 == 0:  # TODO extract hyper-param
-                        if data_store.attempt_load_policy(self):
-                            log = OrderedDict()
-                            log['Loading new policy'] = self.latest_published_policy_id
-                            screen.log_dict(log, prefix='Evaluator')
 
-                    self.act(EnvironmentSteps(1))
+                    if data_store.attempt_load_policy(self):
+                        log = OrderedDict()
+                        log['Loading new policy'] = ""
+                        screen.log_dict(log, prefix='Evaluator')
+
+                    # In case of an evaluation-only worker, fake a phase transition before and after every
+                    # episode to make sure results are logged correctly
+                    if self.task_parameters.evaluate_only is not None:
+                        self.phase = RunPhase.TEST
+                    self.act(EnvironmentEpisodes(1))
+                    self.sync()
+                    if self.task_parameters.evaluate_only is not None:
+                        self.phase = RunPhase.TRAIN
 
         if self.should_stop():
             self.flush_finished()
@@ -133,25 +141,48 @@ class MASTGraphManager(BasicRLGraphManager):
                     # The agent might also decide to skip acting altogether.
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     self.fetch_from_worker(self.agent_params.algorithm.num_consecutive_playing_steps)
+                    # if (self.get_agent().total_steps_counter - self.last_publish_step) >= 20000:
+                    #     list(list(self.get_agent().pre_network_filter._observation_filters.values())[0].values())[
+                    #         0].running_observation_stats.publish_on_next_push = True
                     self.train()
-                    if (self.current_step_counter[EnvironmentSteps] - self.last_publish_time) > 90000:  # TODO extract hyper-param
-                        # TODO fix the shared running stats to also be published at this same rate (make sure in surreal that the same rate is used)
+                    if (self.get_agent().total_steps_counter - self.last_publish_step) >= 20000:  # TODO extract hyper-param
                         data_store.save_policy(self)
                         self.occasionally_save_checkpoint()
 
-                        # bureaucracy
                         log = OrderedDict()
                         log['Publishing a new policy'] = self.latest_published_policy_id
                         screen.log_dict(log, prefix='Trainer')
 
                         self.latest_published_policy_id += 1
-                        self.last_publish_time = self.current_step_counter[EnvironmentSteps]
+                        self.last_publish_step = self.current_step_counter[EnvironmentSteps]
 
     def fetch_from_worker(self, num_consecutive_playing_steps=None):
         if hasattr(self, 'memory_backend'):
             with self.phase_context(RunPhase.TRAIN):
                 # for transition in self.memory_backend.fetch_subscribe_all_msgs(num_consecutive_playing_steps):
-                for transition in self.memory_backend.fetch(num_consecutive_playing_steps):
-                    self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
+                #     self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
 
 
+                ##### an alternative flow to balaji's which is more efficient and gets full episodes at a time #####
+                ##### - the current issue with it is that since the agen't flow emulation does not take place, #####
+                #####   signals are not tracked and are missing from dashboard.                                #####
+
+                for episode in self.memory_backend.fetch_subscribe_all_msgs(num_consecutive_playing_steps):
+                    self.get_agent().memory.store_episode(episode)
+
+                    # -  book-keeping -
+                    self.get_agent().total_steps_counter += episode.length()
+                    self.get_agent().current_episode += 1
+
+                    # last episode is always complete as we're getting full episodes from actors.
+                    # this is required so that agent._should_update() will be aware that the last episode is complete
+                    self.get_agent().current_episode_buffer.is_complete = True
+
+                    self.current_step_counter[EnvironmentSteps] = self.get_agent().total_steps_counter
+                    log = OrderedDict()
+                    log['Total steps fetched from actors'] = self.get_agent().total_steps_counter
+                    log['Last episode from actor ID'] = episode.task_id
+                    log['Episode ID'] = episode.episode_id
+                    screen.log_dict(log, prefix='Trainer')
+
+# TODO some bug where when running with an eval agent cartpole starts with a reward of 200. probably loading some old policy which wasn't cleaned from Redis

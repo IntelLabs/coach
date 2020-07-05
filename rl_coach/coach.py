@@ -277,6 +277,8 @@ class CoachLauncher(object):
     and handle absolutely everything for a job.
     """
 
+    gpus = _get_cuda_available_devices()
+
     def launch(self):
         """
         Main entry point for the class, and the standard way to run coach from the command line.
@@ -505,6 +507,9 @@ class CoachLauncher(object):
         if args.export_onnx_graph and not args.checkpoint_save_secs:
             screen.warning("Exporting ONNX graphs requires setting the --checkpoint_save_secs flag. "
                            "The --export_onnx_graph will have no effect.")
+
+        if args.use_cpu or not CoachLauncher.gpus:
+            CoachLauncher.gpus = [None]
 
         return args
 
@@ -752,10 +757,10 @@ class CoachLauncher(object):
         # TODO handle checkpointing
 
         def start_mast_task(job_type, base_task_parameters: 'TaskParameters',
-                            task_index: int):
+                            task_index: int, gpu_id: int):
 
             task_parameters = copy.deepcopy(base_task_parameters)
-
+            set_gpu(gpu_id)
             if job_type == "actor":
                 task_parameters.act_only = sys.maxsize
             elif job_type == "trainer":
@@ -775,17 +780,23 @@ class CoachLauncher(object):
             p.start()
             return p
 
+        # trainer
+        trainer = start_mast_task("trainer", base_task_parameters, task_index=total_actors,
+                                  gpu_id=CoachLauncher.gpus[0])
+
+        curr_gpu_idx = 0
+
         # actors
         actors = []
         for task_index in range(0, total_actors):
-            actors.append(start_mast_task("actor", base_task_parameters, task_index))
-
-        # trainer
-        trainer = start_mast_task("trainer", base_task_parameters, task_index=total_actors)
+            curr_gpu_idx = (curr_gpu_idx % (len(CoachLauncher.gpus) - 1)) + 1
+            actors.append(start_mast_task("actor", base_task_parameters, task_index, gpu_id=curr_gpu_idx))
 
         # evaluation worker
         if args.evaluation_worker or args.render:
-            evaluation_worker = start_mast_task("evaluator", base_task_parameters, task_index=total_actors + 1)
+            curr_gpu_idx = (curr_gpu_idx % (len(CoachLauncher.gpus) - 1)) + 1
+            evaluation_worker = start_mast_task("evaluator", base_task_parameters, task_index=total_actors + 1,
+                                                gpu_id=curr_gpu_idx)
 
         # wait for all workers
         [w.join() for w in actors + [trainer]]
@@ -845,29 +856,25 @@ class CoachLauncher(object):
             p.start()
             return p
 
-        gpus = _get_cuda_available_devices()
-        if args.use_cpu or not gpus:
-            gpus = [None]
-
         # parameter server
-        parameter_server = start_distributed_task("ps", 0, gpu_id=gpus[0])
+        parameter_server = start_distributed_task("ps", 0, gpu_id=CoachLauncher.gpus[0])
 
         # training workers
         # wait a bit before spawning the non chief workers in order to make sure the session is already created
         curr_gpu_idx = 0
         workers = []
-        workers.append(start_distributed_task("worker", 0, gpu_id=gpus[curr_gpu_idx]))
+        workers.append(start_distributed_task("worker", 0, gpu_id=CoachLauncher.gpus[curr_gpu_idx]))
 
         time.sleep(2)
         for task_index in range(1, args.num_workers):
-            curr_gpu_idx = (curr_gpu_idx + 1) % len(gpus)
-            workers.append(start_distributed_task("worker", task_index, gpu_id=gpus[curr_gpu_idx]))
+            curr_gpu_idx = (curr_gpu_idx + 1) % len(CoachLauncher.gpus)
+            workers.append(start_distributed_task("worker", task_index, gpu_id=CoachLauncher.gpus[curr_gpu_idx]))
 
         # evaluation worker
         if args.evaluation_worker or args.render:
-            curr_gpu_idx = (curr_gpu_idx + 1) % len(gpus)
+            curr_gpu_idx = (curr_gpu_idx + 1) % len(CoachLauncher.gpus)
             evaluation_worker = start_distributed_task("worker", args.num_workers, evaluation_worker=True,
-                                                       gpu_id=gpus[curr_gpu_idx])
+                                                       gpu_id=CoachLauncher.gpus[curr_gpu_idx])
 
         # wait for all workers
         [w.join() for w in workers]

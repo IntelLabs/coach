@@ -298,7 +298,6 @@ class EpisodicExperienceReplay(Memory):
         :return: None
         """
         self.assert_not_frozen()
-
         # Calling super.store() so that in case a memory backend is used, the memory backend can store this episode.
         super().store_episode(episode)
 
@@ -465,7 +464,7 @@ class EpisodicExperienceReplay(Memory):
                 # we have to have at least 2 rows in each episode for creating a transition
                 continue
 
-            episode = Episode()
+            episode = Episode(episode_id=e_id)
             transitions = []
             for (_, current_transition), (_, next_transition) in zip(df_episode_transitions[:-1].iterrows(),
                                                                      df_episode_transitions[1:].iterrows()):

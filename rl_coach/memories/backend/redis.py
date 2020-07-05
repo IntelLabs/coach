@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from typing import Union
 
 import redis
 import pickle
@@ -181,20 +181,25 @@ class RedisPubSubBackend(MemoryBackend):
     def sample(self, size):
         pass
 
-    def fetch(self, num_consecutive_playing_steps=None):
+    def fetch(self, num_consecutive_playing_steps: Union[EnvironmentSteps, EnvironmentEpisodes]):
         """
-        :param num_consecutive_playing_steps: The number steps to fetch.
+        :param num_consecutive_playing_steps: The number of steps to fetch.
         """
-        return RedisSub(redis_address=self.params.redis_address, redis_port=self.params.redis_port, channel=self.params.channel).run(num_consecutive_playing_steps)
+        return RedisSub(redis_address=self.params.redis_address, redis_port=self.params.redis_port,
+                        channel=self.params.channel).get_transitions(num_consecutive_playing_steps)
 
-    def fetch_subscribe_all_msgs(self, num_consecutive_playing_steps=None):
+    def fetch_subscribe_all_msgs(self, total_steps_to_fetch: Union[EnvironmentSteps, EnvironmentEpisodes],
+                                 fetch_episodes: bool = True):
         """
-        :param num_consecutive_playing_steps: The number steps to fetch.
+        :param total_steps_to_fetch: The number steps to fetch.
+        :param fetch_episodes: Should the return type be Episode or Transition
         """
         if not self.redis_sub:
             self.redis_sub = RedisSub(redis_address=self.params.redis_address, redis_port=self.params.redis_port,
-                                  channel=self.params.channel)
-        return self.redis_sub.run(num_consecutive_playing_steps)
+                                      channel=self.params.channel)
+        if fetch_episodes:
+            return self.redis_sub.get_episodes(total_steps_to_fetch)
+        return self.redis_sub.get_transitions(total_steps_to_fetch)
 
     def subscribe(self, agent):
         """
@@ -217,33 +222,56 @@ class RedisSub(object):
         self.channel = channel
         self.subscriber = self.pubsub.subscribe(self.channel)
 
-    def run(self, num_consecutive_playing_steps):
+    def get_episodes(self, total_steps_to_fetch: Union[EnvironmentSteps, EnvironmentEpisodes]):
         """
-        :param num_consecutive_playing_steps: The number steps to fetch.
+        Listens and yields the number of requested episodes.
+
+        :param total_steps_to_fetch: The number steps to fetch.
         """
+
+        for step in self.get_steps(total_steps_to_fetch):
+            if type(step) == Transition:
+                raise ValueError("Subscriber is expecting episodes to be published and not transitions.")
+            yield step
+
+    def get_transitions(self, total_steps_to_fetch: Union[EnvironmentSteps, EnvironmentEpisodes]):
+        """
+        Listens and yields the number of requested transitions.
+
+        :param total_steps_to_fetch: The number steps to fetch.
+        """
+
+        for step in self.get_steps(total_steps_to_fetch):
+            if isinstance(step, Transition):
+                yield step
+            else:
+                episode = step
+                yield from episode.transitions
+
+    def get_steps(self, total_steps_to_fetch: Union[EnvironmentSteps, EnvironmentEpisodes]):
         transitions = 0
         episodes = 0
         steps = 0
         for message in self.pubsub.listen():
             if message and 'data' in message:
+
                 try:
                     obj = pickle.loads(message['data'])
                     if type(obj) == Transition:
                         transitions += 1
                         if obj.game_over:
                             episodes += 1
-                        yield obj
                     elif type(obj) == Episode:
                         episodes += 1
                         transitions += len(obj.transitions)
-                        yield from obj.transitions
+                    yield obj
                 except Exception:
                     continue
 
-            if type(num_consecutive_playing_steps) == EnvironmentSteps:
+            if type(total_steps_to_fetch) == EnvironmentSteps:
                 steps = transitions
-            if type(num_consecutive_playing_steps) == EnvironmentEpisodes:
+            if type(total_steps_to_fetch) == EnvironmentEpisodes:
                 steps = episodes
 
-            if steps >= num_consecutive_playing_steps.num_steps:
+            if steps >= total_steps_to_fetch.num_steps:
                 break

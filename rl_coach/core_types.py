@@ -697,12 +697,15 @@ class Episode(object):
     """
     An Episode represents a set of sequential transitions, that end with a terminal state.
     """
-    def __init__(self, discount: float=0.99, bootstrap_total_return_from_old_policy: bool=False, n_step: int=-1):
+    def __init__(self, discount: float=0.99, bootstrap_total_return_from_old_policy: bool=False, n_step: int=-1,
+                 task_id: int = -1, episode_id: int = -1):
         """
         :param discount: the discount factor to use when calculating total returns
         :param bootstrap_total_return_from_old_policy: should the total return be bootstrapped from the values in the
                                                        memory
         :param n_step: the number of future steps to sum the reward over before bootstrapping
+        :param task_id: the task ID of the agent who has collected this episode
+        :param episode_id: the episode ID for the agent who has collected this episode
         """
         self.transitions = []
         self._length = 0
@@ -710,6 +713,8 @@ class Episode(object):
         self.bootstrap_total_return_from_old_policy = bootstrap_total_return_from_old_policy
         self.n_step = n_step
         self.is_complete = False
+        self.task_id = task_id
+        self.episode_id = episode_id
 
     def insert(self, transition: Transition) -> None:
         """

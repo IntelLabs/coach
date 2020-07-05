@@ -15,6 +15,8 @@
 #
 
 import copy
+import math
+import time
 from collections import OrderedDict
 from random import shuffle
 from typing import Union
@@ -218,9 +220,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                        self.networks['main'].online_network.output_heads[1].likelihood_ratio,
                        self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
 
-            # TODO-fixme if batch.size / self.ap.network_wrappers['main'].batch_size is not an integer, we do not train on
-            #  some of the data
-            for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
+            for i in range(math.ceil(batch.size / self.ap.network_wrappers['main'].batch_size)):
                 start = i * self.ap.network_wrappers['main'].batch_size
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size
 
@@ -261,7 +261,6 @@ class ClippedPPOAgent(ActorCriticAgent):
                     self.networks['main'].train_and_sync_networks(
                         inputs, [value_targets, batch.info('advantage')[start:end]], additional_fetches=fetches
                     )
-
                 batch_results['total_loss'].append(total_loss)
                 batch_results['losses'].append(losses)
                 batch_results['unclipped_grads'].append(unclipped_grads)
@@ -309,7 +308,9 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.call_memory('clean')
 
     def train(self):
+        s = time.time()
         if self._should_train():
+            print("*** DEBUG: trainer starts a training iteration ***")
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -318,7 +319,6 @@ class ClippedPPOAgent(ActorCriticAgent):
             dataset = self.pre_network_filter.filter(dataset, deep_copy=False,
                                                      update_internal_state=update_internal_state)
             batch = Batch(dataset)
-
             for training_step in range(self.ap.algorithm.num_consecutive_training_steps):
                 self.networks['main'].sync()
                 self.fill_advantages(batch)
@@ -338,6 +338,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             self.training_iteration += 1
             # should be done in order to update the data that has been accumulated * while not playing *
             self.update_log()
+            print("*** DEBUG: training iter time = {} ***".format(time.time()-s))
             return None
 
     def run_pre_network_filter_for_inference(self, state: StateType, update_internal_state: bool=False):
