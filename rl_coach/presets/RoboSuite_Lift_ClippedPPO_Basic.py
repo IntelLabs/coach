@@ -7,13 +7,15 @@ from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, Pr
     MiddlewareScheme, DistributedCoachSynchronizationType
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod, \
     EveryNEpisodesDumpFilter, SelectedPhaseOnlyDumpFilter, RunPhase, TaskIdDumpFilter, MaxDumpFilter
-from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations
+from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations, \
+    robosuite_environments
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.filters.filter import InputFilter, NoOutputFilter, NoInputFilter
 from rl_coach.filters.observation import ObservationStackingFilter, ObservationRGBToYFilter, \
     ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
+from rl_coach.environments.environment import SingleLevelSelection
 
 ####################
 # Graph Scheduling #
@@ -22,7 +24,7 @@ from rl_coach.graph_managers.mast_graph_manager import MASTGraphManager
 
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
-schedule_params.steps_between_evaluation_periods = EnvironmentSteps(100000)
+schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(10)
 schedule_params.evaluation_steps = EnvironmentEpisodes(5)
 schedule_params.heatup_steps = EnvironmentSteps(0)
 
@@ -62,9 +64,8 @@ agent_params.output_filter = NoOutputFilter()
 agent_params.algorithm.gae_lambda = 0.97
 # Surreal also adapts the clip value according to the KLD between prev and current policies. Missing in Coach
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(2000)
-agent_params.algorithm.optimization_epochs = 1
-agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(10)
+
 ###########
 # Network #
 ###########
@@ -98,7 +99,7 @@ network.batch_size = 64
 ###############
 # Environment #
 ###############
-env_params = RobosuiteEnvironmentParameters('LiftLab')
+env_params = RobosuiteEnvironmentParameters(level=SingleLevelSelection(robosuite_environments, force_lower=False))
 env_params.robot = 'PandaLab'
 # env_params.controller = 'IK_POSE'
 env_params.controller = 'JOINT_VELOCITY'
@@ -122,7 +123,7 @@ env_params.extra_parameters = {}
 vis_params = VisualizationParameters()
 vis_params.dump_mp4 = True
 vis_params.video_dump_filters = [[EveryNEpisodesDumpFilter(5), MaxDumpFilter()],
-                                 [TaskIdDumpFilter(0), SelectedPhaseOnlyDumpFilter(RunPhase.TEST)]]
+                                 [SelectedPhaseOnlyDumpFilter(RunPhase.TEST)]]
 vis_params.print_networks_summary = True
 
 
@@ -132,6 +133,6 @@ vis_params.print_networks_summary = True
 preset_validation_params = PresetValidationParameters()
 # preset_validation_params.trace_test_levels = ['cartpole:swingup', 'hopper:hop']
 
-graph_manager = MASTGraphManager(agent_params=agent_params, env_params=env_params,
-                                 schedule_params=schedule_params, vis_params=vis_params,
-                                 preset_validation_params=preset_validation_params)
+graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
+                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    preset_validation_params=preset_validation_params)
