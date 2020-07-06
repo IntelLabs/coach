@@ -133,8 +133,10 @@ class CarlaEnvironment(Environment):
                  allow_braking: bool, quality: CarlaEnvironmentParameters.Quality,
                  cameras: List[CameraTypes], weather_id: List[int], experiment_path: str,
                  separate_actions_for_throttle_and_brake: bool,
-                 num_speedup_steps: int, max_speed: float, target_success_rate: float = 1.0, **kwargs):
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
+                 num_speedup_steps: int, max_speed: float, target_success_rate: float = 1.0, task_id: int = 0,
+                 **kwargs):
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters,
+                         target_success_rate, task_id)
 
         # server configuration
         self.server_height = server_height

@@ -159,9 +159,9 @@ class RobosuiteEnvironment(Environment):
                  extra_parameters: Dict[str, Any],
                  robot: str,
                  controller: str,
-                 target_success_rate: float = 1.0, **kwargs):
+                 target_success_rate: float = 1.0, task_id: int = 0, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
-                                                   visualization_parameters, target_success_rate)
+                                                   visualization_parameters, target_success_rate, task_id)
 
         # Validate arguments
 

@@ -858,6 +858,9 @@ class VideoDumpFilter(object):
     def should_dump(self, episode_terminated=False, **kwargs):
         raise NotImplementedError("")
 
+    def update_internal_state_after_episode_dumped(self, **kwargs):
+        pass
+
 
 class AlwaysDumpFilter(VideoDumpFilter):
     """
@@ -889,7 +892,7 @@ class MaxDumpFilter(VideoDumpFilter):
             return False
 
 
-class EveryNEpisodesDumpFilter(object):
+class EveryNEpisodesDumpFilter(VideoDumpFilter):
     """
     Dump videos once in every N episodes
     """
@@ -901,14 +904,16 @@ class EveryNEpisodesDumpFilter(object):
             raise ValueError("the number of episodes between dumps should be a positive number")
 
     def should_dump(self, episode_terminated=False, **kwargs):
-        if kwargs['episode_idx'] >= self.last_dumped_episode + self.num_episodes_between_dumps - 1:
-            self.last_dumped_episode = kwargs['episode_idx']
+        if kwargs['episode_idx'] >= self.last_dumped_episode + self.num_episodes_between_dumps:
             return True
         else:
             return False
 
+    def update_internal_state_after_episode_dumped(self, **kwargs):
+        self.last_dumped_episode = kwargs['episode_idx']
 
-class SelectedPhaseOnlyDumpFilter(object):
+
+class SelectedPhaseOnlyDumpFilter(VideoDumpFilter):
     """
     Dump videos when the phase of the environment matches a predefined phase
     """
@@ -920,6 +925,20 @@ class SelectedPhaseOnlyDumpFilter(object):
             return True
         else:
             return False
+
+
+class TaskIdDumpFilter(VideoDumpFilter):
+    """
+    Dump videos only for a specific task ID
+    """
+    def __init__(self, task_id):
+        super().__init__()
+        self.task_id = task_id
+
+    def should_dump(self, episode_terminated=False, **kwargs):
+        if kwargs['task_id'] == self.task_id:
+            return True
+        return False
 
 
 # TODO move to a NamedTuple, once we move to Python3.6

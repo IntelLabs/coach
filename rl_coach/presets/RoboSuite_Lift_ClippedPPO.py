@@ -5,7 +5,8 @@ from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameter
 from rl_coach.architectures.layers import Dense, Conv2d
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters, \
     MiddlewareScheme, DistributedCoachSynchronizationType
-from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod
+from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod, \
+    EveryNEpisodesDumpFilter, SelectedPhaseOnlyDumpFilter, RunPhase, TaskIdDumpFilter, MaxDumpFilter
 from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.filters.filter import InputFilter, NoOutputFilter, NoInputFilter
@@ -99,7 +100,8 @@ network.batch_size = 64
 ###############
 env_params = RobosuiteEnvironmentParameters('LiftLab')
 env_params.robot = 'PandaLab'
-env_params.controller = 'IK_POSE'
+# env_params.controller = 'IK_POSE'
+env_params.controller = 'JOINT_VELOCITY'
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.render_camera = 'frontview'
 env_params.base_parameters.camera_names = 'labview'
@@ -118,6 +120,9 @@ env_params.frame_skip = 1
 env_params.extra_parameters = {}
 
 vis_params = VisualizationParameters()
+vis_params.dump_mp4 = True
+vis_params.video_dump_filters = [[EveryNEpisodesDumpFilter(5), MaxDumpFilter()],
+                                 [TaskIdDumpFilter(0), SelectedPhaseOnlyDumpFilter(RunPhase.TEST)]]
 vis_params.print_networks_summary = True
 
 

@@ -124,7 +124,7 @@ class DoomEnvironment(Environment):
 
     def __init__(self, level: LevelSelection, seed: int, frame_skip: int, human_control: bool,
                  custom_reward_threshold: Union[int, float], visualization_parameters: VisualizationParameters,
-                 cameras: List[CameraTypes], target_success_rate: float=1.0, **kwargs):
+                 cameras: List[CameraTypes], target_success_rate: float=1.0, task_id: int = 0, **kwargs):
         """
         :param level: (str)
             A string representing the doom level to run. This can also be a LevelSelection object.
@@ -155,7 +155,8 @@ class DoomEnvironment(Environment):
             Stop experiment if given target success rate was achieved.
 
         """
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters,
+                         target_success_rate, task_id)
 
         self.cameras = cameras
 
