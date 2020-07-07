@@ -20,7 +20,8 @@ import copy
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense
+from rl_coach.architectures.tensorflow_components.layers import BatchnormActivationDropout, convert_layer, Dense, \
+    Flatten
 from rl_coach.base_parameters import EmbedderScheme, NetworkComponentParameters
 
 from rl_coach.core_types import InputEmbedding
@@ -116,7 +117,7 @@ class InputEmbedder(object):
                              is_training=self.is_training)
             ))
 
-        self.output = tf.contrib.layers.flatten(self.layers[-1])
+        self.output = Flatten()(self.layers[-1])
 
     @property
     def input_size(self) -> List[int]:
