@@ -41,7 +41,7 @@ class MASTGraphManager(BasicRLGraphManager):
                          vis_params=vis_params, preset_validation_params=preset_validation_params)
         self.first_policy_publish = False
         self.last_publish_step = 0
-        self.latest_published_policy_id = 0
+        self.latest_policy_id = 0
 
     def actor(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore):
         self.verify_graph_was_created()
@@ -68,9 +68,10 @@ class MASTGraphManager(BasicRLGraphManager):
                     if self.current_step_counter[EnvironmentSteps] % 100 == 0:  # TODO extract hyper-param
                         if data_store.attempt_load_policy(self):
                             log = OrderedDict()
-                            log['Loading new policy'] = self.latest_published_policy_id
+                            log['Loading a new policy'] = self.latest_policy_id
                             screen.log_dict(log, prefix='Actor {}'.format(
                                 self.task_parameters.task_index))
+                            self.latest_policy_id += 1
 
                     self.act(EnvironmentSteps(1))
 
@@ -99,8 +100,9 @@ class MASTGraphManager(BasicRLGraphManager):
 
                     if data_store.attempt_load_policy(self):
                         log = OrderedDict()
-                        log['Loading new policy'] = ""
+                        log['Loading a new policy'] = self.latest_policy_id
                         screen.log_dict(log, prefix='Evaluator')
+                        self.latest_policy_id += 1
 
                     # In case of an evaluation-only worker, fake a phase transition before and after every
                     # episode to make sure results are logged correctly
@@ -141,19 +143,17 @@ class MASTGraphManager(BasicRLGraphManager):
                     # The agent might also decide to skip acting altogether.
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     self.fetch_from_worker(self.agent_params.algorithm.num_consecutive_playing_steps)
-                    # if (self.get_agent().total_steps_counter - self.last_publish_step) >= 20000:
-                    #     list(list(self.get_agent().pre_network_filter._observation_filters.values())[0].values())[
-                    #         0].running_observation_stats.publish_on_next_push = True
                     self.train()
-                    if (self.get_agent().total_steps_counter - self.last_publish_step) >= 20000:  # TODO extract hyper-param
+                    if (self.get_agent().total_steps_counter - self.last_publish_step) >= \
+                            self.agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps.num_steps:
                         data_store.save_policy(self)
                         self.occasionally_save_checkpoint()
 
                         log = OrderedDict()
-                        log['Publishing a new policy'] = self.latest_published_policy_id
+                        log['Publishing a new policy'] = self.latest_policy_id
                         screen.log_dict(log, prefix='Trainer')
 
-                        self.latest_published_policy_id += 1
+                        self.latest_policy_id += 1
                         self.last_publish_step = self.current_step_counter[EnvironmentSteps]
 
     def fetch_from_worker(self, num_consecutive_playing_steps=None):
@@ -184,5 +184,3 @@ class MASTGraphManager(BasicRLGraphManager):
                     log['Last episode from actor ID'] = episode.task_id
                     log['Episode ID'] = episode.episode_id
                     screen.log_dict(log, prefix='Trainer')
-
-# TODO some bug where when running with an eval agent cartpole starts with a reward of 200. probably loading some old policy which wasn't cleaned from Redis

@@ -31,7 +31,7 @@ class ObservationNormalizationFilter(ObservationFilter):
     all the observations seen so far. The normalization is performed element-wise. Additionally, when working with
     multiple workers, the statistics used for the normalization operation are accumulated over all the workers.
     """
-    def __init__(self, clip_min: float=-5.0, clip_max: float=5.0, name='observation_stats'):
+    def __init__(self, clip_min: float=-5.0, clip_max: float=5.0, name='observation_normalization'):
         """
         :param clip_min: The minimum value to allow after normalizing the observation
         :param clip_max: The maximum value to allow after normalizing the observation
@@ -74,6 +74,20 @@ class ObservationNormalizationFilter(ObservationFilter):
             self.running_observation_stats.push(observations)
 
         return self.running_observation_stats.normalize(observations)
+
+    def get_internal_state(self):
+        """
+        Get the filter's internal state.
+        :return: A dictionary with all the variables required to reproduce the filter or None if no internal state
+        """
+        return self.running_observation_stats.get_internal_state()
+
+    def set_internal_state(self, internal_state: dict):
+        """
+        Set the filter's internal state
+        :return: None
+        """
+        self.running_observation_stats.set_internal_state(internal_state)
 
     def get_filtered_observation_space(self, input_observation_space: ObservationSpace) -> ObservationSpace:
         self.running_observation_stats.set_params(shape=input_observation_space.shape,

@@ -43,9 +43,6 @@ agent_params.algorithm.optimization_epochs = 1
 agent_params.algorithm.estimate_state_value_using_gae = True
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(2000)
 
-# Distributed Coach synchronization type.
-agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
-
 agent_params.pre_network_filter = InputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
                                                         ObservationNormalizationFilter(name='normalize_observation'))

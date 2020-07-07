@@ -17,6 +17,7 @@
 
 import time
 import uuid
+import pickle
 
 import redis
 
@@ -31,6 +32,8 @@ class RedisDataStoreParameters(DataStoreParameters):
         redis_address: str = "",
         redis_port: int = 6379,
         redis_channel: str = "data-store-channel-{}".format(uuid.uuid4()),
+        redis_policy_name: str = "data-store-policy-name-{}".format(uuid.uuid4()),
+        redis_filter_state_name: str = "data-store-filter-state-name-{}".format(uuid.uuid4()),
     ):
         super().__init__(
             ds_params.store_type,
@@ -40,6 +43,8 @@ class RedisDataStoreParameters(DataStoreParameters):
         self.redis_address = redis_address
         self.redis_port = redis_port
         self.redis_channel = redis_channel
+        self.redis_policy_name = redis_policy_name
+        self.redis_filter_state_name = redis_filter_state_name
 
 
 class RedisDataStore(DataStore):
@@ -127,18 +132,22 @@ class RedisDataStore(DataStore):
             self.pubsub.unsubscribe(self.params.redis_channel)
 
         policy_string = self.saver.to_string(graph_manager.sess)
-        self.redis_connection.set(self.params.redis_channel, policy_string)
+        filters_state = graph_manager.get_agent().pre_network_filter.get_internal_state()  # aggregate the internal state of all filters and then publish it together with the policy. make sure to update it in the subscriber
+        self.redis_connection.set(self.params.redis_filter_state_name, pickle.dumps(filters_state))
+        self.redis_connection.set(self.params.redis_policy_name, policy_string)
         self.redis_connection.publish(self.params.redis_channel, "new_policy")
 
     def _load_policy(self, graph_manager) -> bool:
         """
         Get the most recent policy from redis and loaded into the graph_manager
         """
-        policy_string = self.redis_connection.get(self.params.redis_channel)
+        policy_string = self.redis_connection.get(self.params.redis_policy_name)
+        filters_state = self.redis_connection.get(self.params.redis_filter_state_name)
         if policy_string is None or policy_string == self.old_policy_string:
             return False
         self.old_policy_string = policy_string
         self.saver.from_string(graph_manager.sess, policy_string)
+        graph_manager.get_agent().pre_network_filter.set_internal_state(pickle.loads(filters_state))
         return True
 
     def _initialize_saver_and_subscribe_redis(self):

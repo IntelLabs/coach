@@ -47,9 +47,6 @@ agent_params.algorithm.estimate_state_value_using_gae = True
 agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(1500)
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1500)
 
-# Distributed Coach synchronization type.
-agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
-
 agent_params.input_filter = InputFilter()
 agent_params.exploration = AdditiveNoiseParameters()
 agent_params.pre_network_filter = InputFilter()

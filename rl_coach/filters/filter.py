@@ -349,6 +349,46 @@ class InputFilter(Filter):
 
         return filtered_data
 
+    def get_internal_state(self) -> Dict:
+        """
+        Get the aggregated filter internal state
+        :return: A dictionary with the internal state per observation/reward filters
+        """
+
+        internal_state = {}
+        if self.observation_filters:
+            internal_state['observation'] = {}  # TODO: there's a way to automatically fill with new dicts once it does not exist
+
+        for observation_name, filters in self._observation_filters.items():
+            internal_state['observation'][observation_name] = {}
+
+            for filter in filters.values():
+                internal_state['observation'][observation_name][filter.name] = filter.get_internal_state()
+
+        if self.reward_filters:
+            internal_state['reward'] = {}  # TODO: there's a way to automatically fill with new dicts once it does not exist
+
+        for filter in self._reward_filters.values():
+            internal_state['reward'][filter.name] = filter.get_internal_state()
+
+        return internal_state
+
+    def set_internal_state(self, internal_state: dict):
+        """
+        Set the filter's internal state
+        :return: None
+        """
+
+        for observation_name, filters in self._observation_filters.items():
+            for filter in filters.values():
+                filter.set_internal_state(internal_state['observation'][observation_name][filter.name])
+
+        for filter in self._reward_filters.values():
+            filter.set_internal_state(internal_state['reward'][filter.name])
+
+        return internal_state
+
+
     def get_filtered_observation_space(self, observation_name: str,
                                        input_observation_space: ObservationSpace) -> ObservationSpace:
         """

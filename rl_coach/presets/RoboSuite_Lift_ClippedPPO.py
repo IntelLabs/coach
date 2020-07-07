@@ -51,7 +51,7 @@ agent_params = ClippedPPOAgentParameters()
 agent_params.pre_network_filter = InputFilter()
 # Normlization filter on robot/object features (called "Z filter" in surreal for some reason)
 agent_params.pre_network_filter.add_observation_filter('measurements', 'normalize',
-                                                        ObservationNormalizationFilter(clip_min=-5.0, clip_max=5.0))
+                                                       ObservationNormalizationFilter(clip_min=-5.0, clip_max=5.0))
 agent_params.output_filter = NoOutputFilter()
 
 
@@ -64,7 +64,7 @@ agent_params.algorithm.gae_lambda = 0.97
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(2000)
 agent_params.algorithm.optimization_epochs = 1
-agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
+
 ###########
 # Network #
 ###########
@@ -80,7 +80,6 @@ network.input_embedders_parameters = {
 # Mode 1: Frame stacking, no LSTM in middleware
 agent_params.input_filter = InputFilter()
 
-# agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=True))
 agent_params.input_filter.add_observation_filter('camera', 'grayscale', ObservationRGBToYFilter())
 agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=False))
 

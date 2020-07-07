@@ -220,6 +220,9 @@ class AlgorithmParameters(Parameters):
         # Filters - TODO consider creating a FilterParameters class and initialize the filters with it
         self.update_pre_network_filters_state_on_train = False
         self.update_pre_network_filters_state_on_inference = True
+
+        # MAST
+        self.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(20000)
         
 
 class PresetValidationParameters(Parameters):
