@@ -76,3 +76,11 @@ class NoisyNetDense(object):
 
     def __str__(self):
         return "Noisy Dense (num outputs = {})".format(self.units)
+
+
+class Flatten(object):
+    """
+    Base class for framework specific flatten layer (used to convert 3D convolution output to 1D dense input)
+    """
+    def __str__(self):
+        return "Flatten"

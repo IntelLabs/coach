@@ -264,3 +264,26 @@ class NoisyNetDense(layers.NoisyNetDense):
     @reg_to_tf_class(layers.NoisyNetDense)
     def to_tf_class():
         return NoisyNetDense
+
+
+class Flatten(layers.Flatten):
+    def __init__(self):
+        super(Flatten, self).__init__()
+
+    def __call__(self, input_layer, **kwargs):
+        """
+        returns a tensorflow flatten layer
+        :param input_layer: previous layer
+        :return: flatten layer
+        """
+        return tf.contrib.layers.flatten(input_layer)
+
+    @staticmethod
+    @reg_to_tf_instance(layers.Flatten)
+    def to_tf_instance(base: layers.Flatten):
+        return Flatten()
+
+    @staticmethod
+    @reg_to_tf_class(layers.Flatten)
+    def to_tf_class():
+        return Flatten

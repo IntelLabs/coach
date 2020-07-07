@@ -2,7 +2,7 @@ from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameters
-from rl_coach.architectures.layers import Dense, Conv2d
+from rl_coach.architectures.layers import Dense, Conv2d, Flatten
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters, \
     MiddlewareScheme, DistributedCoachSynchronizationType
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod, \
@@ -70,7 +70,7 @@ agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(10)
 # Network #
 ###########
 # Camera observation pre-processing network scheme
-camera_obs_scheme = [Conv2d(16, 8, 4), Conv2d(32, 4, 2), Dense(256)]
+camera_obs_scheme = [Conv2d(16, 8, 4), Conv2d(32, 4, 2), Flatten(), Dense(256)]
 
 network = agent_params.network_wrappers['main']
 network.input_embedders_parameters = {
