@@ -153,7 +153,7 @@ class BatchnormActivationDropout(layers.BatchnormActivationDropout):
     @staticmethod
     @reg_to_tf_instance(layers.BatchnormActivationDropout)
     def to_tf_instance(base: layers.BatchnormActivationDropout):
-        return BatchnormActivationDropout, BatchnormActivationDropout(
+        return BatchnormActivationDropout(
                 batchnorm=base.batchnorm,
                 activation_function=base.activation_function,
                 dropout_rate=base.dropout_rate)
