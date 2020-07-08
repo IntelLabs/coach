@@ -136,7 +136,7 @@ env_params.extra_parameters = {}
 vis_params = VisualizationParameters()
 vis_params.dump_mp4 = True
 vis_params.video_dump_filters = [[EveryNEpisodesDumpFilter(5), MaxDumpFilter()],
-                                 [SelectedPhaseOnlyDumpFilter(RunPhase.TEST)]]
+                                 [TaskIdDumpFilter(0), SelectedPhaseOnlyDumpFilter(RunPhase.TEST)]]
 vis_params.print_networks_summary = True
 
 
