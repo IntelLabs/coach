@@ -6,11 +6,11 @@ from .dueling_q_head import DuelingQHead
 from .measurements_prediction_head import MeasurementsPredictionHead
 from .naf_head import NAFHead
 from .policy_head import PolicyHead
-from .ppo_head import PPOHead
+from .ppo_head import PPOHead, PPOHeadWithPreDense
 from .ppo_v_head import PPOVHead
 from .quantile_regression_q_head import QuantileRegressionQHead
 from .rainbow_q_head import RainbowQHead
-from .v_head import VHead
+from .v_head import VHead, VHeadWithPreDense
 from .acer_policy_head import ACERPolicyHead
 from .sac_head import SACPolicyHead
 from .sac_q_head import SACQHead
@@ -29,11 +29,13 @@ __all__ = [
     'NAFHead',
     'PolicyHead',
     'PPOHead',
+    'PPOHeadWithPreDense',
     'PPOVHead',
     'QHead',
     'QuantileRegressionQHead',
     'RainbowQHead',
     'VHead',
+    'VHeadWithPreDense',
     'ACERPolicyHead',
     'SACPolicyHead',
     'SACQHead',

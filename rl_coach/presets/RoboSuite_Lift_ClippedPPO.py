@@ -14,6 +14,7 @@ from rl_coach.filters.observation import ObservationStackingFilter, ObservationR
     ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
+from rl_coach.architectures.head_parameters import PPOHeadWithPreDenseParameters, VHeadWithPreDenseParameters
 
 ####################
 # Graph Scheduling #
@@ -91,11 +92,15 @@ agent_params.input_filter = InputFilter()
 agent_params.input_filter.add_observation_filter('camera', 'grayscale', ObservationRGBToYFilter())
 agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=False))
 
-network.middleware_parameters.scheme = [Dense(300), Dense(200)]
+network.middleware_parameters.scheme = MiddlewareScheme.Empty
 
 # Mode 2: No frame stacking, LSTM middleware
 # TODO: Add 2 denses after the LSTM
 # network.middleware_parameters = LSTMMiddlewareParameters(number_of_lstm_cells=100, scheme=MiddlewareScheme.Empty)
+
+network.heads_parameters = [VHeadWithPreDenseParameters(),
+                            PPOHeadWithPreDenseParameters()]
+network.use_separate_networks_per_head = False
 
 network.learning_rate = 1e-4
 network.l2_regularization = 0.0
