@@ -354,7 +354,7 @@ class Agent(AgentInterface):
                                                     worker_device=self.worker_device)
 
             if self.ap.visualization.print_networks_summary:
-                print(networks[network_name])
+                screen.print(networks[network_name])
 
         return networks
 

@@ -22,6 +22,7 @@ import time
 
 from rl_coach.memories.backend.memory import MemoryBackend, MemoryBackendParameters
 from rl_coach.core_types import Transition, Episode, EnvironmentSteps, EnvironmentEpisodes
+from rl_coach.logger import screen
 
 
 class RedisPubSubMemoryBackendParameters(MemoryBackendParameters):
@@ -116,10 +117,10 @@ class RedisPubSubBackend(MemoryBackend):
         config.load_kube_config()
         api_client = client.AppsV1Api()
         try:
-            print(self.params.orchestrator_params)
+            screen.print(self.params.orchestrator_params)
             api_client.create_namespaced_deployment(self.params.orchestrator_params['namespace'], deployment)
         except client.rest.ApiException as e:
-            print("Got exception: %s\n while creating redis-server", e)
+            screen.print("Got exception: %s\n while creating redis-server", e)
             return False
 
         core_v1_api = client.CoreV1Api()
@@ -148,7 +149,7 @@ class RedisPubSubBackend(MemoryBackend):
             self.params.redis_port = 6379
             return True
         except client.rest.ApiException as e:
-            print("Got exception: %s\n while creating a service for redis-server", e)
+            screen.print("Got exception: %s\n while creating a service for redis-server", e)
             return False
 
     def deploy_shell(self):
@@ -170,13 +171,13 @@ class RedisPubSubBackend(MemoryBackend):
         try:
             api_client.delete_namespaced_deployment(self.redis_server_name, self.params.orchestrator_params['namespace'], delete_options)
         except client.rest.ApiException as e:
-            print("Got exception: %s\n while deleting redis-server", e)
+            screen.print("Got exception: %s\n while deleting redis-server", e)
 
         api_client = client.CoreV1Api()
         try:
             api_client.delete_namespaced_service(self.redis_service_name, self.params.orchestrator_params['namespace'], delete_options)
         except client.rest.ApiException as e:
-            print("Got exception: %s\n while deleting redis-server", e)
+            screen.print("Got exception: %s\n while deleting redis-server", e)
 
     def sample(self, size):
         pass

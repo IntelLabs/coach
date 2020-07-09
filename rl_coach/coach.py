@@ -236,19 +236,19 @@ def handle_distributed_coach_orchestrator(args):
                                                 data_store_params=ds_params_instance)
     orchestrator = Kubernetes(orchestration_params)
     if not orchestrator.setup(args.checkpoint_restore_dir):
-        print("Could not setup.")
+        screen.print("Could not setup.")
         return 1
 
     if orchestrator.deploy_trainer():
-        print("Successfully deployed trainer.")
+        screen.print("Successfully deployed trainer.")
     else:
-        print("Could not deploy trainer.")
+        screen.print("Could not deploy trainer.")
         return 1
 
     if orchestrator.deploy_worker():
-        print("Successfully deployed rollout worker(s).")
+        screen.print("Successfully deployed rollout worker(s).")
     else:
-        print("Could not deploy rollout worker(s).")
+        screen.print("Could not deploy rollout worker(s).")
         return 1
 
     if args.dump_worker_logs:
@@ -684,11 +684,11 @@ class CoachLauncher(object):
 
         # Single-threaded runs
         if args.multi_actor_single_trainer:
-            self.start_multi_threaded_multi_actor_single_trainer(task_parameters, graph_manager, args)
+            self.start_multi_process_multi_actor_single_trainer(task_parameters, graph_manager, args)
         elif args.num_workers == 1:
-            self.start_single_threaded(task_parameters, graph_manager, args)
+            self.start_single_process(task_parameters, graph_manager, args)
         else:
-            self.start_multi_threaded(graph_manager, args)
+            self.start_multi_process(graph_manager, args)
 
     @staticmethod
     def create_task_parameters(graph_manager: 'GraphManager', args: argparse.Namespace):
@@ -746,13 +746,13 @@ class CoachLauncher(object):
         return task_parameters
 
     @staticmethod
-    def start_single_threaded(task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
+    def start_single_process(task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
         # Start the training or evaluation
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
 
     @staticmethod
-    def start_multi_threaded_multi_actor_single_trainer(base_task_parameters, graph_manager: 'GraphManager',
-                                                        args: argparse.Namespace):
+    def start_multi_process_multi_actor_single_trainer(base_task_parameters, graph_manager: 'GraphManager',
+                                                       args: argparse.Namespace):
         total_actors = args.num_workers
         # TODO handle checkpointing
 
@@ -775,7 +775,8 @@ class CoachLauncher(object):
 
             task_parameters.task_index = task_index
 
-            p = Process(target=start_graph, args=(graph_manager, task_parameters))
+            p = Process(target=start_graph, args=(graph_manager, task_parameters),
+                                  name="{}_{}".format(job_type, task_index))
             # p.daemon = True
             p.start()
             return p
@@ -805,7 +806,7 @@ class CoachLauncher(object):
             evaluation_worker.terminate()
 
     @staticmethod
-    def start_multi_threaded(graph_manager: 'GraphManager', args: argparse.Namespace):
+    def start_multi_process(graph_manager: 'GraphManager', args: argparse.Namespace):
         total_tasks = args.num_workers
         if args.evaluation_worker:
             total_tasks += 1
