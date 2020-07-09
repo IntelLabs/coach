@@ -32,6 +32,7 @@ from rl_coach.memories.backend.memory import MemoryBackendParameters
 from rl_coach.memories.backend.memory_impl import get_memory_backend
 from rl_coach.data_stores.data_store import DataStoreParameters
 from rl_coach.data_stores.data_store_impl import get_data_store
+from rl_coach.logger import screen
 
 
 class RunTypeParameters():
@@ -113,7 +114,7 @@ class Kubernetes(Deploy):
                     self.s3_access_key = s3config.get('default', 'aws_access_key_id')
                     self.s3_secret_key = s3config.get('default', 'aws_secret_access_key')
                 except Error as e:
-                    print("Error when reading S3 credentials file: %s", e)
+                    screen.print("Error when reading S3 credentials file: %s", e)
             else:
                 self.s3_access_key = os.environ.get('ACCESS_KEY_ID')
                 self.s3_secret_key = os.environ.get('SECRET_ACCESS_KEY')
@@ -244,7 +245,7 @@ class Kubernetes(Deploy):
             trainer_params.orchestration_params['job_name'] = name
             return True
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while creating job", e)
+            screen.print("Got exception: %s\n while creating job", e)
             return False
 
     def deploy_worker(self):
@@ -357,7 +358,7 @@ class Kubernetes(Deploy):
             worker_params.orchestration_params['job_name'] = name
             return True
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while creating Job", e)
+            screen.print("Got exception: %s\n while creating Job", e)
             return False
 
     def worker_logs(self, path='./logs'):
@@ -377,7 +378,7 @@ class Kubernetes(Deploy):
 
             # pod = pods.items[0]
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while reading pods", e)
+            screen.print("Got exception: %s\n while reading pods", e)
             return
 
         if not pods or len(pods.items) == 0:
@@ -410,7 +411,7 @@ class Kubernetes(Deploy):
 
             pod = pods.items[0]
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while reading pods", e)
+            screen.print("Got exception: %s\n while reading pods", e)
             return
 
         if not pod:
@@ -427,7 +428,7 @@ class Kubernetes(Deploy):
                             pod_name, self.params.namespace, follow=True,
                             _preload_content=False
                         ):
-                    print(line.decode('utf-8'), flush=True, end='')
+                    screen.print(line.decode('utf-8'), flush=True, end='')
             except k8sclient.rest.ApiException as e:
                 pass
 
@@ -469,12 +470,12 @@ class Kubernetes(Deploy):
             try:
                 api_client.delete_namespaced_job(trainer_params.orchestration_params['job_name'], self.params.namespace, delete_options)
             except k8sclient.rest.ApiException as e:
-                print("Got exception: %s\n while deleting trainer", e)
+                screen.print("Got exception: %s\n while deleting trainer", e)
         worker_params = self.params.run_type_params.get(str(RunType.ROLLOUT_WORKER), None)
         if worker_params:
             try:
                 api_client.delete_namespaced_job(worker_params.orchestration_params['job_name'], self.params.namespace, delete_options)
             except k8sclient.rest.ApiException as e:
-                print("Got exception: %s\n while deleting workers", e)
+                screen.print("Got exception: %s\n while deleting workers", e)
         self.memory_backend.undeploy()
         self.data_store.undeploy()
