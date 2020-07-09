@@ -754,7 +754,6 @@ class CoachLauncher(object):
     def start_multi_process_multi_actor_single_trainer(base_task_parameters, graph_manager: 'GraphManager',
                                                        args: argparse.Namespace):
         total_actors = args.num_workers
-        # TODO handle checkpointing
 
         def start_mast_task(job_type, base_task_parameters: 'TaskParameters',
                             task_index: int, gpu_id: int):
@@ -780,6 +779,14 @@ class CoachLauncher(object):
             # p.daemon = True
             p.start()
             return p
+
+        def start_redis_server():
+            # p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, executable="bash")
+            # subprocess.Popen("redis-server rl_coach/data_stores/redis.conf")
+            subprocess.Popen(["redis-server", "rl_coach/data_stores/redis.conf"])
+
+        # redis-server (required for communicating experience and policies between actors and trainer)
+        start_redis_server()
 
         # trainer
         trainer = start_mast_task("trainer", base_task_parameters, task_index=total_actors,
