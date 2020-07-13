@@ -564,6 +564,7 @@ class AgentParameters(Parameters):
         self.is_a_lowest_level_agent = True
         self.task_parameters = None
         self.is_batch_rl_training = False
+        self.is_mast_training = False
 
     @property
     def path(self):

@@ -197,6 +197,9 @@ class Agent(AgentInterface):
         # batch rl
         self.ope_manager = OpeManager() if self.ap.is_batch_rl_training else None
 
+        # mast
+        self.policy_id = 0
+
     @property
     def parent(self) -> 'LevelManager':
         """
@@ -619,7 +622,8 @@ class Agent(AgentInterface):
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
         self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step,
-                                              task_id=self.task_id, episode_id=self.current_episode + 1)
+                                              task_id=self.task_id, episode_id=self.current_episode + 1,
+                                              policy_id=self.policy_id)
         if self.exploration_policy:
             self.exploration_policy.reset()
         self.input_filter.reset()
