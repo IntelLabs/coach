@@ -7,13 +7,15 @@ from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, Pr
     MiddlewareScheme, DistributedCoachSynchronizationType
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps, GradientClippingMethod, \
     EveryNEpisodesDumpFilter, SelectedPhaseOnlyDumpFilter, RunPhase, TaskIdDumpFilter, MaxDumpFilter
-from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations
+from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations, \
+    robosuite_environments
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.filters.filter import InputFilter, NoOutputFilter, NoInputFilter
 from rl_coach.filters.observation import ObservationStackingFilter, ObservationRGBToYFilter, \
     ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
+from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.architectures.head_parameters import PPOHeadWithPreDenseParameters, VHeadWithPreDenseParameters
 
 ####################
@@ -110,7 +112,7 @@ network.batch_size = 64
 ###############
 # Environment #
 ###############
-env_params = RobosuiteEnvironmentParameters('LiftLab')
+env_params = RobosuiteEnvironmentParameters(level=SingleLevelSelection(robosuite_environments, force_lower=False))
 env_params.robot = 'PandaLab'
 # env_params.controller = 'IK_POSE'
 env_params.controller = 'JOINT_VELOCITY'
