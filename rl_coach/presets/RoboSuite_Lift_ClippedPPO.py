@@ -100,8 +100,8 @@ network.middleware_parameters.scheme = MiddlewareScheme.Empty
 # TODO: Add 2 denses after the LSTM
 # network.middleware_parameters = LSTMMiddlewareParameters(number_of_lstm_cells=100, scheme=MiddlewareScheme.Empty)
 
-network.heads_parameters = [VHeadWithPreDenseParameters(),
-                            PPOHeadWithPreDenseParameters()]
+network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200]),
+                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200])]
 network.use_separate_networks_per_head = False
 
 network.learning_rate = 1e-4
