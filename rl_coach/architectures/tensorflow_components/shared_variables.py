@@ -138,6 +138,9 @@ class TFSharedRunningStats(SharedRunningStats):
                 '_sum': self.sess.run(self._sum),
                 '_sum_squares': self.sess.run(self._sum_squares)}
 
+    def set_internal_state(self, internal_state: dict):
+        pass
+
     def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: str):
         # Since the internal state is maintained as part of the TF graph, no need to do anything special for
         # save/restore, when going from single-node-multi-thread run back to a single-node-multi-worker run.
