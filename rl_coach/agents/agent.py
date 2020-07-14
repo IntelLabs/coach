@@ -15,6 +15,7 @@
 #
 
 import copy
+import pickle
 import random
 from collections import OrderedDict
 from typing import Dict, List, Union, Tuple
@@ -1094,3 +1095,13 @@ class Agent(AgentInterface):
         """
         self.call_memory('shuffle_episodes')
         self.call_memory('freeze')
+
+    def load_policy_params(self, filters_state: dict, policy_id: int) -> None:
+        """
+        Load policy related parameters (in additional to loading to policy itself, done elsewhere)
+        :param filters_state: The filters internal state
+        :param policy_id: The policy's ID
+        :return: None
+        """
+        self.pre_network_filter.set_internal_state(filters_state)
+        self.policy_id = policy_id

@@ -32,8 +32,9 @@ class RedisDataStoreParameters(DataStoreParameters):
         redis_address: str = "",
         redis_port: int = 6379,
         redis_channel: str = "data-store-channel-{}".format(uuid.uuid4()),
-        redis_policy_name: str = "data-store-policy-name-{}".format(uuid.uuid4()),
-        redis_filter_state_name: str = "data-store-filter-state-name-{}".format(uuid.uuid4()),
+        redis_policy_name: str = "data-store-policy-{}".format(uuid.uuid4()),
+        redis_filter_state_name: str = "data-store-filter-state-{}".format(uuid.uuid4()),
+        redis_policy_id_name: str = "data-store-policy-id-{}".format(uuid.uuid4()),
     ):
         super().__init__(
             ds_params.store_type,
@@ -45,6 +46,7 @@ class RedisDataStoreParameters(DataStoreParameters):
         self.redis_channel = redis_channel
         self.redis_policy_name = redis_policy_name
         self.redis_filter_state_name = redis_filter_state_name
+        self.redis_policy_id_name = redis_policy_id_name
 
 
 class RedisDataStore(DataStore):
@@ -119,7 +121,7 @@ class RedisDataStore(DataStore):
         """
         pass
 
-    def save_policy(self, graph_manager):
+    def save_policy(self, graph_manager, policy_id=-1):
         """
         Serialize the policy in graph_manager, set it as the latest policy and publish a new_policy
         event
@@ -132,9 +134,10 @@ class RedisDataStore(DataStore):
             self.pubsub.unsubscribe(self.params.redis_channel)
 
         policy_string = self.saver.to_string(graph_manager.sess)
-        filters_state = graph_manager.get_agent().pre_network_filter.get_internal_state()  # aggregate the internal state of all filters and then publish it together with the policy. make sure to update it in the subscriber
+        filters_state = graph_manager.get_agent().pre_network_filter.get_internal_state()
         self.redis_connection.set(self.params.redis_filter_state_name, pickle.dumps(filters_state))
         self.redis_connection.set(self.params.redis_policy_name, policy_string)
+        self.redis_connection.set(self.params.redis_policy_id_name, policy_id)
         self.redis_connection.publish(self.params.redis_channel, "new_policy")
 
     def _load_policy(self, graph_manager) -> bool:
@@ -142,12 +145,14 @@ class RedisDataStore(DataStore):
         Get the most recent policy from redis and loaded into the graph_manager
         """
         policy_string = self.redis_connection.get(self.params.redis_policy_name)
+        policy_id = self.redis_connection.get(self.params.redis_policy_id_name)
         filters_state = self.redis_connection.get(self.params.redis_filter_state_name)
         if policy_string is None or policy_string == self.old_policy_string:
             return False
         self.old_policy_string = policy_string
         self.saver.from_string(graph_manager.sess, policy_string)
-        graph_manager.get_agent().pre_network_filter.set_internal_state(pickle.loads(filters_state))
+
+        graph_manager.get_agent().load_policy_params(pickle.loads(filters_state), int(policy_id))
         return True
 
     def _initialize_saver_and_subscribe_redis(self):

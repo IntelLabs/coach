@@ -48,6 +48,8 @@ class MASTGraphManager(BasicRLGraphManager):
     def actor(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore):
         self.verify_graph_was_created()
 
+        agent = self.get_agent()
+
         # initialize the network parameters from the global network
         self.sync()
 
@@ -69,10 +71,9 @@ class MASTGraphManager(BasicRLGraphManager):
                         break
                     if self.current_step_counter[EnvironmentSteps] % 200 == 0:  # TODO extract hyper-param
                         if data_store.attempt_load_policy(self):
-                            self.latest_policy_id += 1
+                            self.latest_policy_id = agent.policy_id
                             log = OrderedDict()
                             log['Loaded a new policy'] = self.latest_policy_id
-                            self.get_agent().policy_id = self.latest_policy_id
                             screen.log_dict(log, prefix='Actor {}'.format(
                                 self.task_parameters.task_index))
 
@@ -81,6 +82,7 @@ class MASTGraphManager(BasicRLGraphManager):
     def evaluate(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore) -> bool:
         self.verify_graph_was_created()
 
+        agent = self.get_agent()
         # initialize the network parameters from the global network
         self.sync()
 
@@ -102,10 +104,9 @@ class MASTGraphManager(BasicRLGraphManager):
                         break
 
                     if data_store.attempt_load_policy(self):
-                        self.latest_policy_id += 1
+                        self.latest_policy_id = agent.policy_id
                         log = OrderedDict()
                         log['Loaded a new policy'] = self.latest_policy_id
-                        self.get_agent().policy_id = self.latest_policy_id
                         screen.log_dict(log, prefix='Evaluator')
 
                     # In case of an evaluation-only worker, fake a phase transition before and after every
@@ -162,7 +163,7 @@ class MASTGraphManager(BasicRLGraphManager):
                         # update the old policy from the new one
                         self.sync()
 
-                        data_store.save_policy(self)
+                        data_store.save_policy(self, self.latest_policy_id)
                         self.occasionally_save_checkpoint()
 
                         log = OrderedDict()
