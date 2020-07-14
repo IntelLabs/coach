@@ -781,8 +781,6 @@ class CoachLauncher(object):
             return p
 
         def start_redis_server():
-            # p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, executable="bash")
-            # subprocess.Popen("redis-server rl_coach/data_stores/redis.conf")
             subprocess.Popen(["redis-server", "rl_coach/data_stores/redis.conf"])
 
         # redis-server (required for communicating experience and policies between actors and trainer)
