@@ -75,9 +75,9 @@ jobs:
           command: |
             REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
             TAG=$(git describe --tags --always --dirty)
-            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-gym_environment:${TAG} -f docker/Dockerfile.gym_environment .
+            docker pull ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${TAG} -t ${REGISTRY}/coach-gym_environment:${TAG} -f docker/Dockerfile.gym_environment .
             docker push ${REGISTRY}/coach-gym_environment:${TAG}
           no_output_timeout: 10m
 
@@ -93,9 +93,9 @@ jobs:
           command: |
             REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
             TAG=$(git describe --tags --always --dirty)
-            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-doom_environment:${TAG} -f docker/Dockerfile.doom_environment .
+            docker pull ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${TAG} -t ${REGISTRY}/coach-doom_environment:${TAG} -f docker/Dockerfile.doom_environment .
             docker push ${REGISTRY}/coach-doom_environment:${TAG}
           no_output_timeout: 10m
 
@@ -111,9 +111,9 @@ jobs:
           command: |
             REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
             TAG=$(git describe --tags --always --dirty)
-            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach-mujoco_environment:${TAG} -f docker/Dockerfile.mujoco_environment .
+            docker pull ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${TAG} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach-mujoco_environment:${TAG} -f docker/Dockerfile.mujoco_environment .
             docker push ${REGISTRY}/coach-mujoco_environment:${TAG}
           no_output_timeout: 10m
 
@@ -130,9 +130,9 @@ jobs:
 #          command: |
 #            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
 #            TAG=$(git describe --tags --always --dirty)
-#            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-#            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-#            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-starcraft_environment:${TAG} -f docker/Dockerfile.starcraft_environment .
+#            docker pull ${REGISTRY}/coach-base:${TAG}
+#            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+#            docker build --cache-from ${REGISTRY}/coach-base:${TAG} -t ${REGISTRY}/coach-starcraft_environment:${TAG} -f docker/Dockerfile.starcraft_environment .
 #            docker push ${REGISTRY}/coach-starcraft_environment:${TAG}
 #          no_output_timeout: 10m
 
@@ -614,6 +614,9 @@ workflows:
       - multinode_test:
           requires:
             - multinode_approval
+      # NOTE: build_gym/doom/mujoco_env MUST occur after successful build_base stage
+      #       In this workflow this is satisfied by having this flow:
+      #       build_base --> e2e_approval --> build_*_env
       - e2e_approval:
           type: approval
           requires:
@@ -718,10 +721,17 @@ workflows:
               only:
                 - master
     jobs:
-      - build_gym_env
-      - build_doom_env
-      - build_mujoco_env
       - build_base
+      # NOTE: build_gym/doom/mujoco_env MUST occur after successful build_base stage
+      - build_gym_env:
+          requires:
+            - build_base
+      - build_doom_env:
+          requires:
+            - build_base
+      - build_mujoco_env:
+          requires:
+            - build_base
       - unit_tests:
           requires:
             - build_base

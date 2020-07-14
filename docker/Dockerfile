@@ -2,7 +2,7 @@ FROM coach-base:master as builder
 
 # prep some of the more common environments
 # Gym (installed with coach)
-Run pip3 install gym[atari]==0.12.5 box2d
+RUN pip3 install gym[atari]==0.12.5 box2d
 # Mujoco
 RUN mkdir -p ~/.mujoco \
  && wget https://www.roboti.us/download/mujoco200_linux.zip -O mujoco.zip \
