@@ -25,8 +25,8 @@ from rl_coach.core_types import Middleware_LSTM_Embedding
 
 
 class LSTMMiddleware(Middleware):
-    def __init__(self, activation_function=tf.nn.relu, number_of_lstm_cells: int=256,
-                 sequence_length: int=-1, stride: int=-1,
+    def __init__(self, activation_function=tf.nn.relu, number_of_lstm_cells: int = 256,
+                 sequence_length: int = -1, stride: int = -1, batch_size: int = 1, horizon: int = 0,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout_rate: float = 0.0,
                  name="middleware_lstm_embedder", dense_layer=Dense, is_training=False):
@@ -37,6 +37,8 @@ class LSTMMiddleware(Middleware):
         self.number_of_lstm_cells = number_of_lstm_cells
         self.sequence_length = sequence_length
         self.stride = stride
+        self.batch_size = batch_size
+        self.horizon = horizon
         self.layers = []
 
     def _build_module(self):
@@ -67,7 +69,7 @@ class LSTMMiddleware(Middleware):
             rnn_in = tf.expand_dims(self.layers[-1], [0])
         else:
             seq_len = tf.cond(tf.equal(tf.shape(self.layers[-1])[0], tf.constant(1)),
-                              lambda: 1, lambda: self.sequence_length)
+                              lambda: 1, lambda: tf.shape(self.layers[-1])[0] // self.batch_size)
             rnn_in = tf.reshape(self.layers[-1], [-1, seq_len] + list(self.layers[-1].shape[1:]))
         batch_size = tf.shape(rnn_in)[0]
         self.c_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.c])

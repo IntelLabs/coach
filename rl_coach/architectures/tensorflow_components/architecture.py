@@ -656,6 +656,18 @@ class TensorFlowArchitecture(Architecture):
                 self.curr_rnn_c_in[middleware] = middleware.c_init
                 self.curr_rnn_h_in[middleware] = middleware.h_init
 
+    def get_internal_memory(self):
+        if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
+            return self.curr_rnn_c_in, self.curr_rnn_h_in
+        else:
+            return None
+
+    def set_internal_memory(self, c_in, h_in):
+        if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
+            for middleware in self.middleware:
+                self.curr_rnn_c_in[middleware] = c_in[middleware]
+                self.curr_rnn_h_in[middleware] = h_in[middleware]
+
     def collect_savers(self, parent_path_suffix: str) -> SaverCollection:
         """
         Collection of all checkpoints for the network (typically only one checkpoint)

@@ -123,9 +123,10 @@ class ActorCriticAgent(PolicyOptimizationAgent):
     def learn_from_batch(self, batch):
         # batch contains a list of episodes to learn from
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
+        c_in, h_in = self.networks['main'].online_network.get_internal_memory()
 
         # get the values for the current states
-
+        self.networks['main'].online_network.reset_internal_memory()
         result = self.networks['main'].online_network.predict(batch.states(network_keys))
         current_state_values = result[0]
 
@@ -142,6 +143,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
             if batch.game_overs()[-1]:
                 R = 0
             else:
+                self.networks['main'].online_network.reset_internal_memory()
                 R = self.networks['main'].online_network.predict(last_sample(batch.next_states(network_keys)))[0]
 
             for i in reversed(range(num_transitions)):
@@ -151,6 +153,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
 
         elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
             # get bootstraps
+            self.networks['main'].online_network.reset_internal_memory()
             bootstrapped_value = self.networks['main'].online_network.predict(last_sample(batch.next_states(network_keys)))[0]
             values = np.append(current_state_values, bootstrapped_value)
             if batch.game_overs()[-1]:
@@ -179,6 +182,7 @@ class ActorCriticAgent(PolicyOptimizationAgent):
         self.value_loss.add_sample(losses[0])
         self.policy_loss.add_sample(losses[1])
 
+        self.networks['main'].online_network.set_internal_memory(c_in, h_in)
         return total_loss, losses, unclipped_grads
 
     def get_prediction(self, states):
