@@ -103,6 +103,21 @@ class ObservationStackingFilter(ObservationFilter):
 
         return observation
 
+    def get_internal_state(self):
+        """
+        Get the filter's internal state.
+        :return: A dictionary with all the variables required to reproduce the filter or None if no internal state
+        """
+        return {'stack': self.stack}
+
+    def set_internal_state(self, internal_state: dict):
+        """
+        Set the filter's internal state
+        :return: None
+        """
+
+        self.stack = internal_state['stack']
+
     def get_filtered_observation_space(self, input_observation_space: ObservationSpace) -> ObservationSpace:
         if isinstance(input_observation_space, VectorObservationSpace):
             self.input_observation_space = input_observation_space = VectorObservationSpace(input_observation_space.shape * self.stack_size)

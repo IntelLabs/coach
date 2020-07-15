@@ -55,6 +55,22 @@ class RewardEwmaNormalizationFilter(RewardFilter):
 
         return reward - self.moving_average
 
+    def get_internal_state(self):
+        """
+        Get the filter's internal state.
+        :return: A dictionary with all the variables required to reproduce the filter or None if no internal state
+        """
+        return {'moving_average': self.moving_average, 'initialized': self.initialized}
+
+    def set_internal_state(self, internal_state: dict):
+        """
+        Set the filter's internal state
+        :return: None
+        """
+
+        self.moving_average = internal_state['moving_average']
+        self.initialized = internal_state['initialized']
+
     def get_filtered_reward_space(self, input_reward_space: RewardSpace) -> RewardSpace:
         return input_reward_space
 

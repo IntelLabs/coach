@@ -15,6 +15,7 @@
 #
 
 import copy
+import pickle
 import random
 from collections import OrderedDict
 from typing import Dict, List, Union, Tuple
@@ -197,6 +198,9 @@ class Agent(AgentInterface):
         # batch rl
         self.ope_manager = OpeManager() if self.ap.is_batch_rl_training else None
 
+        # mast
+        self.policy_id = 0
+
     @property
     def parent(self) -> 'LevelManager':
         """
@@ -354,7 +358,7 @@ class Agent(AgentInterface):
                                                     worker_device=self.worker_device)
 
             if self.ap.visualization.print_networks_summary:
-                print(networks[network_name])
+                screen.print(networks[network_name])
 
         return networks
 
@@ -619,7 +623,8 @@ class Agent(AgentInterface):
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
         self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step,
-                                              task_id=self.task_id, episode_id=self.current_episode + 1)
+                                              task_id=self.task_id, episode_id=self.current_episode + 1,
+                                              policy_id=self.policy_id)
         if self.exploration_policy:
             self.exploration_policy.reset()
         self.input_filter.reset()
@@ -1090,3 +1095,13 @@ class Agent(AgentInterface):
         """
         self.call_memory('shuffle_episodes')
         self.call_memory('freeze')
+
+    def load_policy_params(self, filters_state: dict, policy_id: int) -> None:
+        """
+        Load policy related parameters (in additional to loading to policy itself, done elsewhere)
+        :param filters_state: The filters internal state
+        :param policy_id: The policy's ID
+        :return: None
+        """
+        self.pre_network_filter.set_internal_state(filters_state)
+        self.policy_id = policy_id

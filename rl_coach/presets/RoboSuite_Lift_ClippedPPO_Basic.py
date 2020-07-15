@@ -25,7 +25,7 @@ from rl_coach.graph_managers.mast_graph_manager import MASTGraphManager
 
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
-schedule_params.steps_between_evaluation_periods = EnvironmentSteps(100000)
+schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(10)
 schedule_params.evaluation_steps = EnvironmentEpisodes(5)
 schedule_params.heatup_steps = EnvironmentSteps(0)
 
@@ -54,7 +54,7 @@ agent_params = ClippedPPOAgentParameters()
 agent_params.pre_network_filter = InputFilter()
 # Normlization filter on robot/object features (called "Z filter" in surreal for some reason)
 agent_params.pre_network_filter.add_observation_filter('measurements', 'normalize',
-                                                       ObservationNormalizationFilter(clip_min=-5.0, clip_max=5.0))
+                                                        ObservationNormalizationFilter(clip_min=-5.0, clip_max=5.0))
 agent_params.output_filter = NoOutputFilter()
 
 
@@ -65,10 +65,7 @@ agent_params.output_filter = NoOutputFilter()
 agent_params.algorithm.gae_lambda = 0.97
 # Surreal also adapts the clip value according to the KLD between prev and current policies. Missing in Coach
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(4000)
-agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(40000)
-agent_params.algorithm.optimization_epochs = 1
-agent_params.algorithm.beta_entropy = 0
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(10)
 
 ###########
 # Network #
@@ -93,6 +90,7 @@ network.input_embedders_parameters = {
 # Mode 1: Frame stacking, no LSTM in middleware
 agent_params.input_filter = InputFilter()
 
+# agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=True))
 agent_params.input_filter.add_observation_filter('camera', 'grayscale', ObservationRGBToYFilter())
 agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=False))
 
@@ -148,6 +146,6 @@ vis_params.print_networks_summary = True
 preset_validation_params = PresetValidationParameters()
 # preset_validation_params.trace_test_levels = ['cartpole:swingup', 'hopper:hop']
 
-graph_manager = MASTGraphManager(agent_params=agent_params, env_params=env_params,
-                                 schedule_params=schedule_params, vis_params=vis_params,
-                                 preset_validation_params=preset_validation_params)
+graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
+                                    schedule_params=schedule_params, vis_params=vis_params,
+                                    preset_validation_params=preset_validation_params)

@@ -19,6 +19,7 @@ import uuid
 
 from rl_coach.data_stores.data_store import DataStoreParameters
 from rl_coach.data_stores.checkpoint_data_store import CheckpointDataStore
+from rl_coach.logger import screen
 
 
 class NFSDataStoreParameters(DataStoreParameters):
@@ -151,7 +152,7 @@ class NFSDataStore(CheckpointDataStore):
             k8s_apps_v1_api_client.create_namespaced_deployment(self.params.namespace, deployment)
             self.params.name = name
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while creating nfs-server", e)
+            screen.print("Got exception: %s\n while creating nfs-server", e)
             return False
 
         k8s_core_v1_api_client = k8sclient.CoreV1Api()
@@ -178,7 +179,7 @@ class NFSDataStore(CheckpointDataStore):
             self.params.svc_name = svc_name
             self.params.server = svc_response.spec.cluster_ip
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while creating a service for nfs-server", e)
+            screen.print("Got exception: %s\n while creating a service for nfs-server", e)
             return False
 
         return True
@@ -212,7 +213,7 @@ class NFSDataStore(CheckpointDataStore):
             k8s_api_client.create_persistent_volume(persistent_volume)
             self.params.pv_name = pv_name
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while creating the NFS PV", e)
+            screen.print("Got exception: %s\n while creating the NFS PV", e)
             return False
 
         pvc_name = "nfs-ckpt-pvc-{}".format(uuid.uuid4())
@@ -238,7 +239,7 @@ class NFSDataStore(CheckpointDataStore):
             k8s_api_client.create_namespaced_persistent_volume_claim(self.params.namespace, persistent_volume_claim)
             self.params.pvc_name = pvc_name
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while creating the NFS PVC", e)
+            screen.print("Got exception: %s\n while creating the NFS PVC", e)
             return False
 
         return True
@@ -252,14 +253,14 @@ class NFSDataStore(CheckpointDataStore):
         try:
             k8s_apps_v1_api_client.delete_namespaced_deployment(self.params.name, self.params.namespace, del_options)
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while deleting nfs-server", e)
+            screen.print("Got exception: %s\n while deleting nfs-server", e)
             return False
 
         k8s_core_v1_api_client = k8sclient.CoreV1Api()
         try:
             k8s_core_v1_api_client.delete_namespaced_service(self.params.svc_name, self.params.namespace, del_options)
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while deleting the service for nfs-server", e)
+            screen.print("Got exception: %s\n while deleting the service for nfs-server", e)
             return False
 
         return True
@@ -276,13 +277,13 @@ class NFSDataStore(CheckpointDataStore):
         try:
             k8s_api_client.delete_persistent_volume(self.params.pv_name, del_options)
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while deleting NFS PV", e)
+            screen.print("Got exception: %s\n while deleting NFS PV", e)
             return False
 
         try:
             k8s_api_client.delete_namespaced_persistent_volume_claim(self.params.pvc_name, self.params.namespace, del_options)
         except k8sclient.rest.ApiException as e:
-            print("Got exception: %s\n while deleting NFS PVC", e)
+            screen.print("Got exception: %s\n while deleting NFS PVC", e)
             return False
 
         return True

@@ -22,6 +22,7 @@ from minio.error import ResponseError
 from configparser import ConfigParser, Error
 from rl_coach.checkpoint import CheckpointStateFile
 from rl_coach.data_stores.data_store import SyncFiles
+from rl_coach.logger import screen
 
 import os
 import time
@@ -62,7 +63,7 @@ class S3DataStore(CheckpointDataStore):
                 access_key = config.get('default', 'aws_access_key_id')
                 secret_key = config.get('default', 'aws_secret_access_key')
             except Error as e:
-                print("Error when reading S3 credentials file: %s", e)
+                screen.print("Error when reading S3 credentials file: %s", e)
         else:
             access_key = os.environ.get('ACCESS_KEY_ID')
             secret_key = os.environ.get('SECRET_ACCESS_KEY')
@@ -135,7 +136,7 @@ class S3DataStore(CheckpointDataStore):
                         self.mc.fput_object(self.params.bucket_name, filename, os.path.join(self.params.expt_dir, 'gifs', filename))
 
         except ResponseError as e:
-            print("Got exception: %s\n while saving to S3", e)
+            screen.print("Got exception: %s\n while saving to S3", e)
 
     def load_from_store(self):
         """
@@ -191,7 +192,7 @@ class S3DataStore(CheckpointDataStore):
                         self.mc.fget_object(obj.bucket_name, obj.object_name, filename)
 
         except ResponseError as e:
-            print("Got exception: %s\n while loading from S3", e)
+            screen.print("Got exception: %s\n while loading from S3", e)
 
     def setup_checkpoint_dir(self, crd=None):
         if crd:

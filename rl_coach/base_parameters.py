@@ -220,6 +220,9 @@ class AlgorithmParameters(Parameters):
         # Filters - TODO consider creating a FilterParameters class and initialize the filters with it
         self.update_pre_network_filters_state_on_train = False
         self.update_pre_network_filters_state_on_inference = True
+
+        # MAST
+        self.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(20000)
         
 
 class PresetValidationParameters(Parameters):
@@ -561,6 +564,7 @@ class AgentParameters(Parameters):
         self.is_a_lowest_level_agent = True
         self.task_parameters = None
         self.is_batch_rl_training = False
+        self.is_mast_training = False
 
     @property
     def path(self):

@@ -20,7 +20,7 @@ import time
 from collections import OrderedDict
 from random import shuffle
 from typing import Union
-
+import psutil
 import numpy as np
 
 from rl_coach.agents.actor_critic_agent import ActorCriticAgent
@@ -382,13 +382,16 @@ class ClippedPPOAgent(ActorCriticAgent):
     def train(self):
         s = time.time()
         if self._should_train():
-            print("*** DEBUG: trainer starts a training iteration ***")
+            screen.print("*** DEBUG: trainer starts a training iteration ***")
             for network in self.networks.values():
                 network.set_is_training(True)
 
             batch = self.build_dataset()
 
-            self.networks['main'].sync()
+            if not self.ap.is_mast_training:
+                # in MAST, the graph manager controls synchronization directly so that the old policy will update
+                # only after the policy publish to actors
+                self.networks['main'].sync()
             self.fill_advantages(batch)
 
             self.train_network(batch, self.ap.algorithm.optimization_epochs)
@@ -400,7 +403,8 @@ class ClippedPPOAgent(ActorCriticAgent):
             self.training_iteration += 1
             # should be done in order to update the data that has been accumulated * while not playing *
             self.update_log()
-            print("*** DEBUG: training iter time = {} ***".format(time.time()-s))
+            screen.print("*** DEBUG: training iter time = {}, free memory = {:.1f} ***".format(
+                time.time()-s, psutil.virtual_memory().free/2**30))
             return None
 
     def run_pre_network_filter_for_inference(self, state: StateType, update_internal_state: bool=False):

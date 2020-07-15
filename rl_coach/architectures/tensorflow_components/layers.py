@@ -21,6 +21,7 @@ import tensorflow as tf
 
 from rl_coach.architectures import layers
 from rl_coach.architectures.tensorflow_components import utils
+from rl_coach.utils import force_list
 
 
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout_rate, is_training, name):
@@ -153,7 +154,7 @@ class BatchnormActivationDropout(layers.BatchnormActivationDropout):
     @staticmethod
     @reg_to_tf_instance(layers.BatchnormActivationDropout)
     def to_tf_instance(base: layers.BatchnormActivationDropout):
-        return BatchnormActivationDropout, BatchnormActivationDropout(
+        return BatchnormActivationDropout(
                 batchnorm=base.batchnorm,
                 activation_function=base.activation_function,
                 dropout_rate=base.dropout_rate)
@@ -264,3 +265,59 @@ class NoisyNetDense(layers.NoisyNetDense):
     @reg_to_tf_class(layers.NoisyNetDense)
     def to_tf_class():
         return NoisyNetDense
+
+
+class Flatten(layers.Flatten):
+    def __init__(self):
+        super(Flatten, self).__init__()
+
+    def __call__(self, input_layer, **kwargs):
+        """
+        returns a tensorflow flatten layer
+        :param input_layer: previous layer
+        :return: flatten layer
+        """
+        return tf.contrib.layers.flatten(input_layer)
+
+    @staticmethod
+    @reg_to_tf_instance(layers.Flatten)
+    def to_tf_instance(base: layers.Flatten):
+        return Flatten()
+
+    @staticmethod
+    @reg_to_tf_class(layers.Flatten)
+    def to_tf_class():
+        return Flatten
+
+
+# TODO: Possibly modify input embedders and middleware implementations to use this, will reduce code duplication
+class SchemeBuilder:
+    def __init__(self, layer_specs, activation_function='relu', batchnorm=False, dropout_rate=0.0, is_training=None):
+        self.layer_specs = layer_specs
+        self.activation_function = activation_function
+        self.batchnorm = batchnorm
+        self.dropout_rate = dropout_rate
+        self.is_training = is_training
+
+        self.layers_params = [convert_layer(layer) for layer in self.layer_specs]
+
+        # we allow adding batchnorm, dropout or activation functions after each layer.
+        # The motivation is to simplify the transition between a network with batchnorm and a network without
+        # batchnorm to a single flag (the same applies to activation function and dropout)
+        if self.batchnorm or self.activation_function or self.dropout_rate > 0:
+            for layer_idx in reversed(range(len(self.layers_params))):
+                self.layers_params.insert(layer_idx + 1,
+                                          BatchnormActivationDropout(batchnorm=self.batchnorm,
+                                                                     activation_function=self.activation_function,
+                                                                     dropout_rate=self.dropout_rate))
+
+    def build_scheme(self, input_layer, name_prefix=None):
+        layers = [input_layer]
+        name_prefix = [name_prefix] if name_prefix else []
+        for idx, layer_params in enumerate(self.layers_params):
+            name_parts = name_prefix + [layer_params.__class__.__name__, str(idx)]
+            layers.extend(force_list(
+                layer_params(input_layer=layers[-1], name='_'.join(name_parts), is_training=self.is_training)
+            ))
+        return layers
+

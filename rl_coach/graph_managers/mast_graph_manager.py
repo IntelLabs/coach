@@ -13,17 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
-import sys
+from typing import Tuple, List
+
+import numpy as np
 from collections import OrderedDict
 
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters, \
-    PresetValidationParameters
+    PresetValidationParameters, TaskParameters
 from rl_coach.core_types import EnvironmentSteps, RunPhase, TrainingSteps, EnvironmentEpisodes
 from rl_coach.data_stores.redis_data_store import RedisDataStore
-from rl_coach.environments.environment import EnvironmentParameters
+from rl_coach.environments.environment import EnvironmentParameters, Environment
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
+from rl_coach.level_manager import LevelManager
 from rl_coach.logger import screen
 
 
@@ -41,10 +43,12 @@ class MASTGraphManager(BasicRLGraphManager):
                          vis_params=vis_params, preset_validation_params=preset_validation_params)
         self.first_policy_publish = False
         self.last_publish_step = 0
-        self.latest_published_policy_id = 0
+        self.latest_policy_id = 0
 
     def actor(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore):
         self.verify_graph_was_created()
+
+        agent = self.get_agent()
 
         # initialize the network parameters from the global network
         self.sync()
@@ -65,10 +69,11 @@ class MASTGraphManager(BasicRLGraphManager):
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     if data_store.end_of_policies():
                         break
-                    if self.current_step_counter[EnvironmentSteps] % 100 == 0:  # TODO extract hyper-param
+                    if self.current_step_counter[EnvironmentSteps] % 200 == 0:  # TODO extract hyper-param
                         if data_store.attempt_load_policy(self):
+                            self.latest_policy_id = agent.policy_id
                             log = OrderedDict()
-                            log['Loading new policy'] = self.latest_published_policy_id
+                            log['Loaded a new policy'] = self.latest_policy_id
                             screen.log_dict(log, prefix='Actor {}'.format(
                                 self.task_parameters.task_index))
 
@@ -77,6 +82,7 @@ class MASTGraphManager(BasicRLGraphManager):
     def evaluate(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore) -> bool:
         self.verify_graph_was_created()
 
+        agent = self.get_agent()
         # initialize the network parameters from the global network
         self.sync()
 
@@ -98,8 +104,9 @@ class MASTGraphManager(BasicRLGraphManager):
                         break
 
                     if data_store.attempt_load_policy(self):
+                        self.latest_policy_id = agent.policy_id
                         log = OrderedDict()
-                        log['Loading new policy'] = ""
+                        log['Loaded a new policy'] = self.latest_policy_id
                         screen.log_dict(log, prefix='Evaluator')
 
                     # In case of an evaluation-only worker, fake a phase transition before and after every
@@ -125,6 +132,11 @@ class MASTGraphManager(BasicRLGraphManager):
 
         self.setup_memory_backend()
 
+        def trainer_specific_logging_updates():
+            agent = self.get_agent()
+            agent.total_reward_in_current_episode = np.nan
+            agent.total_shaped_reward_in_current_episode = np.nan
+
         # train
         screen.log_title("{}-trainer{}: Starting to train from collected experience".format(self.name, self.task_parameters.task_index))
 
@@ -132,6 +144,7 @@ class MASTGraphManager(BasicRLGraphManager):
         if total_steps_to_train.num_steps > 0:
             with self.phase_context(RunPhase.TRAIN):
                 self.reset_internal_state(force_environment_reset=True)
+                trainer_specific_logging_updates()
 
                 count_end = self.current_step_counter + total_steps_to_train
                 while self.current_step_counter < count_end:
@@ -141,19 +154,22 @@ class MASTGraphManager(BasicRLGraphManager):
                     # The agent might also decide to skip acting altogether.
                     # Depending on internal counters and parameters, it doesn't always train or save checkpoints.
                     self.fetch_from_worker(self.agent_params.algorithm.num_consecutive_playing_steps)
-                    # if (self.get_agent().total_steps_counter - self.last_publish_step) >= 20000:
-                    #     list(list(self.get_agent().pre_network_filter._observation_filters.values())[0].values())[
-                    #         0].running_observation_stats.publish_on_next_push = True
                     self.train()
-                    if (self.get_agent().total_steps_counter - self.last_publish_step) >= 20000:  # TODO extract hyper-param
-                        data_store.save_policy(self)
+                    if (self.get_agent().total_steps_counter - self.last_publish_step) >= \
+                            self.agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps.num_steps:
+
+                        self.latest_policy_id += 1
+
+                        # update the old policy from the new one
+                        self.sync()
+
+                        data_store.save_policy(self, self.latest_policy_id)
                         self.occasionally_save_checkpoint()
 
                         log = OrderedDict()
-                        log['Publishing a new policy'] = self.latest_published_policy_id
+                        log['Publishing a new policy'] = self.latest_policy_id
                         screen.log_dict(log, prefix='Trainer')
 
-                        self.latest_published_policy_id += 1
                         self.last_publish_step = self.current_step_counter[EnvironmentSteps]
 
     def fetch_from_worker(self, num_consecutive_playing_steps=None):
@@ -167,7 +183,21 @@ class MASTGraphManager(BasicRLGraphManager):
                 ##### - the current issue with it is that since the agen't flow emulation does not take place, #####
                 #####   signals are not tracked and are missing from dashboard.                                #####
 
-                for episode in self.memory_backend.fetch_subscribe_all_msgs(num_consecutive_playing_steps):
+                # for episode in self.memory_backend.fetch_subscribe_all_msgs(num_consecutive_playing_steps):
+                steps = 0
+                while steps < num_consecutive_playing_steps.num_steps:
+                    episode = next(self.memory_backend.fetch_subscribe_all_msgs(EnvironmentEpisodes(1)))
+
+                    if episode.policy_id != self.latest_policy_id:
+                        log = OrderedDict()
+                        log['Ignoring off-policy data from actor ID'] = episode.task_id
+                        log['Episode ID'] = episode.episode_id
+                        log['Trainer Current Policy ID'] = self.latest_policy_id
+                        log['Actor Policy ID'] = episode.policy_id
+                        screen.log_dict(log, prefix='Trainer')
+                        continue
+
+                    steps += episode.length()
                     self.get_agent().memory.store_episode(episode)
 
                     # -  book-keeping -
@@ -185,4 +215,7 @@ class MASTGraphManager(BasicRLGraphManager):
                     log['Episode ID'] = episode.episode_id
                     screen.log_dict(log, prefix='Trainer')
 
-# TODO some bug where when running with an eval agent cartpole starts with a reward of 200. probably loading some old policy which wasn't cleaned from Redis
+    def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
+        self.agent_params.is_batch_rl_training = True
+        return super()._create_graph(task_parameters)
+

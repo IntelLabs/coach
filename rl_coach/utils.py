@@ -458,7 +458,7 @@ class Timer(object):
         self.start = time.time()
 
     def __exit__(self, type, value, traceback):
-        print(self.prefix, time.time() - self.start)
+        screen.print(self.prefix, time.time() - self.start)
 
 
 class ReaderWriterLock(object):
@@ -520,7 +520,7 @@ class ProgressBar(object):
         sys.stdout.flush()
 
     def close(self):
-        print("")
+        screen.print("")
 
 
 def start_shell_command_and_wait(command):

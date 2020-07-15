@@ -274,7 +274,9 @@ class EpisodicExperienceReplay(Memory):
         self.assert_not_frozen()
 
         # Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.
-        super().store(transition)
+        # If it did, no need to also store it locally.
+        if super().store(transition):
+            return
 
         self.reader_writer_lock.lock_writing_and_reading()
 
@@ -298,8 +300,11 @@ class EpisodicExperienceReplay(Memory):
         :return: None
         """
         self.assert_not_frozen()
+
         # Calling super.store() so that in case a memory backend is used, the memory backend can store this episode.
-        super().store_episode(episode)
+        # If it did, no need to also store it locally.
+        if super().store_episode(episode):
+            return
 
         if lock:
             self.reader_writer_lock.lock_writing_and_reading()
