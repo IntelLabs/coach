@@ -69,6 +69,8 @@ agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(4000)
 agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(40000)
 agent_params.algorithm.optimization_epochs = 1
 agent_params.algorithm.beta_entropy = 0
+agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
+agent_params.network_wrappers['main'].adam_optimizer_beta2 = 0.999
 
 ###########
 # Network #
@@ -99,9 +101,6 @@ agent_params.input_filter.add_observation_filter('camera', 'stacking', Observati
 network.middleware_parameters.scheme = MiddlewareScheme.Empty
 
 # Mode 2: No frame stacking, LSTM middleware
-# TODO: Add 2 denses after the LSTM
-# network.middleware_parameters = LSTMMiddlewareParameters(number_of_lstm_cells=100, scheme=MiddlewareScheme.Empty)
-
 network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200]),
                             PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200])]
 network.use_separate_networks_per_head = False
