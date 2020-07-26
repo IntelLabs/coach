@@ -115,8 +115,8 @@ network.batch_size = 64
 ###############
 env_params = RobosuiteEnvironmentParameters(level=SingleLevelSelection(robosuite_environments, force_lower=False))
 env_params.robot = 'PandaLab'
-# env_params.controller = 'IK_POSE'
-env_params.controller = 'JOINT_VELOCITY'
+# env_params.controller = 'JOINT_VELOCITY'
+env_params.controller = 'IK_POSE_POS'
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.render_camera = 'frontview'
 env_params.base_parameters.camera_names = 'labview'
@@ -124,6 +124,7 @@ env_params.base_parameters.camera_depths = False
 env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 1
+env_params.base_parameters.control_freq = 1
 
 # Use extra_parameters for any Robosuite parameter not exposed by RobosuiteBaseParameters
 # These are mostly task-specific parameters. For example, for the "lift" task one could modify
