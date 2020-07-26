@@ -44,10 +44,10 @@ env_params = DoomEnvironmentParameters(level='basic')
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-preset_validation_params.test = True
-preset_validation_params.min_reward_threshold = 20
-preset_validation_params.max_episodes_to_achieve_reward = 400
-preset_validation_params.num_workers = 8
+# preset_validation_params.test = True
+# preset_validation_params.min_reward_threshold = 20
+# preset_validation_params.max_episodes_to_achieve_reward = 400
+# preset_validation_params.num_workers = 8
 
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
