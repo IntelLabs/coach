@@ -25,7 +25,6 @@ class CheckpointDataStore(object):
     A DataStore which relies on the GraphManager check pointing methods to communicate policies.
     """
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.checkpoint_num = 0
 
     def end_of_policies(self) -> bool:
