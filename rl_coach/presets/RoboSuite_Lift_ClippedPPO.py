@@ -1,4 +1,5 @@
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
+from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameters
@@ -10,10 +11,9 @@ from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentS
 from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations, \
     robosuite_environments
 from rl_coach.environments.environment import SingleLevelSelection
-from rl_coach.filters.filter import InputFilter, NoOutputFilter, NoInputFilter
+from rl_coach.filters.filter import InputFilter, NoOutputFilter
 from rl_coach.filters.observation import ObservationStackingFilter, ObservationRGBToYFilter, \
     ObservationNormalizationFilter
-from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.architectures.head_parameters import PPOHeadWithPreDenseParameters, VHeadWithPreDenseParameters
@@ -72,6 +72,12 @@ agent_params.algorithm.beta_entropy = 0
 agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
 agent_params.network_wrappers['main'].adam_optimizer_beta2 = 0.999
 
+###############
+# Exploration #
+###############
+agent_params.exploration = AdditiveNoiseParameters()
+agent_params.exploration.max_extra_noise = 0.25
+
 ###########
 # Network #
 ###########
@@ -102,7 +108,7 @@ network.middleware_parameters.scheme = MiddlewareScheme.Empty
 
 # Mode 2: No frame stacking, LSTM middleware
 network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200]),
-                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200])]
+                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200], policy_logstd_bias=-1)]
 network.use_separate_networks_per_head = False
 
 network.learning_rate = 1e-4

@@ -1,4 +1,5 @@
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
+from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameters
@@ -67,6 +68,12 @@ agent_params.algorithm.gae_lambda = 0.97
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
 agent_params.algorithm.num_consecutive_playing_steps = EnvironmentEpisodes(10)
 
+###############
+# Exploration #
+###############
+agent_params.exploration = AdditiveNoiseParameters()
+agent_params.exploration.max_extra_noise = 0.25
+
 ###########
 # Network #
 ###########
@@ -101,7 +108,8 @@ network.middleware_parameters.scheme = MiddlewareScheme.Empty
 # network.middleware_parameters = LSTMMiddlewareParameters(number_of_lstm_cells=100, scheme=MiddlewareScheme.Empty)
 
 network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200]),
-                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200])]
+                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200], policy_logstd_bias=-1,
+                                                          )]
 network.use_separate_networks_per_head = False
 
 network.learning_rate = 1e-4
