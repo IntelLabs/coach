@@ -107,8 +107,9 @@ agent_params.input_filter.add_observation_filter('camera', 'stacking', Observati
 network.middleware_parameters.scheme = MiddlewareScheme.Empty
 
 # Mode 2: No frame stacking, LSTM middleware
-network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200]),
-                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200], policy_logstd_bias=-1)]
+network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200], loss_weight=0.5),
+                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200], policy_logstd_bias=-1,
+                                                          loss_weight=1)]
 network.use_separate_networks_per_head = False
 
 network.learning_rate = 1e-4
