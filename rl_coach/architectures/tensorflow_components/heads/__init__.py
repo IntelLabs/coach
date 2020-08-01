@@ -5,7 +5,7 @@ from .dnd_q_head import DNDQHead
 from .dueling_q_head import DuelingQHead
 from .measurements_prediction_head import MeasurementsPredictionHead
 from .naf_head import NAFHead
-from .policy_head import PolicyHead
+from .policy_head import PolicyHead, PolicyHeadWithPreDense
 from .ppo_head import PPOHead, PPOHeadWithPreDense
 from .ppo_v_head import PPOVHead
 from .quantile_regression_q_head import QuantileRegressionQHead
@@ -28,6 +28,7 @@ __all__ = [
     'MeasurementsPredictionHead',
     'NAFHead',
     'PolicyHead',
+    'PolicyHeadWithPreDense',
     'PPOHead',
     'PPOHeadWithPreDense',
     'PPOVHead',

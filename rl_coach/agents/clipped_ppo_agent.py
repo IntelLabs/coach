@@ -180,7 +180,7 @@ class ClippedPPOAgent(ActorCriticAgent):
         for k in network_keys:
             if self.LSTM_middleware:
                 seq = [np.vstack([t.info['sample_sequence'].states([k])[k],
-                                  t.info['sample_sequence'].next_states([k])[k][-1]])
+                                  np.expand_dims(t.info['sample_sequence'].next_states([k])[k][-1], 0)])
                        for t in data[start:end]]
                 feed_dict[k] = np.vstack(seq)
             else:
@@ -336,13 +336,11 @@ class ClippedPPOAgent(ActorCriticAgent):
 
                 if self.LSTM_middleware:
                     for k in reversed(range(sequence_length + 1 - horizon, sequence_length + 1)):
-                        inputs['observation'] = np.delete(inputs['observation'], slice(None, None, k), axis=0)
-                        inputs['output_1_0'] = np.delete(inputs['output_1_0'], slice(None, None, k), axis=0)
-                        for input_index, input in enumerate(old_policy_distribution):
-                            inputs['output_1_{}'.format(input_index + 1)] = \
-                                np.delete(inputs['output_1_{}'.format(input_index + 1)], slice(None, None, k), axis=0)
-                        inputs['output_1_{}'.format(len(old_policy_distribution)+1)] =\
-                            np.delete(inputs['output_1_{}'.format(len(old_policy_distribution)+1)], slice(None, None, k), axis=0)
+                        for key in network_keys:
+                            inputs[key] = np.delete(inputs[key], slice(None, None, k), axis=0)
+                        for input_index in range(len(old_policy_distribution)+1):
+                            inputs['output_1_{}'.format(input_index)] = \
+                                np.delete(inputs['output_1_{}'.format(input_index)], slice(None, None, k), axis=0)
                         value_targets = np.delete(value_targets, slice(None, None, k), axis=0)
                         advantages = np.delete(advantages, slice(None, None, k), axis=0)
 

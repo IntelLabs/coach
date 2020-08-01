@@ -26,11 +26,9 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 #########
 agent_params = ActorCriticAgentParameters()
 agent_params.algorithm.apply_gradients_every_x_episodes = 1
-agent_params.algorithm.num_steps_between_gradient_updates = 20
-agent_params.algorithm.beta_entropy = 0.005
-agent_params.network_wrappers['main'].learning_rate = 0.00002
-agent_params.network_wrappers['main'].input_embedders_parameters['observation'] = \
-    InputEmbedderParameters(scheme=[Dense(200)])
+agent_params.algorithm.num_steps_between_gradient_updates = 10000000
+agent_params.algorithm.beta_entropy = 0.0001
+agent_params.network_wrappers['main'].learning_rate = 0.00001
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
                                                                                        number_of_lstm_cells=128)
 

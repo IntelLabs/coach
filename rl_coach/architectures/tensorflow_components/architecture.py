@@ -660,7 +660,7 @@ class TensorFlowArchitecture(Architecture):
         if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
             return self.curr_rnn_c_in, self.curr_rnn_h_in
         else:
-            return None
+            return {}, {}
 
     def set_internal_memory(self, c_in, h_in):
         if self.middleware[-1].__class__.__name__ == 'LSTMMiddleware':
