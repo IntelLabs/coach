@@ -44,6 +44,8 @@ class MASTGraphManager(BasicRLGraphManager):
         self.first_policy_publish = False
         self.last_publish_step = 0
         self.latest_policy_id = 0
+        self.agent_params.is_mast_training = True
+
 
     def actor(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore):
         self.verify_graph_was_created()
