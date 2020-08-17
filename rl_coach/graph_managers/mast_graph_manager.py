@@ -46,7 +46,6 @@ class MASTGraphManager(BasicRLGraphManager):
         self.latest_policy_id = 0
         self.agent_params.is_mast_training = True
 
-
     def actor(self, total_steps_to_act: EnvironmentSteps, data_store: RedisDataStore):
         self.verify_graph_was_created()
 
@@ -205,6 +204,7 @@ class MASTGraphManager(BasicRLGraphManager):
                     # -  book-keeping -
                     self.get_agent().total_steps_counter += episode.length()
                     self.get_agent().current_episode += 1
+                    self.get_agent().reset_internal_state()
 
                     # last episode is always complete as we're getting full episodes from actors.
                     # this is required so that agent._should_update() will be aware that the last episode is complete

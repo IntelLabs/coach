@@ -226,7 +226,7 @@ class EpisodicExperienceReplay(Memory):
 
     def verify_last_episode_is_closed(self) -> None:
         """
-        Verify that there is no open episodes in the replay buffer
+        Verify that there are no open episodes in the replay buffer
         :return: None
         """
         self.reader_writer_lock.lock_writing_and_reading()
