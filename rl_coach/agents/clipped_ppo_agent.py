@@ -112,7 +112,6 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
         self.beta_entropy = 0.01  # should be 0 for mujoco
         self.num_consecutive_playing_steps = EnvironmentSteps(2048)
         self.optimization_epochs = 10
-        self.normalization_stats = None
         self.clipping_decay_schedule = ConstantSchedule(1)
         self.act_for_full_episodes = True
         self.update_pre_network_filters_state_on_train = True
@@ -145,11 +144,9 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.kl_divergence = self.register_signal('KL Divergence')
         self.likelihood_ratio = self.register_signal('Likelihood Ratio')
         self.clipped_likelihood_ratio = self.register_signal('Clipped Likelihood Ratio')
-
-    def set_session(self, sess):
-        super().set_session(sess)
-        if self.ap.algorithm.normalization_stats is not None:
-            self.ap.algorithm.normalization_stats.set_session(sess)
+        self.policy_std = self.register_signal('Policy Standard Deviation')
+        self.noise = np.random.uniform(low=-0.25,
+                                       high=0.25)
 
     def build_dataset(self):
         self.LSTM_middleware = self.networks["main"].online_network.middleware[-1].__class__.__name__ == 'LSTMMiddleware'
@@ -275,6 +272,8 @@ class ClippedPPOAgent(ActorCriticAgent):
                        self.networks['main'].online_network.output_heads[1].entropy,
                        self.networks['main'].online_network.output_heads[1].likelihood_ratio,
                        self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
+            if hasattr(self.networks['main'].online_network.output_heads[1], 'policy_std'):
+                fetches.append(self.networks['main'].online_network.output_heads[1].policy_std)
 
             for i in range(math.ceil(batch.size / self.ap.network_wrappers['main'].batch_size)):
                 self.networks['main'].online_network.reset_internal_memory()
@@ -359,6 +358,8 @@ class ClippedPPOAgent(ActorCriticAgent):
                 self.likelihood_ratio.add_sample(fetch_result[2])
                 self.clipped_likelihood_ratio.add_sample(fetch_result[3])
 
+            last_policy_std = fetch_result[-1][0]
+
             for key in batch_results.keys():
                 batch_results[key] = np.mean(batch_results[key], 0)
 
@@ -384,10 +385,10 @@ class ClippedPPOAgent(ActorCriticAgent):
                 ]),
                 prefix="Policy training"
             )
-
         self.total_kl_divergence_during_training_process = batch_results['kl_divergence']
         self.entropy.add_sample(batch_results['entropy'])
         self.kl_divergence.add_sample(batch_results['kl_divergence'])
+        self.policy_std.add_sample(last_policy_std)
         return batch_results['losses']
 
     def post_training_commands(self):
