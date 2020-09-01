@@ -30,29 +30,26 @@ agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].activation_function = 'tanh'
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(64)]
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
-                                                                                       number_of_lstm_cells=128,
+                                                                                       number_of_lstm_cells=64,
                                                                                        sequence_length=8,
                                                                                        stride=1,
-                                                                                       batch_size=512,
+                                                                                       batch_size=64,
                                                                                        horizon=5)
 agent_params.network_wrappers['main'].middleware_parameters.activation_function = 'tanh'
-agent_params.network_wrappers['main'].batch_size = 512
-agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
-agent_params.network_wrappers['main'].adam_optimizer_beta2 = 0.999
+agent_params.network_wrappers['main'].batch_size = 64
+# agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
+# agent_params.network_wrappers['main'].adam_optimizer_beta2 = 0.999
 
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
 agent_params.algorithm.clipping_decay_schedule = LinearSchedule(1.0, 0, 1000000)
 agent_params.algorithm.beta_entropy = 0
 agent_params.algorithm.gae_lambda = 0.95
 agent_params.algorithm.discount = 0.99
-agent_params.algorithm.optimization_epochs = 4
+agent_params.algorithm.optimization_epochs = 1
 agent_params.algorithm.estimate_state_value_using_gae = True
-# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(8192)
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(4096)
-
-
-# Distributed Coach synchronization type.
-agent_params.algorithm.distributed_coach_synchronization_type = DistributedCoachSynchronizationType.SYNC
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(128 * 10)
+# agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(500)
+agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(10 * 128 * 10)
 
 agent_params.pre_network_filter = InputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',
@@ -75,6 +72,6 @@ preset_validation_params.test = True
 preset_validation_params.min_reward_threshold = 150
 preset_validation_params.max_episodes_to_achieve_reward = 400
 
-graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
+graph_manager = MASTGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=VisualizationParameters(),
                                     preset_validation_params=preset_validation_params)

@@ -1,4 +1,5 @@
 from rl_coach.agents.clipped_ppo_agent import ClippedPPOAgentParameters
+from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.ou_process import OUProcessParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameters
@@ -65,10 +66,18 @@ agent_params.output_filter = NoOutputFilter()
 agent_params.algorithm.gae_lambda = 0.97
 # Surreal also adapts the clip value according to the KLD between prev and current policies. Missing in Coach
 agent_params.algorithm.clip_likelihood_ratio_using_epsilon = 0.2
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(4000)
-agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(40000)
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(1600)
+agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(100000)
 agent_params.algorithm.optimization_epochs = 1
 agent_params.algorithm.beta_entropy = 0
+agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
+agent_params.network_wrappers['main'].adam_optimizer_beta2 = 0.999
+
+###############
+# Exploration #
+###############
+agent_params.exploration = AdditiveNoiseParameters()
+agent_params.exploration.max_extra_noise = 0.25
 
 ###########
 # Network #
@@ -103,8 +112,9 @@ network.middleware_parameters.scheme = MiddlewareScheme.Empty
 network.middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty, number_of_lstm_cells=100,
                                                          sequence_length=25, stride=20, batch_size=64, horizon=5)
 
-network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200]),
-                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200])]
+network.heads_parameters = [VHeadWithPreDenseParameters(pre_dense_sizes=[300, 200], loss_weight=0.5),
+                            PPOHeadWithPreDenseParameters(pre_dense_sizes=[300, 200], policy_logstd_bias=-1,
+                                                          loss_weight=1)]
 network.use_separate_networks_per_head = False
 
 network.learning_rate = 1e-4
@@ -117,8 +127,8 @@ network.batch_size = 64
 ###############
 env_params = RobosuiteEnvironmentParameters(level=SingleLevelSelection(robosuite_environments, force_lower=False))
 env_params.robot = 'PandaLab'
-# env_params.controller = 'IK_POSE'
-env_params.controller = 'JOINT_VELOCITY'
+# env_params.controller = 'JOINT_VELOCITY'
+env_params.controller = 'IK_POSE_POS'
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.render_camera = 'frontview'
 env_params.base_parameters.camera_names = 'labview'
@@ -126,6 +136,7 @@ env_params.base_parameters.camera_depths = False
 env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 1
+env_params.base_parameters.control_freq = 1
 
 # Use extra_parameters for any Robosuite parameter not exposed by RobosuiteBaseParameters
 # These are mostly task-specific parameters. For example, for the "lift" task one could modify
