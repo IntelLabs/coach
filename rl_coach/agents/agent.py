@@ -262,7 +262,6 @@ class Agent(AgentInterface):
 
         :return: None
         """
-
         # Loading a memory from a CSV file, requires an input filter to filter through the data.
         # The filter needs a session before it can be used.
         if self.ap.memory.load_memory_from_file_path:

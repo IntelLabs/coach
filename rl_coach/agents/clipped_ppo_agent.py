@@ -148,19 +148,29 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.noise = np.random.uniform(low=-0.25,
                                        high=0.25)
 
+    def initialize_session_dependent_components(self):
+        super().initialize_session_dependent_components()
+
+        # TODO get hyper-params from self.ap, and write more nicely
+        self.is_LSTM_middleware = self.networks["main"].online_network.middleware[
+                                      -1].__class__.__name__ == 'LSTMMiddleware'
+        if self.is_LSTM_middleware:
+            self.sequence_length = self.networks["main"].online_network.middleware[-1].sequence_length
+            self.horizon = self.networks["main"].online_network.middleware[-1].horizon
+            if self.horizon < 1:
+                raise ValueError("LSTM sequence horizon has to be >= 1")
+            self.stride = self.networks["main"].online_network.middleware[-1].stride
+
     def build_dataset(self):
-        self.LSTM_middleware = self.networks["main"].online_network.middleware[-1].__class__.__name__ == 'LSTMMiddleware'
         update_internal_state = self.ap.algorithm.update_pre_network_filters_state_on_train
-        if self.LSTM_middleware:
+        if self.is_LSTM_middleware:
             dataset = []
-            sequence_length = self.networks["main"].online_network.middleware[-1].sequence_length
-            stride = self.networks["main"].online_network.middleware[-1].stride
             for episode in self.memory.get_all_complete_episodes():
                 episode.transitions = self.pre_network_filter.filter(episode.transitions,
                                                                      deep_copy=False,
                                                                      update_internal_state=update_internal_state)
-                for i in range(0, episode.length()-sequence_length, stride):
-                    trajectory = episode.transitions[i:i + sequence_length]
+                for i in range(0, episode.length()-self.sequence_length, self.stride):
+                    trajectory = episode.transitions[i:i + self.sequence_length]
                     transition = Transition()
                     transition.add_info({'sample_sequence': Batch(trajectory)})
                     dataset.append(transition)
@@ -175,13 +185,14 @@ class ClippedPPOAgent(ActorCriticAgent):
     def build_network_inputs(self, data, network_keys, start=None, end=None, with_next_state=True):
         feed_dict = {}
         for k in network_keys:
-            if self.LSTM_middleware:
+            if self.is_LSTM_middleware:
                 if with_next_state:
                     seq = [np.vstack([t.info['sample_sequence'].states([k])[k],
                                       np.expand_dims(t.info['sample_sequence'].next_states([k])[k][-1], 0)])
                            for t in data[start:end]]
                 else:
-                    seq = [np.vstack([t.info['sample_sequence'].states([k])[k]]) for t in data[start:end]]
+                    # TODO this part of the flow should be rewritten
+                    seq = [np.vstack([t.info['sample_sequence'].states([k])[k][: self.sequence_length - self.horizon + 1]]) for t in data[start:end]]
                 feed_dict[k] = np.vstack(seq)
             else:
                 feed_dict[k] = data.states([k])[k][start:end]
@@ -212,18 +223,19 @@ class ClippedPPOAgent(ActorCriticAgent):
             total_returns = batch.n_step_discounted_rewards()
             advantages = total_returns - current_state_values
         elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
-            if self.LSTM_middleware:
+            if self.is_LSTM_middleware:
                 # get bootstraps
                 advantages = np.array([])
                 value_targets = np.array([])
-                sequence_length = self.networks["main"].online_network.middleware[-1].sequence_length
                 for idx in range(batch.size):
-                    rollout_state_values = current_state_values[idx*(sequence_length+1):(idx+1)*(sequence_length+1)].squeeze()
+                    rollout_state_values = current_state_values[idx * (self.sequence_length + 1):
+                                                                (idx + 1) * (self.sequence_length + 1)].squeeze()
                     rollout_advantages, gae_based_value_targets = \
                         self.get_general_advantage_estimation_values(batch[idx].info['sample_sequence'].rewards(),
-                            rollout_state_values)
-                    advantages = np.append(advantages, rollout_advantages)
-                    value_targets = np.append(value_targets, gae_based_value_targets)
+                                                                     rollout_state_values)
+                    advantages = np.append(advantages, rollout_advantages[: self.sequence_length - self.horizon + 1])
+                    value_targets = np.append(value_targets,
+                                              gae_based_value_targets[: self.sequence_length - self.horizon + 1])
             else:
                 # get bootstraps
                 episode_start_idx = 0
@@ -248,10 +260,14 @@ class ClippedPPOAgent(ActorCriticAgent):
         # standardize
         advantages = (advantages - np.mean(advantages)) / np.std(advantages)
 
-        if self.LSTM_middleware:
+        if self.is_LSTM_middleware:
             for idx, transition in enumerate(batch.transitions):
-                transition.info['advantage'] = np.expand_dims(advantages[idx * sequence_length : (idx + 1) * sequence_length], -1)
-                transition.info['gae_based_value_target'] = np.expand_dims(value_targets[idx * sequence_length : (idx + 1) * sequence_length], -1)
+                transition.info['advantage'] = np.expand_dims(
+                    advantages[idx * (self.sequence_length - self.horizon + 1):
+                               (idx + 1) * (self.sequence_length - self.horizon + 1)], -1)
+                transition.info['gae_based_value_target'] = np.expand_dims(
+                    value_targets[idx * (self.sequence_length - self.horizon + 1):
+                                  (idx + 1) * (self.sequence_length - self.horizon + 1)], -1)
         else:
             for transition, advantage, value_target in zip(batch.transitions, advantages, value_targets):
                 transition.info['advantage'] = advantage
@@ -286,13 +302,12 @@ class ClippedPPOAgent(ActorCriticAgent):
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size
 
                 network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
-                if self.LSTM_middleware:
-                    sequence_length = self.networks["main"].online_network.middleware[-1].sequence_length
-                    horizon = self.networks["main"].online_network.middleware[-1].horizon
+                if self.is_LSTM_middleware:
+                    # TODO move to __init__
                     is_discrete = isinstance(self.spaces.action, DiscreteActionSpace)
                     if is_discrete:
                         actions = np.vstack(
-                            [np.expand_dims(seq.actions(), -1) for seq in
+                            [seq.actions(expand_dims=True)[: self.sequence_length - self.horizon + 1] for seq in
                              batch.info('sample_sequence')[start:end]]).squeeze()
                     else:
                         actions = np.vstack([seq.actions() for seq in batch.info('sample_sequence')[start:end]])
@@ -311,9 +326,6 @@ class ClippedPPOAgent(ActorCriticAgent):
                 # TODO-perf - the target network ("old_policy") is not changing. this can be calculated once for all epochs.
                 # the shuffling being done, should only be performed on the indices.
                 network_input = self.build_network_inputs(batch, network_keys, start, end, with_next_state=False)
-                # if self.LSTM_middleware:
-                #     for k in network_keys:
-                #         network_input[k] = np.delete(network_input[k], slice(None, None, sequence_length + 1), axis=0)
                 result = self.networks['main'].target_network.predict(network_input)
                 old_policy_distribution = result[1:]
 
@@ -335,16 +347,6 @@ class ClippedPPOAgent(ActorCriticAgent):
                 # update the clipping decay schedule value
                 inputs['output_1_{}'.format(len(old_policy_distribution)+1)] = \
                     self.ap.algorithm.clipping_decay_schedule.current_value
-
-                # if self.LSTM_middleware:
-                #     for k in reversed(range(sequence_length + 1 - horizon, sequence_length + 1)):
-                #         for key in network_keys:
-                #             inputs[key] = np.delete(inputs[key], slice(None, None, k), axis=0)
-                #         for input_index in range(len(old_policy_distribution)+1):
-                #             inputs['output_1_{}'.format(input_index)] = \
-                #                 np.delete(inputs['output_1_{}'.format(input_index)], slice(None, None, k), axis=0)
-                #         value_targets = np.delete(value_targets, slice(None, None, k), axis=0)
-                #         advantages = np.delete(advantages, slice(None, None, k), axis=0)
 
                 total_loss, losses, unclipped_grads, fetch_result = \
                     self.networks['main'].train_and_sync_networks(

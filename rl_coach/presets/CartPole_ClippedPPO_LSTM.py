@@ -18,7 +18,7 @@ from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameter
 
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000)
-schedule_params.steps_between_evaluation_periods = EnvironmentSteps(2048)
+schedule_params.steps_between_evaluation_periods = EnvironmentSteps(8192)
 schedule_params.evaluation_steps = EnvironmentEpisodes(5)
 schedule_params.heatup_steps = EnvironmentSteps(0)
 
@@ -30,13 +30,13 @@ agent_params.network_wrappers['main'].learning_rate = 0.0001
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].activation_function = 'tanh'
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(64)]
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
-                                                                                       number_of_lstm_cells=128,
-                                                                                       sequence_length=8,
-                                                                                       stride=1,
-                                                                                       batch_size=512,
-                                                                                       horizon=5)
+                                                                                       number_of_lstm_cells=64,
+                                                                                       sequence_length=20,
+                                                                                       stride=3,
+                                                                                       batch_size=256,
+                                                                                       horizon=2)
 agent_params.network_wrappers['main'].middleware_parameters.activation_function = 'tanh'
-agent_params.network_wrappers['main'].batch_size = 512
+agent_params.network_wrappers['main'].batch_size = 256
 agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
 agent_params.network_wrappers['main'].adam_optimizer_beta2 = 0.999
 
@@ -47,8 +47,7 @@ agent_params.algorithm.gae_lambda = 0.95
 agent_params.algorithm.discount = 0.99
 agent_params.algorithm.optimization_epochs = 4
 agent_params.algorithm.estimate_state_value_using_gae = True
-# agent_params.algorithm.num_steps_between_copying_online_weights_to_target = EnvironmentSteps(8192)
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(4096)
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(8192)
 
 
 # Distributed Coach synchronization type.
