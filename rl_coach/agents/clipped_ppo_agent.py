@@ -310,7 +310,8 @@ class ClippedPPOAgent(ActorCriticAgent):
                             [seq.actions(expand_dims=True)[: self.sequence_length - self.horizon + 1] for seq in
                              batch.info('sample_sequence')[start:end]]).squeeze()
                     else:
-                        actions = np.vstack([seq.actions() for seq in batch.info('sample_sequence')[start:end]])
+                        actions = np.vstack([seq.actions()[: self.sequence_length - self.horizon + 1] for seq in
+                                             batch.info('sample_sequence')[start:end]])
                     gae_based_value_targets = np.vstack(
                         batch.info_as_list('gae_based_value_target')[start:end]).squeeze()
                     advantages = np.vstack(batch.info_as_list('advantage')[start:end]).squeeze()
