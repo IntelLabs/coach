@@ -131,7 +131,7 @@ env_params.base_parameters.camera_depths = False
 env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 1
-env_params.base_parameters.control_freq = 1
+env_params.base_parameters.control_freq = 2
 
 # Use extra_parameters for any Robosuite parameter not exposed by RobosuiteBaseParameters
 # These are mostly task-specific parameters. For example, for the "lift" task one could modify
