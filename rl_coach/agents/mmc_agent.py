@@ -50,6 +50,10 @@ class MixedMonteCarloAgent(ValueOptimizationAgent):
         super().__init__(agent_parameters, parent)
         self.mixing_rate = agent_parameters.algorithm.monte_carlo_mixing_rate
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 

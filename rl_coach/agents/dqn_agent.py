@@ -71,6 +71,10 @@ class DQNAgent(ValueOptimizationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def select_actions(self, next_states, q_st_plus_1):
         return np.argmax(q_st_plus_1, 1)
 

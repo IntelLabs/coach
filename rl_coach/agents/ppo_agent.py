@@ -149,6 +149,10 @@ class PPOAgent(ActorCriticAgent):
         self.total_kl_divergence_during_training_process = 0.0
         self.unclipped_grads = self.register_signal('Grads (unclipped)')
 
+    @property
+    def is_on_policy(self) -> bool:
+        return True
+
     def fill_advantages(self, batch):
         batch = Batch(batch)
         network_keys = self.ap.network_wrappers['critic'].input_embedders_parameters.keys()

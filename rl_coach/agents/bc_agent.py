@@ -63,6 +63,10 @@ class BCAgent(ImitationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 

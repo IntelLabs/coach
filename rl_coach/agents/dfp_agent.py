@@ -141,6 +141,12 @@ class DFPAgent(Agent):
         self.current_goal = self.ap.algorithm.goal_vector
         self.target_measurements_scale_factors = None
 
+    @property
+    def is_on_policy(self) -> bool:
+        # This is only somewhat correct as the algorithm uses a very small (20k) ER keeping only recent samples seen.
+        # So, it is approximately on-policy (although if too be completely strict it is off-policy)
+        return True
+
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 

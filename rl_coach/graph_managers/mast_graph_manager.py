@@ -18,6 +18,7 @@ from typing import Tuple, List
 import numpy as np
 from collections import OrderedDict
 
+from rl_coach.agents.ppo_agent import PPOAgent
 from rl_coach.base_parameters import AgentParameters, VisualizationParameters, \
     PresetValidationParameters, TaskParameters
 from rl_coach.core_types import EnvironmentSteps, RunPhase, TrainingSteps, EnvironmentEpisodes
@@ -41,7 +42,6 @@ class MASTGraphManager(BasicRLGraphManager):
                  name='mast_rl_graph'):
         super().__init__(agent_params=agent_params, env_params=env_params, name=name, schedule_params=schedule_params,
                          vis_params=vis_params, preset_validation_params=preset_validation_params)
-        self.first_policy_publish = False
         self.last_publish_step = 0
         self.latest_policy_id = 0
         self.agent_params.is_mast_training = True
@@ -161,9 +161,6 @@ class MASTGraphManager(BasicRLGraphManager):
 
                         self.latest_policy_id += 1
 
-                        # update the old policy from the new one
-                        self.sync()
-
                         data_store.save_policy(self, self.latest_policy_id)
                         self.occasionally_save_checkpoint()
 
@@ -176,20 +173,15 @@ class MASTGraphManager(BasicRLGraphManager):
     def fetch_from_worker(self, num_consecutive_playing_steps=None):
         if hasattr(self, 'memory_backend'):
             with self.phase_context(RunPhase.TRAIN):
-                # for transition in self.memory_backend.fetch_subscribe_all_msgs(num_consecutive_playing_steps):
-                #     self.emulate_act_on_trainer(EnvironmentSteps(1), transition)
-
-
                 ##### an alternative flow to balaji's which is more efficient and gets full episodes at a time #####
                 ##### - the current issue with it is that since the agen't flow emulation does not take place, #####
                 #####   signals are not tracked and are missing from dashboard.                                #####
 
-                # for episode in self.memory_backend.fetch_subscribe_all_msgs(num_consecutive_playing_steps):
                 steps = 0
                 while steps < num_consecutive_playing_steps.num_steps:
                     episode = next(self.memory_backend.fetch_subscribe_all_msgs(EnvironmentEpisodes(1)))
 
-                    if episode.policy_id != self.latest_policy_id:
+                    if (episode.policy_id != self.latest_policy_id) and self.get_agent().is_on_policy_algorithm:
                         log = OrderedDict()
                         log['Ignoring off-policy data from actor ID'] = episode.task_id
                         log['Episode ID'] = episode.episode_id
@@ -205,6 +197,7 @@ class MASTGraphManager(BasicRLGraphManager):
                     self.get_agent().total_steps_counter += episode.length()
                     self.get_agent().current_episode += 1
                     self.get_agent().reset_internal_state()
+                    self.get_agent().current_episode_steps_counter = episode.length()
 
                     # last episode is always complete as we're getting full episodes from actors.
                     # this is required so that agent._should_update() will be aware that the last episode is complete
@@ -217,7 +210,4 @@ class MASTGraphManager(BasicRLGraphManager):
                     log['Episode ID'] = episode.episode_id
                     screen.log_dict(log, prefix='Trainer')
 
-    def _create_graph(self, task_parameters: TaskParameters) -> Tuple[List[LevelManager], List[Environment]]:
-        self.agent_params.is_batch_rl_training = True
-        return super()._create_graph(task_parameters)
 

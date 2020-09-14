@@ -715,7 +715,7 @@ class Agent(AgentInterface):
         """
         loss = 0
         if self._should_train():
-            if self.ap.is_batch_rl_training:
+            if self.ap.is_batch_rl_training or self.ap.is_mast_training:
                 # when training an agent for generating a dataset in batch-rl, we don't want it to be counted as part of
                 # the training epochs. we only care for training epochs in batch-rl anyway.
                 self.training_epoch += 1

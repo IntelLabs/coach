@@ -32,11 +32,11 @@ agent_params.network_wrappers['main'].input_embedders_parameters['observation'].
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
                                                                                        number_of_lstm_cells=64,
                                                                                        sequence_length=8,
-                                                                                       stride=1,
-                                                                                       batch_size=64,
-                                                                                       horizon=5)
+                                                                                       stride=2,
+                                                                                       batch_size=512,
+                                                                                       horizon=1)
 agent_params.network_wrappers['main'].middleware_parameters.activation_function = 'tanh'
-agent_params.network_wrappers['main'].batch_size = 64
+agent_params.network_wrappers['main'].batch_size = 512
 # agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
 # agent_params.network_wrappers['main'].adam_optimizer_beta2 = 0.999
 
@@ -47,9 +47,9 @@ agent_params.algorithm.gae_lambda = 0.95
 agent_params.algorithm.discount = 0.99
 agent_params.algorithm.optimization_epochs = 1
 agent_params.algorithm.estimate_state_value_using_gae = True
-agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(128 * 10)
+agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(20000)
 # agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(500)
-agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(10 * 128 * 10)
+agent_params.algorithm.mast_trainer_publish_policy_every_num_fetched_steps = EnvironmentSteps(80000)
 
 agent_params.pre_network_filter = InputFilter()
 agent_params.pre_network_filter.add_observation_filter('observation', 'normalize_observation',

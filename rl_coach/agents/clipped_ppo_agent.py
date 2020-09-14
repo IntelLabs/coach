@@ -147,6 +147,11 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.policy_std = self.register_signal('Policy Standard Deviation')
         self.noise = np.random.uniform(low=-0.25,
                                        high=0.25)
+        self.last_policy_id_networks_synced = 0
+
+    @property
+    def is_on_policy(self) -> bool:
+        return True
 
     def initialize_session_dependent_components(self):
         super().initialize_session_dependent_components()
@@ -410,10 +415,12 @@ class ClippedPPOAgent(ActorCriticAgent):
 
             batch = self.build_dataset()
 
-            if not self.ap.is_mast_training:
+            new_policy_was_published = self.policy_id > self.last_policy_id_networks_synced
+            if not self.ap.is_mast_training or new_policy_was_published:
                 # in MAST, the graph manager controls synchronization directly so that the old policy will update
                 # only after the policy publish to actors
                 self.networks['main'].sync()
+                self.last_policy_id_networks_synced = self.policy_id
 
             self.fill_advantages(batch)
 
@@ -438,4 +445,3 @@ class ClippedPPOAgent(ActorCriticAgent):
     def choose_action(self, curr_state):
         self.ap.algorithm.clipping_decay_schedule.step()
         return super().choose_action(curr_state)
-

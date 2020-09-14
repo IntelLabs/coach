@@ -63,6 +63,10 @@ class PALAgent(ValueOptimizationAgent):
         self.persistent = agent_parameters.algorithm.persistent_advantage_learning
         self.monte_carlo_mixing_rate = agent_parameters.algorithm.monte_carlo_mixing_rate
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 

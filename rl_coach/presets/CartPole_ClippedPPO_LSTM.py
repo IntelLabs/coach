@@ -31,10 +31,10 @@ agent_params.network_wrappers['main'].input_embedders_parameters['observation'].
 agent_params.network_wrappers['main'].input_embedders_parameters['observation'].scheme = [Dense(64)]
 agent_params.network_wrappers['main'].middleware_parameters = LSTMMiddlewareParameters(scheme=MiddlewareScheme.Empty,
                                                                                        number_of_lstm_cells=64,
-                                                                                       sequence_length=20,
-                                                                                       stride=3,
+                                                                                       sequence_length=8,
+                                                                                       stride=1,
                                                                                        batch_size=256,
-                                                                                       horizon=2)
+                                                                                       horizon=1)
 agent_params.network_wrappers['main'].middleware_parameters.activation_function = 'tanh'
 agent_params.network_wrappers['main'].batch_size = 256
 agent_params.network_wrappers['main'].optimizer_epsilon = 1e-5
