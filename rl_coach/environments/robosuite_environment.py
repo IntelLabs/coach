@@ -88,6 +88,9 @@ class RobosuiteBaseParameters(Parameters):
         self.camera_widths = 84              # width of camera frame.
         self.camera_depths = False           # True if rendering RGB-D, and RGB otherwise.
 
+        # Collision
+        self.terminate_on_collision = True
+
     @property
     def optional_observations(self):
         flag = OptionalObservations.NONE
