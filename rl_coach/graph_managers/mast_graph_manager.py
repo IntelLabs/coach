@@ -181,7 +181,7 @@ class MASTGraphManager(BasicRLGraphManager):
                 while steps < num_consecutive_playing_steps.num_steps:
                     episode = next(self.memory_backend.fetch_subscribe_all_msgs(EnvironmentEpisodes(1)))
 
-                    if (episode.policy_id != self.latest_policy_id) and self.get_agent().is_on_policy_algorithm:
+                    if (episode.policy_id != self.latest_policy_id) and self.get_agent().is_on_policy:
                         log = OrderedDict()
                         log['Ignoring off-policy data from actor ID'] = episode.task_id
                         log['Episode ID'] = episode.episode_id
