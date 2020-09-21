@@ -148,6 +148,7 @@ def _process_observation(raw_obs, camera_name):
     if object_obs is not None:
         measurements = np.concatenate([measurements, object_obs])
     new_obs['measurements'] = measurements
+    new_obs['obs-goal'] = None
 
     return new_obs
 
@@ -217,6 +218,9 @@ class RobosuiteEnvironment(Environment):
 
         if self.base_parameters.use_camera_obs:
             self.state_space['camera'] = PlanarMapsObservationSpace(dummy_obs['camera'].shape, 0, 255)
+            goal_based_shape = list(dummy_obs['camera'].shape)
+            goal_based_shape[2] *= 2
+            self.state_space['obs-goal'] = PlanarMapsObservationSpace(tuple(goal_based_shape), 0, 255)
 
         # Action space
         low, high = self.env.unwrapped.action_spec
