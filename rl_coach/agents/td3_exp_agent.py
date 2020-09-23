@@ -163,15 +163,30 @@ class TD3ExplorationAgent(TD3Agent):
         return super().learn_from_batch(batch)
 
     def train(self):
-        if (self.total_steps_counter + 1) % 10000 == 0:
-            dir_path = '../../datasets'
-            if not os.path.exists(dir_path):
-                os.mkdir(dir_path)
-            replay_buffer_path = os.path.join(dir_path, 'RB_{}.p'.format(type(self).__name__))
-            self.memory.save(replay_buffer_path)
         if self.total_steps_counter % self.ap.algorithm.rnd_sample_size == 0:
             self.train_rnd()
         return super().train()
+
+    def calculate_novelty(self, batch):
+        inputs = self.prepare_rnd_inputs(batch)
+        embedding = self.networks['constant'].online_network.predict(inputs)
+        prediction = self.networks['predictor'].online_network.predict(inputs)
+        prediction_error = np.mean((embedding - prediction) ** 2, axis=1)
+        return prediction_error
+
+    def save_replay_buffer(self):
+        dir_path = '../../datasets'
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
+        replay_buffer_path = os.path.join(dir_path, 'RB_{}.p'.format(type(self).__name__))
+        self.memory.save(replay_buffer_path)
+        screen.log('Saved replay buffer to: \"{}\" - Number of transitions: {}'.format(replay_buffer_path,
+                                                                                       self.memory.num_transitions()))
+
+    def handle_episode_ended(self) -> None:
+        super().handle_episode_ended()
+        if self.total_steps_counter % 10000 == 0:
+            self.save_replay_buffer()
 
 
 class TD3IntrinsicRewardAgentParameters(TD3ExplorationAgentParameters):
@@ -185,17 +200,17 @@ class TD3IntrinsicRewardAgent(TD3ExplorationAgent):
         super().__init__(agent_parameters, parent)
 
     def handle_self_supervised_reward(self, batch):
-        inputs = self.prepare_rnd_inputs(batch)
-        embedding = self.networks['constant'].online_network.predict(inputs)
-        prediction = self.networks['predictor'].online_network.predict(inputs)
-        prediction_error = np.mean((embedding - prediction) ** 2, axis=1)
-        self.rnd_stats.push_val(np.expand_dims(self.update_intrinsic_returns_estimate(prediction_error), -1))
-        intrinsic_rewards = prediction_error
+        novelty = self.calculate_novelty(batch)
 
         for i, t in enumerate(batch.transitions):
-            t.reward = intrinsic_rewards[i] / self.rnd_stats.std[0]
+            t.reward = novelty[i] / self.rnd_stats.std[0]
 
         return batch
+
+    def handle_episode_ended(self) -> None:
+        super().handle_episode_ended()
+        novelty = self.calculate_novelty(Batch(self.memory.get_last_complete_episode().transitions))
+        self.rnd_stats.push_val(np.expand_dims(self.update_intrinsic_returns_estimate(novelty), -1))
 
 
 class TD3RandomAgentParameters(TD3ExplorationAgentParameters):
@@ -214,12 +229,6 @@ class TD3RandomAgent(TD3ExplorationAgent):
         super().__init__(agent_parameters, parent)
 
     def train(self):
-        if (self.total_steps_counter + 1) % 10000 == 0:
-            dir_path = '../../datasets'
-            if not os.path.exists(dir_path):
-                os.mkdir(dir_path)
-            replay_buffer_path = os.path.join(dir_path, 'RB_{}.p'.format(type(self).__name__))
-            self.memory.save(replay_buffer_path)
         return 0
 
 
@@ -228,12 +237,12 @@ class TD3GoalBasedAgentParameters(TD3ExplorationAgentParameters):
     def path(self):
         return 'rl_coach.agents.td3_exp_agent:TD3GoalBasedAgent'
 
-import matplotlib.pyplot as plt
 
 class TD3GoalBasedAgent(TD3ExplorationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
         self.goal = None
+        self.ap.algorithm.use_non_zero_discount_for_terminal_states = False
 
     @staticmethod
     def concat_goal(state, goal_state):
@@ -250,6 +259,7 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
             t = copy.copy(episode[transition_idx])
             if np.random.rand(1) < 0.02:
                 t.state['obs-goal'] = self.concat_goal(t.state, t.state)
+                # this doesn't matter for learning but is set anyway so that the agent can pass it through the network
                 t.next_state['obs-goal'] = self.concat_goal(t.next_state, t.state)
                 t.game_over = True
                 t.reward = 0
@@ -292,21 +302,17 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
         batch_size = self.ap.algorithm.rnd_batch_size
         self.goal = dataset[0]
 
-        max_pred_err = 0
+        max_novelty = 0
         for i in range(int(dataset.size / batch_size)):
             start = i * batch_size
             end = (i + 1) * batch_size
 
-            inputs = self.prepare_rnd_inputs(Batch(dataset[start:end]))
+            novelty = self.calculate_novelty(Batch(dataset[start:end]))
 
-            embedding = self.networks['constant'].online_network.predict(inputs)
-            prediction = self.networks['predictor'].online_network.predict(inputs)
-            prediction_error = np.sum((embedding - prediction) ** 2, axis=1)
-
-            curr_max = np.max(prediction_error)
-            if curr_max > max_pred_err:
-                max_pred_err = curr_max
-                idx = start + np.argmax(prediction_error)
+            curr_max = np.max(novelty)
+            if curr_max > max_novelty:
+                max_novelty = curr_max
+                idx = start + np.argmax(novelty)
                 self.goal = dataset[idx]
 
     def handle_episode_ended(self) -> None:

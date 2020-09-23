@@ -1,5 +1,4 @@
-from rl_coach.agents.td3_exp_agent import TD3IntrinsicRewardAgentParameters, TD3RandomAgentParameters, \
-    TD3GoalBasedAgentParameters
+from rl_coach.agents.td3_exp_agent import TD3GoalBasedAgentParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.layers import Dense, Conv2d, BatchnormActivationDropout, Flatten
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
@@ -8,7 +7,6 @@ from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations, \
     robosuite_environments
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
-from rl_coach.filters.observation import ObservationStackingFilter, ObservationRGBToYFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.architectures.head_parameters import RNDHeadParameters
@@ -21,13 +19,13 @@ schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(500000)
 schedule_params.steps_between_evaluation_periods = TrainingSteps(500000)
 schedule_params.evaluation_steps = EnvironmentEpisodes(0)
-schedule_params.heatup_steps = EnvironmentSteps(0)
+schedule_params.heatup_steps = EnvironmentSteps(1000)
 
 #########
 # Agent #
 #########
 
-agent_params = TD3RandomAgentParameters()
+agent_params = TD3GoalBasedAgentParameters()
 agent_params.algorithm.use_non_zero_discount_for_terminal_states = True
 
 agent_params.input_filter = NoInputFilter()
@@ -47,11 +45,12 @@ camera_obs_scheme = [
     BatchnormActivationDropout(activation_function='relu')
 ]
 
+obs_name = 'obs-goal'
+
 # Actor
 actor_network = agent_params.network_wrappers['actor']
 actor_network.input_embedders_parameters = {
-    'camera': InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
-    # 'obs-goal': InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
+    obs_name: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
 }
 
 actor_network.middleware_parameters.scheme = [Dense(300), Dense(200)]
@@ -61,9 +60,9 @@ actor_network.learning_rate = 1e-4
 critic_network = agent_params.network_wrappers['critic']
 critic_network.input_embedders_parameters = {
     'action': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
-    'camera': InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
-    # 'obs-goal': InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
+    obs_name: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
 }
+
 critic_network.middleware_parameters.scheme = [Dense(400), Dense(300)]
 critic_network.learning_rate = 1e-4
 
