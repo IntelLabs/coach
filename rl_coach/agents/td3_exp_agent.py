@@ -19,6 +19,10 @@ from typing import Union
 from collections import OrderedDict
 from random import shuffle
 import os
+import pickle
+from PIL import Image
+import PIL.ImageDraw as ImageDraw
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -175,7 +179,9 @@ class TD3ExplorationAgent(TD3Agent):
         return prediction_error
 
     def save_replay_buffer(self):
-        dir_path = '../../datasets'
+        # dir_path = '../../datasets'
+        dir_path = os.path.join(self.parent_level_manager.parent_graph_manager.task_parameters.experiment_path,
+                                'replay_buffer')
         if not os.path.exists(dir_path):
             os.mkdir(dir_path)
         replay_buffer_path = os.path.join(dir_path, 'RB_{}.p'.format(type(self).__name__))
@@ -184,9 +190,61 @@ class TD3ExplorationAgent(TD3Agent):
                                                                                        self.memory.num_transitions()))
 
     def handle_episode_ended(self) -> None:
+        # ######### RND DEBUG ##########
+        # self.call_memory('clean')
+        # dir_name = '../../datasets'
+        # file_name = 'RB_TD3RandomAgent.p'
+        #
+        # path = os.path.join(dir_name, file_name)
+        # with open(path, 'rb') as file:
+        #     episodes = pickle.load(file)
+        # for e in episodes:
+        #     self.memory.store_episode(e)
+        #     if self.rnd_obs_stats.n < 1:
+        #         self.rnd_obs_stats.set_params(shape=e[0].state['camera'].shape, clip_values=[-5, 5])
+        #     self.rnd_obs_stats.push_val(Batch(e.transitions).next_states(['camera'])['camera'])
+        #     if self.memory.num_transitions() % self.ap.algorithm.rnd_sample_size == 0:
+        #         print(self.memory.num_transitions())
+        #         self.train_rnd()
+        #         if self.memory.num_transitions() % 10000 == 0:
+        #             self.save_rnd_images(dir_name)
+        #
+        # exit()
+
         super().handle_episode_ended()
-        if self.total_steps_counter % 10000 == 0:
+        if self.total_steps_counter % 25000 == 0:
             self.save_replay_buffer()
+            self.save_rnd_images()
+
+    def save_rnd_images(self, dir_name=None):
+        if dir_name is None:
+            dir_name = os.path.join(self.parent_level_manager.parent_graph_manager.task_parameters.experiment_path,
+                                    'rnd_images')
+        if not os.path.exists(dir_name):
+            os.mkdir(dir_name)
+        transitions = self.memory.transitions
+        dataset = Batch(transitions)
+        batch_size = 1000
+        novelties = []
+        for i in range(int(dataset.size / batch_size)):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+
+            batch = Batch(dataset[start:end])
+            novelty = self.calculate_novelty(batch)
+            novelties.append(novelty)
+        novelties = np.concatenate(novelties)
+        sorted_indices = np.argsort(novelties)
+        sample_indices = sorted_indices[np.round(np.linspace(0, len(sorted_indices) - 1, 100)).astype(np.uint32)]
+        images = []
+        for si in sample_indices:
+            images.append(transitions[si].next_state['camera'])
+        rows = []
+        for i in range(10):
+            rows.append(np.hstack(images[(i * 10):((i + 1) * 10)]))
+        image = np.vstack(rows)
+        image = Image.fromarray(image)
+        image.save('{}/{}_{}.jpeg'.format(dir_name, 'rnd_samples', len(transitions)))
 
 
 class TD3IntrinsicRewardAgentParameters(TD3ExplorationAgentParameters):
@@ -318,4 +376,3 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
     def handle_episode_ended(self) -> None:
         super().handle_episode_ended()
         self.generate_goal()
-

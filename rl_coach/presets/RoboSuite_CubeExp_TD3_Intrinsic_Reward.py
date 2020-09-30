@@ -16,8 +16,8 @@ from rl_coach.architectures.head_parameters import RNDHeadParameters
 ####################
 
 schedule_params = ScheduleParameters()
-schedule_params.improve_steps = TrainingSteps(500000)
-schedule_params.steps_between_evaluation_periods = TrainingSteps(500000)
+schedule_params.improve_steps = TrainingSteps(400000)
+schedule_params.steps_between_evaluation_periods = TrainingSteps(400000)
 schedule_params.evaluation_steps = EnvironmentEpisodes(0)
 schedule_params.heatup_steps = EnvironmentSteps(1000)
 
@@ -50,6 +50,7 @@ obs_name = 'camera'
 # Actor
 actor_network = agent_params.network_wrappers['actor']
 actor_network.input_embedders_parameters = {
+    'measurements': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     obs_name: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
 }
 
@@ -60,6 +61,7 @@ actor_network.learning_rate = 1e-4
 critic_network = agent_params.network_wrappers['critic']
 critic_network.input_embedders_parameters = {
     'action': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
+    'measurements': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     obs_name: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
 }
 
@@ -81,19 +83,27 @@ agent_params.network_wrappers['predictor'].heads_parameters = [RNDHeadParameters
 # Environment #
 ###############
 env_params = RobosuiteEnvironmentParameters(level=SingleLevelSelection(robosuite_environments, force_lower=False))
-env_params.robot = 'PandaLabExp'
+env_params.robot = 'PandaLab'
 env_params.controller = 'IK_POSE_POS'
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.render_camera = 'frontview'
 env_params.base_parameters.camera_names = 'labview'
 env_params.base_parameters.camera_depths = False
-env_params.base_parameters.horizon = 50
+env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
 env_params.base_parameters.use_object_obs = True
 env_params.frame_skip = 1
 env_params.base_parameters.control_freq = 2
 
-env_params.extra_parameters = {}
+# turns the robot invisible
+env_params.base_parameters.render_visual_mesh = False
+env_params.base_parameters.cube_visibility_group = 2
+env_params.base_parameters.table_visibility_group = 2
+
+size = 100
+env_params.base_parameters.camera_heights = size
+env_params.base_parameters.camera_widths = size
+env_params.extra_parameters = {'camera_crop_boxes': (size - 84, size // 2 - 38, 84, 84)}
 
 vis_params = VisualizationParameters()
 

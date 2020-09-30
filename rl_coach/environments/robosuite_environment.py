@@ -87,6 +87,8 @@ class RobosuiteBaseParameters(Parameters):
         self.camera_heights = 84             # height of camera frame.
         self.camera_widths = 84              # width of camera frame.
         self.camera_depths = False           # True if rendering RGB-D, and RGB otherwise.
+        self.cube_visibility_group = 1       # group number for cube visual in the rendering
+        self.table_visibility_group = 1      # group number for table visual in the rendering
 
         # Collision
         self.terminate_on_collision = True
