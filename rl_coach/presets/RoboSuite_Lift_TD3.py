@@ -13,6 +13,8 @@ from rl_coach.filters.filter import InputFilter, NoOutputFilter, NoInputFilter
 from rl_coach.filters.observation import ObservationStackingFilter, ObservationRGBToYFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
+from rl_coach.schedules import LinearSchedule
+from rl_coach.memories.memory import MemoryGranularity
 
 ####################
 # Graph Scheduling #
@@ -41,7 +43,8 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 
 agent_params = TD3AgentParameters()
 agent_params.algorithm.use_non_zero_discount_for_terminal_states = True
-
+agent_params.memory.max_size = (MemoryGranularity.Transitions, 100000)  # to fit 10 workers replay buffers with 128GB RAM
+agent_params.exploration.noise_schedule = LinearSchedule(0.2, 0.2, 50000)
 
 # Surreal works asynchronously, empirically we measure ~2 steps between each training iteration
 # agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(2)
