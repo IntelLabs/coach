@@ -271,7 +271,7 @@ class TD3IntrinsicRewardAgent(TD3ExplorationAgent):
         self.rnd_stats.push_val(np.expand_dims(self.update_intrinsic_returns_estimate(novelty), -1))
 
 
-class TD3RandomAgentParameters(TD3ExplorationAgentParameters):
+class RandomAgentParameters(TD3ExplorationAgentParameters):
     def __init__(self):
         super().__init__()
         self.exploration = EGreedyParameters()
@@ -279,10 +279,10 @@ class TD3RandomAgentParameters(TD3ExplorationAgentParameters):
 
     @property
     def path(self):
-        return 'rl_coach.agents.td3_exp_agent:TD3RandomAgent'
+        return 'rl_coach.agents.td3_exp_agent:RandomAgent'
 
 
-class TD3RandomAgent(TD3ExplorationAgent):
+class RandomAgent(TD3ExplorationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
 

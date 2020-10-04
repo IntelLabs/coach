@@ -17,6 +17,8 @@
 from typing import Union ,Dict, Any
 from enum import Enum, Flag, auto
 from copy import deepcopy
+
+import gym
 import numpy as np
 import random
 from collections import namedtuple
@@ -272,3 +274,12 @@ class RobosuiteEnvironment(Environment):
     def close(self):
         self.env.close()
 
+
+class RobosuiteGymEnvironment(RobosuiteEnvironment, gym.Env):
+
+    def reset(self):
+        return self.reset_internal_state().next_state
+
+    def step(self, action):
+        env_response = super().step(action)
+        return env_response.next_state, env_response.reward, env_response.game_over, {}

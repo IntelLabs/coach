@@ -1,4 +1,4 @@
-from rl_coach.agents.td3_exp_agent import TD3RandomAgentParameters
+from rl_coach.agents.td3_exp_agent import RandomAgentParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
 from rl_coach.architectures.layers import Dense, Conv2d, BatchnormActivationDropout, Flatten
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
@@ -25,7 +25,7 @@ schedule_params.heatup_steps = EnvironmentSteps(0)
 # Agent #
 #########
 
-agent_params = TD3RandomAgentParameters()
+agent_params = RandomAgentParameters()
 agent_params.algorithm.use_non_zero_discount_for_terminal_states = True
 
 agent_params.input_filter = NoInputFilter()
