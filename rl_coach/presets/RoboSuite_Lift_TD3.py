@@ -30,30 +30,11 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 # Agent #
 #########
 
-# Parameters based on DDPG configuration in Surreal code:
-# https://github.com/SurrealAI/surreal/blob/master/surreal/main/ddpg_configs.py
-
-# Differences vs. Surreal:
-#   1. Camera observation pre-processing should be shared between actor and critic
-#   2. Exploration sigma - Surreal scales sigma linearly across actors, from 0 to max_sigma.
-#      In block lifting, max_sigma = 2.0. But, if only 1 actor is used, then sigma = max_sigma / 3.0
-#      Here we use the single actor setting, that is - 2/3
-#   3. In the critic network in Surreal, actions are concatenated to other inputs only after first layer of middleware
-#   4. Surreal uses "basic" experience replay, not episodic (I think...)
-
 agent_params = TD3AgentParameters()
 agent_params.algorithm.use_non_zero_discount_for_terminal_states = True
 agent_params.memory.max_size = (MemoryGranularity.Transitions, 100000)  # to fit 10 workers replay buffers with 128GB RAM
-agent_params.exploration.noise_schedule = LinearSchedule(0.2, 0.2, 50000)
-
-# Surreal works asynchronously, empirically we measure ~2 steps between each training iteration
-# agent_params.algorithm.num_consecutive_playing_steps = EnvironmentSteps(2)
-
+agent_params.exploration.noise_schedule = LinearSchedule(0.5, 0.5, 50000)
 agent_params.input_filter = InputFilter()
-
-agent_params.input_filter.add_observation_filter('camera', 'grayscale', ObservationRGBToYFilter())
-agent_params.input_filter.add_observation_filter('camera', 'stacking', ObservationStackingFilter(3, concat=False))
-
 agent_params.output_filter = NoOutputFilter()
 
 # Camera observation pre-processing network scheme
@@ -76,10 +57,6 @@ actor_network.input_embedders_parameters = {
 
 actor_network.middleware_parameters.scheme = [Dense(300), Dense(200)]
 actor_network.learning_rate = 1e-4
-# actor_network.l2_regularization = 1e-4
-# actor_network.clip_gradients = 10.0
-# actor_network.gradients_clipping_method = GradientClippingMethod.ClipByValue
-# actor_network.batch_size = 512
 
 # Critic
 critic_network = agent_params.network_wrappers['critic']
@@ -90,8 +67,6 @@ critic_network.input_embedders_parameters = {
 }
 critic_network.middleware_parameters.scheme = [Dense(400), Dense(300)]
 critic_network.learning_rate = 1e-4
-# critic_network.l2_regularization = 1e-4
-# critic_network.batch_size = 512
 
 
 ###############
@@ -127,8 +102,6 @@ vis_params.print_networks_summary = True
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-# preset_validation_params.trace_test_levels = ['cartpole:swingup', 'hopper:hop']
-
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,
                                     preset_validation_params=preset_validation_params)
