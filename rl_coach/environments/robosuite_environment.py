@@ -23,7 +23,7 @@ from collections import namedtuple
 
 try:
     import robosuite
-    from robosuite.wrappers import Wrapper
+    from robosuite.wrappers import Wrapper, DomainRandomizationWrapper
 except ImportError:
     from rl_coach.logger import failed_imports
     failed_imports.append("Robosuite")
@@ -117,12 +117,13 @@ class RobosuiteBaseParameters(Parameters):
 
 
 class RobosuiteEnvironmentParameters(EnvironmentParameters):
-    def __init__(self, level, robot=None, controller=None):
+    def __init__(self, level, robot=None, controller=None, apply_dr: bool = False):
         super().__init__(level=level)
         self.base_parameters = RobosuiteBaseParameters()
         self.extra_parameters = {}
         self.robot = robot
         self.controller = controller
+        self.apply_dr = apply_dr
 
     @property
     def path(self):
@@ -161,7 +162,7 @@ class RobosuiteEnvironment(Environment):
                  extra_parameters: Dict[str, Any],
                  robot: str,
                  controller: str,
-                 target_success_rate: float = 1.0, task_id: int = 0, **kwargs):
+                 target_success_rate: float = 1.0, task_id: int = 0, apply_dr: bool = False, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                                                    visualization_parameters, target_success_rate, task_id)
 
@@ -204,10 +205,11 @@ class RobosuiteEnvironment(Environment):
 
         self.env: robosuite.environments.MujocoEnv = robosuite.make(self.env_id, **env_args)
 
-        # TODO: Add DR
         # Wrap with a dummy wrapper so we get a consistent API (there are subtle changes between
         # wrappers and actual environments in Robosuite, for example action_spec as property vs. function)
         self.env = Wrapper(self.env)
+        if apply_dr:
+            self.env = DomainRandomizationWrapper(self.env)
 
         # State space
         self.state_space = StateSpace({})
