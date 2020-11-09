@@ -117,13 +117,17 @@ class RobosuiteBaseParameters(Parameters):
 
 
 class RobosuiteEnvironmentParameters(EnvironmentParameters):
-    def __init__(self, level, robot=None, controller=None, apply_dr: bool = False):
+    def __init__(self, level, robot=None, controller=None, apply_dr: bool = False,
+                 dr_every_n_steps_min: int = 10, dr_every_n_steps_max: int = 20):
         super().__init__(level=level)
         self.base_parameters = RobosuiteBaseParameters()
         self.extra_parameters = {}
         self.robot = robot
         self.controller = controller
         self.apply_dr = apply_dr
+        self.dr_every_n_steps_min = dr_every_n_steps_min
+        self.dr_every_n_steps_max = dr_every_n_steps_max
+
 
     @property
     def path(self):
@@ -162,7 +166,8 @@ class RobosuiteEnvironment(Environment):
                  extra_parameters: Dict[str, Any],
                  robot: str,
                  controller: str,
-                 target_success_rate: float = 1.0, task_id: int = 0, apply_dr: bool = False, **kwargs):
+                 target_success_rate: float = 1.0, task_id: int = 0, apply_dr: bool = False,
+                 dr_every_n_steps_min: int = 10, dr_every_n_steps_max: int = 20, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                                                    visualization_parameters, target_success_rate, task_id)
 
@@ -209,7 +214,9 @@ class RobosuiteEnvironment(Environment):
         # wrappers and actual environments in Robosuite, for example action_spec as property vs. function)
         self.env = Wrapper(self.env)
         if apply_dr:
-            self.env = DomainRandomizationWrapper(self.env)
+            self.env = DomainRandomizationWrapper(self.env, randomize_every_n_steps_min=dr_every_n_steps_min,
+                                                  randomize_every_n_steps_max=dr_every_n_steps_max
+                                                  )
 
         # State space
         self.state_space = StateSpace({})

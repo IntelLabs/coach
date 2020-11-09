@@ -85,6 +85,7 @@ env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 1
 env_params.base_parameters.control_freq = 2
 env_params.apply_dr = True
+env_params.dr_every_n_steps_min = env_params.dr_every_n_steps_max = 200  # just once every episode
 
 # Use extra_parameters for any Robosuite parameter not exposed by RobosuiteBaseParameters
 # These are mostly task-specific parameters. For example, for the "lift" task once could modify
