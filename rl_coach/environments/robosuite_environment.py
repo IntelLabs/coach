@@ -76,6 +76,9 @@ class RobosuiteBaseParameters(Parameters):
         # if True, include object (cube/etc.) information in the observation
         self.use_object_obs = bool(optional_observations & OptionalObservations.OBJECT)
 
+        # removing joint velocities from the observation as it makes the sim2real transfer dynamics dependent
+        self.use_joint_vel_obs = False
+
         # Camera parameters
         self.has_renderer = False            # Set to true to use Mujoco native viewer for on-screen rendering
         self.render_camera = 'frontview'     # name of camera to use for on-screen rendering
@@ -89,7 +92,7 @@ class RobosuiteBaseParameters(Parameters):
         self.camera_depths = False           # True if rendering RGB-D, and RGB otherwise.
 
         # Collision
-        self.terminate_on_collision = True
+        self.penalize_on_collision = True
 
     @property
     def optional_observations(self):
