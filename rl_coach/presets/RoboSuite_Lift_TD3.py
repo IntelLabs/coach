@@ -23,7 +23,7 @@ from rl_coach.memories.memory import MemoryGranularity
 schedule_params = ScheduleParameters()
 schedule_params.improve_steps = TrainingSteps(10000000000)
 schedule_params.steps_between_evaluation_periods = EnvironmentEpisodes(20)
-schedule_params.evaluation_steps = EnvironmentEpisodes(1)
+schedule_params.evaluation_steps = EnvironmentEpisodes(3)
 schedule_params.heatup_steps = EnvironmentSteps(1000)
 
 #########
@@ -32,8 +32,8 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 
 agent_params = TD3AgentParameters()
 agent_params.algorithm.use_non_zero_discount_for_terminal_states = True
-agent_params.memory.max_size = (MemoryGranularity.Transitions, 100000)  # to fit 10 workers replay buffers with 128GB RAM
-agent_params.exploration.noise_schedule = LinearSchedule(0.5, 0.5, 50000)
+agent_params.memory.max_size = (MemoryGranularity.Transitions, 100000)
+agent_params.exploration.noise_schedule = LinearSchedule(1.5, 0.5, 50000)
 agent_params.input_filter = InputFilter()
 agent_params.output_filter = NoOutputFilter()
 
@@ -80,18 +80,18 @@ env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.render_camera = 'frontview'
 env_params.base_parameters.camera_names = 'labview'
 env_params.base_parameters.camera_depths = False
-env_params.base_parameters.horizon = 200
+env_params.base_parameters.horizon = 50
 env_params.base_parameters.ignore_done = False
 env_params.frame_skip = 1
 env_params.base_parameters.control_freq = 2
 env_params.apply_dr = True
-env_params.dr_every_n_steps_min = env_params.dr_every_n_steps_max = 200  # just once every episode
+env_params.dr_every_n_steps_min = env_params.dr_every_n_steps_max = 1  # just once every episode
 
 # Use extra_parameters for any Robosuite parameter not exposed by RobosuiteBaseParameters
 # These are mostly task-specific parameters. For example, for the "lift" task once could modify
 # the table size:
 # env_params.extra_parameters = {'table_full_size': (0.5, 0.5, 0.5)}
-env_params.extra_parameters = {}
+env_params.extra_parameters = {'penalize_on_collision': False}
 
 vis_params = VisualizationParameters()
 vis_params.dump_mp4 = True
