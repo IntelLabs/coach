@@ -51,6 +51,8 @@ from rl_coach.data_stores.redis_data_store import RedisDataStoreParameters
 from rl_coach.data_stores.data_store_impl import get_data_store, construct_data_store_params
 from rl_coach.training_worker import training_worker
 from rl_coach.rollout_worker import rollout_worker
+from rl_coach.schedules import *
+from rl_coach.exploration_policies.e_greedy import *
 
 
 if len(set(failed_imports)) > 0:

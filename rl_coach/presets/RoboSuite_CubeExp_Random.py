@@ -16,8 +16,10 @@ from rl_coach.architectures.head_parameters import RNDHeadParameters
 ####################
 
 schedule_params = ScheduleParameters()
-schedule_params.improve_steps = TrainingSteps(500000)
-schedule_params.steps_between_evaluation_periods = TrainingSteps(500000)
+schedule_params.improve_steps = TrainingSteps(300000)
+schedule_params.steps_between_evaluation_periods = TrainingSteps(300000)
+schedule_params.improve_steps = TrainingSteps(2000)
+schedule_params.steps_between_evaluation_periods = TrainingSteps(2000)
 schedule_params.evaluation_steps = EnvironmentEpisodes(0)
 schedule_params.heatup_steps = EnvironmentSteps(0)
 
@@ -94,11 +96,12 @@ env_params.base_parameters.ignore_done = False
 env_params.base_parameters.use_object_obs = True
 env_params.frame_skip = 1
 env_params.base_parameters.control_freq = 2
+# env_params.base_parameters.use_camera_robot_mask = True
 
 # turns the robot invisible
-env_params.base_parameters.render_visual_mesh = False
-env_params.base_parameters.cube_visibility_group = 2
-env_params.base_parameters.table_visibility_group = 2
+# env_params.base_parameters.render_visual_mesh = False
+# env_params.base_parameters.cube_visibility_group = 2
+# env_params.base_parameters.table_visibility_group = 2
 
 size = 100
 env_params.base_parameters.camera_heights = size

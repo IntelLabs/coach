@@ -19,13 +19,15 @@ from typing import Union
 from collections import OrderedDict
 from random import shuffle
 import os
-import pickle
 from PIL import Image
 import PIL.ImageDraw as ImageDraw
 import matplotlib.pyplot as plt
+import joblib
+import pandas
 
 import numpy as np
 
+from rl_coach.agents.agent import Agent
 from rl_coach.agents.td3_agent import TD3Agent, TD3CriticNetworkParameters, TD3ActorNetworkParameters, \
     TD3AlgorithmParameters, TD3AgentExplorationParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
@@ -61,6 +63,8 @@ class TD3EXPAlgorithmParameters(TD3AlgorithmParameters):
         self.rnd_sample_size = 2000
         self.rnd_batch_size = 500
         self.rnd_optimization_epochs = 4
+        self.td3_training_ratio = 1.0
+        self.identity_goal_sample_rate = 0.0
 
 
 class TD3ExplorationAgentParameters(AgentParameters):
@@ -100,7 +104,10 @@ class TD3ExplorationAgent(TD3Agent):
         return returns
 
     def prepare_rnd_inputs(self, batch):
-        return {'camera': self.rnd_obs_stats.normalize(batch.next_states(['camera'])['camera'])}
+        # inputs = {'camera': self.rnd_obs_stats.normalize(batch.next_states(['camera'])['camera']),
+        #           'output_0_0': batch.next_states(['robot_mask'])['robot_mask']}
+        inputs = {'camera': self.rnd_obs_stats.normalize(batch.next_states(['camera'])['camera'])}
+        return inputs
 
     def handle_self_supervised_reward(self, batch):
         """
@@ -167,9 +174,9 @@ class TD3ExplorationAgent(TD3Agent):
         return super().learn_from_batch(batch)
 
     def train(self):
-        if self.total_steps_counter % self.ap.algorithm.rnd_sample_size == 0:
-            self.train_rnd()
-        return super().train()
+        self.ap.algorithm.num_consecutive_training_steps = \
+            int(self.current_episode_steps_counter * self.ap.algorithm.td3_training_ratio)
+        return Agent.train(self)
 
     def calculate_novelty(self, batch):
         inputs = self.prepare_rnd_inputs(batch)
@@ -179,14 +186,15 @@ class TD3ExplorationAgent(TD3Agent):
         return prediction_error
 
     def save_replay_buffer(self):
-        # dir_path = '../../datasets'
         dir_path = os.path.join(self.parent_level_manager.parent_graph_manager.task_parameters.experiment_path,
                                 'replay_buffer')
         if not os.path.exists(dir_path):
             os.mkdir(dir_path)
-        replay_buffer_path = os.path.join(dir_path, 'RB_{}.p'.format(type(self).__name__))
-        self.memory.save(replay_buffer_path)
-        screen.log('Saved replay buffer to: \"{}\" - Number of transitions: {}'.format(replay_buffer_path,
+
+        path = os.path.join(dir_path, 'RB_{}.joblib.bz2'.format(type(self).__name__))
+        joblib.dump(self.memory.get_all_complete_episodes(), path, compress=('bz2', 1))
+
+        screen.log('Saved replay buffer to: \"{}\" - Number of transitions: {}'.format(path,
                                                                                        self.memory.num_transitions()))
 
     def handle_episode_ended(self) -> None:
@@ -212,6 +220,10 @@ class TD3ExplorationAgent(TD3Agent):
         # exit()
 
         super().handle_episode_ended()
+
+        if self.total_steps_counter % self.ap.algorithm.rnd_sample_size == 0:
+            self.train_rnd()
+
         if self.total_steps_counter % 25000 == 0:
             self.save_replay_buffer()
             self.save_rnd_images()
@@ -224,7 +236,7 @@ class TD3ExplorationAgent(TD3Agent):
             os.mkdir(dir_name)
         transitions = self.memory.transitions
         dataset = Batch(transitions)
-        batch_size = 1000
+        batch_size = self.ap.algorithm.rnd_batch_size
         novelties = []
         for i in range(int(dataset.size / batch_size)):
             start = i * batch_size
@@ -275,7 +287,7 @@ class RandomAgentParameters(TD3ExplorationAgentParameters):
     def __init__(self):
         super().__init__()
         self.exploration = EGreedyParameters()
-        self.exploration.epsilon_schedule = LinearSchedule(1.0, 1.0, 50000)
+        self.exploration.epsilon_schedule = LinearSchedule(1.0, 1.0, 500000000)
 
     @property
     def path(self):
@@ -285,6 +297,8 @@ class RandomAgentParameters(TD3ExplorationAgentParameters):
 class RandomAgent(TD3ExplorationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
+        self.ap.algorithm.periodic_exploration_noise = None
+        self.ap.algorithm.rnd_sample_size = 100000000000
 
     def train(self):
         return 0
@@ -315,25 +329,29 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
             episode = self.memory.get_all_complete_episodes()[e_idx]
             transition_idx = np.random.randint(episode.length())
             t = copy.copy(episode[transition_idx])
-            if np.random.rand(1) < 0.02:
+            if np.random.rand(1) < self.ap.algorithm.identity_goal_sample_rate:
                 t.state['obs-goal'] = self.concat_goal(t.state, t.state)
                 # this doesn't matter for learning but is set anyway so that the agent can pass it through the network
                 t.next_state['obs-goal'] = self.concat_goal(t.next_state, t.state)
                 t.game_over = True
                 t.reward = 0
+                t.action = np.zeros_like(t.action)
             else:
                 if transition_idx == episode.length() - 1:
-                    goal_state = t.next_state['camera']
+                    goal = t
                     t.state['obs-goal'] = self.concat_goal(t.state, t.next_state)
                     t.next_state['obs-goal'] = self.concat_goal(t.next_state, t.next_state)
                 else:
                     goal_idx = np.random.randint(transition_idx, episode.length())
-                    goal_state = episode.transitions[goal_idx].next_state['camera']
+                    goal = episode.transitions[goal_idx]
                     t.state['obs-goal'] = self.concat_goal(t.state, episode.transitions[goal_idx].next_state)
                     t.next_state['obs-goal'] = self.concat_goal(t.next_state,
                                                                         episode.transitions[goal_idx].next_state)
-                state = t.next_state['camera']
-                t.game_over = np.alltrue(np.equal(state, goal_state))
+
+                camera_equal = np.alltrue(np.equal(t.next_state['camera'], goal.next_state['camera']))
+                measurements_equal = np.alltrue(np.isclose(t.next_state['measurements'],
+                                                           goal.next_state['measurements']))
+                t.game_over = camera_equal and measurements_equal
                 t.reward = -1
 
             transitions.append(t)

@@ -16,8 +16,8 @@ from rl_coach.architectures.head_parameters import RNDHeadParameters
 ####################
 
 schedule_params = ScheduleParameters()
-schedule_params.improve_steps = TrainingSteps(400000)
-schedule_params.steps_between_evaluation_periods = TrainingSteps(400000)
+schedule_params.improve_steps = TrainingSteps(300000)
+schedule_params.steps_between_evaluation_periods = TrainingSteps(300000)
 schedule_params.evaluation_steps = EnvironmentEpisodes(0)
 schedule_params.heatup_steps = EnvironmentSteps(1000)
 
