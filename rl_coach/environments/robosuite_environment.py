@@ -92,7 +92,7 @@ class RobosuiteBaseParameters(Parameters):
         self.camera_depths = False           # True if rendering RGB-D, and RGB otherwise.
 
         # Collision
-        self.penalize_on_collision = True
+        self.penalize_reward_on_collision = True
         self.end_episode_on_collision = False
         
     @property
