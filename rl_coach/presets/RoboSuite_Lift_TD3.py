@@ -91,7 +91,7 @@ env_params.dr_every_n_steps_min = env_params.dr_every_n_steps_max = 1  # just on
 # These are mostly task-specific parameters. For example, for the "lift" task once could modify
 # the table size:
 # env_params.extra_parameters = {'table_full_size': (0.5, 0.5, 0.5)}
-env_params.extra_parameters = {'penalize_on_collision': False}
+#env_params.extra_parameters = {'penalize_on_collision': False}
 
 vis_params = VisualizationParameters()
 vis_params.dump_mp4 = True

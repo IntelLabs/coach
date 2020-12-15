@@ -93,7 +93,8 @@ class RobosuiteBaseParameters(Parameters):
 
         # Collision
         self.penalize_on_collision = True
-
+        self.end_episode_on_collision = False
+        
     @property
     def optional_observations(self):
         flag = OptionalObservations.NONE
