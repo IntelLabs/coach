@@ -22,6 +22,7 @@ aliases:
     run:
       name: Prepare aws cli
       command: |
+        sudo pip install --upgrade pip
         sudo pip install awscli pytest kubernetes==8.0.0b1
 
         $(aws ecr get-login --no-include-email --region us-west-2)
