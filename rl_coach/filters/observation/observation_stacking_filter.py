@@ -65,10 +65,10 @@ class ObservationStackingFilter(ObservationFilter):
         self.stack = []
         self.input_observation_space = None
 
-        if stack_size <= 0:
-            raise ValueError("The stack shape must be a positive number")
         if type(stack_size) != int:
-            raise ValueError("The stack shape must be of int type")
+            raise TypeError("The stack shape must be of int type")
+        if stack_size < 2:
+            raise ValueError("Cannot stack less than 2 frames")
 
     @property
     def next_filter(self) -> 'InputFilter':
