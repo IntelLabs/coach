@@ -1,8 +1,8 @@
 # Coach
 
-[![CI](https://img.shields.io/circleci/project/github/NervanaSystems/coach/master.svg)](https://circleci.com/gh/NervanaSystems/workflows/coach/tree/master)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/NervanaSystems/coach/blob/master/LICENSE)
-[![Docs](https://readthedocs.org/projects/carla/badge/?version=latest)](https://nervanasystems.github.io/coach/)
+[![CI](https://img.shields.io/circleci/build/github/IntelLabs/coach/master.svg)](https://circleci.com/gh/IntelLabs/workflows/coach/tree/master)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/IntelLabs/coach/blob/master/LICENSE)
+[![Docs](https://readthedocs.org/projects/carla/badge/?version=latest)](https://intellabs.github.io/coach/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)
 
 <p align="center"><img src="img/coach_logo.png" alt="Coach Logo" width="200"/></p>
@@ -29,7 +29,7 @@ coach -p CartPole_DQN -r
 * [Release 0.9.0](https://ai.intel.com/reinforcement-learning-coach-carla-qr-dqn/)
 * [Release 0.10.0](https://ai.intel.com/introducing-reinforcement-learning-coach-0-10-0/)
 * [Release 0.11.0](https://ai.intel.com/rl-coach-data-science-at-scale)
-* [Release 0.12.0](https://github.com/NervanaSystems/coach/releases/tag/v0.12.0) 
+* [Release 0.12.0](https://github.com/IntelLabs/coach/releases/tag/v0.12.0) 
 * [Release 1.0.0](https://www.intel.ai/rl-coach-new-release) (current release)
 
 
@@ -58,7 +58,7 @@ One of the main challenges when building a research project, or a solution based
 
 Note: Coach has only been tested on Ubuntu 16.04 LTS, and with Python 3.5.
 
-For some information on installing on Ubuntu 17.10 with Python 3.6.3, please refer to the following issue: https://github.com/NervanaSystems/coach/issues/54
+For some information on installing on Ubuntu 17.10 with Python 3.6.3, please refer to the following issue: https://github.com/IntelLabs/coach/issues/54
 
 In order to install coach, there are a few prerequisites required. This will setup all the basics needed to get the user going with running Coach on top of [OpenAI Gym](https://github.com/openai/gym) environments:
 
@@ -111,9 +111,9 @@ In addition to OpenAI Gym, several other environments were tested and are suppor
 ## Getting Started
 
 ### Tutorials and Documentation
-[Jupyter notebooks demonstrating how to run Coach from command line or as a library, implement an algorithm, or integrate an environment](https://github.com/NervanaSystems/coach/tree/master/tutorials).
+[Jupyter notebooks demonstrating how to run Coach from command line or as a library, implement an algorithm, or integrate an environment](https://github.com/IntelLabs/coach/tree/master/tutorials).
 
-[Framework documentation, algorithm description and instructions on how to contribute a new agent/environment](https://nervanasystems.github.io/coach/).
+[Framework documentation, algorithm description and instructions on how to contribute a new agent/environment](https://intellabs.github.io/coach/).
 
 ### Basic Usage
 
@@ -167,7 +167,7 @@ For example:
 
 It is easy to create new presets for different levels or environments by following the same pattern as in presets.py
 
-More usage examples can be found [here](https://github.com/NervanaSystems/coach/blob/master/tutorials/0.%20Quick%20Start%20Guide.ipynb).
+More usage examples can be found [here](https://github.com/IntelLabs/coach/blob/master/tutorials/0.%20Quick%20Start%20Guide.ipynb).
 
 #### Running Coach Dashboard (Visualization)
 Training an agent to solve an environment can be tricky, at times. 
@@ -190,12 +190,12 @@ dashboard
 ### Distributed Multi-Node Coach
 
 As of release 0.11.0, Coach supports horizontal scaling for training RL agents on multiple nodes. In release 0.11.0 this was tested on the ClippedPPO and DQN agents.
-For usage instructions please refer to the documentation [here](https://nervanasystems.github.io/coach/dist_usage.html).
+For usage instructions please refer to the documentation [here](https://intellabs.github.io/coach/dist_usage.html).
 
 ### Batch Reinforcement Learning
 
 Training and evaluating an agent from a dataset of experience, where no simulator is available, is supported in Coach. 
-There are [example](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/CartPole_DDQN_BatchRL.py) [presets](https://github.com/NervanaSystems/coach/blob/master/rl_coach/presets/Acrobot_DDQN_BCQ_BatchRL.py) and a [tutorial](https://github.com/NervanaSystems/coach/blob/master/tutorials/4.%20Batch%20Reinforcement%20Learning.ipynb). 
+There are [example](https://github.com/IntelLabs/coach/blob/master/rl_coach/presets/CartPole_DDQN_BatchRL.py) [presets](https://github.com/IntelLabs/coach/blob/master/rl_coach/presets/Acrobot_DDQN_BCQ_BatchRL.py) and a [tutorial](https://github.com/IntelLabs/coach/blob/master/tutorials/4.%20Batch%20Reinforcement%20Learning.ipynb). 
 
 
 ## Supported Environments

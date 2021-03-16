@@ -22,12 +22,13 @@ aliases:
     run:
       name: Prepare aws cli
       command: |
+        sudo pip install --upgrade pip
         sudo pip install awscli pytest kubernetes==8.0.0b1
 
         $(aws ecr get-login --no-include-email --region us-west-2)
         sudo curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
         sudo chmod a+x /usr/local/bin/aws-iam-authenticator
-        aws eks update-kubeconfig --name coach-ci
+        aws eks update-kubeconfig --name coach-ci-new
         sudo curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         sudo chmod a+x /usr/local/bin/kubectl
 
@@ -75,9 +76,9 @@ jobs:
           command: |
             REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
             TAG=$(git describe --tags --always --dirty)
-            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-gym_environment:${TAG} -f docker/Dockerfile.gym_environment .
+            docker pull ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${TAG} -t ${REGISTRY}/coach-gym_environment:${TAG} -f docker/Dockerfile.gym_environment .
             docker push ${REGISTRY}/coach-gym_environment:${TAG}
           no_output_timeout: 10m
 
@@ -93,9 +94,9 @@ jobs:
           command: |
             REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
             TAG=$(git describe --tags --always --dirty)
-            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-doom_environment:${TAG} -f docker/Dockerfile.doom_environment .
+            docker pull ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${TAG} -t ${REGISTRY}/coach-doom_environment:${TAG} -f docker/Dockerfile.doom_environment .
             docker push ${REGISTRY}/coach-doom_environment:${TAG}
           no_output_timeout: 10m
 
@@ -111,9 +112,9 @@ jobs:
           command: |
             REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
             TAG=$(git describe --tags --always --dirty)
-            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach-mujoco_environment:${TAG} -f docker/Dockerfile.mujoco_environment .
+            docker pull ${REGISTRY}/coach-base:${TAG}
+            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+            docker build --cache-from ${REGISTRY}/coach-base:${TAG} --build-arg MUJOCO_KEY=${MUJOCO_KEY} -t ${REGISTRY}/coach-mujoco_environment:${TAG} -f docker/Dockerfile.mujoco_environment .
             docker push ${REGISTRY}/coach-mujoco_environment:${TAG}
           no_output_timeout: 10m
 
@@ -130,9 +131,9 @@ jobs:
 #          command: |
 #            REGISTRY=316971102342.dkr.ecr.us-west-2.amazonaws.com
 #            TAG=$(git describe --tags --always --dirty)
-#            docker pull ${REGISTRY}/coach-base:${MASTER_BRANCH}
-#            docker tag ${REGISTRY}/coach-base:${MASTER_BRANCH} coach-base:master
-#            docker build --cache-from ${REGISTRY}/coach-base:${MASTER_BRANCH} -t ${REGISTRY}/coach-starcraft_environment:${TAG} -f docker/Dockerfile.starcraft_environment .
+#            docker pull ${REGISTRY}/coach-base:${TAG}
+#            docker tag ${REGISTRY}/coach-base:${TAG} coach-base:master
+#            docker build --cache-from ${REGISTRY}/coach-base:${TAG} -t ${REGISTRY}/coach-starcraft_environment:${TAG} -f docker/Dockerfile.starcraft_environment .
 #            docker push ${REGISTRY}/coach-starcraft_environment:${TAG}
 #          no_output_timeout: 10m
 
@@ -349,7 +350,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-ci \
+                          && aws eks update-kubeconfig --name coach-ci-new \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-gym-test-${CIRCLE_BUILD_NUM} \
@@ -378,7 +379,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-ci \
+                          && aws eks update-kubeconfig --name coach-ci-new \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} \
@@ -407,7 +408,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-ci \
+                          && aws eks update-kubeconfig --name coach-ci-new \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-mujoco-test-${CIRCLE_BUILD_NUM} \
@@ -436,7 +437,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-gym_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-ci \
+                          && aws eks update-kubeconfig --name coach-ci-new \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-gym-test-${CIRCLE_BUILD_NUM} \
@@ -467,7 +468,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-doom_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-ci \
+                          && aws eks update-kubeconfig --name coach-ci-new \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-doom-test-${CIRCLE_BUILD_NUM} \
@@ -498,7 +499,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach-mujoco_environment:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-ci \
+                          && aws eks update-kubeconfig --name coach-ci-new \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=trace-test-mujoco-test-${CIRCLE_BUILD_NUM} \
@@ -551,7 +552,7 @@ jobs:
             docker run -e CIRCLE_BUILD_NUM=$CIRCLE_BUILD_NUM -e TAG=$(git describe --tags --always --dirty) -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION 316971102342.dkr.ecr.us-west-2.amazonaws.com/coach:$(git describe --tags --always --dirty) \
             /bin/bash -c 'pip install awscli; curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
                           && chmod a+x /usr/local/bin/aws-iam-authenticator \
-                          && aws eks update-kubeconfig --name coach-ci \
+                          && aws eks update-kubeconfig --name coach-ci-new \
                           && curl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
                           && chmod a+x /usr/local/bin/kubectl \
                           && kubectl config set-context $(kubectl config current-context) --namespace=multinode-test-${CIRCLE_BUILD_NUM} \
@@ -614,6 +615,9 @@ workflows:
       - multinode_test:
           requires:
             - multinode_approval
+      # NOTE: build_gym/doom/mujoco_env MUST occur after successful build_base stage
+      #       In this workflow this is satisfied by having this flow:
+      #       build_base --> e2e_approval --> build_*_env
       - e2e_approval:
           type: approval
           requires:
@@ -718,10 +722,17 @@ workflows:
               only:
                 - master
     jobs:
-      - build_gym_env
-      - build_doom_env
-      - build_mujoco_env
       - build_base
+      # NOTE: build_gym/doom/mujoco_env MUST occur after successful build_base stage
+      - build_gym_env:
+          requires:
+            - build_base
+      - build_doom_env:
+          requires:
+            - build_base
+      - build_mujoco_env:
+          requires:
+            - build_base
       - unit_tests:
           requires:
             - build_base
