@@ -15,7 +15,9 @@
 #
 import atexit
 import datetime
+import gzip
 import os
+import pickle
 import re
 import shutil
 import signal
@@ -361,6 +363,17 @@ def create_mp4(images, fps=10, name="mp4"):
         p.stdin.write(image.tostring())
     p.stdin.close()
     p.wait()
+
+
+def create_pickle(images, name='pickle'):
+    global experiment_path
+    output_file = '{}_{}.pkl.gz'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'), name)
+    output_dir = os.path.join(experiment_path or os.getcwd(), 'pickles')
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    output_path = os.path.join(output_dir, output_file)
+    with gzip.open(output_path, 'wb') as fh:
+        pickle.dump(images, fh)
 
 
 def remove_experiment_dir():
