@@ -131,19 +131,24 @@ class EKSHandler():
             if container_status.state.terminated is not None:
                 return container_status.state.terminated.exit_code
 
-    def cleanup(self):
+    def cleanup(self, silent=False):
 
         # Delete pod
         try:
-            self.corev1_api.delete_namespaced_pod(self.test_name, self.namespace, client.V1DeleteOptions())
+            self.corev1_api.delete_namespaced_pod(self.test_name,
+                    self.namespace,
+                    client.V1DeleteOptions(grace_period_seconds=0))
         except client.rest.ApiException as e:
-            print("Got exception while deleting pod: {}".format(e))
+            if not silent:
+                print("Got exception while deleting pod: {}".format(e))
 
         # Delete namespace
         try:
-            self.corev1_api.delete_namespace(self.namespace, client.V1DeleteOptions())
+            self.corev1_api.delete_namespace(self.namespace,
+                    client.V1DeleteOptions(grace_period_seconds=0))
         except client.rest.ApiException as e:
-            print("Got exception while deleting namespace: {}".format(e))
+            if not silent:
+                print("Got exception while deleting namespace: {}".format(e))
 
 
 if __name__ == '__main__':
@@ -180,6 +185,10 @@ if __name__ == '__main__':
         args.cluster, args.build_num, args.test_name, args.test_command,
         args.image, args.cpu, args.mem, args.working_dir
     )
+
+    # circleCI outages can cause a job to automatically be re-run (same namespace, test name).
+    # Ensure any prior runs are cleaned up before starting this run.
+    obj.cleanup(silent=True)
 
     if obj.deploy() != 0:
         obj.cleanup()
