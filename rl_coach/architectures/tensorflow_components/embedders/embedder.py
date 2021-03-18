@@ -36,7 +36,7 @@ class InputEmbedder(object):
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
                  scheme: EmbedderScheme=None, batchnorm: bool=False, dropout_rate: float=0.0,
                  name: str= "embedder", input_rescaling=1.0, input_offset=0.0, input_clipping=None, dense_layer=Dense,
-                 is_training=False):
+                 is_training=False, flatten=True):
         self.name = name
         self.input_size = input_size
         self.activation_function = activation_function
@@ -55,6 +55,7 @@ class InputEmbedder(object):
         if self.dense_layer is None:
             self.dense_layer = Dense
         self.is_training = is_training
+        self.flatten = flatten
 
         # layers order is conv -> batchnorm -> activation -> dropout
         if isinstance(self.scheme, EmbedderScheme):
@@ -116,7 +117,10 @@ class InputEmbedder(object):
                              is_training=self.is_training)
             ))
 
-        self.output = tf.contrib.layers.flatten(self.layers[-1])
+        if self.flatten:
+            self.output = tf.contrib.layers.flatten(self.layers[-1])
+        else:
+            self.output = self.layers[-1]
 
     @property
     def input_size(self) -> List[int]:

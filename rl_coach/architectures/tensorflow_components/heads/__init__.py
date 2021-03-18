@@ -19,6 +19,7 @@ from .cil_head import RegressionHead
 from .td3_v_head import TD3VHead
 from .ddpg_v_head import DDPGVHead
 from .wolpertinger_actor_head import WolpertingerActorHead
+from .RND_head import RNDHead
 
 __all__ = [
     'CategoricalQHead',
@@ -41,5 +42,6 @@ __all__ = [
     'RegressionHead',
     'TD3VHead',
     'DDPGVHead',
-    'WolpertingerActorHead'
+    'WolpertingerActorHead',
+    'RNDHead'
 ]

@@ -34,9 +34,9 @@ class ImageEmbedder(InputEmbedder):
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
                  scheme: EmbedderScheme=EmbedderScheme.Medium, batchnorm: bool=False, dropout_rate: float=0.0,
                  name: str= "embedder", input_rescaling: float=255.0, input_offset: float=0.0, input_clipping=None,
-                 dense_layer=Dense, is_training=False):
+                 dense_layer=Dense, is_training=False, flatten=True):
         super().__init__(input_size, activation_function, scheme, batchnorm, dropout_rate, name, input_rescaling,
-                         input_offset, input_clipping, dense_layer=dense_layer, is_training=is_training)
+                         input_offset, input_clipping, dense_layer=dense_layer, is_training=is_training, flatten=flatten)
         self.return_type = InputImageEmbedding
         if len(input_size) != 3 and scheme != EmbedderScheme.Empty:
             raise ValueError("Image embedders expect the input size to have 3 dimensions. The given size is: {}"
