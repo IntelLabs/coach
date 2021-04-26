@@ -161,6 +161,10 @@ class SoftActorCriticAgent(PolicyOptimizationAgent):
         self.v_onl_ys = self.register_signal('V_onl_ys')
         self.action_signal = self.register_signal("actions")
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def learn_from_batch(self, batch):
         #########################################
         # need to update the following networks:

@@ -91,6 +91,10 @@ class PolicyGradientsAgent(PolicyOptimizationAgent):
         self.returns_variance = self.register_signal('Returns Variance')
         self.last_gradient_update_step_idx = 0
 
+    @property
+    def is_on_policy(self) -> bool:
+        return True
+
     def learn_from_batch(self, batch):
         # batch contains a list of episodes to learn from
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
