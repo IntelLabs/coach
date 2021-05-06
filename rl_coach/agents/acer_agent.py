@@ -111,8 +111,11 @@ class ACERAgent(PolicyOptimizationAgent):
         self.V_Values = self.register_signal('Values')
         self.kl_divergence = self.register_signal('KL Divergence')
 
-    def _learn_from_batch(self, batch):
+    @property
+    def is_on_policy(self) -> bool:
+        return False
 
+    def _learn_from_batch(self, batch):
         fetches = [self.networks['main'].online_network.output_heads[1].probability_loss,
                    self.networks['main'].online_network.output_heads[1].bias_correction_loss,
                    self.networks['main'].online_network.output_heads[1].kl_divergence]

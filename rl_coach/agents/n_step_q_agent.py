@@ -92,6 +92,10 @@ class NStepQAgent(ValueOptimizationAgent, PolicyOptimizationAgent):
         self.q_values = self.register_signal('Q Values')
         self.value_loss = self.register_signal('Value Loss')
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def learn_from_batch(self, batch):
         # batch contains a list of episodes to learn from
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()

@@ -152,3 +152,8 @@ class AgentInterface(object):
         :return: None
         """
         raise NotImplementedError("")
+
+    @property
+    def is_on_policy(self) -> bool:
+        raise NotImplementedError("")
+

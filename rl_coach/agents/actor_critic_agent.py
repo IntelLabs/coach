@@ -100,6 +100,10 @@ class ActorCriticAgent(PolicyOptimizationAgent):
         self.value_loss = self.register_signal('Value Loss')
         self.policy_loss = self.register_signal('Policy Loss')
 
+    @property
+    def is_on_policy(self) -> bool:
+        return True
+
     # Discounting function used to calculate discounted returns.
     def discount(self, x, gamma):
         return scipy.signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]

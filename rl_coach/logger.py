@@ -60,6 +60,20 @@ class ScreenLogger(object):
     def __init__(self, name, use_colors=True):
         self.name = name
         self.set_use_colors(use_colors)
+        self.log_file = None
+
+    def print(self, *text: str) -> None:
+        """
+        Prints to console and as well as to log.txt
+        :param text: The text to print
+        :return: None
+        """
+        if not self.log_file:
+            self.log_file = open(os.path.join(experiment_path, "log.txt"), "a")
+        self.log_file.write(",".join([t for t in text]))
+        self.log_file.write("\n")
+        self.log_file.flush()
+        print(*text, flush=True)
 
     def set_use_colors(self, use_colors):
         self._use_colors = use_colors
@@ -79,12 +93,12 @@ class ScreenLogger(object):
             self._suffix = ""
 
     def separator(self):
-        print("")
-        print("--------------------------------")
-        print("")
+        self.print("")
+        self.print("--------------------------------")
+        self.print("")
 
     def log(self, data):
-        print(data)
+        self.print(data)
 
     def log_dict(self, data, prefix=""):
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S.%f') + ' '
@@ -93,25 +107,25 @@ class ScreenLogger(object):
             str += "{}{}{} - ".format(Colors.PURPLE, prefix, Colors.END)
             for k, v in data.items():
                 str += "{}{}: {}{} ".format(Colors.BLUE, k, Colors.END, v)
-            print(str)
+            self.print(str)
         else:
             logentries = [timestamp]
             for k, v in data.items():
                 logentries.append("{}={}".format(k, v))
             logline = "{}> {}".format(prefix, ", ".join(logentries))
-            print(logline)
+            self.print(logline)
 
     def log_title(self, title):
-        print("{}{}{}".format(self._prefix_title, title, self._suffix))
+        self.print("{}{}{}".format(self._prefix_title, title, self._suffix))
 
     def success(self, text):
-        print("{}{}{}".format(self._prefix_success, text, self._suffix))
+        self.print("{}{}{}".format(self._prefix_success, text, self._suffix))
 
     def warning(self, text):
-        print("{}{}{}".format(self._prefix_warning, text, self._suffix))
+        self.print("{}{}{}".format(self._prefix_warning, text, self._suffix))
 
     def error(self, text, crash=True):
-        print("{}{}{}".format(self._prefix_error, text, self._suffix))
+        self.print("{}{}{}".format(self._prefix_error, text, self._suffix))
         if crash:
             exit(1)
 
@@ -167,9 +181,9 @@ class ScreenLogger(object):
         :return: None
         """
         if self._use_colors:
-            print("\x1b]2;{}\x07".format(title))
+            self.print("\x1b]2;{}\x07".format(title))
         else:
-            print("Title: %s" % title)
+            self.print("Title: %s" % title)
 
 
 class BaseLogger(object):
@@ -441,4 +455,4 @@ def get_experiment_path(experiment_name, initial_experiment_path=None, create_pa
 
 
 global screen
-screen = ScreenLogger("")
+screen = ScreenLogger(experiment_path)

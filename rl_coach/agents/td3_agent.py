@@ -141,6 +141,10 @@ class TD3Agent(DDPGAgent):
         self.TD_targets_signal = self.register_signal("TD targets")
         self.action_signal = self.register_signal("actions")
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def learn_from_batch(self, batch):
         actor = self.networks['actor']
         critic = self.networks['critic']

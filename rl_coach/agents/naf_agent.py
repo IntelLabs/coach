@@ -73,6 +73,10 @@ class NAFAgent(ValueOptimizationAgent):
         self.v_values = self.register_signal("V")
         self.TD_targets = self.register_signal("TD targets")
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def learn_from_batch(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 

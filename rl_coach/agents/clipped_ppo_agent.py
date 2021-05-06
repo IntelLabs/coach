@@ -144,6 +144,10 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.likelihood_ratio = self.register_signal('Likelihood Ratio')
         self.clipped_likelihood_ratio = self.register_signal('Clipped Likelihood Ratio')
 
+    @property
+    def is_on_policy(self) -> bool:
+        return True
+
     def set_session(self, sess):
         super().set_session(sess)
         if self.ap.algorithm.normalization_stats is not None:
