@@ -77,6 +77,10 @@ class CategoricalDQNAgent(ValueOptimizationAgent):
         super().__init__(agent_parameters, parent)
         self.z_values = np.linspace(self.ap.algorithm.v_min, self.ap.algorithm.v_max, self.ap.algorithm.atoms)
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def distribution_prediction_to_q_values(self, prediction):
         return np.dot(prediction, self.z_values)
 

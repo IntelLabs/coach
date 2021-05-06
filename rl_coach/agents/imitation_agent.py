@@ -31,6 +31,10 @@ class ImitationAgent(Agent):
         super().__init__(agent_parameters, parent)
         self.imitation = True
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def extract_action_values(self, prediction):
         return prediction.squeeze()
 

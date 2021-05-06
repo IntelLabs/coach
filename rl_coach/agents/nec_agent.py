@@ -120,6 +120,9 @@ class NECAgent(ValueOptimizationAgent):
             Episode(discount=self.ap.algorithm.discount,
                     n_step=self.ap.algorithm.n_step,
                     bootstrap_total_return_from_old_policy=self.ap.algorithm.bootstrap_total_return_from_old_policy)
+    @property
+    def is_on_policy(self) -> bool:
+        return False
 
     def learn_from_batch(self, batch):
         if not self.networks['main'].online_network.output_heads[0].DND.has_enough_entries(self.ap.algorithm.number_of_knn):

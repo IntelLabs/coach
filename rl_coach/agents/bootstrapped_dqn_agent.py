@@ -46,6 +46,10 @@ class BootstrappedDQNAgent(ValueOptimizationAgent):
     def __init__(self, agent_parameters, parent: Union['LevelManager', 'CompositeAgent']=None):
         super().__init__(agent_parameters, parent)
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def reset_internal_state(self):
         super().reset_internal_state()
         self.exploration_policy.select_head()

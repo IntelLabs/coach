@@ -67,6 +67,10 @@ class QuantileRegressionDQNAgent(ValueOptimizationAgent):
         super().__init__(agent_parameters, parent)
         self.quantile_probabilities = np.ones(self.ap.algorithm.atoms) / float(self.ap.algorithm.atoms)
 
+    @property
+    def is_on_policy(self) -> bool:
+        return False
+
     def get_q_values(self, quantile_values):
         return np.dot(quantile_values, self.quantile_probabilities)
 
