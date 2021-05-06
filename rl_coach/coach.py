@@ -174,19 +174,19 @@ def handle_distributed_coach_orchestrator(args):
                                                 data_store_params=ds_params_instance)
     orchestrator = Kubernetes(orchestration_params)
     if not orchestrator.setup(args.checkpoint_restore_dir):
-        print("Could not setup.")
+        screen.print("Could not setup.")
         return 1
 
     if orchestrator.deploy_trainer():
-        print("Successfully deployed trainer.")
+        screen.print("Successfully deployed trainer.")
     else:
-        print("Could not deploy trainer.")
+        screen.print("Could not deploy trainer.")
         return 1
 
     if orchestrator.deploy_worker():
-        print("Successfully deployed rollout worker(s).")
+        screen.print("Successfully deployed rollout worker(s).")
     else:
-        print("Could not deploy rollout worker(s).")
+        screen.print("Could not deploy rollout worker(s).")
         return 1
 
     if args.dump_worker_logs:
