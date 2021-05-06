@@ -47,5 +47,5 @@ class MemoryBackend(object):
     def store_episode(self, obj):
         raise NotImplemented("Not yet implemented")
 
-    def fetch(self, num_steps=0):
+    def fetch(self, num_steps):
         raise NotImplemented("Not yet implemented")

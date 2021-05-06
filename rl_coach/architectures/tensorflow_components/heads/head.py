@@ -23,6 +23,7 @@ from rl_coach.spaces import SpacesDefinition
 from rl_coach.utils import force_list
 from rl_coach.architectures.tensorflow_components.utils import squeeze_tensor
 
+
 # Used to initialize weights for policy and value output layers
 def normalized_columns_initializer(std=1.0):
     def _initializer(shape, dtype=None, partition_info=None):
@@ -30,6 +31,29 @@ def normalized_columns_initializer(std=1.0):
         out *= std / np.sqrt(np.square(out).sum(axis=0, keepdims=True))
         return tf.constant(out)
     return _initializer
+
+
+# Used to initialize RND network parameters
+class Orthogonal(tf.initializers.orthogonal):
+    def __init__(self, gain=1.0):
+        super().__init__(gain=gain)
+
+    def __call__(self, shape, dtype=None, partition_info=None):
+        shape = tuple(shape)
+        if len(shape) == 2:
+            flat_shape = shape
+        elif len(shape) == 4:  # assumes NHWC
+            flat_shape = (np.prod(shape[:-1]), shape[-1])
+        else:
+            raise NotImplementedError
+        a = np.random.normal(0.0, 1.0, flat_shape)
+        u, _, v = np.linalg.svd(a, full_matrices=False)
+        q = u if u.shape == flat_shape else v  # pick the one with the correct shape
+        q = q.reshape(shape)
+        return (self.gain * q[:shape[0], :shape[1]]).astype(np.float32)
+
+    def get_config(self):
+        return {"gain": self.gain}
 
 
 class Head(object):

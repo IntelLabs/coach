@@ -197,6 +197,7 @@ class GymEnvironment(Environment):
                  random_initialization_steps: int=1,
                  max_over_num_frames: int=1,
                  observation_space_type: ObservationSpaceType=None,
+                 task_id: int = 0,
                  **kwargs):
         """
         :param level: (str)
@@ -239,7 +240,7 @@ class GymEnvironment(Environment):
             of the observation: 1D: Vector space, 3D: Image space if 1 or 3 channels, PlanarMaps space otherwise.
         """
         super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
-                         visualization_parameters, target_success_rate)
+                         visualization_parameters, target_success_rate, task_id)
 
         self.random_initialization_steps = random_initialization_steps
         self.max_over_num_frames = max_over_num_frames

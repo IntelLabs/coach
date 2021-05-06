@@ -70,7 +70,7 @@ class ScreenLogger(object):
         """
         if not self.log_file:
             self.log_file = open(os.path.join(experiment_path, "log.txt"), "a")
-        self.log_file.write(",".join([t for t in text]))
+        self.log_file.write(",".join([str(t) for t in text]))
         self.log_file.write("\n")
         self.log_file.flush()
         print(*text, flush=True)

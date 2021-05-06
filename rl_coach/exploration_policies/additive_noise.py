@@ -33,6 +33,7 @@ class AdditiveNoiseParameters(ExplorationParameters):
         self.noise_schedule = LinearSchedule(0.1, 0.1, 50000)
         self.evaluation_noise = 0.05
         self.noise_as_percentage_from_action_space = True
+        self.max_extra_noise = 0
 
     @property
     def path(self):
@@ -49,18 +50,23 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
     be the mean of the action, and 2nd is assumed to be its standard deviation.
     """
     def __init__(self, action_space: ActionSpace, noise_schedule: Schedule,
-                 evaluation_noise: float, noise_as_percentage_from_action_space: bool = True):
+                 evaluation_noise: float, noise_as_percentage_from_action_space: bool = True, max_extra_noise=0):
         """
         :param action_space: the action space used by the environment
         :param noise_schedule: the schedule for the noise
         :param evaluation_noise: the noise variance that will be used during evaluation phases
         :param noise_as_percentage_from_action_space: a bool deciding whether the noise is absolute or as a percentage
                                                       from the action space
+        :param max_extra_noise: additional noise to multiply the gaussian stdev with. can be used to diversify the noise
+                                per actor.
         """
         super().__init__(action_space)
         self.noise_schedule = noise_schedule
         self.evaluation_noise = evaluation_noise
         self.noise_as_percentage_from_action_space = noise_as_percentage_from_action_space
+
+        assert(max_extra_noise >= 0)
+        self.extra_noise = np.exp(np.random.uniform(low=-max_extra_noise, high=max_extra_noise))
 
         if not isinstance(action_space, BoxActionSpace) and \
                 (hasattr(action_space, 'filtered_action_space') and not
@@ -100,7 +106,7 @@ class AdditiveNoise(ContinuousActionExplorationPolicy):
             self.noise_schedule.step()
             # the second element of the list is assumed to be the standard deviation
             if isinstance(action_values, list) and len(action_values) > 1:
-                action_values_std = action_values[1].squeeze()
+                action_values_std = action_values[1].squeeze() * self.extra_noise
 
         # add noise to the action means
         if self.phase is not RunPhase.TEST:

@@ -70,6 +70,20 @@ class RewardNormalizationFilter(RewardFilter):
 
         return self.running_rewards_stats.normalize(reward).squeeze()
 
+    def get_internal_state(self):
+        """
+        Get the filter's internal state.
+        :return: A dictionary with all the variables required to reproduce the filter or None if no internal state
+        """
+        return self.running_rewards_stats.__dict__
+
+    def set_internal_state(self, internal_state: dict):
+        """
+        Set the filter's internal state
+        :return: None
+        """
+        self.running_rewards_stats.set_internal_state(internal_state)
+
     def get_filtered_reward_space(self, input_reward_space: RewardSpace) -> RewardSpace:
         self.running_rewards_stats.set_params(shape=(1,), clip_values=(self.clip_min, self.clip_max))
         return input_reward_space

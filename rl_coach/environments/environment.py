@@ -47,20 +47,21 @@ class LevelSelection(object):
 
 
 class SingleLevelSelection(LevelSelection):
-    def __init__(self, levels: Union[str, List[str], Dict[str, str]]):
+    def __init__(self, levels: Union[str, List[str], Dict[str, str]], force_lower=True):
         super().__init__(None)
         self.levels = levels
         if isinstance(levels, list):
             self.levels = {level: level for level in levels}
         if isinstance(levels, str):
             self.levels = {levels: levels}
+        self.force_lower = force_lower
 
     def __str__(self):
         if self.selected_level is None:
             logger.screen.error("No level has been selected. Please select a level using the -lvl command line flag, "
                                 "or change the level in the preset. \nThe available levels are: \n{}"
                                 .format(', '.join(sorted(self.levels.keys()))), crash=True)
-        selected_level = self.selected_level.lower()
+        selected_level = self.selected_level.lower() if self.force_lower else self.selected_level
         if selected_level not in self.levels.keys():
             logger.screen.error("The selected level ({}) is not part of the available levels ({})"
                                 .format(selected_level, ', '.join(self.levels.keys())), crash=True)
@@ -98,6 +99,7 @@ class EnvironmentParameters(Parameters):
         self.level = level
         self.frame_skip = 4
         self.seed = None
+        self.task_id = 0  # the task ID of the agent interacting with this environment
         self.human_control = False
         self.custom_reward_threshold = None
         self.default_input_filter = None
@@ -115,7 +117,7 @@ class EnvironmentParameters(Parameters):
 class Environment(EnvironmentInterface):
     def __init__(self, level: LevelSelection, seed: int, frame_skip: int, human_control: bool,
                  custom_reward_threshold: Union[int, float], visualization_parameters: VisualizationParameters,
-                 target_success_rate: float=1.0, **kwargs):
+                 target_success_rate: float = 1.0,  task_id: int = 0, **kwargs):
         """
         :param level: The environment level. Each environment can have multiple levels
         :param seed: a seed for the random number generator of the environment
@@ -160,6 +162,7 @@ class Environment(EnvironmentInterface):
         self.env_id = str(level)
         self.seed = seed
         self.frame_skip = frame_skip
+        self.task_id = task_id
 
         # human interaction and visualization
         self.human_control = human_control
@@ -424,8 +427,9 @@ class Environment(EnvironmentInterface):
 
     def should_dump_video_of_the_current_episode(self, episode_terminated=False):
         if self.visualization_parameters.video_dump_filters:
-            for video_dump_filter in force_list(self.visualization_parameters.video_dump_filters):
-                if not video_dump_filter.should_dump(episode_terminated, **self.__dict__):
+            for or_video_dump_filters in force_list(self.visualization_parameters.video_dump_filters):
+                if not any(video_dump_filter.should_dump(episode_terminated, **self.__dict__)
+                           for video_dump_filter in force_list(or_video_dump_filters)):
                     return False
             return True
         return True
@@ -433,15 +437,22 @@ class Environment(EnvironmentInterface):
     def dump_video_of_last_episode_if_needed(self):
         if self.last_episode_images != [] and self.should_dump_video_of_the_current_episode(episode_terminated=True):
             self.dump_video_of_last_episode()
+            self.update_filters_state_after_episode_dumped()
 
     def dump_video_of_last_episode(self):
         frame_skipping = max(1, int(5 / self.frame_skip))
-        file_name = 'episode-{}_score-{}'.format(self.episode_idx, self.total_reward_in_current_episode)
+        file_name = 'agent_{}_phase_{}_episode-{}_score-{:.2f}'.format(self.task_id, self.phase.name, self.episode_idx, self.total_reward_in_current_episode)
         fps = 10
         if self.visualization_parameters.dump_gifs:
             logger.create_gif(self.last_episode_images[::frame_skipping], name=file_name, fps=fps)
         if self.visualization_parameters.dump_mp4:
             logger.create_mp4(self.last_episode_images[::frame_skipping], name=file_name, fps=fps)
+
+    def update_filters_state_after_episode_dumped(self):
+        if self.visualization_parameters.video_dump_filters:
+            for or_video_dump_filters in force_list(self.visualization_parameters.video_dump_filters):
+                for video_dump_filter in force_list(or_video_dump_filters):
+                    video_dump_filter.update_internal_state_after_episode_dumped(**self.__dict__)
 
     # The following functions define the interaction with the environment.
     # Any new environment that inherits the Environment class should use these signatures.

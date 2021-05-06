@@ -98,6 +98,7 @@ class BatchRLGraphManager(BasicRLGraphManager):
             # environment loading
             self.env_params.seed = task_parameters.seed
             self.env_params.experiment_path = task_parameters.experiment_path
+            self.env_params.task_id = task_parameters.task_index
             env = short_dynamic_import(self.env_params.path)(**self.env_params.__dict__,
                                                              visualization_parameters=self.visualization_parameters)
         else:

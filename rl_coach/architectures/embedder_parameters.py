@@ -23,7 +23,7 @@ MOD_NAMES = {'image': 'ImageEmbedder', 'vector': 'VectorEmbedder', 'tensor': 'Te
 class InputEmbedderParameters(NetworkComponentParameters):
     def __init__(self, activation_function: str='relu', scheme: Union[List, EmbedderScheme]=EmbedderScheme.Medium,
                  batchnorm: bool=False, dropout_rate: float=0.0, name: str='embedder', input_rescaling=None,
-                 input_offset=None, input_clipping=None, dense_layer=None, is_training=False):
+                 input_offset=None, input_clipping=None, dense_layer=None, is_training=False, flatten=True):
         super().__init__(dense_layer=dense_layer)
         self.activation_function = activation_function
         self.scheme = scheme
@@ -40,6 +40,7 @@ class InputEmbedderParameters(NetworkComponentParameters):
         self.input_clipping = input_clipping
         self.name = name
         self.is_training = is_training
+        self.flatten = flatten
 
     def path(self, emb_type):
         return 'rl_coach.architectures.tensorflow_components.embedders:' + MOD_NAMES[emb_type]

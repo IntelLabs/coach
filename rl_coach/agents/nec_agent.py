@@ -119,7 +119,9 @@ class NECAgent(ValueOptimizationAgent):
         self.current_episode_buffer = \
             Episode(discount=self.ap.algorithm.discount,
                     n_step=self.ap.algorithm.n_step,
-                    bootstrap_total_return_from_old_policy=self.ap.algorithm.bootstrap_total_return_from_old_policy)
+                    bootstrap_total_return_from_old_policy=self.ap.algorithm.bootstrap_total_return_from_old_policy,
+                    task_id=self.task_id, episode_id=self.current_episode)
+
     @property
     def is_on_policy(self) -> bool:
         return False
@@ -207,7 +209,8 @@ class NECAgent(ValueOptimizationAgent):
         self.current_episode_buffer = \
             Episode(discount=self.ap.algorithm.discount,
                     n_step=self.ap.algorithm.n_step,
-                    bootstrap_total_return_from_old_policy=self.ap.algorithm.bootstrap_total_return_from_old_policy)
+                    bootstrap_total_return_from_old_policy=self.ap.algorithm.bootstrap_total_return_from_old_policy,
+                    task_id=self.task_id, episode_id=self.current_episode + 1)
 
     def handle_episode_ended(self):
         super().handle_episode_ended()

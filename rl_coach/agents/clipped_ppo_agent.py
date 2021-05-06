@@ -15,6 +15,8 @@
 #
 
 import copy
+import math
+import time
 from collections import OrderedDict
 from random import shuffle
 from typing import Union
@@ -28,7 +30,7 @@ from rl_coach.architectures.head_parameters import PPOHeadParameters, VHeadParam
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.base_parameters import AlgorithmParameters, NetworkParameters, \
     AgentParameters
-from rl_coach.core_types import EnvironmentSteps, Batch, EnvResponse, StateType
+from rl_coach.core_types import EnvironmentSteps, Batch, EnvResponse, StateType, Transition
 from rl_coach.exploration_policies.additive_noise import AdditiveNoiseParameters
 from rl_coach.exploration_policies.categorical import CategoricalParameters
 from rl_coach.logger import screen
@@ -110,7 +112,6 @@ class ClippedPPOAlgorithmParameters(AlgorithmParameters):
         self.beta_entropy = 0.01  # should be 0 for mujoco
         self.num_consecutive_playing_steps = EnvironmentSteps(2048)
         self.optimization_epochs = 10
-        self.normalization_stats = None
         self.clipping_decay_schedule = ConstantSchedule(1)
         self.act_for_full_episodes = True
         self.update_pre_network_filters_state_on_train = True
@@ -143,56 +144,139 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.kl_divergence = self.register_signal('KL Divergence')
         self.likelihood_ratio = self.register_signal('Likelihood Ratio')
         self.clipped_likelihood_ratio = self.register_signal('Clipped Likelihood Ratio')
+        self.policy_std = self.register_signal('Policy Standard Deviation')
+        self.noise = np.random.uniform(low=-0.25,
+                                       high=0.25)
+        self.last_policy_id_networks_synced = 0
 
     @property
     def is_on_policy(self) -> bool:
         return True
 
-    def set_session(self, sess):
-        super().set_session(sess)
-        if self.ap.algorithm.normalization_stats is not None:
-            self.ap.algorithm.normalization_stats.set_session(sess)
+    def initialize_session_dependent_components(self):
+        super().initialize_session_dependent_components()
+
+        # TODO get hyper-params from self.ap, and write more nicely
+        self.is_LSTM_middleware = self.networks["main"].online_network.middleware[
+                                      -1].__class__.__name__ == 'LSTMMiddleware'
+        if self.is_LSTM_middleware:
+            self.sequence_length = self.networks["main"].online_network.middleware[-1].sequence_length
+            self.horizon = self.networks["main"].online_network.middleware[-1].horizon
+            if self.horizon < 1:
+                raise ValueError("LSTM sequence horizon has to be >= 1")
+            self.stride = self.networks["main"].online_network.middleware[-1].stride
+
+    def build_dataset(self):
+        update_internal_state = self.ap.algorithm.update_pre_network_filters_state_on_train
+        if self.is_LSTM_middleware:
+            dataset = []
+            for episode in self.memory.get_all_complete_episodes():
+                episode.transitions = self.pre_network_filter.filter(episode.transitions,
+                                                                     deep_copy=False,
+                                                                     update_internal_state=update_internal_state)
+                for i in range(0, episode.length()-self.sequence_length, self.stride):
+                    trajectory = episode.transitions[i:i + self.sequence_length]
+                    transition = Transition()
+                    transition.add_info({'sample_sequence': Batch(trajectory)})
+                    dataset.append(transition)
+            batch_size = self.ap.network_wrappers['main'].batch_size
+            dataset = dataset[:batch_size*(len(dataset) // batch_size)]
+        else:
+            dataset = self.memory.transitions
+            dataset = self.pre_network_filter.filter(dataset, deep_copy=False,
+                                                     update_internal_state=update_internal_state)
+        return Batch(dataset)
+
+    def build_network_inputs(self, data, network_keys, start=None, end=None, with_next_state=True):
+        feed_dict = {}
+        for k in network_keys:
+            if self.is_LSTM_middleware:
+                if with_next_state:
+                    seq = [np.vstack([t.info['sample_sequence'].states([k])[k],
+                                      np.expand_dims(t.info['sample_sequence'].next_states([k])[k][-1], 0)])
+                           for t in data[start:end]]
+                else:
+                    # TODO this part of the flow should be rewritten
+                    seq = [np.vstack([t.info['sample_sequence'].states([k])[k][: self.sequence_length - self.horizon + 1]]) for t in data[start:end]]
+                feed_dict[k] = np.vstack(seq)
+            else:
+                feed_dict[k] = data.states([k])[k][start:end]
+        return feed_dict
 
     def fill_advantages(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
-        current_state_values = self.networks['main'].online_network.predict(batch.states(network_keys))[0]
-        current_state_values = current_state_values.squeeze()
+        state_values = []
+        for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size) + 1):
+            self.networks['main'].online_network.reset_internal_memory()
+            start = i * self.ap.network_wrappers['main'].batch_size
+            end = (i + 1) * self.ap.network_wrappers['main'].batch_size
+            if start == batch.size:
+                break
+
+            network_input = self.build_network_inputs(batch, network_keys, start, end)
+            state_values.append(self.networks['main'].online_network.predict(network_input)[0])
+
+        current_state_values = np.concatenate(state_values)
         self.state_values.add_sample(current_state_values)
 
         # calculate advantages
         advantages = []
         value_targets = []
-        total_returns = batch.n_step_discounted_rewards()
 
         if self.policy_gradient_rescaler == PolicyGradientRescaler.A_VALUE:
+            total_returns = batch.n_step_discounted_rewards()
             advantages = total_returns - current_state_values
         elif self.policy_gradient_rescaler == PolicyGradientRescaler.GAE:
-            # get bootstraps
-            episode_start_idx = 0
-            advantages = np.array([])
-            value_targets = np.array([])
-            for idx, game_over in enumerate(batch.game_overs()):
-                if game_over:
-                    # get advantages for the rollout
-                    value_bootstrapping = np.zeros((1,))
-                    rollout_state_values = np.append(current_state_values[episode_start_idx:idx+1], value_bootstrapping)
-
+            if self.is_LSTM_middleware:
+                # get bootstraps
+                advantages = np.array([])
+                value_targets = np.array([])
+                for idx in range(batch.size):
+                    rollout_state_values = current_state_values[idx * (self.sequence_length + 1):
+                                                                (idx + 1) * (self.sequence_length + 1)].squeeze()
                     rollout_advantages, gae_based_value_targets = \
-                        self.get_general_advantage_estimation_values(batch.rewards()[episode_start_idx:idx+1],
+                        self.get_general_advantage_estimation_values(batch[idx].info['sample_sequence'].rewards(),
                                                                      rollout_state_values)
-                    episode_start_idx = idx + 1
-                    advantages = np.append(advantages, rollout_advantages)
-                    value_targets = np.append(value_targets, gae_based_value_targets)
+                    advantages = np.append(advantages, rollout_advantages[: self.sequence_length - self.horizon + 1])
+                    value_targets = np.append(value_targets,
+                                              gae_based_value_targets[: self.sequence_length - self.horizon + 1])
+            else:
+                # get bootstraps
+                episode_start_idx = 0
+                advantages = np.array([])
+                value_targets = np.array([])
+                for idx, game_over in enumerate(batch.game_overs()):
+                    if game_over:
+                        # get advantages for the rollout
+                        value_bootstrapping = np.zeros((1,))
+                        rollout_state_values = np.append(current_state_values[episode_start_idx:idx + 1],
+                                                         value_bootstrapping)
+
+                        rollout_advantages, gae_based_value_targets = \
+                            self.get_general_advantage_estimation_values(batch.rewards()[episode_start_idx:idx + 1],
+                                                                         rollout_state_values)
+                        episode_start_idx = idx + 1
+                        advantages = np.append(advantages, rollout_advantages)
+                        value_targets = np.append(value_targets, gae_based_value_targets)
         else:
             screen.warning("WARNING: The requested policy gradient rescaler is not available")
 
         # standardize
         advantages = (advantages - np.mean(advantages)) / np.std(advantages)
 
-        for transition, advantage, value_target in zip(batch.transitions, advantages, value_targets):
-            transition.info['advantage'] = advantage
-            transition.info['gae_based_value_target'] = value_target
+        if self.is_LSTM_middleware:
+            for idx, transition in enumerate(batch.transitions):
+                transition.info['advantage'] = np.expand_dims(
+                    advantages[idx * (self.sequence_length - self.horizon + 1):
+                               (idx + 1) * (self.sequence_length - self.horizon + 1)], -1)
+                transition.info['gae_based_value_target'] = np.expand_dims(
+                    value_targets[idx * (self.sequence_length - self.horizon + 1):
+                                  (idx + 1) * (self.sequence_length - self.horizon + 1)], -1)
+        else:
+            for transition, advantage, value_target in zip(batch.transitions, advantages, value_targets):
+                transition.info['advantage'] = advantage
+                transition.info['gae_based_value_target'] = value_target
 
         self.action_advantages.add_sample(advantages)
 
@@ -212,16 +296,34 @@ class ClippedPPOAgent(ActorCriticAgent):
                        self.networks['main'].online_network.output_heads[1].entropy,
                        self.networks['main'].online_network.output_heads[1].likelihood_ratio,
                        self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
+            if hasattr(self.networks['main'].online_network.output_heads[1], 'policy_std'):
+                fetches.append(self.networks['main'].online_network.output_heads[1].policy_std)
 
-            # TODO-fixme if batch.size / self.ap.network_wrappers['main'].batch_size is not an integer, we do not train on
-            #  some of the data
-            for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
+            for i in range(math.ceil(batch.size / self.ap.network_wrappers['main'].batch_size)):
+                self.networks['main'].online_network.reset_internal_memory()
+                self.networks['main'].target_network.reset_internal_memory()
+
                 start = i * self.ap.network_wrappers['main'].batch_size
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size
 
                 network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
-                actions = batch.actions()[start:end]
-                gae_based_value_targets = batch.info('gae_based_value_target')[start:end]
+                if self.is_LSTM_middleware:
+                    # TODO move to __init__
+                    is_discrete = isinstance(self.spaces.action, DiscreteActionSpace)
+                    if is_discrete:
+                        actions = np.vstack(
+                            [seq.actions(expand_dims=True)[: self.sequence_length - self.horizon + 1] for seq in
+                             batch.info('sample_sequence')[start:end]]).squeeze()
+                    else:
+                        actions = np.vstack([seq.actions()[: self.sequence_length - self.horizon + 1] for seq in
+                                             batch.info('sample_sequence')[start:end]])
+                    gae_based_value_targets = np.vstack(
+                        batch.info_as_list('gae_based_value_target')[start:end]).squeeze()
+                    advantages = np.vstack(batch.info_as_list('advantage')[start:end]).squeeze()
+                else:
+                    actions = batch.actions()[start:end]
+                    gae_based_value_targets = batch.info('gae_based_value_target')[start:end]
+                    advantages = batch.info('advantage')[start:end]
                 if not isinstance(self.spaces.action, DiscreteActionSpace) and len(actions.shape) == 1:
                     actions = np.expand_dims(actions, -1)
 
@@ -229,18 +331,18 @@ class ClippedPPOAgent(ActorCriticAgent):
 
                 # TODO-perf - the target network ("old_policy") is not changing. this can be calculated once for all epochs.
                 # the shuffling being done, should only be performed on the indices.
-                result = self.networks['main'].target_network.predict({k: v[start:end] for k, v in batch.states(network_keys).items()})
+                network_input = self.build_network_inputs(batch, network_keys, start, end, with_next_state=False)
+                result = self.networks['main'].target_network.predict(network_input)
                 old_policy_distribution = result[1:]
-
-                total_returns = batch.n_step_discounted_rewards(expand_dims=True)
 
                 # calculate gradients and apply on both the local policy network and on the global policy network
                 if self.ap.algorithm.estimate_state_value_using_gae:
                     value_targets = np.expand_dims(gae_based_value_targets, -1)
                 else:
+                    total_returns = batch.n_step_discounted_rewards(expand_dims=True)
                     value_targets = total_returns[start:end]
 
-                inputs = copy.copy({k: v[start:end] for k, v in batch.states(network_keys).items()})
+                inputs = copy.copy(network_input)
                 inputs['output_1_0'] = actions
 
                 # The old_policy_distribution needs to be represented as a list, because in the event of
@@ -254,9 +356,8 @@ class ClippedPPOAgent(ActorCriticAgent):
 
                 total_loss, losses, unclipped_grads, fetch_result = \
                     self.networks['main'].train_and_sync_networks(
-                        inputs, [value_targets, batch.info('advantage')[start:end]], additional_fetches=fetches
+                        inputs, [value_targets, advantages], additional_fetches=fetches
                     )
-
                 batch_results['total_loss'].append(total_loss)
                 batch_results['losses'].append(losses)
                 batch_results['unclipped_grads'].append(unclipped_grads)
@@ -267,6 +368,8 @@ class ClippedPPOAgent(ActorCriticAgent):
                 self.value_targets.add_sample(value_targets)
                 self.likelihood_ratio.add_sample(fetch_result[2])
                 self.clipped_likelihood_ratio.add_sample(fetch_result[3])
+
+            last_policy_std = fetch_result[-1][0]
 
             for key in batch_results.keys():
                 batch_results[key] = np.mean(batch_results[key], 0)
@@ -293,10 +396,10 @@ class ClippedPPOAgent(ActorCriticAgent):
                 ]),
                 prefix="Policy training"
             )
-
         self.total_kl_divergence_during_training_process = batch_results['kl_divergence']
         self.entropy.add_sample(batch_results['entropy'])
         self.kl_divergence.add_sample(batch_results['kl_divergence'])
+        self.policy_std.add_sample(last_policy_std)
         return batch_results['losses']
 
     def post_training_commands(self):
@@ -304,27 +407,24 @@ class ClippedPPOAgent(ActorCriticAgent):
         self.call_memory('clean')
 
     def train(self):
+        s = time.time()
         if self._should_train():
+            screen.print("*** DEBUG: trainer starts a training iteration ***")
             for network in self.networks.values():
                 network.set_is_training(True)
 
-            dataset = self.memory.transitions
-            update_internal_state = self.ap.algorithm.update_pre_network_filters_state_on_train
-            dataset = self.pre_network_filter.filter(dataset, deep_copy=False,
-                                                     update_internal_state=update_internal_state)
-            batch = Batch(dataset)
+            batch = self.build_dataset()
 
-            for training_step in range(self.ap.algorithm.num_consecutive_training_steps):
+            new_policy_was_published = self.policy_id > self.last_policy_id_networks_synced
+            if not self.ap.is_mast_training or new_policy_was_published:
+                # in MAST, the graph manager controls synchronization directly so that the old policy will update
+                # only after the policy publish to actors
                 self.networks['main'].sync()
-                self.fill_advantages(batch)
+                self.last_policy_id_networks_synced = self.policy_id
 
-                # take only the requested number of steps
-                if isinstance(self.ap.algorithm.num_consecutive_playing_steps, EnvironmentSteps):
-                    dataset = dataset[:self.ap.algorithm.num_consecutive_playing_steps.num_steps]
-                shuffle(dataset)
-                batch = Batch(dataset)
+            self.fill_advantages(batch)
 
-                self.train_network(batch, self.ap.algorithm.optimization_epochs)
+            self.train_network(batch, self.ap.algorithm.optimization_epochs)
 
             for network in self.networks.values():
                 network.set_is_training(False)
@@ -333,6 +433,7 @@ class ClippedPPOAgent(ActorCriticAgent):
             self.training_iteration += 1
             # should be done in order to update the data that has been accumulated * while not playing *
             self.update_log()
+            screen.print("*** DEBUG: training iter time = {} ***".format(time.time()-s))
             return None
 
     def run_pre_network_filter_for_inference(self, state: StateType, update_internal_state: bool=False):
@@ -344,4 +445,3 @@ class ClippedPPOAgent(ActorCriticAgent):
     def choose_action(self, curr_state):
         self.ap.algorithm.clipping_decay_schedule.step()
         return super().choose_action(curr_state)
-

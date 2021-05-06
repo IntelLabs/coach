@@ -41,9 +41,10 @@ class TensorEmbedder(InputEmbedder):
     def __init__(self, input_size: List[int], activation_function=tf.nn.relu,
                  scheme: EmbedderScheme=None, batchnorm: bool=False, dropout_rate: float=0.0,
                  name: str= "embedder", input_rescaling: float=1.0, input_offset: float=0.0, input_clipping=None,
-                 dense_layer=Dense, is_training=False):
+                 dense_layer=Dense, is_training=False, flatten=True):
         super().__init__(input_size, activation_function, scheme, batchnorm, dropout_rate, name, input_rescaling,
-                         input_offset, input_clipping, dense_layer=dense_layer, is_training=is_training)
+                         input_offset, input_clipping, dense_layer=dense_layer, is_training=is_training,
+                         flatten=flatten)
         self.return_type = InputTensorEmbedding
         assert scheme is not None, "Custom scheme (a list of callables) must be specified for TensorEmbedder"
 
