@@ -4,8 +4,8 @@ from rl_coach.architectures.layers import Dense, Conv2d, BatchnormActivationDrop
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection
-from rl_coach.environments.robosuite_environment import RobosuiteEnvironmentParameters, OptionalObservations, \
-    robosuite_environments
+from rl_coach.environments.robosuite_v1_environment import RobosuiteGoalBasedExpEnvironmentParameters, \
+    OptionalObservations, robosuite_environments
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
@@ -82,7 +82,9 @@ agent_params.network_wrappers['predictor'].heads_parameters = [RNDHeadParameters
 ###############
 # Environment #
 ###############
-env_params = RobosuiteEnvironmentParameters(level=SingleLevelSelection(robosuite_environments, force_lower=False))
+env_params = RobosuiteGoalBasedExpEnvironmentParameters(
+    level=SingleLevelSelection(robosuite_environments, force_lower=False)
+)
 env_params.robot = 'PandaLab'
 env_params.controller = 'IK_POSE_POS'
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
@@ -95,11 +97,6 @@ env_params.base_parameters.use_object_obs = True
 env_params.frame_skip = 1
 env_params.base_parameters.control_freq = 2
 
-# turns the robot invisible
-env_params.base_parameters.render_visual_mesh = False
-env_params.base_parameters.cube_visibility_group = 2
-env_params.base_parameters.table_visibility_group = 2
-
 size = 100
 env_params.base_parameters.camera_heights = size
 env_params.base_parameters.camera_widths = size
@@ -107,12 +104,10 @@ env_params.extra_parameters = {'camera_crop_boxes': (size - 84, size // 2 - 38, 
 
 vis_params = VisualizationParameters()
 
-
 ########
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,
