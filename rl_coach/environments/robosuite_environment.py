@@ -17,15 +17,13 @@
 from typing import Union ,Dict, Any
 from enum import Enum, Flag, auto
 from copy import deepcopy
-
-import gym
 import numpy as np
 import random
 from collections import namedtuple
 
 try:
     import robosuite
-    from robosuite.wrappers import Wrapper
+    from robosuite.wrappers import Wrapper, DomainRandomizationWrapper
 except ImportError:
     from rl_coach.logger import failed_imports
     failed_imports.append("Robosuite")
@@ -63,10 +61,7 @@ class RobosuiteBaseParameters(Parameters):
 
         self.horizon = 1000         # Every episode lasts for exactly horizon timesteps
         self.ignore_done = True     # True if never terminating the environment (ignore horizon)
-        self.reward_scale = 0       # Scales the reward by the amount specified. Use 0 to take Robosuite default
         self.reward_shaping = True  # if True, use dense rewards.
-
-        self.use_indicator_object = False  # if True, sets up an indicator object that is useful for debugging
 
         # How many control signals to receive in every simulated second. This sets the amount of simulation time
         # that passes between every action input (this is NOT the same as frame_skip)
@@ -82,19 +77,17 @@ class RobosuiteBaseParameters(Parameters):
         self.has_renderer = False            # Set to true to use Mujoco native viewer for on-screen rendering
         self.render_camera = 'frontview'     # name of camera to use for on-screen rendering
         self.has_offscreen_renderer = self.use_camera_obs
-        self.gripper_visualizations = False  # True if using gripper visualization. Useful for teleoperation.
         self.render_collision_mesh = False   # True if rendering collision meshes in camera. False otherwise
         self.render_visual_mesh = True       # True if rendering visual meshes in camera. False otherwise
         self.camera_names = 'agentview'      # name of camera for rendering camera observations
         self.camera_heights = 84             # height of camera frame.
         self.camera_widths = 84              # width of camera frame.
         self.camera_depths = False           # True if rendering RGB-D, and RGB otherwise.
-        self.cube_visibility_group = 1       # group number for cube visual in the rendering
-        self.table_visibility_group = 1      # group number for table visual in the rendering
 
         # Collision
-        self.terminate_on_collision = True
-
+        self.penalize_reward_on_collision = True
+        self.end_episode_on_collision = False
+        
     @property
     def optional_observations(self):
         flag = OptionalObservations.NONE
@@ -115,46 +108,35 @@ class RobosuiteBaseParameters(Parameters):
 
     def env_kwargs_dict(self):
         res = {k: (v.value if isinstance(v, Enum) else v) for k, v in vars(self).items()}
-        if self.reward_scale == 0:
-            res.pop('reward_scale')
         return res
 
 
 class RobosuiteEnvironmentParameters(EnvironmentParameters):
-    def __init__(self, level, robot=None, controller=None):
+    def __init__(self, level, robot=None, controller=None, apply_dr: bool = False,
+                 dr_every_n_steps_min: int = 10, dr_every_n_steps_max: int = 20,
+                 use_joint_vel_obs=False):
         super().__init__(level=level)
         self.base_parameters = RobosuiteBaseParameters()
         self.extra_parameters = {}
         self.robot = robot
         self.controller = controller
+        self.apply_dr = apply_dr
+        self.dr_every_n_steps_min = dr_every_n_steps_min
+        self.dr_every_n_steps_max = dr_every_n_steps_max
+        self.use_joint_vel_obs = use_joint_vel_obs
 
     @property
     def path(self):
         return 'rl_coach.environments.robosuite_environment:RobosuiteEnvironment'
 
 
+DEFAULT_REWARD_SCALES = {
+    'Lift': 2.25,
+    'LiftLab': 2.25,
+}
+
+
 RobosuiteStepResult = namedtuple('RobosuiteStepResult', ['observation', 'reward', 'done', 'info'])
-
-
-def _process_observation(raw_obs, camera_name):
-    new_obs = {}
-
-    camera_obs = raw_obs.get(camera_name + '_image', None)
-    if camera_obs is not None:
-        depth_obs = raw_obs.get(camera_name + '_depth', None)
-        if depth_obs is not None:
-            depth_obs = np.expand_dims(depth_obs, axis=2)
-            camera_obs = np.concatenate([camera_obs, depth_obs], axis=2)
-        new_obs['camera'] = camera_obs
-
-    measurements = raw_obs['robot0_robot-state']
-    object_obs = raw_obs.get('object-state', None)
-    if object_obs is not None:
-        measurements = np.concatenate([measurements, object_obs])
-    new_obs['measurements'] = measurements
-    new_obs['obs-goal'] = None
-
-    return new_obs
 
 
 # Environment
@@ -166,14 +148,14 @@ class RobosuiteEnvironment(Environment):
                  extra_parameters: Dict[str, Any],
                  robot: str,
                  controller: str,
-                 target_success_rate: float = 1.0, task_id: int = 0, **kwargs):
+                 target_success_rate: float = 1.0, task_id: int = 0, apply_dr: bool = False,
+                 dr_every_n_steps_min: int = 10, dr_every_n_steps_max: int = 20, use_joint_vel_obs=False, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                                                    visualization_parameters, target_success_rate, task_id)
 
         # Validate arguments
 
         self.frame_skip = max(1, self.frame_skip)
-        base_parameters.horizon *= self.frame_skip
 
         def validate_input(input, supported, name):
             if input not in supported:
@@ -201,30 +183,31 @@ class RobosuiteEnvironment(Environment):
         # Load and initialize environment
         env_args = self.base_parameters.env_kwargs_dict()
         env_args.update(extra_parameters)
+
+        if 'reward_scale' not in env_args and self.env_id in DEFAULT_REWARD_SCALES:
+            env_args['reward_scale'] = DEFAULT_REWARD_SCALES[self.env_id]
+
         env_args['robots'] = self.robot
         controller_cfg = None
         if self.controller is not None:
             controller_cfg = robosuite.controllers.load_controller_config(default_controller=self.controller)
         env_args['controller_configs'] = controller_cfg
 
-        self.env: robosuite.environments.MujocoEnv = robosuite.make(self.env_id, **env_args)
+        self.env = robosuite.make(self.env_id, **env_args)
 
-        # TODO: Add DR
+        # TODO: Generalize this to filter any observation by name
+        if not use_joint_vel_obs:
+            self.env.modify_observable('robot0_joint_vel', 'active', False)
+
         # Wrap with a dummy wrapper so we get a consistent API (there are subtle changes between
         # wrappers and actual environments in Robosuite, for example action_spec as property vs. function)
         self.env = Wrapper(self.env)
+        if apply_dr:
+            self.env = DomainRandomizationWrapper(self.env, seed=self.seed, randomize_every_n_steps_min=dr_every_n_steps_min,
+                                                  randomize_every_n_steps_max=dr_every_n_steps_max)
 
         # State space
-        self.state_space = StateSpace({})
-        dummy_obs = _process_observation(self.env.observation_spec(), self.base_parameters.camera_names)
-
-        self.state_space['measurements'] = VectorObservationSpace(dummy_obs['measurements'].shape[0])
-
-        if self.base_parameters.use_camera_obs:
-            self.state_space['camera'] = PlanarMapsObservationSpace(dummy_obs['camera'].shape, 0, 255)
-            goal_based_shape = list(dummy_obs['camera'].shape)
-            goal_based_shape[2] *= 2
-            self.state_space['obs-goal'] = PlanarMapsObservationSpace(tuple(goal_based_shape), 0, 255)
+        self.state_space = self._setup_state_space()
 
         # Action space
         low, high = self.env.unwrapped.action_spec
@@ -236,6 +219,39 @@ class RobosuiteEnvironment(Environment):
             image = self.get_rendered_image()
             self.renderer.create_screen(image.shape[1], image.shape[0])
         # TODO: Other environments call rendering here, why? reset_internal_state does it
+
+    def _setup_state_space(self):
+        state_space = StateSpace({})
+        dummy_obs = self._process_observation(self.env.observation_spec())
+
+        state_space['measurements'] = VectorObservationSpace(dummy_obs['measurements'].shape[0])
+
+        if self.base_parameters.use_camera_obs:
+            state_space['camera'] = PlanarMapsObservationSpace(dummy_obs['camera'].shape, 0, 255)
+
+        return state_space
+
+    def _process_observation(self, raw_obs):
+        new_obs = {}
+
+        # TODO: Support multiple cameras, this assumes a single camera
+        camera_name = self.base_parameters.camera_names
+
+        camera_obs = raw_obs.get(camera_name + '_image', None)
+        if camera_obs is not None:
+            depth_obs = raw_obs.get(camera_name + '_depth', None)
+            if depth_obs is not None:
+                depth_obs = np.expand_dims(depth_obs, axis=2)
+                camera_obs = np.concatenate([camera_obs, depth_obs], axis=2)
+            new_obs['camera'] = camera_obs
+
+        measurements = raw_obs['robot0_proprio-state']
+        object_obs = raw_obs.get('object-state', None)
+        if object_obs is not None:
+            measurements = np.concatenate([measurements, object_obs])
+        new_obs['measurements'] = measurements
+
+        return new_obs
 
     def _take_action(self, action):
         action = self.action_space.clip_action_to_space(action)
@@ -253,7 +269,7 @@ class RobosuiteEnvironment(Environment):
         self.last_result = RobosuiteStepResult(obs, reward, done, info)
 
     def _update_state(self):
-        obs = _process_observation(self.last_result.observation, self.base_parameters.camera_names)
+        obs = self._process_observation(self.last_result.observation)
         self.state = {k: obs[k] for k in self.state_space.sub_spaces}
         self.reward = self.last_result.reward or 0
         self.done = self.last_result.done
@@ -275,11 +291,21 @@ class RobosuiteEnvironment(Environment):
         self.env.close()
 
 
-class RobosuiteGymEnvironment(RobosuiteEnvironment, gym.Env):
+class RobosuiteGoalBasedExpEnvironmentParameters(RobosuiteEnvironmentParameters):
+    @property
+    def path(self):
+        return 'rl_coach.environments.robosuite_environment:RobosuiteGoalBasedExpEnvironment'
 
-    def reset(self):
-        return self.reset_internal_state().next_state
 
-    def step(self, action):
-        env_response = super().step(action)
-        return env_response.next_state, env_response.reward, env_response.game_over, {}
+class RobosuiteGoalBasedExpEnvironment(RobosuiteEnvironment):
+    def _process_observation(self, raw_obs):
+        new_obs = super()._process_observation(raw_obs)
+        new_obs['obs-goal'] = None
+        return new_obs
+
+    def _setup_state_space(self):
+        state_space = super()._setup_state_space()
+        goal_based_shape = list(state_space['camera'].shape)
+        goal_based_shape[2] *= 2
+        state_space['obs-goal'] = PlanarMapsObservationSpace(tuple(goal_based_shape), 0, 255)
+        return state_space

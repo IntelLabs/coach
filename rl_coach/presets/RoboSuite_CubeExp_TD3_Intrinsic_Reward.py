@@ -4,7 +4,7 @@ from rl_coach.architectures.layers import Dense, Conv2d, BatchnormActivationDrop
 from rl_coach.base_parameters import VisualizationParameters, EmbedderScheme, PresetValidationParameters
 from rl_coach.core_types import TrainingSteps, EnvironmentEpisodes, EnvironmentSteps
 from rl_coach.environments.environment import SingleLevelSelection
-from rl_coach.environments.robosuite_v1_environment import RobosuiteGoalBasedExpEnvironmentParameters, \
+from rl_coach.environments.robosuite_environment import RobosuiteGoalBasedExpEnvironmentParameters, \
     OptionalObservations, robosuite_environments
 from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
