@@ -109,7 +109,7 @@ vis_params = VisualizationParameters()
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-
+preset_validation_params.test = False
 
 graph_manager = BasicRLGraphManager(agent_params=agent_params, env_params=env_params,
                                     schedule_params=schedule_params, vis_params=vis_params,

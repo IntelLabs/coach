@@ -64,7 +64,7 @@ env_params.target_success_rate = 1.0
 # Test #
 ########
 preset_validation_params = PresetValidationParameters()
-preset_validation_params.test = True
+preset_validation_params.test = False
 preset_validation_params.min_reward_threshold = 400
 preset_validation_params.max_episodes_to_achieve_reward = 1000
 preset_validation_params.reward_test_level = 'inverted_pendulum'
