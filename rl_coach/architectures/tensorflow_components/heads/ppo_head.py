@@ -18,7 +18,7 @@ import math
 import numpy as np
 import tensorflow as tf
 
-from rl_coach.architectures.tensorflow_components.layers import Dense, SchemeBuilder
+from rl_coach.architectures.tensorflow_components.layers import Dense
 from rl_coach.architectures.tensorflow_components.heads.head import Head, normalized_columns_initializer
 from rl_coach.base_parameters import AgentParameters, DistributedTaskParameters
 from rl_coach.core_types import ActionProbabilities
@@ -164,29 +164,3 @@ class PPOHead(Head):
             action_head_mean_result.append("Dense (num outputs = {})".format(self.spaces.action.shape))
 
         return '\n'.join(action_head_mean_result)
-
-
-class PPOHeadWithPreDense(PPOHead):
-    def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
-                 head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh',
-                 dense_layer=Dense, pre_dense_sizes=None, pre_dense_activation_function='relu', policy_logstd_bias=0):
-        super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
-                         dense_layer, policy_logstd_bias)
-        self.name = 'ppo_w_pre_dense_head'
-        pre_dense_sizes = pre_dense_sizes or []
-        self.pre_dense_builder = SchemeBuilder([self.dense_layer(size) for size in pre_dense_sizes],
-                                               pre_dense_activation_function)
-        self.pre_dense_layers = None
-
-    def _build_discrete_net(self, input_layer, action_space):
-        self.pre_dense_layers = self.pre_dense_builder.build_scheme(input_layer, name_prefix='pre_dense')
-        super(PPOHeadWithPreDense, self)._build_discrete_net(self.pre_dense_layers[-1], action_space)
-
-    def _build_continuous_net(self, input_layer, action_space):
-        self.pre_dense_layers = self.pre_dense_builder.build_scheme(input_layer, name_prefix='pre_dense')
-        super(PPOHeadWithPreDense, self)._build_continuous_net(self.pre_dense_layers[-1], action_space)
-
-    def __str__(self):
-        result = [str(layer) for layer in self.pre_dense_builder.layers_params]
-        result.append(super(PPOHeadWithPreDense, self).__str__())
-        return '\n'.join(result)
