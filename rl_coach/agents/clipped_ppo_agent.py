@@ -409,7 +409,6 @@ class ClippedPPOAgent(ActorCriticAgent):
     def train(self):
         s = time.time()
         if self._should_train():
-            screen.print("*** DEBUG: trainer starts a training iteration ***")
             for network in self.networks.values():
                 network.set_is_training(True)
 
@@ -433,7 +432,6 @@ class ClippedPPOAgent(ActorCriticAgent):
             self.training_iteration += 1
             # should be done in order to update the data that has been accumulated * while not playing *
             self.update_log()
-            screen.print("*** DEBUG: training iter time = {} ***".format(time.time()-s))
             return None
 
     def run_pre_network_filter_for_inference(self, state: StateType, update_internal_state: bool=False):
