@@ -119,7 +119,7 @@ class InputEmbedder(object):
             ))
 
         if self.flatten:
-            self.output = tf.contrib.layers.flatten(self.layers[-1])
+            self.output = Flatten()(self.layers[-1])
         else:
             self.output = self.layers[-1]
 
