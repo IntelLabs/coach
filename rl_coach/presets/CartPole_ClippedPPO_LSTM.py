@@ -8,7 +8,6 @@ from rl_coach.filters.filter import InputFilter
 from rl_coach.filters.observation.observation_normalization_filter import ObservationNormalizationFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
-from rl_coach.graph_managers.mast_graph_manager import MASTGraphManager
 from rl_coach.schedules import LinearSchedule
 from rl_coach.architectures.middleware_parameters import LSTMMiddlewareParameters
 

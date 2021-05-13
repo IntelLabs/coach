@@ -139,10 +139,7 @@ class ExperienceReplay(Memory):
         self.assert_not_frozen()
 
         # Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.
-        # If it did, no need to also store it locally.
-        if super().store(transition):
-            return
-
+        super().store(transition)
         if lock:
             self.reader_writer_lock.lock_writing_and_reading()
 

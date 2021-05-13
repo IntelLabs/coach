@@ -15,7 +15,6 @@
 #
 
 import copy
-import pickle
 import random
 from collections import OrderedDict
 from typing import Dict, List, Union, Tuple
@@ -175,8 +174,7 @@ class Agent(AgentInterface):
         self.accumulated_shaped_rewards_across_evaluation_episodes = 0
         self.num_successes_across_evaluation_episodes = 0
         self.num_evaluation_episodes_completed = 0
-        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step,
-                                              task_id=self.task_id, episode_id=0)
+        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step)
         # TODO: add agents observation rendering for debugging purposes (not the same as the environment rendering)
 
         # environment parameters
@@ -197,9 +195,6 @@ class Agent(AgentInterface):
 
         # batch rl
         self.ope_manager = OpeManager() if self.ap.is_batch_rl_training else None
-
-        # mast
-        self.policy_id = 0
 
     @property
     def parent(self) -> 'LevelManager':
@@ -621,9 +616,7 @@ class Agent(AgentInterface):
         self.curr_state = {}
         self.current_episode_steps_counter = 0
         self.episode_running_info = {}
-        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step,
-                                              task_id=self.task_id, episode_id=self.current_episode + 1,
-                                              policy_id=self.policy_id)
+        self.current_episode_buffer = Episode(discount=self.ap.algorithm.discount, n_step=self.ap.algorithm.n_step)
         if self.exploration_policy:
             self.exploration_policy.reset()
         self.input_filter.reset()
@@ -715,7 +708,7 @@ class Agent(AgentInterface):
         """
         loss = 0
         if self._should_train():
-            if self.ap.is_batch_rl_training or self.ap.is_mast_training:
+            if self.ap.is_batch_rl_training:
                 # when training an agent for generating a dataset in batch-rl, we don't want it to be counted as part of
                 # the training epochs. we only care for training epochs in batch-rl anyway.
                 self.training_epoch += 1
@@ -1094,13 +1087,3 @@ class Agent(AgentInterface):
         """
         self.call_memory('shuffle_episodes')
         self.call_memory('freeze')
-
-    def load_policy_params(self, filters_state: dict, policy_id: int) -> None:
-        """
-        Load policy related parameters (in additional to loading to policy itself, done elsewhere)
-        :param filters_state: The filters internal state
-        :param policy_id: The policy's ID
-        :return: None
-        """
-        self.pre_network_filter.set_internal_state(filters_state)
-        self.policy_id = policy_id

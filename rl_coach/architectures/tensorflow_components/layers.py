@@ -21,7 +21,6 @@ import tensorflow as tf
 
 from rl_coach.architectures import layers
 from rl_coach.architectures.tensorflow_components import utils
-from rl_coach.utils import force_list
 
 
 def batchnorm_activation_dropout(input_layer, batchnorm, activation_function, dropout_rate, is_training, name):

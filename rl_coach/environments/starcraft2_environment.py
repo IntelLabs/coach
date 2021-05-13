@@ -113,9 +113,9 @@ class StarCraft2Environment(Environment):
                  feature_minimap_maps_to_use: List=range(7), feature_screen_maps_to_use: List=range(17),
                  observation_type: StarcraftObservationType=StarcraftObservationType.Features,
                  disable_fog: bool=False, auto_select_all_army: bool=True,
-                 use_full_action_space: bool=False, task_id: int = 0, **kwargs):
+                 use_full_action_space: bool=False, **kwargs):
         super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters,
-                         target_success_rate, task_id)
+                         target_success_rate)
 
         self.screen_size = screen_size
         self.minimap_size = minimap_size

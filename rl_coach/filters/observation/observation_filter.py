@@ -38,18 +38,3 @@ class ObservationFilter(Filter):
         :return: None
         """
         pass
-
-    def get_internal_state(self):
-        """
-        Get the filter's internal state.
-        :return: A dictionary with all the variables required to reproduce the filter or None if no internal state
-        """
-
-        return None
-
-    def set_internal_state(self, internal_state: dict):
-        """
-        Set the filter's internal state
-        :return: None
-        """
-        pass

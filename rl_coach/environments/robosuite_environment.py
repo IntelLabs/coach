@@ -148,10 +148,10 @@ class RobosuiteEnvironment(Environment):
                  extra_parameters: Dict[str, Any],
                  robot: str,
                  controller: str,
-                 target_success_rate: float = 1.0, task_id: int = 0, apply_dr: bool = False,
+                 target_success_rate: float = 1.0, apply_dr: bool = False,
                  dr_every_n_steps_min: int = 10, dr_every_n_steps_max: int = 20, use_joint_vel_obs=False, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
-                                                   visualization_parameters, target_success_rate, task_id)
+                                                   visualization_parameters, target_success_rate)
 
         # Validate arguments
 

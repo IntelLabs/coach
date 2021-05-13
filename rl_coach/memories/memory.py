@@ -47,17 +47,13 @@ class Memory(object):
         self._length = 0
         self.memory_backend = None
 
-    def store(self, obj) -> bool:
+    def store(self, obj):
         if self.memory_backend:
             self.memory_backend.store(obj)
-            return True
-        return False
 
-    def store_episode(self, episode) -> bool:
+    def store_episode(self, episode):
         if self.memory_backend:
             self.memory_backend.store(episode)
-            return True
-        return False
 
     def get(self, index):
         raise NotImplementedError("")

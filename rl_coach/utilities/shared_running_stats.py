@@ -37,7 +37,8 @@ class SharedRunningStatsSubscribe(threading.Thread):
     def run(self):
         for message in self.pubsub.listen():
             try:
-                self.shared_running_stats.__dict__.update(pickle.loads(message['data']))
+                obj = pickle.loads(message['data'])
+                self.shared_running_stats.push_val(obj)
             except Exception:
                 continue
 
@@ -46,8 +47,6 @@ class SharedRunningStats(ABC):
     def __init__(self, name="", pubsub_params=None):
         self.name = name
         self.pubsub = None
-        self._mean = None
-        self._std = None
         if pubsub_params:
             self.channel = "channel-srs-{}".format(self.name)
             from rl_coach.memories.backend.memory_impl import get_memory_backend
@@ -61,10 +60,11 @@ class SharedRunningStats(ABC):
         pass
 
     def push(self, x):
-        self.push_val(x)
-
         if self.pubsub:
-            self.pubsub.redis_connection.publish(self.channel, pickle.dumps(self.get_internal_state()))
+            self.pubsub.redis_connection.publish(self.channel, pickle.dumps(x))
+            return
+
+        self.push_val(x)
 
     @abstractmethod
     def push_val(self, x):
@@ -78,7 +78,7 @@ class SharedRunningStats(ABC):
     @property
     @abstractmethod
     def mean(self):
-        return self._mean
+        pass
 
     @property
     @abstractmethod
@@ -88,7 +88,7 @@ class SharedRunningStats(ABC):
     @property
     @abstractmethod
     def std(self):
-        return self._std
+        pass
 
     @property
     @abstractmethod
@@ -101,14 +101,6 @@ class SharedRunningStats(ABC):
 
     @abstractmethod
     def set_session(self, sess):
-        pass
-
-    @abstractmethod
-    def get_internal_state(self):
-        pass
-
-    @abstractmethod
-    def set_internal_state(self, internal_state: dict):
         pass
 
     @abstractmethod
@@ -175,18 +167,12 @@ class NumpySharedRunningStats(SharedRunningStats):
         # no session for the numpy implementation
         pass
 
-    def get_internal_state(self):
-        return {'_mean': self._mean,
-                '_std': self._std,
-                '_count': self._count,
-                '_sum': self._sum,
-                '_sum_squares': self._sum_squares}
-
-    def set_internal_state(self, internal_state: dict):
-        self.__dict__.update(internal_state)
-
     def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: int):
-        dict_to_save = self.get_internal_state()
+        dict_to_save = {'_mean': self._mean,
+                        '_std': self._std,
+                        '_count': self._count,
+                        '_sum': self._sum,
+                        '_sum_squares': self._sum_squares}
 
         with open(os.path.join(checkpoint_dir, str(checkpoint_prefix) + '.' + self.checkpoint_file_extension), 'wb') as f:
             pickle.dump(dict_to_save, f, pickle.HIGHEST_PROTOCOL)

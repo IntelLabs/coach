@@ -226,7 +226,7 @@ class EpisodicExperienceReplay(Memory):
 
     def verify_last_episode_is_closed(self) -> None:
         """
-        Verify that there are no open episodes in the replay buffer
+        Verify that there is no open episodes in the replay buffer
         :return: None
         """
         self.reader_writer_lock.lock_writing_and_reading()
@@ -274,9 +274,7 @@ class EpisodicExperienceReplay(Memory):
         self.assert_not_frozen()
 
         # Calling super.store() so that in case a memory backend is used, the memory backend can store this transition.
-        # If it did, no need to also store it locally.
-        if super().store(transition):
-            return
+        super().store(transition)
 
         self.reader_writer_lock.lock_writing_and_reading()
 
@@ -302,9 +300,7 @@ class EpisodicExperienceReplay(Memory):
         self.assert_not_frozen()
 
         # Calling super.store() so that in case a memory backend is used, the memory backend can store this episode.
-        # If it did, no need to also store it locally.
-        if super().store_episode(episode):
-            return
+        super().store_episode(episode)
 
         if lock:
             self.reader_writer_lock.lock_writing_and_reading()
@@ -469,7 +465,7 @@ class EpisodicExperienceReplay(Memory):
                 # we have to have at least 2 rows in each episode for creating a transition
                 continue
 
-            episode = Episode(episode_id=e_id)
+            episode = Episode()
             transitions = []
             for (_, current_transition), (_, next_transition) in zip(df_episode_transitions[:-1].iterrows(),
                                                                      df_episode_transitions[1:].iterrows()):

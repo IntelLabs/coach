@@ -697,16 +697,12 @@ class Episode(object):
     """
     An Episode represents a set of sequential transitions, that end with a terminal state.
     """
-    def __init__(self, discount: float=0.99, bootstrap_total_return_from_old_policy: bool=False, n_step: int=-1,
-                 task_id: int = -1, episode_id: int = -1, policy_id=-1):
+    def __init__(self, discount: float=0.99, bootstrap_total_return_from_old_policy: bool=False, n_step: int=-1):
         """
         :param discount: the discount factor to use when calculating total returns
         :param bootstrap_total_return_from_old_policy: should the total return be bootstrapped from the values in the
                                                        memory
         :param n_step: the number of future steps to sum the reward over before bootstrapping
-        :param task_id: the task ID of the agent who has collected this episode
-        :param episode_id: the episode ID for the agent who has collected this episode
-        :param policy_id: the policy ID that was used to collect this episode (if a single policy was used throughout the episode)
         """
         self.transitions = []
         self._length = 0
@@ -714,9 +710,6 @@ class Episode(object):
         self.bootstrap_total_return_from_old_policy = bootstrap_total_return_from_old_policy
         self.n_step = n_step
         self.is_complete = False
-        self.task_id = task_id
-        self.episode_id = episode_id
-        self.policy_id = policy_id
 
     def insert(self, transition: Transition) -> None:
         """
@@ -860,9 +853,6 @@ class VideoDumpFilter(object):
     def should_dump(self, episode_terminated=False, **kwargs):
         raise NotImplementedError("")
 
-    def update_internal_state_after_episode_dumped(self, **kwargs):
-        pass
-
 
 class AlwaysDumpFilter(VideoDumpFilter):
     """
@@ -894,7 +884,7 @@ class MaxDumpFilter(VideoDumpFilter):
             return False
 
 
-class EveryNEpisodesDumpFilter(VideoDumpFilter):
+class EveryNEpisodesDumpFilter(object):
     """
     Dump videos once in every N episodes
     """
@@ -906,16 +896,14 @@ class EveryNEpisodesDumpFilter(VideoDumpFilter):
             raise ValueError("the number of episodes between dumps should be a positive number")
 
     def should_dump(self, episode_terminated=False, **kwargs):
-        if kwargs['episode_idx'] >= self.last_dumped_episode + self.num_episodes_between_dumps:
+        if kwargs['episode_idx'] >= self.last_dumped_episode + self.num_episodes_between_dumps - 1:
+            self.last_dumped_episode = kwargs['episode_idx']
             return True
         else:
             return False
 
-    def update_internal_state_after_episode_dumped(self, **kwargs):
-        self.last_dumped_episode = kwargs['episode_idx']
 
-
-class SelectedPhaseOnlyDumpFilter(VideoDumpFilter):
+class SelectedPhaseOnlyDumpFilter(object):
     """
     Dump videos when the phase of the environment matches a predefined phase
     """
@@ -927,20 +915,6 @@ class SelectedPhaseOnlyDumpFilter(VideoDumpFilter):
             return True
         else:
             return False
-
-
-class TaskIdDumpFilter(VideoDumpFilter):
-    """
-    Dump videos only for a specific task ID
-    """
-    def __init__(self, task_id):
-        super().__init__()
-        self.task_id = task_id
-
-    def should_dump(self, episode_terminated=False, **kwargs):
-        if kwargs['task_id'] == self.task_id:
-            return True
-        return False
 
 
 # TODO move to a NamedTuple, once we move to Python3.6

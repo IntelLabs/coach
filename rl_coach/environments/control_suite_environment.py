@@ -68,7 +68,7 @@ class ControlSuiteEnvironment(Environment):
     def __init__(self, level: LevelSelection, frame_skip: int, visualization_parameters: VisualizationParameters,
                  target_success_rate: float=1.0, seed: Union[None, int]=None, human_control: bool=False,
                  observation_type: ObservationType=ObservationType.Measurements,
-                 custom_reward_threshold: Union[int, float]=None, task_id: int = 0, **kwargs):
+                 custom_reward_threshold: Union[int, float]=None, **kwargs):
         """
         :param level: (str)
             A string representing the control suite level to run. This can also be a LevelSelection object.
@@ -101,8 +101,7 @@ class ControlSuiteEnvironment(Environment):
             Allows defining a custom reward that will be used to decide when the agent succeeded in passing the environment.
 
         """
-        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters,
-                         target_success_rate, task_id)
+        super().__init__(level, seed, frame_skip, human_control, custom_reward_threshold, visualization_parameters, target_success_rate)
 
         self.observation_type = observation_type
 

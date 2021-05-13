@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import math
 
 import numpy as np
 import tensorflow as tf
@@ -30,7 +29,7 @@ from rl_coach.utils import eps
 class PPOHead(Head):
     def __init__(self, agent_parameters: AgentParameters, spaces: SpacesDefinition, network_name: str,
                  head_idx: int = 0, loss_weight: float = 1., is_local: bool = True, activation_function: str='tanh',
-                 dense_layer=Dense, policy_logstd_bias=0):
+                 dense_layer=Dense):
         super().__init__(agent_parameters, spaces, network_name, head_idx, loss_weight, is_local, activation_function,
                          dense_layer=dense_layer)
         self.name = 'ppo_head'
@@ -49,7 +48,6 @@ class PPOHead(Head):
 
         self.clip_likelihood_ratio_using_epsilon = agent_parameters.algorithm.clip_likelihood_ratio_using_epsilon
         self.beta = agent_parameters.algorithm.beta_entropy
-        self.policy_logstd_bias = policy_logstd_bias
 
     def _build_module(self, input_layer):
         if isinstance(self.spaces.action, DiscreteActionSpace):
@@ -60,14 +58,7 @@ class PPOHead(Head):
             raise ValueError("only discrete or continuous action spaces are supported for PPO")
 
         self.action_probs_wrt_policy = self.policy_distribution.log_prob(self.actions)
-
-        #TODO: decide how to handle the old policy prob clipping. do we want to keep it?
-        # if so, probably need to have it configurable. I'm leaving it clipped at the moment
-        # (although it does hurt convergence on standard mujoco benchmarks, e.g. humanoid).
-
-        # self.action_probs_wrt_old_policy = self.old_policy_distribution.log_prob(self.actions)
-        self.action_probs_wrt_old_policy = tf.maximum(self.old_policy_distribution.log_prob(self.actions), math.log(1e-2))
-
+        self.action_probs_wrt_old_policy = self.old_policy_distribution.log_prob(self.actions)
         self.entropy = tf.reduce_mean(self.policy_distribution.entropy())
 
         # Used by regular PPO only
@@ -139,11 +130,10 @@ class PPOHead(Head):
         # tf.GraphKeys.LOCAL_VARIABLES collection, since the variable scope custom getter which is set in
         # Architecture does not apply to them
         if self.is_local and isinstance(self.ap.task_parameters, DistributedTaskParameters):
-            self.policy_logstd = tf.Variable(np.zeros((1, num_actions)) + self.policy_logstd_bias, dtype='float32',
+            self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32',
                                              collections=[tf.GraphKeys.LOCAL_VARIABLES], name="policy_log_std")
         else:
-            self.policy_logstd = tf.Variable(np.zeros((1, num_actions)) + self.policy_logstd_bias, dtype='float32',
-                                             name="policy_log_std")
+            self.policy_logstd = tf.Variable(np.zeros((1, num_actions)), dtype='float32', name="policy_log_std")
 
         self.policy_std = tf.tile(tf.exp(self.policy_logstd), [tf.shape(input_layer)[0], 1], name='policy_std')
 

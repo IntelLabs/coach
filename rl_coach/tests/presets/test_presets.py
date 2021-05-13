@@ -25,9 +25,6 @@ FAILING_PRESETS = [
     'RoboSuite_CubeExp_Random',
     'RoboSuite_CubeExp_TD3_Goal_Based',
     'RoboSuite_CubeExp_TD3_Intrinsic_Reward',
-    'CartPole_ClippedPPO_LSTM_MAST',
-    'CartPole_ClippedPPO_MAST',
-    'Mujoco_ClippedPPO_MAST'
 ]
 
 def all_presets():

@@ -131,16 +131,6 @@ class TFSharedRunningStats(SharedRunningStats):
         else:
             return self.sess.run(self.normalized_obs, feed_dict={self.raw_obs: batch})
 
-    def get_internal_state(self):
-        return {'_mean': self.mean,
-                '_std': self.std,
-                '_count': self.n,
-                '_sum': self.sess.run(self._sum),
-                '_sum_squares': self.sess.run(self._sum_squares)}
-
-    def set_internal_state(self, internal_state: dict):
-        pass
-
     def save_state_to_checkpoint(self, checkpoint_dir: str, checkpoint_prefix: str):
         # Since the internal state is maintained as part of the TF graph, no need to do anything special for
         # save/restore, when going from single-node-multi-thread run back to a single-node-multi-worker run.
@@ -148,7 +138,11 @@ class TFSharedRunningStats(SharedRunningStats):
         # multi-node-multi-worker * run, we have to save the internal state, so that it can be restored to the
         # NumpySharedRunningStats implementation.
 
-        dict_to_save = self.get_internal_state()
+        dict_to_save = {'_mean': self.mean,
+                        '_std': self.std,
+                        '_count': self.n,
+                        '_sum': self.sess.run(self._sum),
+                        '_sum_squares': self.sess.run(self._sum_squares)}
 
         with open(os.path.join(checkpoint_dir, str(checkpoint_prefix) + '.srs'), 'wb') as f:
             pickle.dump(dict_to_save, f, pickle.HIGHEST_PROTOCOL)
