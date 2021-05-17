@@ -170,18 +170,6 @@ class PolicyHeadParameters(HeadParameters):
                          loss_weight=loss_weight)
 
 
-class PolicyHeadWithPreDenseParameters(HeadParameters):
-    def __init__(self, activation_function: str ='tanh', name: str='policy_head_params',
-                 num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
-                 loss_weight: float = 1.0, dense_layer=None, pre_dense_sizes=None, pre_dense_activation_function='relu'):
-        super().__init__(parameterized_class_name="PolicyHead", activation_function=activation_function, name=name,
-                         dense_layer=dense_layer, num_output_head_copies=num_output_head_copies,
-                         rescale_gradient_from_head_by_factor=rescale_gradient_from_head_by_factor,
-                         loss_weight=loss_weight)
-        self.pre_dense_sizes = pre_dense_sizes
-        self.pre_dense_activation_function = pre_dense_activation_function
-
-
 class PPOVHeadParameters(HeadParameters):
     def __init__(self, activation_function: str ='relu', name: str='ppo_v_head_params',
                  num_output_head_copies: int = 1, rescale_gradient_from_head_by_factor: float = 1.0,
