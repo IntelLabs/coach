@@ -26,8 +26,7 @@ from rl_coach.utils import force_list
 
 
 class LSTMMiddleware(Middleware):
-    def __init__(self, activation_function=tf.nn.relu, number_of_lstm_cells: int = 256,
-                 sequence_length: int = -1, stride: int = -1, batch_size: int = 1, horizon: int = 0,
+    def __init__(self, activation_function=tf.nn.relu, number_of_lstm_cells: int=256,
                  scheme: MiddlewareScheme = MiddlewareScheme.Medium,
                  batchnorm: bool = False, dropout_rate: float = 0.0,
                  name="middleware_lstm_embedder", dense_layer=Dense, is_training=False):
@@ -36,10 +35,6 @@ class LSTMMiddleware(Middleware):
                          is_training=is_training)
         self.return_type = Middleware_LSTM_Embedding
         self.number_of_lstm_cells = number_of_lstm_cells
-        self.sequence_length = sequence_length
-        self.stride = stride
-        self.batch_size = batch_size
-        self.horizon = horizon
         self.layers = []
 
     def _build_module(self):
@@ -62,25 +57,20 @@ class LSTMMiddleware(Middleware):
             ))
 
         # add the LSTM layer
-        lstm_cell = tf.nn.rnn_cell.LSTMCell(self.number_of_lstm_cells, state_is_tuple=True,
-                                           activation=self.activation_function)
+        lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.number_of_lstm_cells, state_is_tuple=True)
         self.c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
         self.h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
-        if self.sequence_length == -1:
-            rnn_in = tf.expand_dims(self.layers[-1], [0])
-        else:
-            seq_len = tf.cond(tf.equal(tf.shape(self.layers[-1])[0], tf.constant(1)),
-                              lambda: 1, lambda: tf.shape(self.layers[-1])[0] // self.batch_size)
-            rnn_in = tf.reshape(self.layers[-1], [-1, seq_len] + list(self.layers[-1].shape[1:]))
-        batch_size = tf.shape(rnn_in)[0]
+        self.state_init = [self.c_init, self.h_init]
         self.c_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.c])
         self.h_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.h])
-        state_in = tf.nn.rnn_cell.LSTMStateTuple(tf.tile(self.c_in, (batch_size, 1)),
-                                                 tf.tile(self.h_in, (batch_size, 1)))
-        lstm_outputs, lstm_state = tf.nn.dynamic_rnn(lstm_cell, rnn_in, initial_state=state_in, time_major=False)
-
+        self.state_in = (self.c_in, self.h_in)
+        rnn_in = tf.expand_dims(self.layers[-1], [0])
+        step_size = tf.shape(self.layers[-1])[:1]
+        state_in = tf.nn.rnn_cell.LSTMStateTuple(self.c_in, self.h_in)
+        lstm_outputs, lstm_state = tf.nn.dynamic_rnn(
+            lstm_cell, rnn_in, initial_state=state_in, sequence_length=step_size, time_major=False)
         lstm_c, lstm_h = lstm_state
-        self.state_out = (lstm_c, lstm_h)
+        self.state_out = (lstm_c[:1, :], lstm_h[:1, :])
         self.output = tf.reshape(lstm_outputs, [-1, self.number_of_lstm_cells])
 
     @property
