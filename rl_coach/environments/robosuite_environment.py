@@ -31,6 +31,7 @@ except ImportError:
 from rl_coach.base_parameters import Parameters, VisualizationParameters
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
 from rl_coach.spaces import BoxActionSpace, VectorObservationSpace, StateSpace, PlanarMapsObservationSpace
+import rl_coach.environments.robosuite.cube_exp
 
 
 robosuite_environments = list(robosuite.ALL_ENVIRONMENTS)
@@ -87,7 +88,8 @@ class RobosuiteBaseParameters(Parameters):
         # Collision
         self.penalize_reward_on_collision = True
         self.end_episode_on_collision = False
-        
+
+
     @property
     def optional_observations(self):
         flag = OptionalObservations.NONE
@@ -124,6 +126,7 @@ class RobosuiteEnvironmentParameters(EnvironmentParameters):
         self.dr_every_n_steps_min = dr_every_n_steps_min
         self.dr_every_n_steps_max = dr_every_n_steps_max
         self.use_joint_vel_obs = use_joint_vel_obs
+        self.custom_controller_config_fpath = None
 
     @property
     def path(self):
@@ -146,10 +149,10 @@ class RobosuiteEnvironment(Environment):
                  visualization_parameters: VisualizationParameters,
                  base_parameters: RobosuiteBaseParameters,
                  extra_parameters: Dict[str, Any],
-                 robot: str,
-                 controller: str,
+                 robot: str, controller: str,
                  target_success_rate: float = 1.0, apply_dr: bool = False,
-                 dr_every_n_steps_min: int = 10, dr_every_n_steps_max: int = 20, use_joint_vel_obs=False, **kwargs):
+                 dr_every_n_steps_min: int = 10, dr_every_n_steps_max: int = 20, use_joint_vel_obs=False,
+                 custom_controller_config_fpath=None, **kwargs):
         super(RobosuiteEnvironment, self).__init__(level, seed, frame_skip, human_control, custom_reward_threshold,
                                                    visualization_parameters, target_success_rate)
 
@@ -191,6 +194,9 @@ class RobosuiteEnvironment(Environment):
         controller_cfg = None
         if self.controller is not None:
             controller_cfg = robosuite.controllers.load_controller_config(default_controller=self.controller)
+        elif custom_controller_config_fpath is not None:
+            controller_cfg = robosuite.controllers.load_controller_config(custom_fpath=custom_controller_config_fpath)
+
         env_args['controller_configs'] = controller_cfg
 
         self.env = robosuite.make(self.env_id, **env_args)

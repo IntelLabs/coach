@@ -10,6 +10,7 @@ from rl_coach.filters.filter import NoInputFilter, NoOutputFilter
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.graph_managers.graph_manager import ScheduleParameters
 from rl_coach.architectures.head_parameters import RNDHeadParameters
+from rl_coach.schedules import LinearSchedule
 
 ####################
 # Graph Scheduling #
@@ -27,6 +28,8 @@ schedule_params.heatup_steps = EnvironmentSteps(1000)
 
 agent_params = TD3GoalBasedAgentParameters()
 agent_params.algorithm.use_non_zero_discount_for_terminal_states = False
+agent_params.algorithm.identity_goal_sample_rate = 0.04
+agent_params.exploration.noise_schedule = LinearSchedule(1.5, 0.5, 300000)
 
 agent_params.input_filter = NoInputFilter()
 
@@ -85,11 +88,11 @@ agent_params.network_wrappers['predictor'].heads_parameters = [RNDHeadParameters
 env_params = RobosuiteGoalBasedExpEnvironmentParameters(
     level=SingleLevelSelection(robosuite_environments, force_lower=False)
 )
-env_params.robot = 'PandaLab'
-env_params.controller = 'IK_POSE_POS'
+env_params.robot = 'Panda'
+env_params.custom_controller_config_fpath = './rl_coach/environments/robosuite/osc_pose.json'
 env_params.base_parameters.optional_observations = OptionalObservations.CAMERA
 env_params.base_parameters.render_camera = 'frontview'
-env_params.base_parameters.camera_names = 'labview'
+env_params.base_parameters.camera_names = 'agentview'
 env_params.base_parameters.camera_depths = False
 env_params.base_parameters.horizon = 200
 env_params.base_parameters.ignore_done = False
@@ -97,10 +100,10 @@ env_params.base_parameters.use_object_obs = True
 env_params.frame_skip = 1
 env_params.base_parameters.control_freq = 2
 
-size = 100
+size = 84
 env_params.base_parameters.camera_heights = size
 env_params.base_parameters.camera_widths = size
-env_params.extra_parameters = {'camera_crop_boxes': (size - 84, size // 2 - 38, 84, 84)}
+env_params.extra_parameters = {'hard_reset': False}
 
 vis_params = VisualizationParameters()
 
