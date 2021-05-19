@@ -1,6 +1,5 @@
 # Coach
 
-[![CI](https://img.shields.io/circleci/build/github/IntelLabs/coach/master.svg)](https://circleci.com/gh/IntelLabs/workflows/coach/tree/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/IntelLabs/coach/blob/master/LICENSE)
 [![Docs](https://readthedocs.org/projects/carla/badge/?version=latest)](https://intellabs.github.io/coach/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1134898.svg)](https://doi.org/10.5281/zenodo.1134898)

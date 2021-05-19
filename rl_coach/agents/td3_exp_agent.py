@@ -20,10 +20,7 @@ from collections import OrderedDict
 from random import shuffle
 import os
 from PIL import Image
-import PIL.ImageDraw as ImageDraw
-import matplotlib.pyplot as plt
 import joblib
-import pandas
 
 import numpy as np
 
@@ -31,9 +28,8 @@ from rl_coach.agents.agent import Agent
 from rl_coach.agents.td3_agent import TD3Agent, TD3CriticNetworkParameters, TD3ActorNetworkParameters, \
     TD3AlgorithmParameters, TD3AgentExplorationParameters
 from rl_coach.architectures.embedder_parameters import InputEmbedderParameters
-from rl_coach.base_parameters import NetworkParameters, AlgorithmParameters, \
-    AgentParameters, EmbedderScheme, MiddlewareScheme
-from rl_coach.core_types import ActionInfo, TrainingSteps, Transition, Batch
+from rl_coach.base_parameters import NetworkParameters, AgentParameters, MiddlewareScheme
+from rl_coach.core_types import Transition, Batch
 from rl_coach.memories.episodic.episodic_experience_replay import EpisodicExperienceReplayParameters
 from rl_coach.architectures.middleware_parameters import FCMiddlewareParameters
 from rl_coach.architectures.head_parameters import RNDHeadParameters
@@ -58,6 +54,33 @@ class RNDNetworkParameters(NetworkParameters):
 
 
 class TD3EXPAlgorithmParameters(TD3AlgorithmParameters):
+    """
+        :param rnd_sample_size: (int)
+            The number of states in each RND training iteration.
+
+        :param rnd_batch_size: (int)
+            Batch size for the RND optimization cycle.
+
+        :param rnd_optimization_epochs: (int)
+            Number of epochs for the RND optimization cycle.
+
+        :param td3_training_ratio: (float)
+            The ratio between TD3 training steps and the number of steps in each episode (must be a positive number).
+
+        :param identity_goal_sample_rate: (float)
+            For the goal-based agent, this number indicates the probability to sample a goal that is the identity
+            (must be a number between 0 and 1).
+
+        :param img_obs_key: (str)
+            The name of the state key for the camera observation.
+
+        :param replay_buffer_save_steps: (int)
+            The number of steps to periodically save the replay buffer.
+
+        :param replay_buffer_save_path: (str or None)
+            A path to save the replay buffer to. if set to None, the replay buffer will be saved in the
+            experiment directory.
+    """
     def __init__(self):
         super().__init__()
         self.rnd_sample_size = 2000
@@ -65,6 +88,9 @@ class TD3EXPAlgorithmParameters(TD3AlgorithmParameters):
         self.rnd_optimization_epochs = 4
         self.td3_training_ratio = 1.0
         self.identity_goal_sample_rate = 0.0
+        self.img_obs_key = 'camera'
+        self.replay_buffer_save_steps = 25000
+        self.replay_buffer_save_path = None
 
 
 class TD3ExplorationAgentParameters(AgentParameters):
@@ -104,9 +130,8 @@ class TD3ExplorationAgent(TD3Agent):
         return returns
 
     def prepare_rnd_inputs(self, batch):
-        # inputs = {'camera': self.rnd_obs_stats.normalize(batch.next_states(['camera'])['camera']),
-        #           'output_0_0': batch.next_states(['robot_mask'])['robot_mask']}
-        inputs = {'camera': self.rnd_obs_stats.normalize(batch.next_states(['camera'])['camera'])}
+        inputs = {self.ap.algorithm.img_obs_key: self.rnd_obs_stats.normalize(
+                          batch.next_states([self.ap.algorithm.img_obs_key])[self.ap.algorithm.img_obs_key])}
         return inputs
 
     def handle_self_supervised_reward(self, batch):
@@ -127,7 +152,7 @@ class TD3ExplorationAgent(TD3Agent):
         :return: the updated transition
         """
         transition = super().update_transition_before_adding_to_replay_buffer(transition)
-        image = np.array(transition.state['camera'])
+        image = np.array(transition.state[self.ap.algorithm.img_obs_key])
         if self.rnd_obs_stats.n < 1:
             self.rnd_obs_stats.set_params(shape=image.shape, clip_values=[-5, 5])
         self.rnd_obs_stats.push_val(np.expand_dims(image, 0))
@@ -185,9 +210,10 @@ class TD3ExplorationAgent(TD3Agent):
         prediction_error = np.mean((embedding - prediction) ** 2, axis=1)
         return prediction_error
 
-    def save_replay_buffer(self):
-        dir_path = os.path.join(self.parent_level_manager.parent_graph_manager.task_parameters.experiment_path,
-                                'replay_buffer')
+    def save_replay_buffer(self, dir_path=None):
+        if dir_path is None:
+            dir_path = os.path.join(self.parent_level_manager.parent_graph_manager.task_parameters.experiment_path,
+                                    'replay_buffer')
         if not os.path.exists(dir_path):
             os.mkdir(dir_path)
 
@@ -198,42 +224,23 @@ class TD3ExplorationAgent(TD3Agent):
                                                                                        self.memory.num_transitions()))
 
     def handle_episode_ended(self) -> None:
-        # ######### RND DEBUG ##########
-        # self.call_memory('clean')
-        # dir_name = '../../datasets'
-        # file_name = 'RB_TD3RandomAgent.p'
-        #
-        # path = os.path.join(dir_name, file_name)
-        # with open(path, 'rb') as file:
-        #     episodes = pickle.load(file)
-        # for e in episodes:
-        #     self.memory.store_episode(e)
-        #     if self.rnd_obs_stats.n < 1:
-        #         self.rnd_obs_stats.set_params(shape=e[0].state['camera'].shape, clip_values=[-5, 5])
-        #     self.rnd_obs_stats.push_val(Batch(e.transitions).next_states(['camera'])['camera'])
-        #     if self.memory.num_transitions() % self.ap.algorithm.rnd_sample_size == 0:
-        #         print(self.memory.num_transitions())
-        #         self.train_rnd()
-        #         if self.memory.num_transitions() % 10000 == 0:
-        #             self.save_rnd_images(dir_name)
-        #
-        # exit()
-
         super().handle_episode_ended()
 
         if self.total_steps_counter % self.ap.algorithm.rnd_sample_size == 0:
             self.train_rnd()
 
-        if self.total_steps_counter % 25000 == 0:
-            self.save_replay_buffer()
-            self.save_rnd_images()
+        if self.total_steps_counter % self.ap.algorithm.replay_buffer_save_steps == 0:
+            self.save_replay_buffer(self.ap.algorithm.replay_buffer_save_path)
+            self.save_rnd_images(self.ap.algorithm.replay_buffer_save_path)
 
-    def save_rnd_images(self, dir_name=None):
-        if dir_name is None:
-            dir_name = os.path.join(self.parent_level_manager.parent_graph_manager.task_parameters.experiment_path,
+    def save_rnd_images(self, dir_path=None):
+        if dir_path is None:
+            dir_path = os.path.join(self.parent_level_manager.parent_graph_manager.task_parameters.experiment_path,
                                     'rnd_images')
-        if not os.path.exists(dir_name):
-            os.mkdir(dir_name)
+        else:
+            dir_path = os.path.join(dir_path, 'rnd_images')
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
         transitions = self.memory.transitions
         dataset = Batch(transitions)
         batch_size = self.ap.algorithm.rnd_batch_size
@@ -250,13 +257,13 @@ class TD3ExplorationAgent(TD3Agent):
         sample_indices = sorted_indices[np.round(np.linspace(0, len(sorted_indices) - 1, 100)).astype(np.uint32)]
         images = []
         for si in sample_indices:
-            images.append(transitions[si].next_state['camera'])
+            images.append(np.flip(transitions[si].next_state[self.ap.algorithm.img_obs_key], 0))
         rows = []
         for i in range(10):
             rows.append(np.hstack(images[(i * 10):((i + 1) * 10)]))
         image = np.vstack(rows)
         image = Image.fromarray(image)
-        image.save('{}/{}_{}.jpeg'.format(dir_name, 'rnd_samples', len(transitions)))
+        image.save('{}/{}_{}.jpeg'.format(dir_path, 'rnd_samples', len(transitions)))
 
 
 class TD3IntrinsicRewardAgentParameters(TD3ExplorationAgentParameters):
@@ -316,9 +323,8 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
         self.goal = None
         self.ap.algorithm.use_non_zero_discount_for_terminal_states = False
 
-    @staticmethod
-    def concat_goal(state, goal_state):
-        ret = np.concatenate([state['camera'], goal_state['camera']], axis=2)
+    def concat_goal(self, state, goal_state):
+        ret = np.concatenate([state[self.ap.algorithm.img_obs_key], goal_state[self.ap.algorithm.img_obs_key]], axis=2)
         return ret
 
     def handle_self_supervised_reward(self, batch):
@@ -348,7 +354,8 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
                     t.next_state['obs-goal'] = self.concat_goal(t.next_state,
                                                                         episode.transitions[goal_idx].next_state)
 
-                camera_equal = np.alltrue(np.equal(t.next_state['camera'], goal.next_state['camera']))
+                camera_equal = np.alltrue(np.equal(t.next_state[self.ap.algorithm.img_obs_key],
+                                                   goal.next_state[self.ap.algorithm.img_obs_key]))
                 measurements_equal = np.alltrue(np.isclose(t.next_state['measurements'],
                                                            goal.next_state['measurements']))
                 t.game_over = camera_equal and measurements_equal
