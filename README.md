@@ -45,6 +45,7 @@ coach -p CartPole_DQN -r
   * [Distributed Multi-Node Coach](#distributed-multi-node-coach)
   * [Batch Reinforcement Learning](#batch-reinforcement-learning)
 - [Supported Environments](#supported-environments)
+  * [Note on MuJoCo version](#note-on-mujoco-version)
 - [Supported Algorithms](#supported-algorithms)
 - [Citation](#citation)
 - [Contact](#contact)
@@ -202,7 +203,7 @@ There are [example](https://github.com/IntelLabs/coach/blob/master/rl_coach/pres
 
 * *OpenAI Gym:*
 
-    Installed by default by Coach's installer
+    Installed by default by Coach's installer (see note on MuJoCo version [below](#note-on-mujoco-version)).
 
 * *ViZDoom:*
 
@@ -258,6 +259,16 @@ There are [example](https://github.com/IntelLabs/coach/blob/master/rl_coach/pres
     
     https://github.com/deepmind/dm_control
 
+* *Robosuite:*
+
+    Follow the instructions described in the [robosuite documentation](https://robosuite.ai/docs/installation.html) (see note on MuJoCo version [below](#note-on-mujoco-version)).
+
+### Note on MuJoCo version
+
+OpenAI Gym supports MuJoCo only up to version 1.5 (and corresponding mujoco-py version 1.50.x.x). The Robosuite simulation framework, however, requires MuJoCo version 2.0 (and corresponding mujoco-py version 2.0.2.9, as of robosuite version 1.2). Therefore, if you wish to run both Gym-based MuJoCo environments and Robosuite environments, it's recommended to have a separate virtual environment for each.
+
+Please note that all Gym-Based MuJoCo presets in Coach (`rl_coach/presets/Mujoco_*.py`) have been validated _**only**_ with MuJoCo 1.5 (including the reported [benchmark results](benchmarks)).
+    
 
 ## Supported Algorithms
 
