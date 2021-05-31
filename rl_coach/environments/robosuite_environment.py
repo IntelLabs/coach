@@ -31,6 +31,10 @@ except ImportError:
 from rl_coach.base_parameters import Parameters, VisualizationParameters
 from rl_coach.environments.environment import Environment, EnvironmentParameters, LevelSelection
 from rl_coach.spaces import BoxActionSpace, VectorObservationSpace, StateSpace, PlanarMapsObservationSpace
+
+# Importing our custom Robosuite environments here so that they are properly
+# registered in Robosuite, and so recognized by 'robosuite.make()' and included
+# in 'robosuite.ALL_ENVIRONMENTS'
 import rl_coach.environments.robosuite.cube_exp
 
 

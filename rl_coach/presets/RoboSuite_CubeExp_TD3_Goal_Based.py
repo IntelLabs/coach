@@ -35,7 +35,8 @@ agent_params.algorithm.rnd_batch_size = 500
 agent_params.algorithm.rnd_optimization_epochs = 4
 agent_params.algorithm.td3_training_ratio = 1.0
 agent_params.algorithm.identity_goal_sample_rate = 0.0
-agent_params.algorithm.img_obs_key = 'camera'
+agent_params.algorithm.env_obs_key = 'camera'
+agent_params.algorithm.agent_obs_key = 'obs-goal'
 agent_params.algorithm.replay_buffer_save_steps = 25000
 agent_params.algorithm.replay_buffer_save_path = './tutorials'
 
@@ -55,13 +56,11 @@ camera_obs_scheme = [
     BatchnormActivationDropout(activation_function='relu')
 ]
 
-obs_name = 'obs-goal'
-
 # Actor
 actor_network = agent_params.network_wrappers['actor']
 actor_network.input_embedders_parameters = {
     'measurements': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
-    obs_name: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
+    agent_params.algorithm.agent_obs_key: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
 }
 
 actor_network.middleware_parameters.scheme = [Dense(300), Dense(200)]
@@ -72,7 +71,7 @@ critic_network = agent_params.network_wrappers['critic']
 critic_network.input_embedders_parameters = {
     'action': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
     'measurements': InputEmbedderParameters(scheme=EmbedderScheme.Empty),
-    obs_name: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
+    agent_params.algorithm.agent_obs_key: InputEmbedderParameters(scheme=camera_obs_scheme, activation_function='none')
 }
 
 critic_network.middleware_parameters.scheme = [Dense(400), Dense(300)]
@@ -80,13 +79,13 @@ critic_network.learning_rate = 1e-4
 
 # RND
 agent_params.network_wrappers['predictor'].input_embedders_parameters = \
-    {'camera': InputEmbedderParameters(scheme=EmbedderScheme.Empty,
-                                       input_rescaling={'image': 1.0},
-                                       flatten=False)}
+    {agent_params.algorithm.env_obs_key: InputEmbedderParameters(scheme=EmbedderScheme.Empty,
+                                                                 input_rescaling={'image': 1.0},
+                                                                 flatten=False)}
 agent_params.network_wrappers['constant'].input_embedders_parameters = \
-    {'camera': InputEmbedderParameters(scheme=EmbedderScheme.Empty,
-                                       input_rescaling={'image': 1.0},
-                                       flatten=False)}
+    {agent_params.algorithm.env_obs_key: InputEmbedderParameters(scheme=EmbedderScheme.Empty,
+                                                                 input_rescaling={'image': 1.0},
+                                                                 flatten=False)}
 agent_params.network_wrappers['predictor'].heads_parameters = [RNDHeadParameters(is_predictor=True)]
 
 ###############

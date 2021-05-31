@@ -26,8 +26,8 @@ from robosuite.models.objects import BoxObject
 from robosuite.models.tasks import ManipulationTask
 from robosuite.utils.placement_samplers import UniformRandomSampler
 
-TAMAR_LAB_TABLE_TOP_SIZE = (0.84, 1.25, 0.05)
-TAMAR_LAB_TABLE_OFFSET = (0, 0, 0.82)
+TABLE_TOP_SIZE = (0.84, 1.25, 0.05)
+TABLE_OFFSET = (0, 0, 0.82)
 
 
 class CubeExp(Lift):
@@ -38,8 +38,8 @@ class CubeExp(Lift):
     def __init__(
         self,
         robots,
-        table_full_size=TAMAR_LAB_TABLE_TOP_SIZE,
-        table_offset=TAMAR_LAB_TABLE_OFFSET,
+        table_full_size=TABLE_TOP_SIZE,
+        table_offset=TABLE_OFFSET,
         placement_initializer=None,
         penalize_reward_on_collision=False,
         end_episode_on_collision=False,
@@ -58,7 +58,6 @@ class CubeExp(Lift):
         """
         if placement_initializer is None:
             placement_initializer = UniformRandomSampler(
-                # Placement range for Tamar Lab setup
                 name="ObjectSampler",
                 x_range=[0.0, 0.0],
                 y_range=[0.0, 0.0],

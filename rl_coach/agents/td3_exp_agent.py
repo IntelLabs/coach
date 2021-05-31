@@ -71,8 +71,13 @@ class TD3EXPAlgorithmParameters(TD3AlgorithmParameters):
             For the goal-based agent, this number indicates the probability to sample a goal that is the identity
             (must be a number between 0 and 1).
 
-        :param img_obs_key: (str)
-            The name of the state key for the camera observation.
+        :param env_obs_key: (str)
+            The name of the state key for the camera observation from the environment.
+
+        :param agent_obs_key: (str)
+            The name of the state key for the camera observation for the agent. This key has to be different
+             from env_obs_key in case the agent modifies the observation from the environment. For example,
+             the goal-based agent concatenates a goal image to the image observation from the environment.
 
         :param replay_buffer_save_steps: (int)
             The number of steps to periodically save the replay buffer.
@@ -88,7 +93,8 @@ class TD3EXPAlgorithmParameters(TD3AlgorithmParameters):
         self.rnd_optimization_epochs = 4
         self.td3_training_ratio = 1.0
         self.identity_goal_sample_rate = 0.0
-        self.img_obs_key = 'camera'
+        self.env_obs_key = 'camera'
+        self.agent_obs_key = 'camera'
         self.replay_buffer_save_steps = 25000
         self.replay_buffer_save_path = None
 
@@ -130,8 +136,8 @@ class TD3ExplorationAgent(TD3Agent):
         return returns
 
     def prepare_rnd_inputs(self, batch):
-        inputs = {self.ap.algorithm.img_obs_key: self.rnd_obs_stats.normalize(
-                          batch.next_states([self.ap.algorithm.img_obs_key])[self.ap.algorithm.img_obs_key])}
+        inputs = {self.ap.algorithm.env_obs_key: self.rnd_obs_stats.normalize(
+                          batch.next_states([self.ap.algorithm.env_obs_key])[self.ap.algorithm.env_obs_key])}
         return inputs
 
     def handle_self_supervised_reward(self, batch):
@@ -152,7 +158,7 @@ class TD3ExplorationAgent(TD3Agent):
         :return: the updated transition
         """
         transition = super().update_transition_before_adding_to_replay_buffer(transition)
-        image = np.array(transition.state[self.ap.algorithm.img_obs_key])
+        image = np.array(transition.state[self.ap.algorithm.env_obs_key])
         if self.rnd_obs_stats.n < 1:
             self.rnd_obs_stats.set_params(shape=image.shape, clip_values=[-5, 5])
         self.rnd_obs_stats.push_val(np.expand_dims(image, 0))
@@ -257,7 +263,7 @@ class TD3ExplorationAgent(TD3Agent):
         sample_indices = sorted_indices[np.round(np.linspace(0, len(sorted_indices) - 1, 100)).astype(np.uint32)]
         images = []
         for si in sample_indices:
-            images.append(np.flip(transitions[si].next_state[self.ap.algorithm.img_obs_key], 0))
+            images.append(np.flip(transitions[si].next_state[self.ap.algorithm.env_obs_key], 0))
         rows = []
         for i in range(10):
             rows.append(np.hstack(images[(i * 10):((i + 1) * 10)]))
@@ -324,7 +330,7 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
         self.ap.algorithm.use_non_zero_discount_for_terminal_states = False
 
     def concat_goal(self, state, goal_state):
-        ret = np.concatenate([state[self.ap.algorithm.img_obs_key], goal_state[self.ap.algorithm.img_obs_key]], axis=2)
+        ret = np.concatenate([state[self.ap.algorithm.env_obs_key], goal_state[self.ap.algorithm.env_obs_key]], axis=2)
         return ret
 
     def handle_self_supervised_reward(self, batch):
@@ -336,26 +342,26 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
             transition_idx = np.random.randint(episode.length())
             t = copy.copy(episode[transition_idx])
             if np.random.rand(1) < self.ap.algorithm.identity_goal_sample_rate:
-                t.state['obs-goal'] = self.concat_goal(t.state, t.state)
+                t.state[self.ap.algorithm.agent_obs_key] = self.concat_goal(t.state, t.state)
                 # this doesn't matter for learning but is set anyway so that the agent can pass it through the network
-                t.next_state['obs-goal'] = self.concat_goal(t.next_state, t.state)
+                t.next_state[self.ap.algorithm.agent_obs_key] = self.concat_goal(t.next_state, t.state)
                 t.game_over = True
                 t.reward = 0
                 t.action = np.zeros_like(t.action)
             else:
                 if transition_idx == episode.length() - 1:
                     goal = t
-                    t.state['obs-goal'] = self.concat_goal(t.state, t.next_state)
-                    t.next_state['obs-goal'] = self.concat_goal(t.next_state, t.next_state)
+                    t.state[self.ap.algorithm.agent_obs_key] = self.concat_goal(t.state, t.next_state)
+                    t.next_state[self.ap.algorithm.agent_obs_key] = self.concat_goal(t.next_state, t.next_state)
                 else:
                     goal_idx = np.random.randint(transition_idx, episode.length())
                     goal = episode.transitions[goal_idx]
-                    t.state['obs-goal'] = self.concat_goal(t.state, episode.transitions[goal_idx].next_state)
-                    t.next_state['obs-goal'] = self.concat_goal(t.next_state,
+                    t.state[self.ap.algorithm.agent_obs_key] = self.concat_goal(t.state, episode.transitions[goal_idx].next_state)
+                    t.next_state[self.ap.algorithm.agent_obs_key] = self.concat_goal(t.next_state,
                                                                         episode.transitions[goal_idx].next_state)
 
-                camera_equal = np.alltrue(np.equal(t.next_state[self.ap.algorithm.img_obs_key],
-                                                   goal.next_state[self.ap.algorithm.img_obs_key]))
+                camera_equal = np.alltrue(np.equal(t.next_state[self.ap.algorithm.env_obs_key],
+                                                   goal.next_state[self.ap.algorithm.env_obs_key]))
                 measurements_equal = np.alltrue(np.isclose(t.next_state['measurements'],
                                                            goal.next_state['measurements']))
                 t.game_over = camera_equal and measurements_equal
@@ -367,9 +373,9 @@ class TD3GoalBasedAgent(TD3ExplorationAgent):
 
     def choose_action(self, curr_state):
         if self.goal:
-            curr_state['obs-goal'] = self.concat_goal(curr_state, self.goal.next_state)
+            curr_state[self.ap.algorithm.agent_obs_key] = self.concat_goal(curr_state, self.goal.next_state)
         else:
-            curr_state['obs-goal'] = self.concat_goal(curr_state, curr_state)
+            curr_state[self.ap.algorithm.agent_obs_key] = self.concat_goal(curr_state, curr_state)
 
         return super().choose_action(curr_state)
 
