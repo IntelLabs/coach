@@ -22,6 +22,9 @@ FAILING_PRESETS = [
     'CARLA_3_Cameras_DDPG',
     'Starcraft_CollectMinerals_A3C',
     'Starcraft_CollectMinerals_Dueling_DDQN',
+    'RoboSuite_CubeExp_Random',
+    'RoboSuite_CubeExp_TD3_Goal_Based',
+    'RoboSuite_CubeExp_TD3_Intrinsic_Reward',
 ]
 
 def all_presets():

@@ -37,7 +37,8 @@ import subprocess
 from glob import glob
 
 from rl_coach.graph_managers.graph_manager import HumanPlayScheduleParameters, GraphManager
-from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, get_base_dir
+from rl_coach.utils import list_all_presets, short_dynamic_import, get_open_port, SharedMemoryScratchPad, \
+    get_base_dir, set_gpu
 from rl_coach.graph_managers.basic_rl_graph_manager import BasicRLGraphManager
 from rl_coach.environments.environment import SingleLevelSelection
 from rl_coach.memories.backend.redis import RedisPubSubMemoryBackendParameters
@@ -49,10 +50,38 @@ from rl_coach.data_stores.redis_data_store import RedisDataStoreParameters
 from rl_coach.data_stores.data_store_impl import get_data_store, construct_data_store_params
 from rl_coach.training_worker import training_worker
 from rl_coach.rollout_worker import rollout_worker
+from rl_coach.schedules import *
+from rl_coach.exploration_policies.e_greedy import *
 
 
 if len(set(failed_imports)) > 0:
     screen.warning("Warning: failed to import the following packages - {}".format(', '.join(set(failed_imports))))
+
+
+def _get_cuda_available_devices():
+    import ctypes
+
+    try:
+        devices = os.environ['CUDA_VISIBLE_DEVICES'].split(',')
+        return [] if devices[0] == '' else [int(i) for i in devices]
+    except KeyError:
+        pass
+
+    try:
+        cuda_lib = ctypes.CDLL('libcuda.so')
+    except OSError:
+        return []
+
+    CUDA_SUCCESS = 0
+
+    num_gpus = ctypes.c_int()
+    result = cuda_lib.cuInit(0)
+    if result != CUDA_SUCCESS:
+        return []
+    result = cuda_lib.cuDeviceGetCount(ctypes.byref(num_gpus))
+    if result != CUDA_SUCCESS:
+        return []
+    return list(range(num_gpus.value))
 
 
 def add_items_to_dict(target_dict, source_dict):
@@ -214,6 +243,8 @@ class CoachLauncher(object):
     The key entry-point for this class is the .launch() method which is expected to be called from __main__
     and handle absolutely everything for a job.
     """
+
+    gpus = _get_cuda_available_devices()
 
     def launch(self):
         """
@@ -440,6 +471,9 @@ class CoachLauncher(object):
             screen.warning("Exporting ONNX graphs requires setting the --checkpoint_save_secs flag. "
                            "The --export_onnx_graph will have no effect.")
 
+        if args.use_cpu or not CoachLauncher.gpus:
+            CoachLauncher.gpus = [None]
+
         return args
 
     def get_argument_parser(self) -> argparse.ArgumentParser:
@@ -609,9 +643,9 @@ class CoachLauncher(object):
 
         # Single-threaded runs
         if args.num_workers == 1:
-            self.start_single_threaded(task_parameters, graph_manager, args)
+            self.start_single_process(task_parameters, graph_manager, args)
         else:
-            self.start_multi_threaded(graph_manager, args)
+            self.start_multi_process(graph_manager, args)
 
     @staticmethod
     def create_task_parameters(graph_manager: 'GraphManager', args: argparse.Namespace):
@@ -669,12 +703,12 @@ class CoachLauncher(object):
         return task_parameters
 
     @staticmethod
-    def start_single_threaded(task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
+    def start_single_process(task_parameters, graph_manager: 'GraphManager', args: argparse.Namespace):
         # Start the training or evaluation
         start_graph(graph_manager=graph_manager, task_parameters=task_parameters)
 
     @staticmethod
-    def start_multi_threaded(graph_manager: 'GraphManager', args: argparse.Namespace):
+    def start_multi_process(graph_manager: 'GraphManager', args: argparse.Namespace):
         total_tasks = args.num_workers
         if args.evaluation_worker:
             total_tasks += 1
@@ -695,7 +729,8 @@ class CoachLauncher(object):
                              "and not from a file. ")
 
         def start_distributed_task(job_type, task_index, evaluation_worker=False,
-                                   shared_memory_scratchpad=shared_memory_scratchpad):
+                                   shared_memory_scratchpad=shared_memory_scratchpad,
+                                   gpu_id=None):
             task_parameters = DistributedTaskParameters(
                 framework_type=args.framework,
                 parameters_server_hosts=ps_hosts,
@@ -715,6 +750,8 @@ class CoachLauncher(object):
                 export_onnx_graph=args.export_onnx_graph,
                 apply_stop_condition=args.apply_stop_condition
             )
+            if gpu_id is not None:
+                set_gpu(gpu_id)
             # we assume that only the evaluation workers are rendering
             graph_manager.visualization_parameters.render = args.render and evaluation_worker
             p = Process(target=start_graph, args=(graph_manager, task_parameters))
@@ -723,25 +760,30 @@ class CoachLauncher(object):
             return p
 
         # parameter server
-        parameter_server = start_distributed_task("ps", 0)
+        parameter_server = start_distributed_task("ps", 0, gpu_id=CoachLauncher.gpus[0])
 
         # training workers
         # wait a bit before spawning the non chief workers in order to make sure the session is already created
+        curr_gpu_idx = 0
         workers = []
-        workers.append(start_distributed_task("worker", 0))
+        workers.append(start_distributed_task("worker", 0, gpu_id=CoachLauncher.gpus[curr_gpu_idx]))
 
         time.sleep(2)
         for task_index in range(1, args.num_workers):
-            workers.append(start_distributed_task("worker", task_index))
+            curr_gpu_idx = (curr_gpu_idx + 1) % len(CoachLauncher.gpus)
+            workers.append(start_distributed_task("worker", task_index, gpu_id=CoachLauncher.gpus[curr_gpu_idx]))
 
         # evaluation worker
         if args.evaluation_worker or args.render:
-            evaluation_worker = start_distributed_task("worker", args.num_workers, evaluation_worker=True)
+            curr_gpu_idx = (curr_gpu_idx + 1) % len(CoachLauncher.gpus)
+            evaluation_worker = start_distributed_task("worker", args.num_workers, evaluation_worker=True,
+                                                       gpu_id=CoachLauncher.gpus[curr_gpu_idx])
 
         # wait for all workers
         [w.join() for w in workers]
         if args.evaluation_worker:
             evaluation_worker.terminate()
+        parameter_server.terminate()
 
 
 class CoachInterface(CoachLauncher):

@@ -258,3 +258,9 @@ class TD3VHeadParameters(HeadParameters):
                          loss_weight=loss_weight)
         self.initializer = initializer
         self.output_bias_initializer = output_bias_initializer
+
+
+class RNDHeadParameters(HeadParameters):
+    def __init__(self, name: str = 'rnd_head_params', dense_layer=None, is_predictor=False):
+        super().__init__(parameterized_class_name="RNDHead", name=name, dense_layer=dense_layer)
+        self.is_predictor = is_predictor

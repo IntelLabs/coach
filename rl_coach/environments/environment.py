@@ -47,20 +47,21 @@ class LevelSelection(object):
 
 
 class SingleLevelSelection(LevelSelection):
-    def __init__(self, levels: Union[str, List[str], Dict[str, str]]):
+    def __init__(self, levels: Union[str, List[str], Dict[str, str]], force_lower=True):
         super().__init__(None)
         self.levels = levels
         if isinstance(levels, list):
             self.levels = {level: level for level in levels}
         if isinstance(levels, str):
             self.levels = {levels: levels}
+        self.force_lower = force_lower
 
     def __str__(self):
         if self.selected_level is None:
             logger.screen.error("No level has been selected. Please select a level using the -lvl command line flag, "
                                 "or change the level in the preset. \nThe available levels are: \n{}"
                                 .format(', '.join(sorted(self.levels.keys()))), crash=True)
-        selected_level = self.selected_level.lower()
+        selected_level = self.selected_level.lower() if self.force_lower else self.selected_level
         if selected_level not in self.levels.keys():
             logger.screen.error("The selected level ({}) is not part of the available levels ({})"
                                 .format(selected_level, ', '.join(self.levels.keys())), crash=True)

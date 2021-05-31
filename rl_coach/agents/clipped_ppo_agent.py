@@ -15,6 +15,7 @@
 #
 
 import copy
+import math
 from collections import OrderedDict
 from random import shuffle
 from typing import Union
@@ -156,8 +157,17 @@ class ClippedPPOAgent(ActorCriticAgent):
     def fill_advantages(self, batch):
         network_keys = self.ap.network_wrappers['main'].input_embedders_parameters.keys()
 
-        current_state_values = self.networks['main'].online_network.predict(batch.states(network_keys))[0]
-        current_state_values = current_state_values.squeeze()
+        state_values = []
+        for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size) + 1):
+            start = i * self.ap.network_wrappers['main'].batch_size
+            end = (i + 1) * self.ap.network_wrappers['main'].batch_size
+            if start == batch.size:
+                break
+
+            state_values.append(self.networks['main'].online_network.predict(
+                {k: v[start:end] for k, v in batch.states(network_keys).items()})[0])
+
+        current_state_values = np.concatenate(state_values)
         self.state_values.add_sample(current_state_values)
 
         # calculate advantages
@@ -213,9 +223,7 @@ class ClippedPPOAgent(ActorCriticAgent):
                        self.networks['main'].online_network.output_heads[1].likelihood_ratio,
                        self.networks['main'].online_network.output_heads[1].clipped_likelihood_ratio]
 
-            # TODO-fixme if batch.size / self.ap.network_wrappers['main'].batch_size is not an integer, we do not train on
-            #  some of the data
-            for i in range(int(batch.size / self.ap.network_wrappers['main'].batch_size)):
+            for i in range(math.ceil(batch.size / self.ap.network_wrappers['main'].batch_size)):
                 start = i * self.ap.network_wrappers['main'].batch_size
                 end = (i + 1) * self.ap.network_wrappers['main'].batch_size
 

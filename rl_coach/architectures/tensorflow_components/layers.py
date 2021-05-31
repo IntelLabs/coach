@@ -109,7 +109,7 @@ class Conv2d(layers.Conv2d):
     def __init__(self, num_filters: int, kernel_size: int, strides: int):
         super(Conv2d, self).__init__(num_filters=num_filters, kernel_size=kernel_size, strides=strides)
 
-    def __call__(self, input_layer, name: str=None, is_training=None):
+    def __call__(self, input_layer, name: str=None, is_training=None, kernel_initializer=None):
         """
         returns a tensorflow conv2d layer
         :param input_layer: previous layer
@@ -117,7 +117,8 @@ class Conv2d(layers.Conv2d):
         :return: conv2d layer
         """
         return tf.layers.conv2d(input_layer, filters=self.num_filters, kernel_size=self.kernel_size,
-                                strides=self.strides, data_format='channels_last', name=name)
+                                strides=self.strides, data_format='channels_last', name=name,
+                                kernel_initializer=kernel_initializer)
 
     @staticmethod
     @reg_to_tf_instance(layers.Conv2d)
@@ -153,7 +154,7 @@ class BatchnormActivationDropout(layers.BatchnormActivationDropout):
     @staticmethod
     @reg_to_tf_instance(layers.BatchnormActivationDropout)
     def to_tf_instance(base: layers.BatchnormActivationDropout):
-        return BatchnormActivationDropout, BatchnormActivationDropout(
+        return BatchnormActivationDropout(
                 batchnorm=base.batchnorm,
                 activation_function=base.activation_function,
                 dropout_rate=base.dropout_rate)

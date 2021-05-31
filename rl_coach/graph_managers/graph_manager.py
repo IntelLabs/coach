@@ -222,7 +222,8 @@ class GraphManager(object):
         if isinstance(task_parameters, DistributedTaskParameters):
             # the distributed tensorflow setting
             from rl_coach.architectures.tensorflow_components.distributed_tf_utils import create_monitored_session
-            if hasattr(self.task_parameters, 'checkpoint_restore_path') and self.task_parameters.checkpoint_restore_path:
+            if hasattr(self.task_parameters,
+                       'checkpoint_restore_path') and self.task_parameters.checkpoint_restore_path:
                 checkpoint_dir = os.path.join(task_parameters.experiment_path, 'checkpoint')
                 if os.path.exists(checkpoint_dir):
                     remove_tree(checkpoint_dir)
@@ -438,7 +439,8 @@ class GraphManager(object):
         # perform several steps of playing
         count_end = self.current_step_counter + steps
         result = None
-        while self.current_step_counter < count_end or (wait_for_full_episodes and result is not None and not result.game_over):
+        while self.current_step_counter < count_end or (
+                wait_for_full_episodes and result is not None and not result.game_over):
             # reset the environment if the previous episode was terminated
             if self.reset_required:
                 self.reset_internal_state()
@@ -506,8 +508,14 @@ class GraphManager(object):
                 # act for at least `steps`, though don't interrupt an episode
                 count_end = self.current_step_counter + steps
                 while self.current_step_counter < count_end:
+                    # In case of an evaluation-only worker, fake a phase transition before and after every
+                    # episode to make sure results are logged correctly
+                    if self.task_parameters.evaluate_only is not None:
+                        self.phase = RunPhase.TEST
                     self.act(EnvironmentEpisodes(1))
                     self.sync()
+                    if self.task_parameters.evaluate_only is not None:
+                        self.phase = RunPhase.TRAIN
         if self.should_stop():
             self.flush_finished()
             screen.success("Reached required success rate. Exiting.")
@@ -555,7 +563,7 @@ class GraphManager(object):
         if self.task_parameters.checkpoint_restore_path:
             if os.path.isdir(self.task_parameters.checkpoint_restore_path):
                 # a checkpoint dir
-                if self.task_parameters.framework_type == Frameworks.tensorflow and\
+                if self.task_parameters.framework_type == Frameworks.tensorflow and \
                         'checkpoint' in os.listdir(self.task_parameters.checkpoint_restore_path):
                     # TODO-fixme checkpointing
                     # MonitoredTrainingSession manages save/restore checkpoints autonomously. Doing so,
@@ -717,7 +725,8 @@ class GraphManager(object):
             self.memory_backend = get_memory_backend(self.agent_params.memory.memory_backend_params)
 
     def should_stop(self) -> bool:
-        return self.task_parameters.apply_stop_condition and all([manager.should_stop() for manager in self.level_managers])
+        return self.task_parameters.apply_stop_condition and all(
+            [manager.should_stop() for manager in self.level_managers])
 
     def get_data_store(self, param):
         if self.data_store:
@@ -727,10 +736,10 @@ class GraphManager(object):
 
     def signal_ready(self):
         if self.task_parameters.checkpoint_save_dir and os.path.exists(self.task_parameters.checkpoint_save_dir):
-                open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.TRAINER_READY.value), 'w').close()
+            open(os.path.join(self.task_parameters.checkpoint_save_dir, SyncFiles.TRAINER_READY.value), 'w').close()
         if hasattr(self, 'data_store_params'):
-                data_store = self.get_data_store(self.data_store_params)
-                data_store.save_to_store()
+            data_store = self.get_data_store(self.data_store_params)
+            data_store.save_to_store()
 
     def close(self) -> None:
         """
