@@ -258,8 +258,10 @@ There are [example](https://github.com/IntelLabs/coach/blob/master/rl_coach/pres
     
     https://github.com/deepmind/dm_control
 
-* *Robosuite:*
+* *Robosuite:*<a name="robosuite"></a>
 
+    **__Note:__ To use Robosuite-based environments, please install Coach from the latest cloned repository. It is not yet available as part of the `rl_coach` package on PyPI.**
+    
     Follow the instructions described in the [robosuite documentation](https://robosuite.ai/docs/installation.html) (see note on MuJoCo version [below](#note-on-mujoco-version)).
 
 ### Note on MuJoCo version
