@@ -53,7 +53,7 @@ class RNDNetworkParameters(NetworkParameters):
         self.should_get_softmax_probabilities = False
 
 
-class TD3EXPAlgorithmParameters(TD3AlgorithmParameters):
+class TD3ExplorationAlgorithmParameters(TD3AlgorithmParameters):
     """
         :param rnd_sample_size: (int)
             The number of states in each RND training iteration.
@@ -101,7 +101,7 @@ class TD3EXPAlgorithmParameters(TD3AlgorithmParameters):
 
 class TD3ExplorationAgentParameters(AgentParameters):
     def __init__(self):
-        td3_exp_algorithm_params = TD3EXPAlgorithmParameters()
+        td3_exp_algorithm_params = TD3ExplorationAlgorithmParameters()
         super().__init__(algorithm=td3_exp_algorithm_params,
                          exploration=TD3AgentExplorationParameters(),
                          memory=EpisodicExperienceReplayParameters(),
@@ -136,8 +136,9 @@ class TD3ExplorationAgent(TD3Agent):
         return returns
 
     def prepare_rnd_inputs(self, batch):
-        inputs = {self.ap.algorithm.env_obs_key: self.rnd_obs_stats.normalize(
-                          batch.next_states([self.ap.algorithm.env_obs_key])[self.ap.algorithm.env_obs_key])}
+        env_obs_key = self.ap.algorithm.env_obs_key
+        next_states = batch.next_states([env_obs_key])
+        inputs = {env_obs_key: self.rnd_obs_stats.normalize(next_states[env_obs_key])}
         return inputs
 
     def handle_self_supervised_reward(self, batch):
