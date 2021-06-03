@@ -713,53 +713,53 @@ workflows:
 #            - build_mujoco_env
 #            - golden_test_mujoco
 
-  nightly:
-    triggers:
-      - schedule:
-          cron: "0 1 * * 0-6"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - build_base
-      # NOTE: build_gym/doom/mujoco_env MUST occur after successful build_base stage
-      - build_gym_env:
-          requires:
-            - build_base
-      - build_doom_env:
-          requires:
-            - build_base
-      - build_mujoco_env:
-          requires:
-            - build_base
-      - unit_tests:
-          requires:
-            - build_base
-      - integration_tests:
-          requires:
-            - build_base
-      - functional_tests:
-          requires:
-            - build_base
-#      - functional_test_doom:
+#  nightly:
+#    triggers:
+#      - schedule:
+#          cron: "0 1 * * 0-6"
+#          filters:
+#            branches:
+#              only:
+#                - master
+#    jobs:
+#      - build_base
+#      # NOTE: build_gym/doom/mujoco_env MUST occur after successful build_base stage
+#      - build_gym_env:
+#          requires:
+#            - build_base
+#      - build_doom_env:
+#          requires:
+#            - build_base
+#      - build_mujoco_env:
+#          requires:
+#            - build_base
+#      - unit_tests:
+#          requires:
+#            - build_base
+#      - integration_tests:
+#          requires:
+#            - build_base
+#      - functional_tests:
+#          requires:
+#            - build_base
+##      - functional_test_doom:
+##          requires:
+##            - build_doom_env
+##            - functional_tests
+##      - functional_test_mujoco:
+##          requires:
+##            - build_mujoco_env
+##            - functional_test_doom
+#      - golden_test_gym:
+#          requires:
+#            - build_gym_env
+##            - functional_test_mujoco
+#            - functional_tests
+#      - golden_test_doom:
 #          requires:
 #            - build_doom_env
-#            - functional_tests
-#      - functional_test_mujoco:
+#            - golden_test_gym
+#      - golden_test_mujoco:
 #          requires:
 #            - build_mujoco_env
-#            - functional_test_doom
-      - golden_test_gym:
-          requires:
-            - build_gym_env
-#            - functional_test_mujoco
-            - functional_tests
-      - golden_test_doom:
-          requires:
-            - build_doom_env
-            - golden_test_gym
-      - golden_test_mujoco:
-          requires:
-            - build_mujoco_env
-            - golden_test_doom
+#            - golden_test_doom
