@@ -444,6 +444,7 @@ class VisualizationParameters(Parameters):
                  dump_signals_to_csv_every_x_episodes=5,
                  dump_gifs=False,
                  dump_mp4=False,
+                 dump_pickle=False,
                  video_dump_methods=None,
                  dump_in_episode_signals=False,
                  dump_parameters_documentation=True,
@@ -466,6 +467,9 @@ class VisualizationParameters(Parameters):
             the filters defined in video_dump_methods.
         :param dump_mp4:
             If set to True, MP4 videos of the environment will be stored into the experiment directory according to
+            the filters defined in video_dump_methods.
+        :param dump_pickle:
+            If set to True, pickles of the environment will be stored into the experiment directory according to
             the filters defined in video_dump_methods.
         :param dump_in_episode_signals:
             If set to True, csv files will be dumped for each episode for inspecting different metrics within the
@@ -509,6 +513,7 @@ class VisualizationParameters(Parameters):
         self.dump_csv = dump_csv
         self.dump_gifs = dump_gifs
         self.dump_mp4 = dump_mp4
+        self.dump_pickle = dump_pickle
         self.dump_signals_to_csv_every_x_episodes = dump_signals_to_csv_every_x_episodes
         self.dump_in_episode_signals = dump_in_episode_signals
         self.dump_parameters_documentation = dump_parameters_documentation
