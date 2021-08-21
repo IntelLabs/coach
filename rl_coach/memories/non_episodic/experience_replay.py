@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Generator
 import pickle
 import random
 import math
@@ -92,7 +92,7 @@ class ExperienceReplay(Memory):
         self.reader_writer_lock.release_writing()
         return batch
 
-    def get_shuffled_training_data_generator(self, size: int) -> List[Transition]:
+    def get_shuffled_training_data_generator(self, size: int) -> Generator[List[Transition], None, None]:
         """
         Get an generator for iterating through the shuffled replay buffer, for processing the data in epochs.
         If the requested size is larger than the number of samples available in the replay buffer then the batch will
