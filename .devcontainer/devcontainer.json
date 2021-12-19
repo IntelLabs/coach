@@ -1,0 +1,63 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.166.1/containers/docker-existing-dockerfile
+{
+	"name": "dev_container",
+	// Sets the run context to one level up instead of the .devcontainer folder.
+	"context": "..",
+	// Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+	"dockerFile": "Dockerfile",
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"workbench.editorAssociations": [
+			{
+				"viewType": "jupyter-notebook",
+				"filenamePattern": "*.ipynb"
+			}
+		],
+		"editor.formatOnSave": true,
+		"editor.formatOnPaste": false,
+		"editor.formatOnType": true,
+		"python.formatting.provider": "black",
+		"python.formatting.blackArgs": [
+			"--line-length",
+			"120"
+		],
+		"editor.fontFamily": "Fira Code",
+		"python.languageServer": "Pylance",
+		"python.analysis.typeCheckingMode": "basic",
+		"window.zoomLevel": 3.3,
+		"editor.fontSize": 15,
+		"terminal.integrated.fontWeight": null,
+		"editor.minimap.enabled": false,
+		"jupyter.askForKernelRestart": false,
+		"editor.fontLigatures": true,
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"coenraads.bracket-pair-colorizer",
+		"ms-toolsai.jupyter",
+		"felixfbecker.php-intellisense",
+		"ms-python.vscode-pylance",
+		"ms-python.python",
+		"tht13.python",
+	],
+	// Uncomment the next line to run commands after the container is created - for example installing curl.
+	// "postCreateCommand": "apt-get update && apt-get install -y curl",
+	// Uncomment when using a ptrace-based debugger like C++, Go, and Rust
+	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
+	// Uncomment to use the Docker CLI from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker.
+	"mounts": [
+		"source=/home/theovincent/MVA/ObjectRecognition/LearningToAct/,target=/home/developer/LearningToAct,type=bind",
+	],
+	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "developer",
+	// This is to launch a GUI app from the container
+	"runArgs": [
+		"--net",
+		"host",
+		"-e",
+		"DISPLAY=${env:DISPLAY}",
+		"-v",
+		"/tmp/.X11-unix:/tmp/.X11-unix"
+	],
+}
