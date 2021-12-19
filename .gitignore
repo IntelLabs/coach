@@ -33,3 +33,4 @@ trace_test*
 .cache/
 *.pyc
 coachenv
+env_container
