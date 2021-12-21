@@ -34,7 +34,6 @@ RUN sudo -E apt-get install libboost-all-dev -y
 RUN sudo -E apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran -y
 
 # PyGame
-RUN sudo -E apt-get install libsdl-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev
-libsmpeg-dev libportmidi-dev libavformat-dev libswscale-dev -y
+RUN sudo -E apt-get install libsdl-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsmpeg-dev libportmidi-dev libavformat-dev libswscale-dev -y
 
 USER $USERNAME
