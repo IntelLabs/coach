@@ -374,22 +374,23 @@ gcloud compute instances create training-vm --project=directfutureprediction --z
 # Set .ssh/config locally so that we launch at IP with theo.vincent
 ssh DirectFuturePredictionTrain
 # Download docker
+sudo apt-get update
 sudo apt-get install docker.io
 # Allow non-root user to use it
 sudo chmod 666 /var/run/docker.sock
-cp -r .ssh ../ubuntu
+sudo cp -r .ssh ../ubuntu
 exit
 # Set .ssh/config locally so that we launch at IP with ubuntu
 ssh DirectFuturePredictionTrain
-mkdir -p /home/theovincent/MVA/ObjectRecognition/LearningToAct/
+sudo mkdir -p /home/theovincent/MVA/ObjectRecognition/LearningToAct/
 cd /home/theovincent/MVA/ObjectRecognition/LearningToAct/
-echo "export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom" >> ~/.bash_rc
 git clone git@github.com:theovincent/coach.git
 cd coach
 git checkout # Lastest branch
-python -m venv env_container
-pip install -e .
 cd ..
 git clone git@github.com:mwydmuch/ViZDoom.git
-cd coach
+# Open the devcontainer from vs-code to build the dev-container
+python -m venv env_container
+pip install -e .
+echo "export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom" >> ~/.bash_rc
 ```
