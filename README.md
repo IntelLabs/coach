@@ -369,8 +369,13 @@ Create a virtual environment and install coach has an editable package.
 export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom
 
 ```Bash
+# Build a VM with compute engine having ubuntu, http(s) connections and remove vTPM security but allow your ssh public key.
 # Set .ssh/config locally so that we launch at IP with theo.vincent
 ssh DirectFuturePrediction
+# Download docker
+sudo apt-get install docker.io
+# Allow non-root user to use it
+...
 cp -r .ssh ../ubuntu
 exit
 # Set .ssh/config locally so that we launch at IP with ubuntu
