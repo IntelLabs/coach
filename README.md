@@ -391,6 +391,8 @@ cd ..
 git clone git@github.com:mwydmuch/ViZDoom.git
 # Open the devcontainer from vs-code to build the dev-container
 python -m venv env_container
+source env_container/bin/activate
+pip install --upgrade pip
 pip install -e .
-echo "export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom" >> ~/.bash_rc
+echo "export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom" >> ~/.bashrc
 ```
