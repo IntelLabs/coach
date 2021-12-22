@@ -358,3 +358,31 @@ The Coach development team can also be contacted over [email](mailto:coach@intel
 
 Coach is released as a reference code for research purposes. It is not an official Intel product, and the level of quality and support may not be as expected from an official product. 
 Additional algorithms and environments are planned to be added to the framework. Feedback and contributions from the open source and RL research communities are more than welcome.
+
+
+## With GCP Compute Engine
+Connect to the virtual machine and copy the .ssh folder to ubuntu user.
+Connect from local host by ssh with ubuntu user.
+Clone repository this at /home/theovincent/MVA/ObjectRecognition/LearningToAct/
+Open the devcontainer from vs-code.
+Create a virtual environment and install coach has an editable package.
+export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom
+
+```Bash
+# Set .ssh/config locally so that we launch at IP with theo.vincent
+ssh DirectFuturePrediction
+cp -r .ssh ../ubuntu
+exit
+# Set .ssh/config locally so that we launch at IP with ubuntu
+mkdir -p /home/theovincent/MVA/ObjectRecognition/LearningToAct/
+cd /home/theovincent/MVA/ObjectRecognition/LearningToAct/
+echo "export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom" >> ~/.bash_rc
+git clone git@github.com:theovincent/coach.git
+cd coach
+git checkout # Lastest branch
+python -m venv env_container
+pip install -e .
+cd ..
+git clone git@github.com:mwydmuch/ViZDoom.git
+cd coach
+```
