@@ -370,34 +370,31 @@ export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom
 
 ```Bash
 # Build a VM with compute engine having debian bullseye (same as Dockerfile), http(s) connections and remove vTPM security but allow your ssh public key.
-gcloud compute instances create training-vm --project=directfutureprediction --zone=us-central1-a --machine-type=custom-8-16384 --network-interface=network-tier=PREMIUM,subnet=default --metadata=block-project-ssh-keys=true,ssh-keys=$SSH_KEY --maintenance-policy=TERMINATE --service-account=414878125332-compute@developer.gserviceaccount.com --scopes=https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/trace.append --accelerator=count=1,type=nvidia-tesla-t4 --enable-display-device --tags=http-server,https-server --create-disk=auto-delete=yes,boot=yes,device-name=training-vm,image=projects/debian-cloud/global/images/debian-11-bullseye-v20211209,mode=rw,size=35,type=projects/directfutureprediction/zones/us-central1-a/diskTypes/pd-balanced --no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring --reservation-affinity=any
 # Set .ssh/config locally so that we launch at IP with theo.vincent
 ssh DirectFuturePredictionTrain
 # Download docker
 sudo apt-get update
-sudo apt-get install docker.io
+sudo apt-get install docker.io htop -y
 # Allow non-root user to use it
 sudo chmod 666 /var/run/docker.sock
-sudo cp -r .ssh ../ubuntu
-exit
-# Set .ssh/config locally so that we launch at IP with ubuntu
-ssh DirectFuturePredictionTrain
 sudo mkdir -p /home/theovincent/MVA/ObjectRecognition/LearningToAct/
+sudo chown -R theo.vincent:theo.vincent ../theovincent/
 cd /home/theovincent/MVA/ObjectRecognition/LearningToAct/
 git clone git@github.com:theovincent/coach.git
 cd coach
 git checkout # Lastest branch
 cd ..
 git clone git@github.com:mwydmuch/ViZDoom.git
-# Open the devcontainer from vs-code to build the dev-container
+# Open the devcontainer from vs-code to build the dev-container in the folder coach
 python -m venv env_container
 source env_container/bin/activate
 pip install --upgrade pip
 pip install -e .
 echo "export VIZDOOM_ROOT=/home/developer/LearningToAct/ViZDoom" >> ~/.bashrc
 cd ..
+# For GPU usage only
 curl https://raw.githubusercontent.com/GoogleCloudPlatform/compute-gpu-installation/main/linux/install_gpu_driver.py --output install_gpu_driver.py
 # Remove linux-headers-{kernel_version} line 243 from the installed packages
 sudo python3 install_gpu_driver.py 
 sudo apt install cuda
-```
+```pip install -e .
